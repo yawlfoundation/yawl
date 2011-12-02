@@ -22,7 +22,8 @@
      xmlns:f="http://java.sun.com/jsf/core"
      xmlns:ui="http://www.sun.com/web/ui">
 
-    <f:subview id="pfQueueUI">
+    <f:subview id="pfOrgData">
+
         <ui:label binding="#{pfOrgData.lblItems}"
                   for="lbxItems"
                   id="lblItems"

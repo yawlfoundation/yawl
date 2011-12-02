@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.FacesException;
 import javax.faces.event.ValueChangeEvent;
+import java.io.UnsupportedEncodingException;
 
 /*
  * Fragment bean for org data form
@@ -374,17 +375,17 @@ public class pfOrgData extends AbstractFragmentBean {
             if (hasCyclicReferences(attrib, belongsToID)) return false;
 
             setCommonFields(attrib);
-
+            String name = toUTF8((String) txtName.getText());
             if (attrib instanceof Capability) {
-                ((Capability) attrib).setCapability((String) txtName.getText());
+                ((Capability) attrib).setCapability(name);
             }
             else if (attrib instanceof Role) {
-                ((Role) attrib).setName((String) txtName.getText());
+                ((Role) attrib).setName(name);
                 Role owner = orgDataSet.getRole(belongsToID) ;
                 ((Role) attrib).setOwnerRole(owner);
             }
             else if (attrib instanceof Position) {
-                ((Position) attrib).setTitle((String) txtName.getText());
+                ((Position) attrib).setTitle(name);
                 Position boss = orgDataSet.getPosition(belongsToID);
                 ((Position) attrib).setReportsTo(boss);
 
@@ -393,7 +394,7 @@ public class pfOrgData extends AbstractFragmentBean {
                 ((Position) attrib).setOrgGroup(group);
             }
             else if (attrib instanceof OrgGroup) {
-                ((OrgGroup) attrib).setGroupName((String) txtName.getText());
+                ((OrgGroup) attrib).setGroupName(name);
                 OrgGroup group = orgDataSet.getOrgGroup(belongsToID);
                 ((OrgGroup) attrib).setBelongsTo(group);
                 String groupType = ((String) cbbGroup.getSelected()).toUpperCase();
@@ -436,7 +437,7 @@ public class pfOrgData extends AbstractFragmentBean {
 
 
     public boolean addNewItem(String activeTab) {
-        String newName = (String) txtName.getText();
+        String newName = toUTF8((String) txtName.getText());
         if (newName == null) {
             msgPanel.error("Please enter a name for the new Item.");
             return false;
@@ -446,7 +447,7 @@ public class pfOrgData extends AbstractFragmentBean {
 
         if (activeTab.equals("tabRoles")) {
             if (! orgDataSet.isKnownRoleName(newName)) {
-                Role role = new Role((String) txtName.getText()) ;
+                Role role = new Role(newName) ;
                 role.setOwnerRole(orgDataSet.getRole(belongsToID));
                 setCommonFields(role);
                 orgDataSet.addRole(role);
@@ -459,7 +460,7 @@ public class pfOrgData extends AbstractFragmentBean {
         }
         else if (activeTab.equals("tabCapability")) {
             if (! orgDataSet.isKnownCapabilityName(newName)) {
-                Capability capability = new Capability((String) txtName.getText(), null);
+                Capability capability = new Capability(newName, null);
                 setCommonFields(capability);
                 orgDataSet.addCapability(capability);
                 lbxItems.setSelected(capability.getID());
@@ -471,7 +472,7 @@ public class pfOrgData extends AbstractFragmentBean {
         }
         else if (activeTab.equals("tabPosition")) {
             if (! orgDataSet.isKnownPositionName(newName)) {
-                Position position = new Position((String) txtName.getText());
+                Position position = new Position(newName);
                 position.setReportsTo(orgDataSet.getPosition(belongsToID));
                 position.setOrgGroup(orgDataSet.getOrgGroup((String) cbbGroup.getSelected()));
                 setCommonFields(position);
@@ -486,7 +487,7 @@ public class pfOrgData extends AbstractFragmentBean {
         else if (activeTab.equals("tabOrgGroup")) {
             if (! orgDataSet.isKnownOrgGroupName(newName)) {
                 OrgGroup orgGroup = new OrgGroup();
-                orgGroup.setGroupName((String) txtName.getText());
+                orgGroup.setGroupName(newName);
                 orgGroup.setBelongsTo(orgDataSet.getOrgGroup(belongsToID));
                 orgGroup.set_groupType(((String) cbbGroup.getSelected()).toUpperCase().trim());
                 setCommonFields(orgGroup);
@@ -505,7 +506,7 @@ public class pfOrgData extends AbstractFragmentBean {
 
 
     private boolean isValidNameChange(AbstractResourceAttribute attrib) {
-        String name = (String) txtName.getText();
+        String name = toUTF8((String) txtName.getText());
         if (attrib instanceof Capability) {
             if (! name.equals(((Capability) attrib).getCapability())) {  // if name changed
                 if (orgDataSet.isKnownCapabilityName(name)) {
@@ -543,8 +544,8 @@ public class pfOrgData extends AbstractFragmentBean {
 
 
     private void setCommonFields(AbstractResourceAttribute attrib) {
-        attrib.setDescription((String) txtDesc.getText());
-        attrib.setNotes((String) txtNotes.getText());
+        attrib.setDescription(toUTF8((String) txtDesc.getText()));
+        attrib.setNotes(toUTF8((String) txtNotes.getText()));
     }
 
 
@@ -592,6 +593,21 @@ public class pfOrgData extends AbstractFragmentBean {
             result[i] = new Option(StringUtil.capitalise(groupTypes[i].name()));
         }
         return result;
+    }
+    
+    /*
+    This method is required to workaround a bug in JSF 1.2 page fragments, where the
+    encoding for the fragment can't be changed from the default ISO-8859-1 when the
+    parent form contains a file upload component
+     */
+    private String toUTF8(String s) {
+        if (s == null) return s;
+        try {
+            return new String(s.getBytes("ISO-8859-1"), "UTF-8");
+        }
+        catch (UnsupportedEncodingException uee) {
+            return s;
+        }
     }
 
 }

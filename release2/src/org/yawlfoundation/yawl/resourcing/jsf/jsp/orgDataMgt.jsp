@@ -109,6 +109,10 @@
                             </ui:tab>
                         </ui:tabSet>
 
+                            <div style="position: absolute;">
+                                <jsp:directive.include file="pfOrgData.jspf"/>
+                            </div>
+
                             <ui:button binding="#{orgDataMgt.btnExport}"
                                        action="#{orgDataMgt.btnExport_action}"
                                        id="btnExport"
@@ -134,10 +138,6 @@
                                    toolTip="Refresh"
                                    text=""/>
 
-                        <div style="position: absolute;">
-                            <jsp:directive.include file="pfOrgData.jspf"/>
-                        </div>
-                            
                             <ui:panelLayout binding="#{SessionBean.pnlUploadBlockout}"
                                             id="uploadBlockoutPanel"
                                             styleClass="transPanel"
@@ -177,7 +177,6 @@
                                            text="Cancel"/>
 
                             </ui:panelLayout>
-
 
                             <div><jsp:include page="pfMsgPanel.jspf"/></div>
                         </ui:panelLayout>
