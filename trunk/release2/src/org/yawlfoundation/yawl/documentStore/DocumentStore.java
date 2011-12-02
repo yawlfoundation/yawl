@@ -37,15 +37,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A storage cache for binary files passed as work item data.
+ *
  * @author Michael Adams
  * @date 18/11/11
  */
 public class DocumentStore extends HttpServlet {
     
-    private Sessions _sessions;
-    private HibernateEngine _db;
-    private String _engineLogonName;
-    private String _engineLogonPassword;
+    private Sessions _sessions;            // maintains sessions with external services
+    private HibernateEngine _db;           // communicates with underlying database
 
 
     public void init() {
@@ -57,11 +57,11 @@ public class DocumentStore extends HttpServlet {
         
         // set up session connections
         ServletContext context = getServletContext();
-        _engineLogonName = context.getInitParameter("EngineLogonUserName");
-        _engineLogonPassword = context.getInitParameter("EngineLogonPassword");
-        String iaURI = context.getInitParameter("InterfaceA_Backend");
         _sessions = new Sessions();
-        _sessions.setupInterfaceA(iaURI, _engineLogonName, _engineLogonPassword);
+        _sessions.setupInterfaceA(
+                context.getInitParameter("InterfaceA_Backend"),
+                context.getInitParameter("EngineLogonUserName"),
+                context.getInitParameter("EngineLogonPassword"));
     }
 
 
@@ -80,6 +80,8 @@ public class DocumentStore extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse res)
                                throws IOException {
         try {
+
+            // all request parameters are passed via the request's input stream
             DataInputStream dis = new DataInputStream(
                     new BufferedInputStream(req.getInputStream()));
             String action = dis.readUTF();
@@ -126,7 +128,12 @@ public class DocumentStore extends HttpServlet {
     }
 
 
-    
+    /**
+     * Writes a binary file to a response's output stream
+     * @param res the response
+     * @param doc a YDocument wrapper containing the binary file
+     * @throws IOException if there's a problem writing to the stream
+     */
     private void writeDocument(HttpServletResponse res, YDocument doc) throws IOException {
         if (doc != null) {
             res.setContentType("multipart/form-data");
@@ -139,23 +146,31 @@ public class DocumentStore extends HttpServlet {
     }
 
 
+    /**
+     * Writes a UTF-8 String to a response's output stream
+     * @param res the response
+     * @param msg the message to write
+     * @param tag the xml tag to wrap the message in
+     * @throws IOException if there's a problem writing to the stream
+     */
     private void writeString(HttpServletResponse res, String msg, String tag)
             throws IOException {
         if (msg != null) {
             res.setContentType("text/xml; charset=UTF-8");
             OutputStreamWriter out = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
-            out.write(responseMsg(msg, tag));
+            out.write(StringUtil.wrap(msg, tag));
             out.flush();
             out.close();
         }
     }
-    
-    
-    private String responseMsg(String core, String tag) {
-        return StringUtil.wrap(core, tag);
-    }
 
 
+    /**
+     * Reads a document from the database
+     * @param id the id of the document to read
+     * @return a YDocument wrapper for the document
+     * @throws IOException if no document can be found with the id passed
+     */
     private YDocument getDocument(long id) throws IOException {
         try {
             return (YDocument) _db.load(YDocument.class, id);
@@ -166,9 +181,17 @@ public class DocumentStore extends HttpServlet {
     }
 
 
+    /**
+     * Writes a document to the database
+     * @param doc a YDocument wrapper for the document to write
+     * @return the id (primary key) of the stored document
+     * @throws IOException if the document can't be read from the request stream
+     */
     private long putDocument(YDocument doc) throws IOException {
         if (doc.getDocumentSize() > 0) {
             if (doc.hasValidId()) {
+
+                // getDocument will propagate an exception if the id is unknown
                 YDocument existingDoc = getDocument(doc.getId());
                 existingDoc.setDocument(doc.getDocument());
                 _db.exec(existingDoc, HibernateEngine.DB_UPDATE, true);
@@ -182,6 +205,11 @@ public class DocumentStore extends HttpServlet {
     }
 
 
+    /**
+     * Removes a document from the database
+     * @param id the id of the document to remove
+     * @return true if successful
+     */
     private boolean removeDocument(long id) {
         try {
             YDocument doc = (YDocument) _db.load(YDocument.class, id);
@@ -191,8 +219,13 @@ public class DocumentStore extends HttpServlet {
             return false;
         }
     }
-    
-    
+
+
+    /**
+     * Removes all the documents from the database that match the case id passed
+     * @param id the case id to remove documents for
+     * @return a message indicating success or otherwise
+     */
     private String clearCase(String id) {
         StringBuilder sb = new StringBuilder(64);
         sb.append("delete from YDocument as yd where yd.caseId='").append(id).append("'");
