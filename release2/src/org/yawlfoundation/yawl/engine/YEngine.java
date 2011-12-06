@@ -921,48 +921,41 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public String getStateTextForCase(YIdentifier caseID) {
-        _logger.debug("--> getStateTextForCase: ID=" + caseID.get_idString());        
-        StringBuilder stateText = new StringBuilder();
-        stateText.append("#######################################" +
-                "######################\r\n" + "CaseID: ")
-                .append(caseID)
-                .append("\r\n" + "Spec:   ")
-                .append(_runningCaseIDToSpecMap.get(caseID))
-                .append("\r\n" + "###############################" +
-                        "##############################\r\n");
+    private Set<YNetElement> getCaseLocations(YIdentifier caseID) {
         Set<YNetElement> allLocations = new HashSet<YNetElement>();
         for (YIdentifier identifier : caseID.getDescendants()) {
             allLocations.addAll(identifier.getLocations());
         }
-        for (YNetElement element : allLocations) {
+        return allLocations;
+    }
+
+
+    public String getStateTextForCase(YIdentifier caseID) {
+        _logger.debug("--> getStateTextForCase: ID=" + caseID.get_idString()); 
+        String cr = System.getProperty("line.separator");
+        String hashLine = StringUtil.repeat('#', 60);
+        StringBuilder stateText = new StringBuilder();
+        stateText.append(hashLine).append(cr)
+                 .append("CaseID: ").append(caseID).append(cr)
+                 .append("Spec:   ").append(_runningCaseIDToSpecMap.get(caseID))
+                 .append(cr).append(hashLine).append(cr);
+        for (YNetElement element : getCaseLocations(caseID)) {
+            stateText.append("CaseIDs in: ").append(element.toString()).append(cr);
             if (element instanceof YCondition) {
-                stateText.append("CaseIDs in: ")
-                        .append(element.toString())
-                        .append("\r\n");
-                stateText.append("\thashcode ")
-                        .append(element.hashCode())
-                        .append("\r\n");
+                stateText.append("\thashcode: ").append(element.hashCode()).append(cr);
                 for (YIdentifier identifier : ((YConditionInterface) element).getIdentifiers()) {
-                    stateText.append("\t")
-                            .append(identifier.toString())
-                            .append("\r\n");
+                    stateText.append('\t').append(identifier.toString()).append(cr);
                 }
             }
             else if (element instanceof YTask) {
-                stateText.append("CaseIDs in: ")
-                        .append(element.toString())
-                        .append("\r\n");
                 YTask task = (YTask) element;
                 for (YInternalCondition internalCondition : task.getAllInternalConditions()) {
                     if (internalCondition.containsIdentifier()) {
-                        stateText.append("\t")
-                                .append(internalCondition.toString())
-                                .append("\r\n");
+                        stateText.append('\t').append(internalCondition.toString())
+                                 .append(cr);
                         for (YIdentifier identifier : internalCondition.getIdentifiers()) {
-                            stateText.append("\t\t")
-                                    .append(identifier.toString())
-                                    .append("\r\n");
+                            stateText.append("\t\t").append(identifier.toString())
+                                    .append(cr);
                         }
                     }
                 }
@@ -970,66 +963,63 @@ public class YEngine implements InterfaceADesign,
         }
         return stateText.toString();
     }
-
-
+    
+    
     public String getStateForCase(YIdentifier caseID) {
-        Set<YNetElement> allLocations = new HashSet<YNetElement>();
-        for (YIdentifier identifier : caseID.getDescendants()) {
-            allLocations.addAll(identifier.getLocations());
-        }
         YSpecification spec = _runningCaseIDToSpecMap.get(caseID);
-        StringBuilder stateText = new StringBuilder();
-        stateText.append(String.format("<caseState caseID=\"%s\" specID=\"%s\">",
-                caseID, spec.getSpecificationID().toString()));
-        for (YNetElement element : allLocations) {
+        if (spec == null) {
+            return "<caseState/>";
+        }
+        XNode stateNode = new XNode("caseState");
+        stateNode.addAttribute("caseID", caseID);
+        stateNode.addAttribute("specID", spec.getSpecificationID().toString());
+        for (YNetElement element : getCaseLocations(caseID)) {
             if (element instanceof YCondition) {
-                YCondition condition = (YCondition) element;   
-                stateText.append(
-                        String.format("<condition id=\"%s\" name=\"%s\" documentation=\"%s\">",
-                                condition.toString(), condition.getName(),
-                                condition.getDocumentation()));
+                YCondition condition = (YCondition) element; 
+                XNode conditionNode = stateNode.addChild("condition");
+                conditionNode.addAttribute("id", condition.toString());
+                conditionNode.addAttribute("name", condition.getName());
+                conditionNode.addAttribute("documentation", condition.getDocumentation());
                 for (YIdentifier identifier : condition.getIdentifiers()) {
-                    stateText.append(StringUtil.wrap(identifier.toString(), "identifier"));
+                    conditionNode.addChild("identifier", identifier.toString());
                 }
-                stateText.append("<flowsInto>");
+                XNode flowsIntoNode = conditionNode.addChild("flowsInto");
                 for (YFlow flow : condition.getPostsetFlows()) {
                     String doc = (flow.getDocumentation() != null) ?
                             flow.getDocumentation() : "";
-                    stateText.append(
-                            String.format("<nextElementRef id=\"%s\" documentation=\"%s\">",
-                                    flow.getNextElement().getID(), doc));
+                    XNode nextRefNode = flowsIntoNode.addChild("nextElementRef");
+                    nextRefNode.addAttribute("id", flow.getNextElement().getID());
+                    nextRefNode.addAttribute("documentation", doc);
                 }
-                stateText.append("</flowsInto></condition>");
             }
             else if (element instanceof YTask) {
                 YTask task = (YTask) element;
-                stateText.append(String.format("<task id=\"%s\" name=\"%s\">",
-                        task.toString(), task.getDecompositionPrototype().getID()));
+                XNode taskNode = stateNode.addChild("task");
+                taskNode.addAttribute("id", task.toString());
+                taskNode.addAttribute("name", task.getDecompositionPrototype().getID());
                 for (YInternalCondition internalCondition : task.getAllInternalConditions()) {
                     if (internalCondition.containsIdentifier()) {
-                        stateText.append(internalCondition.toXML());
+                        taskNode.addChild(internalCondition.toXNode());
                     }
                 }
-                stateText.append("</task>");
             }
         }
-        stateText.append("</caseState>");
-        return stateText.toString();
+        return stateNode.toString();
     }
+
 
 
     public String getCaseData(String caseID) throws YStateException {
 
         // if this is for a sub-net, act accordingly
-        if (caseID.indexOf(".") > -1) return getNetData(caseID) ;
+        if (caseID.contains(".")) return getNetData(caseID) ;
 
         YIdentifier id = getCaseID(caseID);
-        if (id == null) {
-            throw new YStateException("Received invalid case id '" + caseID + "'.");
+        if (id != null) {
+           YNetRunner runner = _netRunnerRepository.get(id);
+           return runner.getNetData().getData();
         }
-
-        YNetRunner runner = _netRunnerRepository.get(id);
-        return runner.getNetData().getData();
+        throw new YStateException("Invalid case id '" + caseID + "'.");
     }
 
     /**
@@ -1370,8 +1360,10 @@ public class YEngine implements InterfaceADesign,
             throws YStateException, YDataStateException, YQueryException,
                    YPersistenceException, YEngineStateException {
         YWorkItem item = getWorkItem(itemID);
-        if (item == null) throw new YStateException("No work item found with id = " + itemID);
-        return startWorkItem(item, client);
+        if (item != null) {
+            return startWorkItem(item, client);
+        }
+        throw new YStateException("No work item found with id = " + itemID);
     }
 
 
@@ -2286,6 +2278,5 @@ public class YEngine implements InterfaceADesign,
     public void disableProcessLogging() {
         _yawllog.disable();
     }
-
 
 }
