@@ -60,13 +60,12 @@
                                         id="compPanel"
                                         styleClass="dynformOuterPanel"/>
 
-                            <ui:button action="#{dynForm.btnCancel_action}"
-                                       binding="#{dynForm.btnCancel}"
-                                       id="btnCancel"
-                                       text="Cancel"
-                                       immediate="true"
+                            <ui:button action="#{dynForm.btnComplete_action}"
+                                       binding="#{dynForm.btnComplete}"
+                                       id="btnComplete"
+                                       text="Complete"
                                        styleClass="dynformButton"
-                                       style="#{DynFormFactory.btnCancelStyle}"/>
+                                       style="#{DynFormFactory.btnCompleteStyle}"/>
 
                             <ui:button action="#{dynForm.btnOK_action}"
                                        binding="#{dynForm.btnOK}"
@@ -74,12 +73,13 @@
                                        styleClass="dynformButton"
                                        style="#{DynFormFactory.btnOKStyle}"/>
 
-                            <ui:button action="#{dynForm.btnComplete_action}"
-                                       binding="#{dynForm.btnComplete}"
-                                       id="btnComplete"
-                                       text="Complete"
+                            <ui:button action="#{dynForm.btnCancel_action}"
+                                       binding="#{dynForm.btnCancel}"
+                                       id="btnCancel"
+                                       text="Cancel"
+                                       immediate="true"
                                        styleClass="dynformButton"
-                                       style="#{DynFormFactory.btnCompleteStyle}"/>
+                                       style="#{DynFormFactory.btnCancelStyle}"/>
 
                             <ui:panelLayout binding="#{dynForm.bottomPanel}"
                                             id="bottomPanel"
