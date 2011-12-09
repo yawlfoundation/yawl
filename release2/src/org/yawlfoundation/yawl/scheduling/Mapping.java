@@ -25,11 +25,14 @@ public class Mapping {
 	private String workItemStatus;
 	private boolean isLocked;
 	
-	public static final String WORKITEM_STATUS_PARENT = "parent",
-														 WORKITEM_STATUS_CHECKOUT = "checkout",
-														 WORKITEM_STATUS_CACHED = "cached",
-														 WORKITEM_STATUS_PROCESSING = "processing";
-	
+	public static final String WORKITEM_STATUS_PARENT = "parent";
+    public static final String WORKITEM_STATUS_CHECKOUT = "checkout";
+    public static final String WORKITEM_STATUS_CACHED = "cached";
+    public static final String WORKITEM_STATUS_PROCESSING = "processing";
+
+
+    private Mapping() { }                         // for hibernate
+
 	public Mapping(String workItemId, Integer requestKey, String workItemStatus) {
 		this.workItemId = workItemId;
 		this.requestKey = requestKey;
@@ -87,11 +90,12 @@ public class Mapping {
 	}
 
 	public String toString() {
-		return "{workItemId=" + workItemId + Constants.CSV_DELIMITER + 
-			"requestKey=" + requestKey + Constants.CSV_DELIMITER + 
-			"workItemStatus=" + workItemStatus + Constants.CSV_DELIMITER + 
-			"isLocked=" + isLocked +
-			"}";
-
+        StringBuilder sb = new StringBuilder(128);        
+		sb.append("{workItemId=").append(workItemId).append(Constants.CSV_DELIMITER)
+          .append("requestKey=").append(requestKey).append(Constants.CSV_DELIMITER)
+          .append("workItemStatus=").append(workItemStatus).append(Constants.CSV_DELIMITER)
+          .append("isLocked=").append(isLocked).append("}");
+        return sb.toString();
 	}
+
 }

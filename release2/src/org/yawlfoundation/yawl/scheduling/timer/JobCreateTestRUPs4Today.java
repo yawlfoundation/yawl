@@ -21,8 +21,6 @@ package org.yawlfoundation.yawl.scheduling.timer;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 import org.yawlfoundation.yawl.scheduling.*;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
@@ -42,25 +40,27 @@ import java.util.List;
  * @version $Id$
  *
  */
-public class JobCreateTestRUPs4Today implements Constants, Job {
+public class JobCreateTestRUPs4Today implements Runnable, Constants {
 	private static final Logger logger = Logger.getLogger(JobCreateTestRUPs4Today.class);
 	
 	private SchedulingService service;
 	private Scheduler scheduler;
 	private DataMapper dataMapper;
 	private ConfigManager config;
+    private String context;
 
-	public JobCreateTestRUPs4Today() {
+	public JobCreateTestRUPs4Today(String context) {
 		config = ConfigManager.getInstance();
 		service = SchedulingService.getInstance();
-		scheduler = new Scheduler(config);
+		scheduler = new Scheduler();
 		dataMapper = new DataMapper();
+        this.context = context;
   }
 
   /**
    * sets TO time of running activities to actual time
    */
-	public void execute(JobExecutionContext context) {
+	public void run() {
     try {
   		List<Case> cases = dataMapper.getAllRups();
   		for (Case cas : cases) {
@@ -69,10 +69,9 @@ public class JobCreateTestRUPs4Today implements Constants, Job {
                 .getSchedulingProperty("possibleActivitiesSorted");
   			String[] possibleActivities = Utils.parseCSV(possibleActivitiesSorted).toArray(new String[0]);
   			Element earlFrom = XMLUtils.getEarliestBeginElement(rup, possibleActivities);
+            if (earlFrom == null) continue;
   			Date earlFromDate = XMLUtils.getDateValue(earlFrom, false);
-  			if (earlFromDate == null) {
-  				continue;
-  			}
+  			if (earlFromDate == null) continue;
   			
   			Calendar today = Calendar.getInstance();
   			today.setTime(new Date());
@@ -82,22 +81,15 @@ public class JobCreateTestRUPs4Today implements Constants, Job {
   			cal.set(Calendar.YEAR, today.get(Calendar.YEAR));
   			cal.set(Calendar.MONTH, today.get(Calendar.MONTH));
   			cal.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-  			 			  			
-  			/* set on random start time for testing
-  			cal.set(Calendar.HOUR_OF_DAY, (int)(Math.random()*24));
-  			cal.set(Calendar.MINUTE, (int)(Math.random()*60));
-  			cal.set(Calendar.SECOND, (int)(Math.random()*60));
-  			cal.set(Calendar.MILLISECOND, (int)(Math.random()*1000));*/
-  			
-  			//logger.debug("set from to: " + Utils.date2String(cal.getTime(), Utils.DATETIME_PATTERN));
+
   			XMLUtils.setDateValue(earlFrom, cal.getTime());
   			
   			scheduler.setTimes(rup, earlFrom.getParentElement(), false, false, null);
-  			service.optimizeAndSaveRup(rup, context.getTrigger().getName(), null, false);
+  			service.optimizeAndSaveRup(rup, context, null, false);
   		}
 	}
     catch (Exception e) {
-		logger.error("cannot execute job " + context.getTrigger().getName(), e);
+		logger.error("cannot execute job " + context, e);
 	}
   }
   

@@ -82,7 +82,7 @@ public class DataMapperRupTest
 
 	/**
 	 * Test method for
-	 * {@link DataMapper#saveRup(Case, String)}
+	 * {@link DataMapper#saveRup(Case)}
 	 * .
 	 */
 	@Test
@@ -110,8 +110,9 @@ public class DataMapperRupTest
 			}
 			caseIdElem.setText(caseId);
 			case_ = new Case(caseId, caseName, caseDescription, rup);
+            case_.setSavedBy(savedBy);
 			dataMapper = new DataMapper();
-			dataMapper.saveRup(case_, savedBy);
+			dataMapper.saveRup(case_);
 			// logger.info("Saved RUP to the database");
 		}
 		catch (Exception e)

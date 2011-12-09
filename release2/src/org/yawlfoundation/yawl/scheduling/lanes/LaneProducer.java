@@ -49,7 +49,7 @@ public class LaneProducer implements Constants {
 	public LaneProducer(String categoryOrRoleId, ConfigManager config) throws Exception {
 		this.config = config;
         ResourceServiceInterface rs = ResourceServiceInterface.getInstance();
-		scheduler = new Scheduler(config);
+		scheduler = new Scheduler();
 		dataMapper = new DataMapper();
 		
 		NonHumanCategory category = null;

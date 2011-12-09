@@ -93,7 +93,7 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public boolean setReportsTo(String reportsToID) {
         if (reportsToID != null) {
-            Position owner = _resMgr.getOrgDataSet().getPosition(reportsToID);
+            Position owner = getOrgDataSet().getPosition(reportsToID);
             if (owner != null) {
                 setReportsTo(owner);
                 return true;
@@ -114,7 +114,7 @@ public class Position extends AbstractResourceAttribute implements Comparable {
 
     public boolean setOrgGroup(String groupID) {
         if (groupID != null) {
-            OrgGroup group = _resMgr.getOrgDataSet().getOrgGroup(groupID);
+            OrgGroup group = getOrgDataSet().getOrgGroup(groupID);
             if (group != null) {
                 setOrgGroup(group);
                 return true;

@@ -589,5 +589,12 @@ public class StringUtil
         }
         return foundList;
     }
+    
+    
+    public static String repeat(char c, int count) {
+        char[] chars = new char[count];
+        for (int i=0; i < count; i++) chars[i] = c;
+        return new String(chars);
+    }
 
 }

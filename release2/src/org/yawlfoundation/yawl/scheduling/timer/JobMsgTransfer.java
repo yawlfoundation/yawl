@@ -19,12 +19,13 @@
 package org.yawlfoundation.yawl.scheduling.timer;
 
 import org.apache.log4j.Logger;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.scheduling.Constants;
-import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
 import org.yawlfoundation.yawl.scheduling.SchedulingService;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
+
+import java.util.Date;
 
 
 /**
@@ -35,31 +36,35 @@ import org.yawlfoundation.yawl.scheduling.util.Utils;
  * @version $Id$
  *
  */
-public class JobMsgTransfer implements Constants, Job {
+public class JobMsgTransfer implements Runnable, Constants {
 
-    public JobMsgTransfer() { }
+    private String name;
+    private Element msgTransfer;
+    private String caseId;
+    private Date startTime;
 
-    /**
-     * sets TO time of running activities to actual time
-     */
-    public void execute(JobExecutionContext context) {
+    public JobMsgTransfer(int i, Element msgTransfer, String caseId, Date startTime) {
+        this.name = "MsgTransfer-" + i;
+        this.msgTransfer = msgTransfer;
+        this.caseId = caseId;
+        this.startTime = startTime;
+    }
+
+    public void run() {
         try {
-            SchedulingService ss = SchedulingService.getInstance();
-            String msgTO = (String) context.getJobDetail().getJobDataMap().get(XML_MSGTO);
-            String msgBODY = (String) context.getJobDetail().getJobDataMap().get(XML_MSGBODY);
-            String caseId = (String) context.getJobDetail().getJobDataMap().get(XML_CASEID);
-            msgBODY += ", Zeit: " + Utils.date2String(context.getTrigger().getStartTime(),
-                    Utils.DATETIME_PATTERN);
+            String msgTO = msgTransfer.getChildText(XML_MSGTO);
+            String msgBODY = msgTransfer.getChildText(XML_MSGBODY) + ", Time: " +
+                    Utils.date2String(startTime, Utils.DATETIME_PATTERN);
             String address = PropertyReader.getInstance()
                 .getSchedulingProperty(msgTO + ".Address");
             String addressType = PropertyReader.getInstance()
                 .getSchedulingProperty(msgTO + ".AddressType");
-            ss.sendPushMessage(address, addressType, msgBODY, caseId);
+            SchedulingService.getInstance().sendPushMessage(address, addressType, msgBODY, caseId);
         }
         catch (Exception e) {
-            Logger.getLogger(JobMsgTransfer.class).error(
-                    "cannot execute job " + context.getTrigger().getName(), e);
+            Logger.getLogger(JobMsgTransfer.class).error("Cannot execute job " + name, e);
         }
     }
 
+    
 }

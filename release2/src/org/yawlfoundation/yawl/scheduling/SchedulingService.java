@@ -22,14 +22,15 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.quartz.SchedulerException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
 import org.yawlfoundation.yawl.scheduling.timer.JobTimer;
-import org.yawlfoundation.yawl.scheduling.util.*;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
+import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.Duration;
@@ -67,7 +68,7 @@ public class SchedulingService extends Service {
         _dataMapper = new DataMapper();
         _rs = ResourceServiceInterface.getInstance();
         _pgc = PlanningGraphCreator.getInstance();
-        _scheduler = new Scheduler(this, _config);
+        _scheduler = new Scheduler();
     }
 
 
@@ -110,12 +111,7 @@ public class SchedulingService extends Service {
 
 
     private void updateRup(String caseID) {
-        try {
-            _dataMapper.updateRup(caseID, false);
-        }
-        catch (SQLException e) {
-            _log.error("Cannot update rup for caseID: " + caseID, e);
-        }
+        _dataMapper.updateRup(caseID, false);
     }
 
 
@@ -242,13 +238,15 @@ public class SchedulingService extends Service {
      * @throws IOException
      */
     public void saveRupToDatabase(String caseId, String savedBy, Document rup, String msg)
-            throws JDOMException, SQLException, IOException, SchedulerException {
+            throws JDOMException, SQLException, IOException {
 
         _lastSaveInDB = System.currentTimeMillis();
         _lastSaveInDBMsg = msg + " by " + savedBy;            // for showing in schedule
 
         Case case_ = new Case(caseId, null, null, rup);
-        _dataMapper.saveRup(case_, savedBy);
+        case_.setSavedBy(savedBy);
+        case_.setTimestamp(_lastSaveInDB);
+        _dataMapper.saveRup(case_);
         removeActivityTypes(rup);
     }
 
@@ -271,12 +269,12 @@ public class SchedulingService extends Service {
 
             caseToLoad = new Case(caseId, null, null, doc);
             _log.info("Created empty RUP for case Id " + caseId + ", " +
-                    Utils.document2String(caseToLoad.getRUP(), false));
+                    caseToLoad.getRupAsString());
         }
         else {
             caseToLoad = cases.get(0);
             _log.info("Loaded RUP for case Id " + caseId + " from database: "
-                    + Utils.document2String(caseToLoad.getRUP(), false));
+                    + caseToLoad.getRupAsString());
         }
 
         return caseToLoad;
@@ -981,19 +979,17 @@ public class SchedulingService extends Service {
     public void registerMessageReceiveServlet() {
         Thread thread = new Thread(new Runnable() {
             public void run() {
-                String result = null;
-                String sessionHandle = null;
-                String address = null;
-
+                String address;
                 try {
                     address = _props.getYAWLProperty("SchedulingMessageReceiver.backEndURI");
-                    result = ResourceServiceInterface.getInstance()
+                    String result = ResourceServiceInterface.getInstance()
                               .registerCalendarStatusChangeListener(address);
                     if (result.startsWith("<failure>")) {
                         throw new SchedulingException(result);
                     }
                     _log.info("successfully registered " + address + " as YAWL calendar StatusChangeListener");
-                } catch (Throwable e) {
+                }
+                catch (Throwable e) {
                     _log.error("cannot register MessageReceiveServlet", e);
                 }
             }
@@ -1147,7 +1143,7 @@ public class SchedulingService extends Service {
          */
         private synchronized void process() {
             // noch zu bearbeitende Mappings aus DB laden
-            ArrayList<Mapping> mappings = null;
+            List<Mapping> mappings = null;
             try {
                 getHandle();
 
@@ -1160,24 +1156,16 @@ public class SchedulingService extends Service {
                 for (Mapping mapping : mappings) {
                     try {
                         if (isCancelledWorkitem(mapping.getWorkItemId())) {
-                            String workItemId = mapping.getWorkItemId();
-                            _dataMapper.removeMapping(workItemId, null);
+                            _dataMapper.removeMapping(mapping);
                         } else {
                             processMapping(mapping);
                         }
                     } catch (Throwable e) {
                         _log.error("cannot execute cached mapping, work item: " + mapping.getWorkItemId(), e);
-                        _dataMapper.unlockMapping(mapping);
                     }
                 }
             } catch (Throwable e) {
                 _log.error("cannot process mappings", e);
-                try {
-                    _dataMapper.unlockMappings(mappings);
-                } catch (Exception e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
             }
         }
     }
@@ -1241,7 +1229,6 @@ public class SchedulingService extends Service {
                 }
             } catch (Throwable e) {
                 _log.error("cannot process " + name + " work item: " + mapping.getWorkItemId(), e);
-                _dataMapper.unlockMapping(mapping);
             }
         }
     }

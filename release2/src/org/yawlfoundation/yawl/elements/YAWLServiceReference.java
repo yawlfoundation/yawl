@@ -145,9 +145,9 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
                 if (service == null) {
                     messages.add(new YVerificationMessage(
                                  this,
-                                 "YAWL service[" + _yawlServiceID + "] " +
+                                 "YAWL service [" + _yawlServiceID + "] " +
                                   (_webServiceGateway != null
-                                     ? "at WSGateway[" + _webServiceGateway.getID() + "] "
+                                     ? "at WSGateway [" + _webServiceGateway.getID() + "] "
                                      : " ") + "is not registered with engine.",
                                   YVerificationMessage.WARNING_STATUS));
                 }

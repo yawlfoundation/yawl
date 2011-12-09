@@ -21,8 +21,6 @@ package org.yawlfoundation.yawl.scheduling.timer;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.yawlfoundation.yawl.scheduling.Constants;
 import org.yawlfoundation.yawl.scheduling.SchedulingService;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
@@ -30,11 +28,10 @@ import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -42,37 +39,64 @@ public class JobTimer implements Constants {
 
 	private static final Logger _log = Logger.getLogger(JobTimer.class);
 
-	private static Scheduler _scheduler;
     private static final ScheduledExecutorService _executor =
            Executors.newScheduledThreadPool(1);
 
     private static final PropertyReader _props = PropertyReader.getInstance();
+    
+    private static Map<String, Set<ScheduledFuture<?>>> _msgTransferJobs =
+            new HashMap<String, Set<ScheduledFuture<?>>>();
+
+    private static boolean _initialised;
 
 	public static void initialize()	{
-		if (_scheduler == null)	{
-            try	{
-                SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-                _scheduler = schedulerFactory.getScheduler();
-                _scheduler.start();
+		if (! _initialised)	{
+            try {
                 startJobRUPCheck();
-
-                if (_props.getBooleanProperty(PropertyReader.SCHEDULING, "createTestRUPs4Today"))
-                {
-                    startJobCreateTestRUPs4Today();
+                if (_props.getBooleanProperty(
+                        PropertyReader.SCHEDULING, "createTestRUPs4Today")) {
+                    startTestRUPs4Today();
                 }
             }
             catch (Exception e) {
-                _log.error("cannot instantiate timer", e);
+                _log.error("Cannot instantiate timer", e);
             }
+            _initialised = true;
         }
 	}
 
 
     public static void shutdown() {
+        _msgTransferJobs.clear();
         _executor.shutdown();
     }
 
-    private static void startJobRUPCheck2() throws IOException {
+	public static void startJobMsgTransfer(String caseId, Document rup)
+            throws JobTimerException {
+
+		// delete all existing message transfer jobs for case
+		int i = removeTransferJobs(caseId);
+		_log.debug(i + " message transfer jobs deleted for case " + caseId);
+
+		String xpath = XMLUtils.getXPATH_ActivityElement(null, XML_MSGTRANSFER, null);
+		List msgTransfers = XMLUtils.getXMLObjects(rup, xpath);
+		int transferredCount = 0;
+		for (Object o : msgTransfers) {
+            transferredCount = scheduleMsgTransfer((Element) o, caseId, transferredCount);
+		}
+
+		if (transferredCount == msgTransfers.size()) {
+			_log.info(transferredCount + " message transfer jobs created for case " + caseId);
+		}
+		else {
+			throw new JobTimerException(msgTransfers.size() - transferredCount + " messages failed");
+		}
+	}
+
+
+    /****************************************************************************/
+
+    private static void startJobRUPCheck() throws IOException {
         long interval = _props.getLongProperty(PropertyReader.SCHEDULING, "RUPCheck.Interval");
         _executor.scheduleAtFixedRate(new Runnable() {
             public void run() {
@@ -80,140 +104,99 @@ public class JobTimer implements Constants {
                      SchedulingService.getInstance().updateRunningRups("RUPCheck");
                  }
                  catch (Exception e) {
-                     Logger.getLogger(JobRUPCheck.class).error(
-                             "Cannot execute job RUPCheck", e);
+                     _log.error("Cannot execute job RUPCheck", e);
                  }
             }
         }, 0, interval, TimeUnit.MILLISECONDS);
     }
 
-	private static void startJobRUPCheck() throws SchedulerException, IOException {
-		initialize();
-		String group = "RUPCheck", name = "RUPCheck";
 
-		// Initiate JobDetail with job name, job group, and executable job class
-		JobDetail jobDetail = new JobDetail(name, group, JobRUPCheck.class);
-		SimpleTrigger trigger = new SimpleTrigger(name, group);
+	private static void startTestRUPs4Today() throws IOException {
+        long interval = 24 * 60 * 60 * 1000;   // set the interval to 24 hours, in ms
+        _executor.scheduleAtFixedRate(new JobCreateTestRUPs4Today("CreateTestRUPs4Today"),
+                getNextMidnight() - System.currentTimeMillis(), interval, TimeUnit.MILLISECONDS);
 
-		// set its start up time
-		trigger.setStartTime(new Date());
-
-		// set the interval in ms, how often the job should run
-		// trigger.setRepeatInterval(clazz.getIntervall());
-		Long intervall = _props.getLongProperty(PropertyReader.SCHEDULING, name + ".Intervall");
-		trigger.setRepeatInterval(intervall);
-
-		// set the number of execution of this job. It will run x time and
-		// exhaust.
-		trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-
-		if (_scheduler.deleteJob(name, group))	{
-			_log.debug("RUPCheck job deleted");
-		}
-
-		_scheduler.scheduleJob(jobDetail, trigger);
-		_log.info("job " + name + " is scheduled");
+        // and start one for today
+        new JobCreateTestRUPs4Today("CreateTestRUPs4Today").run();
 	}
 
-	public static void startJobMsgTransfer(String caseId, Document rup)
-            throws SchedulerException {
-		initialize();
-		String group = "MsgTransfer-" + caseId;
 
-		// delete all message transfer jobs for case
-		int i = 0;
-		while (_scheduler.deleteJob(String.valueOf(i++), group));
+    private static int scheduleMsgTransfer(final Element msgTransfer, 
+                                           final String caseId, final int i) {
+        try	{
+            _log.debug(Utils.element2String(msgTransfer, false));
 
-		_log.debug(i + " message transfer jobs deleted for case " + caseId);
+            final Calendar cal = calcMsgTransferStartTime(msgTransfer);
 
-		String xpath = XMLUtils.getXPATH_ActivityElement(null, XML_MSGTRANSFER, null);
-		List<Element> msgTransfers = XMLUtils.getXMLObjects(rup, xpath);
-		i = 0;
-		for (Element msgTransfer : msgTransfers) {
-			try	{
-				_log.debug(Utils.element2String(msgTransfer, false));
-				Element activity = msgTransfer.getParentElement();
-				String name = String.valueOf(i);
+            final ScheduledFuture<?> msgTransferJob = _executor.schedule(
+                    new JobMsgTransfer(i, msgTransfer, caseId, cal.getTime()),
+                    cal.getTimeInMillis(), TimeUnit.MILLISECONDS);
+            addTransferJob(caseId, msgTransferJob);
 
-				// Initiate JobDetail with job name, job group, and executable job class
-				JobDetail jobDetail = new JobDetail(name, group, JobMsgTransfer.class);
-				JobDataMap jobDataMap = new JobDataMap();
-				jobDataMap.put(XML_MSGTO, msgTransfer.getChildText(XML_MSGTO));
-				jobDataMap.put(XML_MSGBODY, msgTransfer.getChildText(XML_MSGBODY));
-				jobDataMap.put(XML_CASEID, caseId);
-				jobDetail.setJobDataMap(jobDataMap);
+            _log.debug("message transfer job " + i + " is scheduled at "
+                    + Utils.date2String(cal.getTime(), Utils.DATETIME_PATTERN) +
+                    " for case " + caseId);
 
-				SimpleTrigger trigger = new SimpleTrigger(name, group);
+            return i + 1;
+        }
+        catch (Exception e)	{
+            XMLUtils.addErrorValue(msgTransfer, true, "msgMsgError", e.getMessage());
+            return i;
+        }
+    }
 
-				// set its start up time
-				Calendar cal = Calendar.getInstance();
-				String msgUtilisationType = msgTransfer.getChildText(XML_MSGUTILISATIONTYPE);
-				if (UTILISATION_TYPE_BEGIN.equals(msgUtilisationType)) {
-					cal.setTime(XMLUtils.getDateValue(activity.getChild(XML_FROM), true));
-				}
-				else {
-					cal.setTime(XMLUtils.getDateValue(activity.getChild(XML_TO), true));
-				}
-				int min = XMLUtils.getDurationValueInMinutes(
-                        msgTransfer.getChild(XML_MSGDURATION), true);
-				if (MSGREL_BEFORE.equals(msgTransfer.getChildText(XML_MSGREL)))	{
-					min = 0 - min;
-				}
-				cal.add(Calendar.MINUTE, min);
-				trigger.setStartTime(cal.getTime());
-				trigger.setRepeatInterval(1);
-				trigger.setRepeatCount(0);
 
-				_scheduler.scheduleJob(jobDetail, trigger);
-				_log.debug("message transfer job " + name + " is scheduled at "
-						+ Utils.date2String(cal.getTime(), Utils.DATETIME_PATTERN) +
-                        " for case " + caseId);
-				i++;
-			}
-			catch (Exception e)	{
-				XMLUtils.addErrorValue(msgTransfer, true, "msgMsgError", e.getMessage());
-			}
-		}
+    private static Calendar calcMsgTransferStartTime(Element msgTransfer) {
+        Calendar cal = Calendar.getInstance();
+        String msgUtilisationType = msgTransfer.getChildText(XML_MSGUTILISATIONTYPE);
+        Element activity = msgTransfer.getParentElement();
+        if (UTILISATION_TYPE_BEGIN.equals(msgUtilisationType)) {
+            cal.setTime(XMLUtils.getDateValue(activity.getChild(XML_FROM), true));
+        }
+        else {
+            cal.setTime(XMLUtils.getDateValue(activity.getChild(XML_TO), true));
+        }
+        int min = XMLUtils.getDurationValueInMinutes(
+                msgTransfer.getChild(XML_MSGDURATION), true);
+        if (MSGREL_BEFORE.equals(msgTransfer.getChildText(XML_MSGREL)))	{
+            min = 0 - min;
+        }
+        cal.add(Calendar.MINUTE, min);
+        return cal;
+    }
 
-		if (i == msgTransfers.size()) {
-			_log.info(i + " message transfer jobs created for case " + caseId);
-		}
-		else {
-			throw new SchedulerException(msgTransfers.size() - i + " messages failed");
-		}
-	}
 
-	private static void startJobCreateTestRUPs4Today()
-            throws SchedulerException, IOException 	{
-		initialize();
-
-		String group = "CreateTestRUPs4Today", name = "CreateTestRUPs4Today";
-
-		// Initiate JobDetail with job name, job group, and executable job class
-		JobDetail jobDetail = new JobDetail(name, group, JobCreateTestRUPs4Today.class);
-		SimpleTrigger trigger = new SimpleTrigger(name, group);
-
-		// set its start up time to today, 00:00.000
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		trigger.setStartTime(cal.getTime());
-
-		// set the interval in ms, how often the job should run, to 24h
-		trigger.setRepeatInterval(24 * 60 * 60 * 1000);
-
-		// set the number of execution of this job. It will run x time and exhaust.
-		trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-
-		if (_scheduler.deleteJob(name, group)) {
-			_log.debug("CreateTestRUPs4Today job deleted");
-		}
-
-		_scheduler.scheduleJob(jobDetail, trigger);
-		_log.info("job " + name + " is scheduled");
-	}
+    private static long getNextMidnight() {
+      	Calendar cal = Calendar.getInstance();
+      	cal.setTime(new Date());
+        cal.roll(Calendar.DATE, true);               // add 1 day to today
+      	cal.set(Calendar.HOUR_OF_DAY, 0);            // set time to midnight
+      	cal.set(Calendar.MINUTE, 0);
+      	cal.set(Calendar.SECOND, 0);
+      	cal.set(Calendar.MILLISECOND, 0);
+      	return cal.getTimeInMillis();
+    }
+    
+    private static void addTransferJob(String caseID, ScheduledFuture<?> scheduledFuture) {
+        Set<ScheduledFuture<?>> futureSet = _msgTransferJobs.get(caseID);
+        if (futureSet == null) {
+            futureSet = new HashSet<ScheduledFuture<?>>();
+            _msgTransferJobs.put(caseID, futureSet);
+        }
+        futureSet.add(scheduledFuture);
+    }
+    
+    
+    private static int removeTransferJobs(String caseID) {
+        int removed = 0;
+        Set<ScheduledFuture<?>> futureSet = _msgTransferJobs.remove(caseID);
+        if (futureSet != null) {
+            removed = futureSet.size();
+            for (ScheduledFuture<?> future : futureSet) {
+                future.cancel(true);
+            }
+        }
+        return removed;
+    }
 
 }
