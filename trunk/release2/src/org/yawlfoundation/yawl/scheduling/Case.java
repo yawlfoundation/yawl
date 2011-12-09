@@ -24,9 +24,11 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -37,43 +39,91 @@ import java.util.ArrayList;
 public class Case {
 
     private static Logger _log = Logger.getLogger(Case.class);
+    
+    private long id;                                         // hibernate pkey
 
-	protected String _yawlCaseId;
-	private ArrayList<Element> _data = null;
-	private Document _rup;
-	private String _name;
-	private String _description;
+	protected String caseId;
+	private List<Element> data = null;
+	private Document rup;
+	private String caseName;
+	private String description;
+    private long timestamp;
+    private String savedBy;
+    private String rupAsString;                             // for hibernate transport
+    private boolean active;
+
+    private Case() { }                                      // for hibernate
 
 	public Case(String id)	{
 		setCaseId(id);
 	}
 
 	public Case(String caseId, String caseName, String caseDescription, Document rup) {
-		setCaseId(caseId);
-		_name = caseName;
-		_description = caseDescription;
-		_rup = rup;
+		this(caseId);
+		this.caseName = caseName;
+		description = caseDescription;
+		this.rup = rup;
 	}
 
-	public String getCaseId() {	return _yawlCaseId;	}
 
-	public void setCaseId(String id) { _yawlCaseId = id; }
+    public long getId() { return id; }
 
-	public String getCaseName()	{ return _name; }
+    public void setId(long id) { this.id = id; }
 
-	public String getCaseDescription() { return _description; }
+    public String getCaseId() {	return caseId;	}
 
-    public String getDescription() { return _description; }
+	public void setCaseId(String id) { caseId = id; }
 
-	public Document getRUP() { return _rup;	}
+	public String getCaseName()	{ return caseName; }
+    
+    public void setCaseName(String name) { caseName = name; }
+
+	public String getCaseDescription() { return description; }
+
+    public String getDescription() { return description; }
+    
+    public void setDescription(String desc) { description = desc; }
+
+	public Document getRUP() { return rup;	}
+    
+    public void setRUP(Document doc) { rup = doc; }
+    
+    public String getSavedBy() { return savedBy; }
+    
+    public void setSavedBy(String saver) { savedBy = saver; }
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
+
+    public long getTimestamp() {
+        if (timestamp == 0) timestamp = System.currentTimeMillis();
+        return timestamp;
+    }
+    
+    public void setTimestamp(long time)  { timestamp = time; }
+    
+    public String getRupAsString() {
+        if ((rupAsString == null) && (rup != null)) {
+            rupAsString = JDOMUtil.documentToString(rup);
+        }
+        return rupAsString;
+    }
+    
+    public void setRupAsString(String ras) {
+        rupAsString = ras;
+        if (ras != null) {
+            rup = JDOMUtil.stringToDocument(ras);
+        }
+    }
 
 	
-	public ArrayList<Element> getData()	{
-		if (_data == null) {
-			_data = new ArrayList<Element>();
+	public List<Element> getData()	{
+		if (data == null) {
+			data = new ArrayList<Element>();
 			readCaseData();
 		}
-		return _data;
+		return data;
 	}
 
 	/**
@@ -81,21 +131,19 @@ public class Case {
 	 * <p>
 	 * The problem with case data is the hierarchical order of nets, which leads
 	 * to multiple sets of variables. For example, if we want to find a patient
-	 * name, we should look for it in the lowest net, since these are the newest
-	 * ones. If we cannot find a name, we can go ahead and look for it in the net
+	 * caseName, we should look for it in the lowest net, since these are the newest
+	 * ones. If we cannot find a caseName, we can go ahead and look for it in the net
 	 * above and so on.
-	 * 
-	 * @throws IOException
 	 */
 	private void readCaseData()	{
 		String current, prev = "xx";
-		current = _yawlCaseId;
-		while (current != null && !current.equals(prev)) {
-			try	{
-				_data.add(Utils.string2Element(readCaseData(current)));
+		current = caseId;
+		while (! (current == null || current.equals(prev))) {
+            try {
+                data.add(Utils.string2Element(readCaseData(current)));
 			}
-			catch (Exception e)	{
-				_log.warn("cannot get data for case: " + current + ", " + e.getMessage());
+			catch (IOException e)	{
+				_log.warn("Cannot get data for case: " + current + ", " + e.getMessage());
 			}
 			prev = current;
 			current = getParentNetId(current);
@@ -106,8 +154,9 @@ public class Case {
 	 * Read case data from the YAWL work queue
 	 * 
 	 * @see Case#readCaseData()
-	 * @param caseId
-	 * @throws IOException
+	 * @param caseId the case to get the data for
+     * @return the net-level data for the case id
+	 * @throws IOException if the case data can't be retrieved from the engine
 	 */
 	public String readCaseData(String caseId) throws IOException {
 		String response = ResourceServiceInterface.getInstance().getCaseData(caseId);
@@ -123,32 +172,37 @@ public class Case {
 	 * If the Id passed as the argument is a root ID, it will be returned
 	 * unchanged.
 	 * 
-	 * @param id
-	 * @return
+	 * @param id the id of a child net
+	 * @return the id of its parent
 	 */
 	public String getParentNetId(String id)	{
-		int pos = id.lastIndexOf(".");
+		int pos = id.lastIndexOf('.');
         return pos < 0 ? id : id.substring(0, pos);
     }
 
 	/**
-	 * Tries to find a text in specified case data depth
+	 * Gets the value for an XPath expression for an Element at a specified depth
+     * in the case's data
 	 * 
-	 * @param depth
-	 * @param xPath
-	 * @return
+	 * @param depth the depth of the Element to use from the case data
+	 * @param xPath the XPath expression
+	 * @return the result of the XPath evaluation, or null if the depth exceeds the
+     * depth of the case data's Elements, or if the XPath expression evaluates to null,
+     * or if the Element result of the XPath expression contains no text
 	 */
 	public String getText(int depth, String xPath) {
 		if (depth < getData().size()) {
 			try	{
-				Element e = (Element) getData().get(depth).clone();
-			    _log.debug("Reading " + xPath + " from " + Utils.element2String(e, true));
-				Element el = XMLUtils.getElement(new Document().setRootElement(e), xPath);
-				if (el != null && el.getText() != null)	{
-					return el.getText();
+				Element depthElement = (Element) getData().get(depth).clone();
+			    _log.debug("Reading " + xPath + " from " +
+                        Utils.element2String(depthElement, true));
+				Element xpathResult = XMLUtils.getElement(
+                        new Document().setRootElement(depthElement), xPath);
+				if (xpathResult != null) {
+					return xpathResult.getText();
 				}
 			}
-			catch (Exception e1) {
+			catch (Exception e) {
                 // fall through to return null
 			}
 		}
@@ -156,19 +210,19 @@ public class Case {
 	}
 
 	/**
-	 * Tries to find a text in case data
+	 * Traverses case data attempting to find an element that returns a non-null result
+     * for an XPath expression
 	 * 
-	 * @param xPath
-	 * @return
+	 * @param xPath the expression to evaluate
+	 * @return the text matching the XPath evaluation, or null if no match is found
 	 */
-	public String getText(String xPath)	{
-		String out = null;
+	public String getText(String xPath)	{;
 		for (int i = (getData().size() - 1); i >= 0; i--) {
-			String thisout = getText(i, xPath);
-			if (thisout != null) {
-				out = thisout;
+			String text = getText(i, xPath);
+			if (text != null) {
+				return text;
 			}
 		}
-		return out;
+		return null;
 	}
 }

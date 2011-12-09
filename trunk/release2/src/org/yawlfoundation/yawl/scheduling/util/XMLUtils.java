@@ -59,50 +59,35 @@ public class XMLUtils implements Constants
 	private static String schemaFilePathName = "/rup.xsd";
 	private static Map<String, Document> schemaDocs = new HashMap<String, Document>();
 	static
-	{ // Currently, due to the fact that the YAWL editor does not support
-		// attributes, there is no integrated XML data model. 
+	{
 		schemaDocs.put(schemaFilePathName, null);
 		schemaDocs.put("/common.xsd", null);
 	}
 
 	private static Validator validator = null;
 
-	private static Validator getValidator() throws IOException, SAXException
-	{
-		if (validator == null)
-		{
+	private static Validator getValidator() throws IOException, SAXException {
+		if (validator == null) {
 			SchemaFactory xmlSchemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			File schemafile = new File(schemaFilePathName);
 			int idx = schemaFilePathName.lastIndexOf(schemafile.getName());
 			String path = schemaFilePathName.substring(0, idx);
 			xmlSchemaFactory.setResourceResolver(new XMLUtils().new ResourceResolver(path));
 			Reader reader = new StringReader(convertSchemaToString(schemaFilePathName));
-			// com.sun.org.apache.xerces.internal.jaxp.validation.SimpleXMLSchema
 			Schema schema = xmlSchemaFactory.newSchema(new StreamSource(reader));
 			validator = schema.newValidator();
-
-			// ValidatorHandler h = schema.newValidatorHandler();
-			// TypeInfoProvider t = h.getTypeInfoProvider();
-			// h.startDocument();
-			// h.startElement(uri, localName, qName, atts)
-			// logger.debug(t.getElementTypeInfo().getTypeName());
 		}
 		return validator;
 	}
 
-	public static Collection<Document> getSchemaDocs()
-	{
-		for (String pathName : schemaDocs.keySet())
-		{
-			if (schemaDocs.get(pathName) == null)
-			{
-				try
-				{
-					// JDOMUtil.fileToDocument(...);
+
+	public static Collection<Document> getSchemaDocs() {
+		for (String pathName : schemaDocs.keySet()) {
+			if (schemaDocs.get(pathName) == null) {
+				try	{
 					schemaDocs.put(pathName, JDOMUtil.stringToDocument(convertSchemaToString(pathName)));
 				}
-				catch (IOException e)
-				{
+				catch (IOException e) {
 					logger.error("cannot parse " + pathName, e);
 				}
 			}
@@ -115,67 +100,53 @@ public class XMLUtils implements Constants
 	 * 
 	 * @return
 	 */
-	public static List<String> getEnumerationFromSchema(String name)
-	{
+	public static List<String> getEnumerationFromSchema(String name) {
 		List<String> result = new ArrayList<String>();
-		try
-		{
-			// String xpath = "//xs:complexType[@name='" + name +
-			// "']/xs:simpleContent/xs:restriction/xs:enumeration";
+		try	{
 			String xpath = "//xs:simpleType[@name='" + name + "']/xs:restriction/xs:enumeration";
 
-			for (Document doc : getSchemaDocs())
-			{
+			for (Document doc : getSchemaDocs()) {
 				List<Element> elements = getXMLObjects(doc, xpath);
-				for (Element element : elements)
-				{
+				for (Element element : elements) {
 					result.add(element.getAttributeValue("value"));
 				}
-				if (!result.isEmpty())
-				{
+				if (!result.isEmpty()) {
 					break;
 				}
 			}
 		}
-		catch (Exception e)
-		{
+		catch (Exception e)	{
 			logger.error("cannot load constants '" + name + "' from XSD", e);
 		}
 		return result;
 	}
 
-	public static String getDefaultFromSchema(String elementName)
-	{
+	public static String getDefaultFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "xs:annotation/@perikles:default");
 		return attr == null ? "" : attr;
 	}
 
-	public static String getUnitFromSchema(String elementName)
-	{
+	public static String getUnitFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "xs:annotation/@perikles:unit");
 		return attr == null ? "" : attr;
 	}
 
-	public static boolean isVisibleFromSchema(String elementName)
-	{
+	public static boolean isVisibleFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "xs:annotation/@perikles:visible");
 		return attr == null || !attr.equalsIgnoreCase("hidden");
 	}
 
-	public static boolean isReadonlyFromSchema(String elementName)
-	{
+	public static boolean isReadonlyFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "xs:annotation/@perikles:readonly");
 		return attr != null && attr.equalsIgnoreCase("true");
 	}
 
-	public static boolean isEnumerationFromSchema(String elementName)
-	{
+	public static boolean isEnumerationFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "xs:annotation/@perikles:source");
 		return attr != null && attr.equalsIgnoreCase("enumeration");
 	}
 
-	public static boolean isRequiredFromSchema(String elementName)
-	{
+	public static boolean isRequiredFromSchema(String elementName) {
 		String attr = getAttributeFromSchema(elementName, "@minOccurs");
 		return attr == null || !attr.equals("0");
 	}
@@ -295,78 +266,8 @@ public class XMLUtils implements Constants
 			}
 	}
 
-	/**
-	 * Datentyp�berpr�fung und angabe des betroffenen elements, es werden alle
-	 * gefundenen Fehler ausgegeben
-	 * 
-	 * @see http://www.edankert.com/validate.html#validate_external_schema_DOM
-	 * 
-	 *      Problem: This parser does not support specification "null" version
-	 *      "null"
-	 * 
-	 *      public static void validate(String msgText) throws IOException,
-	 *      SAXException { try { InputSource input = new InputSource(new
-	 *      StringReader(msgText));
-	 * 
-	 *      //System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-	 *      value); DocumentBuilderFactory factory =
-	 *      DocumentBuilderFactory.newInstance(); factory.setValidating(false);
-	 *      factory.setNamespaceAware(true);
-	 * 
-	 *      // Create a SchemaFactory capable of understanding WXS schemas.
-	 *      SchemaFactory schemaFactory =
-	 *      SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-	 * 
-	 *      // Load a WXS schema, represented by a Schema instance. Source source
-	 *      = new StreamSource(class.getResourceAsStream(schemaFilePathName));
-	 *      factory.setSchema(schemaFactory.newSchema(new Source[] {source}));
-	 * 
-	 *      DocumentBuilder builder = factory.newDocumentBuilder();
-	 *      SimpleErrorHandler handler = new XMLUtils().new SimpleErrorHandler();
-	 *      builder.setErrorHandler(handler);
-	 * 
-	 *      // Parse an XML document into a DOM tree. org.w3c.dom.Document
-	 *      document = builder.parse(input);
-	 * 
-	 *      if (handler.hasErrors()) { throw new
-	 *      SAXException(Utils.toString(handler.getErrorMsgs())); }
-	 * 
-	 *      TransformerFactory factoryT = TransformerFactory.newInstance();
-	 *      Transformer transformer = factoryT.newTransformer();
-	 *      //transformer.transform(new DOMSource(document), new StreamResult(new
-	 *      FileOutputStream("test.c"))); } catch
-	 *      (TransformerConfigurationException e) { throw new IOException(e); }
-	 *      catch (ParserConfigurationException e) { throw new IOException(e); }
-	 *      }
-	 */
 
-	/**
-	 * Datentyp�berpr�fung und angabe des betroffenen elements, es werden alle
-	 * gefundenen Fehler ausgegeben
-	 * 
-	 * Problem: java.lang.IllegalArgumentException
-	 * 
-	 * public static void validate(String msgText) throws IOException,
-	 * SAXException { try { DocumentBuilderFactory factory =
-	 * DocumentBuilderFactory.newInstance(); factory.setNamespaceAware(true);
-	 * factory.setValidating(true); factory.setAttribute(
-	 * "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-	 * "http://www.w3.org/2001/XMLSchema"); factory.setAttribute(
-	 * "http://java.sun.com/xml/jaxp/properties/schemaSource", new
-	 * File(schemaFilePathName));
-	 * 
-	 * DocumentBuilder parser = factory.newDocumentBuilder(); SimpleErrorHandler
-	 * handler = new XMLUtils().new SimpleErrorHandler();
-	 * parser.setErrorHandler(handler); InputSource input = new InputSource(new
-	 * StringReader(msgText)); org.w3c.dom.Document document=parser.parse(input);
-	 * 
-	 * if (handler.hasErrors()) { throw new
-	 * SAXException(Utils.toString(handler.getErrorMsgs())); } } catch
-	 * (ParserConfigurationException e) { throw new IOException(e); } }
-	 */
-
-	public static void validate(Element msg) throws IOException, SAXException
-	{
+	public static void validate(Element msg) throws IOException, SAXException {
 		validate(Utils.element2String(msg, false));
 	}
 
@@ -378,8 +279,6 @@ public class XMLUtils implements Constants
 	private static String validateType(Element element, String schemaName, List<Element> restrictions,
 			boolean withValidation) throws DatatypeConfigurationException, IOException, JDOMException
 	{
-		// String xpath = "//xs:simpleType[@name='" + schemaName +
-		// "']|xs:complexType[@name='" + schemaName + "']";
 		String xpath = "//xs:simpleType[@name='" + schemaName + "']";
 
 		Element typeElement = null;
@@ -765,6 +664,7 @@ public class XMLUtils implements Constants
 		try
 		{
 			String json = e.getAttribute(attr) == null ? "[]" : e.getAttribute(attr).getValue();
+            if (!json.startsWith("[")) json = String.format("[%s]", json);
 			JSONArray jsonArr = new JSONArray(json);
 
 			// value already exist?

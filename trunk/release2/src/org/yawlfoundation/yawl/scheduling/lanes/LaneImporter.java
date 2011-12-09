@@ -61,7 +61,7 @@ public class LaneImporter implements Constants {
 		this.config = config;
 		this.sessionHandle = sessionHandle;
 		this.caseId = caseId;
-		scheduler = new Scheduler(config);
+		scheduler = new Scheduler();
 		
 		rup = SchedulingService.getInstance().loadCase(caseId).getRUP();
 		String possibleActivitiesSorted = PropertyReader.getInstance()

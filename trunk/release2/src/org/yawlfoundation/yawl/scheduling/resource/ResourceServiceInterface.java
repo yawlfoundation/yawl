@@ -143,8 +143,7 @@ public class ResourceServiceInterface implements Constants {
 	 * not used
 	 */
 	public Map<String, Object> getDropdownContent(String objectName, String prevFieldValue)
-			throws ResourceGatewayException, IOException
-	{
+			throws ResourceGatewayException, IOException {
 		_log.debug("objectName: " + objectName + ", prevFieldValue: " + prevFieldValue);
 		Map<String, Object> objects;
 		if (objectName.equals(Constants.XML_ID)) {
@@ -542,7 +541,5 @@ public class ResourceServiceInterface implements Constants {
         }
         return null;
     }
-
-
 
 }

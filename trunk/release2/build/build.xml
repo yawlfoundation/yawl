@@ -30,7 +30,7 @@
     <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
 
-    <property name="app.version" value="2.2"/>
+    <property name="app.version" value="2.3beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -159,7 +159,6 @@
     <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>     <!-- dbd -->
   	<property name="oracle" value="ojdbc6_9.jar"/>                           <!-- dbd -->
     <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>        <!-- dbd -->
-    <property name="quartz" value="quartz-1.8.4.jar"/>                       <!-- sch -->
     <property name="saaj" value="saaj.jar"/>                                 <!-- wsi -->
     <property name="saxon" value="saxon9.jar"/>                              <!-- mul -->
     <property name="saxonapi" value="saxon9-s9api.jar"/>                     <!-- mul -->
@@ -295,7 +294,7 @@
               value="${mailapi} ${simplemail} ${smtp}"/>
 
     <property name="scheduling.libs"
-              value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${quartz} ${ucp}
+              value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
                      ${xdb} ${xalan} ${xmlparserv} ${xmlunit}"/>
 
     <!--
@@ -445,7 +444,6 @@
     <path id="cp.scheduling">
         <pathelement location="${lib.dir}/${json}"/>
         <pathelement location="${lib.dir}/${jaxen}"/>
-        <pathelement location="${lib.dir}/${quartz}"/>
         <pathelement location="${lib.dir}/${ucp}"/>
         <pathelement location="${lib.dir}/${postgres8}"/>
         <pathelement location="${lib.dir}/${xdb}"/>
@@ -801,6 +799,7 @@
             <include name="**/logging/table/YLogDataType.hbm.xml"/>
             <include name="**/resourcing/resource/Participant.hbm.xml"/>
             <include name="**/resourcing/resource/NonHumanResource.hbm.xml"/>
+            <include name="**/scheduling/Case.hbm.xml"/>
             <include name="**/worklet/admin/AdministrationTask.hbm.xml"/>
             <include name="**/worklet/exception/CaseMonitor.hbm.xml"/>
             <include name="**/worklet/exception/HandlerRunner.hbm.xml"/>
@@ -1782,7 +1781,8 @@
          <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/util">
              <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class CharsetFilter.class
-                               PasswordEncryptor.class XNode*.class"/>
+                               PasswordEncryptor.class XNode*.class
+                               HibernateEngine.class"/>
          </copy>
          <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
              <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>

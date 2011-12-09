@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.HashSet;
@@ -42,16 +43,14 @@ public abstract class AbstractResourceAttribute {
     protected String _notes ;
 
     // the set of resources that have this attribute
-    protected HashSet<AbstractResource> _resources = new HashSet<AbstractResource>() ;
-
-    protected ResourceManager _resMgr = ResourceManager.getInstance() ;
+    protected HashSet<AbstractResource> _resources = new HashSet<AbstractResource>();
 
     protected boolean _persisting ;
 
     protected AbstractResourceAttribute() {}
 
 
-    public void save() { _resMgr.getOrgDataSet().updateResourceAttribute(this); }
+    public void save() { getOrgDataSet().updateResourceAttribute(this); }
 
     public void setPersisting(boolean persisting) {
         _persisting = persisting ;
@@ -90,6 +89,10 @@ public abstract class AbstractResourceAttribute {
     }
 
     public Set<AbstractResource> getResources() { return _resources ; }
+
+    public ResourceDataSet getOrgDataSet() {
+        return ResourceManager.getInstance().getOrgDataSet();
+    }
 
 
     public void fromXML(String xml) {

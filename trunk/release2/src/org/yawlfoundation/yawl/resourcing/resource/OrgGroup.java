@@ -121,7 +121,7 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
 
     public boolean setBelongsTo(String ownerID) {
         if (ownerID != null) {
-            OrgGroup ownerGroup = _resMgr.getOrgDataSet().getOrgGroup(ownerID);
+            OrgGroup ownerGroup = getOrgDataSet().getOrgGroup(ownerID);
             if (ownerGroup != null) {
                 setBelongsTo(ownerGroup);
                 return true;

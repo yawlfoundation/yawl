@@ -21,17 +21,13 @@
  */
 package org.yawlfoundation.yawl.scheduling.persistence;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.yawlfoundation.yawl.scheduling.Mapping;
+
+import java.util.List;
+
+import static org.junit.Assert.fail;
 
 
 /**
@@ -123,29 +119,6 @@ public class DataMapperMappingTest
 		}
 	}
 
-	/**
-	 * Test method for {@link
-	 * org.yawlfoundation.yawl.scheduling.persistence.DataMapper#unlockMappings(
-	 * ArrayList<Mapping>)} .
-	 */
-	@Test
-	public void testUnlockMapping()
-	{
-		try
-		{
-			logger.debug("testUnlockMapping()");
-			DataMapper dataMapper = new DataMapper();
-			ArrayList<Mapping> mappings = new ArrayList<Mapping>();
-			mappings.add(mapping1);
-			mappings.add(mapping2);
-			dataMapper.unlockMappings(mappings);
-		}
-		catch (Exception e)
-		{
-			logger.debug(e.toString());
-			fail(e.toString());
-		}
-	}
 
 	/**
 	 * Test method for
@@ -155,7 +128,7 @@ public class DataMapperMappingTest
 	@Test
 	public void testGetMappings()
 	{
-		ArrayList<Mapping> mappings = null;
+		List<Mapping> mappings = null;
 
 		try
 		{

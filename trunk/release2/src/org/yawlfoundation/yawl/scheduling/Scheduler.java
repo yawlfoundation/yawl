@@ -23,10 +23,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
-import org.yawlfoundation.yawl.scheduling.util.*;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
+import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import javax.xml.datatype.Duration;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -42,23 +43,13 @@ public class Scheduler implements Constants
 
 	private DataMapper dataMapper;
 	private ResourceServiceInterface rs;
-	private SchedulingService service;
-	private ConfigManager config;
-	private final boolean debug = true;
+    private final boolean debug = true;
 
-    public Scheduler(SchedulingService ss, ConfigManager config)
-    {
-        // logger.info("Scheduler starting...");
+    public Scheduler() {
         dataMapper = new DataMapper();
-        service = ss;
-        this.config = config;
         rs = ResourceServiceInterface.getInstance();
     }
 
-	public Scheduler(ConfigManager config)
-	{
-		this(SchedulingService.getInstance(), config);
-	}
 
 	/**
 	 * set times of activities if FROM and DURATION are given Rescheduling
@@ -76,23 +67,18 @@ public class Scheduler implements Constants
 	 * @param rescheduleCollidingRUPs
 	 * 
 	 */
-	public boolean setTimes(Document rup, Element activity, boolean withValidation, boolean rescheduleCollidingRUPs,
-			Duration defaultDuration)
-	{
+	public boolean setTimes(Document rup, Element activity, boolean withValidation,
+                            boolean rescheduleCollidingRUPs, Duration defaultDuration) {
 		String caseId = XMLUtils.getCaseId(rup);
 		String activityName = activity.getChildText(XML_ACTIVITYNAME);
-		// logger.debug("case "+caseId+", activity " +
-		// activityName+", rup before: "+Utils.document2String(rup, false));
 		boolean hasRescheduledRUPs = false;
 
-		try
-		{
+		try	{
 			// 1) reschedule rup
 			setTimes(rup, activity, withValidation, new ArrayList<String>(), defaultDuration);
 
 			// rescheduling colliding rups
-			if (rescheduleCollidingRUPs)
-			{
+			if (rescheduleCollidingRUPs) {
 				List<Document> allCollidingRUPs = new ArrayList<Document>();
 				List<String> allCollidingRUPCaseIds = new ArrayList<String>();
 				allCollidingRUPCaseIds.add(caseId);
@@ -100,35 +86,22 @@ public class Scheduler implements Constants
 				// 2) collect all potential colliding rups and remove their
 				// reservations
 				List<Document> collidingRUPs = getCollidingRups(rup, allCollidingRUPCaseIds);
-				while (!collidingRUPs.isEmpty())
-				{
+				while (!collidingRUPs.isEmpty()) {
 					List<Document> newCollidingRUPs = new ArrayList<Document>();
-					for (Document collidingRUP : collidingRUPs)
-					{
+					for (Document collidingRUP : collidingRUPs)	{
 						String collCaseId = null;
-						try
-						{
+						try	{
 							collCaseId = XMLUtils.getCaseId(collidingRUP);
-							if (allCollidingRUPCaseIds.contains(collCaseId))
-							{
-								// logger.debug("colliding rup caseId: "+collCaseId+" is already collected");
-								continue;
-							}
-							else
-							{
-								// logger.debug("find colliding rup caseId: "+collCaseId);
-							}
+							if (allCollidingRUPCaseIds.contains(collCaseId)) continue;
 
 							// remove all reservations in RS by saving rup without
 							// reservations
 							Map<String, List<Element>> collRes = rs.removeReservations(collidingRUP, null);
-							try
-							{
+							try	{
 								logger.debug("delete reservations from collidingRUP: " + collCaseId);
 								collidingRUP = rs.saveReservations(collidingRUP, false, false);
 							}
-							finally
-							{
+							finally	{
 								rs.addReservations(collidingRUP, collRes);
 							}
 
@@ -137,53 +110,45 @@ public class Scheduler implements Constants
 
 							newCollidingRUPs.addAll(getCollidingRups(collidingRUP, allCollidingRUPCaseIds));
 						}
-						catch (Exception e)
-						{
-							logger.error("cannot collect caseId: " + (collCaseId == null ? "null" : collCaseId), e);
-							XMLUtils.addErrorValue(rup.getRootElement(), withValidation, "msgRescheduleError", activityName,
-									e.getMessage());
+						catch (Exception e)	{
+							logger.error("cannot collect caseId: " +
+                                    (collCaseId == null ? "null" : collCaseId), e);
+							XMLUtils.addErrorValue(rup.getRootElement(), withValidation,
+                                    "msgRescheduleError", activityName, e.getMessage());
 						}
 					}
 					collidingRUPs = newCollidingRUPs;
 				}
 
-				if (!allCollidingRUPs.isEmpty())
-				{
+				if (!allCollidingRUPs.isEmpty()) {
 					// 3) save rup with new times, should not conflicting with other
 					// rups
 					// logger.debug("----------------wait 30s and save: "+caseId);
 					// Thread.sleep(30000); // FIXME@tbe: raus
-					Set<String> errors = service.optimizeAndSaveRup(rup, "reschedulingRUP", null, false);
+					Set<String> errors = SchedulingService.getInstance().optimizeAndSaveRup(
+                            rup, "reschedulingRUP", null, false);
 					logger.debug("----------------save rescheduled rup caseId: " + caseId + ", errors: "
 							+ Utils.toString(errors));
 				}
 
 				// 4) sort colliding rups
-				Collections.sort(allCollidingRUPs, new Comparator<Document>()
-				{
-					public int compare(Document rup1, Document rup2)
-					{
+				Collections.sort(allCollidingRUPs, new Comparator<Document>() {
+					public int compare(Document rup1, Document rup2) {
 						Date earlFrom1 = XMLUtils.getEarliestBeginDate(rup1);
 						Date earlFrom2 = XMLUtils.getEarliestBeginDate(rup2);
 						long timeGap = earlFrom1.getTime() - earlFrom2.getTime();
 						if (timeGap > 0) return 1;
 						else if (timeGap < 0) return -1;
-						else
-							return 0;
+						else return 0;
 					}
 				});
 
 				// 5) find new time slot for each colliding rup and save it
-				for (Document collidingRUP : allCollidingRUPs)
-				{
+				for (Document collidingRUP : allCollidingRUPs) {
 					String collCaseId = null;
-					try
-					{
+					try	{
 						collCaseId = XMLUtils.getCaseId(collidingRUP);
-						if (collCaseId.equals(caseId))
-						{
-							continue;
-						}
+						if (collCaseId.equals(caseId)) continue;
 
 						// TODO@tbe: so ist nur das suchen eines sp�teren timeslots
 						// m�glich, es sollte auch
@@ -192,29 +157,28 @@ public class Scheduler implements Constants
 						// from auf 00:00 Uhr setzen, dann findTimeSlot aufrufen
 						hasRescheduledRUPs = findTimeSlot(collidingRUP, true) || hasRescheduledRUPs;
 
-						service.optimizeAndSaveRup(collidingRUP, "reschedulingCollidingRUPs", null, false);
+                        SchedulingService.getInstance().optimizeAndSaveRup(collidingRUP,
+                                "reschedulingCollidingRUPs", null, false);
 						logger.debug("save rescheduled colliding caseId: " + collCaseId + ", errors: "
 								+ Utils.toString(XMLUtils.getErrors(collidingRUP.getRootElement())));
 						logger.info("caseId: " + collCaseId + " successfully rescheduled");
 					}
-					catch (Exception e)
-					{
-						logger.error("cannot reschedule caseId: " + (collCaseId == null ? "null" : collCaseId), e);
-						XMLUtils.addErrorValue(rup.getRootElement(), withValidation, "msgRescheduleError", activityName,
-								e.getMessage());
+					catch (Exception e) {
+						logger.error("cannot reschedule caseId: " +
+                                (collCaseId == null ? "null" : collCaseId), e);
+						XMLUtils.addErrorValue(rup.getRootElement(), withValidation,
+                                "msgRescheduleError", activityName,	e.getMessage());
 					}
 				}
 			}
 		}
-		catch (Exception e)
-		{
-			logger.error("error during rescheduling caseId: " + (caseId == null ? "null" : caseId), e);
-			XMLUtils.addErrorValue(rup.getRootElement(), withValidation, "msgRescheduleError", activityName,
-					e.getMessage());
+		catch (Exception e)	{
+			logger.error("error during rescheduling caseId: " +
+                    (caseId == null ? "null" : caseId), e);
+			XMLUtils.addErrorValue(rup.getRootElement(), withValidation,
+                    "msgRescheduleError", activityName,	e.getMessage());
 		}
 
-		// logger.debug("case "+caseId+", activity " +
-		// activityName+", rup after: "+Utils.document2String(rup, false));
 		return hasRescheduledRUPs;
 	}
 
@@ -229,93 +193,80 @@ public class Scheduler implements Constants
 	 * 
 	 * @param activity
 	 */
-	private void setTimes(Document rup, Element activity, boolean withValidation, List<String> activityNamesProcessed,
-			Duration defaultDuration) throws Exception
-	{
+	private void setTimes(Document rup, Element activity, boolean withValidation,
+                          List<String> activityNamesProcessed, Duration defaultDuration) {
 		String activityName = activity.getChildText(XML_ACTIVITYNAME);
-		// logger.debug("activity " + activityName);
-
-		Element duration = activity.getChild(XML_DURATION);
-		Duration dur = XMLUtils.getDurationValue(duration, withValidation);
+		Element durationElem = activity.getChild(XML_DURATION);
+		Duration duration = XMLUtils.getDurationValue(durationElem, withValidation);
 		Element from = activity.getChild(XML_FROM);
 		Date fromDate = XMLUtils.getDateValue(from, withValidation);
 		Element to = activity.getChild(XML_TO);
 		Date toDate = XMLUtils.getDateValue(to, withValidation); // can be null
 		String requestType = activity.getChildText(XML_REQUESTTYPE);
-		// logger.debug(activityName+", from: "+from.getText()+", to: "+to.getText()+", duration: "+duration.getText());
 
-		if (requestType.equals("EOU"))
-		{ // calculate duration
+		if (requestType.equals("EOU")) {    // calculate duration
 			toDate = XMLUtils.getDateValue(to, withValidation);
-			XMLUtils.setDurationValue(duration, toDate.getTime() - fromDate.getTime());
+			XMLUtils.setDurationValue(durationElem, toDate.getTime() - fromDate.getTime());
 		}
-		else if (fromDate == null)
-		{
-			fromDate = new Date(toDate.getTime());
-			if (dur != null)
-			{
-				dur.negate().addTo(fromDate);
-				XMLUtils.setDateValue(from, fromDate);
+		else if (fromDate == null) {
+            if (toDate != null) {
+		    	fromDate = new Date(toDate.getTime());
+			    if (duration != null) {
+				    duration.negate().addTo(fromDate);
+				    XMLUtils.setDateValue(from, fromDate);
+                }
 			}
-			else if (defaultDuration != null)
-			{
+			else if (defaultDuration != null) {
 				defaultDuration.negate().addTo(fromDate);
 				XMLUtils.setDateValue(from, fromDate);
 			}
 		}
-		else
-		{
+		else {
 			toDate = new Date(fromDate.getTime());
-			if (dur != null)
-			{
-				dur.addTo(toDate); // TODO@tbe: if very very long duration, to is
+			if (duration != null) {
+				duration.addTo(toDate); // TODO@tbe: if very very long duration, to is
 											// one hour to high
 				XMLUtils.setDateValue(to, toDate);
 			}
-			else if (defaultDuration != null)
-			{
+			else if (defaultDuration != null) {
 				defaultDuration.addTo(toDate);
 				XMLUtils.setDateValue(to, toDate);
 			}
 		}
 
 		activityNamesProcessed.add(activityName);
-		logger.debug(activityName + ", set from: " + from.getText() + ", to: " + to.getText() + ", duration: "
-				+ duration.getText());
+		logger.debug(activityName + ", set from: " + from.getText() + ", to: " +
+                to.getText() + ", duration: " + durationElem.getText());
 
 		// set times of following activities
 		String xpath = XMLUtils.getXPATH_ActivityElement(activityName, XML_UTILISATIONREL, null);
-		List<Element> relations = XMLUtils.getXMLObjects(rup, xpath);
-		for (Element relation : relations)
-		{
+		List relations = XMLUtils.getXMLObjects(rup, xpath);
+		for (Object o : relations) {
+            Element relation = (Element) o;
 			String otherActivityName = relation.getChildText(XML_OTHERACTIVITYNAME);
-			if (activityNamesProcessed.contains(otherActivityName))
-			{
-				continue; // activity has been processed already
+			if (activityNamesProcessed.contains(otherActivityName)) {
+                continue; // activity has been processed already
 			}
 
 			Duration min = XMLUtils.getDurationValue(relation.getChild(XML_MIN), withValidation);
-			List<Element> otherActivities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(otherActivityName));
-			for (Element otherActivity : otherActivities)
-			{
+			List otherActivities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(otherActivityName));
+			for (Object obj : otherActivities) {
+                Element otherActivity = (Element) obj;
 				Date thisDate;
-				if (relation.getChildText(XML_THISUTILISATIONTYPE).equals(UTILISATION_TYPE_BEGIN))
-				{
+				if (relation.getChildText(XML_THISUTILISATIONTYPE).equals(UTILISATION_TYPE_BEGIN)) {
 					thisDate = fromDate;
 				}
-				else if (dur != null)
-				{
+				else if (duration != null) {
 					thisDate = toDate;
 				}
-				else
-				{
+				else {
 					continue;
 				}
 				min.addTo(thisDate); // add time gap between activities
 
-				if (relation.getChildText(XML_OTHERUTILISATIONTYPE).equals(UTILISATION_TYPE_END))
-				{
-					Duration otherDuration = XMLUtils.getDurationValue(otherActivity.getChild(XML_DURATION), withValidation);
+				if (relation.getChildText(XML_OTHERUTILISATIONTYPE).equals(UTILISATION_TYPE_END)) {
+					Duration otherDuration = XMLUtils.getDurationValue(
+                            otherActivity.getChild(XML_DURATION), withValidation);
 					(otherDuration == null ? defaultDuration : otherDuration).negate().addTo(thisDate);
 				}
 				XMLUtils.setDateValue(otherActivity.getChild(XML_FROM), thisDate);
@@ -325,41 +276,35 @@ public class Scheduler implements Constants
 		}
 
 		// set time of previous activities if this activity is not started
-		if (!requestType.equals("POU"))
-		{
+		if (!requestType.equals("POU"))	{
 			return;
 		}
 		xpath = XMLUtils.getXPATH_ActivityElement(null, XML_UTILISATIONREL, null);
 		xpath += "[" + XML_OTHERACTIVITYNAME + "/text()='" + activityName + "']";
 		relations = XMLUtils.getXMLObjects(rup, xpath);
-		for (Element relation : relations)
-		{
+		for (Object o : relations) {
+            Element relation = (Element) o;
 			Element otherActivity = relation.getParentElement();
-			if (activityNamesProcessed.contains(otherActivity.getChildText(XML_ACTIVITYNAME)))
-			{
+			if (activityNamesProcessed.contains(otherActivity.getChildText(XML_ACTIVITYNAME))) {
 				continue; // activity has been processed already
 			}
 
 			Duration min = XMLUtils.getDurationValue(relation.getChild(XML_MIN), withValidation);
 			Date otherDate;
-			if (relation.getChildText(XML_OTHERUTILISATIONTYPE).equals(UTILISATION_TYPE_BEGIN))
-			{
+			if (relation.getChildText(XML_OTHERUTILISATIONTYPE).equals(UTILISATION_TYPE_BEGIN))	{
 				fromDate = XMLUtils.getDateValue(from, withValidation);
 				otherDate = fromDate;
 			}
-			else if (dur != null)
-			{
+			else if (duration != null) {
 				toDate = XMLUtils.getDateValue(to, withValidation);
 				otherDate = toDate;
 			}
-			else
-			{
+			else {
 				continue;
 			}
 			min.negate().addTo(otherDate);
 
-			if (relation.getChildText(XML_THISUTILISATIONTYPE).equals(UTILISATION_TYPE_END))
-			{
+			if (relation.getChildText(XML_THISUTILISATIONTYPE).equals(UTILISATION_TYPE_END)) {
 				Duration otherDuration = XMLUtils.getDurationValue(otherActivity.getChild(XML_DURATION), withValidation);
 				(otherDuration == null ? defaultDuration : otherDuration).negate().addTo(otherDate);
 			}
@@ -374,14 +319,12 @@ public class Scheduler implements Constants
 	 * 
 	 * @param rup
 	 */
-	public boolean findTimeSlot(Document rup, boolean withValidation)
-	{
+	public boolean findTimeSlot(Document rup, boolean withValidation) {
 		String caseId = XMLUtils.getCaseId(rup);
 		logger.debug("reschedule caseId " + caseId);
 		boolean isRescheduledRUP = false;
 
-		try
-		{
+		try	{
 			// Map with activities and their list of possible offsets for adding to
 			// FROM
 			Map<String, List<List<Long>>> actOffsets = new HashMap<String, List<List<Long>>>();
@@ -575,28 +518,24 @@ public class Scheduler implements Constants
 	 * @param rup
 	 * @return
 	 */
-	private List<Document> getCollidingRups(Document rup, List<String> excludedCaseIds) throws SQLException
-	{
+	private List<Document> getCollidingRups(Document rup, List<String> excludedCaseIds) {
+
 		// find earliest FROM and latest TO time of rup
-		List<Case> collidingCases = null;
-		List<Document> collidingRups = null; 
-			
 		Date earliestBeginDate = XMLUtils.getEarliestBeginDate(rup);
 		Date latestEndDate = XMLUtils.getLatestEndDate(rup);
 
-		collidingCases = dataMapper.getRupsByInterval(earliestBeginDate, latestEndDate, excludedCaseIds, true);
-		collidingRups = service.getRupList(collidingCases);
+        List<Case> collidingCases = dataMapper.getRupsByInterval(
+                earliestBeginDate, latestEndDate, excludedCaseIds, true);
+        List<Document> collidingRups = SchedulingService.getInstance().getRupList(collidingCases);
 
-		if (debug)
-		{
+		if (debug) {
 			List<String> caseIds = new ArrayList<String>();
-			for (Document collidingRUP : collidingRups)
-			{
+			for (Document collidingRUP : collidingRups)	{
 				caseIds.add(XMLUtils.getCaseId(collidingRUP));
 			}
-			logger.debug("found " + collidingRups.size() + " potential colliding rups: " + Utils.getCSV(caseIds));
+			logger.debug("found " + collidingRups.size() +
+                    " potential colliding rups: " + Utils.getCSV(caseIds));
 		}
-
 		return collidingRups;
 	}
 

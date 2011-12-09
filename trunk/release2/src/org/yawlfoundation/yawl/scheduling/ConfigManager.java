@@ -45,9 +45,6 @@ public class ConfigManager implements Constants {
 
     private static final Logger _log = Logger.getLogger(ConfigManager.class);
 
-    private static final String FILENAME_YAWL = "/yawl.properties";
-    private static Map<String, Properties> _props = new Hashtable<String, Properties>();
-
 
     /**
      * Only Constructor - called from getInstance

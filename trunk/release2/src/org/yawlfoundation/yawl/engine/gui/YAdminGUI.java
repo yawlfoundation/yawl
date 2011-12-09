@@ -388,7 +388,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
      */
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
-        if (command == _createWorklistCommand) {
+        if (command.equals(_createWorklistCommand)) {
             /**
              * Create a new worklist entry
              */
@@ -402,7 +402,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             }
 
 
-        } else if (command == _loadWorkflowCommand) {
+        } else if (command.equals(_loadWorkflowCommand)) {
             /**
              * Load a new process specification
              */
@@ -412,7 +412,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 attemptToLoadSpecificationFile(selectedFile);
 
             }
-        } else if (command == _unloadWorkflowCommand) {
+        } else if (command.equals(_unloadWorkflowCommand)) {
             /**
              * Unload a process specification
              */
@@ -430,13 +430,13 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                     logError("Failure to unload specifcation", ex);
                 }
             }
-        } else if (command == _startCaseCommand) {
+        } else if (command.equals(_startCaseCommand)) {
             /**
              * Start a new case
              */
             int selectedRow = _loadedSpecificationsTable.getSelectedRow();
             startCase(selectedRow);
-        } else if (command == _cancelCaseCommand) {
+        } else if (command.equals(_cancelCaseCommand)) {
             /**
              * Cancel a case
              */
@@ -453,7 +453,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             } catch (YAWLException e2) {
                 logError("Failure to cancel case", e2);
             }
-        } else if (command == _inspectStateCommand) {
+        } else if (command.equals(_inspectStateCommand)) {
             /**
              * Report the state of a case
              */
@@ -470,7 +470,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             } catch (YPersistenceException ex) {
                 logError("Failure whilst obtaining state of case", ex);
             }
-        } else if (command == _suspendCaseCommand) {
+        } else if (command.equals(_suspendCaseCommand)) {
             /**
              * Suspend a case
              */
@@ -486,7 +486,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             } catch (YAWLException e2) {
                 logError("Failure to suspend case", e2);
             }
-        } else if (command == _resumeCaseCommand) {
+        } else if (command.equals(_resumeCaseCommand)) {
             /**
              * Resume a case
              */
@@ -502,11 +502,11 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             } catch (YAWLException e2) {
                 logError("Failure to resume case", e2);
             }
-        } else if (command == _exportToXMLCommand) {
+        } else if (command.equals(_exportToXMLCommand)) {
             int selectedRow = _loadedSpecificationsTable.getSelectedRow();
             saveXML(selectedRow);
         }
-        else if (command == _reannounceEnabledWorkItems) {
+        else if (command.equals(_reannounceEnabledWorkItems)) {
             try
             {
                 _engineManagement.getAnnouncer().reannounceEnabledWorkItems();
@@ -516,7 +516,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 JOptionPane.showMessageDialog(this, e2.getMessage(), "Error re-announcing workitems", JOptionPane.ERROR_MESSAGE);
             }
         }
-        else if (command == _dumpCommand)
+        else if (command.equals(_dumpCommand))
         {
             try
             {
@@ -540,7 +540,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                     _fileChooser.getCurrentDirectory().getAbsolutePath()
             );
         }
-        List errorMessages = new ArrayList();
+        List<YVerificationMessage> errorMessages = new ArrayList<YVerificationMessage>();
         List<YSpecificationID> newSpecIDs = null;
         try {
             String specStr = StringUtil.fileToString(selectedFile);
@@ -552,10 +552,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
 
         if (newSpecIDs.size() == 0 || errorMessages.size() > 0) {
             StringBuilder errorMessageStr = new StringBuilder();
-
-            Iterator iterator = errorMessages.iterator();
-            while (iterator.hasNext()) {
-                YVerificationMessage message = (YVerificationMessage) iterator.next();
+            for (YVerificationMessage message : errorMessages) {
                 errorMessageStr.append(
                         "\r\n" + message.getStatus() +
                         ": " + message.getMessage());

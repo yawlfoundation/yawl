@@ -31,14 +31,13 @@ import org.yawlfoundation.yawl.scheduling.util.Utils;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-//import de.gecko.perikles.scheduling.DataMapper;
 
 /**
  * Bridge between Service and YAWL,
  * has to be registered with the YAWL engine.
  * 
  * @author tbe
- * @version $Id: Service.java 23027 2010-10-22 14:02:53Z tbe $
+ * @date 2010-10-22
  */
 public abstract class Service extends InterfaceBWebsideController implements Constants {
 
@@ -93,7 +92,6 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 		}
         catch (Throwable e) {
 			_log.error("cannot execute work item: " + wirParent.getID(), e);
-			_dataMapper.unlockMapping(mapping);
 		}
 	}
 	
@@ -130,7 +128,6 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 				}
                 catch (Throwable e) {
 					_log.error("cannot execute work item: " + mapping.getWorkItemId(), e);
-					_dataMapper.unlockMapping(mappingChild);
 				}
 			}
 			_dataMapper.removeMapping(mapping);
@@ -156,7 +153,7 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 		_log.info("wirID: " + workItemRecord.getID() + " has been cancelled");
 		try {
 			_cancelledWorkitemOrCaseIds.add(workItemRecord.getID());
-			_dataMapper.removeMapping(workItemRecord.getID(), null);
+			_dataMapper.removeMapping(workItemRecord.getID());
 		}
         catch (Throwable e) {
 			_log.error("Cannot remove mapping: " + workItemRecord.getID(), e);
@@ -168,21 +165,25 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 	 * to the RS by 10 seconds while the RS gets the credentials from the engine
 	 */
 	public void handleEngineInitialisationCompletedEvent() {
-		while (true) {
+        int oneSecond = 1000;
+        int count = 0;
+		while (count <= 10) {
+            count++;
 			try {
 				try {
-                    Thread.sleep(10000);
+                    Thread.sleep(oneSecond);
                 }
                 catch (InterruptedException e1) {
                     // nothing to do
                 }
-				getHandle();
-				break;
+				getHandle();                    // exception if connect fails
+				return;
 			}
             catch (Throwable e) {
-				_log.error("Unable to connect to YAWL engine, trying again in 10 s ...");
+                // try again in a second
 			}
 		}
+        _log.error("Unable to connect to YAWL engine, trying again in 10 s ...");
 	}
 
 
@@ -190,8 +191,8 @@ public abstract class Service extends InterfaceBWebsideController implements Con
   	    _log.info("caseID: " + caseID + " has been cancelled");
 		try {
 			_cancelledWorkitemOrCaseIds.add(caseID);
-			_dataMapper.removeMapping(caseID + ":", null);
-			_dataMapper.removeMapping(caseID + ".", null);
+			_dataMapper.removeMapping(caseID + ":");
+			_dataMapper.removeMapping(caseID + ".");
 		}
         catch (Throwable e) {
 			_log.error("Cannot remove mappings for caseID: " + caseID, e);
@@ -232,8 +233,7 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 	 * @param payload
 	 * @throws YAWLException
 	 */
-	public void checkInWorkItem(Mapping mapping, String payload) throws YAWLException
-	{
+	public void checkInWorkItem(Mapping mapping, String payload) throws YAWLException {
 		try {
 			WorkItemRecord wir = getWorkItemFromCache(mapping);
 			String result = checkInWorkItem(wir.getID(), wir.getDataList(),
@@ -378,12 +378,12 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 	        	return norm(m1.getWorkItemId()).compareTo(norm(m2.getWorkItemId()));
 	        }
 	    
-	        final String praefix = "0000";
+	        final String prefix = "0000";
 	        private String norm(String wirID) {
 	    	    int idx = wirID.indexOf(".");
 	    	    if (idx >= 0) {
-		    	    String s = praefix + wirID.substring(0, idx);
-		    	    s = s.substring(s.length()-praefix.length(), s.length());
+		    	    String s = prefix + wirID.substring(0, idx);
+		    	    s = s.substring(s.length()-prefix.length(), s.length());
 		    	    return s + "." + norm(wirID.substring(idx+1));
 	    	    }
                 else {

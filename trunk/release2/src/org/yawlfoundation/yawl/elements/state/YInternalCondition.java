@@ -137,11 +137,15 @@ public class YInternalCondition extends YNetElement implements YConditionInterfa
     }
 
     public String toXML() {
+        return toXNode().toString();
+    }
+    
+    public XNode toXNode() {
         XNode node = new XNode("internalCondition");
         node.addAttribute("id", toString());
         for (YIdentifier identifier : getIdentifiers()) {
             node.addChild("identifier", identifier.toString());
         }
-        return node.toString();
+        return node;
     }
 }

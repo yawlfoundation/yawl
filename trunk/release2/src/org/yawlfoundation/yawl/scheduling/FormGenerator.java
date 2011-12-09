@@ -74,7 +74,7 @@ public class FormGenerator implements Constants {
         try {
             config = ConfigManager.getFromRequest(request);
             ss = SchedulingService.getInstance();
-            scheduler = new Scheduler(config);
+            scheduler = new Scheduler();
             rs = ResourceServiceInterface.getInstance();
             _props = PropertyReader.getInstance();
             this.request = request;
@@ -293,7 +293,7 @@ public class FormGenerator implements Constants {
         String result = rs.updateWorkItemData(itemid, taskUpdStr, handle);
 
         _log.debug("result: " + result);
-        source += "&complete=true"; // workitem in CUI completen
+        source += "?complete=true"; // workitem in CUI completen
 
         redirect();
     }
