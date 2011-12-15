@@ -36,8 +36,7 @@ public class AdminTasksManager {
     private Map _tasks ;                              // set of tasks to attend to
     private String _nextID ;                          // next unique id
 
-    private static Logger _log = Logger.getLogger(
-                                 "org.yawlfoundation.yawl.worklet.admin.AdminTasksManager");
+    private static Logger _log = Logger.getLogger(AdminTasksManager.class);
 
 
     /** the constructor */

@@ -26,19 +26,20 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 
 
-/** A Ripple Down Rule Node implementation. 
+/**
+ *  A Ripple Down Rule Node implementation.
  *
  *  Each RdrNode contains an individual rule. The RDRTree class maintains a 
  *  set of these nodes.
- *  
- *  ==========        ===========        ===========
+ *
+ *  @author Michael Adams
+ *  v0.8, 04-09/2006
+ */
+ /*  ==========        ===========        ===========
  *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
  *  ==========        ===========        ===========
  *                                           ^^^
- *  @author Michael Adams
- *  v0.8, 04-09/2006
 */
-
 
 public class RdrNode {
 	
@@ -56,7 +57,7 @@ public class RdrNode {
 
 
     /** Default constructor */
-    public RdrNode(){ }
+    public RdrNode() { }
     
     
 	/** 
@@ -67,7 +68,7 @@ public class RdrNode {
 	 *  @param pFalseChild - the node on this node's false branch
 	 *  @param pCondition - the condition stored in this node
 	 *  @param pConclusion - the conclusion stored in this node
-	 *  @param pCornerStone - the cornertone case data for this node
+	 *  @param pCornerStone - the cornerstone case data for this node
 	 */
     public RdrNode(int id,
     			   RdrNode pParent, 
@@ -75,7 +76,7 @@ public class RdrNode {
     			   RdrNode pFalseChild,
     			   String pCondition,
     			   Element pConclusion,
-    			   Element pCornerStone ){
+    			   Element pCornerStone) {
  
        nodeId        = id;
        parent        = pParent;
@@ -90,7 +91,7 @@ public class RdrNode {
 	 *  Construct a node with all the default values.
 	 *  @param id - the node id for the new node
 	 */
-    public RdrNode(int id){
+    public RdrNode(int id) {
     	this(id, null, null, null, "", null, null);
     }
     
@@ -114,31 +115,31 @@ public class RdrNode {
     // GETTERS //
     
     public int getNodeId(){
-        return(nodeId);
+        return (nodeId);
     }
     
     public String getNodeIdAsString() {
-    	return "" + nodeId ;
+    	return String.valueOf(nodeId);
     }
 
     public String getCondition() {
-        return(condition);
+        return (condition);
     }
 
     public Element getConclusion() {
-        return(conclusion);
+        return (conclusion);
     }
 
     public Element getCornerStone() {
-        return(cornerstone);
+        return (cornerstone);
     }
 
     public RdrNode getFalseChild(){
-        return(falseChild);
+        return (falseChild);
     }
 
     public RdrNode getTrueChild(){
-        return(trueChild);
+        return (trueChild);
     }
     
     public RdrNode getParent() {
@@ -203,26 +204,26 @@ public class RdrNode {
 
         try {
 
-	        if(ce.evaluate(condition, caseData)){ // if condition evals to True
-	            if(trueChild == null) {           // ...and no exception rule
-	                pair[0] = this;               // this is last satisfied 
-	                pair[1] = this;               // and last searched 
+	        if (ce.evaluate(condition, caseData)) { // if condition evals to True
+	            if (trueChild == null) {            // ...and no exception rule
+	                pair[0] = this;                 // this is last satisfied
+	                pair[1] = this;                 // and last searched
 	            }
-	            else {                            // test the exception rule 
+	            else {                              // test the exception rule
 	                pair = trueChild.recursiveSearch(caseData, this);
 	            }
 	        }
-	        else {                                // if condition evals to False
-	            if(falseChild == null){           // ...and no if-not rule 
-	                pair[0] = lastTrueNode;       // pass on last satisfied 
-	                pair[1] = this;               // and this is last searched
+	        else {                                  // if condition evals to False
+	            if (falseChild == null) {           // ...and no if-not rule
+	                pair[0] = lastTrueNode;         // pass on last satisfied
+	                pair[1] = this;                 // and this is last searched
 	            }
-	            else{                             // test the next if-not rule 
+	            else {                              // test the next if-not rule
 	                pair = falseChild.recursiveSearch(caseData,lastTrueNode);
 	            }
 	        }
 	    }
-	    catch( RdrConditionException rde ) {      // bad condition found
+	    catch( RdrConditionException rde ) {        // bad condition found
             _log.error("Search Exception", rde) ;
             pair[0] = null ;
             pair[1] = null ;

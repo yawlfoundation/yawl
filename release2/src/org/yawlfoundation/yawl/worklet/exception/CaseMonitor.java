@@ -18,15 +18,15 @@
 
 package org.yawlfoundation.yawl.worklet.exception;
 
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
-
-import org.yawlfoundation.yawl.worklet.support.*;
-import org.yawlfoundation.yawl.worklet.WorkletService;
-
-import org.jdom.Element;
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.support.DBManager;
+import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
 import java.util.*;
 
@@ -425,14 +425,14 @@ public class CaseMonitor {
 
 
     /** returns the runner for the specified type (if any) */
-    public HandlerRunner getRunnerForType(int xType, String itemID) {
+    public HandlerRunner getRunnerForType(RuleType xType, String itemID) {
         HandlerRunner result ;
         switch (xType) {
-            case WorkletService.XTYPE_CASE_PRE_CONSTRAINTS :
+            case CasePreconstraint :
                 result = getPreCaseHandlerRunner(); break ;
-            case WorkletService.XTYPE_CASE_POST_CONSTRAINTS :
+            case CasePostconstaint :
                 result = getPostCaseHandlerRunner(); break ;
-            case WorkletService.XTYPE_CASE_EXTERNAL_TRIGGER :
+            case CaseExternalTrigger :
                 result = getCaseExternalHandlerRunner(); break ;
             default :
                 result = getHandlerRunnerForItem(itemID);

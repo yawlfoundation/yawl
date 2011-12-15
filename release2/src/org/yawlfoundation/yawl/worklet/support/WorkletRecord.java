@@ -27,10 +27,10 @@ import org.jdom.output.XMLOutputter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RdrSet;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class WorkletRecord {
     protected WorkItemRecord _wir ;          // the child workitem
     protected Element _datalist ;            // data passed to this workitem
     protected RdrNode[] _searchPair ;        // rule pair returned from search
-    protected int _reasonType ;              // why the worklet was raised
+    protected RuleType _reasonType ;         // why the worklet was raised
     protected static Logger _log ;           // log file for debug messages
 
     protected String _persistID ;            // unique id field for persistence
@@ -98,8 +98,8 @@ public class WorkletRecord {
     }
 
 
-    public void setExType(int xType) {
-        _reasonType = xType ;
+    public void setExType(RuleType xType) {
+        _reasonType = xType;
         if (_hasPersisted) persistThis();
     }
 
@@ -172,7 +172,7 @@ public class WorkletRecord {
         return new YSpecificationID(_wir);      // i.e. of the originating workitem
     }
 
-    public int getReasonType() {
+    public RuleType getReasonType() {
         return _reasonType ;
     }
 
@@ -215,7 +215,7 @@ public class WorkletRecord {
     }
 
     protected void set_reasonType(int i) {
-        _reasonType = i ;
+        _reasonType = RuleType.values()[i] ;
     }
 
     protected String get_runningWorkletStr() {
@@ -227,7 +227,7 @@ public class WorkletRecord {
     }
 
     protected int get_reasonType() {
-        return _reasonType ;
+        return _reasonType.ordinal() ;
     }
 
 
@@ -256,13 +256,11 @@ public class WorkletRecord {
         RdrSet ruleSet = new RdrSet(specID);                  // make a new set
         RdrTree tree ;
 
-        switch (_reasonType) {
-            case WorkletService.XTYPE_CASE_PRE_CONSTRAINTS :
-            case WorkletService.XTYPE_CASE_POST_CONSTRAINTS :
-            case WorkletService.XTYPE_CASE_EXTERNAL_TRIGGER :
-                                tree = ruleSet.getTree(_reasonType) ; break ;
-            default :
-                                tree = ruleSet.getTree(_reasonType, taskID) ;
+        if (_reasonType.isCaseLevelType()) {
+            tree = ruleSet.getTree(_reasonType);
+        }
+        else {
+            tree = ruleSet.getTree(_reasonType, taskID) ;
         }
 
         if (tree != null)
@@ -393,7 +391,7 @@ public class WorkletRecord {
         fName.append("_") ;
         fName.append(getSpecID()) ;                         // then spec id
         fName.append("_") ;
-        fName.append(WorkletService.getShortXTypeString(_reasonType));
+        fName.append(_reasonType.toString());
 
         // if item-level, add the task name also
         if (_wir != null) {

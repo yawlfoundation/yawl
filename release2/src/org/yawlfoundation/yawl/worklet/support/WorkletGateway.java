@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -110,7 +111,7 @@ public class WorkletGateway extends HttpServlet {
                 int exType = Integer.parseInt(req.getParameter("exType"));
 
                 // get the service instance and call replace
-                if (exType == WorkletService.XTYPE_SELECTION) {
+                if (exType == RuleType.ItemSelection.ordinal()) {
             	  	  WorkletService ws = WorkletService.getInstance() ;
         	    	    result = ws.replaceWorklet(itemID) ;
                 }
@@ -118,7 +119,7 @@ public class WorkletGateway extends HttpServlet {
                     String caseID = req.getParameter("caseID");
                     String trigger = req.getParameter("trigger");
                     ExceptionService ex = ExceptionService.getInst();
-                    result = ex.replaceWorklet(exType, caseID, itemID, trigger);
+                    result = ex.replaceWorklet(RuleType.values()[exType], caseID, itemID, trigger);
                 }
             }
             else if (action.equalsIgnoreCase("refresh")) {

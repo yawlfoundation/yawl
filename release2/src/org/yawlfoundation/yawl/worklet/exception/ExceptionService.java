@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.DBManager;
 import org.yawlfoundation.yawl.worklet.support.EventLogger;
@@ -321,14 +322,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         monitor.addProcessInfo(wir);
 
         // get the exception handler for this time out for this task (if any)
-        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), XTYPE_TIMEOUT);
+        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), RuleType.ItemTimeout);
 
         // if conc is null there's no rules defined for this type of constraint
         if (conc == null)
             _log.info("No time-out exception handler defined for task: " + wir.getTaskName());
         else {
             if (! conc.nullConclusion())                 // we have a handler
-                raiseException(monitor, conc, wir, XTYPE_TIMEOUT);
+                raiseException(monitor, conc, wir, RuleType.ItemTimeout);
             else                       // there are rules but the item passes
                 _log.info("Nothing to do for this TimeOut Event");
         }
@@ -342,7 +343,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // get the exception handler for this task (if any)
         RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(),
-                XTYPE_RESOURCE_UNAVAILABLE);
+                RuleType.ItemResourceUnavailable);
 
         // if conc is null there's no rules defined for this type of constraint
         if (conc == null)
@@ -350,7 +351,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     wir.getTaskName());
         else {
             if (! conc.nullConclusion())                 // we have a handler
-                raiseException(monitor, conc, wir, XTYPE_RESOURCE_UNAVAILABLE);
+                raiseException(monitor, conc, wir, RuleType.ItemResourceUnavailable);
             else                       // there are rules but the item passes
                 _log.info("Nothing to do for this Resource Unavailable Event");
         }
@@ -378,7 +379,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private void checkConstraints(CaseMonitor monitor, boolean pre) {
         RdrConclusion conc ;       // the conclusion from a set of rules, if any
         String sType = pre ? "pre" : "post";
-        int xType = pre ? XTYPE_CASE_PRE_CONSTRAINTS : XTYPE_CASE_POST_CONSTRAINTS;
+        RuleType xType = pre ? RuleType.CasePreconstraint : RuleType.CasePostconstaint;
 
         // get the exception handler that would result from a constraint violation
         conc = getExceptionHandler(monitor, null, xType) ;
@@ -413,7 +414,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         String itemID = wir.getID();
         String taskID = wir.getTaskName() ;
         String sType = pre? "pre" : "post";
-        int xType = pre? XTYPE_ITEM_PRE_CONSTRAINTS : XTYPE_ITEM_POST_CONSTRAINTS;
+        RuleType xType = pre? RuleType.ItemPreconstraint : RuleType.ItemPostconstaint;
 
         // get the exception handler that would result from a constraint violation
         conc = getExceptionHandler(monitor, taskID, xType) ;
@@ -444,7 +445,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return an RdrConclusion representing an exception handling process,
      *         or null if no rules are defined for these criteria
      */
-    private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, int xType){
+    private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, RuleType xType){
         if (monitor != null) {
             RdrTree tree = getTree(monitor.getSpecID(), taskID, xType);
             if (tree != null) {
@@ -468,7 +469,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param xType the int descriptor of the exception type (WorkletService xType)
      */
     private void raiseException(CaseMonitor cmon, RdrConclusion conc, String sType,
-                                int xType){
+                                RuleType xType){
         if (connected()) {
             _log.debug("Invoking exception handling process for Case: " + cmon.getCaseID());
             HandlerRunner hr = new HandlerRunner(cmon, conc, xType) ;
@@ -492,7 +493,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param xType the int descriptor of the exception type (WorkletService xType)
      */
     private void raiseException(CaseMonitor cmon, RdrConclusion conc,
-                                WorkItemRecord wir, int xType){
+                                WorkItemRecord wir, RuleType xType){
         if (connected()) {
             _log.debug("Invoking exception handling process for item: " + wir.getID());
             HandlerRunner hr = new HandlerRunner(cmon, wir, conc, xType) ;
@@ -737,7 +738,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             if (runner.isCaseSuspended() || runner.isItemSuspended())
                 updateCaseData(runner, wlCasedata);
 
-            if (runner.isItemSuspended() && isExecutingItemException(runner.getReasonType()))
+            if (runner.isItemSuspended() && runner.getReasonType().isExecutingItemType())
                 updateItemData(runner, wlCasedata);
         }
 
@@ -1023,7 +1024,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         try {
             if (successful( _interfaceBClient.cancelCase(caseID, _sessionHandle))) {
                 if (_monitoredCases.containsKey(caseID)) {
-                    if (hr.getReasonType() == XTYPE_CASE_PRE_CONSTRAINTS) {
+                    if (hr.getReasonType() == RuleType.CasePreconstraint) {
                         CaseMonitor mon = _monitoredCases.get(caseID);
                         mon.setPreCaseCancellationFlag();
                     }
@@ -1373,19 +1374,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     }
 
 
-    /** returns true if the exception type passed occurs for an executing workitem */
-    private boolean isExecutingItemException(int xType) {
-        return (xType == XTYPE_WORKITEM_ABORT) || (xType == XTYPE_TIMEOUT) ||
-                (xType == XTYPE_CONSTRAINT_VIOLATION) ||
-                (xType == XTYPE_ITEM_EXTERNAL_TRIGGER);
-    }
-
-    public boolean isCaseLevelException(int xType) {
-        return (xType == XTYPE_CASE_PRE_CONSTRAINTS) ||
-                (xType == XTYPE_CASE_POST_CONSTRAINTS) ||
-                (xType == XTYPE_CASE_EXTERNAL_TRIGGER) ;
-    }
-
     //***************************************************************************//
 
 
@@ -1584,7 +1572,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (caseID != null) {
             CaseMonitor mon = _monitoredCases.get(getIntegralID(caseID));
             if (mon != null) {
-                RdrTree tree = getTree(mon.getSpecID(), null, XTYPE_CASE_EXTERNAL_TRIGGER);
+                RdrTree tree = getTree(mon.getSpecID(), null, RuleType.CaseExternalTrigger);
                 return getExternalTriggers(tree) ;
             }
         }
@@ -1603,7 +1591,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             WorkItemRecord wir = getWorkItemRecord(itemID);
             if (wir != null) {
                 RdrTree tree = getTree(new YSpecificationID(wir), wir.getTaskName(),
-                        XTYPE_ITEM_EXTERNAL_TRIGGER);
+                        RuleType.ItemExternalTrigger);
                 return getExternalTriggers(tree) ;
             }
         }
@@ -1666,18 +1654,18 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
             String caseID, taskID;
             WorkItemRecord wir = null;
-            int xLevel ;
+            RuleType xLevel ;
 
             if (level.equalsIgnoreCase("case")) {                // if case level
                 caseID = id;
                 taskID = null;
-                xLevel = XTYPE_CASE_EXTERNAL_TRIGGER ;
+                xLevel = RuleType.CaseExternalTrigger;
             }
             else {                                               // else item level
                 wir = getWorkItemRecord(id);
                 caseID = wir.getRootCaseID();
                 taskID = wir.getTaskName();
-                xLevel = XTYPE_ITEM_EXTERNAL_TRIGGER ;
+                xLevel = RuleType.ItemExternalTrigger;
             }
 
             // get case monitor for this case
@@ -1719,10 +1707,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      *  @return a string of messages decribing the success or otherwise of
      *          the process
      */
-    public String replaceWorklet(int xType, String caseid, String itemid, String trigger) {
+    public String replaceWorklet(RuleType xType, String caseid, String itemid, String trigger) {
         String result ;
         WorkItemRecord wir = null;
-        boolean caseLevel = isCaseLevelException(xType);
+        boolean caseLevel = xType.isCaseLevelType();
         CaseMonitor mon = _monitoredCases.get(caseid);
 
         _log.info("REPLACE EXECUTING WORKLET REQUEST");
@@ -1770,18 +1758,18 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
             // go through the process again, depending on the exception type
             switch (xType) {
-                case XTYPE_CASE_PRE_CONSTRAINTS : checkConstraints(mon, true); break;
-                case XTYPE_CASE_POST_CONSTRAINTS : checkConstraints(mon, false); break;
-                case XTYPE_ITEM_PRE_CONSTRAINTS : checkConstraints(mon, wir, true); break;
-                case XTYPE_ITEM_POST_CONSTRAINTS : checkConstraints(mon, wir, false); break;
-                case XTYPE_WORKITEM_ABORT : break;   // not yet implemented
-                case XTYPE_TIMEOUT :
+                case CasePreconstraint : checkConstraints(mon, true); break;
+                case CasePostconstaint : checkConstraints(mon, false); break;
+                case ItemPreconstraint : checkConstraints(mon, wir, true); break;
+                case ItemPostconstaint : checkConstraints(mon, wir, false); break;
+                case ItemAbort         : break;   // not yet implemented
+                case ItemTimeout :
                     if (wir != null) handleTimeoutEvent(wir, wir.getTaskID()); break ;
-                case XTYPE_RESOURCE_UNAVAILABLE : break;   // not yet implemented
-                case XTYPE_CONSTRAINT_VIOLATION : break;   // not yet implemented
-                case XTYPE_CASE_EXTERNAL_TRIGGER :
+                case ItemResourceUnavailable : break ;   // todo
+                case ItemConstraintViolation : break;   // not yet implemented
+                case CaseExternalTrigger :
                     raiseExternalException("case", caseid, trigger); break;
-                case XTYPE_ITEM_EXTERNAL_TRIGGER :
+                case ItemExternalTrigger :
                     raiseExternalException("item", caseid, trigger); break;
             }
 

@@ -83,7 +83,7 @@ public class ExpressionParser {
      */
     public double evaluate(String expr) {
         if (expr != null) {
-            BinaryNode root = parse(expr);
+            ExprNode root = parse(expr);
             return root.evaluate();
         }
         throw new NumberFormatException("Null expression");
@@ -97,7 +97,7 @@ public class ExpressionParser {
      * @param expr the expression to parse
      * @return the root node of the tree
      */
-    private BinaryNode parse(String expr) {
+    private ExprNode parse(String expr) {
         expr = expr.trim();
 
         // sub-evaluate parenthesised sub-expressions
@@ -106,9 +106,11 @@ public class ExpressionParser {
         }
 
         char[] chars = expr.toCharArray();
-        BinaryNode node = new BinaryNode();
+        ExprNode node = new ExprNode();
         for (String ops : ORDERED_OPERATORS) {
-            for (int i = 1; i < chars.length; i++) {      // start at 1 handles unary ops
+
+            // parse right-to-left so that tree can be evaluated bottom-to-top
+            for (int i = chars.length -1; i > 0; i--) {   // start at 1 handles unary ops
                 if (chars[i] == ' ') continue;            // ignore spaces
                 if (ops.indexOf(chars[i]) > -1) {
                     node.content = String.valueOf(chars[i]);
@@ -150,12 +152,24 @@ public class ExpressionParser {
 
     /**********************************************************************************/
 
-    class BinaryNode {
+    /**
+     * One node in a binary tree representing a parsed arithmetic expression
+     */
+    class ExprNode {
         String content;
-        BinaryNode left;
-        BinaryNode right;
+        ExprNode left;
+        ExprNode right;
 
+
+        /**
+         * Evaluates a (sub-) expression, using this node as the root
+         * @return the numeric result of the evaluation
+         * @throws NumberFormatException if the expression is unbalanced
+         */
         double evaluate() {
+            if (isOperator(content) && (left == null || right == null)) {
+                throw new NumberFormatException("Unbalanced expression");
+            }
             if (content.equals("+")) {
                 return left.evaluate() + right.evaluate();
             }
@@ -168,10 +182,31 @@ public class ExpressionParser {
             else if (content.equals("\\")) {
                 return left.evaluate() / right.evaluate();
             }
-            return valueOf();
+            return valueOf();                  // not an operator
         }
 
 
+        /**
+         * Checks if the string passed is a known operator
+         * @param s the string to check
+         * @return true if the string passed is a known operator
+         */
+        boolean isOperator(String s) {
+            for (String ops : ORDERED_OPERATORS) {
+                if (ops.contains(s)) return true;
+            }
+            return false;
+        }
+
+
+        /**
+         * Gets the value of this node. If the node's content is non-numeric, it is
+         * assumed to be a variable name, in which case the variable's corresponding
+         * value is returned if it exists in the variable map.
+         * @return the node's value
+         * @throws NumberFormatException if the node's content is non-numeric and does
+         * not match the name of a known variable
+         */
         double valueOf() {
             if (isValidDouble(content)) {
                 return Double.valueOf(content);
@@ -179,29 +214,47 @@ public class ExpressionParser {
             if ((variables != null) && variables.containsKey(content)) {
                 return Double.valueOf(variables.get(content));
             }
-            throw new NumberFormatException("Unknown variable: " + content);
+            
+            // not a valid number or a variable
+            String err;
+            if (Character.isJavaIdentifierStart(content.charAt(0)))
+                err = "Unknown variable: ";
+            else if (Character.isDigit(content.charAt(0)))
+                err = "Invalid number: ";
+            else err = "Malformed expression part: ";
+            throw new NumberFormatException(err + content);
         }
-        
-        
+
+
+        /**
+         * Checks if a string can be converted to a valid double value
+         * @param s the string to check
+         * @return whether the string can be converted without error
+         */
         boolean isValidDouble(String s) {
-            boolean foundUnary = false;
+            if (s == null || s.length() == 0) return false;
             boolean foundDecimal = false;
-            for (char c : s.toCharArray()) {
-                if (Character.isDigit(c)) continue;
-                if (((c == '+') || (c == '-')) && (! foundUnary)) {
-                    foundUnary = true;
-                    continue;
-                }
-                if ((c == '.') && (! foundDecimal)) {
+            char[] chars = s.toCharArray();
+            int start = (chars[0] == '+' || chars[0] == '-') ? 1 : 0;     // unary op
+            for (int i = start; i < chars.length; i++) {
+                if (Character.isDigit(chars[i])) continue;
+                if ((chars[i] == '.') && (! foundDecimal)) {         // one '.' allowed
                     foundDecimal = true;
                     continue;
                 }
-                return false;
+                return false;                                       // non-double char
             }
-            return true;
+            return true;                                            // all chars passed
         }
     }
-    
+
+
+    /**********************************************************************************/
+
+    /**
+     * Unit tests the class with expressions entered from the command line
+     * @param args runtime arguments - none required
+     */
     public static void main(String[] args) {
         ExpressionParser parser = new ExpressionParser();
         String expression;
@@ -210,14 +263,14 @@ public class ExpressionParser {
             try {
                 System.out.print("Enter expression ('X' to exit): ");
                 expression = c.readLine();
-                if (expression.equalsIgnoreCase("x")) break;
+                if (expression.equalsIgnoreCase("x")) break;           // exit
                 long start = System.currentTimeMillis();
                 double result = parser.evaluate(expression);
                 long duration = System.currentTimeMillis() - start;
                 System.out.println("Result: " + result + " (" + duration + " msecs)");
             }
             catch (NumberFormatException nfe) {
-                System.err.println("Result :" + nfe.getMessage());
+                System.err.println("Result: " + nfe.getMessage());
             }
             catch (IOException ioe) {
                 System.err.println(ioe.getMessage());
