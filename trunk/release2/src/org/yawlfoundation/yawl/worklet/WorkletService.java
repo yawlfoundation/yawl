@@ -39,6 +39,7 @@ import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrSet;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.*;
@@ -112,20 +113,6 @@ import java.util.*;
  */
 
 public class WorkletService extends InterfaceBWebsideController {
-
-    // constants for Exception Types
-    public static final int XTYPE_CASE_PRE_CONSTRAINTS = 0;
-    public static final int XTYPE_CASE_POST_CONSTRAINTS = 1;
-    public static final int XTYPE_ITEM_PRE_CONSTRAINTS = 2;
-    public static final int XTYPE_ITEM_POST_CONSTRAINTS = 3;
-    public static final int XTYPE_WORKITEM_ABORT = 4;
-    public static final int XTYPE_TIMEOUT = 5;
-    public static final int XTYPE_RESOURCE_UNAVAILABLE = 6;
-    public static final int XTYPE_CONSTRAINT_VIOLATION = 7;
-    public static final int XTYPE_CASE_EXTERNAL_TRIGGER = 8;
-    public static final int XTYPE_ITEM_EXTERNAL_TRIGGER = 9;
-    public static final int XTYPE_SELECTION = 10;             // 'pseudo' exception type
-
 
     // required data for interfacing with the engine
     protected String _sessionHandle = null ;
@@ -508,7 +495,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("   specId = " + specId);
 
          // locate rdr ruleset for this task
-        selectionTreeForTask = getTree(specId, taskId, XTYPE_SELECTION) ;
+        selectionTreeForTask = getTree(specId, taskId, RuleType.ItemSelection) ;
 
          if (selectionTreeForTask != null) {
 
@@ -520,7 +507,7 @@ public class WorkletService extends InterfaceBWebsideController {
              // launch a worklet case for each checked out child workitem
              while (childIndex < coParent.getChildCount()) {
                  coChild = coParent.getCheckedOutChildItem(childIndex) ;
-                 ProcessWorkItemSubstitution(selectionTreeForTask, coChild) ;
+                 processWorkItemSubstitution(selectionTreeForTask, coChild) ;
 
                  // if no worklet launched for this item, it's been removed
                  // from the parent, so don't increment the loop counter
@@ -594,7 +581,7 @@ public class WorkletService extends InterfaceBWebsideController {
        // if MI task and threshold has been reached, remove extraneous worklets
        if (cociOrig.getParent().isMultiTask()) {
            if (cociOrig.getParent().thresholdReached())
-               CancelWorkletsForCompletedMITask(cociOrig);
+               cancelWorkletsForCompletedMITask(cociOrig);
        }
     }
 
@@ -607,7 +594,7 @@ public class WorkletService extends InterfaceBWebsideController {
      *                workitem is an instance of
      *  @param coChild - the info record of the checked out workitem 
      */
-    private void ProcessWorkItemSubstitution(RdrTree tree,
+    private void processWorkItemSubstitution(RdrTree tree,
                                              CheckedOutChildItem coChild) {
 
        String childId = coChild.getItem().getID() ;
@@ -622,7 +609,7 @@ public class WorkletService extends InterfaceBWebsideController {
            String wSelected =  result.getTarget(1);
 
              _log.info("Rule search returned worklet(s): " + wSelected);
-            coChild.setExType(XTYPE_SELECTION);
+            coChild.setExType(RuleType.ItemSelection);
 
             if (launchWorkletList(coChild, wSelected)) {
                 // save the search results (if later rule append is needed)
@@ -661,9 +648,9 @@ public class WorkletService extends InterfaceBWebsideController {
      *  @param wir - a record describing one of the remaining spawned workitems
      */
 
-    private void CancelWorkletsForCompletedMITask(WorkItemRecord wir) {
+    private void cancelWorkletsForCompletedMITask(WorkItemRecord wir) {
         CheckedOutChildItem coItem = _handledWorkItems.get(wir.getID()) ;
-        CancelWorkletsForCompletedMITask(coItem);
+        cancelWorkletsForCompletedMITask(coItem);
     }
 
     /**
@@ -671,7 +658,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param coItem - the checkedout child item that's a member workitem of the
      *                 MI Task that has reached its threshold
      */
-    private void CancelWorkletsForCompletedMITask(CheckedOutChildItem coItem) {
+    private void cancelWorkletsForCompletedMITask(CheckedOutChildItem coItem) {
         CheckedOutItem coParent ;
         WorkItemRecord wir = coItem.getItem();
 
@@ -918,7 +905,7 @@ public class WorkletService extends InterfaceBWebsideController {
            else {
                 // assumption: workitem not in engine means it was a spawned item of
                 // a MI task which has completed
-               CancelWorkletsForCompletedMITask(wir);
+               cancelWorkletsForCompletedMITask(wir);
             }
         }
         catch (IOException ioe) {
@@ -1150,7 +1137,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // log launch event
                 EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, specID, "",
-                                                wr.getCaseID(), wr.getReasonType());
+                                                wr.getCaseID(), wr.getReasonType().ordinal());
                 _log.info("Launched case for worklet " + wName +
                            " with ID: " + caseId) ;
                 return caseId ;
@@ -1213,11 +1200,11 @@ public class WorkletService extends InterfaceBWebsideController {
                // refresh ruleset to pickup newly added rule
                refreshRuleSet(specId);
 
-               RdrTree tree = getTree(specId, taskId, XTYPE_SELECTION) ;
+               RdrTree tree = getTree(specId, taskId, RuleType.ItemSelection) ;
 
                if (tree != null) {
                    _log.info("Ruleset found for workitem: " + coci.getItemId()) ;
-                   ProcessWorkItemSubstitution(tree, coci) ;
+                   processWorkItemSubstitution(tree, coci) ;
 
                    Map<String, String> cases = coci.getCaseMapAsCSVList();
                    result += "done. " + Library.newline +
@@ -1369,7 +1356,7 @@ public class WorkletService extends InterfaceBWebsideController {
      ***************************/
 
     /** returns the rule tree (if any) for the parameters passed */
-     protected RdrTree getTree(YSpecificationID specID, String taskID, int treeType) {
+     protected RdrTree getTree(YSpecificationID specID, String taskID, RuleType treeType) {
 
         RdrSet ruleSet ;
         RdrTree result ;
@@ -1385,9 +1372,7 @@ public class WorkletService extends InterfaceBWebsideController {
               return null ;                           // no rules for spec
         }
 
-        if ((treeType == XTYPE_CASE_PRE_CONSTRAINTS) ||
-            (treeType == XTYPE_CASE_POST_CONSTRAINTS) ||
-            (treeType == XTYPE_CASE_EXTERNAL_TRIGGER))
+        if (treeType.isCaseLevelType())
             result = ruleSet.getTree(treeType) ;          // trees at case level
         else
             result = ruleSet.getTree(treeType, taskID) ;  // trees at task level
@@ -1619,42 +1604,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
 //***************************************************************************//
 
-    /** returns some text describing the specified rule type */
-    public static String getXTypeString(int xType) {
-       switch( xType ) {
-           case XTYPE_CASE_PRE_CONSTRAINTS : return "Pre-case constraint violation" ;
-           case XTYPE_CASE_POST_CONSTRAINTS : return "Post-case constraint violation";
-           case XTYPE_ITEM_PRE_CONSTRAINTS : return "Workitem pre-constraint violation";
-           case XTYPE_ITEM_POST_CONSTRAINTS : return "Workitem post-constraint violation";
-           case XTYPE_WORKITEM_ABORT : return "Workitem abort";
-           case XTYPE_TIMEOUT : return "Workitem timeout";
-           case XTYPE_RESOURCE_UNAVAILABLE : return "Resource Unavailable";
-           case XTYPE_CONSTRAINT_VIOLATION : return "Workitem constraint violation";
-           case XTYPE_CASE_EXTERNAL_TRIGGER : return "Case-level external trigger";
-           case XTYPE_ITEM_EXTERNAL_TRIGGER : return "Workitem-level external trigger";
-           case XTYPE_SELECTION : return "Selection";
-       }
-       return null;
-    }
 
-    /** returns a short text description of the specified rule type */
-
-    public static String getShortXTypeString(int xType) {
-       switch( xType ) {
-           case XTYPE_CASE_PRE_CONSTRAINTS : return "PreCaseConstraint" ;
-           case XTYPE_CASE_POST_CONSTRAINTS : return "PostCaseConstraint";
-           case XTYPE_ITEM_PRE_CONSTRAINTS : return "ItemPreConstraint";
-           case XTYPE_ITEM_POST_CONSTRAINTS : return "ItemPostConstraint";
-           case XTYPE_WORKITEM_ABORT : return "ItemAbort";
-           case XTYPE_TIMEOUT : return "ItemTimeout";
-           case XTYPE_RESOURCE_UNAVAILABLE : return "ResourceUnavailable";
-           case XTYPE_CONSTRAINT_VIOLATION : return "ConstraintViolation";
-           case XTYPE_CASE_EXTERNAL_TRIGGER : return "CaseExternal";
-           case XTYPE_ITEM_EXTERNAL_TRIGGER : return "ItemExternal";
-           case XTYPE_SELECTION : return "Selection";
-       }
-       return null;
-    }
 
 
 //***************************************************************************//

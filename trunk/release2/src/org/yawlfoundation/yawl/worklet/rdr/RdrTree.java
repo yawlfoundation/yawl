@@ -27,21 +27,22 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 import java.util.ArrayList;
 import java.util.List;
 
-// import org.apache.log4j.Logger;
 
-
-/** A Ripple Down Rule tree implementation.
+/**
+ * A Ripple Down Rule tree implementation.
  *
- *  This class maintains a set of RdrNodes. Each RdrTree contains the set of
- *  rules for one particular task in a specification.
+ *  @author Michael Adams
+ *  v0.8, 04-09/2006
+ */
+ /*
+ * This class maintains a set of RdrNodes. Each RdrTree contains the set of
+ * rules for one particular task in a specification.
  *  
  *  ==========        ===========        ===========
  *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
  *  ==========        ===========        ===========
  *                        ^^^
  *
- *  @author Michael Adams
- *  v0.8, 04-09/2006
  */
 
 public class RdrTree {
@@ -51,7 +52,7 @@ public class RdrTree {
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
     
-    private static Logger _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.rdr.RdrTree");
+    private static Logger _log = Logger.getLogger(RdrTree.class);
 
 
     /** Default constructor */
@@ -89,39 +90,52 @@ public class RdrTree {
     }
     
     /**
-     *  Returns the RdrNode for the id passed
-     *  @param id - the node id of the node to return
+     * Gets the RdrNode for the id passed
+     * @param id - the node id of the node to find
+     * @return the node identified by the id, or null if this tree has no matching node
      */
     public RdrNode getNode(int id) {
        return getNode(_rootNode, id) ;
     }
-    
-    /** recursively searches for the node id passed */    
+
+
+    /**
+     * Recursively searches the tree for the node with the id passed
+     * @param root the root node of the (sub)-tree
+     * @param id - the node id of the node to find
+     * @return the node identified by the id, or null if this tree has no matching node
+     */
     private RdrNode getNode(RdrNode root, int id) {
-        RdrNode result ;
-        if (root == null) return null ;            // no match - base case
-        else {
-        	if (root.getNodeId() == id) return root ;    // match found
-        	result = getNode(root.getTrueChild(), id) ;
-        	if (result == null) result = getNode(root.getFalseChild(), id) ;
-        	return result ;
-        }
+        if (root == null) return null;                          // no match - base case
+        if (root.getNodeId() == id) return root;                // match found
+        RdrNode result = getNode(root.getTrueChild(), id);      // search true branch
+        if (result == null) result = getNode(root.getFalseChild(), id);
+        return result ;
     }
 
 
+    /**
+     * Gets the condition of each node in this tree
+     * @return a List of all node conditions
+     */
     public List<String> getAllConditions() {
-        return getAllConditions(_rootNode) ;
+        return getAllConditions(_rootNode);
     }
 
-    /** recurses the tree, collecting the condition from each node */
+
+    /**
+     * Recurses the tree, collecting the condition from each node
+     * @param node the root node of this (sub)-tree
+     * @return a List of all node conditions
+     */
     public List<String> getAllConditions(RdrNode node) {
         List<String> list = new ArrayList<String>();
         if (node != null) {
             list.add(node.getCondition());
-        	  list.addAll(getAllConditions(node.getTrueChild())) ;
-        	  list.addAll(getAllConditions(node.getFalseChild())) ;
+            list.addAll(getAllConditions(node.getTrueChild()));
+            list.addAll(getAllConditions(node.getFalseChild()));
         }
-        return list ;
+        return list;
     }
   
 //===========================================================================//
@@ -149,14 +163,11 @@ public class RdrTree {
     *         expressions
     *  @return the conclusion of the last node satisfied
     */ 
-    public Element search(Element caseData){
+    public Element search(Element caseData) {
     	
     	// recursively search each node in the tree    	
         _lastPair = _rootNode.recursiveSearch(caseData, _rootNode);
-        if (_lastPair[0] != null)
-           return (_lastPair[0].getConclusion());
-        else
-           return null ;   
+        return _lastPair[0] != null ? _lastPair[0].getConclusion() : null;
     }  
     
 //===========================================================================//
@@ -173,7 +184,7 @@ public class RdrTree {
     	int nextID = nodeCount() + 1;
         RdrNode temp = new RdrNode(nextID);
         
-        if(trueBranch) {
+        if (trueBranch) {
             parentNode.setTrueChild(temp);
         }
         else {
@@ -184,22 +195,25 @@ public class RdrTree {
     
 //===========================================================================//
 	
-    /** returns the number of nodes in the tree */
+    /**
+     * Gets the number of nodes in the tree
+     * @param root the root node of this (sub)-tree
+     * @return the number of nodes in this (sub)-tree, inclusive of the root node
+     */
     private int countNodes(RdrNode root) {
         if ( root == null ) return 0;          // empty tree. Base case.
-        else { 
-           int count = 1;                                // count the root.
-           count += countNodes(root.getTrueChild());      // add left subtree.
-           count += countNodes(root.getFalseChild());     // add right subtree.
-           return count;  
-        }
+
+        int count = 1;                                // count the root.
+        count += countNodes(root.getTrueChild());      // add left subtree.
+        count += countNodes(root.getFalseChild());     // add right subtree.
+        return count;
      }
 
     /**
-     * returns the number of nodes in the tree
+     * @return the number of nodes in the tree
      */
-    private int nodeCount(){
-        return(countNodes(_rootNode));
+    private int nodeCount() {
+        return countNodes(_rootNode);
     }
     
 //===========================================================================//

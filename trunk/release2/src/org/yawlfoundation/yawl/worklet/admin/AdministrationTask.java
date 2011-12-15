@@ -49,8 +49,7 @@ public class AdministrationTask {
     public static final int TASKTYPE_CASE_EXTERNAL_EXCEPTION = 1;
     public static final int TASKTYPE_ITEM_EXTERNAL_EXCEPTION = 2;
 
-    private static Logger _log = Logger.getLogger(
-                                 "org.yawlfoundation.yawl.worklet.admin.AdministrationTask");
+    private static Logger _log = Logger.getLogger(AdministrationTask.class);
 
 
     public AdministrationTask() {}                        // required for persistence

@@ -22,10 +22,11 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.IllegalAddException;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 import org.yawlfoundation.yawl.worklet.support.WorkletRecord;
@@ -68,7 +69,7 @@ public class HandlerRunner extends WorkletRecord {
      * @param monitor the CaseMonitor for the case the generated the exception
      * @param rdrConc the RdrConclusion of a rule that represents the handling process
      */
-    public HandlerRunner(CaseMonitor monitor, RdrConclusion rdrConc, int xType) {
+    public HandlerRunner(CaseMonitor monitor, RdrConclusion rdrConc, RuleType xType) {
         super() ;
         _parentMonitor = monitor ;
         _rdrConc = rdrConc ;
@@ -83,7 +84,7 @@ public class HandlerRunner extends WorkletRecord {
 
     /** This constructor is used when an exception is raised at the workitem level */
     public HandlerRunner(CaseMonitor monitor, WorkItemRecord wir,
-                         RdrConclusion rdrConc, int xType) {
+                         RdrConclusion rdrConc, RuleType xType) {
         this(monitor, rdrConc, xType);
         _wir = wir ;
         _wirStr = wir.toXML();

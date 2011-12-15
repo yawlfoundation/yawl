@@ -23,11 +23,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -42,19 +40,19 @@ import java.util.List;
  *      - task aborts: set of trees, one for each task in the specification
  *      - time-outs: set of trees, one for each task in the specification
  *      - unavailable resources: set of trees, one for each task in the specification
- *      - task constraint violations (i.e. while the task is executing: set of trees,
+ *      - task constraint violations (i.e. while the task is executing): set of trees,
  *           one for each task in the specification
  *      - spec-level external triggers: one RdrTree
  *      - task-level external triggers: set of trees, one for each task in the
  *           specification
  *
- *  ==========        ===========        ===========
+ *  @author Michael Adams
+ *  v0.8, 04-09/2006
+ */
+ /*  ==========        ===========        ===========
  *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
  *  ==========        ===========        ===========
  *     ^^^
- *
- *  @author Michael Adams
- *  v0.8, 04-09/2006
  */
 
 public class RdrSet {
@@ -80,7 +78,10 @@ public class RdrSet {
     private static Logger _log ;
 
 
-    /** Default constructor */
+    /**
+     * Default constructor
+     * @param specID the specification this rule set belongs to
+     */
     public RdrSet(YSpecificationID specID) {
         _specID = specID ;
         _log = Logger.getLogger(this.getClass());
@@ -89,14 +90,14 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** clears the RdrSet for rebuilding */
+    /** clears and rebuilds the RdrSet */
     public void refresh() {
         loadRules();
     }
 
 //===========================================================================//
 
-    /** returns true if this spec's ruleset has associated rules */
+    /** @return true if this spec's ruleset is not empty */
     public boolean hasRules() {
         return _hasRules ;
     }
@@ -104,51 +105,48 @@ public class RdrSet {
 //===========================================================================//
 
     /**
-     * gets the previously loaded rdrTree for rules defined at the case-level
-     * @param treeType - which set of rules are required
+     * Gets the previously loaded rdrTree for rules defined at the case-level
+     * @param treeType which set of rules are required
      * @return the specified rule tree
      */
-    public RdrTree getTree(int treeType) {
-        if (treeType == WorkletService.XTYPE_CASE_PRE_CONSTRAINTS)
-            return _specPreTree ;
-        else if (treeType == WorkletService.XTYPE_CASE_POST_CONSTRAINTS)
-            return _specPostTree ;
-        else if (treeType == WorkletService.XTYPE_CASE_EXTERNAL_TRIGGER)
-            return _specExternalTree ;
-        else
-            return null ;
+    public RdrTree getTree(RuleType treeType) {
+        switch (treeType) {
+            case CasePreconstraint   : return _specPreTree;
+            case CasePostconstaint   : return _specPostTree;
+            case CaseExternalTrigger : return _specExternalTree;
+            default: return null;
+        }
     }
 
 //===========================================================================//
 
     /**
      *  Retrieves a specified RdrTree for the specified task
+     *
      *  @param treeType - the tree exception type
      *  @param taskName - the task the tree represents
      *  @return the RDRTree for the specified spec and task
      */
-
-    public RdrTree getTree(int treeType, String taskName) {
-
+    public RdrTree getTree(RuleType treeType, String taskName) {
         List<RdrTree> trees = null ;
 
         // get the appropriate list of RdrTrees
         switch (treeType) {
-            case WorkletService.XTYPE_SELECTION:
+            case ItemSelection:
                 trees = _selectionTrees; break ;
-            case WorkletService.XTYPE_ITEM_PRE_CONSTRAINTS:
+            case ItemPreconstraint:
                 trees = _preTrees; break ;
-            case WorkletService.XTYPE_ITEM_POST_CONSTRAINTS:
+            case ItemPostconstaint:
                 trees = _postTrees; break ;
-            case WorkletService.XTYPE_WORKITEM_ABORT:
+            case ItemAbort:
                 trees = _abortTrees; break ;
-            case WorkletService.XTYPE_TIMEOUT:
+            case ItemTimeout:
                 trees = _timeoutTrees; break ;
-            case WorkletService.XTYPE_RESOURCE_UNAVAILABLE:
+            case ItemResourceUnavailable:
                 trees = _resourceTrees; break ;
-            case WorkletService.XTYPE_CONSTRAINT_VIOLATION:
+            case ItemConstraintViolation:
                 trees = _violationTrees; break ;
-            case WorkletService.XTYPE_ITEM_EXTERNAL_TRIGGER:
+            case ItemExternalTrigger:
                 trees = _externalTrees; break ;
         }
 
@@ -158,13 +156,18 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** get the tree for the specified task from the List of trees passed */
+    /**
+     * Gets the tree for the specified task from the List of trees passed
+     * @param list the list of trees to search
+     * @param task the name of the task
+     * @return the tree for the specified task
+     */
     private RdrTree getTreeForTask(List<RdrTree> list, String task) {
         if (list == null) return null ;               // no rules for this task
 
         // compare the taskId of each tree with the task to find
         for (RdrTree tree : list) {
-            if (task.compareTo(tree.getTaskId()) == 0) {
+            if (task.equals(tree.getTaskId())) {
                 return tree ;                         // return the match
             }
         }
@@ -173,18 +176,18 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** load a set of trees from rules file */
+    /** Load a set of trees from rules file
+     * @return true if the rules were loaded successfully
+     */
     private boolean loadRules() {
-        String fileName = _specID.getUri() + ".xrs" ;  // xrs = Xml Rule Set
-        Document doc ;                                 // doc to hold rules
+        String fileName = _specID.getUri() + ".xrs" ;        // xrs = Xml Rule Set
+        Document doc = null;                                 // doc to hold rules
 
         String rulepath = Library.wsRulesDir + fileName ;
 
-        if (Library.fileExists(rulepath))
-            doc = JDOMUtil.fileToDocument(rulepath);
-        else return false;                           // no such file
+        if (Library.fileExists(rulepath)) doc = JDOMUtil.fileToDocument(rulepath);
 
-        if (doc == null) return false ;              // unsuccessful file load
+        if (doc == null) return false ;              // no such file or unsuccessful load
 
         try {
             Element root = doc.getRootElement();      // spec
@@ -231,17 +234,16 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** constructs a rule tree for each set of constraint rules in the rules file
-     *  i.e. pre & post constraint rule sets at the case and task levels
+    /**
+     * Constructs a rule tree for each set of constraint rules in the rules file
+     * i.e. pre & post constraint rule sets at the case and task levels
+     * @param e the JDOM Element representation of the rule tree
+     * @return true if the rules were loaded successfully
      */
     private boolean getConstraintRules(Element e) {
-
-        List constraintTypes = e.getChildren();
-
-        Iterator consItr = constraintTypes.iterator();
-        while (consItr.hasNext()) {
-            Element eCon = (Element) consItr.next() ;
-            String conName = eCon.getName() ;
+        for (Object o : e.getChildren()) {
+            Element eCon = (Element) o;
+            String conName = eCon.getName();
             Element preCase = eCon.getChild("pre");
             Element postCase = eCon.getChild("post");
 
@@ -259,16 +261,15 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** constructs a rule tree for each set of external rules in the rules file
-     *  i.e. pre & post constranit rule sets at the case and task levels
+    /**
+     * Constructs a rule tree for each set of external rules in the rules file
+     * i.e. pre & post constraint rule sets at the case and task levels
+     * @param e the JDOM Element representation of the rule tree
+     * @return true if the rules were loaded successfully
      */
     private boolean getExternalRules(Element e) {
-
-        List levelTypes = e.getChildren();                 // 'case' or 'item'
-
-        Iterator levelItr = levelTypes.iterator();
-        while (levelItr.hasNext()) {
-            Element eChild = (Element) levelItr.next() ;
+        for (Object o : e.getChildren()) {                // 'case' or 'item'
+            Element eChild = (Element) o ;
             String childName = eChild.getName() ;
 
             if (childName.equalsIgnoreCase("case"))
@@ -282,7 +283,7 @@ public class RdrSet {
 //===========================================================================//
 
     /**
-     * construct a tree for each task specified in the rules file
+     * Construct a tree for each task specified in the rules file
      * @param e - the Element containing the rules of each task
      * @return the list of trees constructed
      */
@@ -297,20 +298,22 @@ public class RdrSet {
 
 //===========================================================================//
 
-    /** constructs an RdrTree from the JDOM Element passed */
+    /**
+     * Constructs an RdrTree from the JDOM Element passed
+     * @param task - the Element containing a representation of the tree
+     * @return the list of trees constructed
+     */
     private RdrTree buildTree(Element task) {
         String taskId = task.getAttributeValue("name");
-        RdrTree result = new RdrTree(_specID, taskId) ;
+        RdrTree result = new RdrTree(_specID, taskId);
 
-        List nodeList = task.getChildren() ;    //the rdr nodes for this task
+        List nodeList = task.getChildren();    //the rdr nodes for this task
 
         //get the root node (always stored as node 0)
-        Element rootNode = (Element) nodeList.get(0) ;
-        RdrNode root = buildFromNode(rootNode, nodeList) ;  // build from root
-
-        result.setRootNode(root) ;
-
-        return result ;
+        Element rootNode = (Element) nodeList.get(0);
+        RdrNode root = buildFromNode(rootNode, nodeList);  // build from root
+        result.setRootNode(root);
+        return result;
     }
 
 //===========================================================================//
@@ -319,10 +322,11 @@ public class RdrSet {
      *  recursively build a tree from the node and list passed 
      *  @param xNode contains the xml elements for a single RDR node definition
      *  @param nodeList is the list of all xNodes for a single task
+     *  @return the root node of the constructed tree
      */
     private RdrNode buildFromNode(Element xNode, List nodeList) {
-        String childId ;
-        RdrNode rNode = new RdrNode() ;
+        String childId;
+        RdrNode rNode = new RdrNode();
 
         // populate the node
         rNode.setNodeId(xNode.getChildText("id")) ;
@@ -352,13 +356,11 @@ public class RdrSet {
 
     /** find the node with the id passed in the List of xml nodes */
     private Element getNodeWithId(String id, List nodeList) {
-        String nodeId ;
 
         // find the node with this id
-        for (int i=0;i<nodeList.size();i++) {
-            Element eNode = (Element) nodeList.get(i) ;
-            nodeId = eNode.getChildText("id") ;
-            if ((id.compareTo(nodeId) == 0)) return eNode ;
+        for (Object o : nodeList) {
+            Element eNode = (Element) o;
+            if (id.equals(eNode.getChildText("id"))) return eNode;
         }
         return null ;
     }

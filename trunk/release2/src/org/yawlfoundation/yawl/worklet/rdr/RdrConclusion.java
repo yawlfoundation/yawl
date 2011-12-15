@@ -71,15 +71,16 @@ public class RdrConclusion {
 
     private String getText(String index, String child) {
         Element block = _conclusion.getChild(index);
-        return block.getChildText(child);
+        return block != null ? block.getChildText(child) : "";
     }
 
     public int getCount() {
+        int count = 0;
         if (_conclusion != null) {
            List children = _conclusion.getChildren();
-           return children.size();
+           if (children != null) count = children.size();
         }
-        else return 0 ;
+        return count;
     }
 
     public boolean nullConclusion() {
