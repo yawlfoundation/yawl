@@ -319,7 +319,7 @@ public class ResourceCalendar {
 
         if (endTime > startTime) {
 
-            // get each unavailable slot for the resorce
+            // get each unavailable slot for the resource
             List entries = getTimeSlotEntries(resource, startTime, endTime);
             if (! entries.isEmpty()) {
                 long endOfPrevSlot = startTime;
