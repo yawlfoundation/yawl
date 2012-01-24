@@ -221,7 +221,7 @@ public class ResourceGatewayClientAdapter {
                 }
             }
         }
-        return (! result.isEmpty()) ? result : null;
+        return result;
     }
 
 
@@ -252,8 +252,7 @@ public class ResourceGatewayClientAdapter {
                 else break ;
             }
         }
-
-        return (! result.isEmpty()) ? result : null;
+        return result;
     }
 
 
@@ -466,7 +465,7 @@ public class ResourceGatewayClientAdapter {
             Collections.sort(result, new ParticipantNameComparator());
             return result;
         }
-        else return null;
+        else return Collections.emptyList();
     }
 
 
