@@ -48,6 +48,7 @@ public class WorkItemRecord implements Cloneable {
     public static final String statusForcedComplete = "ForcedComplete";
     public static final String statusFailed = "Failed";
     public static final String statusSuspended = "Suspended";
+    public static final String statusDiscarded = "Discarded";
 
     // workitem resourcing statuses
     public final static String statusResourceOffered = "Offered" ;
