@@ -609,6 +609,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
                         (newStatus.equals(WorkItemRecord.statusDeadlocked)) ||
                         (newStatus.equals(WorkItemRecord.statusFailed)) ||
+                        (newStatus.equals(WorkItemRecord.statusDiscarded)) ||
                         (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
 
                     cleanupWorkItemReferences(cachedWir);

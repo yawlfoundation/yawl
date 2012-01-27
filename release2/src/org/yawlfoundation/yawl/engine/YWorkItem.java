@@ -590,6 +590,21 @@ public class YWorkItem {
     }
 
 
+    /**
+     * announces and logs that this workitem has been discarded - ie. left in the net when
+     * the net completed
+     */
+    public void setStatusToDiscarded(YPersistenceManager pmgr) {
+        try {
+            set_status(null, statusDiscarded);
+            _eventLog.logWorkItemEvent(pmgr, this, _status, null);
+        }
+        catch (YPersistenceException ype) {
+            // no action required
+        }
+    }
+
+
     public void rollBackStatus(YPersistenceManager pmgr)
            throws YPersistenceException {
         if (!_status.equals(statusExecuting)) {

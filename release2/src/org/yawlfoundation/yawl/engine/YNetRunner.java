@@ -24,6 +24,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.time.YTimer;
@@ -307,7 +308,7 @@ public class YNetRunner {
             // if root net can't continue it means a case completion
             if ((_engine != null) && isRootNet()) {
                 announceCaseCompletion();
-                if (endOfNetReached() && warnIfNetNotEmpty()) {
+                if (endOfNetReached() && warnIfNetNotEmpty(pmgr)) {
                     _cancelling = true;                       // flag its not a deadlock                                   
                 }
 
@@ -423,8 +424,7 @@ public class YNetRunner {
             logCompletingTask(pmgr, caseIDForSubnet, busyCompositeTask);
 
             //check to see if completing this task resulted in completing the net.
-            if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() > 0) {
-
+            if (endOfNetReached()) {
                 if (_containingCompositeTask != null) {
                     YNetRunner parentRunner = _engine.getNetRunner(_caseIDForNet.getParent());
                     if ((parentRunner != null) && _containingCompositeTask.t_isBusy()) {
@@ -778,7 +778,7 @@ public class YNetRunner {
             }
 
             // check if completing this task resulted in completing the net.
-            if (isCompleted() && _net.getOutputCondition().getIdentifiers().size() == 1) {
+            if (endOfNetReached()) {
 
                 // check if the completed net is a subnet.
                 if (_containingCompositeTask != null) {
@@ -787,7 +787,7 @@ public class YNetRunner {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
 
-                                warnIfNetNotEmpty();
+                                warnIfNetNotEmpty(pmgr);
 
                                 Document dataDoc = _net.usesSimpleRootData() ?
                                                    _net.getInternalDataDocument() :
@@ -953,7 +953,7 @@ public class YNetRunner {
     }
 
 
-    private boolean warnIfNetNotEmpty() {
+    private boolean warnIfNetNotEmpty(YPersistenceManager pmgr) {
         List<YExternalNetElement> haveTokens = new ArrayList<YExternalNetElement>();
         for (YExternalNetElement element : _net.getNetElements().values()) {
             if (! (element instanceof YOutputCondition)) {  // ignore end condition tokens
@@ -962,6 +962,14 @@ public class YNetRunner {
                 }
                 else if ((element instanceof YTask) && ((YTask) element).t_isBusy()) {
                     haveTokens.add(element);
+
+                    // flag and announce any executing workitems
+                    YInternalCondition exeCondition = ((YTask) element).getMIExecuting();
+                    for (YIdentifier id : exeCondition.getIdentifiers()) {
+                        YWorkItem executingItem = _workItemRepository.get(
+                                id.toString(), element.getID());
+                        if (executingItem != null) executingItem.setStatusToDiscarded(pmgr);
+                    }
                 }
             }
         }
