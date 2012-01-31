@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -65,7 +64,7 @@ public abstract class Service extends InterfaceBWebsideController implements Con
 	 * throws TransferException
 	 */
 	public Service() {
-		PropertyConfigurator.configureAndWatch("log4j.properties", 60*1000);
+//		PropertyConfigurator.configureAndWatch("log4j.properties", 60*1000);
 		_config = ConfigManager.getInstance();
         _props = PropertyReader.getInstance();
 	}

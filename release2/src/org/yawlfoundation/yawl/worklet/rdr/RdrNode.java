@@ -88,7 +88,7 @@ public class RdrNode {
     }
 
 	/** 
-	 *  Construct a node with all the default values.
+	 *  Construct a node with all default values.
 	 *  @param id - the node id for the new node
 	 */
     public RdrNode(int id) {
@@ -108,7 +108,19 @@ public class RdrNode {
                    String condition, Element conclusion) {
     	this(id, parent, null, null, condition, conclusion, null) ;
     }
-    
+
+
+    /**
+     *  Construct a node with the basic values provided
+	 *  @param condition - the condition stored in this node
+	 *  @param conclusion - the conclusion stored in this node
+     *  @param cornerstone - the data set that led to the creation of this node
+	 */
+
+    public RdrNode(String condition, Element conclusion, Element cornerstone) {
+    	this(-1, null, null, null, condition, conclusion, cornerstone) ;
+    }
+
 //===========================================================================//
 	
 

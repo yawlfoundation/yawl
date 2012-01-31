@@ -163,6 +163,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean _serviceEnabled = true ;          // will disable if no participants
     private boolean _initCompleted = false;               // guard for restarted engine
     private boolean _orgDataRefreshing = false;           // flag during auto-refresh
+    private boolean _retainDocsInStore = false;           // keep docs after case ends?
     public static boolean serviceInitialised = false ;    // flag for init on restore
 
     private ApplicationBean _jsfApplicationReference ;   // ref to jsf app manager bean
@@ -361,6 +362,10 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void setExternalUserAuthentication(boolean externalAuth) {
         if (_orgdb != null) _orgDataSet.setExternalUserAuthentication(externalAuth);
+    }
+
+    public void setRetainDocsInStore(boolean retain) {
+        _retainDocsInStore = retain;
     }
 
     public void setVisualiserDimension(String s) {
@@ -575,6 +580,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _workItemCache.removeCase(caseID);
                 removeChain(caseID);
                 removeActiveCalendarEntriesForCase(caseID);
+                if (hasDocStoreClient() && (! _retainDocsInStore)) {
+                    removeCaseFromDocStore(caseID);
+                }
             }
         }
     }
@@ -1993,6 +2001,18 @@ public class ResourceManager extends InterfaceBWebsideController {
         catch (CalendarException ce)  {
             _log.error("Could not clear Calendar bookings for case: " + caseID, ce);
             _calendar.rollBackTransaction();
+        }
+    }
+    
+    
+    private void removeCaseFromDocStore(String caseID) {
+        try {
+            String response = _docStoreClient.clearCase(caseID, _docStoreClient.getHandle());
+            _log.debug(response);
+        }
+        catch (IOException ioe) {
+            _log.error("Error removing uploaded docs for case " + caseID +
+                    " - could not connect to Document Store");
         }
     }
 

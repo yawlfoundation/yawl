@@ -56,7 +56,7 @@ public class RdrTree {
 
 
     /** Default constructor */
-    public RdrTree(){}
+    public RdrTree() {}
     
     
     /**
@@ -64,7 +64,7 @@ public class RdrTree {
      *  @param specId - specification the task is a member of
      *  @param taskId - id of task that this tree will support
      */
-     public RdrTree(YSpecificationID specId, String taskId){
+     public RdrTree(YSpecificationID specId, String taskId) {
     	_taskId = taskId ;
     	_specId = specId ;
     }
@@ -73,19 +73,19 @@ public class RdrTree {
 	
     // GETTERS //
     
-    public RdrNode getRootNode(){
+    public RdrNode getRootNode() {
         return _rootNode;
     }
     
-    public YSpecificationID getSpecId(){
+    public YSpecificationID getSpecId() {
         return _specId;
     }
     
-    public String getTaskId(){
+    public String getTaskId() {
         return _taskId;
     }
     
-    public RdrNode[] getLastPair(){
+    public RdrNode[] getLastPair() {
         return(_lastPair);
     }
     
@@ -179,8 +179,7 @@ public class RdrTree {
 	 *         exception branch; if false, the node will be placed on the
 	 *        'false' if-not branch
 	 */
-    public RdrNode addNode(RdrNode parentNode, boolean trueBranch)
-    {
+    public RdrNode addNode(RdrNode parentNode, boolean trueBranch) {
     	int nextID = nodeCount() + 1;
         RdrNode temp = new RdrNode(nextID);
         

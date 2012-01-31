@@ -21,11 +21,8 @@ package org.yawlfoundation.yawl.worklet.support;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.mapping.PersistentClass;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
-import java.sql.Statement;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -99,52 +96,6 @@ public class DBManager {
 
     public void closeFactory() {
         if (_factory != null) _factory.close();
-    }
-
-    /** iterates through all tables in cfg, tests that they physically exist */
-    private boolean allTablesExist() {
-
-        Iterator itr = _cfg.getClassMappings() ;
-        while (itr.hasNext()) {
-            PersistentClass pClass = (PersistentClass) itr.next() ;
-            if (! tableExists(pClass.getTable().getName())) return false ;
-        }
-        return true;
-    }
-
-
-    /** tests that a table exists by trying to select some data from it
-     *  @return true if the table exists
-     */
-    private boolean tableExists(String tableName) {
-        Statement st ;
-        Transaction tx = null;
-        boolean result = false ;
-
-        try {
-            Session session = _factory.openSession();
-
-            //  Execute a select statement to see if tables are there
-            try {
-                tx = session.beginTransaction();
-                st = session.connection().createStatement();
-                st.executeQuery("select * from " + tableName);
-                tx.commit();
-                result = true ;
-            }
-            catch (Exception e) {
-                if (tx != null) {
-                    tx.rollback();
-                }
-            }
-            finally {
-                session.close();
-            }
-        }
-        catch (HibernateException he) {
-            _log.error("Could not create tables for persistence.", he);
-        }
-        return result ;
     }
 
 
