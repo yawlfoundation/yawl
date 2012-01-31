@@ -19,9 +19,11 @@
 package org.yawlfoundation.yawl.elements.data;
 
 import org.jdom.Element;
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YVerifiable;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
@@ -283,7 +285,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
-        //check that the intital value is well formed
+        //check that the initial value is well formed
         if (_initialValue != null && _initialValue.contains("<")) {
             Element test = JDOMUtil.stringToElement("<dummy>" + _initialValue + "</dummy>") ;
             if (test == null) {
@@ -296,8 +298,15 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
         XMLToolsForYAWL xty = new XMLToolsForYAWL(); //todo MLF: convert to new schema handling
 
+        if ((null != _name) && (null != _elementName)) {
+            messages.add(new YVerificationMessage(
+            this,
+            "name xor element name must be set, not both",
+            YVerificationMessage.ERROR_STATUS));
+        }
+
         //check schema contains type with typename.
-        if (null != _name) {
+        else if (null != _name) {
             boolean isSchemForSchemType =
                     xty.getSchema4SchemaNameSpace().equals(_namespaceURI);
             if (! (_isUntyped || xty.isValidType(_dataTypeName, isSchemForSchemType))) {
@@ -321,19 +330,38 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
                         " cannot create this variable.",
                         YVerificationMessage.ERROR_STATUS));
             }
-        } else if (null != _name) {
-            if (null != _elementName) {
-                messages.add(new YVerificationMessage(
-                        this,
-                        "name xor element name must be set, not both",
-                        YVerificationMessage.ERROR_STATUS));
-            }
         } else {
             messages.add(new YVerificationMessage(
                     this,
                     "name or element name must be set",
                     YVerificationMessage.ERROR_STATUS));
         }
+
+        // check doc store service is available for YDocument vars
+        if (_dataTypeName.endsWith("YDocumentType")) {
+            try {
+                if (YEngine.isRunning()) {
+                    YEngine engine = YEngine.getInstance();
+                    YExternalClient service = engine.getExternalClient("documentStore");
+                    if (service == null) {
+                        messages.add(new YVerificationMessage(
+                             this,
+                             "Variable [" + getPreferredName() + "] in decomposition [" +
+                              _parentDecomposition.getID() + "] is of type 'YDocument', " +
+                              "but the required 'DocumentStore' client service is not " +
+                              "registered with the YAWL engine. Please ensure the " +
+                              "service is registered prior to executing the specification.",
+                              YVerificationMessage.WARNING_STATUS));
+                    }
+                }
+            }
+            catch (NoClassDefFoundError e) {
+                // may occur if called in standalone mode (eg. from the editor), caused by
+                // the call to a static YEngine which attempts to create a
+                // YPersistenceManager object - ok to ignore the verify check in these instances
+            }
+        }
+
         //todo check initial value is of data-type
         return messages;
     }

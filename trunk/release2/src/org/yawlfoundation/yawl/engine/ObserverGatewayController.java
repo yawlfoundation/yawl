@@ -305,20 +305,20 @@ public class ObserverGatewayController {
         });
     }
 
+
     /**
-     * Invoke finalisation processing on all observer gateways (called when
-     * the Engine servlet is being destroyed)
+     * Invoke finalisation processing on all observer gateways and the
+     * ExecutorService used to execute calls to them (called when
+     * the Engine servlet is being destroyed). Do in same thread to avoid
+     * issues where webapp is closed before gateways can complete their
+     * termination processing.
      */
     public void shutdownObserverGateways() {
-        _executor.execute(new Runnable() {
-            public void run() {
-                for (Set<ObserverGateway> gateways : _gateways.values()) {
-            	    for (ObserverGateway gateway : gateways) {
-                        gateway.shutdown();
-                    }
-                }
+        for (Set<ObserverGateway> gateways : _gateways.values()) {
+            for (ObserverGateway gateway : gateways) {
+                gateway.shutdown();
             }
-        });
+        }
         _executor.shutdown();
     }
 

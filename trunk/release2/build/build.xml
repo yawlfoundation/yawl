@@ -29,6 +29,7 @@
     <filter token="ROOT_LOGGING_LEVEL" value="${root.logging.level}"/>
     <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
+    <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
 
     <property name="app.version" value="2.3beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
@@ -108,17 +109,16 @@
           - xsd: schema validation (used by several services)
     -->
     <property name="activation" value="activation.jar"/>                <!-- wsi, mss -->
-    <property name="antlr" value="antlr-2.7.6.jar"/>                         <!-- hbn -->
+    <property name="antlr" value="antlr-2.7.7.jar"/>                         <!-- hbn -->
     <property name="apacheSoap" value="apache_soap-2_3_1.jar"/>              <!-- wsi -->
     <property name="axis" value="axis-1.1RC2.jar"/>                          <!-- wsi -->
-    <property name="backport" value="backport-util-concurrent-2.1.jar"/>     <!-- hbn -->
     <property name="bcmail" value="bcmail-jdk15-139.jar"/>                   <!-- dss -->
     <property name="bcprov" value="bcprov-jdk15-139.jar"/>                   <!-- dss -->
     <property name="c3p0" value="c3p0-0.9.1.jar"/>                           <!-- hbn -->
     <property name="common" value="common.jar"/>                        <!-- eng, xsd -->
     <property name="commonsBeanutils" value="commons-beanutils.jar"/>    <!-- eng Dom -->
     <property name="commonsCodec" value="commons-codec-1.5.jar"/>            <!-- mul -->
-    <property name="commonsCollections" value="commons-collections-3.2.jar"/> <!-- hbn -->
+    <property name="commonsCollections" value="commons-collections-3.2.1.jar"/> <!-- hbn -->
     <property name="commonsDbcp" value="commons-dbcp-1.3.jar"/>              <!-- sch -->
     <property name="commonsDigester" value="commons-digester.jar"/>          <!-- mul -->
     <property name="commonsDiscovery" value="commons-discovery.jar"/>        <!-- wsi -->
@@ -130,14 +130,20 @@
     <property name="derby" value="derbyclient.jar"/>                         <!-- dbd -->
     <property name="dom4j" value="dom4j-1.6.1.jar"/>                         <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>                          <!-- eng, xsd -->
-    <property name="ehcache" value="ehcache-1.5.0.jar"/>                     <!-- hbn -->
+    <property name="ehcache" value="ehcache-core-2.4.3.jar"/>                <!-- hbn -->
     <property name="h2" value="h2-1.3.159.jar"/>                             <!-- dbd -->
     <property name="hibernate" value="hibernate3.jar"/>                      <!-- mul -->
-    <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
+    <property name="hibernate-c3p0" value="hibernate-c3p0-4.0.1.Final.jar"/>  <!-- mul -->
+    <property name="hibernate-core" value="hibernate-core-4.0.1.Final.jar"/>  <!-- mul -->
+    <property name="hibernate-commons" value="hibernate-commons-annotations-4.0.1.Final.jar"/>  <!-- mul -->
+    <property name="hibernate-ehcache" value="hibernate-ehcache-4.0.1.Final.jar"/> <!-- hbn -->
+    <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/> <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.12.0.GA.jar"/>            <!-- hbn -->
+    <property name="javaAssist" value="javassist-3.15.0-GA.jar"/>            <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.3.jar"/>                    <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
+    <property name="jboss-logging" value="jboss-logging-3.1.0.CR2.jar"/>     <!-- hbn -->
+    <property name="jboss-transaction" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/> <!-- hbn -->
     <property name="jdom" value="jdom.jar"/>                                 <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
     <property name="jsf-appbase" value="appbase.jar"/>                       <!-- jsf -->
@@ -151,7 +157,6 @@
     <property name="jsf-webui" value="webui.jar"/>                           <!-- jsf -->
     <property name="json" value="json.jar"/>                                 <!-- sch -->
     <property name="jstl" value="jstl.jar"/>                                 <!-- jsf -->
-    <property name="jta" value="jta-1.1.jar"/>                               <!-- hbn -->
     <property name="junit" value="junit-4.5.jar"/>                           <!-- mul -->
     <property name="log4j" value="log4j-1.2.16.jar"/>                        <!-- mul -->
     <property name="mail" value="mail.jar"/>                                 <!-- mss -->
@@ -267,9 +272,11 @@
         since these are reused for both shared and dedicated Tomcat builds
     -->
     <property name="persistence.libs"
-              value="${antlr} ${commonsCollections} ${commonsLogging} ${dom4j}
-                     ${ehcache} ${hibernate} ${hibernate-jpa} hibernate.cfg.xml ${jta}
-                     ${slf4j} ${javaAssist} ${slf4j-log4j} ${backport} ${c3p0}"/>
+              value="${antlr} ${commonsCollections} ${dom4j} ${ehcache}
+                     ${hibernate-c3p0} ${hibernate-core} ${hibernate-commons}
+                     ${hibernate-ehcache} ${hibernate-jpa} hibernate.cfg.xml
+                     ${javaAssist} ${jboss-logging} ${jboss-transaction} ${c3p0}
+                     ${slf4j} ${slf4j-log4j}"/>
 
     <property name="xsd.libs"
               value="${common} ${ecore} ${xsd} ${xsd.resources}"/>
@@ -401,9 +408,15 @@
         <pathelement location="${lib.dir}/${commonsCollections}"/>
         <pathelement location="${lib.dir}/${dom4j}"/>
         <pathelement location="${lib.dir}/${ehcache}"/>
-        <pathelement location="${lib.dir}/${hibernate}"/>
-        <pathelement location="${lib.dir}/${jta}"/>
+        <pathelement location="${lib.dir}/${hibernate-c3p0}"/>
+        <pathelement location="${lib.dir}/${hibernate-core}"/>
+        <pathelement location="${lib.dir}/${hibernate-commons}"/>
+        <pathelement location="${lib.dir}/${hibernate-ehcache}"/>
+        <pathelement location="${lib.dir}/${hibernate-jpa}"/>
         <pathelement location="${lib.dir}/${dbClient}"/>
+        <pathelement location="${javaAssist}"/>
+        <pathelement location="${jboss-logging}"/>
+        <pathelement location="${jboss-transaction}"/>
     </path>
 
     <path id="cp.apacheCommons">
@@ -445,7 +458,7 @@
         <pathelement location="${lib.dir}/${json}"/>
         <pathelement location="${lib.dir}/${jaxen}"/>
         <pathelement location="${lib.dir}/${ucp}"/>
-        <pathelement location="${lib.dir}/${postgres8}"/>
+        <pathelement location="${lib.dir}/${dbClient}"/>
         <pathelement location="${lib.dir}/${xdb}"/>
         <pathelement location="${lib.dir}/${xalan}"/>
         <pathelement location="${lib.dir}/${xmlparserv}"/>
@@ -1809,7 +1822,8 @@
 
      <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
          <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
-             <fileset dir="${classes.dir}" includes="log4j.properties"/>
+             <fileset dir="${classes.dir}"
+                      includes="log4j.properties hibernate.properties"/>
          </copy>
          <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
              <fileset dir="${lib.dir}" includes="${webapp_scheduling.libs}"/>
@@ -2187,9 +2201,7 @@
             <classpath refid="cp.apacheCommons"/>
             <classpath refid="cp.jsf"/>
             <classpath>
-                <pathelement location="${lib.dir}/${slf4j}"/>
                 <pathelement location="${lib.dir}/${javaAssist}"/>
-                <pathelement location="${lib.dir}/${slf4j-log4j}"/>
             </classpath>
         </java>
     </target>

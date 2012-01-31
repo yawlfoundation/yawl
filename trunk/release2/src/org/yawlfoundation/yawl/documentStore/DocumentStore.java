@@ -66,8 +66,8 @@ public class DocumentStore extends HttpServlet {
 
 
     public void destroy() {
-        _db.closeFactory();
-        _sessions.shutdown();
+        if (_db != null) _db.closeFactory();
+        if (_sessions != null) _sessions.shutdown();
     }
 
 
