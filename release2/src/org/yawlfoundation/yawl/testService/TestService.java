@@ -1,7 +1,31 @@
+/*
+ * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.yawlfoundation.yawl.testService;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.cost.data.ExpressionParser;
+import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
+import org.yawlfoundation.yawl.documentStore.DocumentStoreClient;
+import org.yawlfoundation.yawl.documentStore.YDocument;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -12,6 +36,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
+import org.yawlfoundation.yawl.logging.XESTimestampComparator;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
@@ -31,7 +56,6 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
-import twitter4j.internal.http.HttpParameter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +76,7 @@ public class TestService extends InterfaceBWebsideController {
     public TestService() { super(); }
 
     public void handleEnabledWorkItemEvent(WorkItemRecord enabledWorkItem) {
-
+        String utf8Test = "“Iñtërnâtiônàlizætiøn”";
     }
 
 
@@ -73,15 +97,24 @@ public class TestService extends InterfaceBWebsideController {
         output.append("<html><head><title>YAWL Test Service Welcome Page</title>")
               .append("</head><body><H3>Test Output</H3><p><pre>");
 
-   //     output.append(doResourceServiceGatewayTest()) ;
+   //     output.append(doOrgDataRefreshTest()) ;
+  //      output.append(doGetSpec4Case()) ;
+  //      output.append(skipItem());
+  //      output.append(testCostModel());
+//        output.append(testgetexpiry());
+//        output.append(testExprParser());
+ //         output.append(testDocStore());
+ //       output.append(testConversion());
+  //      output.append(testDocumentType());
+ //       output.append(doResourceServiceGatewayTest()) ;
    //    output.append(createDummyOrgData());
     //     output.append(doLogGatewayTest()) ;
-     //  output.append(doWorkQueueGatewayTest()) ;
+    //   output.append(doWorkQueueGatewayTest()) ;
     //    output.append(ibTest());
    //     output.append(doRandomTest()) ;
    //     output.append(doGetParticipantsTest()) ;
    //       output.append(controllerTest());
-   //     output.append(stressTest());
+    //    output.append(stressTest());
     //    output.append(wqTest());
    //     output.append(xsdTest());
    //     output.append(getCaseState());
@@ -94,17 +127,36 @@ public class TestService extends InterfaceBWebsideController {
   //      output.append(testClientConnect());
   //      output.append(testXNode());
   //      output.append(testXNodeParser());
+    //    output.append(testXNodeComparator());
    //     output.append(testDynTextParser());
    //     output.append(testGetSpecID());
    //     output.append(getTaskPrivileges());
    //     output.append(getDistributionSet());
     //    output.append(testResourceLogGateway());
-        output.append(textMaxCases());
+    //    output.append(testMaxCases());
+    //   output.append(testSpecdata());
+        output.append(findOutWhatLifeIsAllAbout());
          output.append("</pre></p></body></html>");
          outputWriter.write(output.toString());
          outputWriter.flush();
          outputWriter.close();
     }
+
+
+      public String findOutWhatLifeIsAllAbout() {
+        int meaning = 0;
+        for (int i = 0; i < 10; i++) {
+          for (int j = 0; j < 20; j++) {
+            for (int k = 0; k < 300; k++) {
+              for (int m = 0; m < 7000; m++) {
+                meaning += Math.random() + 1;
+              }
+            }
+          }
+        }
+        return String.valueOf(meaning).replaceAll("0*$", "");
+      }
+
 
     private void prn(String s) { System.out.println(s) ; }
 
@@ -142,8 +194,10 @@ private static String getReply(InputStream is) throws IOException {
 
     private String getCaseState() {
         try {
-        String handle = connect("admin", "YAWL");
-        return _interfaceBClient.getCaseState("53", handle);
+            String handle = connect("admin", "YAWL");
+            String s = _interfaceBClient.getCaseState("130960", handle);
+            prn(s);
+            return s;
         }
         catch (IOException ioe) {
         return ""; }
@@ -205,6 +259,164 @@ private static String getReply(InputStream is) throws IOException {
         System.out.println(node.getChild("child").getChild("gc").toPrettyString(1));
         return "";
     }
+    
+    
+    public String testCostModel() {
+        Properties p = System.getProperties();
+        for (String s : p.stringPropertyNames()) prn(s);
+
+        FileInputStream inputStream = null;
+        YSpecificationID specID = new YSpecificationID(
+                "UID_d9f84d47-7e25-4b08-bcb6-1e07ab28ce07", "0.1", "costTest");
+        try {
+            inputStream = new FileInputStream(
+                    "/Users/adamsmj/Documents/temp/anew/costtest.xml");
+            String content = IOUtils.toString(inputStream);
+            inputStream.close();
+            if (content != null) {
+                CostGatewayClient client =
+                        new CostGatewayClient("http://localhost:8080/costService/gateway");
+                String handle = client.connect("admin", "YAWL");
+                client.importModel(content, handle);
+                String log = client.getAnnotatedLog(specID, true, handle);
+                prn(log);
+    
+                Set<String> resources = new HashSet<String>();
+                resources.add("dummyid");
+                resources.add("PA-63c56311-307c-464a-b47d-4251338f08f3");
+                String map =
+                        client.getResourceCosts(specID, "A", resources, handle);
+                prnx(map);
+            }
+        }
+        catch (IOException ioe) {
+            return "ERROR: " + ioe.getMessage();
+        }
+        
+        
+        
+        return "OK";
+
+//        CostService service = new CostService();
+//        service.importModel(xml);
+//        CostModel model = new CostModel(new XNodeParser(true).parse(xml));
+//        prn(model.toXML());
+    }
+    
+
+    private String getCaseXML(String caseID) throws IOException {
+        InterfaceB_EnvironmentBasedClient client =
+                new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
+        String handle = client.connect("admin", "YAWL");
+        return client.getCaseData(caseID, handle);
+    }
+    
+    private String testgetexpiry()  throws IOException {
+        InterfaceB_EnvironmentBasedClient client =
+                new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
+        String handle = client.connect("admin", "YAWL");
+        long time = client.getWorkItemExpiryTime("130946:3_Test_Rash", handle);
+        return "";
+    }
+    
+    
+    private String testConversion() {
+        try { 
+            byte[] bytes = "IÃ±tÃ«rnÃ¢tiÃ´nÃ lizÃ¦tiÃ¸n".getBytes("ISO-8859-1");
+            String s = new String(bytes, "UTF-8");
+            return s;
+        }
+        catch (UnsupportedEncodingException uee) {
+            //
+        }
+        return "what?";
+    }
+    
+    
+    private String testDocStore() throws IOException {
+        YDocument doc = new YDocument("12345", -1, (InputStream) null);
+//        doc.setDocument("/Users/adamsmj/Desktop/ARTICLE 19.docx");
+        DocumentStoreClient c = new DocumentStoreClient("http://localhost:8080/documentStore/");
+        String handle = c.connect("admin", "YAWL");
+    //    return c.putDocument(doc, handle);
+        prn("Connected: " + c.checkConnection(handle));
+        doc.setId(1687538);
+        c.getDocument(doc, handle);
+        doc.writeToFile("/Users/adamsmj/Desktop/ARTICLE 22.docx");
+        prn(c.removeDocument(1687535, handle));
+        prn(c.clearCase("12345", handle));
+        return "OK";
+    }
+    
+    
+    private String testExprParser() {
+        Map<String, String> m = new Hashtable<String, String>();
+        m.put("POrder/Order/Line/Quantity", "15");
+        String e = "(0.1 * (0.2 + 4))";
+        ExpressionParser xp = new ExpressionParser(e, m);
+        double d = -1;
+        try {
+            d = xp.evaluate();
+        }
+        catch (NumberFormatException nfe) {
+            return nfe.getMessage();
+        }
+        return String.valueOf(d);
+    } 
+    
+    
+    public String testDocumentType() {
+        String dir = "/Users/adamsmj/Desktop/ARTICLE 19.docx";
+        String fName = "ARTICLE 19.docx";
+        File f = new File(dir);
+        try {
+            byte[] nameArray = fName.getBytes("UTF-8");
+            byte[] bytes = FileUtils.readFileToByteArray(f);
+            int nameSize = nameArray.length;
+        //    DataOutputStream dos = new DataOutputStream()
+            File g = new File("/Users/adamsmj/Desktop/ARTICLE 20.docx");
+            OutputStream os = new FileOutputStream(g);
+            IOUtils.write(bytes, os);
+        }
+        catch (IOException ioe) {
+            return "ERROR";
+        }
+        return "OK";
+    }
+
+    private String skipItem() throws IOException {
+        InterfaceB_EnvironmentBasedClient client =
+                new InterfaceB_EnvironmentBasedClient("http://localhost:8080/yawl/ib");
+        String handle = client.connect("admin", "YAWL");
+        return client.skipWorkItem("75:A_3", handle);
+    }
+
+
+    public String testXNodeComparator() {
+        FileInputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(
+                    "/Users/adamsmj/Library/Mail Downloads/Emergency0.6.xes-1.xml");
+            String content = IOUtils.toString(inputStream);
+            inputStream.close();
+            if (content != null) {
+                XNode root = new XNodeParser().parse(content);
+                for (XNode trace : root.getChildren("trace")) {
+                    _log.error(System.currentTimeMillis());
+                    trace.sort(new XESTimestampComparator());
+                    _log.error(System.currentTimeMillis());
+                }
+                FileOutputStream outputStream = new FileOutputStream(
+                        "/Users/adamsmj/Library/Mail Downloads/Emergency0.6.xes-2.xml");
+                IOUtils.write(root.toPrettyString(), outputStream);
+            }
+        }
+        catch (IOException ioe) {
+            return "ERROR";
+        }
+        return "OK";
+    }
+
 
 
     private String testGetSpecID() {
@@ -293,35 +505,80 @@ private static String getReply(InputStream is) throws IOException {
     }
 
 
-    private String textMaxCases() {
+    private String testMaxCases() {
         Runtime runtime = Runtime.getRuntime();
-        int nbrCases = 10000;
+        int nbrCases = 1000;
+//        YSpecificationID specID = new YSpecificationID(
+//                "UID_2d142041-0d1e-4cf3-b674-80c4a2477aac", "0.2", "maxCaseTester");
         YSpecificationID specID = new YSpecificationID(
-                "UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.1", "maxCaseTester");
+                   "UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.2", "maxCaseTester");
+
+        YSpecificationID stressID = new YSpecificationID(
+                "UID_474cc3db-68d1-4488-8de5-c3722cf47965", "0.1", "stresstestWithEmptyTasks");
         String caseParams = "<Net><M>The rain in Spain</M></Net>";
-        String template = "Cases: %d\tElapsed (ms): %d\tMem Free: %d\tMem Alloc: %d\tMem Max: %d";
+        String template = "Cases: %d\tElapsed (ms): %d\tAvg (ms): %d\tMem Free: %d\tMem Alloc: %d\tMem Max: %d";
         String resURL = "http://localhost:8080/resourceService/workqueuegateway";
         WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
         long start = System.currentTimeMillis();
         try {
             String handle = client.connect("admin", "YAWL");
             long substart = start;
+  //          while(true) {
             for (int i=0; i <= nbrCases; i++) {
                 if (i % 10 == 0) {
                    long now = System.currentTimeMillis();
-                    System.out.println(String.format(template, i, now - substart,
+                    System.out.println(String.format(template, i, now - substart, (now-substart)/10,
                             runtime.freeMemory(), runtime.totalMemory(), runtime.maxMemory()));
                     substart = now;
                 }
+//                    if (i % 200 == 0) {
+//                        client.launchCase(stressID, null, handle);
+//                    }
                 client.launchCase(specID, caseParams, handle);
             }
+//                Thread.sleep(60000);
+//                String cases = client.getRunningCases(specID, handle);
+//                XNode casesNode = new XNodeParser().parse(cases);
+//                for (XNode aCase : casesNode.getChildren()) {
+//                    client.cancelCase(aCase.getText(), handle);
+//                    System.out.println("Cancelled case: " + aCase.getText());
+//        }
+//                System.out.println("********* LOOP COMPLETE *************");
+  //          }
         }
-        catch (IOException ioe) {
+        catch (Exception ioe) {
             return "fail";
         }
-        return "Total elapsed (ms): " +  (System.currentTimeMillis() - start);
+        long diff = (System.currentTimeMillis() - start);
+        return "Total elapsed (ms): " +  (System.currentTimeMillis() - start) +
+               "\tAvg (ms): " + (diff / nbrCases);
     }
 
+
+    private String testSpecdata() {
+//        YSpecificationID specID = new YSpecificationID(
+//                "UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.2", "maxCaseTester");
+        YSpecificationID specID = new YSpecificationID(
+                "UID_f4c0454c-5a82-49a6-8a96-5a5eb1c32613", "0.2", "maxCaseTester");
+        String resURL = "http://localhost:8080/resourceService/workqueuegateway";
+        WorkQueueGatewayClientAdapter client = new WorkQueueGatewayClientAdapter(resURL);
+        String handle = client.connect("admin", "YAWL");
+        try {
+//            Set<SpecificationData> data = client.getSpecList(handle);
+//            for (SpecificationData s : data) {
+//                System.out.println(s);
+//            }
+
+//            Participant p = client.getParticipantFromUserID("th", handle);
+//            prn(p.toString());
+
+            prn(client.getCaseDataSchema(specID, handle));
+        }
+        catch (Exception e) {
+            //
+        }
+        return "done";
+    }
 
     private String testSummaries() {
         String result = "";
@@ -405,6 +662,19 @@ private static String getReply(InputStream is) throws IOException {
         text = "::: this is     a very    strange ..${/wi/value/text()}.@.    string";
         result += '\n' + parser.parse(text);
         return result;
+    }
+
+
+    private String doGetSpec4Case() {
+        try {
+            String handle = _interfaceBClient.connect("admin", "YAWL");
+            prn(_interfaceBClient.getSpecificationForCase("3", handle));
+        }
+        catch (IOException ioe) {
+            return "bad";
+        }
+        return "good";
+
     }
 
     private String testDynMultiCompTaskNewInst() {
@@ -670,6 +940,18 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
         return result;
     }
 
+    private String doOrgDataRefreshTest() throws IOException {
+        String resURL = "http://localhost:8080/resourceService/gateway";
+        ResourceGatewayClient resClient = new ResourceGatewayClient(resURL) ;
+
+        // get full sets of filters, constraints and allocators
+        String handle = resClient.connect("admin", "YAWL");
+
+        resClient.refreshOrgDataSet(handle);
+        return "ok";
+    }
+
+
     private String doResourceServiceGatewayTest() throws IOException {
         /******* TEST CODE STARTS HERE ***********************************************/
 
@@ -910,7 +1192,7 @@ c.getQueuedWorkItems(resourceId,WorkQueue.SUSPENDED,handle);
     private String stressTest() {
         // note: make sure "_stressTest.xml" is loaded in engine
 
-        int numberOfCasesToStart = 10, i = 0;
+        int numberOfCasesToStart = 50, i = 0;
         String obs = "http://localhost:8080/testService/ib";
         String result;
 
