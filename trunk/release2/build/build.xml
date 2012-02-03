@@ -89,6 +89,7 @@
     <property name="mail.app.name" value="mailService"/>
     <property name="scheduling.app.name" value="schedulingService"/>
     <property name="docStore.app.name" value="documentStore"/>
+    <property name="proclet.app.name" value="procletService"/>
 
     <!--
         Properties for all third-party libraries
@@ -102,6 +103,7 @@
           - jsf: JSF dependencies (used by the Resource and Monitor Services)
           - mss: MailSender Service
           - mul: used by multiple services
+          - prl: Proclet Service
           - sch: Scheduling Service
           - sml: Simple Mail Service
           - twi: Twitter Service
@@ -115,6 +117,8 @@
     <property name="bcmail" value="bcmail-jdk15-139.jar"/>                   <!-- dss -->
     <property name="bcprov" value="bcprov-jdk15-139.jar"/>                   <!-- dss -->
     <property name="c3p0" value="c3p0-0.9.1.jar"/>                           <!-- hbn -->
+    <property name="collections-generic" value="collections-generic-4.01.jar"/> <!-- prl -->
+    <property name="colt" value="colt-1.2.0.jar"/>                           <!-- prl -->
     <property name="common" value="common.jar"/>                        <!-- eng, xsd -->
     <property name="commonsBeanutils" value="commons-beanutils.jar"/>    <!-- eng Dom -->
     <property name="commonsCodec" value="commons-codec-1.5.jar"/>            <!-- mul -->
@@ -127,6 +131,7 @@
     <property name="commonsLang" value="commons-lang-2.3.jar"/>              <!-- mul -->
     <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>      <!-- mul -->
     <property name="commonsPool" value="commons-pool-1.5.4.jar"/>            <!-- sch -->
+    <property name="concurrent" value="concurrent-1.3.4.jar"/>               <!-- prl -->
     <property name="derby" value="derbyclient.jar"/>                         <!-- dbd -->
     <property name="dom4j" value="dom4j-1.6.1.jar"/>                         <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>                          <!-- eng, xsd -->
@@ -157,6 +162,17 @@
     <property name="jsf-webui" value="webui.jar"/>                           <!-- jsf -->
     <property name="json" value="json.jar"/>                                 <!-- sch -->
     <property name="jstl" value="jstl.jar"/>                                 <!-- jsf -->
+    <property name="jung-3d" value="jung-3d-2.0.jar"/>                       <!-- prl -->
+    <property name="jung-3d-demos" value="jung-3d-demos-2.0.jar"/>           <!-- prl -->
+    <property name="jung-algorithms" value="jung-3d-algorithms-2.0.jar"/>    <!-- prl -->
+    <property name="jung-api" value="jung-api-2.0.jar"/>                     <!-- prl -->
+    <property name="jung-api-tests" value="jung-api-2.0-tests.jar"/>         <!-- prl -->
+    <property name="jung-graph" value="jung-graph-impl--2.0.jar"/>           <!-- prl -->
+    <property name="jung-io" value="jung-io-2.0.jar"/>                       <!-- prl -->
+    <property name="jung-jai" value="jung-jai-2.0.jar"/>                     <!-- prl -->
+    <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>     <!-- prl -->
+    <property name="jung-samples" value="jung-samples-2.0.jar"/>             <!-- prl -->
+    <property name="jung-visualization" value="jung-visualization-2.0.jar"/> <!-- prl -->
     <property name="junit" value="junit-4.5.jar"/>                           <!-- mul -->
     <property name="log4j" value="log4j-1.2.16.jar"/>                        <!-- mul -->
     <property name="mail" value="mail.jar"/>                                 <!-- mss -->
@@ -175,11 +191,13 @@
     <property name="slf4j-log4j" value="slf4j-log4j12-1.6.0.jar"/>           <!-- hbn -->
     <property name="smtp" value="smtp.jar"/>                                 <!-- sml -->
     <property name="soaprmi" value="soaprmi-1_1.jar"/>                       <!-- wsi -->
+    <property name="stax" value="stax-api-1.0.1.jar"/>                       <!-- prl -->
     <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>            <!-- twi -->
     <property name="ucp" value="ucp.jar"/>                                   <!-- sch -->
     <property name="wsdl4j" value="wsdl4j-20030807.jar"/>                    <!-- wsi -->
     <property name="wsif" value="wsif.jar"/>                                 <!-- wsi -->
     <property name="wsif-j2c" value="wsif-j2c.jar"/>                         <!-- wsi -->
+    <property name="wstx" value="wstx-asl-3.2.6.jar"/>                       <!-- prl -->
     <property name="xalan" value="xalan.jar"/>                               <!-- sch -->
     <property name="xdb" value="xdb.jar"/>                                   <!-- sch -->
     <property name="xerces" value="xercesImpl.jar"/>                         <!-- mul -->
@@ -304,6 +322,13 @@
               value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
                      ${xdb} ${xalan} ${xmlparserv} ${xmlunit}"/>
 
+    <property name="proclet.libs"
+              value="${collections-generic} ${colt} ${concurrent} ${jung-3d} 
+                     ${jung-3d-demos} ${jung-algorithms} ${jung-api} ${jung-api-tests}
+                     ${jung-graph} ${jung-io} ${jung-jai} ${jung-jai-samples}
+                     ${jung-jai-samples} ${jung-samples} ${jung-visualization} 
+                     ${stax} ${wstx}"/>
+
     <!--
         Per webapp dependency lists
     -->
@@ -362,6 +387,9 @@
 
     <property name="webapp_docStore.libs"
                value="${persistence.libs} ${commonsCodec}"/>
+
+    <property name="webapp_procletService.libs"
+               value="${persistence.libs} ${commonsCodec} ${proclet.libs} ${jdom} ${log4j}"/>
 
     <!--
         JAR grouping properties for compilation classpath usage
@@ -469,6 +497,25 @@
         <pathelement location="${lib.dir}/${mailapi}"/>
         <pathelement location="${lib.dir}/${simplemail}"/>
         <pathelement location="${lib.dir}/${smtp}"/>
+    </path>
+    
+    <path id="cp.proclet">
+        <pathelement location="${lib.dir}/${collections-generic}"/>
+        <pathelement location="${lib.dir}/${colt}"/>
+        <pathelement location="${lib.dir}/${concurrent}"/>
+        <pathelement location="${lib.dir}/${jung-3d}"/>
+        <pathelement location="${lib.dir}/${jung-3d-demos}"/>
+        <pathelement location="${lib.dir}/${jung-algorithms}"/>
+        <pathelement location="${lib.dir}/${jung-api}"/>
+        <pathelement location="${lib.dir}/${jung-api-tests}"/>
+        <pathelement location="${lib.dir}/${jung-graph}"/>
+        <pathelement location="${lib.dir}/${jung-io}"/>
+        <pathelement location="${lib.dir}/${jung-jai}"/>
+        <pathelement location="${lib.dir}/${jung-jai-samples}"/>
+        <pathelement location="${lib.dir}/${jung-samples}"/>
+        <pathelement location="${lib.dir}/${jung-visualization}"/>
+        <pathelement location="${lib.dir}/${stax}"/>
+        <pathelement location="${lib.dir}/${wstx}"/>
     </path>
 
     <path id="cp.etc">
@@ -682,6 +729,7 @@
         <delete dir="${temp.dir}/${mail.app.name}"/>
         <delete dir="${temp.dir}/${scheduling.app.name}"/>
         <delete dir="${temp.dir}/${docStore.app.name}"/>
+        <delete dir="${temp.dir}/${proclet.app.name}"/>
      </target>
 
     <!--
@@ -714,6 +762,7 @@
             <classpath refid="cp.mail"/>
             <classpath refid="cp.simplemail"/>
             <classpath refid="cp.scheduling"/>
+            <classpath refid="cp.proclet"/>
             <classpath refid="cp.etc"/>
         </javac>
         
@@ -885,7 +934,7 @@
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties, hibernate.properties"/>
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_yawl.libs}"/>
@@ -1140,7 +1189,7 @@
     <target name="build_workletService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties, hibernate.properties"/>
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_worklet.libs}"/>
@@ -1286,7 +1335,7 @@
     <target name="build_resourceService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties, hibernate.properties"/>
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_resourceService.libs}"/>
@@ -1635,7 +1684,7 @@
 
     <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_test.libs}"/>
@@ -1992,7 +2041,7 @@
 
     <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_docStore.libs}"/>
@@ -2000,6 +2049,52 @@
     </target>
 
 
+
+    <target name="build_procletService.war"
+             depends="compile, build_procletService_SharedTomcat">
+
+         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}">
+             <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"/>
+         </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="YAWLServiceReference.class YVerifiable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine"
+               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine/interfce">
+                    <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+         </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+        </copy>
+
+         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
+             <fileset dir="${classes.dir}${packageRoot}/util"/>
+         </copy>
+         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF">
+             <fileset file="${build.dir}/${proclet.app.name}/web.xml"/>
+         </copy>
+         <jar destfile="${output.dir}/${proclet.app.name}.war">
+             <fileset dir="${temp.dir}/${proclet.app.name}"/>
+         </jar>
+         <checksum file="${output.dir}/${proclet.app.name}.war"/>
+         <delete dir="${temp.dir}/${proclet.app.name}"/>
+    </target>
+
+    <target name="build_procletService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_procletService.libs}"/>
+        </copy>
+    </target>
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
@@ -2024,6 +2119,7 @@
                      deployTwitterService,
                      deploySchedulingService,
                      deployDocStore,
+                     deployProcletService,
                      deployNonCoreSharedLibs">
     </target>
 
@@ -2108,6 +2204,12 @@
         </copy>
     </target>
 
+    <target name="deployProcletService" depends="build_procletService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${proclet.app.name}.war"/>
+        </copy>
+    </target>
+
     <target name="deployTwitterService" depends="build_twitterService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${twitter.app.name}.war"/>
@@ -2142,7 +2244,7 @@
         </copy>
         <copy overwrite="true" todir="${sharedLibs.dir}">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties, hibernate.properties"/>
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
     </target>
 
@@ -2155,7 +2257,8 @@
                                ${webapp_twitter.libs}
                                ${webapp_scheduling.libs}
                                ${webapp_test.libs}
-                               ${webapp_cost.libs}"/>
+                               ${webapp_cost.libs}
+                               ${webapp_procletService.libs}"/>
         </copy>
     </target>
 
