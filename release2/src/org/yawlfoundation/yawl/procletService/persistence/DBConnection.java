@@ -18,10 +18,14 @@
 
 package org.yawlfoundation.yawl.procletService.persistence;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -32,7 +36,11 @@ public class DBConnection {
     private DBConnection () {	 }
 
 
-    public static void init() {
+    public static void init(Properties props) {
+
+         // minimise hibernate logging
+         Logger.getLogger("org.hibernate").setLevel(Level.WARN);
+         Logger.getLogger("com.mchange.v2.c3p0").setLevel(Level.WARN);
 
          // setup database connection
          Set<Class> persistedClasses = new HashSet<Class>();
@@ -46,7 +54,48 @@ public class DBConnection {
          persistedClasses.add(StoredPortConnection.class);
          persistedClasses.add(StoredProcletBlock.class);
          persistedClasses.add(StoredProcletPort.class);
-         _db = HibernateEngine.getInstance(true, persistedClasses);
+         _db = HibernateEngine.getInstance(true, persistedClasses, props);
+    }
+
+
+    public static Properties configure(String dialect, String driver, String url,
+                                 String username, String password)
+            throws HibernateException {
+        Properties props = new Properties();
+        props.setProperty("hibernate.dialect", dialect);
+        props.setProperty("hibernate.connection.driver_class", driver);
+        props.setProperty("hibernate.connection.url", url);
+        props.setProperty("hibernate.connection.username", username);
+        props.setProperty("hibernate.connection.password", password);
+
+        // add static props
+        props.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'");
+        props.setProperty("hibernate.show_sql", "false");
+        props.setProperty("hibernate.current_session_context_class", "thread");
+        props.setProperty("hibernate.jdbc.batch_size", "0");
+        props.setProperty("hibernate.jdbc.use_streams_for_binary", "true");
+        props.setProperty("hibernate.max_fetch_depth", "1");
+        props.setProperty("hibernate.cache.region_prefix", "hibernate.test");
+        props.setProperty("hibernate.cache.use_query_cache", "true");
+        props.setProperty("hibernate.cache.use_second_level_cache", "true");
+        props.setProperty("hibernate.cache.region.factory_class",
+                          "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+
+        props.setProperty("hibernate.connection.provider_class",
+                          "org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider");
+        props.setProperty("hibernate.c3p0.max_size", "20");
+        props.setProperty("hibernate.c3p0.min_size", "2");
+        props.setProperty("hibernate.c3p0.timeout", "5000");
+        props.setProperty("hibernate.c3p0.max_statements", "100");
+        props.setProperty("hibernate.c3p0.idle_test_period", "3000");
+        props.setProperty("hibernate.c3p0.acquire_increment", "1");
+
+        return props;
+    }
+
+
+    public static void close() {
+        _db.closeFactory();
     }
 
 

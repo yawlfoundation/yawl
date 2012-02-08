@@ -1,0 +1,1 @@
+java -cp .\procletEditor.jar:%CATALINA_HOME%\lib\* org.yawlfoundation.yawl.procletService.editor.Editor

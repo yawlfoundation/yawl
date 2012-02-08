@@ -199,4 +199,9 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         return "<success/>";
     }
 
+
+    public void destroy() {
+        _controller.destroy();
+    }
+
 }

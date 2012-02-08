@@ -32,6 +32,7 @@
 
         <property name="classID"/>
         <property name="blockID"/>
+        <property name="blockType"/>
         <property name="create" type="boolean" column="created"/>
         <property name="timeOut" type="int"/>
 
