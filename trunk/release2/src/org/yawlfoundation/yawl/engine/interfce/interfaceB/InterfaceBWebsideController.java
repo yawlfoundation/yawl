@@ -177,6 +177,13 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Receives notification when the environment is being shutdown. Override this
+     * method to take any necessary finalisation action.
+     */
+    public void destroy() { }
+
+
+    /**
      * Override this method if you wish to allow other tools to find out what
      * input parameters are required for your custom YAWL service to work.
      * @return an array of input parameters.

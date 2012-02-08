@@ -32,6 +32,7 @@
 
         <property name="classID"/>
         <property name="blockID"/>
+        <property name="portID"/>
         <property name="direction"/>
         <property name="cardinality"/>
         <property name="multiplicity"/>

@@ -53,13 +53,17 @@ public class ProcletService extends InterfaceBWebsideController  {
 
 	private ProcletService () {
 		super ();
-        DBConnection.init();
+        DBConnection.init(null);
 		myLog.debug("Proclet service constructor!");
 	}
 
     public static ProcletService getInstance() {
         if (INSTANCE == null) INSTANCE = new ProcletService();
         return INSTANCE;
+    }
+
+    public void destroy() {
+        DBConnection.close();
     }
 
 

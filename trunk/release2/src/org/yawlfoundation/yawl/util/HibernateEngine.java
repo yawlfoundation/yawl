@@ -26,6 +26,7 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -61,18 +62,24 @@ public class HibernateEngine {
     /***********************************/
 
     /** The constuctor - called from getInstance() */
-    private HibernateEngine(boolean persistenceOn, Set<Class> classes)
+    private HibernateEngine(boolean persistenceOn, Set<Class> classes, Properties props)
             throws HibernateException {
         _persistOn = persistenceOn;
-        initialise(classes);
+        initialise(classes, props);
     }
 
 
     /** returns the current HibernateEngine instance */
     public static HibernateEngine getInstance(boolean persistenceOn, Set<Class> classes) {
+        return getInstance(persistenceOn, classes, null);
+    }
+    
+    
+    public static HibernateEngine getInstance(boolean persistenceOn, Set<Class> classes,
+                                              Properties props) {
         if (_me == null) {
             try {
-                _me = new HibernateEngine(persistenceOn, classes);
+                _me = new HibernateEngine(persistenceOn, classes, props);
             }
             catch (HibernateException he) {
                 _persistOn = false ;
@@ -84,9 +91,14 @@ public class HibernateEngine {
 
 
     /** initialises hibernate and the required tables */
-    private void initialise(Set<Class> classes) throws HibernateException {
+    private void initialise(Set<Class> classes, Properties props) throws HibernateException {
         try {
             Configuration _cfg = new Configuration();
+
+            // if props supplied, use them instead of hibernate.properties
+            if (props != null) {
+                _cfg.setProperties(props);
+            }
 
             // add each persisted class to config
             for (Class persistedClass : classes) {

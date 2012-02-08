@@ -93,7 +93,6 @@ public class HibernateEngine {
 
         // add static props
         props.setProperty("hibernate.query.substitutions", "true 1, false 0, yes 'Y', no 'N'");
-        props.setProperty("hibernate.connection.pool_size", "5");
         props.setProperty("hibernate.show_sql", "false");
         props.setProperty("hibernate.current_session_context_class", "thread");
         props.setProperty("hibernate.jdbc.batch_size", "0");
@@ -101,8 +100,18 @@ public class HibernateEngine {
         props.setProperty("hibernate.max_fetch_depth", "1");
         props.setProperty("hibernate.cache.region_prefix", "hibernate.test");
         props.setProperty("hibernate.cache.use_query_cache", "true");
-        props.setProperty("hibernate.cache.provider_class", "org.hibernate.cache.EhCacheProvider");
-             
+        props.setProperty("hibernate.cache.use_second_level_cache", "true");
+        props.setProperty("hibernate.cache.region.factory_class",
+                          "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+
+        props.setProperty("hibernate.connection.provider_class",
+                          "org.hibernate.connection.C3P0ConnectionProvider");
+        props.setProperty("hibernate.c3p0.max_size", "20");
+        props.setProperty("hibernate.c3p0.min_size", "2");
+        props.setProperty("hibernate.c3p0.timeout", "5000");
+        props.setProperty("hibernate.c3p0.max_statements", "100");
+        props.setProperty("hibernate.c3p0.idle_test_period", "3000");
+        props.setProperty("hibernate.c3p0.acquire_increment", "1");
         configureSession(props, classes);
     }
 

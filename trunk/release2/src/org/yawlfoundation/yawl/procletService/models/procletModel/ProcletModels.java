@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.procletService.models.procletModel;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionNode;
 import org.yawlfoundation.yawl.procletService.persistence.DBConnection;
-import org.yawlfoundation.yawl.procletService.persistence.StoredProcletBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,9 +206,9 @@ public class ProcletModels {
 	}
 	
 	public void buildPModelsFromDB () {
-        List items = DBConnection.execQuery("select distinct s.classid from StoredProcletBlock as s");
+        List items = DBConnection.execQuery("select distinct s.classID from StoredProcletBlock as s");
         for (Object o : items) {
-            ProcletModel pmodel = new ProcletModel(((StoredProcletBlock) o).getClassID());
+            ProcletModel pmodel = new ProcletModel((String) o);
         	pmodel.buildFromDB();
         	pModelsList.add(pmodel);
         }

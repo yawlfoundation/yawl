@@ -639,7 +639,7 @@
             <fileset dir="${classes.dir}" excludes="junit junit3.8.1"/>
             <fileset dir="${enumeratedClasses}"/>
             <manifest>
-                <attribute name="Created-By" value="${developer.name}"/>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Main-Class"
                            value="org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
             </manifest>
@@ -775,7 +775,7 @@
             <fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd"
                      excludes="org/yawlfoundation/yawl/engine/gui"/>
             <manifest>
-                <attribute name="Created-By" value="${developer.name}"/>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
             </manifest>
         </jar>
         <checksum file="${output.dir}/yawl-lib-${app.version}.jar"/>
@@ -1375,7 +1375,7 @@
                                org/apache/commons/codec/binary/Base64.class
                                org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>
-                <attribute name="Created-By" value="${developer.name}"/>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Implementation-Version"
                            value="${app.version} ${TODAY}"/>
             </manifest>
@@ -2051,10 +2051,11 @@
 
 
     <target name="build_procletService.war"
-             depends="compile, build_procletService_SharedTomcat">
+             depends="compile, build_procletEditor.jar, build_procletService_SharedTomcat">
 
          <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}">
-             <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"/>
+             <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"
+                      excludes="**/editor/**"/>
          </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
@@ -2077,9 +2078,15 @@
          <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
              <fileset dir="${classes.dir}${packageRoot}/util"/>
          </copy>
-         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF">
-             <fileset file="${build.dir}/${proclet.app.name}/web.xml"/>
-         </copy>
+         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF"
+             file="${build.dir}/${proclet.app.name}/web.xml"/>
+
+        <copy todir="${temp.dir}/${proclet.app.name}"
+              file="${output.dir}/procletEditor.jar"/>
+        <copy todir="${temp.dir}/${proclet.app.name}">
+              <fileset dir="${build.dir}/${proclet.app.name}" excludes="web.xml"/>
+        </copy>
+
          <jar destfile="${output.dir}/${proclet.app.name}.war">
              <fileset dir="${temp.dir}/${proclet.app.name}"/>
          </jar>
@@ -2091,10 +2098,49 @@
         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
         </copy>
-        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_procletService.libs}"/>
         </copy>
     </target>
+
+
+    <target name="build_procletEditor.jar" depends="compile">
+        <tstamp />
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
+        </unzip>
+        <jar destfile="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/procletService/**/*
+                       org/yawlfoundation/yawl/engine/interfce/interfaceB/**/*.class
+                       org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
+                       org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                       org/yawlfoundation/yawl/engine/interfce/ServletUtils.class
+                       org/yawlfoundation/yawl/engine/YSpecificationID.class
+                       org/yawlfoundation/yawl/elements/YSpecVersion.class
+                       org/yawlfoundation/yawl/util/**">
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.procletService.editor.Editor"/>
+            </manifest>
+        </jar>
+        <copy todir="${output.dir}"
+              file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
+    </target>
+
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
