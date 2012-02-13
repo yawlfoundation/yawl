@@ -57,6 +57,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
+import javax.xml.datatype.Duration;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -1974,6 +1975,30 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     //////
+
+    private boolean delayTimeRBSelected = true;
+    private boolean delayDateRBSelected = false;
+    private boolean delayDurationRBSelected = false;
+
+    public boolean isDelayTimeRBSelected() { return delayTimeRBSelected; }
+
+    public void setDelayTimeRBSelected(boolean selected) {
+        delayTimeRBSelected = selected;
+    }
+
+    public boolean isDelayDateRBSelected() { return delayDateRBSelected; }
+
+    public void setDelayDateRBSelected(boolean selected) {
+        delayDateRBSelected = selected;
+    }
+
+    public boolean isDelayDurationRBSelected() { return delayDurationRBSelected; }
+
+    public void setDelayDurationRBSelected(boolean selected) {
+        delayDurationRBSelected = selected;
+    }
+
+    //////
     
     private boolean teamRBSelected = true;
 
@@ -2045,6 +2070,51 @@ public class SessionBean extends AbstractSessionBean {
     public void setOrgDataUploadPanelVisible(boolean visible) {
         orgDataUploadPanelVisible = visible;
     }
+
+
+    private boolean delayedLaunchPanelVisible = false;
+
+    public boolean isDelayedLaunchPanelVisible() {
+        return delayedLaunchPanelVisible;
+    }
+
+    public void setDelayedLaunchPanelVisible(boolean visible) {
+        delayedLaunchPanelVisible = visible;
+    }
+
+
+    private long delaySeconds = 0;
+    private Date delayDate = null;
+    private Duration delayDuration = null;
+
+    public void resetDelayValues() {
+        delaySeconds = -1;
+        delayDate = null;
+        delayDuration = null;
+    }
+
+    public long getDelaySeconds() { return delaySeconds; }
+
+    public void setDelaySeconds(long seconds) { delaySeconds = seconds; }
+
+    public Date getDelayDate() { return delayDate; }
+
+    public void setDelayDate(Date date) { delayDate = date; }
+
+    public Duration getDelayDuration() { return delayDuration; }
+
+    public void setDelayDuration(Duration duration) { delayDuration = duration; }
+
+    public boolean hasDelayValueSet() {
+        return (delaySeconds > -1) || (delayDate != null) || (delayDuration != null);
+    }
+
+
+    private String delayValueError = "";
+
+    public String getDelayValueError() { return delayValueError; }
+
+    public void setDelayValueError(String error) { delayValueError = error; }
 
 
     private boolean visualiserReferred = false;

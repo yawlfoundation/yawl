@@ -53,7 +53,7 @@ public class CostMapping implements XNodeIO {
     public void fromXNode(XNode node) {
         cost = new MappingIdentifier(node.getChild("cost"));
         workflow = new MappingIdentifier(node.getChild("workflow"));
-        mappingType = FacetAspect.valueOf(node.getAttributeValue("perspective"));
+        mappingType = FacetAspect.valueOf(node.getAttributeValue("aspect"));
     }
 
 
@@ -61,7 +61,7 @@ public class CostMapping implements XNodeIO {
         XNode node = new XNode("mapping");
         node.addChild(cost.toXNode());
         node.addChild(workflow.toXNode());
-        node.addAttribute("perspective", mappingType.name());
+        node.addAttribute("aspect", mappingType.name());
         return node;
     }
 

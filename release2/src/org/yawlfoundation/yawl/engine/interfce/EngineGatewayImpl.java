@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
+import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -39,6 +40,7 @@ import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.*;
 
+import javax.xml.datatype.Duration;
 import java.io.InputStream;
 import java.net.URI;
 import java.rmi.RemoteException;
@@ -673,7 +675,7 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YLogDataItemList logData = new YLogDataItemList(logDataStr);
             return _engine.launchCase(specID, caseParams, caseCompletionURI, caseID,
-                                      logData, sessionHandle);
+                                      logData, sessionHandle, false);
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -698,7 +700,8 @@ public class EngineGatewayImpl implements EngineGateway {
 
         try {
             YLogDataItemList logData = new YLogDataItemList(logDataStr);
-            return _engine.launchCase(specID, caseParams, caseCompletionURI, logData, sessionHandle);
+            return _engine.launchCase(specID, caseParams, caseCompletionURI, logData,
+                    sessionHandle);
         } catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
@@ -706,7 +709,53 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
     }
-    
+
+    /**
+     * @param specID specID
+     * @param caseParams format &lt;data&gt;[InputParam]*&lt;/data&gt; where
+     * InputParam == &lt;varName&gt;var value&lt;/varName&gt;
+     * @param sessionHandle
+     * @return success
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             URI caseCompletionURI, String logDataStr,
+                             long mSec, String sessionHandle) {
+        if (mSec < 100) {
+            return launchCase(specID, caseParams, caseCompletionURI, logDataStr, sessionHandle);
+        }
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+        new YLaunchDelayer(specID, caseParams, caseCompletionURI, null,
+                new YLogDataItemList(logDataStr), sessionHandle, mSec, true);
+        return successMessage("Case scheduled to start after a delay of " + mSec + " milliseconds");
+    }
+
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             URI caseCompletionURI, String logDataStr,
+                             Date expiry, String sessionHandle) {
+        if (expiry == null || expiry.getTime() < System.currentTimeMillis() + 100) {
+            return launchCase(specID, caseParams, caseCompletionURI, logDataStr, sessionHandle);
+        }
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+        new YLaunchDelayer(specID, caseParams, caseCompletionURI, null,
+                new YLogDataItemList(logDataStr), sessionHandle, expiry, true);
+        return successMessage("Case scheduled to start at " + expiry.toString());
+    }
+
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             URI caseCompletionURI, String logDataStr,
+                             Duration duration, String sessionHandle) {
+        if (duration == null) {
+            return launchCase(specID, caseParams, caseCompletionURI, logDataStr, sessionHandle);
+        }
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+        new YLaunchDelayer(specID, caseParams, caseCompletionURI, null,
+                new YLogDataItemList(logDataStr), sessionHandle, duration, true);
+        return successMessage("Case scheduled to start after a duration of " + duration.toString());
+    }
+
 
     /**
      * Given a process specification id return the cases that are its running

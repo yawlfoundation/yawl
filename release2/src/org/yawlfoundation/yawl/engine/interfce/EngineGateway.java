@@ -22,10 +22,12 @@ import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 
+import javax.xml.datatype.Duration;
+import java.io.InputStream;
 import java.net.URI;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.io.InputStream;
+import java.util.Date;
 
 /**
  /**
@@ -131,6 +133,12 @@ public interface EngineGateway extends Remote {
     
     String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String logDataStr, String sessionHandle) throws RemoteException;
 
+    String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String logDataStr, long mSec, String sessionHandle) throws RemoteException;
+
+    String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String logDataStr, Date expiry, String sessionHandle) throws RemoteException;
+ 
+    String launchCase(YSpecificationID specID, String caseParams, URI completionObserverURI, String logDataStr, Duration duration, String sessionHandle) throws RemoteException;
+  
     String getCasesForSpecification(YSpecificationID specID, String sessionHandle) throws RemoteException;
 
     String getSpecificationForCase(String caseID, String sessionHandle) throws RemoteException;

@@ -26,6 +26,8 @@ import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
+import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
+import org.yawlfoundation.yawl.engine.time.YTimedObject;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -230,11 +232,18 @@ public class YEngineRestorer {
 
         _log.info("Restoring work items - Ends");
     }
+    
+    
+    protected Set<YTimedObject> restoreTimedObjects() throws YPersistenceException {
+        Set<YTimedObject> expiredObjects = restoreWorkItemTimers();
+        expiredObjects.addAll(restoreDelayedLaunches());
+        return expiredObjects;
+    }
 
 
-    protected Set<YWorkItemTimer> restoreWorkItemTimers() throws YPersistenceException {
+    protected Set<YTimedObject> restoreWorkItemTimers() throws YPersistenceException {
         _log.info("Restoring work item timers - Starts");
-        Set<YWorkItemTimer> expiredTimers = new HashSet<YWorkItemTimer>();
+        Set<YTimedObject> expiredTimers = new HashSet<YTimedObject>();
         Set<YWorkItemTimer> orphanedTimers = new HashSet<YWorkItemTimer>();
         Query query = _pmgr.createQuery("from YWorkItemTimer");
         for (Iterator it = query.iterate(); it.hasNext();) {
@@ -264,6 +273,31 @@ public class YEngineRestorer {
         }
 
         _log.info("Restoring work item timers - Ends");
+        return expiredTimers;
+    }
+
+
+    protected Set<YTimedObject> restoreDelayedLaunches() throws YPersistenceException {
+        _log.info("Restoring delayed launch timers - Starts");
+        Set<YTimedObject> expiredTimers = new HashSet<YTimedObject>();
+        Query query = _pmgr.createQuery("from YLaunchDelayer");
+        for (Iterator it = query.iterate(); it.hasNext();) {
+            YLaunchDelayer delayer = (YLaunchDelayer) it.next();
+            delayer.setPersisting(true);
+
+            long endTime = delayer.getEndTime();
+
+            // if the deadline has passed, launch the instance when engine is ready
+            if (endTime < System.currentTimeMillis()) {
+                expiredTimers.add(delayer);
+            }
+            else {
+                // reschedule the launches timer
+                YTimer.getInstance().schedule(delayer, new Date(endTime));
+            }
+        }
+
+        _log.info("Restoring delayed launch timers - Ends");
         return expiredTimers;
     }
 

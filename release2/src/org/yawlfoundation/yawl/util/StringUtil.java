@@ -463,6 +463,9 @@ public class StringUtil
             catch (DatatypeConfigurationException dce) {
                 // nothing to do - null will be returned
             }
+            catch (IllegalArgumentException dce) {
+                // nothing to do - null will be returned
+            }
         }
         return null;
     }

@@ -103,15 +103,17 @@ public class CostService implements InterfaceX_Service {
         _engineLogonPassword = password;
     }
 
-    public void importModel(String costModel) {
-        importModel(new XNodeParser(true).parse(costModel));
+    public String importModel(String costModel) {
+        return importModel(new XNodeParser(true).parse(costModel));
     }
 
 
-    public void importModel(XNode costModel) {
+    public String importModel(XNode costModel) {
         if (isValidModel(costModel)) {
             addToCache(new CostModel(costModel), false);
+            return "<SUCCESS/>";
         }
+        else return "<failure>Invalid model - check logs for details</failure>";
     }
 
 

@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -162,6 +163,16 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             String oldStatus = request.getParameter("oldStatus");
             String newStatus = request.getParameter("newStatus");
             _controller.handleWorkItemStatusChangeEvent(workItem, oldStatus, newStatus);
+        }
+        else if ("announceCaseStarted".equals(action)) {
+            String launchingService = request.getParameter("launchingService");
+            String delayedStr = request.getParameter("delayed");
+            boolean delayed = delayedStr != null && delayedStr.equalsIgnoreCase("true");
+            YSpecificationID specID = new YSpecificationID(
+                    request.getParameter("specidentifier"),
+                    request.getParameter("specversion"),
+                    request.getParameter("specuri"));
+            _controller.handleStartCaseEvent(specID, caseID, launchingService, delayed);
         }
         else if ("announceCaseCompleted".equals(action) || "announceCompletion".equals(action)) {
             String casedata = request.getParameter("casedata");

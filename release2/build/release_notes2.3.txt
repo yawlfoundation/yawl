@@ -1,0 +1,79 @@
+                        YAWL Release 2.3  10/02/2012
+                       ==============================
+
+This is the version 2.3 release of the YAWL Environment. It contains a number of
+additions, bug fixes and enhancements over the 2.2 release. Please take the time to read
+the change lists below, and refer to the user manual for more details.
+
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 5.5.25 or higher
+  * Java 6 (1.6) or higher
+
+
+2. CHANGES IN THIS VERSION
+--------------------------
+ * [New] Added the Proclet Service and Proclet Editor, which support inter-process
+   communication.
+ * [New] Completed the addition of the Scheduling Service.
+ * [New] Added the Document Store, allowing binary files to be passed as data to/from
+   work items and nets.
+   [New] Added delayed launching for process instances, to start either after an elapsed
+   period or at a later specific date/time.
+ * [New] Added support for binary file passing in dynamic forms.
+ * [New] Added a new 'Discarded' status for work items that are executing in an (unsound)
+   net when it completes - services are notified and status is logged.
+ * [New] Added InterfaceBWebsideController#destroy method so that custom services can be
+   notified when Tomcat shuts down and take any finalisation actions required.
+ * [New] Replaced Derby database in YAWL4Study with H2 - smaller, faster and has better
+   support for YAWL datatypes.
+ * [New] Added eight new system allocators to resource service.
+
+ * [Enhancement] Updated Hibernate to v4.0.1
+ * [Enhancement] Changed the default button behaviour of dynamic forms so that an 'enter'
+   key press will complete the form rather than cancel it.
+ * [Enhancement] Added several new Interface A & B methods.
+ * [Enhancement] Added new error page for resource service.
+ * [Enhancement] Changed XES log output to better match XES standard.
+ * [Enhancement] Tightened CharsetFilter so that it would operate correctly when using
+   Jetty instead of Tomcat.
+ * [Enhancement] Moved service logon names and passwords to their respective web.xmls
+   (rather than having them hard coded).
+ * [Enhancement] Updated/added some 3rd party jars to newest versions.
+
+ * [Bugfix - issue 452]: Changed YEventLogger#getDataTypeID to avoid difficulties with
+   different database systems' support for equality querying on long string fields.
+ * [Bugfix (issue 456)] Malformed XML returned by YEngine#getStateForCase.
+ * [Bugfix] 'Dangling' observer gateway threads remained running on Tomcat shutdown.
+ * [Bugfix] Double logging in scheduling service.
+ * [Bugfix] Org Data form was losing UTF-8 encoding in some scenarios.
+ * [Bugfix] Hibernate exception when suspending work items.
+ * [Bugfix] adding a client app via the Resource Service stored its password unencrypted
+   in the active connections list.
+ * [Bugfix] WSInvoker build was missing YSpecVersion.class.
+ * [Bugfixes] In worklet service: getting external trigger sets, (exception handling)
+   completing a case level worklet compensator, updated some demo specs and their rules.
+ * [Bugfix] YEngine#skipWorkItem not correctly handling task output-only parameters of
+   complex types missing a default value.
+ * [Bugfix] redirection to default worklist on enabled task rejection failing.
+ * [Bugifx] Unable to add a new asset when the db is empty.
+ * [Bugfix] Problem saving an asset's subcategory.
+ * [Bugfix] Autotimer tasks added to resource service cache on startup.
+
+ * [Refactor] Throughout the workout service, and many more.
+
+
+                         #############################
+
+    Please report any bugs, problems or ideas for enhancements via the YAWL issues page:
+
+                     http://code.google.com/p/yawl/issues/list
+
+
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+

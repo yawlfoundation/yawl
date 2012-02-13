@@ -493,6 +493,17 @@
     font-style: italic;
 }
 
+.delayedLaunchRadioButton {
+    left: 25px;
+    position: absolute;
+}
+
+.delayValueError {
+    left: 20px;
+    top: 165px;
+    position: absolute;
+    color: red;
+}
 
 /* Rules for dynamic forms */
 
@@ -612,6 +623,15 @@
     height: 120px;
 }
 
+.delayedLaunchPanel {
+    border: 2px solid gray;
+    background-color: #d4e5f6;
+    position: absolute;
+    width: 300px;
+    left: 140px;
+    top: 95px;
+    height: 240px;
+}
 
 /* Rules for Case Mgt Page */
 

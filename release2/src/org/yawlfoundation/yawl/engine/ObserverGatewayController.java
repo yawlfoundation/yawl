@@ -154,6 +154,33 @@ public class ObserverGatewayController {
     /**
      * Notify a case completion to all registered gateways.
      * @param services a set of the current engine-registered services
+     * @param specID the specification id for thestarted case
+     * @param caseID the completing case identifier
+     * @param launchingService the service that launched the case
+     * @param delayed true if this is a delayed case launch, false if immediate
+     */
+    public void notifyCaseStarting(final Set<YAWLServiceReference> services,
+                                   final YSpecificationID specID, 
+                                   final YIdentifier caseID, 
+                                   final String launchingService,
+                                   final boolean delayed) {
+        _executor.execute(new Runnable() {
+            public void run() {
+                for (Set<ObserverGateway> gateways : _gateways.values()) {
+            	    for (ObserverGateway gateway : gateways) {
+                        String scheme = gateway.getScheme();
+                        gateway.announceCaseStarted(
+                                getServicesForScheme(services, scheme), specID, caseID,
+                                launchingService, delayed);
+                    }
+                }
+            }
+        });
+    }
+  
+    /**
+     * Notify a case completion to all registered gateways.
+     * @param services a set of the current engine-registered services
      * @param caseID the completing case identifier
      * @param caseData the final case data document
      */

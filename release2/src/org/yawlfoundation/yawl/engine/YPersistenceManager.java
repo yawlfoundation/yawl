@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -58,7 +59,7 @@ public class YPersistenceManager {
     private static Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
             YNetData.class, YAWLServiceReference.class, YExternalClient.class,
-            YWorkItemTimer.class, YCaseNbrStore.class, Problem.class,
+            YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class,
             YLogSpecification.class, YLogNet.class, YLogTask.class, YLogNetInstance.class,
             YLogTaskInstance.class, YLogEvent.class, YLogDataItemInstance.class,
             YLogDataType.class, YLogService.class, YAuditEvent.class
