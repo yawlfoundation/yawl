@@ -30,6 +30,7 @@
     <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
     <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
+    <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
     <property name="app.version" value="2.3beta"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
@@ -375,21 +376,22 @@
 
     <property name="webapp_scheduling.libs"
               value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
-                     ${commonsCodec} ${commonsDbcp} ${commonsPool}"/>
+                     ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool}"/>
 
     <property name="webapp_test.libs"
               value="${jdom} ${xerces} ${log4j} ${twitter4j}
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_cost.libs"
-               value="${jdom} ${xerces} ${log4j}
-                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+               value="${jdom} ${xerces} ${log4j} ${persistence.libs}
+                      ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_docStore.libs"
-               value="${persistence.libs} ${commonsCodec}"/>
+               value="${persistence.libs} ${dbClient} ${commonsCodec}"/>
 
     <property name="webapp_procletService.libs"
-               value="${persistence.libs} ${commonsCodec} ${proclet.libs} ${jdom} ${log4j}"/>
+               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
+                      ${dbClient} ${jdom} ${log4j} ${xerces}"/>
 
     <!--
         JAR grouping properties for compilation classpath usage
@@ -1683,11 +1685,11 @@
 
 
     <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
-        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
         </copy>
-        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_test.libs}"/>
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_cost.libs}"/>
         </copy>
     </target>
 

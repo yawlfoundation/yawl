@@ -29,6 +29,7 @@ public enum YEngineEvent {
     ITEM_ADD ("announceItemEnabled", false),
     ITEM_STATUS ("announceItemStatus", true),
     ITEM_CANCEL ("announceItemCancelled", false),
+    CASE_START ("announceCaseStarted", true),
     CASE_COMPLETE ("announceCaseCompleted", true),
     CASE_CANCELLED ("announceCaseCancelled", true),
     CASE_SUSPENDING ("announceCaseSuspending", true),

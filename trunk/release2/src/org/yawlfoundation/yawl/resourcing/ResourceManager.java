@@ -79,6 +79,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.datatype.Duration;
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -137,6 +138,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     // started workitems that have been restored for a no longer existing participant.
     // these are force-completed once start-up has completed
     private List<WorkItemRecord> _orphanedStartedItems ;
+
+    // a cache of delayed launches, sorted on launch time
+    private SortedSet<DelayedLaunchRecord> delayedLaunches =
+            Collections.synchronizedSortedSet(new TreeSet<DelayedLaunchRecord>());
 
     // String literals
     private static final String ADMIN_STR = "admin";
@@ -663,6 +668,28 @@ public class ResourceManager extends InterfaceBWebsideController {
         }
     }
 
+    
+    public void handleStartCaseEvent(YSpecificationID specID, String caseID,
+                                     String launchingService, boolean delayed) {
+
+        // if we initiated this delayed launch, log it
+        if (delayed && launchingService != null && launchingService.equals(_serviceURI)) {
+            DelayedLaunchRecord handled = null;
+            for (DelayedLaunchRecord record : delayedLaunches) {
+                if (record.getSpecID().equals(specID)) {
+                    record.logCaseLaunch(caseID);
+                    handled = record;
+                    break;
+                }
+            }
+            if (handled != null) {
+                delayedLaunches.remove(handled);
+            }
+            else {
+                EventLogger.log(specID, caseID, null, true);  // log without launcher info
+            }
+        }
+    }
 
     /**
      *  displays a web page describing the service
@@ -2929,11 +2956,52 @@ public class ResourceManager extends InterfaceBWebsideController {
         String caseID = _interfaceBClient.launchCase(specID, caseData,
                           getEngineSessionHandle(), getLaunchLogData(), _serviceURI) ;
         if (successful(caseID)) {
-            Participant p = getParticipantWithSessionHandle(handle);
-            String pid = (p != null) ? p.getID() : ADMIN_STR;
-            EventLogger.log(specID, caseID, pid, true);
+            EventLogger.log(specID, caseID, getWhoLaunchedCase(handle), true);
         }
         return caseID;
+    }
+    
+    
+    private String getWhoLaunchedCase(String handle) {
+        Participant p = getParticipantWithSessionHandle(handle);
+        return (p != null) ? p.getID() : ADMIN_STR;
+    }
+
+
+    public String launchCase(YSpecificationID specID, String caseData, String handle,
+                             long delay) throws IOException {
+        if (_serviceURI == null) setServiceURI();
+        String result = _interfaceBClient.launchCase(specID, caseData,
+                          getEngineSessionHandle(), getLaunchLogData(), _serviceURI, delay);
+        if (successful(result)) {
+            delayedLaunches.add(new DelayedLaunchRecord(specID, getWhoLaunchedCase(handle),
+                    delay));
+        }
+        return result;
+    }
+
+    public String launchCase(YSpecificationID specID, String caseData, String handle,
+                             Date delay) throws IOException {
+        if (_serviceURI == null) setServiceURI();
+        String result = _interfaceBClient.launchCase(specID, caseData,
+                          getEngineSessionHandle(), getLaunchLogData(), _serviceURI, delay);
+        if (successful(result)) {
+            delayedLaunches.add(new DelayedLaunchRecord(specID, getWhoLaunchedCase(handle),
+                    delay));
+        }
+        return result;
+    }
+
+    public String launchCase(YSpecificationID specID, String caseData, String handle,
+                             Duration delay) throws IOException {
+        if (_serviceURI == null) setServiceURI();
+        String result = _interfaceBClient.launchCase(specID, caseData,
+                          getEngineSessionHandle(), getLaunchLogData(), _serviceURI, delay);
+        if (successful(result)) {
+            delayedLaunches.add(new DelayedLaunchRecord(specID, getWhoLaunchedCase(handle),
+                    delay));
+        }
+        return result;
     }
 
 

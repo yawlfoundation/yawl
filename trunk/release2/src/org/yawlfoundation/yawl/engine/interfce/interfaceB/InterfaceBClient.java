@@ -113,7 +113,7 @@ public interface InterfaceBClient {
      */
     String launchCase(YSpecificationID specID, String caseParams,
                       URI completionObserver, String caseID,
-                      YLogDataItemList logData, String serviceHandle)
+                      YLogDataItemList logData, String serviceHandle, boolean delayed)
             throws YStateException, YDataStateException, YPersistenceException,
                    YEngineStateException, YLogException, YQueryException;
 

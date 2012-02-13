@@ -22,17 +22,15 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
-import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
-import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
+import javax.xml.datatype.Duration;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -640,13 +638,50 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI)
                                      throws IOException {
+        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams, 
+                sessionHandle, logData, completionObserverURI);
+        return executePost(_backEndURIStr, params);
+    }
+    
+    
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, YLogDataItemList logData,
+                             String completionObserverURI, long mSec) throws IOException {
+        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams, 
+                sessionHandle, logData, completionObserverURI);
+        params.put("mSec", String.valueOf(mSec));
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, YLogDataItemList logData,
+                             String completionObserverURI, Date start) throws IOException {
+        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams,
+                sessionHandle, logData, completionObserverURI);
+        params.put("start", String.valueOf(start.getTime()));
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, YLogDataItemList logData,
+                             String completionObserverURI, Duration wait) throws IOException {
+        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams,
+                sessionHandle, logData, completionObserverURI);
+        params.put("wait", wait.toString());
+        return executePost(_backEndURIStr, params);
+    }
+
+
+    private Map<String, String> buildLaunchCaseParamMap(YSpecificationID specID,
+                                 String caseParams, String sessionHandle,
+                                 YLogDataItemList logData, String completionObserverURI) {
         Map<String, String> params = prepareParamMap("launchCase", sessionHandle);
         params.putAll(specID.toMap());
         if (logData != null) params.put("logData", logData.toXML());
         if (caseParams != null) params.put("caseParams", caseParams);
         if (completionObserverURI != null)
             params.put("completionObserverURI", completionObserverURI);
-        return executePost(_backEndURIStr, params);
+        return params;
     }
 
 

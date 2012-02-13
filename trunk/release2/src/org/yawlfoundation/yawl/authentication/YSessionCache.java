@@ -134,7 +134,7 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
 
 
     /**
-     * Gets the session associated with a sesion handle.
+     * Gets the session associated with a session handle.
      * @param handle a session handle.
      * @return the session object associated with the handle, or null if the handle is
      * invalid or inactive.

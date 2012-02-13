@@ -74,6 +74,19 @@ public interface ObserverGateway {
                                 YIdentifier caseID, Document caseData);
 
     /**
+     * Called by engine to announce when a case has commenced.
+     *
+     * @param services the set of registered custom services
+     * @param specID   the specification id of the started case
+     * @param caseID   the case that has started
+     * @param launchingService the service that started the case
+     * @param delayed true if this is a delayed case launch, false if immediate
+     */
+     void announceCaseStarted(Set<YAWLServiceReference> services,
+                              YSpecificationID specID, YIdentifier caseID,
+                              String launchingService, boolean delayed);
+
+    /**
      * Called by engine to announce when a case is complete and a completion
      * observer was not specified at case launch. This announcement is sent to all
      * services on all registered gateways.

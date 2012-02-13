@@ -25,10 +25,7 @@ import org.jdom.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.ObserverGateway;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
@@ -165,6 +162,25 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         }
     }
 
+
+    /**
+     * Called by engine to announce when a case has commenced.
+     *
+     * @param services the set of registered custom services
+     * @param specID   the specification id of the started case                
+     * @param caseID   the case that has started
+     * @param launchingService the service that started the case
+     * @param delayed true if this is a delayed case launch, false if immediate
+     */
+    public void announceCaseStarted(Set<YAWLServiceReference> services,
+                                    YSpecificationID specID, YIdentifier caseID,
+                                    String launchingService, boolean delayed) {
+        for (YAWLServiceReference service : services) {
+            _executor.execute(
+                    new Handler(service, specID, caseID, launchingService, delayed, CASE_START));
+        }
+    }
+
     /**
      * Called by engine to announce when a case is complete.
      *
@@ -264,10 +280,13 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private YWorkItem _workItem;
         private YAWLServiceReference _yawlService;
         private YEngineEvent _command;
+        private YSpecificationID _specID;
         private YIdentifier _caseID;
         private Document _caseData;
+        private String _launchingService;
         private String _oldStatus;
         private String _newStatus;
+        private boolean _delayed;
         private int _pingTimeout = 5;
 
         public Handler(YAWLServiceReference yawlService, YWorkItem workItem, YEngineEvent command) {
@@ -304,6 +323,16 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _caseID = id;
             _command = command;
         }
+        
+        public Handler(YAWLServiceReference yawlService, YSpecificationID specID, 
+                YIdentifier id, String launchingService, boolean delayed, YEngineEvent command) {
+            _yawlService = yawlService;
+            _specID = specID;
+            _caseID = id;
+            _launchingService = launchingService;
+            _delayed = delayed;
+            _command = command;            
+        }
 
 
         /**
@@ -318,6 +347,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     case ITEM_STATUS: {
                         paramsMap.put("oldStatus", _oldStatus);
                         paramsMap.put("newStatus", _newStatus);
+                        break;
+                    }
+                    case CASE_START: {
+                        paramsMap.putAll(_specID.toMap());
+                        paramsMap.put("launchingService", _launchingService);
+                        paramsMap.put("delayed", String.valueOf(_delayed));
                         break;
                     }
                     case CASE_COMPLETE: {

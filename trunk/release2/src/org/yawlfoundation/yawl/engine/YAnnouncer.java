@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
+import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -201,7 +202,20 @@ public class YAnnouncer {
     protected void announceCaseResumption(YIdentifier id, Set<YAWLServiceReference> services) {
         _controller.notifyCaseResumption(id, services);
     }
+    
+    
+    protected void announceCaseStart(YSpecificationID specID, YIdentifier caseID,
+                                     String launchingService, boolean delayed) {
 
+        // if delayed, service string is uri, if not its a current sessionhandle
+        if (! delayed) {
+            YSession session = _engine.getSessionCache().getSession(launchingService);
+            launchingService = (session != null) ? session.getURI() : null;
+        }
+        _controller.notifyCaseStarting(_engine.getYAWLServices(), specID, caseID,
+                launchingService, delayed);
+    }
+ 
 
     /**
      * Called by a case's net runner when it completes. Announced only to the designated

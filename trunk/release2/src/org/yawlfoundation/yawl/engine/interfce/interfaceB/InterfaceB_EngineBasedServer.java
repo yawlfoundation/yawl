@@ -40,6 +40,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.Enumeration;
 
 
@@ -248,7 +249,26 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                     URI completionObserver = getCompletionObserver(request);
                     String caseParams = request.getParameter("caseParams");
                     String logDataStr = request.getParameter("logData");
-                    msg.append(_engine.launchCase(specID, caseParams,
+                    String mSecStr = request.getParameter("mSec");
+                    String startStr = request.getParameter("start");
+                    String waitStr = request.getParameter("wait");
+                    if (mSecStr != null) {
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                   completionObserver, logDataStr,
+                                   StringUtil.strToLong(mSecStr, 0), sessionHandle));
+                    }
+                    else if (startStr != null) {
+                        long time = StringUtil.strToLong(startStr, 0);
+                        Date date = time > 0 ? new Date(time) : new Date();
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                   completionObserver, logDataStr, date, sessionHandle));
+                    }
+                    else if (waitStr != null) {
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                   completionObserver, logDataStr,
+                                   StringUtil.strToDuration(waitStr), sessionHandle));
+                    }
+                    else msg.append(_engine.launchCase(specID, caseParams,
                                     completionObserver, logDataStr, sessionHandle));
                 }
                 else if (action.equals("cancelCase")) {

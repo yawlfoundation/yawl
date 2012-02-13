@@ -115,6 +115,17 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Receives notification from the engine that a case has been started. By overriding
+     * this method a service can process case start events as required.
+     * @param specID the specification id of the started case
+     * @param caseID the id of the case
+     * @param launchingService the uri (String) of the service that started the case
+     * @param delayed true if this is a delayed case start, false if immediate
+     */
+    public void handleStartCaseEvent(YSpecificationID specID, String caseID,
+                                         String launchingService, boolean delayed) { }
+
+    /**
      * Receives notification from the engine that an active case has been
      * completed. By overriding this method a service can process case completion
      * events as required.

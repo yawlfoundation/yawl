@@ -112,31 +112,34 @@ public class DocComponent extends PanelLayout {
             return doDownload();
         }
     }
-    
-    
+
+
     public String doUpload() {
         String errorMsg = null;
         UploadedFile uploadedFile = uploader.getUploader().getUploadedFile();
         byte[] fileBytes = uploadedFile.getBytes();
         if (fileBytes.length > 0) {
-            YDocument document = new YDocument(caseID, docID, fileBytes);
             DocStoreClient client = ResourceManager.getInstance().getDocStoreClient();
-            try {
-                String id = client.putDocument(document, client.getHandle());
-                if (! ((id == null) || id.startsWith("<fail"))) {
-                    docID = Long.parseLong(StringUtil.unwrap(id));
-                    docName = uploadedFile.getOriginalName();
-                    textField.setText(docName);
-                    btnDown.setDisabled(false);
-                    setDownloadButtonToolTip(btnDown);
+            if (client != null) {
+                YDocument document = new YDocument(caseID, docID, fileBytes);
+                try {
+                    String id = client.putDocument(document, client.getHandle());
+                    if (! ((id == null) || id.startsWith("<fail"))) {
+                        docID = Long.parseLong(StringUtil.unwrap(id));
+                        docName = uploadedFile.getOriginalName();
+                        textField.setText(docName);
+                        btnDown.setDisabled(false);
+                        setDownloadButtonToolTip(btnDown);
+                    }
+                    else errorMsg = StringUtil.unwrap(id);
                 }
-                else errorMsg = StringUtil.unwrap(id);
+                catch (IOException ioe) {
+                    errorMsg = ioe.getMessage();
+                }
             }
-            catch (IOException ioe) {
-                errorMsg = ioe.getMessage();
-            }
+            else errorMsg = "Unable to upload document: missing Document Store.";
         }
-        else errorMsg = "Error uploading file. File length is zero";
+        else errorMsg = "Error uploading document. File length is zero";
 
         completeUpload();
         return errorMsg;
@@ -208,27 +211,31 @@ public class DocComponent extends PanelLayout {
     private String doDownload() {
         String errorMsg = null;
         DocStoreClient client = ResourceManager.getInstance().getDocStoreClient();
-        try {
-            YDocument doc = client.getDocument(docID, client.getHandle());
-            if (doc.getDocument() != null) {
-                FacesContext context = FacesContext.getCurrentInstance();
-                HttpServletResponse response =
-                        ( HttpServletResponse ) context.getExternalContext().getResponse();
-                response.setContentType("multipart/form-data");
-                response.setBufferSize(doc.getDocumentSize());
-                response.setHeader("Content-Disposition",
-                        "attachment;filename=\"" + docName + "\"");
-                OutputStream os = response.getOutputStream();
-                os.write(doc.getDocument());
-                os.flush();
-                os.close();
-                FacesContext.getCurrentInstance().responseComplete();
+        if (client != null) {
+            try {
+                YDocument doc = client.getDocument(docID, client.getHandle());
+                if (doc.getDocument() != null) {
+                    FacesContext context = FacesContext.getCurrentInstance();
+                    HttpServletResponse response =
+                            ( HttpServletResponse ) context.getExternalContext().getResponse();
+                    response.setContentType("multipart/form-data");
+                    response.setBufferSize(doc.getDocumentSize());
+                    response.setHeader("Content-Disposition",
+                            "attachment;filename=\"" + docName + "\"");
+                    OutputStream os = response.getOutputStream();
+                    os.write(doc.getDocument());
+                    os.flush();
+                    os.close();
+                    FacesContext.getCurrentInstance().responseComplete();
+                }
+                else errorMsg = "Unable to download document: unknown document id.";
             }
-            else errorMsg = "Unable to create export file: malformed xml.";
+            catch (IOException ioe) {
+                errorMsg = "Unable to download document. Please see the log for details.";
+            }
         }
-        catch (IOException ioe) {
-            errorMsg = "Unable to create export file. Please see the log for details.";
-        }
+        else errorMsg = "Unable to download document: missing Document Store.";
+
         return errorMsg;
     }
     

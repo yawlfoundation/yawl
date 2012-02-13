@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -40,11 +41,13 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.datatype.Duration;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -201,6 +204,13 @@ public class caseMgt extends AbstractPageBean {
     public void setStaticText3(StaticText st) { staticText3 = st; }
 
 
+    private StaticText stDelayedHeader = new StaticText();
+
+    public StaticText getStDelayedHeader() { return stDelayedHeader; }
+
+    public void setStDelayedHeader(StaticText st) { stDelayedHeader = st; }
+
+
     private Button btnUnload = new Button();
 
     public Button getBtnUnload() { return btnUnload; }
@@ -234,6 +244,13 @@ public class caseMgt extends AbstractPageBean {
     public PanelLayout getLayoutPanel3() { return layoutPanel3; }
 
     public void setLayoutPanel3(PanelLayout pl) { layoutPanel3 = pl; }
+
+
+    private PanelLayout pnlDelayed = new PanelLayout();
+
+    public PanelLayout getPnlDelayed() { return pnlDelayed; }
+
+    public void setPnlDelayed(PanelLayout pl) { pnlDelayed = pl; }
 
 
     private HtmlDataTable dataTable1 = new HtmlDataTable();
@@ -342,6 +359,76 @@ public class caseMgt extends AbstractPageBean {
     public void setPnlGroup(PanelGroup group) { pnlGroup = group; }
 
 
+    private RadioButton rbTime ;
+
+    public RadioButton getRbTime() { return rbTime; }
+
+    public void setRbTime(RadioButton rb) {rbTime = rb; }
+
+
+    private RadioButton rbDate ;
+
+    public RadioButton getRbDate() { return rbDate; }
+
+    public void setRbDate(RadioButton rb) {rbDate = rb; }
+
+
+    private RadioButton rbDuration ;
+
+    public RadioButton getRbDuration() { return rbDuration; }
+
+    public void setRbDuration(RadioButton rb) {rbDuration = rb; }
+    
+    
+    public Label lblDelayValue;
+
+    public Label getLblDelayValue() { return lblDelayValue; }
+
+    public void setLblDelayValue(Label lbl) { lblDelayValue = lbl; }
+    
+    
+    public String lblValueText = "Seconds: ";
+
+    public String getLblValueText() { return lblValueText; }
+
+    public void setLblValueText(String text) { lblValueText = text; }
+
+
+    public TextField txtDelayValue;
+
+    public TextField getTxtDelayValue() { return txtDelayValue; }
+
+    public void setTxtDelayValue(TextField lbl) { txtDelayValue = lbl; }
+
+
+    public Label lblDelayValueError;
+
+    public Label getLblDelayValueError() { return lblDelayValueError; }
+
+    public void setLblDelayValueError(Label lbl) { lblDelayValueError = lbl; }
+
+
+    private Button btnDelayOK = new Button();
+
+    public Button getBtnDelayOK() { return btnDelayOK; }
+
+    public void setBtnDelayOK(Button b) { btnDelayOK = b; }
+
+
+    private Button btnDelayCancel = new Button();
+
+    public Button getBtnDelayCancel() { return btnDelayCancel; }
+
+    public void setBtnDelayCancel(Button b) { btnDelayCancel = b; }
+
+
+    private Button btnLaunchDelayed = new Button();
+
+    public Button getBtnLaunchDelayed() { return btnLaunchDelayed; }
+
+    public void setBtnLaunchDelayed(Button b) { btnLaunchDelayed = b; }
+
+
     // the next 3 buttons are available only when the exception service is enabled
 
     private Button btnRaiseException = new Button();
@@ -406,6 +493,10 @@ public class caseMgt extends AbstractPageBean {
         if (_sb.isCaseLaunch()) {
             beginCase(_sb.getLoadedSpecListChoice());
         }
+
+        if (_sb.isDelayedLaunchPanelVisible()) {
+            lblValueText = getDelayedLabel();
+        }
         updateRunningCaseList();
         _sb.refreshLoadedSpecs();
         activateButtons();
@@ -422,6 +513,13 @@ public class caseMgt extends AbstractPageBean {
         int index = fileName.lastIndexOf(slash);
         if (index >= 0) fileName = fileName.substring(index + 1);
         return fileName ;
+    }
+    
+    
+    private String getDelayedLabel() {
+        if (_sb.isDelayTimeRBSelected()) return "Seconds:";
+        if (_sb.isDelayDateRBSelected()) return "Datetime:";
+        return "Duration:";
     }
 
 
@@ -441,6 +539,26 @@ public class caseMgt extends AbstractPageBean {
         return null ;
     }
 
+
+    public String btnDelayOK_action() {
+        if (validateDelayValue()) {
+            _sb.setDelayedLaunchPanelVisible(false);
+            return btnLaunch_action();
+        }
+        return null ;
+    }
+
+
+    public String btnDelayCancel_action() {
+        _sb.setDelayedLaunchPanelVisible(false);
+        return null ;
+    }
+
+
+    public String btnLaunchDelayed_action() {
+        if (hasSpecSelected()) _sb.setDelayedLaunchPanelVisible(true);
+        return null ;
+    }
 
     private void redirectTo(String url) {
         try {
@@ -545,9 +663,9 @@ public class caseMgt extends AbstractPageBean {
     public String btnLaunch_action() {
 
         // get selected spec
-        String refPage = null ;
-        try {
-            Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
+        String refPage = null;
+        int selectedRowIndex = getSelectedSpecIndex();
+        if (selectedRowIndex > -1) {
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
 
             // make sure the latest spec version is selected
@@ -564,11 +682,24 @@ public class caseMgt extends AbstractPageBean {
                                "'. Please select the latest version.");
             }
         }
+
+        return refPage;
+    }
+    
+    
+    private int getSelectedSpecIndex() {
+        try {
+            return new Integer((String) hdnRowIndex.getValue());
+        }
         catch (NumberFormatException nfe) {
             msgPanel.error("No specification selected to launch.") ;
         }
+        return -1;
+    }
 
-        return refPage;
+
+    private boolean hasSpecSelected() {
+        return getSelectedSpecIndex() > -1;
     }
 
 
@@ -683,13 +814,28 @@ public class caseMgt extends AbstractPageBean {
     // starts a new case (either directly from startCase() or via a postback action)
     private void beginCase(YSpecificationID specID) {
         String caseData = null ;
-        String result ;
+        String result = "Unknown Error" ;
         if (_sb.isCaseLaunch()) {
             caseData = getDynFormFactory().getDataList();
             _sb.setCaseLaunch(false);
         }
         try {
-            result = _rm.launchCase(specID, caseData, _sb.getSessionhandle());
+            if (_sb.hasDelayValueSet()) {
+                if (_sb.getDelaySeconds() > -1) {
+                    result = _rm.launchCase(specID, caseData, _sb.getSessionhandle(),
+                            _sb.getDelaySeconds() * 1000);    // secs -> msecs
+                }
+                else if (_sb.getDelayDuration() != null) {
+                    result = _rm.launchCase(specID, caseData, _sb.getSessionhandle(),
+                            _sb.getDelayDuration());
+                }
+                else if (_sb.getDelayDate() != null) {
+                    result = _rm.launchCase(specID, caseData, _sb.getSessionhandle(),
+                            _sb.getDelayDate());
+                }
+                _sb.resetDelayValues();
+            }
+            else result = _rm.launchCase(specID, caseData, _sb.getSessionhandle());
             if (_rm.successful(result))
                 updateRunningCaseList();
             else
@@ -909,6 +1055,34 @@ public class caseMgt extends AbstractPageBean {
                 }
             }
         }
+    }
+    
+    
+    private boolean validateDelayValue() {
+        _sb.setDelayValueError("");
+        String value = (String) txtDelayValue.getText();
+        if (rbTime.isChecked()) {
+            long delaySeconds = StringUtil.strToLong(value, -1);
+            if (delaySeconds < 0) {
+                _sb.setDelayValueError("Invalid seconds value");
+            }
+            else _sb.setDelaySeconds(delaySeconds);
+        }
+        if (rbDuration.isChecked()) {
+            Duration delayDuration = StringUtil.strToDuration(value);
+            if (delayDuration == null) {
+                _sb.setDelayValueError("Invalid Duration value");
+            }
+            else _sb.setDelayDuration(delayDuration);
+        }
+        if (rbDate.isChecked()) {
+            long seconds = StringUtil.xmlDateToLong(value);
+            if (seconds < 0) {
+               _sb.setDelayValueError("Invalid Datetime value (yyyy-MM-ddThh:mm:ss)");
+            }
+            else _sb.setDelayDate(new Date(seconds));
+        }
+        return _sb.getDelayValueError().length() == 0;
     }
 
 

@@ -92,7 +92,7 @@ public class YTimer extends Timer {
     }
 
 
-    // both methods return a long value of the date/time stamp representing
+    // all 'schedule' methods return a long value of the date/time stamp representing
     // the expiry time
 
     public long schedule(YTimedObject timee, long durationAsMilliseconds) {
@@ -142,12 +142,8 @@ public class YTimer extends Timer {
         private YTimedObject _owner ;
 
         protected TimeKeeper(YTimedObject owner) {
-            _owner = owner ;
-
-            if (owner instanceof YWorkItemTimer) {
-                String id = ((YWorkItemTimer) owner).getOwnerID();
-                _runners.put(id, this);
-            }
+            _owner = owner;
+            _runners.put(owner.getOwnerID(), this);
         }
 
 
@@ -155,9 +151,8 @@ public class YTimer extends Timer {
 
 
         public synchronized void run() {
-            String id = ((YWorkItemTimer) _owner).getOwnerID();
             _owner.handleTimerExpiry();
-            _runners.remove(id);
+            _runners.remove(_owner.getOwnerID());
         }
     }
 }

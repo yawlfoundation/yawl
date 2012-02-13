@@ -36,8 +36,8 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceAManagementOb
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBClientObserver;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBInterop;
+import org.yawlfoundation.yawl.engine.time.YTimedObject;
 import org.yawlfoundation.yawl.engine.time.YTimer;
-import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
@@ -84,7 +84,7 @@ public class YEngine implements InterfaceADesign,
     private static YEventLogger _yawllog;
     private static YCaseNbrStore _caseNbrStore;
     private static Logger _logger;
-    private static Set<YWorkItemTimer> _expiredTimers;
+    private static Set<YTimedObject> _expiredTimers;
     private static boolean _generateUIMetaData = true;           // extended attributes
     private static boolean _persisting;
     private static boolean _restoring;
@@ -220,7 +220,7 @@ public class YEngine implements InterfaceADesign,
             _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
             restorer.restoreProcessInstances();
             restorer.restoreWorkItems();
-            _expiredTimers = restorer.restoreWorkItemTimers();
+            _expiredTimers = restorer.restoreTimedObjects();
             restorer.restartRestoredProcessInstances();
 
             // complete transaction
@@ -326,7 +326,7 @@ public class YEngine implements InterfaceADesign,
 
         // Now that the engine's running, process any expired timers
         if (_expiredTimers != null) {
-            for (YWorkItemTimer timer : _expiredTimers)
+            for (YTimedObject timer : _expiredTimers)
                 timer.handleTimerExpiry();
         }
     }
@@ -712,7 +712,7 @@ public class YEngine implements InterfaceADesign,
 
     protected YIdentifier startCase(YSpecificationID specID, String caseParams,
                                     URI completionObserver, String caseID,
-                                    YLogDataItemList logData, String serviceRef)
+                                    YLogDataItemList logData, String serviceRef, boolean delayed)
             throws YStateException, YDataStateException, YQueryException, YPersistenceException {
 
         // get the latest loaded spec version
@@ -724,7 +724,8 @@ public class YEngine implements InterfaceADesign,
 
             YNetRunner runner = new YNetRunner(_pmgr, specification.getRootNet(), data, caseID);
             _netRunnerRepository.add(runner);
-            logCaseStarted(specID, runner, completionObserver, caseParams, logData, serviceRef);
+            logCaseStarted(specID, runner, completionObserver, caseParams, logData,
+                    serviceRef, delayed);
 
             // persist it
             if ((! _restoring) && (_pmgr != null)) {
@@ -768,16 +769,17 @@ public class YEngine implements InterfaceADesign,
 
     private void logCaseStarted(YSpecificationID specID, YNetRunner runner,
                                 URI completionObserver, String caseParams,
-                                YLogDataItemList logData, String serviceRef) {
+                                YLogDataItemList logData, String serviceRef, boolean delayed) {
         YIdentifier caseID = runner.getCaseID();
-        _announcer.announceCheckCaseConstraints(specID, caseID.toString(), caseParams, true);
-
+        _announcer.announceCheckCaseConstraints(specID, caseID.toString(), caseParams, true); // ix
+        _announcer.announceCaseStart(specID, caseID, serviceRef, delayed);          // ib
         if (completionObserver != null) {
             YAWLServiceReference observer =
                     getRegisteredYawlService(completionObserver.toString());
             if (observer != null) {
                 runner.setObserver(observer);
-            } else {
+            }
+            else {
                 _logger.warn("Completion observer [" + completionObserver +
                         "] is not a registered YAWL service.");
             }
@@ -867,7 +869,7 @@ public class YEngine implements InterfaceADesign,
                              URI completionObserver, YLogDataItemList logData)
             throws YStateException, YDataStateException,
             YPersistenceException, YEngineStateException, YQueryException {
-        return launchCase(specID, caseParams, completionObserver, null, logData, null);
+        return launchCase(specID, caseParams, completionObserver, null, logData, null, false);
     }
 
     public String launchCase(YSpecificationID specID, String caseParams,
@@ -875,13 +877,13 @@ public class YEngine implements InterfaceADesign,
                              String serviceHandle)
             throws YStateException, YDataStateException,
             YPersistenceException, YEngineStateException, YQueryException {
-        return launchCase(specID, caseParams, completionObserver, null, logData, serviceHandle);
+        return launchCase(specID, caseParams, completionObserver, null, logData, serviceHandle, false);
     }
 
 
     public String launchCase(YSpecificationID specID, String caseParams,
                              URI completionObserver, String caseID,
-                             YLogDataItemList logData, String serviceHandle)
+                             YLogDataItemList logData, String serviceHandle, boolean delayed)
             throws YStateException, YDataStateException, YEngineStateException,
             YQueryException, YPersistenceException {
         _logger.debug("--> launchCase");
@@ -896,7 +898,7 @@ public class YEngine implements InterfaceADesign,
             startTransaction();
             try {
                 YIdentifier yCaseID = startCase(specID, caseParams, completionObserver,
-                        caseID, logData, serviceHandle);
+                        caseID, logData, serviceHandle, delayed);
                 if (yCaseID != null) {
                     commitTransaction();
                     announceEvents(yCaseID);

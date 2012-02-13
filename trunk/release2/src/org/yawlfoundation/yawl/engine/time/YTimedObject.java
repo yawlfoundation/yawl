@@ -29,4 +29,8 @@ public interface YTimedObject {
 
     // do whatever necessary when a timer is cancelled before expiry
     void cancel();
+    
+    // return a unique identifier for the timed object
+    String getOwnerID();
+    
 }
