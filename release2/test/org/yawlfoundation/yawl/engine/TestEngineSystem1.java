@@ -56,7 +56,7 @@ public class TestEngineSystem1 extends TestCase {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
             _idForTopNet = _engine.startCase(_specification.getSpecificationID(), null,
-                    null, null, null, null);
+                    null, null, null, null, false);
             //enabled btop
             Set currWorkItems = _workItemRepository.getEnabledWorkItems();
             YWorkItem anItem = (YWorkItem) currWorkItems.iterator().next();

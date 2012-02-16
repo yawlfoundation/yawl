@@ -62,7 +62,7 @@ public class TestImproperCompletion extends TestCase{
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
         _id = _engine.startCase(_specification.getSpecificationID(), null, null, null,
-                new YLogDataItemList(), null);
+                new YLogDataItemList(), null, false);
            int numIter = 0;
         Set s = _engine.getCasesForSpecification(_specification.getSpecificationID());
         assertTrue("s = " + s, s.contains(_id));

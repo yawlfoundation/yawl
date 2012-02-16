@@ -49,7 +49,7 @@ public class TestEngineAgainstABeta4Spec extends TestCase {
             EngineClearer.clear(_engine);
             _engine.loadSpecification(_specification);
             YSpecificationID specID = _specification.getSpecificationID();
-            YIdentifier id = _engine.startCase(specID, null, null, null, null, null);
+            YIdentifier id = _engine.startCase(specID, null, null, null, null, null, false);
             _netRunner = _engine._netRunnerRepository.get(id);
             {
                 //execute task "decideName"

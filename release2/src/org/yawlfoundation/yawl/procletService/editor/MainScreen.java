@@ -111,6 +111,30 @@ public class MainScreen {
 
     private Properties getDbProperties() {
         Properties props = null;
+
+        // try to find 'hibernate.properties' first
+        String basePath = System.getenv("CATALINA_HOME");
+        if (basePath != null) {
+            String hibFile = File.separator + "hibernate.properties";
+            String libPath = File.separator + "lib";
+            File hibProp = new File(basePath + libPath + hibFile);   // 4Study
+            if (! hibProp.exists()) {
+                String procPath = File.separator + "webapps" + File.separator +
+                           "procletService" + File.separator + "WEB-INF" +
+                           File.separator + "classes";
+                hibProp = new File(basePath + procPath + hibFile);   // service
+            }
+            if (hibProp.exists()) {
+                try { 
+                    props = new Properties() ;
+                    props.load(new FileInputStream(hibProp));
+                    return props;
+                }
+                catch (Exception e) {
+                    // fall through to below
+                }
+            }
+        }
         if (! (editorProps == null || editorProps.isEmpty())) {
               props = DBConnection.configure(
                         editorProps.getProperty("dialect"),
@@ -122,7 +146,8 @@ public class MainScreen {
         else {
             props = DBConnection.configure("org.hibernate.dialect.PostgreSQLDialect",
                         "org.postgresql.Driver", "jdbc:postgresql:yawl", "postgres", "yawl");
-            System.err.println("   ... could not load database connection properties, using defaults");
+            System.err.println(
+                    "   ... could not load database connection properties, using postgres defaults");
         }
         return props;
     }

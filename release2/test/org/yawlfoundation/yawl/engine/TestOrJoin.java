@@ -47,7 +47,7 @@ public class TestOrJoin extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
         YIdentifier id = _engine.startCase(specification.getSpecificationID(), null, null,
-                null, new YLogDataItemList(), null);
+                null, new YLogDataItemList(), null, false);
            {
             YWorkItem itemA = _engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, _engine.getExternalClient("admin"));
@@ -167,7 +167,7 @@ public class TestOrJoin extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification2);
         YIdentifier id = _engine.startCase(specification2.getSpecificationID(), null,
-                null, null, new YLogDataItemList(), null);
+                null, null, new YLogDataItemList(), null, false);
            {
             YWorkItem itemA = _engine.getAvailableWorkItems().iterator().next();
             itemA = _engine.startWorkItem(itemA, _engine.getExternalClient("admin"));

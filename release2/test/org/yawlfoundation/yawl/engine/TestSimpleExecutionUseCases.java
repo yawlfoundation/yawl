@@ -44,7 +44,7 @@ public class TestSimpleExecutionUseCases extends TestCase{
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
         _caseId =  _engine.startCase(specification.getSpecificationID(), null, null,
-                null, new YLogDataItemList(), null);
+                null, new YLogDataItemList(), null, false);
 
     }
 

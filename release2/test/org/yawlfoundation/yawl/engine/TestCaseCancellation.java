@@ -57,7 +57,7 @@ public class TestCaseCancellation extends TestCase {
         YAWLServiceReference service = new YAWLServiceReference(serviceURI.toString(), null);
         _engine.addYawlService(service);
         _idForTopNet = _engine.startCase(_specification.getSpecificationID(), null,
-                serviceURI, null, _logdata, service.getServiceName());
+                serviceURI, null, _logdata, service.getServiceName(), false);
 
         ObserverGateway og = new ObserverGateway() {
             public void announceCancelledWorkItem(YAnnouncement announcement) {
@@ -77,6 +77,9 @@ public class TestCaseCancellation extends TestCase {
             public void announceCaseCancellation(Set<YAWLServiceReference> ys, YIdentifier i) {
                 _caseCancellationReceived.add(i);
             }
+            public void announceCaseStarted(Set<YAWLServiceReference> ys,
+                                            YSpecificationID specID, YIdentifier caseID,
+                                            String launchingService, boolean delayed) { }
             public void announceEngineInitialised(Set<YAWLServiceReference> ys, int i) {}
             public void announceCaseSuspended(Set<YAWLServiceReference> ys, YIdentifier id) {}
             public void announceCaseSuspending(Set<YAWLServiceReference> ys, YIdentifier id) {}
