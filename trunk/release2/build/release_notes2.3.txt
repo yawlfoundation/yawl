@@ -41,7 +41,7 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Enhancement] Added new error page for resource service.
  * [Enhancement] Changed XES log output to better match XES standard.
  * [Enhancement] Tightened CharsetFilter so that it would operate correctly when using
-   Jetty instead of Tomcat.
+   Jetty, instead of Tomcat.
  * [Enhancement] Moved service logon names and passwords to their respective web.xmls
    (rather than having them hard coded).
  * [Enhancement] Updated/added some 3rd party jars to newest versions.

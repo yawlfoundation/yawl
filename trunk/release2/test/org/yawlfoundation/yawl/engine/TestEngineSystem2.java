@@ -62,7 +62,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
         YIdentifier id = _engine.startCase(_specification.getSpecificationID(), null,
-                null, null, new YLogDataItemList(), null);
+                null, null, new YLogDataItemList(), null, false);
         _netRunner = _engine._netRunnerRepository.get(id);
         try {
             //enabled btop
@@ -162,7 +162,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(_specification);
             YIdentifier id = _engine.startCase(_specification.getSpecificationID(), null,
-                    null, null, new YLogDataItemList(), null);
+                    null, null, new YLogDataItemList(), null, false);
            _netRunner = _engine._netRunnerRepository.get(id);
         try {
             //enabled btop
@@ -258,7 +258,7 @@ public class TestEngineSystem2 extends TestCase {
         EngineClearer.clear(_engine);
         _engine.loadSpecification(specification);
         YIdentifier caseID = _engine.startCase(specification.getSpecificationID(), null,
-                null, null, new YLogDataItemList(), null);
+                null, null, new YLogDataItemList(), null, false);
            {
             YWorkItem itemA = _engine.getAvailableWorkItems().iterator().next();
             _engine.startWorkItem(itemA, _engine.getExternalClient("admin"));

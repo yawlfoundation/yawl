@@ -49,7 +49,7 @@ public class TestYNetRunner extends TestCase {
         EngineClearer.clear(engine2);
         engine2.loadSpecification(specification);
         _id1 = engine2.startCase(specification.getSpecificationID(), null, null, null,
-                new YLogDataItemList(), null);
+                new YLogDataItemList(), null, false);
            _netRunner1 = engine2._netRunnerRepository.get(_id1);
         _d = new Document();
         _d.setRootElement(new Element("data"));
