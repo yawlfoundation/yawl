@@ -18,8 +18,8 @@ QUICK START: After installation, start Tomcat and point a browser to
 
 2. CHANGES IN THIS VERSION
 --------------------------
- * [New] Added the Proclet Service and Proclet Editor, which support inter-process
-   communication.
+ * [New] Added the Proclet Service and Proclet Editor, which provide support for
+   inter-process communication.
  * [New] Completed the addition of the Scheduling Service.
  * [New] Added the Document Store, allowing binary files to be passed as data to/from
    work items and nets.
@@ -63,6 +63,9 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Bugfix] redirection to default worklist on enabled task rejection failing.
  * [Bugifx] Unable to add a new asset when the db is empty.
  * [Bugfix] Problem saving an asset's subcategory.
+ * [Bugfix] When loading a specification with many xor-splits being synchronised by one
+   xor-join, and the join has at least one inflow that does not initialise a local
+   variable, the generated verification error message included an incorrect path string.
  * [Bugfix] Autotimer tasks added to resource service cache on startup.
 
  * [Refactor] Throughout the workout service, and many more.

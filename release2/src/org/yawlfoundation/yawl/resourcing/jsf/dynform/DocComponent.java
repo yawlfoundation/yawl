@@ -60,11 +60,11 @@ public class DocComponent extends PanelLayout {
     
     public DocComponent() { }
     
-    public DocComponent(String id, String name, String panelID, TextField field) {
+    public DocComponent(String id, String name, String panelID, TextField field, boolean inputOnly) {
         docID = StringUtil.isNullOrEmpty(id) ? -1 : Long.parseLong(id);
         docName = name;
         textField = field;
-        buildComponent(panelID);
+        buildComponent(panelID, inputOnly);
     }
     
     public void setName(String name) { docName = name; }
@@ -153,10 +153,14 @@ public class DocComponent extends PanelLayout {
     }
 
 
-    private void buildComponent(String uniqueID) {
+    private void buildComponent(String uniqueID, boolean inputOnly) {
         textField.setDisabled(true);                         // can't be edited directly
         getChildren().add(textField);
         btnUp = makeButton("upload", UP_TEXT, uniqueID);
+        if (inputOnly) {                                     // no upload if var readonly
+            btnUp.setDisabled(true);
+            btnUp.setToolTip("Document set to not accept updates");
+        }
         btnDown = makeButton("download", DOWN_TEXT, uniqueID);
         getChildren().add(btnUp);
         getChildren().add(btnDown);
@@ -174,7 +178,7 @@ public class DocComponent extends PanelLayout {
         button.setActionListener(bindButtonListener());
         button.setText(text);
         if (name.startsWith("up")) {
-            setUploadButtonToolTip(button, docID > -1);       // can always upload
+            setUploadButtonToolTip(button, docID > -1);
         }
         else {
             button.setDisabled(docID < 0);                   // no id means no doc

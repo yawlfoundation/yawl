@@ -57,6 +57,15 @@
         </description>
     </context-param>
 
+    <context-param>
+        <param-name>RetainStoredDocsOnCaseCompletion</param-name>
+        <param-value>false</param-value>
+        <description>
+            Setting this value to true will retain any documents uploaded during a case
+            when the case completes (or is cancelled). A setting of false (the default)
+            will clear all case documents from the store on case completion.
+        </description>
+    </context-param>
 
 
     <!--CharsetFilter -->

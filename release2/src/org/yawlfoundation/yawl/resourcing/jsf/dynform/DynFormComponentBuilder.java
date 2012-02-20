@@ -387,8 +387,9 @@ public class DynFormComponentBuilder {
         DynFormField id = input.getSubField("id");
         TextField textField = makeTextField(name);
         String uniqueID = _factory.createUniqueID("doc" + input.getName());
+        boolean inputOnly = input.isInputOnly();
         DocComponent docField =
-                new DocComponent(id.getValue(), name.getValue(), uniqueID, textField);
+                new DocComponent(id.getValue(), name.getValue(), uniqueID, textField, inputOnly);
         docField.setId(uniqueID);
         docField.setStyleClass("dynformDocComponent");
         docField.setLabel(label);

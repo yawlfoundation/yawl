@@ -361,8 +361,8 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
-					<xs:element name="name" minOccurs="0"/>
-					<xs:element name="documentation" minOccurs="0"/>
+					<xs:element name="name" type="yawl:LabelType" minOccurs="0"/>
+					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 					<xs:element name="flowsInto" type="yawl:FlowsIntoType" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:extension>
@@ -485,8 +485,8 @@
 		<xs:complexContent>
 			<xs:extension base="yawl:ExternalNetElementType">
 				<xs:sequence>
-					<xs:element name="name" minOccurs="0"/>
-					<xs:element name="documentation" minOccurs="0"/>
+					<xs:element name="name" type="yawl:LabelType"  minOccurs="0"/>
+					<xs:element name="documentation" type="yawl:DocumentationType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -853,7 +853,7 @@
 			<xs:extension base="yawl:SpecificationSetType">
 				<xs:sequence>
 					<xs:element name="specification" type="yawl:YAWLSpecificationFactsType" maxOccurs="unbounded"/>
-          <xs:element name="layout" type="yawl:LayoutFactsType" minOccurs="0"/>
+                    <xs:element name="layout" type="yawl:LayoutFactsType" minOccurs="0"/>
 				</xs:sequence>
 				<xs:attribute name="version" use="required">
 					<xs:simpleType>
