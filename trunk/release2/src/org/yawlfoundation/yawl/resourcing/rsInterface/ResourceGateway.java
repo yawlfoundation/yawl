@@ -125,10 +125,6 @@ public class ResourceGateway extends HttpServlet {
                 String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
                 _rm.setPersistPiling(! getInitBooleanValue(dropPiling, false)) ;
 
-                // enable/disable retaining docs in doc store when case completes
-                String retainDocs = context.getInitParameter("RetainStoredDocsOnCaseCompletion");
-                _rm.setRetainDocsInStore(getInitBooleanValue(retainDocs, false));
-                
                 // enable the visualiser applet, if necessary
                 String enableVisualiser = context.getInitParameter("EnableVisualizer");
                 if (getInitBooleanValue(enableVisualiser, false)) {

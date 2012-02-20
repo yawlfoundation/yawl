@@ -46,6 +46,7 @@ public class DocumentStore extends HttpServlet {
     
     private Sessions _sessions;            // maintains sessions with external services
     private HibernateEngine _db;           // communicates with underlying database
+    private boolean _retainWhenCaseCompletes;
 
 
     public void init() {
@@ -62,6 +63,10 @@ public class DocumentStore extends HttpServlet {
                 context.getInitParameter("InterfaceA_Backend"),
                 context.getInitParameter("EngineLogonUserName"),
                 context.getInitParameter("EngineLogonPassword"));
+        
+        // set retention flag
+        String retain = context.getInitParameter("RetainStoredDocsOnCaseCompletion");
+        _retainWhenCaseCompletes = (retain != null) && retain.equalsIgnoreCase("true");
     }
 
 
@@ -116,6 +121,14 @@ public class DocumentStore extends HttpServlet {
                 }
                 else if (action.equals("clearcase")) {
                     result = clearCase(caseID);
+                }
+                else if (action.equals("completecase")) {
+                    if (_retainWhenCaseCompletes) {
+                        writeString(res,
+                                "Documents not cleared: configured to retain on case completion",
+                                "failure");
+                    }
+                    else result = clearCase(caseID);
                 }
             }
             else writeString(res, "Invalid or disconnected session handle", "failure");

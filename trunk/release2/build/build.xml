@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="2.3beta"/>
+    <property name="app.version" value="2.3"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -553,6 +553,7 @@
                      build_digitalSignature.war,
                      build_mailSender.war,
                      build_mailService.war,
+                     build_procletService.war,
                      build_docStore.war">
     </target>
 

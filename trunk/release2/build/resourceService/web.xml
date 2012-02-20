@@ -267,19 +267,6 @@
     </context-param>
 
 
-    <context-param>
-        <param-name>RetainStoredDocsOnCaseCompletion</param-name>
-        <param-value>false</param-value>
-        <description>
-            When the Document Store is enabled, setting this value to true will retain
-            any documents uploaded during a case when the case completes (or is cancelled).
-            A setting of false (the default) will clear all case documents from the store
-            on case completion.
-            When the Document Store is disabled, this parameter is ignored.
-        </description>
-    </context-param>
-
-
     <!-- This param, when available, enables allocators to use cost information
          provided by the cost service. -->
 
@@ -292,7 +279,7 @@
      </context-param>
 
 
-    <!-- This param, when available, enables the service to handle store documents. -->
+    <!-- This param, when available, enables the service to handle stored documents. -->
 
      <context-param>
         <param-name>DocStore_BackEnd</param-name>

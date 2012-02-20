@@ -194,6 +194,33 @@ public class DocumentStoreClient extends Interface_Client {
     }
 
 
+    /**
+     * Removes all documents from the Document Store matching a case id
+     * @param doc a YDocument containing the case id of the documents to remove
+     * @param handle a valid session handle
+     * @return a success or error message
+     * @throws IOException if the service can't be reached
+     */
+    public String completeCase(YDocument doc, String handle) throws IOException {
+        return executePost(toByteArray(doc, "completecase", handle)).toString("UTF-8");
+    }
+
+
+    /**
+     * Removes all documents from the Document Store matching a case id
+     * @param caseID the case id of the documents to remove
+     * @param handle a valid session handle
+     * @return a success or error message
+     * @throws IOException if the service can't be reached
+     */
+
+    public String completeCase(String caseID, String handle) throws IOException {
+        YDocument doc = new YDocument();
+        doc.setCaseId(caseID);
+        return clearCase(doc, handle);
+    }
+
+
     /**********************************************************************************/
 
     private byte[] toByteArray(YDocument doc, String action, String handle) throws IOException {
