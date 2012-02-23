@@ -103,7 +103,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
                 String valueAdded = values[i].trim();
                 box.addItem(valueAdded);
             }
-            if (value.trim().length() > 0) {
+            if ((value != null) && value.trim().length() > 0) {
                 box.setSelectedItem(value.trim());
             }
             else {

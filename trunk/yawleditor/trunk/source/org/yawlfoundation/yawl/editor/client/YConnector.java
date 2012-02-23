@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.editor.client;
 import org.yawlfoundation.yawl.editor.api.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.api.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.resourcing.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -79,6 +80,10 @@ public class YConnector {
 
     public static Set<YAWLServiceReference> getServices() throws IOException {
         return _engConn.getRegisteredYAWLServices();
+    }
+    
+    public static YAWLServiceReference getService(String uri) throws IOException {
+        return _engConn.getService(uri);
     }
 
 
@@ -263,7 +268,7 @@ public class YConnector {
             params = Arrays.asList(_engConn.getParametersForService(serviceURI));
         }
         catch (IOException e) {
-            // fall through to if statement below
+            LogWriter.warn(e.getMessage());
         }
         List<DataVariable> varList = new ArrayList<DataVariable>();
         if ((params == null) || params.isEmpty()) return varList;      // no more to do

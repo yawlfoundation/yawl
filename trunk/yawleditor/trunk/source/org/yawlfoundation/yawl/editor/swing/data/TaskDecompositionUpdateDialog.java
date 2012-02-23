@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -57,7 +58,6 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   private JCheckBox cbxAutomated ;
   private JButton btnCodelet;  
 
-  private String cachedYAWLServiceID;
   private SelectCodeletDialog codeletDialog ;
   
   protected JPanel attributesPanel; //MLF
@@ -75,67 +75,42 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     if (pane != null) pane.setSelectedIndex(0);  
     
     getDoneButton().addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {
+            YAWLServiceReference currentService = getWebServiceDecomposition().getService();
+            YAWLServiceReference selectedService = yawlServiceComboBox.getSelectedService();
+            if (selectedService != null) {
 
-        String selectedYAWLServiceID = yawlServiceComboBox.getSelectedItemID();
-        if (selectedYAWLServiceID != null) {
-            if (cachedYAWLServiceID != null) {
-                if (!selectedYAWLServiceID.equals(cachedYAWLServiceID)) {
-                   applyChange();
+                // if its the default worklist
+                if (selectedService.getServiceName().equals(WebServiceDecomposition.ENGINE_WORKLIST_NAME)) {
+                    DataVariableSet variableSet =
+                            getWebServiceDecomposition().getCodelet() != null ?
+                            generateDataVariablesFromCodeletSelection() : null;
+                    applyChange(selectedService, variableSet);
+                }
+                else if (! selectedService.equals(currentService)) {
+                    applyChange(selectedService, generateDataVariablesFromServiceSelection());
                 }
             }
-            else { // getSelectedItemID != null && cachedYAWLServiceID == null
-                applyChange();
-            }
-        }
-        else { // getSelectedItemID == null
-            if (cachedYAWLServiceID != null) {
-                applyChange();
-            }
-            else {  // if both cached & selected are null, the def. worklist is selected
-                getWebServiceDecomposition().setYawlServiceDescription(
-                    (String) yawlServiceComboBox.getSelectedItem()
-                );
-                if (getWebServiceDecomposition().getCodelet() != null) {
-                    getDecomposition().setVariables(
-                        generateDataVariablesFromCodeletSelection()
-                    );
-                    SpecificationModel.getInstance().propogateVariableSetChange(
-                        getDecomposition()
-                    );
-                }
-            }
+
+            getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());
+            if (! cbxAutomated.isSelected()) getWebServiceDecomposition().setCodelet(null);
+            getWebServiceDecomposition().setVariables(getDataVariablePanel().getVariables());
+
+            String startPredicate = logPredicatesPanel.getStartedPredicate();
+            getWebServiceDecomposition().setLogPredicateStarted(startPredicate);
+
+            String completionPredicate = logPredicatesPanel.getCompletionPredicate();
+            getWebServiceDecomposition().setLogPredicateCompletion(completionPredicate);
         }
 
-        getWebServiceDecomposition().setManualInteraction(! cbxAutomated.isSelected());
-        if (! cbxAutomated.isSelected()) getWebServiceDecomposition().setCodelet(null);
-        getWebServiceDecomposition().setVariables(getDataVariablePanel().getVariables());
-
-        String startPredicate = logPredicatesPanel.getStartedPredicate();
-        getWebServiceDecomposition().setLogPredicateStarted(startPredicate);
-
-        String completionPredicate = logPredicatesPanel.getCompletionPredicate();
-        getWebServiceDecomposition().setLogPredicateCompletion(completionPredicate);
-      }
-
         
-      private void applyChange() {
-        
-        getWebServiceDecomposition().setYawlServiceID(
-            yawlServiceComboBox.getSelectedItemID()    
-        );
-
-        getWebServiceDecomposition().setYawlServiceDescription(
-            (String) yawlServiceComboBox.getSelectedItem()
-        );
-
-        getDecomposition().setVariables(
-            generateDataVariablesFromServiceSelection()
-        );
-
-        SpecificationModel.getInstance().propogateVariableSetChange(
-            getDecomposition()  
-        );
+      private void applyChange(YAWLServiceReference selectedService,
+                               DataVariableSet variableSet) {
+          getWebServiceDecomposition().setService(selectedService);
+          if (variableSet != null) {
+              getDecomposition().setVariables(variableSet);
+              SpecificationModel.getInstance().propogateVariableSetChange(getDecomposition());
+          }
       }
     });
     
@@ -265,7 +240,8 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   }
 
   private boolean isDefaultWorklistSelected() {
-      return yawlServiceComboBox.getSelectedItem().equals("Default Engine Worklist");
+      return yawlServiceComboBox.getSelectedItem().equals(
+              WebServiceDecomposition.DEFAULT_WORKLIST_LABEL);
   }
 
 
@@ -330,8 +306,6 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
   protected void setContent() {
     super.setContent();
-
-    cachedYAWLServiceID = getWebServiceDecomposition().getYawlServiceID();
     cbxAutomated.setSelected(! getWebServiceDecomposition().isManualInteraction());
     btnCodelet.setEnabled(cbxAutomated.isSelected()) ;
 
@@ -344,21 +318,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         yawlServiceComboBox.refresh();
         yawlServiceComboBox.setEnabled(! cbxAutomated.isSelected());
 
-          String serviceDescription = getWebServiceDecomposition().getYawlServiceDescription();
-
-          // if there's an id (url) but no description it means this is a freshly loaded file,
-          // so we have to associate the url with its description so that it can be set as
-          // selected
-          if (cachedYAWLServiceID != null) {
-              if (serviceDescription == null) {
-                 serviceDescription = yawlServiceComboBox.getDescriptionFromID(cachedYAWLServiceID);
-              }
-          }
-          else {
-              serviceDescription = "Default Engine Worklist";   // no url, so set to worklist
-          }
-
-
+        String serviceDescription = getWebServiceDecomposition().getServiceDescription();
         if (yawlServiceComboBox.getItemCount() > 1) {
           yawlServiceComboBox.setSelectedItem(serviceDescription);
         }
@@ -392,8 +352,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         DataVariableSet newVariableSet = new DataVariableSet();
         newVariableSet.setDecomposition(getDecomposition());
 
-        if (yawlServiceComboBox.getSelectedItemID() == null &&
-                cachedYAWLServiceID == null) {
+        if (yawlServiceComboBox.getSelectedService() == null) {
 
             newVariableSet.addVariables(
                     getDataVariablePanel().getVariables().getUserDefinedVariables()
@@ -403,7 +362,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         }
 
         newVariableSet.addVariables(YConnector.getServiceParameters(
-            yawlServiceComboBox.getSelectedItemID())
+            yawlServiceComboBox.getSelectedService().getURI())
         );
 
         java.util.List<DataVariable> currentVars =

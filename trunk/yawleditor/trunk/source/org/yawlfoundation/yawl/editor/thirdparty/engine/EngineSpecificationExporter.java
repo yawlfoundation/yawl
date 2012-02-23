@@ -725,7 +725,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     if (taskNeedsWebServiceDetail(editorTask)) {
     
       YAWLServiceReference engineService = new YAWLServiceReference(
-        editorDecomposition.getYawlServiceID(),
+        editorDecomposition.getServiceURI(),
         engineDecomposition
       );
 
@@ -1350,11 +1350,13 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     WebServiceDecomposition decomposition = 
       (WebServiceDecomposition) editorTask.getDecomposition();
 
-    if (decomposition.getYawlServiceID() == null ||
-        decomposition.getYawlServiceID().trim().equals("")) {
-      return false;
-    }
-    return true;
+//    if (decomposition.getServiceURI() == null ||
+//        decomposition.getServiceURI().trim().equals("")) {
+//      return false;
+//    }
+//    return true;
+
+      return ! decomposition.invokesWorklist();
   }
 
 

@@ -159,7 +159,8 @@ public class Decomposition {
     }
 
     public String getAttribute(String name) {
-        return _decomposition.getAttribute(name);
+        String value = _decomposition.getAttribute(name);
+        return value != null ?  value : "";
     }
 
     public YAttributeMap getAttributes() {

@@ -105,6 +105,22 @@ public class YEngineConnection extends YConnection {
     }
 
 
+    /**
+     * Gets the corresponding service object for the URI passed
+     * @param uri the URI of the service to get
+     * @return the service object, if found
+     * @throws IOException if the service is not currently cached, and there's a
+     * problem connection to the the YAWL engine.
+     */
+    public YAWLServiceReference getService(String uri) throws IOException {
+        YAWLServiceReference service = _serviceCache.get(uri);
+        if (service == null) {
+            getRegisteredYAWLServices();                     // update cache from engine
+            service = _serviceCache.get(uri);
+        }
+        return service;
+    }
+
 
     /**
      * Gets a map of currently installed external data gateways from the engine, in
@@ -196,22 +212,6 @@ public class YEngineConnection extends YConnection {
         }
     }
 
-
-    /**
-     * Gets the corresponding service object for the URI passed
-     * @param uri the URI of the service to get
-     * @return the service object, if found
-     * @throws IOException if the service is not currently cached, and there's a
-     * problem connection to the the YAWL engine.
-     */
-    private YAWLServiceReference getService(String uri) throws IOException {
-        YAWLServiceReference service = _serviceCache.get(uri);
-        if (service == null) {
-            getRegisteredYAWLServices();                     // update cache from engine
-            service = _serviceCache.get(uri);
-        }
-        return service;
-    }
 
 
     /**

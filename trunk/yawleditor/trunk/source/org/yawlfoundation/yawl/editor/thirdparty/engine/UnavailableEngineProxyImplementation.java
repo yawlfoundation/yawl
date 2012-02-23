@@ -54,7 +54,7 @@ public class UnavailableEngineProxyImplementation implements
   public HashMap getRegisteredYAWLServices() {
     HashMap services= new HashMap();
     services.put(
-        WebServiceDecomposition.DEFAULT_ENGINE_SERVICE_NAME,
+        WebServiceDecomposition.DEFAULT_WORKLIST_LABEL,
         null
     );
     
