@@ -575,12 +575,18 @@ public class DynFormFactory extends AbstractSessionBean {
     }
 
 
-    private void setPanelStyles(int width, int height, int top) {
+    private void setPanelStyles(int containerWidth, int height, int top) {
+        int outerPanelWidth = getOuterPanelWidth();
 
         // set the style of the outermost panel...
         String outerPanelStyle =
                 String.format("position: absolute; height: %dpx; width: %dpx; top: %dpx",
-                                      height, width, top);
+                                      height, outerPanelWidth, top);
+
+        // ... and a left inset if the panel is narrower than the container ...
+        if (outerPanelWidth < containerWidth) {
+            outerPanelStyle += "; left: " + (containerWidth - outerPanelWidth) / 2 + "px";
+        }
 
         // ...and the user-defined background colour (if any)...
         String udBgColour = getFormBackgroundColour();
@@ -589,10 +595,10 @@ public class DynFormFactory extends AbstractSessionBean {
         }
         compPanel.setStyle(outerPanelStyle);
 
-        // ...and its container
+        // ...and finally its container
         containerStyle = String.format("position: relative; height: %dpx; top: 0; width: %dpx",
                 top + height + OUTER_PANEL_TO_BUTTONS + FORM_BUTTON_HEIGHT + BOTTOM_PANEL_HEIGHT,
-                width);
+                containerWidth);
     }
 
 
@@ -930,8 +936,11 @@ public class DynFormFactory extends AbstractSessionBean {
     public int getFormWidth() {
         int btnCount = getNumberOfVisibleButtons();
         int btnBlockWidth = (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
-        int outerPanelWidth = PANEL_BASE_WIDTH + (SUBPANEL_INSET * 2 * (getMaxDepthLevel() + 2));
-        return Math.max(btnBlockWidth, outerPanelWidth);
+        return Math.max(btnBlockWidth, getOuterPanelWidth());
+    }
+
+    protected int getOuterPanelWidth() {
+        return PANEL_BASE_WIDTH + (SUBPANEL_INSET * 2 * (getMaxDepthLevel() + 2));
     }
 
 

@@ -295,7 +295,8 @@ public class WorkQueueGateway extends HttpServlet {
             result = _marshaller.marshallSpecificationData(specData);
         }
         else if (action.equals("getRunningCases")) {
-            result = _rm.getRunningCases(new YSpecificationID(specid, specversion, specuri)) ;
+            result = _rm.getClients().getRunningCases(
+                    new YSpecificationID(specid, specversion, specuri)) ;
         }
         else if (action.equals("getDecompID")) {
             WorkItemRecord wir = _rm.getWorkItemCache().get(itemid) ;
@@ -304,10 +305,10 @@ public class WorkQueueGateway extends HttpServlet {
         }
         else if (action.equals("getCaseData")) {
             String caseID = req.getParameter("caseid") ;
-            result = _rm.getCaseData(caseID) ;
+            result = _rm.getClients().getCaseData(caseID) ;
         }
         else if (action.equals("getRegisteredServices")) {
-            result = _rm.getRegisteredServicesAsXML();
+            result = _rm.getClients().getRegisteredServicesAsXML();
         }
         else if (action.equals("disconnect")) {
             _rm.serviceDisconnect(handle);
@@ -388,7 +389,7 @@ public class WorkQueueGateway extends HttpServlet {
         else if (action.equals("uploadSpecification")) {
             String fileContents = req.getParameter("fileContents") ;
             String fileName = req.getParameter("fileName");
-            result = response(_rm.uploadSpecification(fileContents, fileName));
+            result = response(_rm.getClients().uploadSpecification(fileContents, fileName));
         }
         else if (action.equals("unloadSpecification")) {
             result = _rm.unloadSpecification(new YSpecificationID(specid, specversion, specuri));

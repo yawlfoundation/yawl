@@ -291,7 +291,7 @@ public class ResourceScheduler {
                 
                 node.addChild("OldStatus", logEntry.getStatus());
                 node.addChild("NewStatus", calEntry.getStatus());
-                _rm.announceResourceCalendarStatusChange(owner, node.toString());
+                _rm.getClients().announceResourceCalendarStatusChange(owner, node.toString());
             }
         }
     }
@@ -306,7 +306,7 @@ public class ResourceScheduler {
      */
     private boolean validatePlan(UtilisationPlan plan) {
         String caseID = plan.getCaseID();
-        if (! _rm.isRunningCaseID(plan.getCaseID())) {
+        if (! _rm.getClients().isRunningCaseID(plan.getCaseID())) {
             plan.setError("There is no running case with id: " + caseID);
             return false;
         }

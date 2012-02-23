@@ -165,10 +165,10 @@
     <property name="jstl" value="jstl.jar"/>                                 <!-- jsf -->
     <property name="jung-3d" value="jung-3d-2.0.jar"/>                       <!-- prl -->
     <property name="jung-3d-demos" value="jung-3d-demos-2.0.jar"/>           <!-- prl -->
-    <property name="jung-algorithms" value="jung-3d-algorithms-2.0.jar"/>    <!-- prl -->
+    <property name="jung-algorithms" value="jung-algorithms-2.0.jar"/>       <!-- prl -->
     <property name="jung-api" value="jung-api-2.0.jar"/>                     <!-- prl -->
     <property name="jung-api-tests" value="jung-api-2.0-tests.jar"/>         <!-- prl -->
-    <property name="jung-graph" value="jung-graph-impl--2.0.jar"/>           <!-- prl -->
+    <property name="jung-graph" value="jung-graph-impl-2.0.jar"/>            <!-- prl -->
     <property name="jung-io" value="jung-io-2.0.jar"/>                       <!-- prl -->
     <property name="jung-jai" value="jung-jai-2.0.jar"/>                     <!-- prl -->
     <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>     <!-- prl -->
@@ -303,7 +303,7 @@
     <property name="jsf.libs"
               value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl} ${jsf-webui}
                      ${commonsDigester} ${commonsBeanutils} ${commonsFileupload}
-                     ${commonsIO} ${jsf-standard} ${jstl} ${jsf-rowset}
+                     ${commonsIO} ${commonsLogging} ${jsf-standard} ${jstl} ${jsf-rowset}
                      ${jsf-dataprovider} ${jsf-errorhandler} ${jsf-defaulttheme-gray}"/>
 
     <property name="wsif.libs"

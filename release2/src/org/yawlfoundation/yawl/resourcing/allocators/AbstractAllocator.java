@@ -151,7 +151,7 @@ public abstract class AbstractAllocator extends AbstractSelector {
      */
     protected Map<String, XNode> getCostMap(Set<String> pids, WorkItemRecord wir) {
         Map<String, XNode> costMap = null;
-        CostClient client = ResourceManager.getInstance().getCostClient();
+        CostClient client = ResourceManager.getInstance().getClients().getCostClient();
 
         // short-circuit if no cost service running
         if (client == null) return costMap;

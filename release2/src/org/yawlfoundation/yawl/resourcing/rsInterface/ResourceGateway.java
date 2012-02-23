@@ -67,7 +67,7 @@ public class ResourceGateway extends HttpServlet {
                 Docket.setServiceRootDir(context.getRealPath("/")) ;
 
                 // set the engine uri and the exception service uri (if enabled)
-                _rm.initInterfaceClients(context.getInitParameter("InterfaceB_BackEnd"),
+                _rm.getClients().initClients(context.getInitParameter("InterfaceB_BackEnd"),
                                          context.getInitParameter("InterfaceX_BackEnd"),
                                          context.getInitParameter("InterfaceS_BackEnd"),
                                          context.getInitParameter("CostService_BackEnd"),

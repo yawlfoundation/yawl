@@ -575,7 +575,7 @@ public class userWorkQueues extends AbstractPageBean {
         if (activeQueue != WorkQueue.UNDEFINED) {
             WorkItemRecord wir = _sb.getChosenWIR(activeQueue);
             if (wir != null) {
-                String ixURI = _rm.getExceptionServiceURI();
+                String ixURI = _rm.getClients().getExceptionServiceURI();
                 if (ixURI != null) {
                     try {
                         FacesContext.getCurrentInstance().getExternalContext()

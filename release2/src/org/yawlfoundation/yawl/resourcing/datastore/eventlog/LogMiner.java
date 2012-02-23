@@ -366,7 +366,7 @@ public class LogMiner {
 
     public String getMergedXESLog(YSpecificationID specid, boolean withData) {
         XNode rsCases = getXESLog(specid);
-        String engCases = ResourceManager.getInstance().getEngineXESLog(specid, withData);
+        String engCases = ResourceManager.getInstance().getClients().getEngineXESLog(specid, withData);
         if ((rsCases != null) && (engCases != null)) {
             return new ResourceXESLog().mergeLogs(rsCases, engCases);
         }
@@ -380,7 +380,8 @@ public class LogMiner {
 
     
     public String getSpecificationStatistics(YSpecificationID specID, long from, long to) {
-        return ResourceManager.getInstance().getEngineSpecificationStatistics(specID, from, to);
+        return ResourceManager.getInstance().getClients()
+                .getEngineSpecificationStatistics(specID, from, to);
     }
 
 

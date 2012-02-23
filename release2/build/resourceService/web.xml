@@ -481,7 +481,7 @@
           value is 1000000.
         </description>
       <param-name>maxSize</param-name>
-      <param-value>1000000</param-value>
+      <param-value>-1</param-value>
     </init-param>
     <init-param>
       <description>
@@ -492,7 +492,7 @@
           value is 4096.
         </description>
       <param-name>sizeThreshold</param-name>
-      <param-value>65536</param-value>
+      <param-value>8388608</param-value>
     </init-param>
   </filter>
   <filter-mapping>
