@@ -53,7 +53,7 @@ public class ResourceAdministrator {
         ResourceManager rm = ResourceManager.getInstance();
         rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceUnoffered);
         _qSet.addToQueue(wir, WorkQueue.UNOFFERED);
-        if (announce) rm.announceResourceUnavailable(wir);
+        if (announce) rm.getClients().announceResourceUnavailable(wir);
     }
 
     public void addToUnoffered(WorkItemRecord wir) {

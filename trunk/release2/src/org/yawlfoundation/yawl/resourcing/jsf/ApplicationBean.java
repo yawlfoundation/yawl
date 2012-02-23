@@ -308,7 +308,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     }
 
 
-    private boolean exceptionServiceEnabled = _rm.hasExceptionServiceEnabled() ;
+    private boolean exceptionServiceEnabled = _rm.getClients().hasExceptionServiceEnabled() ;
 
     public boolean isExceptionServiceEnabled() {
         return exceptionServiceEnabled;
@@ -334,7 +334,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public String getResServiceBaseURI() {
         if (_resourceServiceBaseURI == null) {
-            String uri = _rm.getServiceURI();
+            String uri = _rm.getClients().getServiceURI();
             _resourceServiceBaseURI = uri.replaceFirst("/resourceService/ib", "");
         }
         return _resourceServiceBaseURI;
@@ -527,7 +527,7 @@ public class ApplicationBean extends AbstractApplicationBean {
 
 
     public void refreshRegisteredServices() {
-        Set<YAWLServiceReference> services = _rm.getRegisteredServices();
+        Set<YAWLServiceReference> services = _rm.getClients().getRegisteredServices();
         if (services != null) {
 
             // get & sort the items
@@ -611,7 +611,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void refreshExternalClients() {
         try {
             List<YExternalClient> clients =
-                    new ArrayList<YExternalClient>(_rm.getExternalClients());
+                    new ArrayList<YExternalClient>(_rm.getClients().getExternalClients());
             Collections.sort(clients, new YExternalClientComparator());
             synchronized(this) {
                 externalClients = clients;

@@ -573,7 +573,7 @@ public class caseMgt extends AbstractPageBean {
     public String btnRejectWorklet_action() {
         String caseID = getSelectedCaseID() ;
         if (caseID != null) {
-            String ixURI = _rm.getExceptionServiceURI();
+            String ixURI = _rm.getClients().getExceptionServiceURI();
             if (ixURI != null) {
                 redirectTo(ixURI + "/rejectWorklet?caseID=" + caseID);
             }
@@ -586,7 +586,7 @@ public class caseMgt extends AbstractPageBean {
     public String btnRaiseException_action() {
         String caseID = getSelectedCaseID() ;
         if (caseID != null) {
-            String ixURI = _rm.getExceptionServiceURI();
+            String ixURI = _rm.getClients().getExceptionServiceURI();
             if (ixURI != null) {
                 redirectTo(ixURI + "/caseException?caseID=" + caseID);
             }
@@ -597,7 +597,7 @@ public class caseMgt extends AbstractPageBean {
     }
 
     public String btnWorkletAdmin_action() {
-        String ixURI = _rm.getExceptionServiceURI();
+        String ixURI = _rm.getClients().getExceptionServiceURI();
         if (ixURI != null) {
             redirectTo(ixURI + "/wsAdminTasks?sH=" + _sb.getSessionhandle());
         }
@@ -648,7 +648,7 @@ public class caseMgt extends AbstractPageBean {
         if (BOF != -1 && EOF != -1) {
             fileContents = fileContents.substring(BOF, EOF + 19) ;         // trim file
             if (hasUniqueDescriptors(fileContents)) {
-                String result = _rm.uploadSpecification(fileContents, fileName);
+                String result = _rm.getClients().uploadSpecification(fileContents, fileName);
                 if (! _rm.successful(result)) processErrorMsg(result);
                 _sb.refreshLoadedSpecs();
             }
@@ -849,7 +849,7 @@ public class caseMgt extends AbstractPageBean {
 
     // refreshes list of running cases
     private void updateRunningCaseList() {
-        XNode node = _rm.getAllRunningCases();
+        XNode node = _rm.getClients().getAllRunningCases();
         ArrayList<String> caseList = new ArrayList<String>();
         if (node != null) {
             for (XNode specNode : node.getChildren()) {

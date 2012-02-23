@@ -167,7 +167,7 @@ public class FormViewer {
         String formURI = wir.getCustomFormURL();
         if (! formURI.contains("{")) return formURI;
         try {
-            String dataStr = _rm.getCaseData(wir.getRootCaseID());
+            String dataStr = _rm.getClients().getCaseData(wir.getRootCaseID());
             if (dataStr != null) {
                 Document dataDoc = JDOMUtil.stringToDocument(dataStr);
                 String[] parts = formURI.split("(?=\\{)|(?<=\\})");

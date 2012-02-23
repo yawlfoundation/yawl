@@ -53,9 +53,13 @@ public class DocComponent extends PanelLayout {
     private Button btnDown;
     private DynFormFileUpload uploader;
     private int formWidth;
+    private int textWidth;
     
     private static final String UP_TEXT = "⋀";
     private static final String DOWN_TEXT = "⋁";
+
+    protected static final int BTN_HSPACE = 6;
+    protected static final int BTN_WIDTH = 20;
 
     
     public DocComponent() { }
@@ -95,22 +99,19 @@ public class DocComponent extends PanelLayout {
         return sb.toString();
     }
     
-    
+
+    /** @param width the total width of the component */
     public void setSubComponentStyles(int width) {
-        textField.setStyle(String.format("left:0; width: %dpx", width));
+        textWidth = width - BTN_WIDTH * 2;
+        textField.setStyle(String.format("left:0; width: %dpx", textWidth));
         textField.setStyleClass("dynformInputReadOnly");
-        setButtonStyle(btnUp, width + 6);                             // 20 = btn width
-        setButtonStyle(btnDown, width + 26);
+        setButtonStyle(btnUp, width + BTN_HSPACE - BTN_WIDTH * 2);
+        setButtonStyle(btnDown, width + BTN_HSPACE - BTN_WIDTH);
     }
 
     
     public String processButtonAction(Button btn) {
-        if (btn.getText().equals(UP_TEXT)) {
-            return prepareUpload();
-        }
-        else {
-            return doDownload();
-        }
+        return btn.getText().equals(UP_TEXT) ? prepareUpload() : doDownload();
     }
 
 
@@ -119,7 +120,7 @@ public class DocComponent extends PanelLayout {
         UploadedFile uploadedFile = uploader.getUploader().getUploadedFile();
         byte[] fileBytes = uploadedFile.getBytes();
         if (fileBytes.length > 0) {
-            DocStoreClient client = ResourceManager.getInstance().getDocStoreClient();
+            DocStoreClient client = ResourceManager.getInstance().getClients().getDocStoreClient();
             if (client != null) {
                 YDocument document = new YDocument(caseID, docID, fileBytes);
                 try {
@@ -207,14 +208,14 @@ public class DocComponent extends PanelLayout {
     }
     
     
-    private void setButtonStyle(Button btn, int width) {
-        btn.setStyle(String.format("left: %dpx", width));  // 20 = btn width
+    private void setButtonStyle(Button btn, int left) {
+        btn.setStyle(String.format("left: %dpx", left));  // 20 = btn width
     }
 
 
     private String doDownload() {
         String errorMsg = null;
-        DocStoreClient client = ResourceManager.getInstance().getDocStoreClient();
+        DocStoreClient client = ResourceManager.getInstance().getClients().getDocStoreClient();
         if (client != null) {
             try {
                 YDocument doc = client.getDocument(docID, client.getHandle());

@@ -149,14 +149,16 @@ public class SecondaryResources {
 
 
     private void announceUnavailable(AbstractResource resource, WorkItemRecord wir) {
-        ResourceManager.getInstance().announceResourceUnavailable(resource, wir, false);
+        ResourceManager.getInstance().getClients().announceResourceUnavailable(
+                resource, wir, false);
         _log.warn("Secondary Resource '" + resource.getName() +
                 "' unavailable for work item: " + wir.getID());
     }
 
 
     private void announceUnavailable(String name, WorkItemRecord wir) {
-        ResourceManager.getInstance().announceResourceUnavailable(null, wir, false);
+        ResourceManager.getInstance().getClients().announceResourceUnavailable(
+                null, wir, false);
         _log.warn("There are no available members of " + name +
                 "' to allocate as a secondary resource for work item: " + wir.getID());
     }

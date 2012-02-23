@@ -371,13 +371,9 @@ public class DynFormComponentBuilder {
         textField.setDisabled(isDisabled(input));
         textField.setToolTip(input.getToolTip());
         textField.setVisible(isVisible(input));
-        if (textField.isVisible()) setMaxTextValueWidth(input, (String) textField.getText());
-        if (input.hasBlackoutAttribute()) {
-            textField.setText("");
-        }
-        else {
-            textField.setText(JDOMUtil.decodeEscapes(input.getValue()));
-        }
+        textField.setText(input.hasBlackoutAttribute() ? "" :
+                           JDOMUtil.decodeEscapes(input.getValue()));
+        if (textField.isVisible()) setMaxTextValueWidth(input, (String) textField.getText(), 0);
         input.setRestrictionAttributes();
         return textField ;
     }
@@ -390,6 +386,8 @@ public class DynFormComponentBuilder {
         boolean inputOnly = input.isInputOnly();
         DocComponent docField =
                 new DocComponent(id.getValue(), name.getValue(), uniqueID, textField, inputOnly);
+        if (isVisible(input)) setMaxTextValueWidth(input, (String) textField.getText(),
+                DocComponent.BTN_WIDTH * 2 + DocComponent.BTN_HSPACE);
         docField.setId(uniqueID);
         docField.setStyleClass("dynformDocComponent");
         docField.setLabel(label);
@@ -530,8 +528,8 @@ public class DynFormComponentBuilder {
     }
 
 
-    private void setMaxTextValueWidth(DynFormField input, String text) {
-        _maxTextValueWidth = Math.max(_maxTextValueWidth, getTextWidth(input, text));
+    private void setMaxTextValueWidth(DynFormField input, String text, int buffer) {
+        _maxTextValueWidth = Math.max(_maxTextValueWidth, getTextWidth(input, text) + buffer);
     }
 
     public int getMaxTextValueWidth() {
