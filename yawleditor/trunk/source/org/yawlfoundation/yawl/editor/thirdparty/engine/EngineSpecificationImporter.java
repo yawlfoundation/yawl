@@ -56,6 +56,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.swing.*;
 import javax.xml.datatype.Duration;
 import java.awt.*;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
@@ -376,47 +377,50 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
  }
   
   private static void convertSubNetsAndOtherDecompositions(YSpecification engineSpecification) {
-    Iterator engineDecompositions = engineSpecification.getDecompositions().iterator();
-    
-    while (engineDecompositions.hasNext()) {
-      YDecomposition engineDecomposition = (YDecomposition) engineDecompositions.next();
-      if (engineDecomposition instanceof YNet && 
-          !engineDecomposition.equals(engineSpecification.getRootNet())) {
-        
-        YNet engineSubNet = (YNet) engineDecomposition;
-        NetGraphModel editorNetModel = convertEngineNet(engineSubNet);
-        
-        SpecificationModel.getInstance().addNet(editorNetModel);
-        
-        editorToEngineNetMap.put(engineSubNet, editorNetModel);
+      for (YDecomposition engineDecomposition : engineSpecification.getDecompositions()) {
+          if (engineDecomposition instanceof YNet &&
+                  !engineDecomposition.equals(engineSpecification.getRootNet())) {
+
+              YNet engineSubNet = (YNet) engineDecomposition;
+              NetGraphModel editorNetModel = convertEngineNet(engineSubNet);
+
+              SpecificationModel.getInstance().addNet(editorNetModel);
+
+              editorToEngineNetMap.put(engineSubNet, editorNetModel);
+          }
+          if (engineDecomposition instanceof YAWLServiceGateway) {
+              YAWLServiceGateway engineGateway = (YAWLServiceGateway) engineDecomposition;
+              WebServiceDecomposition editorDecomposition = new WebServiceDecomposition();
+
+              editorDecomposition.setLabel(engineGateway.getID());
+
+              if (engineGateway.getYawlService() != null) {
+                  YAWLServiceReference service;
+                  try {
+                      service = YConnector.getService(
+                              engineGateway.getYawlService().getURI());
+                  }
+                  catch (IOException ioe) {
+                      service = null;
+                  }
+                  if (service != null) {
+                      editorDecomposition.setService(service);
+                  }
+                  else editorDecomposition.setUnresolvedURI(engineGateway.getYawlService().getURI());
+              }
+
+              convertDecompositionParameters(
+                      engineGateway,
+                      editorDecomposition
+              );
+
+              convertInteractionSettings(engineDecomposition, editorDecomposition);
+              convertExtendedAttributes(engineDecomposition, editorDecomposition);
+              convertLogPredicates(engineDecomposition, editorDecomposition);
+
+              SpecificationModel.getInstance().addWebServiceDecomposition(editorDecomposition);
+          }
       }
-      if (engineDecomposition instanceof YAWLServiceGateway) {
-        YAWLServiceGateway engineGateway = (YAWLServiceGateway) engineDecomposition;
-        WebServiceDecomposition editorDecomposition = new WebServiceDecomposition();
-
-        editorDecomposition.setLabel(engineGateway.getID());
-        
-        if (engineGateway.getYawlService() != null) {
-          editorDecomposition.setYawlServiceID(
-            engineGateway.getYawlService().getURI()
-          );
-          editorDecomposition.setYawlServiceDescription(
-              engineGateway.getYawlService().getDocumentation()
-          );
-        }
-        
-        convertDecompositionParameters(
-            engineGateway, 
-            editorDecomposition
-        );
-
-        convertInteractionSettings(engineDecomposition, editorDecomposition);
-        convertExtendedAttributes(engineDecomposition, editorDecomposition);
-        convertLogPredicates(engineDecomposition, editorDecomposition);
-
-        SpecificationModel.getInstance().addWebServiceDecomposition(editorDecomposition);
-      }
-    }
   }
 
 

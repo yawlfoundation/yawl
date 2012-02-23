@@ -78,7 +78,7 @@ public class ConnectableEngineProxyImplementation extends AvailableEngineProxyIm
       HashMap servicesForEditor = new HashMap();
 
       servicesForEditor.put(
-          WebServiceDecomposition.DEFAULT_ENGINE_SERVICE_NAME,
+          WebServiceDecomposition.DEFAULT_WORKLIST_LABEL,
           null
       );
 

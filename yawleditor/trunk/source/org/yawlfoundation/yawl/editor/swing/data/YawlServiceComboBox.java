@@ -33,7 +33,7 @@ import java.util.*;
 public class YawlServiceComboBox extends JComboBox {
 
     private static final long serialVersionUID = 1L;
-    private Map<String, String> services = new HashMap<String, String>();
+    private Map<String, YAWLServiceReference> services = new HashMap<String, YAWLServiceReference>();
 
     public YawlServiceComboBox() {
         super();
@@ -48,17 +48,23 @@ public class YawlServiceComboBox extends JComboBox {
 
 
     private void addYawlServicesFromEngine() {
+        removeAllItems();
         services.clear();
         try {
             for (YAWLServiceReference service : YConnector.getServices()) {
-                if (!service.canBeAssignedToTask()) {
+                String doco;
+                if (service.getUserName().equals("DefaultWorklist")) {
+                    doco = "Default Engine Worklist";
+                }
+                else if (!service.canBeAssignedToTask()) {
                     continue;  // ignore services that are not for tasks.
                 }
-
-                // Short and sweet description for the editor.
-                String doco = service.getDocumentation();
-                if (doco == null) doco = service.get_serviceName();
-                services.put(doco, service.getURI());
+                else {
+                    // Short and sweet description for the editor.
+                    doco = service.getDocumentation();
+                    if (doco == null) doco = service.getUserName();
+                }
+                services.put(doco, service);
             }
         }
         catch (IOException ioe) {
@@ -68,22 +74,22 @@ public class YawlServiceComboBox extends JComboBox {
         }
 
         List<String> sortedServiceLabels = new ArrayList<String>(services.keySet());
-        Collections.sort(sortedServiceLabels);
+        Collections.sort(sortedServiceLabels);        
         for (String label : sortedServiceLabels) {
             addItem(label);                           // add service to combobox
         }
     }
 
 
-    public String getSelectedItemID() {
-        return services.get(getSelectedItem());
+    public YAWLServiceReference getSelectedService() {
+        return services.get((String) getSelectedItem());
     }
 
 
     public String getDescriptionFromID(String id) {
         for (String description : services.keySet()) {
-            String serviceID = services.get(description);
-            if ((serviceID != null) && serviceID.equals(id)) {
+            YAWLServiceReference service = services.get(description);
+            if ((service != null) && service.getURI().equals(id)) {
                 return description;
             }
         }
@@ -99,8 +105,8 @@ public class YawlServiceComboBox extends JComboBox {
             return false;
         }
 
-        String serviceURI = services.get(getSelectedItem());
-        return (serviceURI != null) && serviceURI.matches(".*/yawlWSInvoker/$");
+        YAWLServiceReference service = services.get((String) getSelectedItem());
+        return (service != null) && service.getURI().matches(".*/yawlWSInvoker/$");
     }
 
 

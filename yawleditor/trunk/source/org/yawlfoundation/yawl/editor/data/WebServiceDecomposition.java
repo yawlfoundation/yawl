@@ -27,40 +27,45 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 public class WebServiceDecomposition extends Decomposition {
 
-    public static final String DEFAULT_ENGINE_SERVICE_NAME = "Default Engine Worklist";
+    public static final String DEFAULT_WORKLIST_LABEL = "Default Engine Worklist";
+    public static final String ENGINE_WORKLIST_NAME = "DefaultWorklist";
 
+    // the selected service for the decomposition - null for default worklist
     private YAWLServiceReference _service;
+
+    // set if the uri in a loading decomposition matches no known YAWL service
+    private String _unresolvedURI;
+
 
     public WebServiceDecomposition() {
         super();
         setManualInteraction(true);
     }
 
-    public WebServiceDecomposition(String yawlServiceID,
-                                   String yawlServiceDescription) {
-        _service = new YAWLServiceReference(yawlServiceID, null);
-        setYawlServiceDescription(yawlServiceDescription);
-        setManualInteraction(false);
+
+    public void setService(YAWLServiceReference service) {
+        _service = service;
+        _unresolvedURI = null;                           // service is now resolved
     }
 
-    public String getYawlServiceID() {
+    public YAWLServiceReference getService() { return _service; }
+
+    public String getServiceURI() {
+        if (_unresolvedURI != null) return _unresolvedURI;
         return invokesWorklist() ? null : _service.getURI();
     }
 
-    public void setYawlServiceID(String yawlServiceID) {
-        _service.set_yawlServiceID(yawlServiceID);
+    public String getServiceDescription() {
+        return invokesWorklist() ? DEFAULT_WORKLIST_LABEL : _service.getDocumentation();
     }
 
-    public String getYawlServiceDescription() {
-        return invokesWorklist() ? "" : _service.getDocumentation();
-    }
+    public String getUnresolvedURI() { return _unresolvedURI; }
 
-    public void setYawlServiceDescription(String yawlServiceDescription) {
-        _service.setDocumentation(yawlServiceDescription);
-    }
+    public void setUnresolvedURI(String uri) { _unresolvedURI = uri; }
+
 
     public boolean invokesWorklist() {
-        return (_service == null);
+        return _service == null || _service.getServiceName().equals(ENGINE_WORKLIST_NAME);
     }
 
     public void setManualInteraction(boolean isManual) {
