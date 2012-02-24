@@ -2065,8 +2065,7 @@
                      includes="YExternalClient.class YClient.class"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/elements">
-            <fileset dir="${classes.dir}${packageRoot}/elements"
-                     includes="YAWLServiceReference.class YVerifiable.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/elements"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine"
                file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
