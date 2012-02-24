@@ -23,9 +23,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ConnectionCache;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ServiceConnection;
+import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnection;
 import org.yawlfoundation.yawl.resourcing.rsInterface.UserConnectionCache;
 import org.yawlfoundation.yawl.resourcing.util.*;
 
@@ -308,6 +311,139 @@ public class RuntimeCache {
     protected void removeSpecification(YSpecificationID specID) {
         removeSpecificationData(specID);
         removeDataSchema(specID);
+    }
+
+    /********************************************************************************/
+
+    protected Participant getParticipantWithSessionHandle(String handle) {
+        return _liveSessions.getParticipantWithSessionHandle(handle);
+    }
+
+    protected String getWhoLaunchedCase(String handle) {
+        Participant p = getParticipantWithSessionHandle(handle);
+        return (p != null) ? p.getID() : ResourceManager.ADMIN_STR;
+    }
+
+    protected void shutdown() throws InterruptedException {
+        for (UserConnection connection : _liveSessions.getAllSessions()) {
+            if (connection != null) {
+                Participant p = connection.getParticipant();
+                String id = (p != null) ? p.getUserID() : ResourceManager.ADMIN_STR;
+                EventLogger.audit(id, EventLogger.audit.shutdown);
+            }
+        }
+        _connections.shutdown();
+        Thread.sleep(200);       // give logger a moment to complete audit logging
+        EventLogger.shutdown();
+        shutdownCodeletRunners();
+    }
+
+    protected boolean isActiveSession(String jSessionID) {
+        return _liveSessions.containsSessionID(jSessionID);
+    }
+
+    protected Participant expireSession(String jSessionID) {
+        Participant p = null;
+        UserConnection connection = _liveSessions.removeSessionID(jSessionID);
+        if (connection != null) {
+            p = connection.getParticipant();
+            String id = (p != null) ? p.getUserID() : ResourceManager.ADMIN_STR;
+            EventLogger.audit(id, EventLogger.audit.expired);
+        }
+        return p;
+    }
+
+    protected boolean isValidUserSession(String handle) {
+        return _liveSessions.containsSessionHandle(handle);
+    }
+
+    // removes session handle from map of live users
+    protected void logout(String handle) {
+        UserConnection connection = _liveSessions.removeSessionHandle(handle);
+        if (connection != null) {
+            Participant p = connection.getParticipant();
+            if (p != null) {
+                removeChainedCasesForParticpant(p);
+            }
+            String id = (p != null) ? p.getUserID() : ResourceManager.ADMIN_STR;
+            EventLogger.audit(id, EventLogger.audit.logoff);
+        }
+    }
+    
+    
+    protected void addSession(String handle, String jSessionID) {
+        _liveSessions.add(handle, null, jSessionID);        
+    }
+
+    protected void addSession(String handle, Participant p, String jSessionID) {
+        _liveSessions.add(handle, p, jSessionID);
+    }
+
+    protected String getSessionHandle(Participant p) {
+        return _liveSessions.getSessionHandle(p);
+    }
+
+    protected String getActiveParticipantsAsXML() {
+        StringBuilder xml = new StringBuilder("<participants>") ;
+        for (Participant p : _liveSessions.getActiveParticipants()) {
+            xml.append(p.toXML()) ;
+        }
+        xml.append("</participants>");
+        return xml.toString() ;
+    }
+
+
+    /*******************************************************************************/
+
+    protected void refreshClientCredentials(Map<String, String> users) {
+        _connections.clearUsers();
+        _connections.addUsers(users);
+    }
+
+    protected void addClientCredentials(String id, String password) {
+        _connections.addUser(id, password);
+    }
+
+    
+    protected void updateClientCredentials(String id, String password) {
+        _connections.updateUser(id, password);
+    }
+    
+    protected void deleteClientCredentials(String id) {
+        _connections.deleteUser(id);
+    }
+
+    protected boolean hasClientCredentials() {
+        return _connections.hasUsers();
+    }
+
+    protected String connectClient(String userid, String password, long timeOutSeconds) {
+        return _connections.connect(userid, password, timeOutSeconds) ;
+    }
+    
+    protected String getClientPassword(String id) {
+        return _connections.getPassword(id);
+    }
+
+    protected boolean checkServiceConnection(String handle) {
+        return _connections.checkConnection(handle);
+    }
+
+    protected void serviceDisconnect(String handle) {
+        _connections.disconnect(handle) ;
+    }
+
+
+    protected String getUserIDForSessionHandle(String handle) {
+        Participant p = getParticipantWithSessionHandle(handle);  // try users first
+        if (p != null) {
+            return p.getUserID();
+        }
+        ServiceConnection connection = _connections.get(handle);     // try services
+        if (connection != null) {
+            return connection.getUserID();
+        }
+        return null;
     }
 
 }

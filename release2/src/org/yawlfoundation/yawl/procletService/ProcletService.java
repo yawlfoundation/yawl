@@ -73,77 +73,83 @@ public class ProcletService extends InterfaceBWebsideController  {
         myLog.debug("case id: " + wir.getCaseID());
         myLog.debug("task id: " + wir.getTaskID());
 
-    	// lock the case
-    	while (SingleInstanceClass.getInstance().isCaseBlocked(changeCaseID(wir.getCaseID()))) {
-    		try {
-    			Thread.sleep(1000);
-    		}
-    		catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    	}
+        // lock the case
+        while (SingleInstanceClass.getInstance().isCaseBlocked(changeCaseID(wir.getCaseID()))) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         myLog.debug("blockcase: " + changeCaseID(wir.getCaseID()));
-    	SingleInstanceClass.getInstance().blockCase(changeCaseID(wir.getCaseID()));
+        SingleInstanceClass.getInstance().blockCase(changeCaseID(wir.getCaseID()));
 
         try {
-    	    connect();
+            connect();
 
-     	    // check if case still existing
+            // check if case still existing
             boolean exists = successful(
                     _interfaceBClient.getCaseData(wir.getCaseID(), _handle));
             myLog.debug("exists: " + exists);
-    	    if (exists) {
+            if (exists) {
 
-	            // checkout ... process ... checkin
-	            wir = checkOut(wir.getID(), _handle);
+                // checkout ... process ... checkin
+                wir = checkOut(wir.getID(), _handle);
                 myLog.debug("data: " + JDOMUtil.elementToString(wir.getDataList()));
 
-	            // take block and wir
-	        	String classID = wir.getSpecURI();
-	        	String caseID = wir.getCaseID();
-	        	String procletID = changeCaseID(caseID);
-	        	String taskID = wir.getTaskID();
-	        	String blockID = changeTaskID(taskID);
-	        	wir.setCaseID(procletID);
-	        	wir.setTaskID(blockID);
-	        	ProcletModels pmodels = ProcletModels.getInstance();
-	        	ProcletModel pmodel = pmodels.getProcletClass(classID);
-	        	ProcletBlock block = pmodel.getBlock(blockID);
-	        	if (block != null) {
-		            if (block.getBlockType().equals(ProcletBlock.BlockType.CP)) {
-                        myLog.debug("block type is CP");
-                        InteractionGraphs.getNewInstance();
-		            	BlockCP bcp = new BlockCP(wir,block);
-		            	bcp.processWIR();
-		            }
-		            else if (block.getBlockType().equals(ProcletBlock.BlockType.FO)) {
+                // take block and wir
+                String classID = wir.getSpecURI();
+                String caseID = wir.getCaseID();
+                String procletID = changeCaseID(caseID);
+                String taskID = wir.getTaskID();
+                String blockID = changeTaskID(taskID);
+                wir.setCaseID(procletID);
+                wir.setTaskID(blockID);
+                ProcletModels pmodels = ProcletModels.getInstance();
+                ProcletModel pmodel = pmodels.getProcletClass(classID);
+                if (pmodel != null) {
+                    ProcletBlock block = pmodel.getBlock(blockID);
+                    if (block != null) {
+                        if (block.getBlockType().equals(ProcletBlock.BlockType.CP)) {
+                            myLog.debug("block type is CP");
+                            InteractionGraphs.getNewInstance();
+                            BlockCP bcp = new BlockCP(wir,block);
+                            bcp.processWIR();
+                        }
+                        else if (block.getBlockType().equals(ProcletBlock.BlockType.FO)) {
 
-		            	// reset graphs
-                        myLog.debug("block type is FO");
-                        InteractionGraphs.getNewInstance();
-		            	BlockFO bfo = new BlockFO(wir,block);
-		            	bfo.checkSourceNodeExecuted(classID, procletID, blockID);
-		            	List<List> relations = BlockFO.calculateRelations(wir);
-                        myLog.debug("relations: " + relations);
-		            	InteractionGraphs.getInstance().updateGraphPerfOut(relations);
-		            	InteractionGraphs.getInstance().updateGraphFO(classID, procletID, blockID);
-		            	InteractionGraphs.getInstance().persistGraphs();
-		            	List<Performative> perfs = BlockFO.calcPerformativesOut(wir);
-		            	myLog.debug("performatives: " + perfs);
+                            // reset graphs
+                            myLog.debug("block type is FO");
+                            InteractionGraphs.getNewInstance();
+                            BlockFO bfo = new BlockFO(wir,block);
+                            bfo.checkSourceNodeExecuted(classID, procletID, blockID);
+                            List<List> relations = BlockFO.calculateRelations(wir);
+                            myLog.debug("relations: " + relations);
+                            InteractionGraphs.getInstance().updateGraphPerfOut(relations);
+                            InteractionGraphs.getInstance().updateGraphFO(classID, procletID, blockID);
+                            InteractionGraphs.getInstance().persistGraphs();
+                            List<Performative> perfs = BlockFO.calcPerformativesOut(wir);
+                            myLog.debug("performatives: " + perfs);
 
-		            	SingleInstanceClass sic = SingleInstanceClass.getInstance();
-		            	myLog.debug("notify performativeListeners");
-		            	sic.notifyPerformativeListeners(perfs);
-		            }
-		            else if (block.getBlockType().equals(ProcletBlock.BlockType.PI)) {
-                        myLog.debug("block type is PI");
-		            	InteractionGraphs.getNewInstance();
-		            	BlockPI bpi = new BlockPI(wir,block);
-		            	bpi.processWIR();
-		            	// persist the graphs
-		            	InteractionGraphs.getInstance().persistGraphs();
-		            }
-	        	}
+                            SingleInstanceClass sic = SingleInstanceClass.getInstance();
+                            myLog.debug("notify performativeListeners");
+                            sic.notifyPerformativeListeners(perfs);
+                        }
+                        else if (block.getBlockType().equals(ProcletBlock.BlockType.PI)) {
+                            myLog.debug("block type is PI");
+                            InteractionGraphs.getNewInstance();
+                            BlockPI bpi = new BlockPI(wir,block);
+                            bpi.processWIR();
+                            // persist the graphs
+                            InteractionGraphs.getInstance().persistGraphs();
+                        }
+                    }
+                    else myLog.debug("No proclet block found in class '" + classID + "" +
+                            "' for work item: " + wir.getID());
+                }
+                else myLog.debug("No proclet class found for work item: " + wir.getID());
+
 	            // change taskid back again
 	        	wir.setCaseID(caseID);
 	            wir.setTaskID(taskID);
