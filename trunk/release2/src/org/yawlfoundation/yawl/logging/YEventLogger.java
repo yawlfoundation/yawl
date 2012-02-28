@@ -171,7 +171,8 @@ public class YEventLogger {
                 long parentTaskInstanceID = getTaskInstanceID(pmgr, subnetID, taskID);
                 if (parentTaskInstanceID < 0) {
                     parentTaskInstanceID = insertTaskInstance(pmgr, subnetID.toString(),
-                            taskID, -1, getNetInstanceID(pmgr, subnetID.getParent()));
+                            engineTaskID, taskID, -1,
+                            getNetInstanceID(pmgr, subnetID.getParent()));
                 }
                 logEvent(pmgr, parentTaskInstanceID, NET_UNFOLD, null, -1, rootNetInstanceID);
 
@@ -730,6 +731,7 @@ public class YEventLogger {
         // make the workitem give up the required parameters
         long taskID = getTaskID(pmgr, workItem);
         String engineInstanceID = workItem.getCaseID().toString();
+        String uniqueName = workItem.getTaskID();
 
         // only a child workitem will have a parent task instance
         YWorkItem parent = workItem.getParent();
@@ -742,8 +744,8 @@ public class YEventLogger {
         long parentNetInstanceID = (runner != null) ?
                 getNetInstanceID(pmgr, runner.getCaseID()) : -1L;
 
-        return insertTaskInstance(pmgr, engineInstanceID, taskID, parentTaskInstanceID,
-                                  parentNetInstanceID);
+        return insertTaskInstance(pmgr, engineInstanceID, uniqueName, taskID,
+                parentTaskInstanceID, parentNetInstanceID);
     }
 
 
@@ -751,6 +753,7 @@ public class YEventLogger {
      * Inserts a new task instance record
      * @param pmgr the active persistence manager object
      * @param engineInstanceID the 'case id' of this task instance
+     * @param uniqueName the task name with the engine-supplied unique suffix
      * @param taskID a foreign key to the task of which this is an instance
      * @param parentTaskInstanceID a foreign key to the parent task instance (child
      * workitems only, composite and parent workitem instances should have -1 for this
@@ -760,10 +763,11 @@ public class YEventLogger {
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long insertTaskInstance(YPersistenceManager pmgr, String engineInstanceID,
-                         long taskID, long parentTaskInstanceID, long parentNetInstanceID)
+                                    String uniqueName, long taskID,
+                                    long parentTaskInstanceID, long parentNetInstanceID)
             throws YPersistenceException {
-        YLogTaskInstance taskInstance = new YLogTaskInstance(engineInstanceID, taskID,
-                parentTaskInstanceID, parentNetInstanceID);
+        YLogTaskInstance taskInstance = new YLogTaskInstance(engineInstanceID, uniqueName,
+                taskID, parentTaskInstanceID, parentNetInstanceID);
         insertRow(pmgr, taskInstance);
         return taskInstance.getTaskInstanceID();
     }
