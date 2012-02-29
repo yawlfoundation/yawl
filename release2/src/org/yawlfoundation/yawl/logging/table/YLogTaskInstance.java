@@ -30,17 +30,15 @@ public class YLogTaskInstance {
 
     private long taskInstanceID;                // PK - auto generated
     private String engineInstanceID;            // either workitem or composite task id
-    private String uniqueTaskName;              // task name + unique suffix
     private long taskID;                        // FK to YLogTask
     private long parentNetInstanceID;           // FK to YLogNetInstance
     private long parentTaskInstanceID;          // null if this is not a child workitem
 
     public YLogTaskInstance() { }
 
-    public YLogTaskInstance(String engineInstanceID, String uniqueTaskName, long taskID,
+    public YLogTaskInstance(String engineInstanceID, long taskID,
                             long parentTaskInstanceID, long parentNetInstanceID) {
         this.engineInstanceID = engineInstanceID;
-        this.uniqueTaskName = uniqueTaskName;
         this.taskID = taskID;
         this.parentTaskInstanceID = parentTaskInstanceID;
         this.parentNetInstanceID = parentNetInstanceID;
@@ -60,14 +58,6 @@ public class YLogTaskInstance {
 
     public void setEngineInstanceID(String engineInstanceID) {
         this.engineInstanceID = engineInstanceID;
-    }
-
-    public String getUniqueTaskName() {
-        return uniqueTaskName;
-    }
-
-    public void setUniqueTaskName(String uniqueTaskName) {
-        this.uniqueTaskName = uniqueTaskName;
     }
 
     public long getTaskID() {
@@ -108,7 +98,6 @@ public class YLogTaskInstance {
         StringBuilder xml = new StringBuilder(170);
         xml.append(String.format("<taskInstance key=\"%d\">", taskInstanceID));
         xml.append(StringUtil.wrap(engineInstanceID, "caseid"));
-        xml.append(StringUtil.wrap(uniqueTaskName, "uniqueTaskName"));
         xml.append(StringUtil.wrap(String.valueOf(taskID), "taskKey"));
         xml.append(StringUtil.wrap(String.valueOf(parentNetInstanceID), "parentNetKey"));
         xml.append(StringUtil.wrap(String.valueOf(parentTaskInstanceID), "parentTaskKey"));

@@ -56,6 +56,10 @@ public class YLogTask {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public String getUnqualifiedName() {
+        return name.substring(0, name.lastIndexOf('_'));
+    }
 
     public long getParentNetID() {
         return parentNetID;

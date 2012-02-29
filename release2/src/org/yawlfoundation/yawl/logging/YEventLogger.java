@@ -171,8 +171,7 @@ public class YEventLogger {
                 long parentTaskInstanceID = getTaskInstanceID(pmgr, subnetID, taskID);
                 if (parentTaskInstanceID < 0) {
                     parentTaskInstanceID = insertTaskInstance(pmgr, subnetID.toString(),
-                            engineTaskID, taskID, -1,
-                            getNetInstanceID(pmgr, subnetID.getParent()));
+                             taskID, -1, getNetInstanceID(pmgr, subnetID.getParent()));
                 }
                 logEvent(pmgr, parentTaskInstanceID, NET_UNFOLD, null, -1, rootNetInstanceID);
 
@@ -470,16 +469,15 @@ public class YEventLogger {
                            String engineTaskID, long childNetID)
             throws YPersistenceException {
         YTask task = _engine.getTaskDefinition(ySpecID, engineTaskID);
-        String taskName = task.getName();
         long netID = getNetID(pmgr, ySpecID, task._net.getID());
-        long taskID = _keyCache.getTaskID(netID, taskName);
+        long taskID = _keyCache.getTaskID(netID, engineTaskID);
         if (taskID < 0) {
             String where = String.format("name='%s' AND tbl.parentNetID=%d",
-                    taskName, netID);
+                    engineTaskID, netID);
             YLogTask logTask = (YLogTask) selectScalarWhere(pmgr, "YLogTask", where);
             taskID = (logTask != null) ? logTask.getTaskID() :
-                    insertTask(pmgr, taskName, netID, childNetID);
-            _keyCache.putTaskID(netID, taskName, taskID);
+                    insertTask(pmgr, engineTaskID, netID, childNetID);
+            _keyCache.putTaskID(netID, engineTaskID, taskID);
         }
         return taskID;
     }
@@ -731,7 +729,6 @@ public class YEventLogger {
         // make the workitem give up the required parameters
         long taskID = getTaskID(pmgr, workItem);
         String engineInstanceID = workItem.getCaseID().toString();
-        String uniqueName = workItem.getTaskID();
 
         // only a child workitem will have a parent task instance
         YWorkItem parent = workItem.getParent();
@@ -744,7 +741,7 @@ public class YEventLogger {
         long parentNetInstanceID = (runner != null) ?
                 getNetInstanceID(pmgr, runner.getCaseID()) : -1L;
 
-        return insertTaskInstance(pmgr, engineInstanceID, uniqueName, taskID,
+        return insertTaskInstance(pmgr, engineInstanceID, taskID,
                 parentTaskInstanceID, parentNetInstanceID);
     }
 
@@ -753,7 +750,6 @@ public class YEventLogger {
      * Inserts a new task instance record
      * @param pmgr the active persistence manager object
      * @param engineInstanceID the 'case id' of this task instance
-     * @param uniqueName the task name with the engine-supplied unique suffix
      * @param taskID a foreign key to the task of which this is an instance
      * @param parentTaskInstanceID a foreign key to the parent task instance (child
      * workitems only, composite and parent workitem instances should have -1 for this
@@ -763,11 +759,11 @@ public class YEventLogger {
      * @throws YPersistenceException if there's a problem with the persistence layer
      */
     private long insertTaskInstance(YPersistenceManager pmgr, String engineInstanceID,
-                                    String uniqueName, long taskID,
-                                    long parentTaskInstanceID, long parentNetInstanceID)
+                                    long taskID, long parentTaskInstanceID,
+                                    long parentNetInstanceID)
             throws YPersistenceException {
-        YLogTaskInstance taskInstance = new YLogTaskInstance(engineInstanceID, uniqueName,
-                taskID, parentTaskInstanceID, parentNetInstanceID);
+        YLogTaskInstance taskInstance = new YLogTaskInstance(engineInstanceID, taskID,
+                parentTaskInstanceID, parentNetInstanceID);
         insertRow(pmgr, taskInstance);
         return taskInstance.getTaskInstanceID();
     }
