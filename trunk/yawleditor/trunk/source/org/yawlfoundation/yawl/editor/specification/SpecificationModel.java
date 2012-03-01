@@ -29,10 +29,7 @@ import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.elements.model.SplitDecorator;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
@@ -84,26 +81,29 @@ public class SpecificationModel {
   private transient HashMap<State,LinkedList<SpecificationModelListener>> 
       stateSubscriberMap = new HashMap<State,LinkedList<SpecificationModelListener>>();
 
-  private HashSet<WebServiceDecomposition> webServiceDecompositions = new HashSet<WebServiceDecomposition>();
-  private long    uniqueElementNumber = 0;
-  private int     fontSize            = DEFAULT_FONT_SIZE;
-  private int     defaultNetBackgroundColor =  DEFAULT_NET_BACKGROUND_COLOR;
-  private Color   defaultVertexBackground = getPreferredVertexBackground();
-  private String  name                = "";
-  private String  description         = "No description has been given.";
-  private String  id                  = "";
-  private String  uniqueID            = "UID_" + UUID.randomUUID().toString();
-  private String  author              = System.getProperty("user.name");
-  private YSpecVersion versionNumber  = new YSpecVersion("0.0");
-  private YSpecVersion prevVersionNumber  = null;
-  private String  validFromTimestamp  = "";
-  private String  validUntilTimestamp = "";
-  private boolean _versionChanged = false;
+  private HashSet<WebServiceDecomposition> webServiceDecompositions;
+  private ElementIdentifiers uniqueIdentifiers;
+  private int     fontSize;
+  private int     defaultNetBackgroundColor;
+  private Color   defaultVertexBackground;
+  private String  name;
+  private String  description;
+  private String  id;
+  private String  uniqueID = "UID_" + UUID.randomUUID().toString();
+  private String  author;
+  private YSpecVersion versionNumber;
+  private YSpecVersion prevVersionNumber;
+  private String  validFromTimestamp;
+  private String  validUntilTimestamp;
+  private boolean _versionChanged;
 
   private transient static final SpecificationModel INSTANCE = new SpecificationModel();
   
   public SpecificationModel() {
-    reset();
+      nets = new HashSet<NetGraphModel>();
+      webServiceDecompositions = new HashSet<WebServiceDecomposition>();
+      uniqueIdentifiers = new ElementIdentifiers();
+      reset();
   }
   
   public static SpecificationModel getInstance() {
@@ -177,16 +177,16 @@ public class SpecificationModel {
   
   public void reset() {
     netCount = 0;
-    nets = new HashSet<NetGraphModel>();
-    webServiceDecompositions = new HashSet<WebServiceDecomposition>();
+    nets.clear();
+    webServiceDecompositions.clear();
+    uniqueIdentifiers.clear();
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
-    defaultVertexBackground = getPreferredVertexBackground(); 
-    setFileName("");
+    defaultVertexBackground = getPreferredVertexBackground();
+      setFileName("");
     setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
-    setUniqueElementNumber(0);
-    
+
     setName("");
     setDescription("No description has been given.");
     setId("");
@@ -766,10 +766,15 @@ public class SpecificationModel {
     return this.author;
   }
 
-  public void setVersionNumber(YSpecVersion versionNumber) {
-    _versionChanged = (! this.versionNumber.equals(versionNumber));
-    if (_versionChanged) prevVersionNumber = this.versionNumber;
-    this.versionNumber = versionNumber;
+  public void setVersionNumber(YSpecVersion version) {
+      if (versionNumber != null) {
+          _versionChanged = (! versionNumber.equals(version));
+          if (_versionChanged) {
+              prevVersionNumber = versionNumber;
+              rationaliseUniqueIdentifiers();
+          }
+      }
+      versionNumber = version;
   }
   
   public YSpecVersion getVersionNumber() {
@@ -802,12 +807,21 @@ public class SpecificationModel {
   }
 
   
-  public void setUniqueElementNumber(long elementNumber) {
-    this.uniqueElementNumber = elementNumber;
-  }
-  
-  public long getUniqueElementNumber() {
-    this.uniqueElementNumber++;
-    return this.uniqueElementNumber;
-  }
+    public EngineIdentifier getUniqueIdentifier(String label) {
+        return uniqueIdentifiers.getIdentifier(label);
+    }
+
+    public EngineIdentifier ensureUniqueIdentifier(EngineIdentifier engineID) {
+        return uniqueIdentifiers.ensureUniqueness(engineID);
+    }
+    
+    public void removeUniqueIdentifier(EngineIdentifier engineID) {
+        uniqueIdentifiers.removeIdentifier(engineID);
+    }
+
+    public void rationaliseUniqueIdentifiers() {
+        uniqueIdentifiers.rationalise(nets);
+    }
+
+
 }

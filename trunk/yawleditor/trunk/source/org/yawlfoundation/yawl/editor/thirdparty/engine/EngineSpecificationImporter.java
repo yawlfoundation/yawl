@@ -66,7 +66,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   
   private static final Point DEFAULT_LOCATION = new Point(100,100);
   private static List<String> _invalidResourceReferences;
-  private static int _maxEngineNumber = 0;
 
   public static void importEngineSpecificationFromFile(SpecificationModel editorSpec,
                                                        String fullFileName) {
@@ -76,7 +75,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     if ((specStr == null) || specStr.length() == 0) return;
 
     _invalidResourceReferences = new ArrayList<String>();
-    _maxEngineNumber = 0;
 
     YSpecification engineSpec = importEngineSpecificationAsEngineObjects(specStr);
 
@@ -104,7 +102,6 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
     SpecificationModel.getInstance().setFileName(fullFileName);
     SpecificationFileModel.getInstance().incrementFileCount();
     SpecificationUndoManager.getInstance().discardAllEdits();
-    SpecificationModel.getInstance().setUniqueElementNumber(_maxEngineNumber);
 
     if (! _invalidResourceReferences.isEmpty()) {
         showInvalidResourceReferences();
@@ -557,8 +554,10 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
       editorNet.setElementLabel(editorTask, engineTask.getDecompositionPrototype().getID());
     }
     else {
-      mapUniqueElementID(editorTask, engineTask.getID()) ;
-      editorNet.setElementLabel(editorTask, engineTask.getName());
+        EngineIdentifier id = editorTask.getEngineIdentifier();
+        if (! (id == null || id.getName().equals(ElementIdentifiers.DEFAULT_ELEMENT_NAME))) {
+            editorNet.setElementLabel(editorTask, engineTask.getName());
+        }
     }
   }
 
@@ -1058,16 +1057,18 @@ public class EngineSpecificationImporter extends EngineEditorInterpretor {
   }
 
     private static void mapUniqueElementID(YAWLVertex vertex, String engineID) {
-      int engNbr = vertex.setActualEngineID(engineID);
-      if (engNbr > -1) {
-          vertex.setEngineIdNumber(String.valueOf(engNbr));
-          updateMaxEngineNumber(engNbr);
-      }
+        vertex.setEngineID(parseElementID(engineID));
     }
-
     
-    private static void updateMaxEngineNumber(int nbr) {
-      if (nbr > _maxEngineNumber) _maxEngineNumber = nbr;
+    private static EngineIdentifier parseElementID(String engineID) {
+        int pos = engineID.lastIndexOf("_");
+        if (pos < 0) return new EngineIdentifier(engineID);
+        String suffixStr = engineID.substring(pos + 1);
+        if (StringUtil.isIntegerString(suffixStr)) {
+            return new EngineIdentifier(engineID.substring(0, pos),
+                    StringUtil.strToInt(suffixStr, 0));
+        }
+        return new EngineIdentifier(engineID);
     }
 
 

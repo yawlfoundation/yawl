@@ -51,17 +51,17 @@ public final class NetUtilities {
   
   public static long getLargestEngineIdNumberWithin(NetGraphModel net) {
     long largestIDSoFar = 0;
-    for (Object netRoot : NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof VertexContainer) {
-        netRoot = ((VertexContainer) netRoot).getVertex();
-      }
-      if (netRoot instanceof YAWLVertex) {
-        long vertexId = Long.parseLong(((YAWLVertex) netRoot).getEngineIdNumber());
-        if (vertexId > largestIDSoFar) {
-          largestIDSoFar = vertexId;
-        }
-      }
-    }
+//    for (Object netRoot : NetGraphModel.getRoots(net)) {
+//      if (netRoot instanceof VertexContainer) {
+//        netRoot = ((VertexContainer) netRoot).getVertex();
+//      }
+//      if (netRoot instanceof YAWLVertex) {
+//        long vertexId = Long.parseLong(((YAWLVertex) netRoot).getEngineIdNumber());
+//        if (vertexId > largestIDSoFar) {
+//          largestIDSoFar = vertexId;
+//        }
+//      }
+//    }
     return largestIDSoFar;
   }
 

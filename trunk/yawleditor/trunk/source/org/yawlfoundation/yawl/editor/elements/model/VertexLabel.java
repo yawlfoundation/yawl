@@ -22,14 +22,12 @@
 
 package org.yawlfoundation.yawl.editor.elements.model;
 
-import java.awt.Color;
-
-import java.util.HashMap;
-
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+
+import java.awt.*;
+import java.util.HashMap;
 
 /**
  * @author bradforl
