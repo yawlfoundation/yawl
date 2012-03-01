@@ -52,7 +52,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
             if (newLabel.length() == 0) newLabel = null;
             graph.setElementLabel(vertex, newLabel);
             if (cbxSynch.isSelected()) {
-                vertex.setActualEngineID(newLabel);
+                vertex.setEngineLabel(newLabel);
             }
           graph.clearSelection();           
           SpecificationUndoManager.getInstance().setDirty(true);

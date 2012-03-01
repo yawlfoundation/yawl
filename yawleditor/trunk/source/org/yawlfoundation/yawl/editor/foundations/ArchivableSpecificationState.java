@@ -85,7 +85,7 @@ public class ArchivableSpecificationState implements Serializable {
     
     setFontSize(specificationModel.getFontSize());
     setDefaultNetBackgroundColor(specificationModel.getDefaultNetBackgroundColor());
-    setUniqueElementNumber(specificationModel.getUniqueElementNumber());
+   // setUniqueElementNumber(specificationModel.getUniqueElementNumber());
     setBounds(YAWLEditor.getInstance().getBounds());
   }
   
@@ -228,7 +228,7 @@ public class ArchivableSpecificationState implements Serializable {
   }
 
   public void setUniqueElementNumber(long uniqueElementNumber) {
-    serializationProofAttributeMap.put("uniqueElementNumber",new Long(uniqueElementNumber));
+    serializationProofAttributeMap.put("uniqueElementNumber",0);
   }
   
   public long getUniqueElementNumber() {

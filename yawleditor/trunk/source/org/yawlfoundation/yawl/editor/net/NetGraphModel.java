@@ -137,7 +137,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         );
         cellsAndTheirEdges.addAll(getEdges(this, cells.toArray()));
         removeCellsFromCancellationSets(cellsAndTheirEdges);
-
+        freeEngineIdentifiers(cellsAndTheirEdges);
         resetAffectedCPorts(cellsAndTheirEdges);
 
         super.remove(cellsAndTheirEdges.toArray());
@@ -188,6 +188,16 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
             taskWithCancellationSet.getCancellationSet().setSetMembers(hashset);
             if (viewingTask != null) {
                 getGraph().changeCancellationSet(viewingTask);
+            }
+        }
+    }
+    
+    
+    private void freeEngineIdentifiers(Set cells) {
+        for (Object cell : cells) {
+            if (cell instanceof YAWLVertex) {
+                SpecificationModel.getInstance().removeUniqueIdentifier(
+                        ((YAWLVertex) cell).getEngineIdentifier());
             }
         }
     }

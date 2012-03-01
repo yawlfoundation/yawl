@@ -1510,11 +1510,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       if (editorFlowSource instanceof YAWLTask && 
           editorFlowTarget instanceof YAWLTask) {
         
-        YCondition implicitEngineCondition = 
-          new YCondition(
-            getNewUniqueEngineIDNumber(editorSpec) + "_ImplicitCondition",
-            engineNet
-          );
+        EngineIdentifier engineID = SpecificationModel.getInstance().getUniqueIdentifier("ImplicitCondition");
+        YCondition implicitEngineCondition = new YCondition(engineID.toString(), engineNet);
         
         implicitEngineCondition.setImplicit(true);
         engineNet.addNetElement(implicitEngineCondition);
@@ -1585,23 +1582,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   }
   
   private static String getEngineElementID(SpecificationModel editorSpec, YAWLVertex element) {
-    if (element.getEngineIdNumber() == null || element.getEngineIdNumber().equals("")) {
-      element.setEngineIdNumber(
-          getNewUniqueEngineIDNumber(editorSpec)
-      );
-    }
     return element.getEngineId();
   }
-  
-  private static String getNewUniqueEngineIDNumber(SpecificationModel editorSpec) {
-    editorSpec.setUniqueElementNumber(
-        editorSpec.getUniqueElementNumber() + 1
-    );
-    
-    return Long.toString(
-        editorSpec.getUniqueElementNumber()
-    );  
-  }
+
 
   private static int editorToEngineJoin(YAWLTask task) {
     if (task.hasJoinDecorator()) {

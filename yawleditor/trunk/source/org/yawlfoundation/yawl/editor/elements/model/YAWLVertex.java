@@ -57,8 +57,8 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
     private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
 
-    private String _actualEngineID;
-    private String _engineIdNumber;
+    private EngineIdentifier _actualEngineID;
+    private String _engineLabel;
     private String _iconPath;
     private String _designNotes;
     private String _documentation;
@@ -87,8 +87,6 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     private void initialize(Point2D startPoint, String iconPath) {
-        setEngineIdNumber(
-                String.valueOf(SpecificationModel.getInstance().getUniqueElementNumber()));
         _startPoint = (startPoint != null) ? startPoint : new Point(10, 10);
         buildElementDefaults();
         setIconPath(iconPath);
@@ -96,21 +94,49 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     public String getEngineId() {
-        String engineId = (_actualEngineID != null) ? _actualEngineID : getEngineLabel();
-        if (!StringUtil.isNullOrEmpty(_engineIdNumber)) {
-            engineId += "_" + _engineIdNumber;
+        if (_actualEngineID == null) {
+            _actualEngineID = SpecificationModel.getInstance().getUniqueIdentifier(getEngineLabel());
         }
-        return XMLUtilities.toValidXMLName(engineId);
+        return XMLUtilities.toValidXMLName(_actualEngineID.toString());
     }
 
-    public String getEngineLabel() { return getLabel(); }
+    public EngineIdentifier getEngineIdentifier() { return _actualEngineID; }
+
+    public void setEngineID(EngineIdentifier id) {
+        setEngineID(id, true);
+    }
+
+    public void setEngineID(EngineIdentifier id, boolean check) {
+        _actualEngineID = check ? SpecificationModel.getInstance().ensureUniqueIdentifier(id) : id;
+        _engineLabel = _actualEngineID.getName();
+    }
+
+    public String getEngineLabel() {
+        if (_engineLabel == null) {
+            _engineLabel = getLabel();
+        }
+        return _engineLabel;
+    }
+    
+    public void setEngineLabel(String label) {
+        if (label != null) {
+            String[] parts = label.split("_");
+            if (parts.length > 1) {
+                String lastPart = parts[parts.length -1];
+                if (StringUtil.isIntegerString(lastPart)) {
+                    _engineLabel = label.substring(0, label.lastIndexOf('_'));
+                }
+            }
+            else _engineLabel = label;
+
+            if (_actualEngineID != null) {
+                SpecificationModel.getInstance().removeUniqueIdentifier(_actualEngineID);
+                _actualEngineID = null;    // reset
+            }
+        }
+    }
 
     public Point2D getStartPoint() { return _startPoint; }
-
-
-    public String getEngineIdNumber() { return _engineIdNumber; }
-
-    public void setEngineIdNumber(String id) { _engineIdNumber = id; }
 
 
     public void setIconPath(String path) { _iconPath = path; }
@@ -134,35 +160,6 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
 
     public static Dimension getVertexSize() { return size; }
-
-
-    public String getActualEngineID() { return _actualEngineID; }
-
-    public int setActualEngineID(String id) {
-        int result = -1;
-        if (id != null) {
-            int suffixPos = id.lastIndexOf("_");
-            if (suffixPos > -1) {
-                String suffix = id.substring(suffixPos + 1);
-                if (isValidInt(suffix)) {
-                    id = id.substring(0, suffixPos);
-                    result = new Integer(suffix);
-                }
-            }
-        }
-        _actualEngineID = id;
-        return result;
-    }
-
-
-    private boolean isValidInt(String nStr) {
-        try {
-            new Integer(nStr);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
 
     public String getToolTipText() {
@@ -421,18 +418,15 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         GraphConstants.setBackground(map, _backgroundColor);
         getAttributes().applyMap(map);
 
-        clone.setActualEngineID(_actualEngineID);
-        clone.setEngineIdNumber(_engineIdNumber);
+        clone.setEngineLabel(getEngineLabel());
         clone.setIconPath(_iconPath);
         clone.setDesignNotes(_designNotes);
         clone.setDocumentation(_documentation);
-        clone.setEngineIdNumber(String.valueOf(
-                        SpecificationModel.getInstance().getUniqueElementNumber()));
         return clone;
     }
 
 
     public String toString() {
-        return "[" + this.hashCode() + "]\nengine id: " + getEngineId();
+        return "[" + this.hashCode() + "]\nengine id: " + _actualEngineID;
     }
 }

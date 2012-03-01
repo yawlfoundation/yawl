@@ -31,8 +31,6 @@ import org.yawlfoundation.yawl.editor.foundations.ArchivableSpecificationState;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
-import org.yawlfoundation.yawl.editor.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
@@ -142,7 +140,7 @@ public class SpecificationArchiveHandler {
     );
       
     SpecificationModel.getInstance().setUniqueID("UID_" + UUID.randomUUID().toString());
-
+      SpecificationModel.getInstance().rationaliseUniqueIdentifiers();
     return true;
   }
   
@@ -150,7 +148,6 @@ public class SpecificationArchiveHandler {
    *  Processes a user's request to save an open specification.
    *  This might include prompting for a file name if one has not yet beem
    *  set for the specification.
-   *  @returns true if the specification was saved, false if the user cancelled the save.
    */
   
   public void processSaveAsRequest() {
@@ -455,16 +452,6 @@ public class SpecificationArchiveHandler {
         specModel.setValidUntilTimestamp(state.getValidUntilTimestamp());
     
         Iterator netIterator = specModel.getNets().iterator();
-    
-        long largestIdSoFar = 0;
-        while(netIterator.hasNext()) {
-          NetGraphModel currentNet = (NetGraphModel) netIterator.next();
-          long largestNetId = NetUtilities.getLargestEngineIdNumberWithin(currentNet);
-          if (largestIdSoFar < largestNetId) {
-            largestIdSoFar = largestNetId;
-          }
-        }
-        specModel.setUniqueElementNumber(largestIdSoFar);
 
         specModel.checkResourcingObjects();
     
