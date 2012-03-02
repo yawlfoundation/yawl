@@ -165,6 +165,7 @@ public class MessagePanel extends PanelLayout {
     /* show the panel centered inside its parent */
     public void show(int width) {
         _parentWidth = width;
+        _parentHeight = 0;
         show();
     }
 
