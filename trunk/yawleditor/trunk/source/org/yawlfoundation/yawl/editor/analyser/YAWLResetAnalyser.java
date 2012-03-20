@@ -147,7 +147,7 @@ public class YAWLResetAnalyser{
 		           }
 		           catch (Exception e)
 		           {
-		            msgBuffer.append(formatXMLMessage(e.toString(),false));
+		            msgBuffer.append(formatXMLMessage(e.getMessage(),false));
 
 		           }
 		          
@@ -174,7 +174,7 @@ public class YAWLResetAnalyser{
 		           }
 		           catch (Exception e)
 		           {
-		            msgBuffer.append(formatXMLMessage(e.toString(),false));
+		            msgBuffer.append(formatXMLMessage(e.getMessage(),false));
 
 		           }
 		           	
@@ -207,7 +207,7 @@ public class YAWLResetAnalyser{
 		           
 		           catch (Exception e)
 		           {
-		            msgBuffer.append(formatXMLMessage(e.toString(),false));
+		            msgBuffer.append(formatXMLMessage(e.getMessage(),false));
 
 		           }
 		           
@@ -223,7 +223,7 @@ public class YAWLResetAnalyser{
 
 		           catch (Exception e)
 		           {
-		            msgBuffer.append(formatXMLMessage(e.toString(),false));
+		            msgBuffer.append(formatXMLMessage(e.getMessage(),false));
 
 		           }
 

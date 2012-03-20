@@ -429,42 +429,35 @@ public class YAWLReachabilityUtils{
 	  
 	 return msg;
    	 }
-   	 
-   	private YSetOfMarkings getReachableMarkings(YMarking M) throws Exception{
-	
-	YSetOfMarkings RS = new YSetOfMarkings();
-	VisitedMarkings = new YSetOfMarkings();
-	endMarkings = new YSetOfMarkings();
 
-    YSetOfMarkings visitingPS = getImmediateSuccessors(M);
-    RS.addMarking(M);
-    VisitedMarkings.addMarking(M);
+    private YSetOfMarkings getReachableMarkings(YMarking M) throws Exception {
+        YSetOfMarkings RS = new YSetOfMarkings();
+        VisitedMarkings.removeAll();
+        endMarkings.removeAll();
 
-    while (!RS.containsAll(visitingPS.getMarkings()))
-       { 
-           if (messageDlg.isCancelled()) return RS;  
-         RS.addAll(visitingPS);
-            if(RS.size() > maxNumMarkings)
-        {   messageDlg.write("Reachable markings > "+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
+        YSetOfMarkings visitingPS = getImmediateSuccessors(M);
+        RS.addMarking(M);
+        VisitedMarkings.addMarking(M);
 
-    		//throw new Exception("Reachable markings > "+maxNumMarkings+ ". Possible infinite loop in the net "+_yNet.getID());
-            return RS;
+        while (!RS.containsAll(visitingPS.getMarkings())) {
+            if (messageDlg.isCancelled()) return RS;
+            RS.addAll(visitingPS);
+            if (RS.size() > maxNumMarkings) {
+                String msg = "Reachable markings > " + maxNumMarkings +
+                        ". Possible infinite loop in the net '" + _yNet.getID() +
+                        "'. Could not complete analysis.";
+                messageDlg.write(msg);
+                throw new Exception(msg);
+            }
+
+            YSetOfMarkings successors = getImmediateSuccessors(visitingPS);
+            visitingPS.removeAll();
+            visitingPS.addAll(successors);
+            messageDlg.write("Immediate Successors: "+ visitingPS.size());
         }
 
-    	YSetOfMarkings successors = getImmediateSuccessors(visitingPS);
-        visitingPS.removeAll();
-        visitingPS.addAll(successors);
-        messageDlg.write("Immediate Successors: "+ visitingPS.size());
-
-        }
-
-     messageDlg.write("Reachability Set size: "+RS.size());
-     /*   for (Iterator i = RS.getMarkings().iterator(); i.hasNext();)
-	    {   YMarking m = (YMarking) i.next();
-	    	messageDlg.write(printMarking(m));
-	   	}*/
-     return RS;
-    
+        messageDlg.write("Reachability Set size: "+RS.size());
+        return RS;
     }
 	
     /**

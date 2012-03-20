@@ -125,7 +125,9 @@ public class ElementIdentifiers {
     /***************************************************************************/
 
     /**
-     * Stores the used and available suffixes for a particular name
+     * Stores the used and available suffixes for a particular name. Uses boolean[]
+     * rather than BitSet since size will be typically small (i.e. in all but the
+     * most complex specifications).
      */
     private class SuffixStore {
         int size = 4;                                 // initial size
