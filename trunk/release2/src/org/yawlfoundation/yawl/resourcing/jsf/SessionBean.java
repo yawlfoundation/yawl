@@ -2137,14 +2137,14 @@ public class SessionBean extends AbstractSessionBean {
         visualiserEditedWIR = wir;
     }
 
-    private boolean rssAlreadyLoggedOn = false;
+    private boolean rssUserAlreadyLoggedOn = false;
 
-    public boolean isRssAlreadyLoggedOn() {
-        return rssAlreadyLoggedOn;
+    public boolean isRssUserAlreadyLoggedOn() {
+        return rssUserAlreadyLoggedOn;
     }
 
-    public void setRssAlreadyLoggedOn(boolean loggedOn) {
-        rssAlreadyLoggedOn = loggedOn;
+    public void setRssUserAlreadyLoggedOn(boolean loggedOn) {
+        rssUserAlreadyLoggedOn = loggedOn;
     }
 
     private FormViewer formViewerInstance = null ;
@@ -2171,6 +2171,7 @@ public class SessionBean extends AbstractSessionBean {
         setFormViewerInstance(null);
         setRssFormWIR(null);
         setRssFormDisplay(false);
+        setRssUserAlreadyLoggedOn(true);
         setWirEdit(false);
         setCompleteAfterEdit(false);
         setCustomFormPost(false);
@@ -2187,6 +2188,16 @@ public class SessionBean extends AbstractSessionBean {
         rssFormDisplay = display;
     }
 
+
+    private boolean rssFormCloseAttempted = false;
+
+    public boolean isRssFormCloseAttempted() {
+        return rssFormCloseAttempted;
+    }
+
+    public void setRssFormCloseAttempted(boolean attempted) {
+        rssFormCloseAttempted = attempted;
+    }
 
     /******************************************************************************/
     /** Client Apps Page **********************************************************/
@@ -2664,17 +2675,15 @@ public class SessionBean extends AbstractSessionBean {
 
 
     public String getLblDocumentationStyle() {
-        boolean lower = (activeTab.equals("tabWorklisted") ||
-                         activePage == ApplicationBean.PageRef.teamQueues);
+        boolean lower = (activeTab != null && activeTab.equals("tabWorklisted")) ||
+                         activePage == ApplicationBean.PageRef.teamQueues;
         return String.format("top: %dpx",  (lower ? 300 : 256));
     }
 
     public String getTxtDocumentationStyle() {
-        boolean lower = (activeTab.equals("tabWorklisted") ||
-                         activePage == ApplicationBean.PageRef.teamQueues);
+        boolean lower = (activeTab != null && activeTab.equals("tabWorklisted")) ||
+                         activePage == ApplicationBean.PageRef.teamQueues;
         return String.format("height: %dpx; top: %dpx;",
                 (lower ? 44 : 84), (lower ? 314 : 274));
     }    
 }
-
-

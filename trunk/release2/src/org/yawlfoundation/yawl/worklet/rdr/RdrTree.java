@@ -18,14 +18,18 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -47,12 +51,10 @@ import java.util.List;
 
 public class RdrTree {
 
-    private YSpecificationID _specId = null ;           // spec rules are for
-    private String _taskId = null ;                   // task rules are for    
+    private String _taskId = null ;           // task rules are for, null for case level
     private RdrNode _rootNode = null;
     private RdrNode[] _lastPair = new RdrNode[2];     // see search()
-    
-    private static Logger _log = Logger.getLogger(RdrTree.class);
+    private YAttributeMap _attributes;
 
 
     /** Default constructor */
@@ -61,12 +63,10 @@ public class RdrTree {
     
     /**
      *  Constructs an empty tree
-     *  @param specId - specification the task is a member of
      *  @param taskId - id of task that this tree will support
      */
-     public RdrTree(YSpecificationID specId, String taskId) {
+     public RdrTree(String taskId) {
     	_taskId = taskId ;
-    	_specId = specId ;
     }
 
 //===========================================================================//
@@ -76,10 +76,7 @@ public class RdrTree {
     public RdrNode getRootNode() {
         return _rootNode;
     }
-    
-    public YSpecificationID getSpecId() {
-        return _specId;
-    }
+
     
     public String getTaskId() {
         return _taskId;
@@ -137,6 +134,10 @@ public class RdrTree {
         }
         return list;
     }
+
+    protected YAttributeMap getAttributes() {
+        return _attributes != null ? _attributes : new YAttributeMap();
+    }
   
 //===========================================================================//
     
@@ -146,13 +147,17 @@ public class RdrTree {
     	_rootNode = root ;
     }
     
-    public void setSpecId(YSpecificationID id) {
-    	_specId = id ;
-    }
-    
+
     public void setTaskId(String id) {
     	_taskId = id ;
     }
+
+    public void setAttributes(String rdrSetName, RuleType rType) {
+        _attributes = new YAttributeMap();
+        _attributes.put("ruleset", rdrSetName);
+        _attributes.put("ruletype", rType.name());
+    }
+
 
 //===========================================================================//
    
@@ -180,17 +185,22 @@ public class RdrTree {
 	 *        'false' if-not branch
 	 */
     public RdrNode addNode(RdrNode parentNode, boolean trueBranch) {
-    	int nextID = nodeCount() + 1;
-        RdrNode temp = new RdrNode(nextID);
-        
+        return addNode(new RdrNode(), parentNode, trueBranch);
+    }
+    
+    
+    public RdrNode addNode(RdrNode newNode, RdrNode parentNode, boolean trueBranch) {
+    	newNode.setNodeId(nodeCount() + 1);
+        newNode.setParent(parentNode);
         if (trueBranch) {
-            parentNode.setTrueChild(temp);
+            parentNode.setTrueChild(newNode);
         }
         else {
-            parentNode.setFalseChild(temp);
+            parentNode.setFalseChild(newNode);
         }
-        return(temp);
+        return newNode;
     }
+    
     
 //===========================================================================//
 	
@@ -218,15 +228,13 @@ public class RdrTree {
 //===========================================================================//
 	
 	/** returns a String representation of this tree */
-    public String toString(){
+    public String dump(){
     	String n = Library.newline ;
-    	return n + "Spec ID: " + _specId + 
-    	       n + "Task ID: " + _taskId + n + n +
-               toString(_rootNode) ;
+    	return n + "Task ID: " + _taskId + n + n + dump(_rootNode) ;
     }
     
     /** recursively adds each node to a String representation of the tree */
-    private String toString(RdrNode root) {
+    private String dump(RdrNode root) {
     	StringBuilder s = new StringBuilder() ;
     	String n = Library.newline ;
     	
@@ -256,11 +264,77 @@ public class RdrTree {
            }
               
            s.append(n) ;                
-           s.append(toString(root.getTrueChild()));     // recurse true branch 
-           s.append(toString(root.getFalseChild()));    // recurse false branch
+           s.append(dump(root.getTrueChild()));     // recurse true branch
+           s.append(dump(root.getFalseChild()));    // recurse false branch
       }
         return s.toString() ;
      } 
+
+    public String toString() {
+        return "task: " + _taskId + ", nodes: " + nodeCount();
+    }
+    
+    public String toXML() {
+        return toXNode().toPrettyString();
+    }
+   
+    public XNode toXNode() {
+        return toXNode("tree");    // default
+    }
+      
+    
+    public XNode toXNode(String name) {
+        XNode treeNode;
+        if (_taskId != null) {
+            treeNode = new XNode("task");
+            treeNode.addAttribute("name", _taskId);
+        }
+        else treeNode = new XNode(name);
+        treeNode.addAttributes(getAttributes());
+
+        treeNode.addChildren(toXNodeList(_rootNode));
+        return treeNode;
+    }
+
+    private List<XNode> toXNodeList(RdrNode rdrNode) {
+        List<XNode> nodeList = new ArrayList<XNode>();
+        if (rdrNode != null) {
+            nodeList.add(rdrNode.toXNode());
+            nodeList.addAll(toXNodeList(rdrNode.getTrueChild()));
+            nodeList.addAll(toXNodeList(rdrNode.getFalseChild()));
+        }
+        return nodeList;
+    }
+    
+    
+    public void fromXML(String xml) {
+        fromXNode(new XNodeParser().parse(xml));
+    }
+    
+    private void fromXNode(XNode node) {
+        Map<Integer, RdrNode> nodeMap = new Hashtable<Integer, RdrNode>();
+        if (node != null) {
+            
+            // 2 passes - one to unmarshal the nodes, one to link them
+            for (XNode xRuleNode : node.getChildren()) {
+                RdrNode rdrNode = new RdrNode();
+                rdrNode.fromXNode(xRuleNode);
+                nodeMap.put(rdrNode.getNodeId(), rdrNode);
+            }
+            for (XNode xRuleNode : node.getChildren()) {
+                int id = StringUtil.strToInt(xRuleNode.getChildText("id"), -1);
+                int parentID = StringUtil.strToInt(xRuleNode.getChildText("parent"), -1);
+                int trueChildID = StringUtil.strToInt(xRuleNode.getChildText("trueChild"), -1);
+                int falseChildID = StringUtil.strToInt(xRuleNode.getChildText("falseChild"), -1);
+                RdrNode rdrNode = nodeMap.get(id);
+                if (parentID > -1) rdrNode.setParent(nodeMap.get(parentID));
+                if (parentID > -1) rdrNode.setParent(nodeMap.get(parentID));
+                if (trueChildID > -1) rdrNode.setTrueChild(nodeMap.get(trueChildID));
+                if (falseChildID > -1) rdrNode.setFalseChild(nodeMap.get(falseChildID));
+            }
+            setRootNode(nodeMap.get(0));
+        }
+    }
 
 //===========================================================================//
 //===========================================================================//

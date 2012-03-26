@@ -22,7 +22,6 @@ import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;
@@ -63,7 +62,6 @@ public abstract class InterfaceBWebsideController {
     protected String engineLogonName = "admin";
     protected String engineLogonPassword = "YAWL";
     protected Category _logger = Logger.getLogger(getClass());
-    protected SAXBuilder _builder = new SAXBuilder();
 
 
     /**

@@ -36,10 +36,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
-import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
-import org.yawlfoundation.yawl.worklet.rdr.RdrSet;
-import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
-import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.*;
@@ -155,6 +152,8 @@ public class WorkletService extends InterfaceBWebsideController {
     private String _workletsDir ;                       // where the worklet specs are
     private static WorkletService _me ;                 // reference to self
     private static ExceptionService _exService ;        // reference to ExceptionService
+    protected WorkletEventServer _server;               // announces events
+    protected Rdr _rdr;
     private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
     private boolean _exceptionServiceEnabled = false;
@@ -162,7 +161,9 @@ public class WorkletService extends InterfaceBWebsideController {
     /** the constructor */
     public WorkletService() {
         super();
-        _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.WorkletService"); 
+        _log = Logger.getLogger(WorkletService.class);
+        _server = new WorkletEventServer();
+        _rdr = new Rdr();
         _me = this ;
     }
 
@@ -204,6 +205,10 @@ public class WorkletService extends InterfaceBWebsideController {
         _exceptionServiceEnabled = enable;
     }
 
+    public WorkletEventServer getServer() { return _server; }
+
+    public Rdr getRdrInterface() { return _rdr; }
+
 
     /** completes the initialisation of the service load-up (mainly persistence)
         called from servlet WorkletGateway after contexts are loaded */
@@ -222,6 +227,7 @@ public class WorkletService extends InterfaceBWebsideController {
     
     public void shutdown() {
         if (_dbMgr != null) _dbMgr.closeFactory();
+        _server.shutdownListeners();
     }
 
 //***************************************************************************//
@@ -1388,7 +1394,7 @@ public class WorkletService extends InterfaceBWebsideController {
              RdrSet ruleSet = _ruleSets.get(specID) ;
              if (ruleSet != null) ruleSet.refresh() ;
         }    
-     }
+    }
 
     //***************************************************************************//
 

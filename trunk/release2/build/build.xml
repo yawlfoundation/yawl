@@ -1089,7 +1089,7 @@
         
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
-                     includes="YClient.class"/>
+                     includes="YClient.class YExternalClient.class"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
@@ -1125,10 +1125,7 @@
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/util">
-            <fileset dir="${classes.dir}${packageRoot}/util"
-                     includes="JDOMUtil.class StringUtil.class
-                               CharsetFilter.class PasswordEncryptor.class
-                               HttpURLValidator.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet"
               file="${classes.dir}${packageRoot}/worklet/WorkletService.class"/>
@@ -1584,6 +1581,9 @@
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/worklet">
+            <fileset dir="${classes.dir}${packageRoot}/worklet" excludes="**/*.hbm.xml"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/${test.app.name}">
             <fileset dir="${classes.dir}${packageRoot}/${test.app.name}"/>
@@ -2076,6 +2076,10 @@
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="YAWLException.class"/>
         </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/schema"
+               file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/unmarshal"
+               file="${classes.dir}${packageRoot}/unmarshal/YDecompositionParser.class"/>
 
          <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
              <fileset dir="${classes.dir}${packageRoot}/util"/>

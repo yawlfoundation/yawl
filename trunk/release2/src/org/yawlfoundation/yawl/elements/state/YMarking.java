@@ -23,11 +23,11 @@ import org.yawlfoundation.yawl.elements.*;
 import java.util.*;
 
 /**
- * 
+ *
  * @author Lachlan Aldred
  * Date: 19/06/2003
  * Time: 15:14:40
- * 
+ *
  */
 public class YMarking {
     private List<YNetElement> _locations;
@@ -49,60 +49,42 @@ public class YMarking {
             aMarking._locations.remove(task);
             halfBakedSet = new YSetOfMarkings();
             halfBakedSet.addMarking(aMarking);
-        } else {
+        }
+        else {
             halfBakedSet = doPrelimaryMarkingSetBasedOnJoinType(task);
         }
         if (halfBakedSet == null) {
             return null;
         }
+
         //for each marking you generate activate the cancellation set and remove the tokens
-        for (Iterator iterator = halfBakedSet.getMarkings().iterator(); iterator.hasNext();) {
-            YMarking halfbakedMarking = (YMarking) iterator.next();
-            Set cancellationSet = task.getRemoveSet();
-            halfbakedMarking._locations.removeAll(cancellationSet);
+        for (YMarking halfbakedMarking : halfBakedSet.getMarkings()) {
+            halfbakedMarking._locations.removeAll(task.getRemoveSet());
         }
-        Set iterableHalfBakedSet = halfBakedSet.getMarkings();
+
+        Set<YMarking> iterableHalfBakedSet = halfBakedSet.getMarkings();
         YSetOfMarkings finishedSet = new YSetOfMarkings();
-     //   Set postset = YOrJoinUtils.getRelevantPostset(task, orJoin);
-        Set postset = task.getPostsetElements();
-        int splitType = task.getSplitType();
-        switch (splitType) {
+        Set<YExternalNetElement> postset = task.getPostsetElements();
+
+        switch (task.getSplitType()) {
             case YTask._AND:
-            case YTask._OR:
-                {
-                    for (Iterator iterator = iterableHalfBakedSet.iterator(); iterator.hasNext();) {
-                        YMarking marking = (YMarking) iterator.next();
-                        marking._locations.addAll(postset);
-                        finishedSet.addMarking(marking);
-                    }
-                    break;
+            case YTask._OR: {
+                for (YMarking marking : iterableHalfBakedSet) {
+                    marking._locations.addAll(postset);
+                    finishedSet.addMarking(marking);
                 }
-/*            case YTask._OR : {
-                Set combinationsOfPostset = doPowerSetRecursion(postset);
-                for (Iterator iterator = iterableHalfBakedSet.iterator(); iterator.hasNext();) {
-                    YMarking halfBakedmarking = (YMarking) iterator.next();
-                    for (Iterator powerSetIter = combinationsOfPostset.iterator(); powerSetIter.hasNext();) {
-                        Set set = (Set) powerSetIter.next();
-                        YMarking aFinalMarking = new YMarking(halfBakedmarking.getLocations());
-                        aFinalMarking._locations.addAll(set);
+                break;
+            }
+            case YTask._XOR: {
+                for (YMarking halfbakedMarking : iterableHalfBakedSet) {
+                    for (YExternalNetElement element : postset) {
+                        YMarking aFinalMarking = new YMarking(halfbakedMarking.getLocations());
+                        aFinalMarking._locations.add((YCondition) element);
                         finishedSet.addMarking(aFinalMarking);
                     }
                 }
                 break;
-            }*/
-            case YTask._XOR:
-                {
-                    for (Iterator iterator = iterableHalfBakedSet.iterator(); iterator.hasNext();) {
-                        YMarking halfBakedmarking = (YMarking) iterator.next();
-                        for (Iterator postsetIter = postset.iterator(); postsetIter.hasNext();) {
-                            YCondition condition = (YCondition) postsetIter.next();
-                            YMarking aFinalMarking = new YMarking(halfBakedmarking.getLocations());
-                            aFinalMarking._locations.add(condition);
-                            finishedSet.addMarking(aFinalMarking);
-                        }
-                    }
-                    break;
-                }
+            }
         }
         return finishedSet;
     }
@@ -130,38 +112,38 @@ public class YMarking {
         int joinType = task.getJoinType();
         switch (joinType) {
             case YTask._AND:
-                {
-                    if (!nonOrJoinEnabled(task)) {
-                        return null;
-                    } else {
-                        YMarking returnedMarking = new YMarking(_locations);
-                        for (Iterator iterator = preset.iterator(); iterator.hasNext();) {
-                            YCondition condition = (YCondition) iterator.next();
-                            returnedMarking._locations.remove(condition);
-                        }
-                        markingSet.addMarking(returnedMarking);
-                    }
-                    break;
-                }
-            case YTask._OR:
-                {
-                    throw new RuntimeException("This method should never be called on an OR-Join");
-                }
-            case YTask._XOR:
-                {
-                    if (!nonOrJoinEnabled(task)) {
-                        return null;
-                    }
+            {
+                if (!nonOrJoinEnabled(task)) {
+                    return null;
+                } else {
+                    YMarking returnedMarking = new YMarking(_locations);
                     for (Iterator iterator = preset.iterator(); iterator.hasNext();) {
                         YCondition condition = (YCondition) iterator.next();
-                        if (_locations.contains(condition)) {
-                            YMarking returnedMarking = new YMarking(_locations);
-                            returnedMarking._locations.remove(condition);
-                            markingSet.addMarking(returnedMarking);
-                        }
+                        returnedMarking._locations.remove(condition);
                     }
-                    break;
+                    markingSet.addMarking(returnedMarking);
                 }
+                break;
+            }
+            case YTask._OR:
+            {
+                throw new RuntimeException("This method should never be called on an OR-Join");
+            }
+            case YTask._XOR:
+            {
+                if (!nonOrJoinEnabled(task)) {
+                    return null;
+                }
+                for (Iterator iterator = preset.iterator(); iterator.hasNext();) {
+                    YCondition condition = (YCondition) iterator.next();
+                    if (_locations.contains(condition)) {
+                        YMarking returnedMarking = new YMarking(_locations);
+                        returnedMarking._locations.remove(condition);
+                        markingSet.addMarking(returnedMarking);
+                    }
+                }
+                break;
+            }
         }
         return markingSet;
     }
@@ -181,27 +163,23 @@ public class YMarking {
         int joinType = task.getJoinType();
         switch (joinType) {
             case YTask._AND:
-                {
-                    if (!_locations.containsAll(preset)) {
-                        return false;
-                    } else {
+            {
+                return _locations.containsAll(preset);
+            }
+            case YTask._OR:
+            {
+                throw new RuntimeException("This method should never be called on an OR-Join");
+            }
+            case YTask._XOR:
+            {
+                for (Iterator iterator = preset.iterator(); iterator.hasNext();) {
+                    YCondition condition = (YCondition) iterator.next();
+                    if (_locations.contains(condition)) {
                         return true;
                     }
                 }
-            case YTask._OR:
-                {
-                    throw new RuntimeException("This method should never be called on an OR-Join");
-                }
-            case YTask._XOR:
-                {
-                    for (Iterator iterator = preset.iterator(); iterator.hasNext();) {
-                        YCondition condition = (YCondition) iterator.next();
-                        if (_locations.contains(condition)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+                return false;
+            }
         }
         return false;
     }
@@ -214,9 +192,8 @@ public class YMarking {
 
     public int hashCode() {
         long hashCode = 0;
-        for (Iterator iterator = _locations.iterator(); iterator.hasNext();) {
-            Object o = iterator.next();
-            hashCode += o.hashCode();
+        for (YNetElement element : _locations) {
+            hashCode += element.hashCode();
         }
         return (int) (hashCode % Integer.MAX_VALUE);
     }
@@ -236,10 +213,7 @@ public class YMarking {
                 return false;
             }
         }
-        if (otherMarkingsLocations.size() > 0) {
-            return false;
-        }
-        return true;
+        return otherMarkingsLocations.size() <= 0;
     }
 
 
@@ -260,19 +234,15 @@ public class YMarking {
         }
         return true;
     }
-    
-     //moe - ResetAnalyser
-  public boolean isBiggerThanOrEqual(YMarking marking) {
-        List otherMarkingsLocations = new Vector(marking.getLocations());
-        List myLocations = new Vector(_locations);
-        if (this.isBiggerThan(marking) || this.equivalentTo(marking))
-        { return true;
-        }
-        return false;
+
+    //moe - ResetAnalyser
+    public boolean isBiggerThanOrEqual(YMarking marking) {
+        return this.isBiggerThan(marking) || this.equivalentTo(marking);
     }
-    
-     //moe - ResetAnalyser
-  public boolean isBiggerThan(YMarking marking) {
+
+
+    //moe - ResetAnalyser
+    public boolean isBiggerThan(YMarking marking) {
         List otherMarkingsLocations = new Vector(marking.getLocations());
         List myLocations = new Vector(_locations);
 
@@ -281,13 +251,13 @@ public class YMarking {
                 && !otherMarkingsLocations.containsAll(myLocations))) {
             return true;
         }
-        
+
         //This test is for c1+2c2 bigger than c1+c2
         else if (myLocations.containsAll(otherMarkingsLocations)
                 && otherMarkingsLocations.containsAll(myLocations)
-        	    && myLocations.size() > otherMarkingsLocations.size())
+                && myLocations.size() > otherMarkingsLocations.size())
         {
-        	return true;
+            return true;
         }
         return false;
     }
@@ -307,11 +277,7 @@ public class YMarking {
                 return false;
             }
         }
-        if (otherMarkingsLocations.size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return otherMarkingsLocations.size() > 0;
     }
 
 
@@ -337,23 +303,22 @@ public class YMarking {
 
 
     public boolean deadLock(YTask orJoin) {
-        for (Iterator locationIter = _locations.iterator(); locationIter.hasNext();) {
-            YExternalNetElement element = (YExternalNetElement) locationIter.next();
-            if (element instanceof YTask) {//a busy task means not deadlocked
+        for (YNetElement element : _locations) {
+            if (element instanceof YTask) {        //a busy task means not deadlocked
                 return false;
             }
         }
-        Set postset = YNet.getPostset(new HashSet(_locations));
-        for (Iterator taskIter = postset.iterator(); taskIter.hasNext();) {
-            YTask task = (YTask) taskIter.next();
-            if (task.getJoinType() != task._OR) {
+        for (YExternalNetElement postElement : YNet.getPostset(getLocationsAsSet())) {
+            YTask task = (YTask) postElement;
+            if (task.getJoinType() != YTask._OR) {
                 if (nonOrJoinEnabled(task)) {
                     return false;
                 }
-            } else {//must be an orJoin
-                Set orJoinPreset = task.getPresetElements();
-                for (Iterator pjPresetIter = orJoinPreset.iterator(); pjPresetIter.hasNext();) {
-                    YCondition condition = (YCondition) pjPresetIter.next();
+            }
+            else {//must be an orJoin
+                for (YExternalNetElement preElement : task.getPresetElements()) {
+                    YCondition condition = (YCondition) preElement;
+
                     //if we find an orJoin that contains an identifier then the marking
                     //is definitely not deadlocked
                     if (_locations.contains(condition) && task != orJoin) {
@@ -363,6 +328,15 @@ public class YMarking {
             }
         }
         return true;
+    }
+    
+    
+    private Set<YExternalNetElement> getLocationsAsSet() {
+        Set<YExternalNetElement> set = new HashSet<YExternalNetElement>();
+        for (YNetElement element : _locations) {
+            set.add((YExternalNetElement) element);
+        }
+        return set;
     }
 
 

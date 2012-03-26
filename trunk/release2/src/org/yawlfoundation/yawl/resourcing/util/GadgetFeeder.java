@@ -74,31 +74,19 @@ public class GadgetFeeder {
     private Participant _participant = null;
 
 
-//    public GadgetFeeder(HttpServletRequest req) {
-//        _userid = req.getParameter("up_yawlUserID");
-//        _password = req.getParameter("up_yawlPassword");
-//        _rootURI = req.getParameter("up_tomcatHome");
-//        _parentURI = req.getParameter("parent");
-//        _libs = req.getParameter("libs");
-//        _view = req.getParameter("view");
-//        String altTabs = req.getParameter("up_altTabs");
-//        _altTabNames = (altTabs != null) && altTabs.equals("1") ;
-//        String showSusp = req.getParameter("up_showSusp");
-//        _showSuspended = (showSusp != null) && showSusp.equals("1") ;
-//        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
     public GadgetFeeder(Map req) {
         if (req != null) {
-        _userid = getParam(req, "up_yawlUserID");
-        _password = getParam(req, "up_yawlPassword");
-        _rootURI = getParam(req, "up_tomcatHome");
-        _parentURI = getParam(req, "parent");
-        _libs = getParam(req, "libs");
-        _view = getParam(req, "view");
-        String altTabs = getParam(req, "up_altTabs");
-        _altTabNames = (altTabs != null) && altTabs.equals("1") ;
-        String showSusp = getParam(req, "up_showSusp");
-        _showSuspended = (showSusp != null) && showSusp.equals("1") ;
-        _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
+            _userid = getParam(req, "up_yawlUserID");
+            _password = getParam(req, "up_yawlPassword");
+            _rootURI = getParam(req, "up_tomcatHome");
+            _parentURI = getParam(req, "parent");
+            _libs = getParam(req, "libs");
+            _view = getParam(req, "view");
+            String altTabs = getParam(req, "up_altTabs");
+            _altTabNames = (altTabs != null) && altTabs.equals("1") ;
+            String showSusp = getParam(req, "up_showSusp");
+            _showSuspended = (showSusp != null) && showSusp.equals("1") ;
+            _participant = ResourceManager.getInstance().getParticipantFromUserID(_userid);
         }    
     }
 
