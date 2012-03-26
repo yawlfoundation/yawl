@@ -62,7 +62,7 @@
                                            id="btnClose"
                                            primary="true"
                                            styleClass="rssCloseButton"
-                                           onClick="return window.close();"
+                                           onClick="return window.open('', '_self', '');window.close();"
                                            text="Close Window"/>
 
                             </ui:panelLayout>

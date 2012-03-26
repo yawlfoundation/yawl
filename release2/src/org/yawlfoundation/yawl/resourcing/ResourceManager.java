@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -385,11 +384,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _services.removeCaseFromDocStore(caseID);
             }
         }
-    }
-
-
-    public void handleCompletedWorkItemEvent(WorkItemRecord wir) {
-        cleanupWorkItemReferences(wir);
     }
 
 
@@ -959,13 +953,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public Set getUserQueuedItems(String userID, int queue) {
-        QueueSet qs = getUserQueueSet(userID);
-        if (qs != null)
-           return qs.getQueuedWorkItems(queue) ;
-        else return null ;
-    }
-
     public Set<Participant> getParticipantsAssignedWorkItem(String workItemID,
                                                             int queueType) {
         Set<Participant> result = new HashSet<Participant>();
@@ -1011,12 +998,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
         Participant p = getParticipantFromUserID(userID) ;
         return (p != null) ? p.getFullName() : null ;
-    }
-
-
-    
-    public String getSessionHandle(String userid) {
-        return _cache.getSessionHandle(getParticipantFromUserID(userid)) ;
     }
 
 
@@ -1559,7 +1540,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     public WorkItemRecord getWorkItemRecord(String itemID) {
-        return _workItemCache.get(itemID);
+        return (itemID != null) ? _workItemCache.get(itemID) : null;
     }
 
 
@@ -1577,30 +1558,18 @@ public class ResourceManager extends InterfaceBWebsideController {
                             _workItemCache.update(wir);
                             result = "<success/>";
                         }
-                        else {
-                            result = StringUtil.wrap(
-                                    "Data failed validation: " + validate, FAIL_STR);
-                        }
+                        else result = fail("Data failed validation: " + validate);
                     }
-                    else {
-                        result = StringUtil.wrap("Data XML is malformed", FAIL_STR);
-                    }
+                    else result = fail("Data XML is malformed");
                 }
-                else {
-                    result = StringUtil.wrap(
+                else result = fail(
                         "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
-                        "' - data may only be updated for a workitem with 'Executing' status.",
-                        FAIL_STR
-                    );
-                }
+                        "' - data may only be updated for a workitem with 'Executing' status.");
             }
-            else {
-                result = StringUtil.wrap(WORKITEM_ERR + ": " + itemID, FAIL_STR);
-            }
+            else result = fail(WORKITEM_ERR + ": " + itemID);
         }
-        else {
-            result = StringUtil.wrap("Data is null or empty.", FAIL_STR);
-        }
+        else result = fail("Data is null or empty.");
+
         return result;
     }
 
@@ -1608,10 +1577,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     private String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
         String result = "<success/>";
         if (! data.getName().equals(wir.getTaskName().replace(' ', '_'))) {
-            result = StringUtil.wrap(
-                    "Invalid data structure: root element name doesn't match task name",
-                    FAIL_STR
-            );
+            result = fail(
+                    "Invalid data structure: root element name doesn't match task name");
         }
         else {
             YSpecificationID specID = new YSpecificationID(wir);
@@ -1625,10 +1592,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                     // a YDataValidationException is thrown here if validation fails
                     validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
                 }
-                else result = StringUtil.wrap("Invalid data schema", FAIL_STR);
+                else result = fail("Invalid data schema");
             }
             catch (Exception e) {
-                result = StringUtil.wrap(e.getMessage(), FAIL_STR);
+                result = fail(e.getMessage());
             }
         }    
         return result;
@@ -1642,7 +1609,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         ResourceMap rMap = getResourceMap(wir);
         if (rMap != null) {
             result = addChain(p, wir);
-            if (result.indexOf("success") > -1)
+            if (result.contains("success"))
                 rMap.withdrawOffer(wir);        
         }
         else
@@ -1820,8 +1787,6 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public DataSource getOrgDataSource() { return _orgdb; }
-
-    public Persister getPersister() { return _persister ; }
 
     public void setPersisting(boolean flag) {
         _persisting = flag ;
@@ -2097,12 +2062,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         return (predicate != null) ? new LogPredicateParser(p, wir).parse(predicate) : null;
     }
 
-    
-    private String getRootCaseID(String id) {
-        int firstDot = id.indexOf('.');
-        return (firstDot > -1) ? id.substring(0, firstDot) : id;
-    }
-
 
 //***************************************************************************//
 
@@ -2158,7 +2117,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     validPassword = _orgdb.authenticate(userid, password);
                 }
                 catch (YAuthenticationException yae) {
-                    return StringUtil.wrap(yae.getMessage(), FAIL_STR) ;
+                    return fail(yae.getMessage());
                 }
             }
             else {
@@ -2548,7 +2507,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     private WorkItemRecord refreshWIRFromEngine(WorkItemRecord wir) {
         try {
             wir = getEngineStoredWorkItem(wir.getID(), getEngineSessionHandle());
-            _workItemCache.update(wir) ;
+            if (wir != null) _workItemCache.update(wir) ;
             return wir ;
         }
         catch (Exception e) {
@@ -2665,12 +2624,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             return getDataSchema(wir, new YSpecificationID(wir));
         }
         else return fail(WORKITEM_ERR + " '" + itemID + "'.");
-    }
-
-    
-    public String getDataSchema(WorkItemRecord wir) {
-        return (wir != null) ? getDataSchema(wir, new YSpecificationID(wir)) :
-            fail("Null workitem.");
     }
 
 
@@ -2817,11 +2770,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         _workItemCache.update(wir);
-    }
-
-
-    public WorkItemRecord unMarshallWIR(String xml) {
-        return Marshaller.unmarshalWorkItem(xml);
     }
 
 

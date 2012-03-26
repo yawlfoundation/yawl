@@ -371,9 +371,6 @@ public class StringUtil
         catch (IOException ioe) {
             f = null;
         }
-        finally {
-            if (f != null) f.delete();
-        }
         return f;
     }
 

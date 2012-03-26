@@ -46,12 +46,14 @@ public class RdrConclusion {
     public RdrConclusion(Element conc) {
 
         // a search for an exception handler returns an element with the text "null"
-        // when none of the node's conditions evaluates to true - that is, there is
+        // when none of the nodes conditions evaluates to true - that is, there is
         // no exception to be handled. Thus, we only want to set the conclusion if
         // something other than "null" is returned - i.e. an exception has been identified.
         if (! conc.getText().equals("null"))
             _conclusion = conc ;
     }
+    
+    
 
     public void setConclusion(Element conc) {
         _conclusion = conc ;
@@ -90,6 +92,15 @@ public class RdrConclusion {
     public String toString() {
         return JDOMUtil.elementToString(_conclusion);
     }
+    
+    public String toXML() {
+        return "<conclusion>\n" + toString() + "\n</conclusion>";
+    }
+    
+    public void fromXML(String xml) {
+        _conclusion = JDOMUtil.stringToElement(xml);
+    }
+
 
     public RdrNode[] getLastPair() {
         return _pair ;
@@ -97,6 +108,10 @@ public class RdrConclusion {
 
     public void setLastPair(RdrNode[] pair) {
         _pair = pair ;
+    }
+
+    public boolean isLastPairEqual() {
+        return _pair != null && _pair[0] == _pair[1];       // todo rdrnode.equals
     }
 
 }

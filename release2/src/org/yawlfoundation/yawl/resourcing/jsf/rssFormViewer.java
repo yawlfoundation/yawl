@@ -162,8 +162,8 @@ public class rssFormViewer extends AbstractPageBean {
     private final static String success = "<success/>";
 
     public void prerender() {
+        String msg = "";
         if (sb.isRssFormDisplay()) {
-            String msg = "";
             FormViewer form = sb.getFormViewerInstance();
             if (form != null) {
                 msg = form.postDisplay(sb.getRssFormWIR()) ;
@@ -177,13 +177,20 @@ public class rssFormViewer extends AbstractPageBean {
             }
             showMessage(msg + " Please click the button below to close this window/tab.");
         }
+        else if (sb.isRssFormCloseAttempted()) {
+            btnClose.setVisible(false);
+            sb.setRssFormCloseAttempted(false);
+            msg = "This browser does not support automatic closing of the current window/tab." +
+                  " Please close it manually.";
+            staticText1.setText(msg);            
+        }
         else {
             HttpServletRequest request = getRequest();
             String userid = request.getParameter("userid");
             String password = request.getParameter("password");
             String itemid = request.getParameter("itemid");
 
-            String msg = validateCredentials(userid, password);
+            msg = validateCredentials(userid, password);
             WorkItemRecord wir = null;
             if (successful(msg)) {
                 wir = rm.getWorkItemRecord(itemid);
@@ -203,6 +210,7 @@ public class rssFormViewer extends AbstractPageBean {
 
 
     public String btnClose_action() {
+        sb.setRssFormCloseAttempted(true);
         return null;
     }
 
@@ -229,7 +237,6 @@ public class rssFormViewer extends AbstractPageBean {
                            " queued items via your iGoogle Gadget, please " +
                            " logout the currently logged on user first." ;
             }
-            else sb.setRssAlreadyLoggedOn(true);
         }
         else {
             if (rm == null) {
@@ -267,6 +274,7 @@ public class rssFormViewer extends AbstractPageBean {
      * @param handle the session handle supplied by the service
      */
     private void initSession(Participant p, String userid, String handle) {
+        sb.setRssUserAlreadyLoggedOn(false);
         sb.setSessionhandle(handle);
         sb.setUserid(userid);
         if (! userid.equals("admin")) {
@@ -425,11 +433,8 @@ public class rssFormViewer extends AbstractPageBean {
 
 
     private void logout() {
-        if (! sb.isRssAlreadyLoggedOn()) {
+        if (! sb.isRssUserAlreadyLoggedOn()) {
             sb.doLogout();
-        }
-        else {
-            sb.setRssAlreadyLoggedOn(false);
         }
     }
 

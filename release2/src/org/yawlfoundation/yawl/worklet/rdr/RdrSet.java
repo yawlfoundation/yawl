@@ -23,6 +23,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.util.ArrayList;
@@ -58,14 +60,15 @@ import java.util.List;
 public class RdrSet {
 
     private YSpecificationID _specID ;
+    private String _processName;
     private boolean _hasRules = false ;    // some specs will have no rules defined
 
-    // Pre & Post case constraints have only one tree each
+    // Pre & Post case constraints, and case external, have only one tree each
     private RdrTree _specPreTree = null;
     private RdrTree _specPostTree = null;
     private RdrTree _specExternalTree = null;
 
-    // The rest have a tree for each task
+    // The rest may have a tree for each task
     private List<RdrTree> _selectionTrees = null;
     private List<RdrTree> _preTrees = null ;
     private List<RdrTree> _postTrees = null ;
@@ -87,6 +90,13 @@ public class RdrSet {
         _log = Logger.getLogger(this.getClass());
         _hasRules = loadRules();
     }
+    
+    public RdrSet(String processName) {
+         _processName = processName ;
+         _log = Logger.getLogger(this.getClass());
+         _hasRules = loadRules();
+     }
+    
 
 //===========================================================================//
 
@@ -116,6 +126,29 @@ public class RdrSet {
             case CaseExternalTrigger : return _specExternalTree;
             default: return null;
         }
+    }
+    
+    
+    public void addTree(RdrTree tree, RuleType treeType) {
+        switch (treeType) {
+            case CasePreconstraint       : _specPreTree = tree; break;
+            case CasePostconstaint       : _specPostTree = tree; break;
+            case CaseExternalTrigger     : _specExternalTree = tree; break;
+            case ItemSelection           : addTree(_selectionTrees, tree); break;
+            case ItemPreconstraint       : addTree(_preTrees, tree); break;
+            case ItemPostconstaint       : addTree(_postTrees, tree); break;
+            case ItemAbort               : addTree(_abortTrees, tree); break;
+            case ItemTimeout             : addTree(_timeoutTrees, tree); break;
+            case ItemResourceUnavailable : addTree(_resourceTrees, tree); break;
+            case ItemConstraintViolation : addTree(_violationTrees, tree); break;
+            case ItemExternalTrigger     : addTree(_externalTrees, tree); break;
+        }
+    }
+
+
+    private void addTree(List<RdrTree> treeList, RdrTree tree) {
+        if (treeList == null) treeList = new ArrayList<RdrTree>();
+        treeList.add(tree);
     }
 
 //===========================================================================//
@@ -150,7 +183,7 @@ public class RdrSet {
                 trees = _externalTrees; break ;
         }
 
-        // find the rule set for this task
+        // find the rule tree for this task
         return getTreeForTask(trees, taskName) ;
     }
 
@@ -180,13 +213,18 @@ public class RdrSet {
      * @return true if the rules were loaded successfully
      */
     private boolean loadRules() {
-        String fileName = _specID.getUri() + ".xrs" ;        // xrs = Xml Rule Set
+        String fileName = getProcessName() + ".xrs" ;        // xrs = Xml Rule Set
         Document doc = null;                                 // doc to hold rules
 
         String rulepath = Library.wsRulesDir + fileName ;
 
         if (Library.fileExists(rulepath)) doc = JDOMUtil.fileToDocument(rulepath);
-
+        
+        return load(doc);
+    }
+    
+    
+    private boolean load(Document doc) {
         if (doc == null) return false ;              // no such file or unsuccessful load
 
         try {
@@ -230,6 +268,92 @@ public class RdrSet {
             _log.error("Exception retrieving Element from rules file", ex);
             return false ;
         }
+    }
+
+
+    public boolean save() {
+        XNode ruleSet = toXNode();
+        if (ruleSet.hasChildren()) {
+            String rulepath = Library.wsRulesDir + getProcessName() + ".xrs";
+            StringUtil.stringToFile(rulepath, ruleSet.toPrettyString(true));
+        }
+        return ruleSet.hasChildren();
+    }
+    
+    
+    public String toXML() {
+         return toXNode().toPrettyString();
+    }
+    
+    
+    private XNode toXNode() {
+        XNode ruleSet = createRootXNode();
+        treeToXNode(_specPreTree, ruleSet, "constraints", "case", "pre");
+        treeToXNode(_specPostTree, ruleSet, "constraints", "case", "post");
+        treeToXNode(_specExternalTree, ruleSet,  "external", "case");
+        treeListToXNode(_selectionTrees, ruleSet, "selection");
+        treeListToXNode(_preTrees, ruleSet, "constraints", "item", "pre");
+        treeListToXNode(_postTrees, ruleSet, "constraints", "item", "post");
+        treeListToXNode(_abortTrees, ruleSet, "abort");
+        treeListToXNode(_timeoutTrees, ruleSet, "timeout");
+        treeListToXNode(_resourceTrees, ruleSet, "resourceUnavailable");
+        treeListToXNode(_violationTrees, ruleSet, "violation");
+        treeListToXNode(_externalTrees, ruleSet, "external", "item");
+        return ruleSet;
+    }
+    
+    private XNode createRootXNode() {
+        XNode xRoot;
+        if (_specID != null) {
+            xRoot = new XNode("spec");
+        }
+        else if (_processName != null) {
+            xRoot = new XNode("process");
+        }
+        else {
+            xRoot = new XNode("root");            // default - should never get to this
+        }
+
+        String name = getName();
+        if (name != null) xRoot.addAttribute("name", name);
+
+        return xRoot;
+    }
+    
+    
+    protected String getName() {
+        return _specID != null ? _specID.getUri() : _processName;
+    }
+    
+
+    private void treeListToXNode(List<RdrTree> treeList, XNode parent, String... names) {
+        if (treeList != null) {
+            for (RdrTree tree : treeList) {
+                treeToXNode(tree, parent, names);
+            }
+        }
+    }
+    
+    private void treeToXNode(RdrTree tree, XNode parent, String... names) {
+        if (tree != null) {
+            XNode xNode = getOrCreateNode(parent, names);
+            XNode childTree = tree.toXNode();
+            if (childTree.getName().equals("task")) {
+                xNode.addChild(childTree);                    // task level tree
+            }
+            else {
+                xNode.addChildren(childTree.getChildren());   // case level tree
+            }
+        }
+    }
+
+
+    private XNode getOrCreateNode(XNode parent, String... names) {
+        XNode node = parent;
+        for (String name : names) {
+            node = node.getOrAddChild(name);
+        }
+        return node;
     }
 
 //===========================================================================//
@@ -305,7 +429,7 @@ public class RdrSet {
      */
     private RdrTree buildTree(Element task) {
         String taskId = task.getAttributeValue("name");
-        RdrTree result = new RdrTree(_specID, taskId);
+        RdrTree result = new RdrTree(taskId);      
 
         List nodeList = task.getChildren();    //the rdr nodes for this task
 
@@ -364,15 +488,26 @@ public class RdrSet {
         }
         return null ;
     }
+    
+    
+    private String getProcessName() {
+        return _specID != null ? _specID.getUri() : _processName;
+    }
 
 //===========================================================================//
-
-
+    
     public String toString() {
+        String id = _specID != null ? _specID.toString() : _processName;
+        return "RuleSet for process: " + id;
+    }
+
+
+    public String dump() {
         StringBuilder s = new StringBuilder("##### RDR SET #####");
         s.append(Library.newline);
 
-        Library.appendLine(s, "SPECIFICATION ID", _specID.toString());
+        String id = _specID != null ? _specID.toString() : _processName;
+        Library.appendLine(s, "SPECIFICATION ID", id);
         Library.appendLine(s, "SET HAS RULES", String.valueOf(_hasRules));
         s.append(Library.newline);
 
@@ -412,6 +547,11 @@ public class RdrSet {
         s.append(Library.newline);
 
         return s.toString();
+    }
+    
+    
+    public void fromXML(String xml) {
+        load(JDOMUtil.stringToDocument(xml));
     }
 
 //===========================================================================//

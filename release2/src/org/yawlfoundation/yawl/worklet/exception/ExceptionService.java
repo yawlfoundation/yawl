@@ -478,6 +478,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 _dbMgr.persist(hr, DBManager.DB_INSERT);
                 hr.ObjectPersisted();
             }
+            _server.announceException(cmon.getCaseID(), cmon.getCaseData(), xType);
             processException(hr) ;
         }
         else _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -502,6 +503,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 _dbMgr.persist(hr, DBManager.DB_INSERT);
                 hr.ObjectPersisted();
             }
+            _server.announceException(wir, cmon.getCaseData(), xType);
             processException(hr) ;
         }
         else  _log.error("Could not connect to YAWL Engine to handle Exception") ;

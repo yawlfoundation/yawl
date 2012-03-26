@@ -949,29 +949,29 @@
 	<!--                                                                  
 	#### TYPE #### MetaDataType
 	-->
-	<xs:complexType name="MetaDataType">
-		<xs:annotation>
-			<xs:documentation>
-          Uses meta data specification of the dublin core:
-          http://dublincore.org/usage/terms/dc/current-elements/
-      </xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="title" type="xs:normalizedString" minOccurs="0"/>
-			<xs:element name="creator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="subject" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="description" type="xs:normalizedString" minOccurs="0"/>
-			<xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="coverage" type="xs:string" minOccurs="0"/>
-			<xs:element name="validFrom" type="xs:date" minOccurs="0"/>
-			<xs:element name="validUntil" type="xs:date" minOccurs="0"/>
-			<xs:element name="created" type="xs:date" minOccurs="0"/>
-			<xs:element name="version" type="yawl:VersionType" minOccurs="0"/>
-			<xs:element name="status" type="xs:string" minOccurs="0"/>
-			<xs:element name="persistent" type="xs:boolean" minOccurs="0"/>
-      <xs:element name="identifier" type="xs:NCName" minOccurs="0"/>
-    </xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="MetaDataType">
+        <xs:annotation>
+            <xs:documentation>
+                Uses meta data specification of the dublin core:
+                http://dublincore.org/usage/terms/dc/current-elements/
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="title" type="xs:normalizedString" minOccurs="0"/>
+            <xs:element name="creator" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="subject" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="description" type="xs:normalizedString" minOccurs="0"/>
+            <xs:element name="contributor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="coverage" type="xs:string" minOccurs="0"/>
+            <xs:element name="validFrom" type="xs:date" minOccurs="0"/>
+            <xs:element name="validUntil" type="xs:date" minOccurs="0"/>
+            <xs:element name="created" type="xs:date" minOccurs="0"/>
+            <xs:element name="version" type="yawl:VersionType" minOccurs="0"/>
+            <xs:element name="status" type="xs:string" minOccurs="0"/>
+            <xs:element name="persistent" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="identifier" type="xs:NCName" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
 	<!--
 	#### TYPE #### VersionType
 	-->	

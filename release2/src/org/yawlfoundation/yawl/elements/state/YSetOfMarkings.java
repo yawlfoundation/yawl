@@ -23,79 +23,59 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author Lachlan Aldred
  * Date: 19/06/2003
  * Time: 15:22:56
- * 
+ *
  */
 public class YSetOfMarkings {
-    private Set _markings = new HashSet();
+    private Set<YMarking> _markings = new HashSet<YMarking>();
 
- 
-   
-   //moe - ResetAnalyser 
-    public void addMarking(YMarking marking){
-   	   if (!contains(marking)){
-         _markings.add(marking);
-       }	
+
+
+    //moe - ResetAnalyser
+    public void addMarking(YMarking marking) {
+        if (! contains(marking)) {
+            _markings.add(marking);
+        }
     }
-    
-   //moe - ResetAnalyser    
-   public void addAll(YSetOfMarkings newmarkings){
-     Set markingsToAdd = newmarkings.getMarkings();
-     for (Iterator i = markingsToAdd.iterator(); i.hasNext();)
-     {  YMarking marking = (YMarking) i.next();
-        addMarking(marking);
-     }
-     
- //_markings.addAll(newmarkings.getMarkings());   	
+
+    //moe - ResetAnalyser
+    public void addAll(YSetOfMarkings newMarkings) {
+        for (YMarking marking : newMarkings.getMarkings()) {
+            addMarking(marking);
+        }
     }
 
     //changed by moe - ResetAnalyser
     public boolean contains(YMarking marking) {
-        
-     for (Iterator i = _markings.iterator(); i.hasNext();)
-     {
-       YMarking currentM = (YMarking) i.next();	
-       if (currentM.equivalentTo(marking))
-       { return true;
-       }
-     }  
-    	
-     return false;
+        for (YMarking yMarking : _markings) {
+            if (yMarking.equivalentTo(marking)) return true;
+        }
+        return false;
     }
 
     //added by moe - ResetAnalyser
-     public boolean equals(YSetOfMarkings markings) {
-    Set markingsToCompare = markings.getMarkings();
-    if (_markings.size() != markingsToCompare.size()) {
-      return false;
+    public boolean equals(YSetOfMarkings markings) {
+        Set<YMarking> markingsToCompare = markings.getMarkings();
+        return (_markings.size() == markingsToCompare.size()) &&
+                containsAll(markingsToCompare) && markings.containsAll(_markings);
     }
-    if (containsAll(markingsToCompare)
-        && (markings.containsAll(_markings))) {
-      return true;
+
+    public boolean containsAll(Set<YMarking> markingsToCompare) {
+        for (YMarking yMarking : markingsToCompare) {
+            if (! this.contains(yMarking)) return false;
+        }
+        return true;
     }
-    return false;
-  }
-  
-    public boolean containsAll(Set markingsToCompare)
-    { YMarking M;
-     for (Iterator i = markingsToCompare.iterator(); i.hasNext();)
-     {	  M = (YMarking) i.next();
-		  if (!this.contains(M))
-	       { return false;
-	       }
-     }
-     return true;	
+
+    //moe - ResetAnalyser
+    public void removeAll(){
+        _markings.clear();
     }
-    
-   //moe - ResetAnalyser
-   public void removeAll(){
-    	_markings.clear();
-    }
-    
-    public Set getMarkings() {
+
+    public Set<YMarking> getMarkings() {
         return _markings;
     }
 
@@ -113,28 +93,19 @@ public class YSetOfMarkings {
     }
 
     public boolean containsEquivalentMarkingTo(YSetOfMarkings possibleFutureMarkingSet) {
-        Set possibleMarkings = possibleFutureMarkingSet.getMarkings();
-        for (Iterator iterator = possibleMarkings.iterator(); iterator.hasNext();) {
-            YMarking marking = (YMarking) iterator.next();
-            for (Iterator thisSetOfMarkings = _markings.iterator(); thisSetOfMarkings.hasNext();) {
-                YMarking thisSetsMarking = (YMarking) thisSetOfMarkings.next();
-                if (marking.equivalentTo(thisSetsMarking)) {
-                    return true;
-                }
+        for (YMarking possibleMarking : possibleFutureMarkingSet.getMarkings()) {
+            for (YMarking marking : _markings) {
+                if (possibleMarking.equivalentTo(marking)) return true;
             }
         }
         return false;
     }
-     //moe - ResetAnalyser 
-    public boolean containsBiggerEqual(YMarking m)
-    {
-     for (Iterator i = _markings.iterator(); i.hasNext();)
-     {
-       YMarking currentM = (YMarking) i.next();	
-       if (currentM.isBiggerThanOrEqual(m))
-       { return true;
-       }
-     }  
-    return false;
-   }
+
+    //moe - ResetAnalyser
+    public boolean containsBiggerEqual(YMarking m) {
+        for (YMarking marking : _markings) {
+            if (marking.isBiggerThanOrEqual(m)) return true;
+        }
+        return false;
+    }
 }

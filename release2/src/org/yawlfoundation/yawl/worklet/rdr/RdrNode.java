@@ -20,9 +20,12 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.support.ConditionEvaluator;
-import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 
 
@@ -52,7 +55,10 @@ public class RdrNode {
     private String condition;
     private Element conclusion;
     private Element cornerstone;
-    
+    private String description;
+
+    private YAttributeMap _attributes;
+
     private Logger _log = Logger.getLogger(this.getClass());
 
 
@@ -95,6 +101,10 @@ public class RdrNode {
     	this(id, null, null, null, "", null, null);
     }
     
+    public RdrNode(String xml) {
+         fromXML(xml);
+    }
+    
     
     /**
      *  Construct a node with the basic values provided
@@ -104,8 +114,7 @@ public class RdrNode {
 	 *  @param conclusion - the conclusion stored in this node
 	 */
 
-    public RdrNode(int id, RdrNode parent, 
-                   String condition, Element conclusion) {
+    public RdrNode(int id, RdrNode parent, String condition, Element conclusion) {
     	this(id, parent, null, null, condition, conclusion, null) ;
     }
 
@@ -157,6 +166,11 @@ public class RdrNode {
     public RdrNode getParent() {
     	return (parent);
     }
+    
+    public String getDescription() {
+        return (description);
+    }
+    
 
 //===========================================================================//
 	
@@ -194,6 +208,16 @@ public class RdrNode {
     public void setParent(RdrNode parentNode){
         parent = parentNode;
     }
+    
+    public void setDescription(String desc) {
+        description = desc;
+    }
+
+    public void setAttributes(YAttributeMap map, String taskName) {
+        _attributes = map;
+        if (taskName != null) _attributes.put("taskName", taskName);
+    }
+    
     
 //===========================================================================//
 	
@@ -247,52 +271,56 @@ public class RdrNode {
 	
     /** returns a String representation of this node */
     public String toString(){
-
-        StringBuilder s = new StringBuilder("RDR NODE RECORD:");
-
-        String par = (parent == null)? "null" : parent.toString();
-        String tChild = (trueChild == null)? "null" : trueChild.toString();
-        String fChild = (falseChild == null)? "null" : falseChild.toString();
-
-        String nID = String.valueOf(nodeId);
-        String conc = (conclusion == null)? "null" : JDOMUtil.elementToString(conclusion);
-        String corn = (cornerstone == null)? "null" : JDOMUtil.elementToString(cornerstone);
-
-        Library.appendLine(s, "NODE ID", nID);
-        Library.appendLine(s, "CONDITION", condition);
-        Library.appendLine(s, "CONCLUSION", conc);
-        Library.appendLine(s, "CORNERSTONE", corn);
-        Library.appendLine(s, "PARENT NODE", par);
-        Library.appendLine(s, "TRUE CHILD NODE", tChild);
-        Library.appendLine(s, "FALSE CHILD NODE", fChild);
-
+        StringBuilder s = new StringBuilder("RDR Node: ");
+        s.append("id-").append(nodeId);
+        if (parent != null) s.append(" parent-").append(parent.getNodeId());
         return s.toString();
     }
 
 //===========================================================================//
 
     public String toXML() {
-        String par = (parent == null)? "-1" : parent.getNodeIdAsString();
-        String tChild = (trueChild == null)? "-1" : trueChild.getNodeIdAsString();
-        String fChild = (falseChild == null)? "-1" : falseChild.getNodeIdAsString();
-        String conc = (conclusion == null)? "" : JDOMUtil.elementToString(conclusion);
-        String corn = (cornerstone == null)? "" : JDOMUtil.elementToString(cornerstone);
+        return toXNode().toPrettyString();
+    }
+    
+    
+    public XNode toXNode() {
+        XNode node = new XNode("ruleNode");
+        if (_attributes != null) node.addAttributes(_attributes);
+        node.addChild("id", nodeId);
+        node.addChild("parent", parent != null ? parent.getNodeId() : -1);
+        node.addChild("trueChild", trueChild != null ? trueChild.getNodeId() : -1);
+        node.addChild("falseChild", falseChild != null ? falseChild.getNodeId() : -1);
+        node.addChild("condition", condition);
+        if (conclusion != null) node.addContent(JDOMUtil.elementToString(conclusion));
+        if (cornerstone != null) node.addContent(JDOMUtil.elementToString(cornerstone));
+        if (description != null) node.addChild("description", description);
+        return node;
+    }
+    
+    
+    public void fromXML(String xml) {
+        fromXNode(new XNodeParser().parse(xml));
+    }
 
-        StringBuilder s = new StringBuilder("<ruleNode>");
 
-        Library.appendXML(s, "id", getNodeIdAsString());
-        Library.appendXML(s, "parent", par);
-        Library.appendXML(s, "trueChild", tChild);
-        Library.appendXML(s, "falseChild", fChild);
-        Library.appendXML(s, "condition", condition);
-
-        // these two are Elements so are treated differently
-        s.append(conc);
-        s.append(corn);
-
-        s.append("</ruleNode>");
-
-        return s.toString();
+    /**
+     * Only called when adding a new node, so it will have no id, parent or children
+     * @param xNode
+     */
+    protected void fromXNode(XNode xNode) {
+        if (xNode != null) {
+            nodeId = StringUtil.strToInt(xNode.getChildText("id"), -1);
+            parent = null;
+            trueChild = null;
+            falseChild = null;
+            condition = xNode.getChildText("condition");
+            XNode concNode = xNode.getChild("conclusion");
+            if (concNode != null) conclusion = concNode.toElement();
+            XNode cornNode = xNode.getChild("cornerstone");
+            if (cornNode != null) cornerstone = cornNode.toElement();
+            description = xNode.getChildText("description");
+        }
     }
 
 //===========================================================================//

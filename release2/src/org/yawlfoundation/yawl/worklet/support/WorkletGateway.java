@@ -19,11 +19,17 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.log4j.Logger;
+import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.Sessions;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
-import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdr.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -45,104 +51,298 @@ import java.io.OutputStreamWriter;
   */
 
 public class WorkletGateway extends HttpServlet {
+    
+    private WorkletService _ws;
+    private Rdr _rdr;
+    private Sessions _sessions;            // maintains sessions with external services
+    private static Logger _log = Logger.getLogger(WorkletGateway.class);
 
-     private static Logger _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.support.WorkletGateway");
+    public void init() {
+        if (! Library.wsInitialised) {
+            try {
+                _ws = WorkletService.getInstance();
+                ServletContext context = getServletContext();
 
-     public void init() {
-         if (! Library.wsInitialised) {
-             try {
-                 ServletContext context = getServletContext();
+                Library.setHomeDir(context.getRealPath("/"));
+                Library.setRepositoryDir(context.getInitParameter("Repository"));
 
-                 Library.setHomeDir(context.getRealPath("/"));
-                 Library.setRepositoryDir(context.getInitParameter("Repository"));
+                String persistStr = context.getInitParameter("EnablePersistence");
+                Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
 
-                 String persistStr = context.getInitParameter("EnablePersistence");
-                 Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
+                String engineURI = context.getInitParameter("InterfaceB_BackEnd");
+                _ws.initEngineURI(engineURI) ;
 
-                 String engineURI = context.getInitParameter("InterfaceB_BackEnd");
-                 WorkletService.getInstance().initEngineURI(engineURI) ;
+                String ixStr = context.getInitParameter("EnableExceptionHandling");
+                _ws.setExceptionServiceEnabled(
+                        (ixStr != null) && ixStr.equalsIgnoreCase("TRUE"));
 
-                 String ixStr = context.getInitParameter("EnableExceptionHandling");
-                 WorkletService.getInstance().setExceptionServiceEnabled(
-                       (ixStr != null) && ixStr.equalsIgnoreCase("TRUE"));  
+                _sessions = new Sessions();
+                _sessions.setupInterfaceA(engineURI.replaceFirst("/ib", "/ia"),
+                        context.getInitParameter("EngineLogonUserName"),
+                        context.getInitParameter("EngineLogonPassword"));
 
-                 WorkletService.getInstance().completeInitialisation();
-                 ExceptionService.getInst().completeInitialisation();
-             }
-             catch (Exception e) {
-                 _log.error("Gateway Initialisation Exception", e);
-             }
-             finally {
-                 Library.setServicetInitialised();
-             }
-         }
+                _ws.completeInitialisation();
+                ExceptionService.getInst().completeInitialisation();
+                _rdr = _ws.getRdrInterface();
+            }
+            catch (Exception e) {
+                _log.error("Gateway Initialisation Exception", e);
+            }
+            finally {
+                Library.setServicetInitialised();
+            }
+        }
     }
 
 
     public void destroy() {
         WorkletService.getInstance().shutdown();
+        _sessions.shutdown();
     }
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         String result = "";
-
+        WorkletService ws = WorkletService.getInstance();        
         try {
             String action = req.getParameter("action");
+            String handle = req.getParameter("sessionHandle");
+
             if (action == null) {
-       		    result = "<html><head>" +
-		        "<title>Worklet Dynamic Process Selection and Exception Service</title>" +
-		        "</head><body>" +
-		        "<H3>Welcome to the Worklet Dynamic Process Selection and " +
-                "Exception Service \"Gateway\"</H3>" +
-                "<p> The Worklet Gateway acts as a bridge between the Worklet " +
-                    "Service and the external RDREditor (it isn't meant to be browsed " +
-                    " to directly). It provides the " +
-                    "functionality to trigger a running worklet replacement " +
-                    "due to an addtion to the ruleset (by the editor).</p>" +
-                "</body></html>";
+                result = "<html><head>" +
+                        "<title>Worklet Dynamic Process Selection and Exception Service</title>" +
+                        "</head><body>" +
+                        "<H3>Welcome to the Worklet Dynamic Process Selection and " +
+                        "Exception Service \"Gateway\"</H3>" +
+                        "<p> The Worklet Gateway acts as a bridge between the Worklet " +
+                        "Service and the external RDREditor (it isn't meant to be browsed " +
+                        " to directly). It provides the " +
+                        "functionality to trigger a running worklet replacement " +
+                        "due to an addtion to the ruleset (by the editor).</p>" +
+                        "</body></html>";
             }
-            else if (action.equalsIgnoreCase("replace")) {
-                _log.info("Received a request from the Rules Editor to replace " +
-                          "a running worklet.");
+            else if (action.equals("connect")) {
+                String userid = req.getParameter("userid");
+                String password = req.getParameter("password");
+                result = _sessions.connect(userid, password);
+            }
+            else if (action.equals("checkConnection")) {
+                result = String.valueOf(_sessions.checkConnection(handle));
+            }
+            else if (action.equals("disconnect")) {
+                result = String.valueOf(_sessions.disconnect(handle));
+            }
+            else if (_sessions.checkConnection(handle)) {
+                if (action.equalsIgnoreCase("replace")) {
+                    _log.info("Received a request from the Rules Editor to replace " +
+                            "a running worklet.");
 
-                String itemID = req.getParameter("itemID");
-                int exType = Integer.parseInt(req.getParameter("exType"));
+                    String itemID = req.getParameter("itemID");
+                    int exType = Integer.parseInt(req.getParameter("exType"));
+                    RuleType rType = RuleType.values()[exType];
 
-                // get the service instance and call replace
-                if (exType == RuleType.ItemSelection.ordinal()) {
-            	  	  WorkletService ws = WorkletService.getInstance() ;
-        	    	    result = ws.replaceWorklet(itemID) ;
+                    // get the service instance and call replace
+                    if (rType == RuleType.ItemSelection) {
+                        result = ws.replaceWorklet(itemID) ;
+                    }
+                    else {
+                        String caseID = req.getParameter("caseID");
+                        String trigger = req.getParameter("trigger");
+                        ExceptionService ex = ExceptionService.getInst();
+                        result = ex.replaceWorklet(rType, caseID, itemID, trigger);
+                    }
                 }
-                else {
-                    String caseID = req.getParameter("caseID");
-                    String trigger = req.getParameter("trigger");
-                    ExceptionService ex = ExceptionService.getInst();
-                    result = ex.replaceWorklet(RuleType.values()[exType], caseID, itemID, trigger);
+                else if (action.equalsIgnoreCase("refresh")) {
+                    ws.refreshRuleSet(makeSpecID(req));
+                }
+                else if (action.equalsIgnoreCase("addListener")) {
+                    ws.getServer().addListener(req.getParameter("uri"));
+                }
+                else if (action.equalsIgnoreCase("removeListener")) {
+                    ws.getServer().removeListener(req.getParameter("uri"));
+                }
+                else if (action.equalsIgnoreCase("evaluate")) {
+                    result = evaluate(req);
+                }
+                else if (action.equalsIgnoreCase("addNode")) {
+                    result = addNode(req);
+                }
+                else if (action.equalsIgnoreCase("getNode")) {
+                    result = getNode(req);
+                }
+                else if (action.equalsIgnoreCase("getRdrTree")) {
+                    result = getRdrTree(req);
+                }
+                else if (action.equalsIgnoreCase("getRdrSet")) {
+                    result = getRdrSet(req);
                 }
             }
-            else if (action.equalsIgnoreCase("refresh")) {
-                String specID = req.getParameter("specid");
-                String specVersion = req.getParameter("specversion");
-                String specURI = req.getParameter("specuri");
-                WorkletService ws = WorkletService.getInstance() ;
-                ws.refreshRuleSet(new YSpecificationID(specID, specVersion, specURI));
-            }
-
             // generate the output
             OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
             ServletUtils.finalizeResponse(outputWriter, result);
 
-         }
-    	 catch (Exception e) {
-    	 	_log.error("Exception in doPost()", e);
-    	 }
-	}
+        }
+        catch (Exception e) {
+            _log.error("Exception in doPost()", e);
+        }
+    }
 
 
-     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                 throws IOException, ServletException {
-         doPost(req, res);
-     }
+    public void doGet(HttpServletRequest req, HttpServletResponse res)
+            throws IOException, ServletException {
+        doPost(req, res);
+    }
+
+
+    private YSpecificationID makeSpecID(HttpServletRequest req) {
+        String specID = req.getParameter("specid");
+        String specVersion = req.getParameter("specversion");
+        String specURI = req.getParameter("specuri");
+        if (specVersion == null) specVersion = "0.1";
+        if (! (specID == null && specURI == null)) {
+            return new YSpecificationID(specID, specVersion, specURI);
+        }
+        else return null;
+    }
+    
+    
+    private String addNode(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String processName = req.getParameter("name");
+        String taskID = req.getParameter("taskid");
+        String rTypeStr = req.getParameter("rtype");
+        String nodeXML = req.getParameter("node");
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        if (nodeXML == null) return fail("Node is null");
+        
+        RuleType rType = RuleType.valueOf(rTypeStr);
+        RdrNode node = new RdrNode(nodeXML);
+        if (specID != null) {
+            node = _rdr.addNode(specID, taskID, rType, node);
+        }
+        else if (processName != null) {
+            node = _rdr.addNode(processName, taskID, rType, node);
+        }
+        else {
+            String wirStr = req.getParameter("wir");
+            if (wirStr == null) return fail(
+                    "No specification, process name or work item record provided for evaluation");
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+            node = _rdr.addNode(wir, rType, node);
+        }
+
+        return node.toXML();
+    }
+
+    private String evaluate(HttpServletRequest req) {
+        String rTypeStr = req.getParameter("rtype");
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        String dataStr = req.getParameter("data");
+        Element data = JDOMUtil.stringToElement(dataStr);
+        if (data == null) return fail("No or invalid data provided for evaluation");
+
+        RuleType rType = RuleType.valueOf(rTypeStr);
+        String taskID = req.getParameter("taskid");
+        YSpecificationID specID = makeSpecID(req);
+        String processName = req.getParameter("name");
+        RdrConclusion conclusion;
+        if (specID != null) {
+            conclusion = _rdr.evaluate(specID, taskID, data, rType);
+        }
+        else if (processName != null) {
+            conclusion = _rdr.evaluate(processName, taskID, data, rType);
+        }
+        else {
+            String wirStr = req.getParameter("wir");
+            if (wirStr == null) return fail(
+                    "No specification, process name or work item record provided for evaluation");
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+            conclusion = _rdr.evaluate(wir, data, rType);
+        }
+        if (conclusion == null) {
+            return fail("No rules found for parameters");
+        }
+        else if (conclusion.nullConclusion()) {
+            return fail("No rule was satisfied for data parameters");
+        }
+        return conclusion.toXML();
+    }
+
+
+    private String getNode(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String processName = req.getParameter("name");
+        String taskID = req.getParameter("taskid");
+        String rTypeStr = req.getParameter("rtype");
+        int nodeID = StringUtil.strToInt(req.getParameter("nodeid"), -1);
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        if (nodeID < 0) return fail("Invalid node id");
+
+        RuleType rType = RuleType.valueOf(rTypeStr);
+        RdrNode node;
+        if (specID != null) {
+            node = _rdr.getNode(specID, taskID, rType, nodeID);
+        }
+        else if (processName != null) {
+            node = _rdr.getNode(processName, taskID, rType, nodeID);
+        }
+        else {
+            String wirStr = req.getParameter("wir");
+            if (wirStr == null) return fail(
+                    "No specification, process name or work item record provided for evaluation");
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+            node = _rdr.getNode(wir, rType, nodeID);
+        }
+
+        return node.toXML();
+    }
+
+    
+    private String getRdrTree(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String processName = req.getParameter("name");
+        String taskID = req.getParameter("taskid");
+        String rTypeStr = req.getParameter("rtype");
+        if (rTypeStr == null) return fail("Rule Type has null value");
+
+        RuleType rType = RuleType.valueOf(rTypeStr);
+        RdrTree tree;
+        if (specID != null) {
+            tree = _rdr.getRdrTree(specID, taskID, rType);
+        }
+        else if (processName != null) {
+            tree = _rdr.getRdrTree(processName, taskID, rType);
+        }
+        else {
+            String wirStr = req.getParameter("wir");
+            if (wirStr == null) return fail(
+                    "No specification, process name or work item record provided for evaluation");
+            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+            tree = _rdr.getRdrTree(wir, rType);
+        }
+
+        return tree.toXML();
+    }
+
+
+    private String getRdrSet(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String processName = req.getParameter("name");
+        RdrSet set;
+        if (specID != null) {
+            set = _rdr.getRdrSet(specID);
+        }
+        else if (processName != null) {
+            set = _rdr.getRdrSet(processName);
+        }
+        else return fail("No specification or process name provided for set");
+
+        return set.toXML();
+    }
+ 
+    private String fail(String msg) {
+        return StringUtil.wrap(msg, "failure");
+    }
+            
 }

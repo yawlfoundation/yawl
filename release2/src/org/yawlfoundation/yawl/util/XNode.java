@@ -118,6 +118,14 @@ public class XNode implements Comparable<XNode> {
     public void addAttribute(String key, Object o) {
         addAttribute(key, o.toString());
     }
+    
+    public void addAttributes(Map<String, String> map) {
+        if (map != null) {
+            for (String key : map.keySet()) {
+                addAttribute(key, map.get(key));
+            }
+        }
+    }
 
 
     /**************************************************************************/
@@ -323,6 +331,16 @@ public class XNode implements Comparable<XNode> {
         }
         return null;
     }
+    
+    
+    public XNode getOrAddChild(String name) {
+        XNode child = getChild(name);
+        if (child == null) {
+            child = addChild(name);
+        }
+        return child;
+    }
+    
 
     /* returns the first text-type child */
     public XNode getChild() {
@@ -338,7 +356,7 @@ public class XNode implements Comparable<XNode> {
 
 
     public List<XNode> getChildren() {
-        return (_children != null) ? _children : new ArrayList<XNode>();
+        return (_children != null) ? _children : Collections.<XNode>emptyList();
     }
 
 
