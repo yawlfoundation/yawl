@@ -30,7 +30,7 @@
             <ui:html binding="#{viewProfile.html1}" id="html1">
 
                 <ui:head binding="#{viewProfile.head1}" id="head1"
-                         title="YAWL 2.2: View My Profile">
+                         title="YAWL #{ApplicationBean.yawlVersion}: View My Profile">
                     <ui:link binding="#{viewProfile.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

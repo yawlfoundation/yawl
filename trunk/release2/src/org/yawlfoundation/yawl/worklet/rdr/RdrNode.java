@@ -291,7 +291,7 @@ public class RdrNode {
         node.addChild("parent", parent != null ? parent.getNodeId() : -1);
         node.addChild("trueChild", trueChild != null ? trueChild.getNodeId() : -1);
         node.addChild("falseChild", falseChild != null ? falseChild.getNodeId() : -1);
-        node.addChild("condition", condition);
+        node.addChild("condition", condition, true);                // escape contents
         if (conclusion != null) node.addContent(JDOMUtil.elementToString(conclusion));
         if (cornerstone != null) node.addContent(JDOMUtil.elementToString(cornerstone));
         if (description != null) node.addChild("description", description);

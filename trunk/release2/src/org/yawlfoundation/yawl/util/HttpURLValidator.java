@@ -33,6 +33,9 @@ import java.net.*;
  * Creation Date: 7/05/2009
  */
 public class HttpURLValidator {
+    
+    private static final int CONNECT_TIMEOUT = 1000;
+    private static boolean _cancelled = false;
 
     /**
      * validaets a url passed as a String
@@ -53,12 +56,16 @@ public class HttpURLValidator {
         try {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("HEAD");
+            httpConnection.setConnectTimeout(CONNECT_TIMEOUT);
             int response = httpConnection.getResponseCode();
             if ((response < 0) || (response >= 300))             // indicates some error
                 return getErrorMessage(response + " " + httpConnection.getResponseMessage());
         }
+        catch (SocketTimeoutException ste) {
+            return getErrorMessage("Connection Timeout when attempting to validate URL");
+        }
         catch (IOException e) {
-            return getErrorMessage("IO Exception when validating URL") ;
+            return getErrorMessage("IO Exception when attempting to validate URL") ;
         }
 
         return "<success/>";                             // no errors and responded 'OK'
@@ -82,23 +89,14 @@ public class HttpURLValidator {
     }
 
 
-    public synchronized static boolean pingUntilAvailable(String urlStr, int timeoutSeconds)
+    public static void cancelAll() {
+        _cancelled = true;            // called on shutdown to stop any current pings
+    }
+
+
+    public static boolean pingUntilAvailable(String urlStr, int timeoutSeconds)
             throws MalformedURLException {
-        URL url = createURL(urlStr);                         // exception if URL is bad
-        int timeoutMsecs = timeoutSeconds * 1000;
-        int expiredMsecs = 0;
-        long period = 100;
-        while (expiredMsecs <= timeoutMsecs) {
-            if (validate(url).equals("<success/>")) return true;
-            try {
-                Thread.sleep(period);
-                expiredMsecs += period;
-            }
-            catch (InterruptedException ie) {
-                return false;
-            }
-        }
-        return false;
+        return new OnlineChecker().pingUntilAvailable(urlStr, timeoutSeconds);
     }
 
 
@@ -150,6 +148,29 @@ public class HttpURLValidator {
             configFile = new File(System.getProperty("catalina.base"), filename);
         }
         return (configFile.exists()) ? JDOMUtil.fileToDocument(configFile) : null;
+    }
+
+
+    static class OnlineChecker {
+
+        boolean pingUntilAvailable(String urlStr, int timeoutSeconds)
+                throws MalformedURLException {
+            URL url = createURL(urlStr);                         // exception if URL is bad
+            long now = System.currentTimeMillis();
+            long timeoutMoment = now + (timeoutSeconds * 1000);
+            while (now <= timeoutMoment) {
+                if (validate(url).equals("<success/>")) return true;
+                try {
+                    if (_cancelled) throw new InterruptedException();
+                    Thread.sleep(CONNECT_TIMEOUT);
+                    now = System.currentTimeMillis();
+                }
+                catch (InterruptedException ie) {
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 
 

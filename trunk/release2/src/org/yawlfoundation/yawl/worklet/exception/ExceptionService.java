@@ -445,14 +445,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return an RdrConclusion representing an exception handling process,
      *         or null if no rules are defined for these criteria
      */
-    private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, RuleType xType){
+    private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, 
+                                              RuleType xType) {
         if (monitor != null) {
-            RdrTree tree = getTree(monitor.getSpecID(), taskID, xType);
-            if (tree != null) {
-                RdrConclusion conc = new RdrConclusion(tree.search(monitor.getCaseData()));
-                conc.setLastPair(tree.getLastPair());
-                return conc ;
-            }
+            return _rdr.evaluate(monitor.getSpecID(), taskID, monitor.getCaseData(), xType);
         }
         return null ;
     }

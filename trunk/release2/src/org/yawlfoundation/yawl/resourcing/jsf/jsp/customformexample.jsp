@@ -76,11 +76,16 @@
         session.setAttribute("handle", handle);
     }
 
-    // the workitem's data is found in the <data> 1st level element. Any appropriate
-    // xml parsing method can be used. Here we use JDOM (and ignore possible exceptions
-    // for simplicity).
+    // the workitem's original data is found in the <data> 1st level element. If the
+    // workitem has been previously saved, the saved data is stored in the <updateddata>
+    // 1st level element. So, we check if there is updated data, and if so show the user
+    // the updated data values; if not, show them the original data values.
+    //
+    // Any appropriate xml parsing method can be used to read the data. Here we use
+    // JDOM (and ignore possible exceptions for simplicity).
     Element wir = new SAXBuilder().build(new StringReader(itemXML)).getRootElement();
-    Element data = wir.getChild("data");
+    Element updatedData = wir.getChild("updateddata");
+    Element data = (updatedData.getContentSize() > 0) ? updatedData : wir.getChild("data");
 
     // one level down from data is the actual workitem data tree
     Element wirData = (Element) data.getChildren().get(0);

@@ -177,7 +177,14 @@ public class RdrTree {
     
 //===========================================================================//
 
-	/** 
+	public RdrNode createRootNode() {
+        RdrNode root = new RdrNode(0, null, "true", null);
+        root.setDescription("root node");
+        setRootNode(root);
+        return root;
+    }
+    
+    /** 
 	 *  Creates a new empty node.
 	 *  @param parentNode The proposed parent node for this node
 	 *  @param trueBranch if true, the new node will be placed on the 'true'
@@ -190,7 +197,7 @@ public class RdrTree {
     
     
     public RdrNode addNode(RdrNode newNode, RdrNode parentNode, boolean trueBranch) {
-    	newNode.setNodeId(nodeCount() + 1);
+    	newNode.setNodeId(nodeCount());                          // root id=0
         newNode.setParent(parentNode);
         if (trueBranch) {
             parentNode.setTrueChild(newNode);

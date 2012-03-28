@@ -27,7 +27,7 @@
         <ui:page binding="#{calendarMgt.page1}" id="page1">
             <ui:html binding="#{calendarMgt.html1}" id="html1">
                 <ui:head binding="#{calendarMgt.head1}" id="head1"
-                         title="YAWL 2.2 Calendar Management">
+                         title="YAWL #{ApplicationBean.yawlVersion} Calendar Management">
 
                     <ui:link binding="#{calendarMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>

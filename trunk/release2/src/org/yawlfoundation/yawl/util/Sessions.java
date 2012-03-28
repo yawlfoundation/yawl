@@ -90,13 +90,14 @@ public class Sessions {
 
 
     /**
-     * Cancels all current sessions and their inctivity timers.
+     * Cancels all current sessions and their inactivity timers.
      * Usually called from Servlet#destroy
      */
     public void shutdown() {
         for (String handle : handleToTimer.keySet()) {
             removeActivityTimer(handle);
         }
+        scheduler.shutdownNow();
     }
 
 

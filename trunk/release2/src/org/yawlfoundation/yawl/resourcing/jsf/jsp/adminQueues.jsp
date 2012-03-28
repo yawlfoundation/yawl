@@ -28,7 +28,7 @@
         <ui:page binding="#{adminQueues.page1}" id="page1">
             <ui:html binding="#{adminQueues.html1}" id="html1">
                 <ui:head binding="#{adminQueues.head1}" id="head1"
-                         title="YAWL 2.2 Admin Worklist">
+                         title="YAWL #{ApplicationBean.yawlVersion} Admin Worklist">
 
                     <ui:link binding="#{adminQueues.link1}" id="link1"
                              url="/resources/stylesheet.css"/>

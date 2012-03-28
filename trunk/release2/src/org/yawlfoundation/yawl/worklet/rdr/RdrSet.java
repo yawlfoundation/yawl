@@ -127,29 +127,40 @@ public class RdrSet {
             default: return null;
         }
     }
-    
+
     
     public void addTree(RdrTree tree, RuleType treeType) {
         switch (treeType) {
             case CasePreconstraint       : _specPreTree = tree; break;
             case CasePostconstaint       : _specPostTree = tree; break;
             case CaseExternalTrigger     : _specExternalTree = tree; break;
-            case ItemSelection           : addTree(_selectionTrees, tree); break;
-            case ItemPreconstraint       : addTree(_preTrees, tree); break;
-            case ItemPostconstaint       : addTree(_postTrees, tree); break;
-            case ItemAbort               : addTree(_abortTrees, tree); break;
-            case ItemTimeout             : addTree(_timeoutTrees, tree); break;
-            case ItemResourceUnavailable : addTree(_resourceTrees, tree); break;
-            case ItemConstraintViolation : addTree(_violationTrees, tree); break;
-            case ItemExternalTrigger     : addTree(_externalTrees, tree); break;
+            case ItemSelection           : 
+                if (_selectionTrees == null) _selectionTrees = new ArrayList<RdrTree>();
+                _selectionTrees.add(tree); break;
+            case ItemPreconstraint       :
+                if (_preTrees == null) _preTrees = new ArrayList<RdrTree>();
+                _preTrees.add(tree); break;
+            case ItemPostconstaint       :
+                if (_postTrees == null) _postTrees = new ArrayList<RdrTree>();
+                _postTrees.add(tree); break;
+            case ItemAbort               :
+                if (_abortTrees == null) _abortTrees = new ArrayList<RdrTree>();
+                _abortTrees.add(tree); break;
+            case ItemTimeout             :
+                if (_timeoutTrees == null) _timeoutTrees = new ArrayList<RdrTree>();
+                _timeoutTrees.add(tree); break;
+            case ItemResourceUnavailable :
+                if (_resourceTrees == null) _resourceTrees = new ArrayList<RdrTree>();
+                _resourceTrees.add(tree); break;
+            case ItemConstraintViolation :
+                if (_violationTrees == null) _violationTrees = new ArrayList<RdrTree>();
+                _violationTrees.add(tree); break;
+            case ItemExternalTrigger     :
+                if (_externalTrees == null) _externalTrees = new ArrayList<RdrTree>();
+                _externalTrees.add(tree); break;
         }
     }
 
-
-    private void addTree(List<RdrTree> treeList, RdrTree tree) {
-        if (treeList == null) treeList = new ArrayList<RdrTree>();
-        treeList.add(tree);
-    }
 
 //===========================================================================//
 

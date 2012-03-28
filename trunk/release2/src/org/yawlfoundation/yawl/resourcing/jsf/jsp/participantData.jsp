@@ -29,7 +29,7 @@
         <ui:page binding="#{participantData.page1}" id="page1">
             <ui:html binding="#{participantData.html1}" id="html1">
                 <ui:head binding="#{participantData.head1}" id="head1"
-                         title="YAWL 2.2: User Maintenance">
+                         title="YAWL #{ApplicationBean.yawlVersion}: User Maintenance">
                     <ui:link binding="#{participantData.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

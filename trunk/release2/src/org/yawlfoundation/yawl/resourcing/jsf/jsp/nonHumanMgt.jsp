@@ -28,7 +28,7 @@
         <ui:page binding="#{nonHumanMgt.page1}" id="page1">
             <ui:html binding="#{nonHumanMgt.html1}" id="html1">
                 <ui:head binding="#{nonHumanMgt.head1}" id="head1"
-                         title="YAWL 2.2: Non Human Resource Management">
+                         title="YAWL #{ApplicationBean.yawlVersion}: Non Human Resource Management">
 
                     <ui:link binding="#{nonHumanMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>

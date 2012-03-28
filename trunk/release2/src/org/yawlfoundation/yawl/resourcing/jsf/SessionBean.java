@@ -771,7 +771,7 @@ public class SessionBean extends AbstractSessionBean {
     private String title ;
 
     public String getTitle() {
-        title = "YAWL 2.2 Worklist";
+        title = "YAWL " + getYawlVersion() + " Worklist";
         if ((activePage == ApplicationBean.PageRef.userWorkQueues) && (participant != null))
              title += ": " + participant.getFullName() ;
         return title ;
@@ -2686,4 +2686,7 @@ public class SessionBean extends AbstractSessionBean {
         return String.format("height: %dpx; top: %dpx;",
                 (lower ? 44 : 84), (lower ? 314 : 274));
     }    
+    
+    
+    public String getYawlVersion() { return getApplicationBean().getYawlVersion(); }
 }

@@ -38,6 +38,9 @@ import java.util.Map;
 
 public class Interface_Client {
 
+    // prevent socket reads from blocking indefinitely
+    private static final int READ_TIMEOUT = 5000;
+
     /**
      * Executes a HTTP POST request on the url specified.
      *
@@ -152,6 +155,7 @@ public class Interface_Client {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         connection.setRequestProperty("Accept-Charset", "UTF-8");
+        connection.setReadTimeout(READ_TIMEOUT);
 
         // required to ensure the connection is not reused. When not set, spurious
         // intermittent problems (double posts, missing posts) occur under heavy load.
