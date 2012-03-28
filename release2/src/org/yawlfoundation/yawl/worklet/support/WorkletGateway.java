@@ -61,6 +61,7 @@ public class WorkletGateway extends HttpServlet {
         if (! Library.wsInitialised) {
             try {
                 _ws = WorkletService.getInstance();
+                _rdr = _ws.getRdrInterface();
                 ServletContext context = getServletContext();
 
                 Library.setHomeDir(context.getRealPath("/"));
@@ -83,7 +84,6 @@ public class WorkletGateway extends HttpServlet {
 
                 _ws.completeInitialisation();
                 ExceptionService.getInst().completeInitialisation();
-                _rdr = _ws.getRdrInterface();
             }
             catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);
@@ -96,15 +96,14 @@ public class WorkletGateway extends HttpServlet {
 
 
     public void destroy() {
-        WorkletService.getInstance().shutdown();
         _sessions.shutdown();
+        _ws.shutdown();
     }
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
             throws IOException, ServletException {
         String result = "";
-        WorkletService ws = WorkletService.getInstance();        
         try {
             String action = req.getParameter("action");
             String handle = req.getParameter("sessionHandle");
@@ -144,7 +143,7 @@ public class WorkletGateway extends HttpServlet {
 
                     // get the service instance and call replace
                     if (rType == RuleType.ItemSelection) {
-                        result = ws.replaceWorklet(itemID) ;
+                        result = _ws.replaceWorklet(itemID) ;
                     }
                     else {
                         String caseID = req.getParameter("caseID");
@@ -154,13 +153,14 @@ public class WorkletGateway extends HttpServlet {
                     }
                 }
                 else if (action.equalsIgnoreCase("refresh")) {
-                    ws.refreshRuleSet(makeSpecID(req));
+                    _ws.refreshRuleSet(makeSpecID(req));
+                    result = "<success/>";
                 }
                 else if (action.equalsIgnoreCase("addListener")) {
-                    ws.getServer().addListener(req.getParameter("uri"));
+                    result = _ws.getServer().addListener(req.getParameter("uri"));
                 }
                 else if (action.equalsIgnoreCase("removeListener")) {
-                    ws.getServer().removeListener(req.getParameter("uri"));
+                    result = _ws.getServer().removeListener(req.getParameter("uri"));
                 }
                 else if (action.equalsIgnoreCase("evaluate")) {
                     result = evaluate(req);

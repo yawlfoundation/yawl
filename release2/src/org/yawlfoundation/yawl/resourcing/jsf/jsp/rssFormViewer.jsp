@@ -29,7 +29,7 @@
         <ui:page binding="#{rssFormViewer.page}" id="page1">
             <ui:html binding="#{rssFormViewer.html}" id="html1">
                 <ui:head binding="#{rssFormViewer.head}" id="head1"
-                         title="YAWL 2.2: RSS Form Handler">
+                         title="YAWL #{ApplicationBean.yawlVersion}: RSS Form Handler">
                     <ui:link binding="#{rssFormViewer.link}" id="link1"
                              url="/resources/stylesheet.css"/>
                     <ui:link binding="#{ApplicationBean.favIcon}" id="lnkFavIcon"

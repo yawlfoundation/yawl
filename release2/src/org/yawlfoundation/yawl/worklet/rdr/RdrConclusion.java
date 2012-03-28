@@ -111,7 +111,7 @@ public class RdrConclusion {
     }
 
     public boolean isLastPairEqual() {
-        return _pair != null && _pair[0] == _pair[1];       // todo rdrnode.equals
+        return _pair != null && _pair[0] == _pair[1];
     }
 
 }

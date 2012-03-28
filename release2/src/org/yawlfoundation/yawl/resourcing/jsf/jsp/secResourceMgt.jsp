@@ -30,7 +30,7 @@
             <ui:html binding="#{secResourceMgt.html1}" id="html1">
 
                 <ui:head binding="#{secResourceMgt.head1}" id="head1"
-                         title="YAWL 2.2: Secondary Resources">
+                         title="YAWL #{ApplicationBean.yawlVersion}: Secondary Resources">
                     <ui:link binding="#{secResourceMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>
 

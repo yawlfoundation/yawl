@@ -28,7 +28,7 @@
         <ui:page binding="#{orgDataMgt.page1}" id="page1">
             <ui:html binding="#{orgDataMgt.html1}" id="html1">
                 <ui:head binding="#{orgDataMgt.head1}" id="head1"
-                         title="YAWL 2.2: Organisational Data Management">
+                         title="YAWL #{ApplicationBean.yawlVersion}: Organisational Data Management">
 
                     <ui:link binding="#{orgDataMgt.link1}" id="link1"
                              url="/resources/stylesheet.css"/>

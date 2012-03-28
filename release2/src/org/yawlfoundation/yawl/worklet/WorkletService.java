@@ -129,9 +129,6 @@ public class WorkletService extends InterfaceBWebsideController {
      *       - KEY: [String] case id of a launched worklet case
      *       - VALUE: [String] id of the child WorkItemRecord the worklet was
      *                launched for (i.e. the key of a corresponding _handledWorkItem)
-     *    _ruleSets:
-     *       - KEY: [YSpecificationID] spec id this set of rules applies to
-     *       - VALUE: [RdrSet] set of rules for the spec
      */
     private Map<String, CheckedOutItem> _handledParentItems =
             new Hashtable<String, CheckedOutItem>() ;        // checked out parents
@@ -139,8 +136,6 @@ public class WorkletService extends InterfaceBWebsideController {
             new Hashtable<String, CheckedOutChildItem>() ;   // checked out children
     private Map<String, String> _casesStarted
             = new Hashtable<String, String>() ;            // running selection worklets
-    private Map<YSpecificationID, RdrSet> _ruleSets =
-            new Hashtable<YSpecificationID, RdrSet>() ;      // rdrSets for each spec
     protected List<SpecificationData> _loadedSpecs =
             new ArrayList<SpecificationData>() ;         // all specs loaded in engine
     private AdminTasksManager _adminTasksMgr = new AdminTasksManager() ;   // admin tasks
@@ -153,7 +148,7 @@ public class WorkletService extends InterfaceBWebsideController {
     private static WorkletService _me ;                 // reference to self
     private static ExceptionService _exService ;        // reference to ExceptionService
     protected WorkletEventServer _server;               // announces events
-    protected Rdr _rdr;
+    protected Rdr _rdr;                                 // rule set interface
     private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
     private boolean _exceptionServiceEnabled = false;
@@ -203,6 +198,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void setExceptionServiceEnabled(boolean enable) {
         _exceptionServiceEnabled = enable;
+        _log.info("Exception Service is " + (enable ? "enabled" : "disabled"));
     }
 
     public WorkletEventServer getServer() { return _server; }
@@ -603,16 +599,16 @@ public class WorkletService extends InterfaceBWebsideController {
     private void processWorkItemSubstitution(RdrTree tree,
                                              CheckedOutChildItem coChild) {
 
-       String childId = coChild.getItem().getID() ;
+        String childId = coChild.getItem().getID() ;
 
-       _log.info("Processing worklet substitution for workitem: " + childId);
+        _log.info("Processing worklet substitution for workitem: " + childId);
 
          // select appropriate worklet
         RdrConclusion result = new RdrConclusion(tree.search(coChild.getDatalist()));
 
         // null result means no rule matched context
         if (! result.nullConclusion()) {
-           String wSelected =  result.getTarget(1);
+            String wSelected =  result.getTarget(1);
 
              _log.info("Rule search returned worklet(s): " + wSelected);
             coChild.setExType(RuleType.ItemSelection);
@@ -633,6 +629,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         coChild.ObjectPersisted();
                     }
                 }
+                _server.announceSelection(coChild);
             }
             else _log.warn("Could not launch worklet(s): " + wSelected) ;
         }
@@ -714,14 +711,14 @@ public class WorkletService extends InterfaceBWebsideController {
 
         // if this item is having it's worklet replaced due to an 'add rule',
         // then it's already checked out so don't do it again
-           if (_handledParentItems.containsKey(itemId)) {
-               return _handledParentItems.get(itemId) ;
-           }
-           else {
-             CheckedOutItem coItem = checkOutParentItem(wir) ;
-             checkOutChildren(coItem) ;	          // always at least one child
-             return coItem ;
-           }
+        if (_handledParentItems.containsKey(itemId)) {
+            return _handledParentItems.get(itemId) ;
+        }
+        else {
+            CheckedOutItem coItem = checkOutParentItem(wir) ;
+            checkOutChildren(coItem) ;	          // always at least one child
+            return coItem ;
+        }
     }
 
 //***************************************************************************//
@@ -729,10 +726,10 @@ public class WorkletService extends InterfaceBWebsideController {
     /** checks out the parent enabled workitem */
     protected CheckedOutItem checkOutParentItem(WorkItemRecord wir) {
 
-         _log.info("Checking parent workitem out of engine: " + wir.getID());
+        _log.info("Checking parent workitem out of engine: " + wir.getID());
 
-         if (checkOutWorkItem(wir))
-             return new CheckedOutItem(wir) ;
+        if (checkOutWorkItem(wir))
+            return new CheckedOutItem(wir) ;
         else return null;
     }
 
@@ -803,23 +800,23 @@ public class WorkletService extends InterfaceBWebsideController {
     protected boolean checkOutWorkItem(WorkItemRecord wir) {
 
         try {
-             if (null != checkOut(wir.getID(), _sessionHandle)) {
-                  _log.info("   checkout successful: " + wir.getID());
-                  return true ;
-             }
-             else {
-                 _log.info("   checkout unsuccessful: " + wir.getID());
-                 return false;
-             }
-         }
-         catch (YAWLException ye) {
-             _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
-             return false ;
-         }
-         catch (IOException ioe) {
-             _log.error("IO Exception with checkout: " + wir.getID(), ioe);
-             return false ;
-         }
+            if (null != checkOut(wir.getID(), _sessionHandle)) {
+                _log.info("   checkout successful: " + wir.getID());
+                return true ;
+            }
+            else {
+                _log.info("   checkout unsuccessful: " + wir.getID());
+                return false;
+            }
+        }
+        catch (YAWLException ye) {
+            _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
+            return false ;
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception with checkout: " + wir.getID(), ioe);
+            return false ;
+        }
     }
 
 //***************************************************************************//
@@ -1363,46 +1360,26 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** returns the rule tree (if any) for the parameters passed */
      protected RdrTree getTree(YSpecificationID specID, String taskID, RuleType treeType) {
+         RdrSet ruleSet = _rdr.getRdrSet(specID);
+         if (ruleSet == null || (! ruleSet.hasRules())) return null;  // no rules for spec
 
-        RdrSet ruleSet ;
-        RdrTree result ;
-
-        // if we already have this rdrset loaded
-        if (_ruleSets.containsKey(specID))
-           ruleSet = _ruleSets.get(specID) ;
-        else {
-           ruleSet = new RdrSet(specID);                  // make a new set
-           if (ruleSet.hasRules())
-              _ruleSets.put(specID, ruleSet) ;               // & store it
-           else
-              return null ;                           // no rules for spec
-        }
-
-        if (treeType.isCaseLevelType())
-            result = ruleSet.getTree(treeType) ;          // trees at case level
-        else
-            result = ruleSet.getTree(treeType, taskID) ;  // trees at task level
-
-        return result ;
+         return treeType.isCaseLevelType() ? ruleSet.getTree(treeType) :
+                 ruleSet.getTree(treeType, taskID);
      }
 
     //***************************************************************************//
 
     /** Reloads the rule set from file (after a rule update) for the spec passed */
     public void refreshRuleSet(YSpecificationID specID) {
-        if (specID != null) {
-             RdrSet ruleSet = _ruleSets.get(specID) ;
-             if (ruleSet != null) ruleSet.refresh() ;
-        }    
+        _rdr.refreshRdrSet(specID);
     }
 
     //***************************************************************************//
 
     /** loads the rule set for a spec (if not already loaded) */
     public void loadTree(YSpecificationID specID) {
-        if (! _ruleSets.containsKey(specID)) {
-            RdrSet ruleSet = new RdrSet(specID);                  // make a new set
-            _ruleSets.put(specID, ruleSet) ;                      // & store it
+        if (! _rdr.containsRdrSet(specID)) {
+            _rdr.getRdrSet(specID);               // forces a load
         }
     }
 
@@ -1541,7 +1518,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         _log.info("4. Rule Sets");
         _log.info("------------");
-        iterateMap(new HashMap(_ruleSets));
+        iterateMap(new HashMap(_rdr.getAllCachedRdrSets()));
         _log.info(" ");
 
         _log.info("5. Loaded Specs");

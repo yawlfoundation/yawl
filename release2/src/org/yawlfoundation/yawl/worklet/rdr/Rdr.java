@@ -22,11 +22,17 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
+import java.util.Map;
+
 /**
+ * A top-level interface into the Rdr Classes
+ *
  * @author Michael Adams
  * @date 28/02/12
  */
 public class Rdr {
+
+    protected RdrCache _rdrCache = new RdrCache();              // rule set cache
 
     public Rdr() {}
 
@@ -65,11 +71,11 @@ public class Rdr {
     }
 
     public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType, RdrNode node) {
-        return addNode(new RdrSet(specID), taskID, rType, node);
+        return addNode(getRdrSet(specID), taskID, rType, node);
     }
     
     public RdrNode addNode(String processName, String taskID, RuleType rType, RdrNode node) {
-        return addNode(new RdrSet(processName), taskID, rType, node);
+        return addNode(getRdrSet(processName), taskID, rType, node);
     }
 
 
@@ -86,23 +92,43 @@ public class Rdr {
     }
 
     public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, int nodeID) {
-        return getNode(new RdrSet(specID), taskID, rType, nodeID);
+        return getNode(getRdrSet(specID), taskID, rType, nodeID);
     }
 
     public RdrNode getNode(String processName, String taskID, RuleType rType, int nodeID) {
-        return getNode(new RdrSet(processName), taskID, rType, nodeID);
+        return getNode(getRdrSet(processName), taskID, rType, nodeID);
     }
 
 
 
     public RdrSet getRdrSet(YSpecificationID specID) {
-        return new RdrSet(specID);
+        return _rdrCache.get(specID);
     }
 
     public RdrSet getRdrSet(String processName) {
-        return new RdrSet(processName);
+        return _rdrCache.get(processName);
     }
 
+
+    public RdrSet refreshRdrSet(YSpecificationID specID) {
+        return _rdrCache.refresh(specID);
+    }
+
+    public RdrSet refreshRdrSet(String processName) {
+        return _rdrCache.refresh(processName);
+    }
+
+    public boolean containsRdrSet(YSpecificationID specID) {
+        return _rdrCache.contains(specID);
+    }
+
+    public boolean containsRdrSet(String processName) {
+        return _rdrCache.contains(processName);
+    }
+    
+    public Map<String, RdrSet> getAllCachedRdrSets() {
+        return _rdrCache.getAll();
+    }
 
     public RdrTree getRdrTree(YSpecificationID specID, RuleType rType) {
         return getTree(specID, null, rType);
@@ -140,8 +166,7 @@ public class Rdr {
         }
         else {
             tree = new RdrTree(taskID);
-            RdrNode root = new RdrNode(0, null, "true", null);
-            tree.setRootNode(root);
+            RdrNode root = tree.createRootNode();
             set.addTree(tree, rType);
             addedNode = tree.addNode(node, root, true);
         }
@@ -163,8 +188,8 @@ public class Rdr {
     /**
      * Discovers whether this case or item has rules for this exception type, and if so,
      * returns the result of the rule evaluation. Note that if the conclusion
-     * returned from the search is empty, no exception has occurred.
-     *
+     * returned from the search is empty, no exception has occurred (no rule has been
+     * satisfied).
      * @param specID the specification id of the rule set
      * @param taskID item's task id, or null for case-level exception
      * @param data the case data
@@ -200,12 +225,12 @@ public class Rdr {
     }
 
     private RdrTree getTree(YSpecificationID specID, String taskID, RuleType rType) {
-        return getTree(new RdrSet(specID), taskID, rType);     // load rules for spec
+        return getTree(getRdrSet(specID), taskID, rType);     // load rules for spec
     }
     
     
     private RdrTree getTree(String processName, String taskID, RuleType rType) {
-        return getTree(new RdrSet(processName), taskID, rType);
+        return getTree(getRdrSet(processName), taskID, rType);
     }
 
 

@@ -232,6 +232,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
      * Called by the engine to announce shutdown of the engine's servlet container
      */
     public void shutdown() {
+        HttpURLValidator.cancelAll();
         _executor.shutdownNow();
 
     	// Nothing else to do - Interface B Clients handle shutdown within their own servlet.
@@ -371,9 +372,15 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     redirectWorkItem(true);
                 }
                 else if (_command == ENGINE_INIT) {
-                    _logger.warn(MessageFormat.format(
+                    try {
+                        _logger.warn(MessageFormat.format(
                             "Failed to announce engine initialisation to {0} at URI [{1}]",
                             _yawlService.getServiceName(), _yawlService.getURI()));
+                    }
+                    catch (IllegalStateException ise) {
+                        // can happen on shutdown when the service has already stopped
+                        // can be safely suppressed
+                    }
                 }
             }
             catch (IOException e) {
