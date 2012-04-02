@@ -125,7 +125,7 @@ public abstract class WorkletEventListener extends HttpServlet {
 
 
     /**
-     * Receives notification of a selection (substitution) by the worklet service
+     * Receives notification of a case level exception being raised by the worklet service
      * @param caseID the case on which the exception has been raised
      * @param caseData the current caseData, used to evaluate the exception
      * @param ruleType the type of exception raised
@@ -134,7 +134,7 @@ public abstract class WorkletEventListener extends HttpServlet {
                                                  RuleType ruleType);
    
     /**
-     * Receives notification of a selection (substitution) by the worklet service
+     * Receives notification of a item level exception being raised by the worklet service
      * @param wir the workitem for which the exception has been raised
      * @param caseData the current caseData, used to evaluate the exception
      * @param ruleType the type of exception raised

@@ -550,63 +550,68 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private boolean doAction(HandlerRunner runner){
         String action = runner.getNextAction();
         String target = runner.getNextTarget();
+        boolean isItemTarget = target.equals("workitem");
+        boolean success = true;
 
         _log.debug("Exception process step " + runner.getActionIndex() + ". Action = " +
                 action + ", Target = " + target);
 
-        if (action.equalsIgnoreCase("continue"))
-            doContinue(runner) ;                                           // un-suspend
-        else if (action.equalsIgnoreCase("suspend"))
-            doSuspend(runner) ;
-        else if (action.equalsIgnoreCase("remove"))
-            doRemove(runner) ;                                             // cancel
-        else if (action.equalsIgnoreCase("restart")) {
-            if (target.equalsIgnoreCase("workitem"))
-                restartWorkItem(runner.getItem());
-            else {
-                _log.error("Unexpected target type '" + target +
-                        "' for exception handling primitive '" + action + "'") ;
-                return false ;
+        switch (ExletAction.fromString(action)) {
+            case Continue : doContinue(runner); break;                    // un-suspend
+            case Suspend  : doSuspend(runner); break;
+            case Remove   : doRemove(runner); break;                      // cancel
+            case Restart  : {
+                if (isItemTarget) {
+                    restartWorkItem(runner.getItem());
+                }
+                else success = invalidTarget(action, target);
+                break;
             }
-        }
-        else if (action.equalsIgnoreCase("complete")) {
-            if (target.equalsIgnoreCase("workitem"))
-                forceCompleteWorkItem(runner.getItem(), runner.getItem().getDataList());
-            else {
-                _log.error("Unexpected target type '" + target +
-                        "' for exception handling primitive '" + action + "'") ;
-                return false ;
+            case Complete: {
+                if (isItemTarget) {
+                    forceCompleteWorkItem(runner.getItem(), runner.getItem().getDataList());
+                }
+                else success = invalidTarget(action, target);
+                break;
             }
-        }
-        else if (action.equalsIgnoreCase("fail")) {
-            if (target.equalsIgnoreCase("workitem"))
-                failWorkItem(runner.getItem());
-            else {
-                _log.error("Unexpected target type '" + target +
-                        "' for exception handling primitive '" + action + "'") ;
-                return false ;
+            case Fail: {
+                if (isItemTarget) {
+                    failWorkItem(runner.getItem());
+                }
+                else success = invalidTarget(action, target);
+                break;
             }
-        }
-        else if (action.equalsIgnoreCase("compensate")) {
+            case Compensate: {
 
-            // launch & run compensatory worklet
-            String workletList = runner.getNextTarget();
-            if (launchWorkletList(runner, workletList)) {
-                runner.saveSearchResults();
-                return false ;            // to break out of loop while worklet runs
-            }
-            else _log.error("Unable to load compensatory worklet(s), will ignore: " +
+                // launch & run compensatory worklet
+                String workletList = runner.getNextTarget();
+                if (launchWorkletList(runner, workletList)) {
+                    runner.saveSearchResults();
+                }
+                else _log.error("Unable to load compensatory worklet(s), will ignore: " +
                     workletList);
+                success = false ;            // to break out of loop while worklet runs
+                break;
+            }
+            case Rollback: {
+                // todo
+                _log.warn("Rollback is not yet implemented - will ignore this step.");
+                break;
+            }
+            default:  {
+                _log.error("Unknown action type in exception handling primitive: " + action);
+                success = false ;
+            }
         }
-        else if (action.equalsIgnoreCase("rollback")) {
-            // todo
-            _log.warn("Rollback is not yet implemented - will ignore this step.");
-        }
-        else  {
-            _log.error("Unknown action type in exception handling primitive: " + action);
-            return false ;
-        }
-        return true ;                    // successful processing of exception primitive
+        return success;                   // successful processing of exception primitive
+    }
+
+
+
+    private boolean invalidTarget(String action, String target) {
+        _log.error("Unexpected target type '" + target +
+            "' for exception handling primitive '" + action + "'") ;
+        return false ;
     }
 
     //***************************************************************************//
@@ -648,18 +653,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     private void doContinue(HandlerRunner runner) {
         String target = runner.getNextTarget();
-        if (target.equalsIgnoreCase("workitem")) {
-            runner.setItem(unsuspendWorkItem(runner.getItem()));     // refresh item            
-            runner.unsetItemSuspended();
-        }
-        else if ((target.equalsIgnoreCase("case")) ||
-                (target.equalsIgnoreCase("allcases")) ||
-                (target.equalsIgnoreCase("ancestorCases"))) {
-            unsuspendList(runner);
-            runner.unsetCaseSuspended();
-        }
-        else _log.error("Unexpected target type '" + target +
+        switch (ExletTarget.fromString(target)) {
+            case Workitem : {
+                runner.setItem(unsuspendWorkItem(runner.getItem()));     // refresh item
+                runner.unsetItemSuspended();
+                break;
+            }
+            case Case:
+            case AllCases:
+            case AncestorCases: {
+                unsuspendList(runner);
+                runner.unsetCaseSuspended();
+                break;
+            }
+            default: _log.error("Unexpected target type '" + target +
                     "' for exception handling primitive 'continue'") ;
+        }
     }
 
     //***************************************************************************//
@@ -671,16 +680,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     private void doSuspend(HandlerRunner runner) {
         String target = runner.getNextTarget();
-        if (target.equalsIgnoreCase("workitem"))
-            suspendWorkItem(runner);
-        else if (target.equalsIgnoreCase("case"))
-            suspendCase(runner);
-        else if (target.equalsIgnoreCase("ancestorCases"))
-            suspendAncestorCases(runner);
-        else if (target.equalsIgnoreCase("allcases"))
-            suspendAllCases(runner);
-        else _log.error("Unexpected target type '" + target +
-                    "' for exception handling primitive 'suspend'") ;
+        switch (ExletTarget.fromString(target)) {
+            case Workitem      : suspendWorkItem(runner); break;
+            case Case          : suspendCase(runner); break;
+            case AncestorCases : suspendAncestorCases(runner); break;
+            case AllCases      : suspendAllCases(runner); break;
+            default: _log.error("Unexpected target type '" + target +
+                          "' for exception handling primitive 'suspend'") ;
+        }
     }
 
     //***************************************************************************//
@@ -692,16 +699,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     private void doRemove(HandlerRunner runner) {
         String target = runner.getNextTarget();
-        if (target.equalsIgnoreCase("workitem"))
-            removeWorkItem(runner.getItem());
-        else if (target.equalsIgnoreCase("case"))
-            removeCase(runner);
-        else if (target.equalsIgnoreCase("ancestorCases"))
-            removeAncestorCases(runner);
-        else if (target.equalsIgnoreCase("allcases"))
-            removeAllCases(runner.getSpecID());
-        else _log.error("Unexpected target type '" + target +
-                    "' for exception handling primitive 'remove'") ;
+        switch (ExletTarget.fromString(target)) {
+            case Workitem      : removeWorkItem(runner.getItem()); break;
+            case Case          : removeCase(runner); break;
+            case AncestorCases : removeAncestorCases(runner); break;
+            case AllCases      : removeAllCases(runner.getSpecID()); break;
+            default: _log.error("Unexpected target type '" + target +
+                          "' for exception handling primitive 'remove'") ;
+        }
     }
 
     //***************************************************************************//

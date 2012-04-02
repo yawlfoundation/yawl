@@ -18,23 +18,42 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Michael Adams
  * @date 12/12/11
  */
 public enum RuleType {
-    CasePreconstraint,
-    CasePostconstaint,
-    ItemPreconstraint,
-    ItemPostconstaint,
-    ItemAbort,
-    ItemTimeout,
-    ItemResourceUnavailable,
-    ItemConstraintViolation,
-    CaseExternalTrigger,
-    ItemExternalTrigger,
-    ItemSelection;             // 'pseudo' exception type
+    CasePreconstraint("PreCaseConstraint", "Pre-case constraint violation"),
+    CasePostconstaint("PostCaseConstraint", "Post-case constraint violation"),
+    ItemPreconstraint("ItemPreConstraint", "Workitem pre-constraint violation"),
+    ItemPostconstaint("ItemPostConstraint", "Workitem post-constraint violation"),
+    ItemAbort("ItemAbort", "Workitem abort"),
+    ItemTimeout("ItemTimeout", "Workitem timeout"),
+    ItemResourceUnavailable("ResourceUnavailable", "Resource Unavailable"),
+    ItemConstraintViolation("ConstraintViolation", "Workitem constraint violation"),
+    CaseExternalTrigger("CaseExternal", "Case-level external trigger"),
+    ItemExternalTrigger("ItemExternal", "Workitem-level external trigger"),
+    ItemSelection("Selection", "Selection");             // 'pseudo' exception type
 
+    private String shortForm;
+    private String longForm;
+
+    private static final Map<String, RuleType> fromStringMap =
+            new HashMap<String, RuleType>();
+
+    static {
+        for (RuleType ruleType : values()) {
+            fromStringMap.put(ruleType.toString(), ruleType);
+        }
+    }
+
+    RuleType(String sForm, String lForm) {
+        shortForm = sForm;
+        longForm = lForm;
+    }
 
     public boolean isCaseLevelType() {
         switch (this) {
@@ -64,37 +83,17 @@ public enum RuleType {
 
 
     public String toLongString() {
-       switch (this) {
-           case CasePreconstraint       : return "Pre-case constraint violation" ;
-           case CasePostconstaint       : return "Post-case constraint violation";
-           case ItemPreconstraint       : return "Workitem pre-constraint violation";
-           case ItemPostconstaint       : return "Workitem post-constraint violation";
-           case ItemAbort               : return "Workitem abort";
-           case ItemTimeout             : return "Workitem timeout";
-           case ItemResourceUnavailable : return "Resource Unavailable";
-           case ItemConstraintViolation : return "Workitem constraint violation";
-           case CaseExternalTrigger     : return "Case-level external trigger";
-           case ItemExternalTrigger     : return "Workitem-level external trigger";
-           case ItemSelection           : return "Selection";
-       }
-       return null;
+        return longForm;
     }
 
+
     public String toString() {
-        switch(this) {
-            case CasePreconstraint       : return "PreCaseConstraint" ;
-            case CasePostconstaint       : return "PostCaseConstraint";
-            case ItemPreconstraint       : return "ItemPreConstraint";
-            case ItemPostconstaint       : return "ItemPostConstraint";
-            case ItemAbort               : return "ItemAbort";
-            case ItemTimeout             : return "ItemTimeout";
-            case ItemResourceUnavailable : return "ResourceUnavailable";
-            case ItemConstraintViolation : return "ConstraintViolation";
-            case CaseExternalTrigger     : return "CaseExternal";
-            case ItemExternalTrigger     : return "ItemExternal";
-            case ItemSelection           : return "Selection";
-        }
-        return null;
+        return shortForm;
     }
+
+    public static RuleType fromString(String s) {
+            return (s != null) ? fromStringMap.get(s) : null;
+        }
+
 
 }

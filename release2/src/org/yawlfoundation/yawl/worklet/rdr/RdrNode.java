@@ -113,7 +113,6 @@ public class RdrNode {
 	 *  @param condition - the condition stored in this node
 	 *  @param conclusion - the conclusion stored in this node
 	 */
-
     public RdrNode(int id, RdrNode parent, String condition, Element conclusion) {
     	this(id, parent, null, null, condition, conclusion, null) ;
     }
@@ -125,9 +124,19 @@ public class RdrNode {
 	 *  @param conclusion - the conclusion stored in this node
      *  @param cornerstone - the data set that led to the creation of this node
 	 */
-
     public RdrNode(String condition, Element conclusion, Element cornerstone) {
     	this(-1, null, null, null, condition, conclusion, cornerstone) ;
+    }
+
+
+    /**
+     *  Construct a node with the basic values provided
+	 *  @param condition - the condition stored in this node
+	 *  @param conclusion - the conclusion stored in this node
+     *  @param cornerstone - the data set that led to the creation of this node
+	 */
+    public RdrNode(String condition, RdrConclusion conclusion, Element cornerstone) {
+    	this(-1, null, null, null, condition, conclusion.getConclusion(), cornerstone) ;
     }
 
 //===========================================================================//
@@ -314,7 +323,7 @@ public class RdrNode {
             parent = null;
             trueChild = null;
             falseChild = null;
-            condition = xNode.getChildText("condition");
+            condition = xNode.getChildText("condition", true);     // decode escapes
             XNode concNode = xNode.getChild("conclusion");
             if (concNode != null) conclusion = concNode.toElement();
             XNode cornNode = xNode.getChild("cornerstone");

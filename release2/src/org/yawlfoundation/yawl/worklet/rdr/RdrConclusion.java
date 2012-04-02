@@ -20,6 +20,10 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.worklet.exception.ExletAction;
+import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
+import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
 import java.util.List;
 
@@ -42,6 +46,8 @@ public class RdrConclusion {
 
     private Element _conclusion = null ;
     private RdrNode[] _pair = null ;       // stored here for wr.saveSearchResults()
+
+    public RdrConclusion() { }
 
     public RdrConclusion(Element conc) {
 
@@ -84,6 +90,49 @@ public class RdrConclusion {
         }
         return count;
     }
+    
+    
+    public void setSelectionPrimitive(String workletName) {
+        XNode primitive = new XNode("_1");
+        primitive.addChild("action", "select");
+        primitive.addChild("target", workletName);
+        _conclusion = null;                        // only one prim allowed for selection
+        addPrimitive(primitive);
+    }
+
+
+    public void addCompensationPrimitive(String workletName) {
+        XNode primitive = new XNode("_" + (getCount() + 1));
+        primitive.addChild("action", "compensate");
+        primitive.addChild("target", workletName);
+        addPrimitive(primitive);
+    }
+
+
+    public void addCompensationPrimitive(List<String> workletNames) {
+        addCompensationPrimitive(RdrConversionTools.StringListToString(workletNames));
+    }
+
+
+    public void addPrimitive(ExletAction action, ExletTarget target) {
+        XNode primitive = new XNode("_" + (getCount() + 1));
+        primitive.addChild("action", action.toString());
+        primitive.addChild("target", target.toString());
+        addPrimitive(primitive);
+    }
+
+
+    private void addPrimitive(XNode primitive) {
+        if (_conclusion == null) {
+            XNode temp = new XNode("conclusion");
+            temp.addChild(primitive);
+            _conclusion = temp.toElement();
+        }
+        else {
+            _conclusion.addContent(primitive.toElement().detach());
+        }
+    }
+
 
     public boolean nullConclusion() {
         return (getCount() == 0);
@@ -94,7 +143,7 @@ public class RdrConclusion {
     }
     
     public String toXML() {
-        return "<conclusion>\n" + toString() + "\n</conclusion>";
+        return toString();
     }
     
     public void fromXML(String xml) {

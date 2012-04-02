@@ -152,7 +152,7 @@ public class RdrConversionTools {
      * @param list - list of String values
      * @return the String of comma separated values
      */
-    public static String StringListToString(List list) {
+    public static String StringListToString(List<String> list) {
         if (list != null)
             return itrToString(list.iterator());
         else
