@@ -178,7 +178,8 @@ public class RdrTree {
 //===========================================================================//
 
 	public RdrNode createRootNode() {
-        RdrNode root = new RdrNode(0, null, "true", null);
+        XNode nullConclusion = new XNode("conclusion", "null");
+        RdrNode root = new RdrNode(0, null, "true", nullConclusion.toElement());
         root.setDescription("root node");
         setRootNode(root);
         return root;

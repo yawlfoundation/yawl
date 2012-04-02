@@ -198,7 +198,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void setExceptionServiceEnabled(boolean enable) {
         _exceptionServiceEnabled = enable;
-        _log.info("Exception Service is " + (enable ? "enabled" : "disabled"));
+        _log.info("Exception handling is " + (enable ? "enabled" : "disabled"));
     }
 
     public WorkletEventServer getServer() { return _server; }
