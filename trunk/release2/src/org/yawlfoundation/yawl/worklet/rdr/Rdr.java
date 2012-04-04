@@ -171,6 +171,7 @@ public class Rdr {
             addedNode = tree.addNode(node, root, true);
         }
         set.save();
+        _rdrCache.update(set);
         return addedNode;
     }
     

@@ -55,7 +55,7 @@ public class RdrConclusion {
         // when none of the nodes conditions evaluates to true - that is, there is
         // no exception to be handled. Thus, we only want to set the conclusion if
         // something other than "null" is returned - i.e. an exception has been identified.
-        if (! conc.getText().equals("null"))
+        if (! (conc == null || conc.getText().equals("null")))
             _conclusion = conc ;
     }
     

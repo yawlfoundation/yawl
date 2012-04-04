@@ -38,8 +38,9 @@ import java.util.Map;
 
 public class Interface_Client {
 
-    // prevent socket reads from blocking indefinitely
-    private static final int READ_TIMEOUT = 5000;
+    // allows the prevention of socket reads from blocking indefinitely
+    private static int READ_TIMEOUT = 0;              // default: wait indefinitely
+
 
     /**
      * Executes a HTTP POST request on the url specified.
@@ -82,6 +83,16 @@ public class Interface_Client {
         paramMap.put("action", action) ;
         if (handle != null) paramMap.put("sessionHandle", handle) ;
         return paramMap;
+    }
+
+
+    /**
+     * Set the read timeout value for future connections
+     * @param timeout the timeout value in milliseconds. A value of -1 (the default)
+     *                means a read will wait indefinitely.
+     */
+    protected void setReadTimeout(int timeout) {
+        READ_TIMEOUT = timeout;
     }
 
 

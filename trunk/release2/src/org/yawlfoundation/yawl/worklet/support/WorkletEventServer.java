@@ -45,7 +45,8 @@ import java.util.concurrent.TimeUnit;
 public class WorkletEventServer extends Interface_Client {
 
     // an enum of announcement types
-    public static enum Event { Selection, CaseException, ItemException, Shutdown }
+    public static enum Event { Selection, CaseException, ItemException,
+                               ConstraintSuccess, Shutdown }
     
     private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
     private ExecutorService _executor;
@@ -120,7 +121,7 @@ public class WorkletEventServer extends Interface_Client {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.CaseException);
             params.put("caseid", caseID);
-            announceException(params, caseData, rType);
+            announce(params, caseData, rType);
         }
     }
 
@@ -135,7 +136,38 @@ public class WorkletEventServer extends Interface_Client {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.ItemException);
             params.put("wir", wir.toXML());
-            announceException(params, caseData, rType);
+            announce(params, caseData, rType);
+        }
+    }
+
+
+    /**
+     * Announces a case-level exception
+     * @param caseID the id of the case on which the exception was raised
+     * @param caseData the current case data used to evaluate the exception
+     * @param rType the type of exception raised
+     */
+    public void announceConstraintPass(String caseID, Element caseData, RuleType rType) {
+        if (hasListeners()) {
+            Map<String, String> params = prepareParams(Event.ConstraintSuccess);
+            params.put("caseid", caseID);
+            announce(params, caseData, rType);
+        }
+    }
+
+
+    /**
+     * Announces an item-level exception
+     * @param wir the workitem on which the exception was raised
+     * @param caseData the current case data used to evaluate the exception
+     * @param rType the type of exception raised
+     */
+    public void announceConstraintPass(WorkItemRecord wir, Element caseData, RuleType rType) {
+        if (hasListeners()) {
+            Map<String, String> params = prepareParams(Event.ConstraintSuccess);
+            params.put("caseid", wir.getRootCaseID());
+            params.put("wir", wir.toXML());
+            announce(params, caseData, rType);
         }
     }
 
@@ -161,11 +193,14 @@ public class WorkletEventServer extends Interface_Client {
      * Announces the worklet service is shutting down
      */
     public void shutdownListeners() {
-        if (hasListeners()) announce(prepareParams(Event.Shutdown));
+        if (hasListeners()) {
+            setReadTimeout(3000);                                // don't let it hang
+            announce(prepareParams(Event.Shutdown));
+        }
         if (_executor != null) {
             _executor.shutdown();
 
-            // give it a moment to complete or fail the announcement
+            // give it a moment to complete or fail pending announcements
             try {
                 _executor.awaitTermination(10, TimeUnit.SECONDS);
             }
@@ -179,13 +214,12 @@ public class WorkletEventServer extends Interface_Client {
     /*****************************************************************************/
     
     /**
-     * Announces an exception to each registered listener
-     * @param params a parameter map describing the exception
-     * @param caseData the current case data used to evaluate the exception
-     * @param rType the type of exception raised
+     * Makes an announcement to each registered listener
+     * @param params a parameter map describing the event
+     * @param caseData the current case data used to evaluate the event
+     * @param rType the type of rule that raised the event
      */
-    private void announceException(Map<String, String> params, Element caseData,
-                                   RuleType rType) {
+    private void announce(Map<String, String> params, Element caseData, RuleType rType) {
         params.put("casedata", JDOMUtil.elementToString(caseData));
         params.put("ruletype", rType.name());
         announce(params);
@@ -259,7 +293,8 @@ public class WorkletEventServer extends Interface_Client {
             catch (IOException ioe) {
                  _log.warn("Failed to announce worklet event '" +
                            _params.get("action") + "' to URI '" + _uri +
-                           "'. Perhaps that listener is no longer available.");
+                           "'. Reason: " + ioe.getMessage() +
+                           ". Perhaps that listener is no longer available.");
             }
         }
 

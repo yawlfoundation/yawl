@@ -157,16 +157,16 @@ public class WorkletGateway extends HttpServlet {
                     result = "<success/>";
                 }
                 else if (action.equalsIgnoreCase("addListener")) {
-                    result = _ws.getServer().addListener(req.getParameter("uri"));
+                    result = response(_ws.getServer().addListener(req.getParameter("uri")));
                 }
                 else if (action.equalsIgnoreCase("removeListener")) {
-                    result = _ws.getServer().removeListener(req.getParameter("uri"));
+                    result = response(_ws.getServer().removeListener(req.getParameter("uri")));
                 }
                 else if (action.equalsIgnoreCase("evaluate")) {
-                    result = evaluate(req);
+                    result = response(evaluate(req));
                 }
                 else if (action.equalsIgnoreCase("addNode")) {
-                    result = addNode(req);
+                    result = response(addNode(req));
                 }
                 else if (action.equalsIgnoreCase("getNode")) {
                     result = getNode(req);
@@ -181,7 +181,6 @@ public class WorkletGateway extends HttpServlet {
             // generate the output
             OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
             ServletUtils.finalizeResponse(outputWriter, result);
-
         }
         catch (Exception e) {
             _log.error("Exception in doPost()", e);
@@ -343,6 +342,10 @@ public class WorkletGateway extends HttpServlet {
  
     private String fail(String msg) {
         return StringUtil.wrap(msg, "failure");
+    }
+
+    private String response(String result) {
+        return StringUtil.wrap(result, "response");
     }
             
 }

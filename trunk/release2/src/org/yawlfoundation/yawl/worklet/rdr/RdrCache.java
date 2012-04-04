@@ -102,5 +102,8 @@ public class RdrCache {
         return _cache.containsKey(name);
     }
 
+    public void update(RdrSet set) {
+        _cache.put(set.getName(), set);
+    }
 
 }

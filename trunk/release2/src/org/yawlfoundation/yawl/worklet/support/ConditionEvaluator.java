@@ -274,7 +274,8 @@ public class ConditionEvaluator {
     /** @return true if expression is a registered function name in the
      *  RdrConditionFunctions class */
     private boolean isFunctionName(String s) {
-       return RdrConditionFunctions.isRegisteredFunction(s) ;
+       return RdrConditionFunctions.isRegisteredFunction(s) ||
+               RdrFunctionLoader.getNames().contains(s) ;
     }
 
 
@@ -763,7 +764,7 @@ public class ConditionEvaluator {
      * @param func the fucntion to call
      * @return the result of the function          *
      */
-    private String evalFunction(String func) {
+    private String evalFunction(String func) throws RdrConditionException {
         String funcName, varName, varValue, result ;
         HashMap args = new HashMap() ;
 
@@ -779,13 +780,18 @@ public class ConditionEvaluator {
         funcName = func.substring(0, func.indexOf('['));
 
         // run function
-        result = RdrConditionFunctions.execute(funcName, args) ;
+        if (RdrConditionFunctions.isRegisteredFunction(funcName)) {
+            result = RdrConditionFunctions.execute(funcName, args) ;
+        }
+        else {
+            result = RdrFunctionLoader.execute(funcName, args);
+        }
         if (result == null) result = "null";
         return result ;
     }
 
    /** translates a bad result to 'undefined' */
-    private String getFunctionResult(String func) {
+    private String getFunctionResult(String func) throws RdrConditionException {
         String result = evalFunction(func);
         if ((result == null) || (result.length() == 0))
            result = "undefined" ;

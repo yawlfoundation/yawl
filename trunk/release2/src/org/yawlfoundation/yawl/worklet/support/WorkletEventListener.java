@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.worklet.support;
 
 import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
@@ -30,7 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -83,6 +82,11 @@ public abstract class WorkletEventListener extends HttpServlet {
                 }
                 selectionEvent(wir, caseMap);
             }
+            else if (action.equals("ConstraintSuccess")) {
+                String caseID = req.getParameter("caseid");
+                constraintSuccessEvent(caseID, wir, caseData, ruleType);
+            }
+
             else if (action.equals("CaseException")) {
                 String caseID = req.getParameter("caseid");
                 caseLevelExceptionEvent(caseID, caseData, ruleType);
@@ -103,10 +107,14 @@ public abstract class WorkletEventListener extends HttpServlet {
      */
     public void doGet(HttpServletRequest req, HttpServletResponse res)
             throws IOException, ServletException {
-        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
-        StringBuilder output = new StringBuilder();
-        output.append("Greetings from the WorkletEventListener Servlet");
-        ServletUtils.finalizeResponse(outputWriter, output);
+        res.setContentType("text/html");
+        PrintWriter outputWriter = res.getWriter();
+        outputWriter.write(
+                "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">" +
+                "<title>WorkletEventListener</title></head><body><h3>Greetings " +
+                "from the WorkletEventListener Servlet</h3></body></html>");
+        outputWriter.flush();
+        outputWriter.close();
     }
 
     /****************************************************************************/
@@ -123,6 +131,17 @@ public abstract class WorkletEventListener extends HttpServlet {
      */
     public abstract void selectionEvent(WorkItemRecord wir, Map<String, String> caseMap);
 
+
+    /**
+     * Receives notification of a case or workitem that has passed pre or post
+     * constraints
+     * @param caseID the case that passed constraints.
+     * @param wir the workitem that passed constraints. Will be null for case level constraints.
+     * @param caseData the current caseData, used for evaluation
+     * @param ruleType the type of constraint rule passed
+     */
+    public abstract void constraintSuccessEvent(String caseID, WorkItemRecord wir,
+                                                Element caseData, RuleType ruleType);
 
     /**
      * Receives notification of a case level exception being raised by the worklet service
