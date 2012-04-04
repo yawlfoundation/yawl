@@ -394,9 +394,12 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         "-case constraints");
                 raiseException(monitor, conc, sType, xType) ;
             }
-            else                                 // there are rules but the case passes
+            else {                                // there are rules but the case passes
+                _server.announceConstraintPass(monitor.getCaseID(),
+                        monitor.getCaseData(), xType);
                 _log.info("Case " + monitor.getCaseID() + " passed " + sType +
                         "-case constraints");
+            }
         }
     }
 
@@ -409,7 +412,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param wir the WorkItemRecord for the workitem
      * @param pre true for pre-constraints, false for post-constraints
      */
-    private void checkConstraints(CaseMonitor monitor, WorkItemRecord wir, boolean pre ) {
+    private void checkConstraints(CaseMonitor monitor, WorkItemRecord wir, boolean pre) {
         RdrConclusion conc ;       // the conclusion from a set of rules, if any
         String itemID = wir.getID();
         String taskID = wir.getTaskName() ;
@@ -427,8 +430,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 _log.info("Workitem " + itemID + " failed " + sType +  "-task constraints");
                 raiseException(monitor, conc, wir, xType) ;
             }
-            else                                   // there are rules but the case passes
+            else {                                  // there are rules but the case passes
+                _server.announceConstraintPass(wir, monitor.getCaseData(), xType);
                 _log.info("Workitem " + itemID + " passed " + sType + "-task constraints");
+            }
         }
     }
 

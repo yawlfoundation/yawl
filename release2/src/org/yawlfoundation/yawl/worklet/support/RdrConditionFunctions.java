@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -31,8 +31,8 @@ import java.util.HashMap;
  *  conditional expressions in rules.
  *
  * To successfully add a function:
- *  1. Add the function to the 'function definitions' section
- *  2. Ensure the function is declared 'private static'
+ *  1. Add the function (method body) to the 'function definitions' section
+ *  2. Ensure the function (method) is declared 'private static'
  *  3. Add the function's name added to the list of '_functionNames'.
  *  4. Add a mapping for the function to the 'execute' method, following the examples
  *  5. Ensure the function returns a String value.
@@ -48,10 +48,6 @@ public class RdrConditionFunctions {
 
     // HEADER //
 
-//    private static Logger _log =
-//               Logger.getLogger("org.yawlfoundation.yawl.worklet.support.RdrConditionFunctions");
-
-
     // add the name of each defined function here
     public static final String[] _functionNames = { "max",
                                                     "min",
@@ -59,26 +55,30 @@ public class RdrConditionFunctions {
                                                     "hasTimerExpired",
                                                     "today"} ;
 
-    public static boolean isRegisteredFunction(String s) {
-        for (int i=0; i < _functionNames.length; i++)
-           if (s.equalsIgnoreCase(_functionNames[i])) return true ;
-
+    public static boolean isRegisteredFunction(String name) {
+        for (String functionName : _functionNames) {
+            if (name.equalsIgnoreCase(functionName)) return true;
+        }
         return false;                               // not a function name
     }
 
     /*****************************************************************************/
 
-
-    // EXECUTE METHOD //
-
-    // Note: all args are passed as Strings
-    public static String execute(String name, HashMap args) {
+    /**
+     * Executes the named function, using the supplied arguments
+     * @param name the name of the function to execute
+     * @param args a map of String key-value pairs. Note that every map will contain
+     *             a key called 'this' that has as its value an xml String of the
+     *             workitem being evaluated
+     * @return the function's result
+     */
+    public static String execute(String name, Map<String, String> args) {
         if (name.equalsIgnoreCase("isNotCompleted")) {
-            String taskInfo = (String) args.get("this");
+            String taskInfo = args.get("this");
             return isNotCompleted(taskInfo);
         }
         else if (name.equalsIgnoreCase("hasTimerExpired")) {
-            String taskInfo = (String) args.get("this");
+            String taskInfo = args.get("this");
             return hasTimerExpired(taskInfo);
         }
         else if (name.equalsIgnoreCase("max")) {
@@ -145,9 +145,9 @@ public class RdrConditionFunctions {
 
 
     /** extract the specified argument and returns its integer value */
-    private static int getArgAsInt(HashMap args, String var) {
-        String valStr = (String) args.get(var);
-        return Integer.parseInt(valStr);
+    private static int getArgAsInt(Map<String, String> args, String var) {
+        String valStr = args.get(var);
+        return valStr != null ? Integer.parseInt(valStr) : -1;
     }
 
 }

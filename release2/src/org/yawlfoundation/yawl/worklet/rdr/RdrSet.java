@@ -224,7 +224,7 @@ public class RdrSet {
      * @return true if the rules were loaded successfully
      */
     private boolean loadRules() {
-        String fileName = getProcessName() + ".xrs" ;        // xrs = Xml Rule Set
+        String fileName = getName() + ".xrs" ;        // xrs = Xml Rule Set
         Document doc = null;                                 // doc to hold rules
 
         String rulepath = Library.wsRulesDir + fileName ;
@@ -285,7 +285,7 @@ public class RdrSet {
     public boolean save() {
         XNode ruleSet = toXNode();
         if (ruleSet.hasChildren()) {
-            String rulepath = Library.wsRulesDir + getProcessName() + ".xrs";
+            String rulepath = Library.wsRulesDir + getName() + ".xrs";
             StringUtil.stringToFile(rulepath, ruleSet.toPrettyString(true));
         }
         return ruleSet.hasChildren();
@@ -335,7 +335,12 @@ public class RdrSet {
     protected String getName() {
         return _specID != null ? _specID.getUri() : _processName;
     }
-    
+
+
+    protected String getProcessName() { return _processName; }
+
+    protected YSpecificationID getSpecificationID() { return _specID; }
+
 
     private void treeListToXNode(List<RdrTree> treeList, XNode parent, String... names) {
         if (treeList != null) {
@@ -501,10 +506,6 @@ public class RdrSet {
     }
     
     
-    private String getProcessName() {
-        return _specID != null ? _specID.getUri() : _processName;
-    }
-
 //===========================================================================//
     
     public String toString() {

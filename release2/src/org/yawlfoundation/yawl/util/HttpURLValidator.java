@@ -62,10 +62,10 @@ public class HttpURLValidator {
                 return getErrorMessage(response + " " + httpConnection.getResponseMessage());
         }
         catch (SocketTimeoutException ste) {
-            return getErrorMessage("Connection Timeout when attempting to validate URL");
+            return getErrorMessage("Error attempting to validate URL: " + ste.getMessage());
         }
-        catch (IOException e) {
-            return getErrorMessage("IO Exception when attempting to validate URL") ;
+        catch (IOException ioe) {
+            return getErrorMessage("Error attempting to validate URL: " + ioe.getMessage());
         }
 
         return "<success/>";                             // no errors and responded 'OK'
