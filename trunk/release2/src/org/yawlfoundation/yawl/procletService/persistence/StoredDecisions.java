@@ -34,23 +34,23 @@ public class StoredDecisions {
     private String decision3;
     private String decision4;
     private String decision5;
-    private String decision6;
+    private int decision6;
 
     public StoredDecisions() { }
 
-    public StoredDecisions(List<String> decisions) {
-        this.decision0 = decisions.get(0);
-        this.decision1 = decisions.get(1);
-        this.decision2 = decisions.get(2);
-        this.decision3 = decisions.get(3);
-        this.decision4 = decisions.get(4);
-        this.decision5 = decisions.get(5);
-        this.decision6 = decisions.get(6);
+    public StoredDecisions(List decisions) {
+        this.decision0 = (String) decisions.get(0);
+        this.decision1 = (String) decisions.get(1);
+        this.decision2 = (String) decisions.get(2);
+        this.decision3 = (String) decisions.get(3);
+        this.decision4 = (String) decisions.get(4);
+        this.decision5 = (String) decisions.get(5);
+        this.decision6 = (Integer) decisions.get(6);
     }
     
     
-    public List<String> getDecisionsAsList() {
-        List<String> decisions = new ArrayList<String>();
+    public List getDecisionsAsList() {
+        List decisions = new ArrayList<String>();
         decisions.add(decision0);
         decisions.add(decision1);
         decisions.add(decision2);
@@ -118,11 +118,11 @@ public class StoredDecisions {
         this.decision5 = decision5;
     }
 
-    public String getDecision6() {
+    public int getDecision6() {
         return decision6;
     }
 
-    public void setDecision6(String decision6) {
+    public void setDecision6(int decision6) {
         this.decision6 = decision6;
     }
 }

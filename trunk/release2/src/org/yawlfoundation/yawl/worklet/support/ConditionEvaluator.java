@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 
@@ -156,7 +157,7 @@ public class ConditionEvaluator {
         _log.info("data = " + JDOMUtil.elementToString(dlist)) ;
 
         // check if it's an XQuery
-        if (cond.startsWith("{") || cond.startsWith("\\")) {
+        if (cond.startsWith("{") || cond.startsWith("/")) {
             try {
                 if (cond.startsWith("{")) cond = deQuote(cond);      // remove braces
                 String query = String.format("boolean(%s)", cond);
@@ -761,17 +762,17 @@ public class ConditionEvaluator {
     /**
      * Evaluates a function embedded in a condition
      * PRE: the function is a member of the ceFunctcions class
-     * @param func the fucntion to call
+     * @param func the function to call
      * @return the result of the function          *
      */
     private String evalFunction(String func) throws RdrConditionException {
         String funcName, varName, varValue, result ;
-        HashMap args = new HashMap() ;
+        Map<String, String> args = new HashMap<String, String>() ;
 
         // strip out arguments & get their values
         String[] argList = parseArgsList(func);
-        for (int i=0; i<argList.length;i++) {
-            varName = argList[i].trim() ;
+        for (String arg : argList) {
+            varName = arg.trim();
             varValue = getVarValue(varName);
             args.put(varName, varValue);
         }
