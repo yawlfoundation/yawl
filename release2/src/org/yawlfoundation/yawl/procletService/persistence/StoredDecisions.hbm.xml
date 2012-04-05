@@ -36,7 +36,7 @@
         <property name="decision3"/>
         <property name="decision4"/>
         <property name="decision5"/>
-        <property name="decision6"/>
+        <property name="decision6" type="int"/>
 
     </class>
 	

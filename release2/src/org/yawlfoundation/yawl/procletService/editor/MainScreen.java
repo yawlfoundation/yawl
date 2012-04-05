@@ -153,11 +153,11 @@ public class MainScreen {
     }
 
     private void setYawlProperties() {
-        if (editorProps != null) {
-            YAWLlocation = editorProps.getProperty("yawluri");
-            ProcletServiceLocation = editorProps.getProperty("serviceuri");
-            sUserId = editorProps.getProperty("serviceusername");
-            sPwd = editorProps.getProperty("servicepassword");
+        if (! (editorProps == null || editorProps.isEmpty())) {
+            YAWLlocation = editorProps.getProperty("yawluri", YAWLlocation);
+            ProcletServiceLocation = editorProps.getProperty("serviceuri", ProcletServiceLocation);
+            sUserId = editorProps.getProperty("serviceusername", sUserId);
+            sPwd = editorProps.getProperty("servicepassword", sPwd);
         }
         else {
             System.err.println("   ... could not load YAWL connection properties, using defaults");

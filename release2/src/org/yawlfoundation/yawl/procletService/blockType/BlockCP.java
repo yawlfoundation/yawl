@@ -48,7 +48,7 @@ public class BlockCP {
 	private WorkItemRecord wir = null;
 	private ProcletBlock block = null;
 
-	private static String uniqueidTN = "uniqueid";
+	private static String uniqueidTN = "UniqueID";
 
 	private static Logger myLog = Logger.getLogger(BlockCP.class);
 

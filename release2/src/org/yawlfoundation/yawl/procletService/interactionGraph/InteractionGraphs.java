@@ -29,7 +29,6 @@ import org.yawlfoundation.yawl.procletService.models.procletModel.ProcletBlock.B
 import org.yawlfoundation.yawl.procletService.models.procletModel.ProcletModels;
 import org.yawlfoundation.yawl.procletService.persistence.DBConnection;
 import org.yawlfoundation.yawl.procletService.persistence.Item;
-import org.yawlfoundation.yawl.procletService.persistence.StoredItem;
 import org.yawlfoundation.yawl.procletService.util.EntityID;
 import org.yawlfoundation.yawl.procletService.util.EntityMID;
 
@@ -351,7 +350,7 @@ public class InteractionGraphs {
         List items = DBConnection.execQuery("select distinct s.emid from StoredItem as s " +
                             "where s.itemType=" + Item.InteractionGraph.ordinal());
         for (Object o : items) {
-            InteractionGraph graph = new InteractionGraph(((StoredItem) o).getEmid());
+            InteractionGraph graph = new InteractionGraph((String) o);
         	graph.buildFromDB();
         	addGraph(graph);
         }
