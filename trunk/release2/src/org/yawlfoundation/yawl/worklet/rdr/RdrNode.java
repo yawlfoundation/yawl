@@ -244,11 +244,8 @@ public class RdrNode {
     
     public RdrNode[] recursiveSearch(Element caseData, RdrNode lastTrueNode){
         RdrNode[] pair = new RdrNode[2];
-        
-        ConditionEvaluator ce = new ConditionEvaluator() ;
-
+        ConditionEvaluator ce = new ConditionEvaluator();
         try {
-
 	        if (ce.evaluate(condition, caseData)) { // if condition evals to True
 	            if (trueChild == null) {            // ...and no exception rule
 	                pair[0] = this;                 // this is last satisfied
