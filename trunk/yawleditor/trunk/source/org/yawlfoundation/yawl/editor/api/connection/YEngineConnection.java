@@ -10,6 +10,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +102,7 @@ public class YEngineConnection extends YConnection {
         }
 
         // couldn't connect, return cached
-        return (Set<YAWLServiceReference>) _serviceCache.values();
+        return new HashSet<YAWLServiceReference>(_serviceCache.values());
     }
 
 

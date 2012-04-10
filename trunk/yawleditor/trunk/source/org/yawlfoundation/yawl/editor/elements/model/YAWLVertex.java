@@ -100,7 +100,10 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         return XMLUtilities.toValidXMLName(_actualEngineID.toString());
     }
 
-    public EngineIdentifier getEngineIdentifier() { return _actualEngineID; }
+    public EngineIdentifier getEngineIdentifier() {
+        if (_actualEngineID == null) getEngineId();   // initialise
+        return _actualEngineID;
+    }
 
     public void setEngineID(EngineIdentifier id) {
         setEngineID(id, true);
