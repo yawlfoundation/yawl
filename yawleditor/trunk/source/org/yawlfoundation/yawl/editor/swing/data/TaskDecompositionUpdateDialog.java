@@ -59,6 +59,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   private JButton btnCodelet;  
 
   private SelectCodeletDialog codeletDialog ;
+    private boolean refreshing;
   
   protected JPanel attributesPanel; //MLF
   protected ExtendedAttributesTableModel model; //MLF
@@ -119,9 +120,11 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
   
   
   protected void setDecomposition(Decomposition decomposition) {
+      refreshing = true;
     super.setDecomposition(decomposition);
     model.setDecomposition(decomposition);
     loadLogPredicates(decomposition);
+      refreshing = false;
   }
   
   private WebServiceDecomposition getWebServiceDecomposition() {
@@ -219,7 +222,7 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
     yawlServiceComboBox.setEnabled(false);
     yawlServiceComboBox.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        if (!yawlServiceComboBox.isEnabled()) {
+        if ((! yawlServiceComboBox.isEnabled()) || refreshing) {
             return;
         }
         cbxAutomated.setEnabled(isDefaultWorklistSelected());
@@ -320,7 +323,9 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
         String serviceDescription = getWebServiceDecomposition().getServiceDescription();
         if (yawlServiceComboBox.getItemCount() > 1) {
+            refreshing = true;
           yawlServiceComboBox.setSelectedItem(serviceDescription);
+            refreshing = false;
         }
         pack();
       }
