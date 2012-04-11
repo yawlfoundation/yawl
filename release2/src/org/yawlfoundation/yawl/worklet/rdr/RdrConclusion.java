@@ -163,4 +163,8 @@ public class RdrConclusion {
         return _pair != null && _pair[0] == _pair[1];
     }
 
+    public RdrNode getOwnerNode() {
+        return (_pair != null) ? _pair[0] : null;
+    }
+
 }

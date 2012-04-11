@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 
@@ -115,13 +116,15 @@ public class WorkletEventServer extends Interface_Client {
      * Announces a case-level exception
      * @param caseID the id of the case on which the exception was raised
      * @param caseData the current case data used to evaluate the exception
+     * @param node the node that evaluated to true
      * @param rType the type of exception raised
      */
-    public void announceException(String caseID, Element caseData, RuleType rType) {
+    public void announceException(String caseID, Element caseData,
+                                  RdrNode node, RuleType rType) {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.CaseException);
             params.put("caseid", caseID);
-            announce(params, caseData, rType);
+            announce(params, caseData, node, rType);
         }
     }
 
@@ -130,13 +133,15 @@ public class WorkletEventServer extends Interface_Client {
      * Announces an item-level exception
      * @param wir the workitem on which the exception was raised
      * @param caseData the current case data used to evaluate the exception
+     * @param node the node that evaluated to true
      * @param rType the type of exception raised
      */
-    public void announceException(WorkItemRecord wir, Element caseData, RuleType rType) {
+    public void announceException(WorkItemRecord wir, Element caseData,
+                                  RdrNode node, RuleType rType) {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.ItemException);
             params.put("wir", wir.toXML());
-            announce(params, caseData, rType);
+            announce(params, caseData, node, rType);
         }
     }
 
@@ -151,7 +156,7 @@ public class WorkletEventServer extends Interface_Client {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.ConstraintSuccess);
             params.put("caseid", caseID);
-            announce(params, caseData, rType);
+            announce(params, caseData, null, rType);
         }
     }
 
@@ -167,7 +172,7 @@ public class WorkletEventServer extends Interface_Client {
             Map<String, String> params = prepareParams(Event.ConstraintSuccess);
             params.put("caseid", wir.getRootCaseID());
             params.put("wir", wir.toXML());
-            announce(params, caseData, rType);
+            announce(params, caseData, null, rType);
         }
     }
 
@@ -176,7 +181,7 @@ public class WorkletEventServer extends Interface_Client {
      * Announces a worklet selection
      * @param item a descriptor containing case, workitem, data and raised worklet info
      */
-    public void announceSelection(CheckedOutChildItem item) {
+    public void announceSelection(CheckedOutChildItem item, RdrNode node) {
         if (hasListeners()) {
             Map<String, String> params = prepareParams(Event.Selection);
             params.put("wir", item.get_wirStr());
@@ -184,6 +189,7 @@ public class WorkletEventServer extends Interface_Client {
             for (String key : runners.keySet()) {
                 params.put(key, runners.get(key));
             }
+            params.put("node", node.toXML());
             announce(params);
         }
     }
@@ -217,10 +223,13 @@ public class WorkletEventServer extends Interface_Client {
      * Makes an announcement to each registered listener
      * @param params a parameter map describing the event
      * @param caseData the current case data used to evaluate the event
+     * @param node the node that evaluated to true
      * @param rType the type of rule that raised the event
      */
-    private void announce(Map<String, String> params, Element caseData, RuleType rType) {
+    private void announce(Map<String, String> params, Element caseData,
+                          RdrNode node, RuleType rType) {
         params.put("casedata", JDOMUtil.elementToString(caseData));
+        if (node != null) params.put("node", node.toXML());
         params.put("ruletype", rType.name());
         announce(params);
     }

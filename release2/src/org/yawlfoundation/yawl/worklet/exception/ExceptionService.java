@@ -479,7 +479,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 _dbMgr.persist(hr, DBManager.DB_INSERT);
                 hr.ObjectPersisted();
             }
-            _server.announceException(cmon.getCaseID(), cmon.getCaseData(), xType);
+            _server.announceException(cmon.getCaseID(), cmon.getCaseData(),
+                    conc.getOwnerNode(), xType);
             processException(hr) ;
         }
         else _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -504,7 +505,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 _dbMgr.persist(hr, DBManager.DB_INSERT);
                 hr.ObjectPersisted();
             }
-            _server.announceException(wir, cmon.getCaseData(), xType);
+            _server.announceException(wir, cmon.getCaseData(),
+                    conc.getOwnerNode(), xType);
             processException(hr) ;
         }
         else  _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -604,8 +606,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 break;
             }
             default:  {
-                _log.error("Unknown action type in exception handling primitive: " + action);
-                success = false ;
+                _log.warn("Unrecognised action type '" + action +
+                          "' in exception handling primitive - will ignore this primitive.");
             }
         }
         return success;                   // successful processing of exception primitive

@@ -45,7 +45,7 @@ public class Rdr {
     }
 
     public RdrConclusion evaluate(WorkItemRecord wir, Element data, RuleType rType) {
-        return getConclusion(new YSpecificationID(wir), wir.getTaskID(), data, rType);
+        return getConclusion(new YSpecificationID(wir), wir.getTaskName(), data, rType);
     }
 
     public RdrConclusion evaluate(YSpecificationID specID, String taskID, Element data,
@@ -67,7 +67,7 @@ public class Rdr {
     }
 
     public RdrNode addNode(WorkItemRecord wir, RuleType rType, RdrNode node) {
-        return addNode(new YSpecificationID(wir), wir.getTaskID(), rType, node);
+        return addNode(new YSpecificationID(wir), wir.getTaskName(), rType, node);
     }
 
     public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType, RdrNode node) {
@@ -88,7 +88,7 @@ public class Rdr {
     }
 
     public RdrNode getNode(WorkItemRecord wir, RuleType rType, int nodeID) {
-        return getNode(new YSpecificationID(wir), wir.getTaskID(), rType, nodeID);
+        return getNode(new YSpecificationID(wir), wir.getTaskName(), rType, nodeID);
     }
 
     public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, int nodeID) {
@@ -139,7 +139,7 @@ public class Rdr {
     }
 
     public RdrTree getRdrTree(WorkItemRecord wir, RuleType rType) {
-        return getTree(new YSpecificationID(wir), wir.getTaskID(), rType);
+        return getTree(new YSpecificationID(wir), wir.getTaskName(), rType);
     }
 
     public RdrTree getRdrTree(YSpecificationID specID, String taskID, RuleType rType) {

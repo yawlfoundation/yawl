@@ -629,7 +629,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         coChild.ObjectPersisted();
                     }
                 }
-                _server.announceSelection(coChild);
+                _server.announceSelection(coChild, result.getOwnerNode());
             }
             else _log.warn("Could not launch worklet(s): " + wSelected) ;
         }
@@ -1360,11 +1360,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     /** returns the rule tree (if any) for the parameters passed */
      protected RdrTree getTree(YSpecificationID specID, String taskID, RuleType treeType) {
-         RdrSet ruleSet = _rdr.getRdrSet(specID);
-         if (ruleSet == null || (! ruleSet.hasRules())) return null;  // no rules for spec
-
-         return treeType.isCaseLevelType() ? ruleSet.getTree(treeType) :
-                 ruleSet.getTree(treeType, taskID);
+         return _rdr.getRdrTree(specID, taskID, treeType);
      }
 
     //***************************************************************************//
