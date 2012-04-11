@@ -22,6 +22,7 @@ import org.jdom.Element;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import javax.servlet.ServletException;
@@ -68,6 +69,8 @@ public abstract class WorkletEventListener extends HttpServlet {
             Element caseData = JDOMUtil.stringToElement(req.getParameter("casedata"));
             String wirStr = req.getParameter("wir");
             WorkItemRecord wir = wirStr != null ? Marshaller.unmarshalWorkItem(wirStr) : null;
+            String nodeStr = req.getParameter("node");
+            RdrNode node = nodeStr != null ? new RdrNode(nodeStr) : null;
 
             if (action.equals("Selection")) {
                 String caseIDs = req.getParameter("caseIDs");
@@ -80,7 +83,7 @@ public abstract class WorkletEventListener extends HttpServlet {
                         caseMap.put(ids[i], names[i]);
                     }
                 }
-                selectionEvent(wir, caseMap);
+                selectionEvent(wir, caseMap, node);
             }
             else if (action.equals("ConstraintSuccess")) {
                 String caseID = req.getParameter("caseid");
@@ -89,10 +92,10 @@ public abstract class WorkletEventListener extends HttpServlet {
 
             else if (action.equals("CaseException")) {
                 String caseID = req.getParameter("caseid");
-                caseLevelExceptionEvent(caseID, caseData, ruleType);
+                caseLevelExceptionEvent(caseID, caseData, node, ruleType);
             }
             else if (action.equals("ItemException")) {
-                itemLevelExceptionEvent(wir, caseData, ruleType);
+                itemLevelExceptionEvent(wir, caseData, node, ruleType);
             }
         }
     }
@@ -128,8 +131,9 @@ public abstract class WorkletEventListener extends HttpServlet {
      * @param caseMap a map of [caseID, worklet name] pairs, each one representing a
      *                a worklet case launched for the workitem (one for single-instance
      *                tasks, several for multiple-instance tasks)
+     * @param node the RdrNode that evaluated to true
      */
-    public abstract void selectionEvent(WorkItemRecord wir, Map<String, String> caseMap);
+    public abstract void selectionEvent(WorkItemRecord wir, Map<String, String> caseMap, RdrNode node);
 
 
     /**
@@ -147,19 +151,21 @@ public abstract class WorkletEventListener extends HttpServlet {
      * Receives notification of a case level exception being raised by the worklet service
      * @param caseID the case on which the exception has been raised
      * @param caseData the current caseData, used to evaluate the exception
+     * @param node the RdrNode that evaluated to true
      * @param ruleType the type of exception raised
      */
     public abstract void caseLevelExceptionEvent(String caseID, Element caseData,
-                                                 RuleType ruleType);
+                                                 RdrNode node, RuleType ruleType);
    
     /**
      * Receives notification of a item level exception being raised by the worklet service
      * @param wir the workitem for which the exception has been raised
      * @param caseData the current caseData, used to evaluate the exception
+     * @param node the RdrNode that evaluated to true
      * @param ruleType the type of exception raised
      */
     public abstract void itemLevelExceptionEvent(WorkItemRecord wir, Element caseData,
-                                                 RuleType ruleType);
+                                                 RdrNode node, RuleType ruleType);
 
     /**
      * Receives notification that the worklet service is shutting down

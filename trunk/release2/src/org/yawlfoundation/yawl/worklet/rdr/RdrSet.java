@@ -102,7 +102,7 @@ public class RdrSet {
 
     /** clears and rebuilds the RdrSet */
     public void refresh() {
-        loadRules();
+        _hasRules = loadRules();
     }
 
 //===========================================================================//
@@ -159,6 +159,7 @@ public class RdrSet {
                 if (_externalTrees == null) _externalTrees = new ArrayList<RdrTree>();
                 _externalTrees.add(tree); break;
         }
+        _hasRules = _hasRules || (tree != null);
     }
 
 
