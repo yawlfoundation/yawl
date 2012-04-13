@@ -92,12 +92,13 @@ public class ResourceGatewayServer extends Interface_Client {
     }
  
 
-    public void announceResourceUnavailable(String resourceID, WorkItemRecord wir, boolean primary)
-            throws IOException {
+    public void announceResourceUnavailable(String resourceID, WorkItemRecord wir,
+            String caseData, boolean primary) throws IOException {
         if (hasExceptionListener()) {
             Map<String, String> params = prepareParams(NOTIFY_RESOURCE_UNAVAILABLE);
             params.put("resourceid", resourceID);
             params.put("workItem", wir.toXML());
+            params.put("data", caseData);
             params.put("primary", String.valueOf(primary));
             executePost(_ixURI, params);
         }

@@ -160,8 +160,12 @@ public class Rdr {
         if (tree != null) {
             RdrConclusion conc = getConclusion(tree, node.getCornerStone());
             if (conc != null) {
-                node.setParent(conc.getLastPair()[0]);
-                addedNode = tree.addNode(node, conc.getLastPair()[0], conc.isLastPairEqual());
+                RdrNode parent = conc.getOwnerNode();
+                if (parent != null) {
+                    node.setParent(parent);
+                    addedNode = tree.addNode(node, parent, conc.isLastPairEqual());
+                }
+                // else throw new Exception
             }
         }
         else {

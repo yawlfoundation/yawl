@@ -148,6 +148,30 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Evaluates a data set against the rule tree for a specification and task, and
+     * if a rule node is satisfied raises an exception and executes the exception handler
+     * for the node, if one is defined. A raised exception will be announced to listeners
+     * as a byproduct of this method call.
+     * @param wir the workitem containing specification and task identifiers. PRE: the
+     *            workitem must currently exist in the engine
+     * @param data the data set to use in the evaluation
+     * @param rType the type of rule tree to evaluate. NOTE: Only ItemAbort and
+     *              ItemConstraintViolation rules can be used with this method
+     * @param handle a current sessionhandle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String process(WorkItemRecord wir, Element data, RuleType rType,
+                                  String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("process", handle);
+        params.put("wir", wir.toXML());
+        params.put("data", JDOMUtil.elementToString(data));
+        params.put("rtype", rType.name());
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Evaluates a data set against the rule tree for a specification and task, and
      * returns the conclusion, if any. Note that for a conclusion to be returned, a rule
      * tree must exist for the specification/task/ruletype, and a rule in that tree
      * must be satisfied.

@@ -160,7 +160,7 @@ public class BlockCP {
 							emidSel = emid;
 						}
 					}
-					String id = this.getUniqueID();
+					String id = getUniqueID();
 					myLog.debug("unique id:" + id);
 					ProcessEntityMID pemid = new ProcessEntityMID(wir, block,
 							emidSel, id);

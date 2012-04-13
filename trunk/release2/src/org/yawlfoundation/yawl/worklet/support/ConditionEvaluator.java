@@ -267,7 +267,7 @@ public class ConditionEvaluator {
     /** @return true if expression is the name of a child of the _datalist
      *          Element (i.e. is the name of an item of data) */
     private boolean isVarName(String s) {
-       Element var = _dataList.getChild(s) ;
+       Element var = _dataList != null ? _dataList.getChild(s) : null ;
        return (var != null) ;
     }
 

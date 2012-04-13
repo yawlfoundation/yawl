@@ -32,7 +32,7 @@ public enum RuleType {
     ItemPostconstaint("ItemPostConstraint", "Workitem post-constraint violation"),
     ItemAbort("ItemAbort", "Workitem abort"),
     ItemTimeout("ItemTimeout", "Workitem timeout"),
-    ItemResourceUnavailable("ResourceUnavailable", "Resource Unavailable"),
+    ItemResourceUnavailable("ResourceUnavailable", "Resource unavailable"),
     ItemConstraintViolation("ConstraintViolation", "Workitem constraint violation"),
     CaseExternalTrigger("CaseExternal", "Case-level external trigger"),
     ItemExternalTrigger("ItemExternal", "Workitem-level external trigger"),

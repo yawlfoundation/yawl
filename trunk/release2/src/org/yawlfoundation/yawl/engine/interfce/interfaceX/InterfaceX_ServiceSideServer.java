@@ -139,16 +139,16 @@ public class InterfaceX_ServiceSideServer extends HttpServlet {
                 _controller.handleCheckWorkItemConstraintEvent(wir, data, preCheck);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_WORKITEM_ABORT:
-               _controller.handleWorkItemAbortException(wir);
+               _controller.handleWorkItemAbortException(wir, data);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_TIMEOUT:
                _controller.handleTimeoutEvent(wir, taskList);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_RESOURCE_UNAVAILABLE:
-               _controller.handleResourceUnavailableException(resourceID, wir, primary);
+               _controller.handleResourceUnavailableException(resourceID, wir, data, primary);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_CONSTRAINT_VIOLATION:
-               _controller.handleConstraintViolationException(wir);
+               _controller.handleConstraintViolationException(wir, data);
                break;
             case InterfaceX_EngineSideClient.NOTIFY_CANCELLED_CASE:
                _controller.handleCaseCancellationEvent(caseID);

@@ -20,7 +20,11 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.Marshaller;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
@@ -117,7 +121,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     // called from servlet WorkletGateway after contexts are loaded
     public void completeInitialisation() {
-        super.completeInitialisation();
+    //    super.completeInitialisation();
         _ixClient = new InterfaceX_ServiceSideClient(_engineURI.replaceFirst("/ib", "/ix"));
         if (_persisting) restoreDataSets();             // reload running cases data
     }
@@ -317,51 +321,57 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
 
     private void handleTimeout(WorkItemRecord wir) {
-        String caseID = getIntegralID(wir.getCaseID());
-        CaseMonitor monitor = _monitoredCases.get(caseID);
-        monitor.addProcessInfo(wir);
-
-        // get the exception handler for this time out for this task (if any)
-        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), RuleType.ItemTimeout);
-
-        // if conc is null there's no rules defined for this type of constraint
-        if (conc == null)
-            _log.info("No time-out exception handler defined for task: " + wir.getTaskName());
-        else {
-            if (! conc.nullConclusion())                 // we have a handler
-                raiseException(monitor, conc, wir, RuleType.ItemTimeout);
-            else                       // there are rules but the item passes
-                _log.info("Nothing to do for this TimeOut Event");
-        }
-        monitor.removeProcessInfo();
+        handleItemException(wir, null, RuleType.ItemTimeout);
     }
 
     public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir, 
-                                                   boolean primary) {
-        String caseID = getIntegralID(wir.getCaseID());
-        CaseMonitor monitor = _monitoredCases.get(caseID);
-
-        // get the exception handler for this task (if any)
-        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(),
-                RuleType.ItemResourceUnavailable);
-
-        // if conc is null there's no rules defined for this type of constraint
-        if (conc == null)
-            _log.info("No resource unavailable exception handler defined for task: " +
-                    wir.getTaskName());
-        else {
-            if (! conc.nullConclusion())                 // we have a handler
-                raiseException(monitor, conc, wir, RuleType.ItemResourceUnavailable);
-            else                       // there are rules but the item passes
-                _log.info("Nothing to do for this Resource Unavailable Event");
-        }
+                                                   String caseData, boolean primary) {
+        handleItemException(wir, caseData, RuleType.ItemResourceUnavailable);
     }
 
-    /** Interface Event handlers yet to be implemented */
 
-    public void handleWorkItemAbortException(WorkItemRecord wir) {}
+    public String handleWorkItemAbortException(WorkItemRecord wir, String data) {
+        return handleItemException(wir, data, RuleType.ItemAbort);
+    }
 
-    public void handleConstraintViolationException(WorkItemRecord wir) {}
+
+    public String handleConstraintViolationException(WorkItemRecord wir, String data) {
+        return handleItemException(wir, data, RuleType.ItemConstraintViolation);
+    }
+
+
+    private String handleItemException(WorkItemRecord wir, String data, RuleType ruleType) {
+        String msg;
+        String caseID = wir.getRootCaseID();
+        CaseMonitor monitor = _monitoredCases.get(caseID);
+        if (monitor == null) monitor = new CaseMonitor(new YSpecificationID(wir), caseID, data);
+
+        monitor.updateData(data);
+        monitor.addProcessInfo(wir);
+
+        // get the exception handler for this task (if any)
+        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), ruleType);
+
+        // if conc is null there's no rules defined for this type of constraint
+        if (conc == null) {
+            msg = "No " + ruleType.toLongString() + " rules defined for workitem: " +
+                    wir.getTaskName();
+        }
+        else {
+            if (! conc.nullConclusion()) {                // we have a handler
+                msg = ruleType.toLongString() + " exception raised for work item: " +
+                        wir.getID();
+                raiseException(monitor, conc, wir, ruleType);
+            }
+            else {                      // there are rules but the item passes
+                msg = "Workitem '" + wir.getID() + "' has passed " +
+                        ruleType.toLongString() + " rules.";
+            }
+        }
+        monitor.removeProcessInfo();
+        _log.info(msg);
+        return StringUtil.wrap(msg, "result");
+    }
 
     //***************************************************************************//
     //***************************************************************************//
@@ -1122,9 +1132,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /**
      * ForceCompletes the specified workitem
      * @param wir the item to ForceComplete
-     * @param data the final data params for the workitem
+     * @param out the final data params for the workitem
      */
-    private void forceCompleteWorkItem(WorkItemRecord wir, Element data) {
+    private void forceCompleteWorkItem(WorkItemRecord wir, Element out) {
 
         // only executing items can complete, so if its only fired or enabled, or
         // if its suspended, move it to executing first
@@ -1134,11 +1144,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
             CheckedOutItem coi = executeWorkItem(wir);
             wir = coi.getChildWorkItem(0);
-            data = wir.getDataList();
         }
 
         if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
             try {
+                Element data = mergeCompletionData(wir, wir.getDataList(), out);
                 _ixClient.forceCompleteWorkItem(wir, data, _sessionHandle);
                 _log.info("Item successfully force completed: " + wir.getID());
             }
@@ -1314,6 +1324,23 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         }
     }
 
+
+    // merge the input and output data together
+    private Element mergeCompletionData(WorkItemRecord wir, Element in, Element out)
+            throws IOException {
+        String mergedOutputData = Marshaller.getMergedOutputData(in, out);
+        YSpecificationID specID = new YSpecificationID(wir);
+        TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
+                                                          _sessionHandle);
+        List<YParameter> outputParams = taskInfo.getParamSchema().getOutputParams();
+        try {
+            return JDOMUtil.stringToElement(
+                    Marshaller.filterDataAgainstOutputParams(mergedOutputData, outputParams));
+        }
+        catch (JDOMException jde) {
+            return out;
+        }
+    }
     //***************************************************************************//
     //***************************************************************************//
 

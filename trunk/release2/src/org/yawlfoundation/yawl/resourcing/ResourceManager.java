@@ -388,6 +388,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void handleCompleteCaseEvent(String caseID, String casedata) {
+        _log.info("Case completed: " + caseID);
         handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any
     }
 
