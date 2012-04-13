@@ -201,6 +201,8 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("Exception handling is " + (enable ? "enabled" : "disabled"));
     }
 
+    public boolean isExceptionServiceEnabled() { return _exceptionServiceEnabled; }
+
     public WorkletEventServer getServer() { return _server; }
 
     public Rdr getRdrInterface() { return _rdr; }
@@ -889,7 +891,7 @@ public class WorkletService extends InterfaceBWebsideController {
         checkCacheForWorkItem(wir) ;
 
         try {
-            if (getEngineStoredWorkItem(wir.getID(), _sessionHandle) != null) {
+            if (getEngineStoredWorkItem(wir) != null) {
                 
                 String result = checkInWorkItem(wir.getID(), in, out, null,
                                                           _sessionHandle) ;
@@ -1563,6 +1565,16 @@ public class WorkletService extends InterfaceBWebsideController {
             // after a checkout & the item is still checked out, so lets put it back
             // so that it can be checked back in
             getIBCache().addWorkItem(wir);
+        }
+    }
+
+
+    public WorkItemRecord getEngineStoredWorkItem(WorkItemRecord wir) {
+        try {
+            return getEngineStoredWorkItem(wir.getID(), _sessionHandle);
+        }
+        catch (IOException ioe) {
+            return null;
         }
     }
 

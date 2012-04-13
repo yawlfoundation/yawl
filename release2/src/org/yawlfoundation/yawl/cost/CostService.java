@@ -329,12 +329,12 @@ public class CostService implements InterfaceX_Service {
 
     // Unimplemented Methods //
 
-    public void handleWorkItemAbortException(WorkItemRecord wir) { }
+    public String handleWorkItemAbortException(WorkItemRecord wir, String caseData) { return null; }
     public void handleTimeoutEvent(WorkItemRecord wir, String taskList) { }
-    public void handleConstraintViolationException(WorkItemRecord wir) { }
+    public String handleConstraintViolationException(WorkItemRecord wir, String caseData) { return null; }
     public void handleCaseCancellationEvent(String caseID) { }
 
     public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir,
-                                                   boolean primary) { }
+                                                   String caseData, boolean primary) { }
 
 }

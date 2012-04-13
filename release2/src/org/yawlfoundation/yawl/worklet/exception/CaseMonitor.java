@@ -255,10 +255,8 @@ public class CaseMonitor {
         Element wiParam, caseParam, newParam;
 
         // for each child of the passed Data, add/update the caseData
-        Iterator itr = (eData.getChildren()).iterator() ;
-        while (itr.hasNext()) {
-            wiParam = (Element) itr.next() ;
-
+        for (Object o : eData.getChildren()) {
+            wiParam = (Element) o;
             caseParam = _caseData.getChild(wiParam.getName());
 
             // if case data contains item, update its value

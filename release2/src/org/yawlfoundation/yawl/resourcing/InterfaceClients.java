@@ -291,12 +291,15 @@ public class InterfaceClients {
 
     public void announceResourceUnavailable(AbstractResource resource,
                                             WorkItemRecord wir, boolean primary) {
-        try {
-            String id = (resource != null) ? resource.getID() : null;
-            _gatewayServer.announceResourceUnavailable(id, wir, primary);
-        }
-        catch (IOException ioe) {
-            _log.error("Failed to announce unavailable resource to environment", ioe);
+        if (resource != null) {
+            try {
+                String caseData = wir != null ? getCaseData(wir.getRootCaseID()) : null;
+                _gatewayServer.announceResourceUnavailable(resource.getID(), wir,
+                        caseData, primary);
+            }
+            catch (IOException ioe) {
+                _log.error("Failed to announce unavailable resource to environment", ioe);
+            }
         }
     }
 

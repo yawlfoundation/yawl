@@ -165,6 +165,9 @@ public class WorkletGateway extends HttpServlet {
                 else if (action.equalsIgnoreCase("evaluate")) {
                     result = response(evaluate(req));
                 }
+                else if (action.equalsIgnoreCase("process")) {
+                    result = response(process(req));
+                }
                 else if (action.equalsIgnoreCase("addNode")) {
                     result = response(addNode(req));
                 }
@@ -266,6 +269,39 @@ public class WorkletGateway extends HttpServlet {
             return fail("No rule was satisfied for data parameters");
         }
         return conclusion.toXML();
+    }
+
+    private String process(HttpServletRequest req) {
+        if (! _ws.isExceptionServiceEnabled()) {
+            return fail("Exception handling is currently disabled. Please enable in " +
+                        "Worklet Service's web.xml");
+        }
+
+        String rTypeStr = req.getParameter("rtype");
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.valueOf(rTypeStr);
+
+        String wirStr = req.getParameter("wir");
+        if (wirStr == null) return fail("Work item has null value");
+        WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+        WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+        if (refreshedWir == null) return fail("Work item '" + wir.getID() +
+                "' is unknown to the Engine");
+        wir = refreshedWir;
+
+        String dataStr = req.getParameter("data");
+        Element data = JDOMUtil.stringToElement(dataStr);
+        if (data != null) wir.setUpdatedData(data);
+
+        if (rType == RuleType.ItemAbort) {
+            return ExceptionService.getInst().handleWorkItemAbortException(wir, dataStr);
+        }
+        else if (rType == RuleType.ItemConstraintViolation) {
+            return ExceptionService.getInst().handleConstraintViolationException(wir, dataStr);
+        }
+        else return fail("Invalid rule type '" + rType.toLongString() +
+            "'. This method can only be used for workitem constraint violation" +
+            " and workitem abort exception types");
     }
 
 

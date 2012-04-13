@@ -59,13 +59,14 @@ public interface InterfaceX_Service {
 
      void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data, boolean precheck);
 
-     void handleWorkItemAbortException(WorkItemRecord wir);
+     String handleWorkItemAbortException(WorkItemRecord wir, String caseData);
 
      void handleTimeoutEvent(WorkItemRecord wir, String taskList);
 
-     void handleResourceUnavailableException(String resourceID, WorkItemRecord wir, boolean primary);
+     void handleResourceUnavailableException(String resourceID, WorkItemRecord wir,
+                                             String caseData, boolean primary);
 
-     void handleConstraintViolationException(WorkItemRecord wir);
+     String handleConstraintViolationException(WorkItemRecord wir, String caseData);
 
      void handleCaseCancellationEvent(String caseID);
 
