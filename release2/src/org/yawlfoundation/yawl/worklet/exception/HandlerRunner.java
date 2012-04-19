@@ -148,6 +148,11 @@ public class HandlerRunner extends WorkletRecord {
         return list ;
     }
 
+    public Element getUpdatedData() {
+        if (_wir != null) return _wir.getUpdatedData();
+        return _parentMonitor.getCaseData();
+    }
+
     //***************************************************************************//
 
     // SETTERS //

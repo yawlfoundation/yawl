@@ -51,5 +51,17 @@
   <url-pattern>/ib</url-pattern>
 </servlet-mapping>
 
+    <servlet>
+      <servlet-name>WorkletEventListener</servlet-name>
+      <servlet-class>
+          org.yawlfoundation.yawl.testService.TestWorkletListener
+      </servlet-class>
+      <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+      <servlet-name>WorkletEventListener</servlet-name>
+      <url-pattern>/workletport</url-pattern>
+    </servlet-mapping>
 
 </web-app>

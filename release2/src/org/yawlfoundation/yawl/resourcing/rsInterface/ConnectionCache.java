@@ -137,7 +137,7 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
 
     public boolean hasUser(String userid) {
-        return _userdb.containsKey(userid);
+        return (userid != null) && _userdb.containsKey(userid);
     }
 
 
@@ -163,17 +163,17 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
     
     private boolean validPassword(String userid, String password) {
-        return _userdb.get(userid).equals(password);
+        return (userid != null) && _userdb.get(userid).equals(password);
     }
 
 
     private boolean validUser(String userid) {
-        return _userdb.containsKey(userid) ;
+        return (userid != null) && _userdb.containsKey(userid) ;
 
     }
 
     private void initUserDB() {
-        _userdb = new Hashtable<String,String>();
+        _userdb = new Hashtable<String, String>();
     }
 
 

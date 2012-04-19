@@ -586,7 +586,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             }
             case Complete: {
                 if (isItemTarget) {
-                    forceCompleteWorkItem(runner.getItem(), runner.getItem().getDataList());
+                    forceCompleteWorkItem(runner.getItem(), runner.getUpdatedData());
                 }
                 else success = invalidTarget(action, target);
                 break;
@@ -1329,6 +1329,12 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private Element mergeCompletionData(WorkItemRecord wir, Element in, Element out)
             throws IOException {
         String mergedOutputData = Marshaller.getMergedOutputData(in, out);
+        if (StringUtil.isNullOrEmpty(mergedOutputData)) {
+            _log.warn("Problem merging workitem data: In [" +
+                     JDOMUtil.elementToStringDump(in) + "] Out [" +
+                     JDOMUtil.elementToStringDump(out) + "]");
+            return (in != null) ? in : out;
+        }
         YSpecificationID specID = new YSpecificationID(wir);
         TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID(),
                                                           _sessionHandle);
@@ -1338,7 +1344,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     Marshaller.filterDataAgainstOutputParams(mergedOutputData, outputParams));
         }
         catch (JDOMException jde) {
-            return out;
+            return (in != null) ? in : out;
         }
     }
     //***************************************************************************//
