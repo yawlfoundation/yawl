@@ -63,11 +63,24 @@ public class YConnector {
      * @param password the password
      * @return true if the parameters can be used to create a valid connection
      */
-    public static boolean testParameters(String url, String userid, String password) {
-
-        // since we are only checking a basic connection, a YEngineConnection object
-        // can be used for both connection types
+    public static boolean testEngineParameters(String url, String userid, String password) {
         YEngineConnection tempConn = new YEngineConnection(url);
+        tempConn.setUserID(userid);
+        tempConn.setPassword(password);
+        return tempConn.isConnected();
+    }
+
+
+    /**
+     * Checks whether a valid connection can be made with the parameters passed.
+     * @param url the connection's URL
+     * @param userid the userid
+     * @param password the password
+     * @return true if the parameters can be used to create a valid connection
+     */
+    public static boolean testResourceServiceParameters(String url, String userid,
+                                                        String password) {
+        YResourceConnection tempConn = new YResourceConnection(url);
         tempConn.setUserID(userid);
         tempConn.setPassword(password);
         return tempConn.isConnected();
@@ -340,7 +353,5 @@ public class YConnector {
         }
         return null;
     }
-
-
 
 }

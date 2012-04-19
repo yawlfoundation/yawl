@@ -326,11 +326,11 @@ class EngineDetailDialog extends AbstractDoneDialog {
        public void actionPerformed(ActionEvent e) {
            String uriStr = engineURIField.getText();
            if (hasValidURIPath(uriStr)) {
-               if (YConnector.testParameters(
+               if (YConnector.testEngineParameters(
                        uriStr,
                        engineUserField.getText(),
                        new String(enginePasswordField.getPassword())
-                  )) {
+               )) {
                    testMessage.setText("Successfully connected to a running YAWL engine.");
                    testMessage.setForeground(Color.BLACK);
                }
