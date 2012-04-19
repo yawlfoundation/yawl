@@ -160,7 +160,7 @@ public class Rdr {
         if (tree != null) {
             RdrConclusion conc = getConclusion(tree, node.getCornerStone());
             if (conc != null) {
-                RdrNode parent = conc.getOwnerNode();
+                RdrNode parent = conc.getParentNode();
                 if (parent != null) {
                     node.setParent(parent);
                     addedNode = tree.addNode(node, parent, conc.isLastPairEqual());

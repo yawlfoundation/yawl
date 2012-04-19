@@ -490,7 +490,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 hr.ObjectPersisted();
             }
             _server.announceException(cmon.getCaseID(), cmon.getCaseData(),
-                    conc.getOwnerNode(), xType);
+                    conc.getLastTrueNode(), xType);
             processException(hr) ;
         }
         else _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -516,7 +516,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 hr.ObjectPersisted();
             }
             _server.announceException(wir, cmon.getCaseData(),
-                    conc.getOwnerNode(), xType);
+                    conc.getLastTrueNode(), xType);
             processException(hr) ;
         }
         else  _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -1025,8 +1025,12 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir = coi.getChildWorkItem(0);
             }
 
-            _ixClient.cancelWorkItem(wir.getID(), null, false, _sessionHandle);
-            _log.info("WorkItem successfully removed from Engine: " + wir.getID());
+            if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+                _ixClient.cancelWorkItem(wir.getID(), null, false, _sessionHandle);
+                _log.info("WorkItem successfully removed from Engine: " + wir.getID());
+            }
+            else _log.error("Can't remove a workitem with a status of " + wir.getStatus());
+
         }
         catch (IOException ioe) {
             _log.error("Exception attempting to remove workitem: " + wir.getID(), ioe);
@@ -1191,16 +1195,20 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 wir = coi.getChildWorkItem(0);
             }
 
-            String result = _ixClient.cancelWorkItem(wir.getID(), wir.getDataListString(),
-                    true, _sessionHandle);
-            if (successful(result)) {
-                _log.info("WorkItem successfully failed: " + wir.getID());
-                if (result.contains("cancelled")) {
-                    _log.info("Case " + wir.getRootCaseID() +" was unable to continue as " +
+            // ASSUMPTION: Only an 'executing' workitem may be failed
+            if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+                String result = _ixClient.cancelWorkItem(wir.getID(), wir.getDataListString(),
+                        true, _sessionHandle);
+                if (successful(result)) {
+                    _log.info("WorkItem successfully failed: " + wir.getID());
+                    if (result.contains("cancelled")) {
+                        _log.info("Case " + wir.getRootCaseID() +" was unable to continue as " +
                             "a consequence of the workItem force fail, and was also cancelled.");
+                    }
                 }
+                else _log.error(StringUtil.unwrap(result));
             }
-            else _log.error(StringUtil.unwrap(result));
+            else _log.error("Can't fail a workitem with a status of " + wir.getStatus());
         }
         catch (IOException ioe) {
             _log.error("Exception attempting to fail workitem: " + wir.getID(), ioe);

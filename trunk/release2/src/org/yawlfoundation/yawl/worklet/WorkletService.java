@@ -631,7 +631,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         coChild.ObjectPersisted();
                     }
                 }
-                _server.announceSelection(coChild, result.getOwnerNode());
+                _server.announceSelection(coChild, result.getLastTrueNode());
             }
             else _log.warn("Could not launch worklet(s): " + wSelected) ;
         }

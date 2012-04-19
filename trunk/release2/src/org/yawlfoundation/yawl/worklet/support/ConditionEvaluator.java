@@ -147,8 +147,14 @@ public class ConditionEvaluator {
      *  
      *  @return the boolean result of the evaluation
      */
-    public boolean evaluate(String cond, Element dlist)
-                                         throws RdrConditionException {
+    public boolean evaluate(String cond, Element dlist) throws RdrConditionException {
+        if (cond == null) {
+            throw new RdrConditionException("Cannot evaluate tree: condition is null");
+        }
+        if (dlist == null) {
+             throw new RdrConditionException("Cannot evaluate tree: data element is null");
+        }
+
         String result;
         _dataList = dlist ;
 
