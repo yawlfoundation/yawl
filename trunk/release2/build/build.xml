@@ -354,29 +354,29 @@
                      ${commonsCodec} ${commonsLang} README.html"/>
 
     <property name="webapp_smsInvoker.libs"
-              value="${jdom} ${log4j} ${commonsCodec}"/>
+              value="${jdom} ${log4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_digitalSignature.libs"
               value="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
-                     ${commonsFileupload} ${bcmail} ${bcprov}"/>
+                     ${commonsFileupload} ${bcmail} ${bcprov} ${xerces}"/>
 
     <property name="webapp_mailSender.libs"
               value="${jdom} ${log4j} ${mail} ${activation}
-                     ${commonsIO} ${commonsFileupload} ${commonsCodec}"/>
+                     ${commonsIO} ${commonsFileupload} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_monitor.libs"
               value="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
-                     ${commonsLogging} ${commonsCollections} ${commonsCodec}"/>
+                     ${commonsLogging} ${commonsCollections} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_twitter.libs"
-              value="${jdom} ${log4j} ${twitter4j} ${commonsCodec}"/>
+              value="${jdom} ${log4j} ${twitter4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_simplemail.libs"
-              value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec}"/>
+              value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_scheduling.libs"
               value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
-                     ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool}"/>
+                     ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool} ${xerces}"/>
 
     <property name="webapp_test.libs"
               value="${jdom} ${xerces} ${log4j} ${twitter4j}
@@ -387,7 +387,7 @@
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_docStore.libs"
-               value="${persistence.libs} ${dbClient} ${commonsCodec}"/>
+               value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
 
     <property name="webapp_procletService.libs"
                value="${persistence.libs} ${commonsCodec} ${proclet.libs}

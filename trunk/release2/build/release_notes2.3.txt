@@ -1,4 +1,4 @@
-                        YAWL Release 2.3  10/02/2012
+                        YAWL Release 2.3  16/04/2012
                        ==============================
 
 This is the version 2.3 release of the YAWL Environment. It contains a number of
@@ -33,6 +33,10 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [New] Replaced Derby database in YAWL4Study with H2 - smaller, faster and has better
    support for YAWL datatypes.
  * [New] Added eight new system allocators to resource service.
+ * [New] Added new Client and Server classes to the worklet service, so that
+   developers can write services and applications that receive event notifications when
+   selections occur or exceptions are raised, and can add new rules and raise some
+   exceptions externally - see the Technical Manual for more details.
 
  * [Enhancement] Updated Hibernate to v4.0.1
  * [Enhancement] Changed the default button behaviour of dynamic forms so that an 'enter'
@@ -41,9 +45,12 @@ QUICK START: After installation, start Tomcat and point a browser to
  * [Enhancement] Added new error page for resource service.
  * [Enhancement] Changed XES log output to better match XES standard.
  * [Enhancement] Tightened CharsetFilter so that it would operate correctly when using
-   Jetty, instead of Tomcat.
+   Jetty, rather than Tomcat.
+ * [Enhancement] Added new way in the worklet service for developers to add function
+   definitions for use in rule node conditional expressions.
  * [Enhancement] Moved service logon names and passwords to their respective web.xmls
    (rather than having them hard coded).
+ * [Enhancement] Added 'taskid' to the process logs, rather than just task name.
  * [Enhancement] Updated/added some 3rd party jars to newest versions.
 
  * [Bugfix - issue 452]: Changed YEventLogger#getDataTypeID to avoid difficulties with
@@ -60,15 +67,21 @@ QUICK START: After installation, start Tomcat and point a browser to
    completing a case level worklet compensator, updated some demo specs and their rules.
  * [Bugfix] YEngine#skipWorkItem not correctly handling task output-only parameters of
    complex types missing a default value.
- * [Bugfix] redirection to default worklist on enabled task rejection failing.
+ * [Bugfix] Redirection to default worklist on enabled task rejection failing.
+ * [Bugfix] RssFormViewer froze admin web page when browser (Chrome) would not auto-close
+   completed form.
  * [Bugifx] Unable to add a new asset when the db is empty.
  * [Bugfix] Problem saving an asset's subcategory.
+ * [Bugfix] Popup message dialog in web forms had misaligned 'top' value following the
+   display of very long dynamic forms.
  * [Bugfix] When loading a specification with many xor-splits being synchronised by one
    xor-join, and the join has at least one inflow that does not initialise a local
    variable, the generated verification error message included an incorrect path string.
- * [Bugfix] Autotimer tasks added to resource service cache on startup.
+ * [Bugfix] Autotimer tasks were being added to resource service cache on startup.
+ * [Bugfix] Potential bug that could cause indefinite hang on reading a socket connection
+   on tomcat shutdown.
 
- * [Refactor] Throughout the workout service, and many more.
+ * [Refactor] Throughout the resource and worklet services, and many more.
 
 
                          #############################
@@ -76,6 +89,9 @@ QUICK START: After installation, start Tomcat and point a browser to
     Please report any bugs, problems or ideas for enhancements via the YAWL issues page:
 
                      http://code.google.com/p/yawl/issues/list
+
+    Join the YAWL discussion at:
+                     http://yawlfoundation.org/forum
 
 
  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
