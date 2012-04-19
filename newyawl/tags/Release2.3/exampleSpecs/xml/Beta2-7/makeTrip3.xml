@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_Schema.xsd" xmlns="http://www.citi.qut.edu.au/yawl" xmlns:mm="www.citi.qut.edu.au/yawl/exampleSchemas/make_trip_B">
+	<specification uri="MakeTrip3.xml">
+		<name>Book Trip with cancellation</name>
+		<documentation>Lightweight, demonstrative process showing steps for booking a car, a flight, and/or motel stay for each leg
+		of a journey.  Includes the option to cancel the booking process.</documentation>
+		<metaData/>
+		<rootNet id="make_initerary">
+			<localVariable name="customer">
+				<type>xs:string</type>
+				<initialValue>Type name of customer</initialValue>
+			</localVariable>
+			<localVariable name="payment_account_number">
+				<type>xs:string</type>
+			</localVariable>
+			<localVariable name="itinerary">
+				<type>mm:ItineraryType</type>
+			</localVariable>
+			<localVariable name="legs">
+				<type>mm:LegsType</type>
+			</localVariable>
+			<localVariable name="legs_backup">
+				<type>mm:LegsType</type>
+				<initialValue>&lt;leg&gt;&lt;departure_location&gt;brisbane&lt;/departure_location&gt;&lt;destination&gt;sydney&lt;/destination&gt;&lt;/leg&gt;&lt;leg&gt;&lt;departure_location&gt;sydney&lt;/departure_location&gt;&lt;destination&gt;alice springs&lt;/destination&gt;&lt;/leg&gt;</initialValue>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="start_make_itinerary">
+					<flowsInto>
+						<nextElementRef id="register"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="register">
+					<flowsInto>
+						<nextElementRef id="do_itinerary_segment"/>
+					</flowsInto>
+					<flowsInto>
+						<nextElementRef id="ableToCancel"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/payment_account_number"/>
+							<mapsTo>payment_account_number</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/legs"/>
+							<mapsTo>legs</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="register"/>
+				</task>
+				<condition id="ableToCancel">
+					<flowsInto>
+						<nextElementRef id="pay"/>
+					</flowsInto>
+					<flowsInto>
+						<nextElementRef id="cancel"/>
+					</flowsInto>
+				</condition>
+				<task id="cancel">
+					<flowsInto>
+						<nextElementRef id="fin_make_itinerary"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<removesTokens id="register"/>
+					<removesTokens id="ableToCancel"/>
+					<removesTokens id="do_itinerary_segment"/>
+					<removesTokens id="pay"/>
+					<decomposesTo id="cancel"/>
+				</task>
+				<task id="do_itinerary_segment" xsi:type="MultipleInstanceExternalTaskFactsType">
+					<flowsInto>
+						<nextElementRef id="pay"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="do_itinerary_segment"/>
+					<minimum>1</minimum>
+					<maximum>100</maximum>
+					<threshold>100</threshold>
+					<creationMode code="static"/>
+					<miDataInput>
+						<!-- if the user has not filled in mandatory data (the engine does not yet enforce mandatory data) we use the back-up instance data -->
+						<expression query="&lt;legs&gt; {if ( count(/data/legs/*) &gt; 0) then /data/legs/* else /data/legs_backup/* }&lt;/legs&gt;"/>
+						<splittingExpression query=" for $d in /legs/* return $d "/>
+						<formalInputParam>leg</formalInputParam>
+					</miDataInput>
+					<miDataOutput>
+						<formalOutputExpression query="&lt;itinerarySegment&gt;{ /data/leg/departure_location }{ /data/leg/destination }{ /data/start_date }{ /data/end_date }{ if(/data/flightDetails/text()) then /data/flightDetails else ()}{ if(/data/carDetails/text()) then /data/carDetails else() }{ if(/data/hotelDetails/text()) then /data/hotelDetails else() }{ /data/subTotal } &lt;/itinerarySegment&gt;"/>
+						<outputJoiningExpression query="&lt;itinerary&gt; { for $d in /data/itinerarySegment return $d } &lt;/itinerary&gt;"/>
+						<resultAppliedToLocalVariable>itinerary</resultAppliedToLocalVariable>
+					</miDataOutput>
+				</task>
+				<task id="pay">
+					<flowsInto>
+						<nextElementRef id="fin_make_itinerary"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/itinerary"/>
+							<mapsTo>itinerary</mapsTo>
+						</mapping>
+						<mapping>
+							<!-- if the use has not filled in mandatory data I tricked up the XQuery to compensate for this -->
+							<expression query="&lt;total&gt; { if(/data/itinerary/itinerarySegment/subTotal/text()) then sum( /data/itinerary/itinerarySegment/subTotal) else 0 } &lt;/total&gt;"/>
+							<mapsTo>total</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/payment_account_number"/>
+							<mapsTo>payment_account_number</mapsTo>
+						</mapping>
+					</startingMappings>
+					<decomposesTo id="pay"/>
+				</task>
+				<outputCondition id="fin_make_itinerary"/>
+			</processControlElements>
+		</rootNet>
+		<decomposition id="do_itinerary_segment" xsi:type="NetFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="leg">
+				<type>mm:LegType</type>
+				<mandatory/>
+			</inputParam>
+			<outputExpression query="&lt;itinerarySegment&gt;{ /data/leg/departure_location }{ /data/leg/destination }{ /data/start_date }{ /data/end_date }{ if(/data/flightDetails/text()) then /data/flightDetails else ()}{ if(/data/carDetails/text()) then /data/carDetails else() }{ if(/data/hotelDetails/text()) then /data/hotelDetails else() }{ /data/subTotal } &lt;/itinerarySegment&gt;"/>
+			<localVariable name="start_date">
+				<type>xs:DateTime</type>
+			</localVariable>
+			<localVariable name="end_date">
+				<type>xs:DateTime</type>
+			</localVariable>
+			<localVariable name="want_flight">
+				<type>xs:boolean</type>
+			</localVariable>
+			<localVariable name="want_hotel">
+				<type>xs:boolean</type>
+			</localVariable>
+			<localVariable name="want_car">
+				<type>xs:boolean</type>
+			</localVariable>
+			<localVariable name="flightDetails">
+				<type>xs:string</type>
+			</localVariable>
+			<localVariable name="hotelDetails">
+				<type>xs:string</type>
+			</localVariable>
+			<localVariable name="carDetails">
+				<type>xs:string</type>
+			</localVariable>
+			<localVariable name="subTotal">
+				<type>xs:decimal</type>
+			</localVariable>
+			<processControlElements>
+				<inputCondition id="start">
+					<name>Start</name>
+					<flowsInto>
+						<nextElementRef id="register_itinerary_segment"/>
+					</flowsInto>
+				</inputCondition>
+				<task id="register_itinerary_segment">
+					<name/>
+					<flowsInto>
+						<nextElementRef id="flight"/>
+						<predicate>/data/want_flight = 'true'</predicate>
+						<isDefaultFlow/>
+					</flowsInto>
+					<flowsInto>
+						<nextElementRef id="hotel"/>
+						<predicate>/data/want_hotel = 'true'</predicate>
+					</flowsInto>
+					<flowsInto>
+						<nextElementRef id="car"/>
+						<predicate>/data/want_car = 'true'</predicate>
+					</flowsInto>
+					<join code="and"/>
+					<split code="or"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/destination"/>
+							<mapsTo>destination</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/departure_location"/>
+							<mapsTo>departure_location</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/start_date"/>
+							<mapsTo>start_date</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/end_date"/>
+							<mapsTo>end_date</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/want_flight"/>
+							<mapsTo>want_flight</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/want_car"/>
+							<mapsTo>want_car</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/want_hotel"/>
+							<mapsTo>want_hotel</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="register_itinerary_segment"/>
+				</task>
+				<task id="flight">
+					<name>Book flight</name>
+					<flowsInto>
+						<nextElementRef id="prepare_payment_information"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/destination"/>
+							<mapsTo>destination</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/departure_location"/>
+							<mapsTo>departure_location</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/start_date"/>
+							<mapsTo>start_date</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/end_date"/>
+							<mapsTo>end_date</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/flightDetails"/>
+							<mapsTo>flightDetails</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="flight"/>
+				</task>
+				<task id="hotel">
+					<name>Book hotel</name>
+					<flowsInto>
+						<nextElementRef id="prepare_payment_information"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/destination"/>
+							<mapsTo>destination</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/departure_location"/>
+							<mapsTo>departure_location</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/start_date"/>
+							<mapsTo>start_date</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/end_date"/>
+							<mapsTo>end_date</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/hotelDetails"/>
+							<mapsTo>hotelDetails</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="hotel"/>
+				</task>
+				<task id="car">
+					<name>Book car</name>
+					<flowsInto>
+						<nextElementRef id="prepare_payment_information"/>
+					</flowsInto>
+					<join code="and"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/destination"/>
+							<mapsTo>destination</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/leg/departure_location"/>
+							<mapsTo>departure_location</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/start_date"/>
+							<mapsTo>start_date</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/end_date"/>
+							<mapsTo>end_date</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/carDetails"/>
+							<mapsTo>carDetails</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="car"/>
+				</task>
+				<task id="prepare_payment_information">
+					<name>Book flight</name>
+					<flowsInto>
+						<nextElementRef id="end"/>
+					</flowsInto>
+					<join code="or"/>
+					<split code="and"/>
+					<startingMappings>
+						<mapping>
+							<expression query="/data/customer"/>
+							<mapsTo>customer</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/carDetails"/>
+							<mapsTo>carDetails</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/hotelDetails"/>
+							<mapsTo>hotelDetails</mapsTo>
+						</mapping>
+						<mapping>
+							<expression query="/data/flightDetails"/>
+							<mapsTo>flightDetails</mapsTo>
+						</mapping>
+					</startingMappings>
+					<completedMappings>
+						<mapping>
+							<expression query="/data/subTotal"/>
+							<mapsTo>subTotal</mapsTo>
+						</mapping>
+					</completedMappings>
+					<decomposesTo id="prepare_payment_information"/>
+				</task>
+				<outputCondition id="end">
+					<name>End</name>
+				</outputCondition>
+			</processControlElements>
+		</decomposition>
+		<decomposition id="register_itinerary_segment" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="destination">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="departure_location">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<outputExpression query="/data/start_date"/>
+			<outputExpression query="/data/end_date"/>
+			<outputExpression query="/data/want_car"/>
+			<outputExpression query="/data/want_flight"/>
+			<outputExpression query="/data/want_hotel"/>
+			<outputParam name="start_date">
+				<type>xs:dateTime</type>
+				<mandatory/>
+			</outputParam>
+			<outputParam name="end_date">
+				<type>xs:dateTime</type>
+				<mandatory/>
+			</outputParam>
+			<outputParam name="want_car">
+				<type>xs:boolean</type>
+			</outputParam>
+			<outputParam name="want_flight">
+				<type>xs:boolean</type>
+			</outputParam>
+			<outputParam name="want_hotel">
+				<type>xs:boolean</type>
+			</outputParam>
+		</decomposition>
+		<decomposition id="flight" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="destination">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="departure_location">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="start_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<inputParam name="end_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<outputExpression query="/data/flightDetails"/>
+			<outputParam name="flightDetails">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="hotel" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="destination">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="departure_location">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="start_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<inputParam name="end_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<outputExpression query="/data/hotelDetails"/>
+			<outputParam name="hotelDetails">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="car" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="destination">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="departure_location">
+				<type>xs:string</type>
+				<mandatory/>
+			</inputParam>
+			<inputParam name="start_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<inputParam name="end_date">
+				<type>xs:dateTime</type>
+			</inputParam>
+			<outputExpression query="/data/carDetails"/>
+			<outputParam name="carDetails">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="pay" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="itinerary">
+				<type>mm:ItineraryType</type>
+			</inputParam>
+			<inputParam name="total">
+				<type>xs:decimal</type>
+			</inputParam>
+			<inputParam name="payment_account_number">
+				<type>xs:string</type>
+			</inputParam>
+		</decomposition>
+		<decomposition id="prepare_payment_information" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="carDetails">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="hotelDetails">
+				<type>xs:string</type>
+			</inputParam>
+			<inputParam name="flightDetails">
+				<type>xs:string</type>
+			</inputParam>
+			<outputExpression query="/data/subTotal"/>
+			<outputParam name="subTotal">
+				<type>xs:decimal</type>
+			</outputParam>
+		</decomposition>
+		<decomposition id="register" xsi:type="WebServiceGatewayFactsType">
+			<inputParam name="customer">
+				<type>xs:string</type>
+			</inputParam>
+			<outputExpression query="/data/customer"/>
+			<outputExpression query="/data/payment_account_number"/>
+			<outputExpression query="/data/legs"/>
+			<outputParam name="payment_account_number">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+			<outputParam name="customer">
+				<type>xs:string</type>
+				<mandatory/>
+			</outputParam>
+			<outputParam name="legs">
+				<type>mm:LegType</type>
+				<mandatory/>
+			</outputParam>
+		</decomposition>
+		<decomposition id="cancel" xsi:type="WebServiceGatewayFactsType"/>
+	</specification>
+</specificationSet>
