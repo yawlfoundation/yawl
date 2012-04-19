@@ -1,0 +1,36 @@
+<!-- $Id$ -->
+<project name="YAWL Installer" default="create_standard_installer" basedir="./..">
+
+	<!-- Installation targets-->
+
+	<target name="izInit">
+		<taskdef name="izpack" classname="com.izforge.izpack.ant.IzPackTask">
+			<classpath>
+				<pathelement location="${basedir}/build/Installer/libs/lib/compiler.jar"/>
+			</classpath>
+		</taskdef>
+	</target>
+
+
+	<target name="create_standard_installer" depends="izInit">
+		<izpack input="${basedir}/build/Installer/YAWL-installer.xml"
+    			output="${basedir}/build/Installer/installer.jar"
+    			installerType="standard" basedir="${basedir}/build/Installer"
+    			izPackDir="${basedir}/build/Installer/libs"/>
+	</target>
+
+	<target name="create_web_installer" depends="izInit">
+		<unzip src="${basedir}/output/yawl.war" dest="${basedir}/build/installer/yawl"/>
+		<unzip src="${basedir}/output/worklist.war" dest="${basedir}/build/installer/worklist"/>
+		<izpack input="${basedir}/build/installer/YAWL-installer.xml"
+    			output="${basedir}/build/installer/installer.jar"
+    			installerType="web" basedir="${basedir}/build/installer"
+    			izPackDir="${basedir}/build/installer/libs"/>
+	</target>
+
+
+        <!--target name="release" depends="create_standard_installer">
+           <CBRelease file="${basedir}/build/Installer/installer.jar" />
+        </target-->
+
+</project>

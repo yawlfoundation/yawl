@@ -1,0 +1,46 @@
+<%@ page import="au.edu.qut.yawl.wsif.WebServiceController,
+                 au.edu.qut.yawl.wsif.AuthenticationConfig"
+%><html>
+	<head>
+		<title>Confirming Authentication Details</title>
+	</head>
+	<body>
+		<H3>Confirming Authentication Details</H3>
+		<p>The system reports the following authentication details.</p>
+        <%
+            WebServiceController _controller = (WebServiceController)
+                    application.getAttribute("controller");
+            AuthenticationConfig authConfig = _controller.getAuthenticationConfig();
+            String userName = authConfig.getUserName() != null ? authConfig.getUserName() : "";
+            String password = authConfig.getPassword() != null ? authConfig.getPassword() : "";
+            String proxyHost = authConfig.getProxyHost() != null?authConfig.getProxyHost(): "";
+            String proxyPort = authConfig.getProxyPort() != null?authConfig.getProxyPort(): "";
+        %>
+		<table>
+            <tr>
+                <td align="left">User Name : </td>
+                <td height="30" align="center">
+                    <%= userName %>
+                </td>
+            </tr>
+            <tr>
+                <td align="left">Password : </td>
+                <td height="30" align="center">
+                    <%= password %>
+                </td>
+            </tr>
+            <tr>
+                <td align="left">Proxy Host : </td>
+                <td height="30" align="center">
+                    <%= proxyHost %>
+                </td>
+            </tr>
+            <tr>
+                <td align="left">Proxy Port : </td>
+                <td height="30" align="center">
+                    <%= proxyPort %>
+                </td>
+            </tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,25 @@
+Please follow the following steps to set-up the SCHEDULING database user.
+
+
+1. 	Download the Oracle 11.2.x database software for the target platform from www.oracle.com 
+2. 	Install the Oracle database software. 
+	Standard Edition is sufficient, we don't need an Enterprise Edition.
+3. 	Create a listener using the Net Configuration Assistant (by default the listener listens to  port 1521, that's OK)
+4. 	Create a database using the single byte character set WE8MSWIN1252
+5. 	In the script "tablespace.sql" modify the name of the tablespace according to your requirements. Also, 
+	ensure the correct directory of the datafile is specified.
+6.	In the script "table.sql" change the name of the tablespace to the one you have specified in step #4. Be sure to 
+	do this for each table definition.	
+7.	In the script "user.sql" specify the password for user SCHEDULING.
+8. 	Run the following scripts in the specified order by connecting to the database using the account given in 
+	the "user" column of the following table.	
+							
+	#	script				run as user		comment
+	-------------------------------------------------------------------
+	1	tablespace.sql		SYS				creates a tablespace
+	2	user.sql			SYS				creates the user SCHEDULING	
+	3	type.sql			SCHEDULING		creates object types
+	4	table.sql			SCHEDULING		creates all tables
+	5	constraint.sql		SCHEDULING		adds constraints to tables
+	6	package.sql			SCHEDULING		creates stored procedures
+ 
