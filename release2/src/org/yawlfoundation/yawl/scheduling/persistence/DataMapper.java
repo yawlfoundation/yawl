@@ -291,9 +291,9 @@ public class DataMapper {
 	 * @return
 	 */
 	public void updateRup(String caseId, boolean active) {
-        Case caseWithRup = (Case) _db.getObjectsForClassWhere("Case",
-                "caseId='" + caseId + "'");
-        if (caseWithRup != null) {
+        List caseList = _db.getObjectsForClassWhere("Case", "caseId='" + caseId + "'");
+        if (caseList != null && (! caseList.isEmpty())) {
+            Case caseWithRup = (Case) caseList.get(0);
             caseWithRup.setActive(active);
             _db.exec(caseWithRup, HibernateEngine.DB_UPDATE, true);
         }

@@ -163,8 +163,20 @@ public class RdrConclusion {
         return _pair != null && _pair[0] == _pair[1];
     }
 
-    public RdrNode getOwnerNode() {
+    public RdrNode getParentNode() {
+        if (_pair != null) {
+            return isLastPairEqual() ? getLastTrueNode() : getLastSearchedNode();
+        }
+        return null;
+    }
+
+    public RdrNode getLastTrueNode() {
         return (_pair != null) ? _pair[0] : null;
     }
+
+    public RdrNode getLastSearchedNode() {
+        return (_pair != null) ? _pair[1] : null;
+    }
+
 
 }
