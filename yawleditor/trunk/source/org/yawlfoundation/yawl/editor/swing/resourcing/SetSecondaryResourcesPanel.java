@@ -227,7 +227,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setUserList(getUserList());
+            setUserList(YConnector.getResourcingParticipants());
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -311,7 +311,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setRoleList(getRoleList());
+            setRoleList(YConnector.getResourcingRoles());
         }
 
         protected ResourceMapping getResourceMapping() {

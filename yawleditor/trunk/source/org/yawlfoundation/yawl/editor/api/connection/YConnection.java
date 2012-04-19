@@ -136,7 +136,7 @@ public abstract class YConnection {
      * @param client the client object to check and/or connect
      * @return true if the connection is currently established
      */
-    protected boolean isConnected(Interface_Client client) {
+    public boolean isConnected(Interface_Client client) {
         try {
             checkParameters(client);
             if (_handle == null) {

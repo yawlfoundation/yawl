@@ -38,7 +38,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 public class SetResourcingServiceAction extends YAWLBaseAction {
@@ -124,7 +123,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
          );
 
          YConnector.setResourceUserID(resourcingServiceUserField.getText());
-         YConnector.setResourcePassword(Arrays.toString(resourcingServicePasswordField.getPassword()));
+         YConnector.setResourcePassword(new String(resourcingServicePasswordField.getPassword()));
          YConnector.setResourceURL(resourcingServiceURIField.getText());
          YAWLEditor.setStatusMode("resource", YConnector.isResourceConnected());
 
@@ -321,11 +320,11 @@ class ResourceServiceDialog extends AbstractDoneDialog {
           public void actionPerformed(ActionEvent e) {
               String uriStr = resourcingServiceURIField.getText();
               if (hasValidURIPath(uriStr)) {
-                  if (YConnector.testParameters(
+                  if (YConnector.testResourceServiceParameters(
                           uriStr,
                           resourcingServiceUserField.getText(),
-                          Arrays.toString(resourcingServicePasswordField.getPassword())
-                      )) {
+                          new String(resourcingServicePasswordField.getPassword())
+                  )) {
                       testMessage.setText("Successfully connected to a running resource service.");
                       testMessage.setForeground(Color.BLACK);
                   }
