@@ -63,7 +63,7 @@ public class YEditorSpecification {
 
     public YNet createSubNet(String netName) {
         YNet net = createNet(netName);
-        _specification.setDecomposition(net);
+        _specification.addDecomposition(net);
         return net;
     }
 

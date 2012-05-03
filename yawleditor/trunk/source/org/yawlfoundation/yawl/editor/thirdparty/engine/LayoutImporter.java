@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.GraphCell;
 import org.yawlfoundation.yawl.editor.elements.model.*;

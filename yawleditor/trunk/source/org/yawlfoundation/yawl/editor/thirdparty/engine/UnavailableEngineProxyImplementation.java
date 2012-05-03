@@ -89,6 +89,10 @@ public class UnavailableEngineProxyImplementation implements
   public String createSchemaForVariable(String variableName, String dataType) {
     return "";
   }
+
+    public boolean isDefinedTypeName(String name) {
+        return false;
+    }
   
   public int getDataTypeComplexity(String dataType) {
     return UNRECOGNISED_DATA_TYPE_COMPLEXITY;

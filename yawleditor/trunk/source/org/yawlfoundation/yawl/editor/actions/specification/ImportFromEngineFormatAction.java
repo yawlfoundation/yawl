@@ -31,7 +31,7 @@ import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class ImportFromEngineFormatAction extends YAWLNoOpenSpecificationAction implements TooltipTogglingWidget {
+public class ImportFromEngineFormatAction extends YAWLSpecificationAction implements TooltipTogglingWidget {
 
   /**
    * 

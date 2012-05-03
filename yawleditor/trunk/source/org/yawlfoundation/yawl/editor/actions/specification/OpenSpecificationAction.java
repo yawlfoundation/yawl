@@ -31,7 +31,7 @@ import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class OpenSpecificationAction extends YAWLNoOpenSpecificationAction implements TooltipTogglingWidget {
+public class OpenSpecificationAction extends YAWLSpecificationAction implements TooltipTogglingWidget {
 
   /**
    * 
@@ -57,6 +57,6 @@ public class OpenSpecificationAction extends YAWLNoOpenSpecificationAction imple
   
   public String getDisabledTooltipText() {
     return " You must have no specification" + 
-           " open to in order to open another ";
+           " open in order to open another ";
   }
 }

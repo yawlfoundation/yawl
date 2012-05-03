@@ -1,20 +1,20 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import org.xml.sax.XMLReader;
+import org.jdom2.input.SAXBuilder;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.InputSource;
-import org.xml.sax.helpers.XMLReaderFactory;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.jdom.input.SAXBuilder;
+import org.xml.sax.helpers.XMLReaderFactory;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 
-import java.io.StringReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
+import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 
 /**
@@ -137,7 +137,9 @@ public class InstanceSchemaValidator extends DefaultHandler {
     }
 
     
-    public String validateUserSuppliedDataTypeInstance(String variableName, String userSuppliedType, String complexTypeInstance) {
+    public String validateUserSuppliedDataTypeInstance(String variableName,
+                                                       String userSuppliedType,
+                                                       String complexTypeInstance) {
       String result ;
       String schema = YAWLEngineProxy.getInstance().createSchemaForVariable(
           variableName, userSuppliedType
@@ -170,7 +172,7 @@ public class InstanceSchemaValidator extends DefaultHandler {
 
 
     private String groomLineNumbers(String result) {
-        StringBuffer bufferedResult = new StringBuffer(result);
+        StringBuilder bufferedResult = new StringBuilder(result);
         int pos = bufferedResult.indexOf("[ln: ", 0);
         while (pos != -1) {
             pos = bufferedResult.indexOf("[ln: ", pos);

@@ -373,7 +373,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       
       YNet engineSubNet = 
         generateEngineNet(engineSpec, editorNet);
-      engineSpec.setDecomposition(engineSubNet);
+      engineSpec.addDecomposition(engineSubNet);
 
       editorToEngineNetMap.put(editorNet, engineSubNet);
     }
@@ -732,7 +732,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       engineDecomposition.setYawlService(engineService);
     }
     
-    engineSpec.setDecomposition(engineDecomposition);
+    engineSpec.addDecomposition(engineDecomposition);
     
     return engineDecomposition;
   }
