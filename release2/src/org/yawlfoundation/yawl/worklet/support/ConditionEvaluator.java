@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.worklet.support;
 import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
@@ -301,8 +301,7 @@ public class ConditionEvaluator {
        if ( s.startsWith("+") || s.startsWith("-") ) s = s.substring(1) ;
 
        // look for an operator
-       for (int i=0; i < _AllOps.length; i++)
-             if (s.indexOf(_AllOps[i]) > 0 ) return true ;
+        for (String _AllOp : _AllOps) if (s.indexOf(_AllOp) > 0) return true;
 
        return false ;	//no ops found
     }
@@ -340,6 +339,10 @@ public class ConditionEvaluator {
         return Character.isDigit(c) || (c == '.') ;
     }
 
+    private boolean isNumeric(char c) {
+        return isDigitOrDot(c) || (c == '-') || (c == '+');
+    }
+
 
     /** @return true if 'c' is one of 'a'-'z' or 'A'-'Z' or '_' */
     private boolean isLetterOrUScore(char c) {
@@ -356,14 +359,14 @@ public class ConditionEvaluator {
     /** @return true if 'c' is a valid operator character */
     private boolean isOperator(char c) {
          char[] opChar = { '*', '/', '+', '-', '>', '<', '!', '=', '&', '|', '!'} ;
-         for (int i=0; i<opChar.length;i++){
-             if (c == opChar[i]) return true ;
-         }
+        for (char anOpChar : opChar) if (c == anOpChar) return true;
+
          return false ;
        }
 
 
     private boolean isFunctionArgumentDelimiter(String s, int fadPos) {
+        if (fadPos == 0) return false;
         int tmp = fadPos - 1 ;
 
         // find start of token preceding the '('
@@ -680,6 +683,7 @@ public class ConditionEvaluator {
        String subExpr, ans ;
        String[] tokens ;
        int opIndex ;
+       boolean negation = false;
 
        while (s.indexOf('(') > -1) {
 
@@ -693,6 +697,10 @@ public class ConditionEvaluator {
              ans = parseAndEvaluate(deQuote(subExpr)) ;   // recurse
              s = replaceStr(s, subExpr, ans) ;            // insert result
           }
+       }
+       if (s.charAt(0) == '!') {
+           negation = true;
+           s = s.substring(1);
        }
 
        // break expression tokens into a string array
@@ -720,6 +728,9 @@ public class ConditionEvaluator {
        // one token left - can be boolean string or single (boolean) function call
        if (isFunctionCall(tokens[0]))
           tokens[0] = evalFunction(tokens[0]);
+       if (negation) {
+           tokens[0] = tokens[0].equalsIgnoreCase("true") ? "false" : "true";
+       }
 
        return tokens[0] ;                // 'true' or 'false' if all went well!
     }
@@ -921,11 +932,15 @@ public class ConditionEvaluator {
 
     public static void main(String args[]) {
         // unit testing
-        String s = "(22<25) = bval";
+      //  String s = "(Name = JOHN)";
+        String s = "-50 > 20";
         Element e = new Element("testElement");
         e.setAttribute("nval", "17") ;
         e.setAttribute("sval", "\"apples\"") ;
         e.setAttribute("bval", "true") ;
+        Element d = new Element("Age");
+        d.setText("30");
+        e.addContent(d) ;
 
         ConditionEvaluator t = new ConditionEvaluator();
 

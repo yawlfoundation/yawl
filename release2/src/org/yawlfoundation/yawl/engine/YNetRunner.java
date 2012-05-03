@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;

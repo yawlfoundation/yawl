@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.swingWorklist;
 
 import org.apache.log4j.Logger;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YEngine;

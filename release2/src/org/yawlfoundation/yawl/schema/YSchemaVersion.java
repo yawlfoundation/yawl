@@ -43,11 +43,11 @@ public enum YSchemaVersion {
 
     public static YSchemaVersion DEFAULT_VERSION = TwoPointTwo;
 
-    private final String BetaNS = "http://www.citi.qut.edu.au/yawl";
-    private final String BetaSchemaLocation = BetaNS +
+    private final String betaNS = "http://www.citi.qut.edu.au/yawl";
+    private final String betaSchemaLocation = betaNS +
             " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
 
-    private final String TwoNS = "http://www.yawlfoundation.org/yawlschema";
+    private final String twoNS = "http://www.yawlfoundation.org/yawlschema";
 
     private final String headerTemplate =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
@@ -55,7 +55,7 @@ public enum YSchemaVersion {
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
             "xsi:schemaLocation=\"%s\">";
 
-    private final String SchemaPackagePath = "/org/yawlfoundation/yawl/unmarshal/";
+    private final String schemaPackagePath = "/org/yawlfoundation/yawl/unmarshal/";
 
     private final String _name;
     private final double _compareVal;
@@ -87,14 +87,14 @@ public enum YSchemaVersion {
     }
 
 
-    public String betaNS() { return BetaNS; }
+    public String betaNS() { return betaNS; }
 
-    public String betaSchemaLocation() { return BetaSchemaLocation; }
+    public String betaSchemaLocation() { return betaSchemaLocation; }
 
-    public String twoNS() { return TwoNS; }
+    public String twoNS() { return twoNS; }
 
     public String twoSchemaLocation() {
-        return String.format("%s %s/%s", TwoNS, TwoNS, getSchemaFileName());
+        return String.format("%s %s/%s", twoNS, twoNS, getSchemaFileName());
     }
 
 
@@ -134,15 +134,15 @@ public enum YSchemaVersion {
 
 
     public String getNameSpace() {
-        return (isBetaVersion() ? BetaNS : TwoNS);
+        return (isBetaVersion() ? betaNS : twoNS);
     }
 
 
     // generate version-specific header    
     public String getHeader() {
         return isBetaVersion() ?
-                String.format(headerTemplate, Beta7, BetaNS, BetaSchemaLocation) :
-                String.format(headerTemplate, _name, TwoNS, twoSchemaLocation());
+                String.format(headerTemplate, Beta7, betaNS, betaSchemaLocation) :
+                String.format(headerTemplate, _name, twoNS, twoSchemaLocation());
     }
 
 
@@ -162,15 +162,15 @@ public enum YSchemaVersion {
     }
 
 
-    /**********************************************************************/
-
-    private URL getSchemaURL() {
+    public URL getSchemaURL() {
         return getClass().getResource(getAbsoluteSchemaFileName());
     }
 
 
+    /**********************************************************************/
+
     private String getAbsoluteSchemaFileName() {
-        return SchemaPackagePath + getSchemaFileName();
+        return schemaPackagePath + getSchemaFileName();
     }
 
 

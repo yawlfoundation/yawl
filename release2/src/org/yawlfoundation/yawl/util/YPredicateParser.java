@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -184,7 +184,7 @@ public class YPredicateParser {
      * problem evaluating the expression
      */
     protected String evaluateXQuery(String s, Element data) {
-        return  evaluateXQuery(s, new Document((Element) data.clone()));
+        return  evaluateXQuery(s, new Document(data.clone()));
 
     }
 

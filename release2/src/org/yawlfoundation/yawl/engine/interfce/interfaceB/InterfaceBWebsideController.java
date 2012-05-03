@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;

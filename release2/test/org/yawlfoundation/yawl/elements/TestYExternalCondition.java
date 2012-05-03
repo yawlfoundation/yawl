@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.elements;
 
 import junit.framework.TestCase;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YNetData;

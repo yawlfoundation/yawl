@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling.persistence;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.Case;
 import org.yawlfoundation.yawl.scheduling.Mapping;
 import org.yawlfoundation.yawl.scheduling.util.Utils;

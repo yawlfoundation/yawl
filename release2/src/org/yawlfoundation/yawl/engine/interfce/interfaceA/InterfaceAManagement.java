@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;

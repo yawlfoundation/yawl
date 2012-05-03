@@ -4,7 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;

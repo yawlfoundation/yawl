@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;

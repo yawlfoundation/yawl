@@ -18,10 +18,11 @@
 
 package org.yawlfoundation.yawl.schema;
 
-import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class implements the SAX ErrorHandler interface
@@ -36,46 +37,39 @@ import java.util.Vector;
  */
 public class ErrorHandler implements org.xml.sax.ErrorHandler
 {
-    /**
-     * Contains all warnings since the last reset.
-     */
-    private Vector<String> warnings = new Vector<String>();
+    // Contains all warnings since the last reset.
+    private List<String> warnings = new ArrayList<String>();
+
+    // Contains all errors since the last reset.
+    private List<String> errors = new ArrayList<String>();
+
 
     /**
-     * Contains all errors since the last reset.
+     * Clear the messages from any previous run
      */
-    private Vector<String> errors = new Vector<String>();
-
-    /**
-     * Clear the error handler from any previous run
-     */
-    public void reset()
-    {
-        warnings.removeAllElements();
-        errors.removeAllElements();
+    public void reset() {
+        warnings.clear();
+        errors.clear();
     }
 
     /**
      * @return String list of all warnings contained in the parsed document.
      */
-    public Vector<String> getWarnings()
-    {
+    public List<String> getWarnings() {
         return warnings;
     }
 
     /**
      * @return String list of all errors contained in the parsed document.
      */
-    public Vector<String> getErrors()
-    {
+    public List<String> getErrors() {
         return errors;
     }
 
     /**
      * @return true if there were no errors, false otherwise
      */
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return errors.size() == 0;
     }
 
@@ -100,8 +94,7 @@ public class ErrorHandler implements org.xml.sax.ErrorHandler
      *                                  wrapping another exception.
      * @see org.xml.sax.SAXParseException
      */
-    public void warning(SAXParseException e) throws SAXException
-    {
+    public void warning(SAXParseException e) throws SAXException {
         warnings.add("Warning: " + e.getLineNumber() + ":" + e.getColumnNumber() +
                       ": " + e.getMessage());
     }
@@ -131,8 +124,7 @@ public class ErrorHandler implements org.xml.sax.ErrorHandler
      *                                  wrapping another exception.
      * @see org.xml.sax.SAXParseException
      */
-    public void error(SAXParseException e) throws SAXException
-    {
+    public void error(SAXParseException e) throws SAXException {
         errors.add("Error: " + e.getLineNumber() + ":" + e.getColumnNumber() +
                     ": " + e.getMessage());
     }
@@ -165,8 +157,7 @@ public class ErrorHandler implements org.xml.sax.ErrorHandler
      *                                  wrapping another exception.
      * @see org.xml.sax.SAXParseException
      */
-    public void fatalError(SAXParseException e) throws SAXException
-    {
+    public void fatalError(SAXParseException e) throws SAXException {
         errors.add("Fatal Error: " + e.getLineNumber() + ":" + e.getColumnNumber() +
                    ": " + e.getMessage());
         throw e;

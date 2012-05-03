@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -99,11 +99,10 @@ public class DynFormFieldRestriction {
     private List<String> getEnumeratedValues(Element restriction, Namespace ns) {
         List<String> result = null;
         if (restriction != null) {
-            List enumChildren = restriction.getChildren("enumeration", ns);
+            List<Element> enumChildren = restriction.getChildren("enumeration", ns);
             if ((enumChildren != null) && ! enumChildren.isEmpty()) {
                 result = new ArrayList<String>();
-                for (int i = 0; i < enumChildren.size(); i++) {
-                    Element enumChild = (Element) enumChildren.get(i);
+                for (Element enumChild : enumChildren) {
                     result.add(enumChild.getAttributeValue("value"));
                 }
             }

@@ -18,10 +18,10 @@
 
 package org.yawlfoundation.yawl.resourcing.util;
 
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -91,14 +91,49 @@ public class DataSchemaBuilder {
      * @return the constructed schema (as a string)
      */
     public String buildSchema(String rootName, List<YParameter> parameters) {
+        Namespace defNS = getDefaultNamespace();
+
+        // create a new schema doc preamble (down to first sequence element)
+        Element sequence = createPreamble(rootName, defNS);
+
+        // for each param build an appropriate element
+        for (YParameter param : parameters) {
+             sequence.addContent(createParamElement(param,  defNS));
+        }
+
+        return completeSchema(sequence.getDocument());
+    }
+
+
+    /**
+     * Constructs a data schema for a single variable name and data type
+     * @param rootName the name to give to the root element
+     * @param varName the name to give to the data element
+     * @param dataType the datatype for the data element
+     * @return a schema for the datatype that variables of the name supplied can be
+     * validated against
+     */
+    public String buildSchema(String rootName, String varName, String dataType) {
+        Namespace defNS = getDefaultNamespace();
+
+        // create a new schema doc preamble (down to first sequence element)
+        Element sequence = createPreamble(rootName, defNS);
+
+        // build an appropriate element for the data type
+        createDataTypeElement(varName, dataType, defNS);
+
+        return completeSchema(sequence.getDocument());
+    }
+
+
+    private Element createPreamble(String rootName, Namespace defNS) {
 
         // create a new doc with a root element called 'schema'
-        Namespace defNS = getDefaultNamespace();
         Element root = new Element("schema", defNS);
         root.setAttribute("elementFormDefault", "qualified");
-        Document doc = new Document(root);
+//        Document doc = new Document(root);
 
-        // attach an element set to the task's name
+        // attach an element set to the supplied root name
         Element taskElem = new Element("element", defNS);
         taskElem.setAttribute("name", rootName);
         root.addContent(taskElem);
@@ -108,19 +143,19 @@ public class DataSchemaBuilder {
         taskElem.addContent(complex);
         complex.addContent(sequence);
 
-        // for each param build an appropriate element
-        for (YParameter param : parameters) {
-             sequence.addContent(createParamElement(param,  defNS));
-        }
-
-        // declare all the namespaces referred to in the schema to the root element
-        for (Namespace ns : _nsList.values()) {
-            root.addNamespaceDeclaration(ns);
-        }
-        
-        return JDOMUtil.documentToString(doc);
+        return sequence;
     }
 
+
+    private String completeSchema(Document doc) {
+
+        // add all the namespaces referred to in the schema to the root element
+        for (Namespace ns : _nsList.values()) {
+            doc.getRootElement().addNamespaceDeclaration(ns);
+        }
+
+        return JDOMUtil.documentToString(doc);
+    }
 
     /**
      * Constructs a schema element for a parameter
@@ -150,6 +185,22 @@ public class DataSchemaBuilder {
     }
 
 
+    private Element createDataTypeElement(String varName, String dataType, Namespace defNS) {
+        Element element = new Element("element", defNS);
+        element.setAttribute("name", varName);
+
+        // simple types are defined by attribute, user-defined types are defined by
+        // sub elements
+        if (isXSDType(dataType)) {
+            element.setAttribute("type", prefix(dataType, defNS));
+        }
+        else {
+            element = cloneUserDefinedType(element, dataType, defNS);
+        }
+
+        return element;
+    }
+
     /**
      * Constructs a new complex type schema for a parameter
      * @param param the parameter with a user-defined type definition
@@ -167,7 +218,7 @@ public class DataSchemaBuilder {
 
 
     /**
-     * Clones a user-defiend type definition to use within a schema. May be called
+     * Clones a user-defined type definition to use within a schema. May be called
      * recursively.
      * @param base the 'parent' element this type is defined for
      * @param type the user-defined type name
@@ -184,7 +235,7 @@ public class DataSchemaBuilder {
         cloneContent(parent, typeDefn, defNS);
         udType.addContent(parent);
 
-        // set min & max occurs for this elements (if defined)
+        // set min & max occurs for this element (if defined)
         String minOccurs = base.getAttributeValue("minOccurs");
         String maxOccurs = base.getAttributeValue("maxOccurs");
         if (minOccurs != null) udType.setAttribute("minOccurs", minOccurs);
@@ -204,8 +255,7 @@ public class DataSchemaBuilder {
     private Element cloneContent(Element base, Element toCopy, Namespace defNS) {
         Element newChild;
 
-        for (Object o : toCopy.getChildren()) {
-            Element child = (Element) o;
+        for (Element child : toCopy.getChildren()) {
             String type = getTypeNameUnprefixed(child);
             if (type != null) {
 
@@ -224,7 +274,7 @@ public class DataSchemaBuilder {
                 newChild = cloneElement(child, defNS);
             }
 
-            // recurse to process this elements children (til there are no more children)
+            // recurse to process this element's children (til there are no more children)
             cloneContent(newChild, child, defNS);
 
             base.addContent(newChild);
@@ -256,10 +306,8 @@ public class DataSchemaBuilder {
      */
     private List<Attribute> cloneAttributes(Element element, Namespace defNS) {
         String prefix = element.getNamespacePrefix();
-        List attributes = element.getAttributes();
         List<Attribute> cloned = new ArrayList<Attribute>();
-        for (Object o : attributes) {
-            Attribute attribute = (Attribute) o;
+        for (Attribute attribute : element.getAttributes()) {
             String value = getAttributeValue(attribute, prefix, defNS);
             Attribute copy = new Attribute(attribute.getName(), value);
             cloned.add(copy);

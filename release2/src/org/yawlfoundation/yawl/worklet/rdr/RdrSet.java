@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -243,8 +243,7 @@ public class RdrSet {
             Element root = doc.getRootElement();      // spec
 
             // extract the rule nodes for each exception type
-            for (Object o : root.getChildren()) {       // these are exception type tags
-                Element e = (Element) o ;
+            for (Element e : root.getChildren()) {       // these are exception type tags
                 String exName = e.getName();
                 if (exName.equalsIgnoreCase("selection")) {
                     _selectionTrees = getRulesFromElement(e);
@@ -382,8 +381,7 @@ public class RdrSet {
      * @return true if the rules were loaded successfully
      */
     private boolean getConstraintRules(Element e) {
-        for (Object o : e.getChildren()) {
-            Element eCon = (Element) o;
+        for (Element eCon : e.getChildren()) {
             String conName = eCon.getName();
             Element preCase = eCon.getChild("pre");
             Element postCase = eCon.getChild("post");
@@ -409,8 +407,7 @@ public class RdrSet {
      * @return true if the rules were loaded successfully
      */
     private boolean getExternalRules(Element e) {
-        for (Object o : e.getChildren()) {                // 'case' or 'item'
-            Element eChild = (Element) o ;
+        for (Element eChild : e.getChildren()) {                // 'case' or 'item'
             String childName = eChild.getName() ;
 
             if (childName.equalsIgnoreCase("case"))
@@ -430,8 +427,8 @@ public class RdrSet {
      */
     private List<RdrTree> getRulesFromElement(Element e) {
         List<RdrTree> treeList = new ArrayList<RdrTree>() ;
-        for (Object o : e.getChildren()) {
-            treeList.add(buildTree((Element) o)) ;
+        for (Element eChild : e.getChildren()) {
+            treeList.add(buildTree(eChild)) ;
         }
         return treeList ;
     }
@@ -448,10 +445,10 @@ public class RdrSet {
         String taskId = task.getAttributeValue("name");
         RdrTree result = new RdrTree(taskId);      
 
-        List nodeList = task.getChildren();    //the rdr nodes for this task
+        List<Element> nodeList = task.getChildren();    //the rdr nodes for this task
 
         //get the root node (always stored as node 0)
-        Element rootNode = (Element) nodeList.get(0);
+        Element rootNode = nodeList.get(0);
         RdrNode root = buildFromNode(rootNode, nodeList);  // build from root
         result.setRootNode(root);
         return result;
@@ -465,7 +462,7 @@ public class RdrSet {
      *  @param nodeList is the list of all xNodes for a single task
      *  @return the root node of the constructed tree
      */
-    private RdrNode buildFromNode(Element xNode, List nodeList) {
+    private RdrNode buildFromNode(Element xNode, List<Element> nodeList) {
         String childId;
         RdrNode rNode = new RdrNode();
 
@@ -496,11 +493,10 @@ public class RdrSet {
 //===========================================================================//
 
     /** find the node with the id passed in the List of xml nodes */
-    private Element getNodeWithId(String id, List nodeList) {
+    private Element getNodeWithId(String id, List<Element> nodeList) {
 
         // find the node with this id
-        for (Object o : nodeList) {
-            Element eNode = (Element) o;
+        for (Element eNode : nodeList) {
             if (id.equals(eNode.getChildText("id"))) return eNode;
         }
         return null ;

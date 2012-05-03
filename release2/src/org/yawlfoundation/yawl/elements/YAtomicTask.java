@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
@@ -188,7 +188,7 @@ public class YAtomicTask extends YTask {
      * @return the enablement data set; that is, a set of data variables and
      * corresponding values that were populated after evaluating their mapping
      * expressions.
-     * @throws YQueryException if thre's a problem with a query evaluation.
+     * @throws YQueryException if there's a problem with a query evaluation.
      * @throws YDataStateException if there's a problem with the evaluated data.
      * @throws YStateException if there's a problem setting the task state.
      * @deprecated Since 2.0, enablement mappings have no function.
@@ -206,7 +206,7 @@ public class YAtomicTask extends YTask {
             String paramName = parameter.getPreferredName();
             String expression = _dataMappingsForTaskEnablement.get(paramName);
             Element result = performDataExtraction(expression, parameter);
-            enablementData.addContent((Element) result.clone());
+            enablementData.addContent(result.clone());
         }
         return enablementData;
     }

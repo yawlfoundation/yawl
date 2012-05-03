@@ -4,7 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YAtomicTask;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YSpecification;

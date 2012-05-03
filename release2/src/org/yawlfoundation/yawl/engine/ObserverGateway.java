@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;

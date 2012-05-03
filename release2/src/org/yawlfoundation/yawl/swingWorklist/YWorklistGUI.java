@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.swingWorklist;
 
 import org.apache.log4j.Logger;
-import org.jdom.input.JDOMParseException;
+import org.jdom2.input.JDOMParseException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;

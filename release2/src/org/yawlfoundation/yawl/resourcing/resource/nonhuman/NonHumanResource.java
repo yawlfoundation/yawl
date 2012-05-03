@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.resource.nonhuman;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.swingWorklist;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;

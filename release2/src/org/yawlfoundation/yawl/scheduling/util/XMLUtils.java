@@ -20,11 +20,11 @@ package org.yawlfoundation.yawl.scheduling.util;
 
 import org.apache.log4j.Logger;
 import org.custommonkey.xmlunit.Diff;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.xpath.XPath;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.ls.LSInput;
@@ -513,7 +513,7 @@ public class XMLUtils implements Constants
 
 		if (enumerationError != null && enumerationError)
 		{
-			addErrorValue(element, withValidation, "msgUnknownValue", null);
+			addErrorValue(element, withValidation, "msgUnknownValue");
 		}
 	}
 
@@ -783,7 +783,7 @@ public class XMLUtils implements Constants
 				logger.debug("#####  element is NULL  #####");
 			}
 				
-			addErrorValue(element, withValidation, "msgDateError", null);
+			addErrorValue(element, withValidation, "msgDateError");
 			return null;
 		}
 	}
@@ -830,7 +830,7 @@ public class XMLUtils implements Constants
 	{
 		if (element.getText().isEmpty())
 		{
-			addErrorValue(element, withValidation, "msgStringError", null);
+			addErrorValue(element, withValidation, "msgStringError");
 		}
 		return element.getText();
 	}
@@ -853,13 +853,13 @@ public class XMLUtils implements Constants
 		catch (DatatypeConfigurationException e)
 		{
 			logger.error("wrong DatatypeConfiguration", e);
-			addErrorValue(element, withValidation, "msgTechnicalError", null);
+			addErrorValue(element, withValidation, "msgTechnicalError");
 			return null;
 		}
 		catch (Exception e)
 		{
 			// logger.error("'" + element.getName() + "' must be duration", e);
-			addErrorValue(element, withValidation, "msgDurationError", null);
+			addErrorValue(element, withValidation, "msgDurationError");
 			return null;
 		}
 	}
@@ -874,7 +874,7 @@ public class XMLUtils implements Constants
 		catch (Exception e)
 		{
 			// logger.error("'" + element.getName() + "' must be duration", e);
-			addErrorValue(element, withValidation, "msgIntegerError", null);
+			addErrorValue(element, withValidation, "msgIntegerError");
 			return null;
 		}
 	}
@@ -889,7 +889,7 @@ public class XMLUtils implements Constants
 		{
 			// logger.error("'" + element.getName() + "' must be double, " +
 			// e.getMessage());
-			addErrorValue(element, withValidation, "msgDoubleError", null);
+			addErrorValue(element, withValidation, "msgDoubleError");
 			return null;
 		}
 	}
@@ -904,7 +904,7 @@ public class XMLUtils implements Constants
 		{
 			// logger.error("'" + element.getName() + "' must be integer, " +
 			// e.getMessage());
-			addErrorValue(element, withValidation, "msgIntegerError", null);
+			addErrorValue(element, withValidation, "msgIntegerError");
 			// logger.error("-----------element '" + element.getName() + "' = " +
 			// Utils.object2String(element));
 			return null;
@@ -921,7 +921,7 @@ public class XMLUtils implements Constants
 		{
 			// logger.error("'" + element.getName() + "' must be long, " +
 			// e.getMessage());
-			addErrorValue(element, withValidation, "msgIntegerError", null);
+			addErrorValue(element, withValidation, "msgIntegerError");
 			// logger.error("-----------element '" + element.getName() + "' = " +
 			// Utils.object2String(element));
 			return null;
@@ -945,7 +945,7 @@ public class XMLUtils implements Constants
 		}
 		catch (Exception e)
 		{
-			addErrorValue(element, withValidation, "msgBooleanError", null);
+			addErrorValue(element, withValidation, "msgBooleanError");
 			return null;
 		}
 	}
@@ -1087,33 +1087,7 @@ public class XMLUtils implements Constants
 		return (Attribute) getFirstXMLObject(doc, xpath);
 	}
 
-	/**
-	 * sort childs of xml element by name ascending
-	 * 
-	 * @param parent
-	 */
-	public static void sortChilds(Element parent)
-	{
-		List<Element> items = new ArrayList<Element>(parent.getChildren());
 
-		for (Element item : items)
-		{
-			item.detach();
-		}
-
-		Collections.sort(items, new Comparator<Element>()
-		{
-			public int compare(Element e1, Element e2)
-			{
-				// remove parents to avoid org.jdom.IllegalAddException
-				// e1.detach();
-				// e2.detach();
-				return String.CASE_INSENSITIVE_ORDER.compare(e1.getName(), e2.getName());
-			}
-		});
-
-		parent.addContent(items);
-	}
 
 	/**
 	 * set childText on elem's child, if child doesn't exist, it will be created

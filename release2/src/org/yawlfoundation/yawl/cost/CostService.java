@@ -29,7 +29,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
-import org.yawlfoundation.yawl.unmarshal.XMLValidator;
+import org.yawlfoundation.yawl.schema.SchemaHandler;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -104,7 +104,7 @@ public class CostService implements InterfaceX_Service {
     }
 
     public String importModel(String costModel) {
-        return importModel(new XNodeParser(true).parse(costModel));
+        return importModel(new XNodeParser(false).parse(costModel));
     }
 
 
@@ -236,12 +236,11 @@ public class CostService implements InterfaceX_Service {
 
     private boolean isValidModel(XNode costModel) {
         if (costModel == null) return false;
-        URL xsdFile = getClass().getResource("/org/yawlfoundation/yawl/cost/xsd/costmodel.xsd");
-        String errors = new XMLValidator().checkSchema(xsdFile, costModel.toString());
-        if (errors.length() > 0) {
-            _log.error(errors);
-        }
-        return errors.length() == 0;
+        URL schema = getClass().getResource("/org/yawlfoundation/yawl/cost/xsd/costmodel.xsd");
+        SchemaHandler validator = new SchemaHandler(schema);
+        boolean valid = validator.compileAndValidate(costModel.toString());
+        if (! valid) _log.error(validator.getConcatenatedMessage());
+        return valid;
     }
     
     

@@ -22,7 +22,7 @@ import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
 import com.sun.rave.web.ui.component.Script;
 import com.sun.rave.web.ui.component.PanelLayout;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;

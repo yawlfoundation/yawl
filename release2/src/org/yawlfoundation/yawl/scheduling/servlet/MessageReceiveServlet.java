@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.scheduling.servlet;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.scheduling.*;
 import org.yawlfoundation.yawl.scheduling.timer.JobTimer;

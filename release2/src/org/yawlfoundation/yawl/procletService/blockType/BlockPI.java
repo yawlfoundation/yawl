@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.procletService.blockType;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.SingleInstanceClass;
 import org.yawlfoundation.yawl.procletService.connect.Trigger;

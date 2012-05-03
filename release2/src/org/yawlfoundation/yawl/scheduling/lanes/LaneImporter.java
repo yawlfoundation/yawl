@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.scheduling.lanes;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;

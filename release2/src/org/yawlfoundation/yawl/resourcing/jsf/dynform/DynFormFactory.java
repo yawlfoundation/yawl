@@ -34,7 +34,7 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.FontUtil;
@@ -219,7 +219,7 @@ public class DynFormFactory extends AbstractSessionBean {
         try {
             String schema = getSchema();
             if (schema != null) {
-                String data = getInstanceData(schema) ;
+                String data = getInstanceData();
                 _userAttributes = getUserAttributes();
                 _fieldAssembler = new DynFormFieldAssembler(schema, data, getParamInfo());
                 setFormFonts();
@@ -245,12 +245,9 @@ public class DynFormFactory extends AbstractSessionBean {
 
 
     /** @return the instance data for the currently displayed case/workitem */
-    private String getInstanceData(String schema) {
-        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            return _sb.getInstanceData(schema) ;
-        else {
-            return getWorkItemData();
-        }
+    private String getInstanceData() {
+        return (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) ?
+            null : getWorkItemData();
     }
 
 

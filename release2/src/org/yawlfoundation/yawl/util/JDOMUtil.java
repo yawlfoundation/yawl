@@ -19,13 +19,16 @@
 package org.yawlfoundation.yawl.util;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-import org.jdom.xpath.XPath;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaderSAX2Factory;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.File;
@@ -35,7 +38,7 @@ import java.io.StringReader;
 
 
 /**
- * Some static utility methods for coverting JDOM Documents and Elements
+ * Some static utility methods for converting JDOM Documents and Elements
  * to Strings and files & vice versa.
  *
  *  @author Michael Adams
@@ -47,7 +50,8 @@ import java.io.StringReader;
 public class JDOMUtil {
 
     private static Logger _log = Logger.getLogger(JDOMUtil.class);
-    private static SAXBuilder _builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+    private static SAXBuilder _builder = new SAXBuilder(
+            new XMLReaderSAX2Factory(false, "org.apache.xerces.parsers.SAXParser"));
 
 
     /****************************************************************************/
@@ -169,13 +173,9 @@ public class JDOMUtil {
     /****************************************************************************/
 
     public static Element selectElement(Document doc, String path) {
-        try {
-            XPath xPath = XPath.newInstance(path);
-            return (Element) xPath.selectSingleNode(doc);
-        }
-        catch (JDOMException jde) {
-            return null;
-        }
+        XPathExpression<Element> expression =
+                XPathFactory.instance().compile(path, new ElementFilter());
+        return expression.evaluateFirst(doc);
     }
 
 
@@ -205,8 +205,8 @@ public class JDOMUtil {
 
     public static Element stripAttributes(Element e) {
         e.setAttributes(null);
-        for (Object o: e.getChildren()) {
-            stripAttributes((Element) o);      // recurse
+        for (Element child: e.getChildren()) {
+            stripAttributes(child);      // recurse
         }
         return e;
     }

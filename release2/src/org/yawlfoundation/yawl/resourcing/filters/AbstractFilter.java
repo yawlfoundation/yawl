@@ -18,13 +18,12 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
 import java.util.HashMap;
 import java.util.Set;
-
-import org.jdom.Element;
 
 /**
  * The base class for all filters.

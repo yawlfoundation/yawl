@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.codelets;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -119,8 +119,7 @@ public abstract class AbstractCodelet {
      */
     protected void setParameterValue(String varName, String value) {
         if (_outData == null) _outData = new Element("codelet_output");
-        Element content =
-              (Element) JDOMUtil.stringToElement(StringUtil.wrap(value, varName)).clone();
+        Element content = JDOMUtil.stringToElement(StringUtil.wrap(value, varName)).clone();
         _outData.removeChild(varName);
         _outData.addContent(content);
     }

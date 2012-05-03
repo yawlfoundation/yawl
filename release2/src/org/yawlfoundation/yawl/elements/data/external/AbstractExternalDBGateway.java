@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.elements.data.external;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;

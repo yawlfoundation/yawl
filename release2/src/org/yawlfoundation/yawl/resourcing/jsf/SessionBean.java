@@ -944,21 +944,10 @@ public class SessionBean extends AbstractSessionBean {
         return _rm.getCaseInputParams(getLoadedSpecListChoice());
     }
 
-    public String getInstanceData(String schema) {
-        return _rm.getInstanceData(schema, getLoadedSpecListChoice()) ;
-    }
-
 
     public String getTaskSchema(WorkItemRecord wir) {
         YSpecificationID specID = new YSpecificationID(wir);
         return _rm.getDataSchema(wir, specID) ;
-    }
-
-    public String getInstanceData(String schema, WorkItemRecord wir) {
-        if (wir.getUpdatedData() != null)
-            return JDOMUtil.elementToStringDump(wir.getUpdatedData());
-        else
-            return _rm.getInstanceData(schema, wir) ;
     }
 
 
@@ -2083,7 +2072,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
-    private long delaySeconds = 0;
+    private long delaySeconds = -1;
     private Date delayDate = null;
     private Duration delayDuration = null;
 

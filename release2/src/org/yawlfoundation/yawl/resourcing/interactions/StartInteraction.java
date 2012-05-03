@@ -18,9 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 /**
  *  This class describes the requirements of a task at the start phase of

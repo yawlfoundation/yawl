@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
@@ -187,9 +187,8 @@ public class DataBackupEngine {
         if (capElem != null) {
             if (orgDataSet.isDataEditable("Capability")) {
                 int added = 0;
-                List children = capElem.getChildren();
-                for (Object o : children) {
-                    Element cap = (Element) o;
+                List<Element> capList = capElem.getChildren();
+                for (Element cap : capList) {
                     String id = cap.getAttributeValue("id");
                     Capability c = orgDataSet.getCapability(id);
                     if ((c == null) && (! orgDataSet.isKnownCapabilityName(cap.getChildText("name")))) {
@@ -199,7 +198,7 @@ public class DataBackupEngine {
                         added++;
                     }
                 }
-                result = String.format("Capabilities: %d/%d imported.", added, children.size());
+                result = String.format("Capabilities: %d/%d imported.", added, capList.size());
             }
             else {
                 result = "Capabilities: could not import, external dataset is read-only.";
@@ -214,9 +213,8 @@ public class DataBackupEngine {
         if (nhcElem != null) {
             if (orgDataSet.isDataEditable("NonHumanCategory")) {
                 int added = 0;
-                List children = nhcElem.getChildren();
-                for (Object o : children) {
-                    Element nhc = (Element) o;
+                List<Element> children = nhcElem.getChildren();
+                for (Element nhc : children) {
                     String id = nhc.getAttributeValue("id");
                     String name = nhc.getChildText("name");
                     NonHumanCategory c = orgDataSet.getNonHumanCategory(id);
@@ -225,8 +223,8 @@ public class DataBackupEngine {
                         c.setID(id);
                         c.setDescription(nhc.getChildText("description"));
                         c.setNotes(nhc.getChildText("notes"));
-                        for (Object ob : nhc.getChild("subcategories").getChildren()) {
-                            String subcat = ((Element) ob).getText();
+                        for (Element eSubCat : nhc.getChild("subcategories").getChildren()) {
+                            String subcat = eSubCat.getText();
                             if (! StringUtil.isNullOrEmpty(subcat)) {
                                 c.addSubCategory(subcat);
                             }
@@ -250,9 +248,8 @@ public class DataBackupEngine {
         if (nhrElem != null) {
             if (orgDataSet.isDataEditable("NonHumanResource")) {
                 int added = 0;
-                List children = nhrElem.getChildren();
-                for (Object o : children) {
-                    Element nhr = (Element) o;
+                List<Element> children = nhrElem.getChildren();
+                for (Element nhr : children) {
                     String id = nhr.getAttributeValue("id");
                     NonHumanResource r = orgDataSet.getNonHumanResource(id);
                     if ((r == null) && (! orgDataSet.isKnownNonHumanResourceName(
@@ -287,9 +284,8 @@ public class DataBackupEngine {
             if (orgDataSet.isDataEditable("Role")) {
                 Hashtable<String, Role> cyclics = new Hashtable<String, Role>();
                 int added = 0;
-                List children = roleElem.getChildren();
-                for (Object o : children) {
-                    Element role = (Element) o;
+                List<Element> children = roleElem.getChildren();
+                for (Element role : children) {
                     String id = role.getAttributeValue("id");
                     Role r = orgDataSet.getRole(id);
                     if ((r == null) && (! orgDataSet.isKnownRoleName(role.getChildText("name")))) {
@@ -326,9 +322,8 @@ public class DataBackupEngine {
             if (orgDataSet.isDataEditable("OrgGroup")) {
                 Hashtable<String, OrgGroup> cyclics = new Hashtable<String, OrgGroup>();
                 int added = 0;
-                List children = ogElem.getChildren();
-                for (Object o : children) {
-                    Element group = (Element) o;
+                List<Element> children = ogElem.getChildren();
+                for (Element group : children) {
                     String id = group.getAttributeValue("id");
                     OrgGroup og = orgDataSet.getOrgGroup(id);
                     if ((og == null) && (! orgDataSet.isKnownOrgGroupName(group.getChildText("groupName")))) {
@@ -365,9 +360,8 @@ public class DataBackupEngine {
             if (orgDataSet.isDataEditable("OrgGroup")) {
                 Hashtable<String, Position> cyclics = new Hashtable<String, Position>();
                 int added = 0;
-                List children = posElem.getChildren();
-                for (Object o : children) {
-                    Element pos = (Element) o;
+                List<Element> children = posElem.getChildren();
+                for (Element pos : children) {
                     String id = pos.getAttributeValue("id");
                     Position p = orgDataSet.getPosition(id);
                     if ((p == null) && (! orgDataSet.isKnownPositionName(pos.getChildText("title")))) {
@@ -408,9 +402,8 @@ public class DataBackupEngine {
         int added = 0;
         if (pElem != null) {
             if (orgDataSet.isDataEditable("Participant")) {
-                List children = pElem.getChildren();
-                for (Object o : children) {
-                    Element part = (Element) o;
+                List<Element> children = pElem.getChildren();
+                for (Element part : children) {
                     String id = part.getAttributeValue("id");
                     Participant p = orgDataSet.getParticipant(id);
                     if ((p == null) && (! _rm.isKnownUserID(part.getChildText("userid")))) {
@@ -440,9 +433,8 @@ public class DataBackupEngine {
     private void addParticipantToResourceGroup(Participant p, Element e, String resGroup) {
         Element groupElem = e.getChild(resGroup);
         if (groupElem != null) {
-            List list = groupElem.getChildren();
-            for (Object o : list) {
-                String id = ((Element) o).getText();
+            for (Element eID : groupElem.getChildren()) {
+                String id = eID.getText();
                 try {
                     if (resGroup.equals("roles"))
                         p.addRole(id);

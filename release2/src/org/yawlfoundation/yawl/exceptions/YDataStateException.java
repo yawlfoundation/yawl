@@ -18,10 +18,11 @@
 
 package org.yawlfoundation.yawl.exceptions;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.StringReader;
 
@@ -103,25 +104,25 @@ public class YDataStateException extends YAWLException {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toXMLGuts());
         if (null != _queryString) {
-            sb.append("<" + QUERYSTRING_NM + ">" + _queryString + "</" + QUERYSTRING_NM + ">");
+            sb.append(StringUtil.wrap(_queryString, QUERYSTRING_NM));
         }
         if (null != _queriedData) {
-            sb.append("<" + QUERIEDDATA_NM + ">" + _machineout.outputString(_queriedData) + "</" + QUERIEDDATA_NM + ">");
+            sb.append(StringUtil.wrap(_machineout.outputString(_queriedData), QUERIEDDATA_NM));
         }
         if (null != _schema) {
-            sb.append("<" + SCHEMA_NM + ">" + _machineout.outputString(_schema) + "</" + SCHEMA_NM + ">");
+            sb.append(StringUtil.wrap(_machineout.outputString(_schema), SCHEMA_NM));
         }
         if (null != _dataInput) {
-            sb.append("<" + DATAINPUT_NM + ">" + _machineout.outputString(_dataInput) + "</" + DATAINPUT_NM + ">");
+            sb.append(StringUtil.wrap(_machineout.outputString(_dataInput), DATAINPUT_NM));
         }
         if (null != _xercesErrors) {
-            sb.append("<" + XERCESERRORS_NM + ">" + _xercesErrors + "</" + XERCESERRORS_NM + ">");
+            sb.append(StringUtil.wrap(_xercesErrors, XERCESERRORS_NM));
         }
         if (null != _source) {
-            sb.append("<" + SOURCE_NM + ">" + _source + "</" + SOURCE_NM + ">");
+            sb.append(StringUtil.wrap(_source, SOURCE_NM));
         }
         if (null != _message) {
-            sb.append("<" + MESSAGE_NM + ">" + _message + "</" + MESSAGE_NM + ">");
+            sb.append(StringUtil.wrap(_message, MESSAGE_NM));
         }
         return sb.toString();
     }

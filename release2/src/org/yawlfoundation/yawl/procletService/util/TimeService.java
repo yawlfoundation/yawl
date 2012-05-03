@@ -31,7 +31,7 @@ import org.yawlfoundation.yawl.engine.interfce.AuthenticationConfig;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.text.DateFormat;
 import java.util.*;

@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.worklet;
 
 import org.apache.log4j.Logger;
-import org.jdom.*;
+import org.jdom2.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -1024,12 +1024,12 @@ public class WorkletService extends InterfaceBWebsideController {
 
     protected String getWorkletFileName(String workletName) {
 
-        // try xml first
-        String result = String.format("%s%s%s", _workletsDir, workletName, ".xml");
+        // try yawl first
+        String result = String.format("%s%s%s", _workletsDir, workletName, ".yawl");
         if (Library.fileExists(result)) return result;
 
-        // no good? try yawl next
-        result = String.format("%s%s%s", _workletsDir, workletName, ".yawl");
+        // no good? try xml next
+        result = String.format("%s%s%s", _workletsDir, workletName, ".xml");
         if (Library.fileExists(result)) return result;
 
         return null;
@@ -1281,11 +1281,10 @@ public class WorkletService extends InterfaceBWebsideController {
    protected Element updateDataList(Element in, Element out) {
 
         // get a copy of the 'in' list   	
-        Element result = (Element) in.clone() ;
+        Element result = in.clone() ;
 
         // for each child in 'out' list, get its value and copy to 'in' list
-        for (Object o : out.getChildren()) {
-            Element e = (Element) o;
+        for (Element e : out.getChildren()) {
 
             // if there's a matching 'in' data item, update its value
             Element resData = result.getChild(e.getName());
@@ -1336,7 +1335,7 @@ public class WorkletService extends InterfaceBWebsideController {
            try {
                   // if matching element, copy it and add to worklet datalist
                if (wlElem != null) {
-                   Element copy = (Element) wlElem.clone() ;
+                   Element copy = wlElem.clone() ;
                    wlData.addContent(copy) ;
                }
 

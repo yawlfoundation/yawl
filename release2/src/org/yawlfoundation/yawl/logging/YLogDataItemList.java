@@ -18,11 +18,10 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Author: Michael Adams
@@ -63,13 +62,10 @@ public class YLogDataItemList extends ArrayList<YLogDataItem> {
     public void fromXML(String xml) {
         Element e = JDOMUtil.stringToElement(xml);
         if (e != null) {
-            List children = e.getChildren();
-            for (Object child : children) {
-               this.add(new YLogDataItem((Element) child));
+            for (Element child : e.getChildren()) {
+               this.add(new YLogDataItem(child));
             }
         }    
     }
-
-
 
 }

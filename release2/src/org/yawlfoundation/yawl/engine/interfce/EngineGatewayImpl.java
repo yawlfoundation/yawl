@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.authentication.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -1484,7 +1484,7 @@ public class EngineGatewayImpl implements EngineGateway {
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         // if the case id is of a sub-net, get the sub-net's data instead
-        if (caseID.indexOf(".") > -1) {
+        if (caseID.contains(".")) {
             try {
                 return _engine.getNetData(caseID);
             }

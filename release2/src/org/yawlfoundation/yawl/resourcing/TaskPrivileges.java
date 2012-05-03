@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.XNode;
@@ -416,13 +416,12 @@ public class TaskPrivileges {
      */
     public void parse(Element e, Namespace nsYawl) {
         if (e != null) {
-            List ePrivileges = e.getChildren("privilege", nsYawl);
+            List<Element> ePrivileges = e.getChildren("privilege", nsYawl);
 
             // if no privileges element to deal with, we're done
             if (ePrivileges == null) return;
 
-            for (Object o : ePrivileges) {
-                Element ePrivilege = (Element) o;
+            for (Element ePrivilege : ePrivileges) {
 
                 // get the privilege set we're referring to
                 String privName = ePrivilege.getChildText("name", nsYawl);
@@ -437,9 +436,7 @@ public class TaskPrivileges {
                 }
 
                 // get the set of participant and/or role tags for this privilege
-                List eSet = ePrivilege.getChildren();
-                for (Object obj : eSet) {
-                    Element eResource = (Element) obj;
+                for (Element eResource : ePrivilege.getChildren()) {
 
                     // if it's a 'role' child, unpack it to a set of participants ...
                     if (eResource.getName().equals("role")) {

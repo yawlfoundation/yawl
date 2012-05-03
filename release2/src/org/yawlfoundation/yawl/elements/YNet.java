@@ -18,10 +18,10 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
@@ -34,7 +34,10 @@ import org.yawlfoundation.yawl.elements.state.YSetOfMarkings;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.util.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
 
@@ -554,13 +557,11 @@ public final class YNet extends YDecomposition {
         getSpecification().getDataValidator().validate(
                                    getInputParameters().values(), incomingData, getID());
 
-        List actualParams = incomingData.getChildren();
-        while (actualParams.size() > 0) {
-            Element element = (Element) actualParams.get(0);
-            element.detach();
+        for (Element element : incomingData.getChildren()) {
             if (getInputParameters().containsKey(element.getName())) {
-                addData(pmgr, element);
-            } else {
+                addData(pmgr, element.clone());
+            }
+            else {
                 throw new IllegalArgumentException("Element " + element +
                         " is not a valid input parameter of " + this);
             }

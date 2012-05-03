@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.smsModule;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -84,7 +84,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
 //                    String smsConnectionID = performSMSConnection(_smsUsername, _smsPassword);
 
                     //next get the parameters for message sending.
-                    Element paramsData = itemRecord.getWorkItemData();
+                    Element paramsData = itemRecord.getDataList();
                     String message = paramsData.getChildText(SMS_MESSAGE_PARAMNAME);
                     String toPhone = paramsData.getChildText(SMS_PHONENO_PARAMNAME);
 //                    String msgCorrelationID = itemRecord.getID().substring(0, 12);
@@ -265,7 +265,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                             smsReplyMessage.setText(inter._replyMessage._messageTxt);
                             inter._caseDataBoundForEngine.addContent(smsReplyMessage);
                             String result = checkInWorkItem(inter._workItemRecord.getID(),
-                                    inter._workItemRecord.getWorkItemData(),
+                                    inter._workItemRecord.getDataList(),
                                     inter._caseDataBoundForEngine,
                                     _sessionHandle);
                             _logger.info("result of work item checkin = " + result);

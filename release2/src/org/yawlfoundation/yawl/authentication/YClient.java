@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.authentication;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.XNode;
 
 /**

@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;

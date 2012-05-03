@@ -18,10 +18,9 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +50,7 @@ public abstract class AbstractSelector {
     protected String _canonicalName ;              // the full class name for this selector
     protected String _displayName ;                // a 'user-friendly' name
     protected String _description ;                // what does it do?
-    protected HashMap<String,String> _params =
+    protected Map<String,String> _params =
                  new HashMap<String,String>() ;    // params used by the 'selection'
 
     /********************************************************************************/
@@ -103,7 +102,7 @@ public abstract class AbstractSelector {
     public Set<String> getKeys() { return _params.keySet(); }
 
     /** @return a HashMap of parameters of the form [name, value] */
-    public HashMap getParams() { return _params; }
+    public Map getParams() { return _params; }
 
     /** @return the name of this selector class */
     public String getClassName() { return this.getClass().getSimpleName(); }
@@ -150,7 +149,7 @@ public abstract class AbstractSelector {
      * @param paramsMap the new parameter map of the form [name, value] (both Strings)
      */
     public void setParams(Map<String,String> paramsMap) {
-        _params = (HashMap<String,String>) paramsMap ;
+        _params = paramsMap ;
     }
 
     /**
@@ -197,12 +196,9 @@ public abstract class AbstractSelector {
         xml.append("<name>").append(name).append("</name>");
         if ((_params != null) && (! _params.isEmpty())) {
             xml.append("<params>");
-            String key ;
-            Iterator itr = _params.keySet().iterator();
 
             // write the key and value for each parameter
-            while (itr.hasNext()) {
-                key = (String) itr.next() ;
+            for (String key : _params.keySet()) {
                 xml.append("<param>") ;
                 xml.append("<key>").append(key).append("</key>");
                 xml.append("<value>").append(_params.get(key)).append("</value>");
@@ -223,13 +219,14 @@ public abstract class AbstractSelector {
      * @param eParams
      * @return a [key, value] map of the parameters described by the {@code Element}
      */
-    protected static HashMap<String,String> unmarshalParams(Element eParams) {
-        HashMap<String,String> result = new HashMap<String,String>() ;
-        List<Element> params = eParams.getChildren();
-        for (Element param : params)
-            result.put(param.getChildText("key"), param.getChildText("value"));
-        if (result.isEmpty()) return null ;
-        return result ;
+    protected static HashMap<String, String> unmarshalParams(Element eParams) {
+        if (eParams != null) {
+            HashMap<String, String> result = new HashMap<String, String>() ;
+            for (Element param : eParams.getChildren())
+                result.put(param.getChildText("key"), param.getChildText("value"));
+            return result.isEmpty() ? null : result;
+        }
+        return null ;
     }
 
     /*******************************************************************************/
@@ -279,13 +276,9 @@ public abstract class AbstractSelector {
         setCanonicalName(e.getChildText("canonicalname"));
         setDisplayName(e.getChildText("displayname"));
         setDescription(e.getChildText("description"));
-        List keys = e.getChild("keys").getChildren();
+        List<Element> keys = e.getChild("keys").getChildren();
         if (keys != null) {
-            Iterator itr = keys.iterator() ;
-            while (itr.hasNext()) {
-                Element key = (Element) itr.next();
-                addParam(key.getText(), "");
-            }
+            for (Element key : keys) addParam(key.getText(), "");
         }
     }
 

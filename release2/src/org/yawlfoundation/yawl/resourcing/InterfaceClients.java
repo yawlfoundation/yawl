@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.resourcing;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;

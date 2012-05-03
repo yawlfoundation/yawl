@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YWorkItem;

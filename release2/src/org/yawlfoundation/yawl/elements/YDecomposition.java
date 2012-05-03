@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
@@ -325,7 +325,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
         for (YParameter parameter : outputParamsList) {
             Element child = root.getChild(parameter.getPreferredName());
-            outputDoc.getRootElement().addContent((Element) child.clone());
+            outputDoc.getRootElement().addContent(child.clone());
         }
         return outputDoc;
     }
@@ -349,13 +349,13 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     protected void addData(YPersistenceManager pmgr, Element element)
                                                      throws YPersistenceException {
-        assignData(pmgr, (Element) element.clone());
+        assignData(pmgr, element.clone());
     }
 
 
     public void initialise(YPersistenceManager pmgr) throws YPersistenceException {
         for (YParameter inputParam : _inputParameters.values()) {
-            Element initialValueXML = null;
+            Element initialValueXML;
             String initialValue = inputParam.getInitialValue();
             if (initialValue != null) {
                 initialValue = StringUtil.wrap(initialValue, inputParam.getName()) ;

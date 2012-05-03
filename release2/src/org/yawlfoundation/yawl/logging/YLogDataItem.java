@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 

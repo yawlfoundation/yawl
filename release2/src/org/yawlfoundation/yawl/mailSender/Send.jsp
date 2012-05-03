@@ -1,4 +1,4 @@
-<%@ page import="org.jdom.Element" %>
+<%@ page import="org.jdom2.Element" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.Marshaller" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord" %>
 <%@ page import="org.yawlfoundation.yawl.mailSender.MailSender"%>

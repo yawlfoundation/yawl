@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import net.sf.saxon.s9api.SaxonApiException;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 

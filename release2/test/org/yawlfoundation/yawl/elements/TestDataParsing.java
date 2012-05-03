@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import junit.framework.TestCase;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;

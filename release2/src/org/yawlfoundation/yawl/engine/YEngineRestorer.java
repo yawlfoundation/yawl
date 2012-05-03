@@ -346,7 +346,9 @@ public class YEngineRestorer {
     private void loadSpecification(YSpecification spec) throws YPersistenceException {
         try {
             long key = spec.getRowKey();
-            spec = YMarshal.unmarshalSpecifications(spec.getRestoredXML()).get(0);
+
+            // false == don't validate, since it has already been done when first loaded
+            spec = YMarshal.unmarshalSpecifications(spec.getRestoredXML(), false).get(0);
             spec.setRowKey(key);
             _engine.loadSpecification(spec);
         }

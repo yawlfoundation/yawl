@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.scheduling.timer;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.Constants;
 import org.yawlfoundation.yawl.scheduling.SchedulingService;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;

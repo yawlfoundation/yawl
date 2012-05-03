@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.wsif;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -76,7 +76,7 @@ public class WSIFController extends InterfaceBWebsideController {
                     String portName = inputData.getChildText(WSDL_PORTNAME_PARAMNAME);
                     String operationName = inputData.getChildText(WSDL_OPERATIONNAME_PARAMNAME);
 
-                    Element webServiceArgsData = (Element) inputData.clone();
+                    Element webServiceArgsData = inputData.clone();
                     webServiceArgsData.removeChild(WSDL_LOCATION_PARAMNAME);
                     webServiceArgsData.removeChild(WSDL_PORTNAME_PARAMNAME);
                     webServiceArgsData.removeChild(WSDL_OPERATIONNAME_PARAMNAME);

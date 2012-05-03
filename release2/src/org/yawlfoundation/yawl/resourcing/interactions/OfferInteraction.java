@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.interactions;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -315,8 +315,8 @@ public class OfferInteraction extends AbstractInteraction {
                                                  ArrayList<String> uniqueIDs,
                                                  Participant p) {
         if (! uniqueIDs.contains(p.getID())) {
-             uniqueIDs.add(p.getID()) ;
-             distributionSet.add(p) ;
+            uniqueIDs.add(p.getID()) ;
+            distributionSet.add(p) ;
         }
     }
 
@@ -366,10 +366,7 @@ public class OfferInteraction extends AbstractInteraction {
     private void parseParticipants(Element e, Namespace nsYawl) {
 
         // from the specified initial set, add all participants
-        List participants = e.getChildren("participant", nsYawl);
-        Iterator itr = participants.iterator();
-        while (itr.hasNext()) {
-            Element eParticipant = (Element) itr.next();
+        for (Element eParticipant : e.getChildren("participant", nsYawl)) {
             String participant = eParticipant.getText();
             if (participant.indexOf(',') > -1)
                 addParticipantsByID(participant);
@@ -382,10 +379,7 @@ public class OfferInteraction extends AbstractInteraction {
     private void parseRoles(Element e, Namespace nsYawl) {
 
         // ... and roles
-        List roles = e.getChildren("role", nsYawl);
-        Iterator itr = roles.iterator();
-        while (itr.hasNext()) {
-            Element eRole = (Element) itr.next();
+        for (Element eRole : e.getChildren("role", nsYawl)) {
             String role = eRole.getText();
             if (role.indexOf(',') > -1)
                 addRoles(role);
@@ -398,10 +392,7 @@ public class OfferInteraction extends AbstractInteraction {
     private void parseDynParams(Element e, Namespace nsYawl) {
 
         // ... and input parameters
-        List params = e.getChildren("param", nsYawl);
-        Iterator itr = params.iterator();
-        while (itr.hasNext()) {
-            Element eParam = (Element) itr.next();
+        for (Element eParam : e.getChildren("param", nsYawl)) {
             String name = eParam.getChildText("name", nsYawl);
             String refers = eParam.getChildText("refers", nsYawl);
             int pType = refers.equals("role") ? ROLE_PARAM : USER_PARAM;
@@ -415,14 +406,12 @@ public class OfferInteraction extends AbstractInteraction {
         // get the Filters
         Element eFilters = e.getChild("filters", nsYawl);
         if (eFilters != null) {
-            List filters = eFilters.getChildren("filter", nsYawl);
+            List<Element> filters = eFilters.getChildren("filter", nsYawl);
             if (filters == null)
                 throw new ResourceParseException(
                         "No filter elements found in filters element");
 
-            Iterator itr = filters.iterator();
-            while (itr.hasNext()) {
-                Element eFilter = (Element) itr.next();
+            for (Element eFilter : filters) {
                 String filterClassName = eFilter.getChildText("name", nsYawl);
                 if (filterClassName != null) {
                     AbstractFilter filter = FilterFactory.getInstance(filterClassName);
@@ -443,14 +432,12 @@ public class OfferInteraction extends AbstractInteraction {
         // get the Constraints
         Element eConstraints = e.getChild("constraints", nsYawl);
         if (eConstraints != null) {
-            List constraints = eConstraints.getChildren("constraint", nsYawl);
+            List<Element> constraints = eConstraints.getChildren("constraint", nsYawl);
             if (constraints == null)
                 throw new ResourceParseException(
                         "No constraint elements found in constraints element");
 
-            Iterator itr = constraints.iterator();
-            while (itr.hasNext()) {
-                Element eConstraint = (Element) itr.next();
+            for (Element eConstraint : constraints) {
                 String constraintClassName = eConstraint.getChildText("name", nsYawl);
                 if (constraintClassName != null) {
                     AbstractConstraint constraint =

@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.engine;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;

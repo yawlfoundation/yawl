@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.resourcing;
 
 import junit.framework.TestCase;
-import org.jdom.Element;
-import org.jdom.Document;
+import org.jdom2.Element;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 /**

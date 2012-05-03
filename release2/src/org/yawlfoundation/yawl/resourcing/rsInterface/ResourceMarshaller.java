@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -35,10 +35,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Author: Michael Adams
@@ -55,8 +52,8 @@ public class ResourceMarshaller {
      * @param s the xml string to be converted
      * @return a list of child elements of the converted element passed
      */
-    private List getChildren(String s) {
-        if ((s == null) || (! s.trim().startsWith("<"))) return null;
+    private List<Element> getChildren(String s) {
+        if ((s == null) || (! s.trim().startsWith("<"))) return Collections.emptyList();
         return JDOMUtil.stringToElement(s).getChildren();
     }
 
@@ -76,11 +73,8 @@ public class ResourceMarshaller {
         Set<Participant> result = new HashSet<Participant>();
 
         // each child is one Participant (as xml)
-        List eList = getChildren(xml);
-        if (eList != null) {
-            for (Object o : eList) {
-                result.add(unmarshallParticipant((Element) o));
-            }
+        for (Element ePart : getChildren(xml)) {
+            result.add(unmarshallParticipant(ePart));
         }
         if (result.isEmpty()) return null;
         return result ;
@@ -94,20 +88,20 @@ public class ResourceMarshaller {
         p.reconstitute(e);
         Element roles = e.getChild("roles");
         if (roles != null) {
-            for (Object o : roles.getChildren()) {
-                p.addRole(new Role((Element) o));
+            for (Element eRole : roles.getChildren()) {
+                p.addRole(new Role(eRole));
             }
         }
         Element positions = e.getChild("positions");
         if (positions != null) {
-            for (Object o : positions.getChildren()) {
-                p.addPosition(new Position((Element) o));
+            for (Element ePos : positions.getChildren()) {
+                p.addPosition(new Position(ePos));
             }
         }
         Element capabilities = e.getChild("capabilities");
         if (capabilities != null) {
-            for (Object o : capabilities.getChildren()) {
-                p.addCapability(new Capability((Element) o));
+            for (Element eCap : capabilities.getChildren()) {
+                p.addCapability(new Capability(eCap));
             }
         }
         return p;
@@ -138,12 +132,8 @@ public class ResourceMarshaller {
         Set<WorkItemRecord> result = new HashSet<WorkItemRecord>();
 
         // each child is one WorkItemRecord (as xml)
-        List eList = getChildren(xml);
-        if (eList != null) {
-            for (Object o : eList) {
-                Element e = (Element) o;
-                result.add(Marshaller.unmarshalWorkItem(e));
-            }
+        for (Element e : getChildren(xml)) {
+            result.add(Marshaller.unmarshalWorkItem(e));
         }
         if (result.isEmpty()) return null;
         return result ;
@@ -252,9 +242,7 @@ public class ResourceMarshaller {
                 result.setExternalDataGateway(dataGateway);
                 Element inputParams = specElement.getChild("params");
                 if (inputParams != null) {
-                    List paramElements = inputParams.getChildren();
-                    for (int j = 0; j < paramElements.size(); j++) {
-                        Element paramElem = (Element) paramElements.get(j);
+                    for (Element paramElem : inputParams.getChildren()) {
                         YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
                         YDecompositionParser.parseParameter( paramElem, param, null,false);
                         result.addInputParam(param);
@@ -263,8 +251,7 @@ public class ResourceMarshaller {
                 result.setMetaTitle(specElement.getChildText("metaTitle"));
                 Element authors = specElement.getChild("authors");
                 if (authors != null) {
-                    for (Object e : authors.getChildren()) {
-                        Element authorElem = (Element) e;
+                    for (Element authorElem : authors.getChildren()) {
                         result.addAuthor(authorElem.getText());
                     }
                 }
@@ -281,15 +268,10 @@ public class ResourceMarshaller {
 
     public Set<YAWLServiceReference> unmarshallServices(String xml) {
         Set<YAWLServiceReference> result = new HashSet<YAWLServiceReference>();
-        List eList = getChildren(xml);
-        if (eList != null) {
-            Iterator itr = eList.iterator();
-            while (itr.hasNext()) {
-                Element eService = (Element) itr.next();
-                String eString = JDOMUtil.elementToString(eService);
-                YAWLServiceReference service = YAWLServiceReference.unmarshal(eString);
-                result.add(service);
-            }
+        for (Element eService : getChildren(xml)) {
+            String eString = JDOMUtil.elementToString(eService);
+            YAWLServiceReference service = YAWLServiceReference.unmarshal(eString);
+            result.add(service);
         }
         if (result.isEmpty()) return null;
         return result ;
@@ -300,15 +282,15 @@ public class ResourceMarshaller {
         Set<YParameter> result = new HashSet<YParameter>();
 
         Element params = JDOMUtil.stringToElement(paramStr);
-        List paramElementsList = params.getChildren();
-        for (Object o : paramElementsList) {
-            Element paramElem = (Element) o;
-            if ("formalInputParam".equals(paramElem.getName())) {
-                continue;
+        if (params != null) {
+            for (Element paramElem : params.getChildren()) {
+                if ("formalInputParam".equals(paramElem.getName())) {
+                    continue;
+                }
+                YParameter param = new YParameter(null, paramElem.getName());
+                YDecompositionParser.parseParameter(paramElem, param, null, false);
+                result.add(param);
             }
-            YParameter param = new YParameter(null, paramElem.getName());
-            YDecompositionParser.parseParameter(paramElem, param, null, false);
-            result.add(param);
         }
         return result;
     }

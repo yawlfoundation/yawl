@@ -22,8 +22,8 @@
 package org.yawlfoundation.yawl.scheduling.persistence;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.junit.*;
 import org.yawlfoundation.yawl.scheduling.Case;
 import org.yawlfoundation.yawl.scheduling.Constants;

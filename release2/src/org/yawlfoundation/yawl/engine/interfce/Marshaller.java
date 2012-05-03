@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -100,18 +100,14 @@ public class Marshaller {
     
         Element attributes = taskInfo.getChild("attributes");
         if (attributes != null) {
-            List attributelist = attributes.getChildren();
-            for (Object o : attributelist) {
-                Element attribute = (Element) o;
+            for (Element attribute : attributes.getChildren()) {
                 attributemap.put(attribute.getName(),
                         attributes.getChildText(attribute.getName()));
             }
         }
 
         Element params = taskInfo.getChild("params");
-        List paramElementsList = params.getChildren();
-        for (Object o : paramElementsList) {
-            Element paramElem = (Element) o;
+        for (Element paramElem : params.getChildren()) {
             if ("formalInputParam".equals(paramElem.getName())) {
                 paramsForTaskNCase.setFormalInputParam(paramElem.getText());
                 continue;
@@ -160,9 +156,7 @@ public class Marshaller {
         List<SpecificationData> specSummaryList = new ArrayList<SpecificationData>();
 
         Element specElem = JDOMUtil.stringToElement(specificationSummaryListXML);
-        List specSummaryElements = specElem.getChildren();
-        for (Object o : specSummaryElements) {
-            Element specElement = (Element) o;
+        for (Element specElement : specElem.getChildren()) {
             String specID = specElement.getChildText("id");
             String specURI = specElement.getChildText("uri");
             String specName = specElement.getChildText("name");
@@ -183,9 +177,7 @@ public class Marshaller {
                 specSummaryList.add(specData);
                 Element inputParams = specElement.getChild("params");
                 if (inputParams != null) {
-                    List paramElements = inputParams.getChildren();
-                    for (Object p :paramElements) {
-                        Element paramElem = (Element) p;
+                    for (Element paramElem : inputParams.getChildren()) {
                         YParameter param = new YParameter(null, YParameter._INPUT_PARAM_TYPE);
                         YDecompositionParser.parseParameter(
                                 paramElem,
@@ -199,9 +191,7 @@ public class Marshaller {
                 specData.setMetaTitle(specElement.getChildText("metaTitle"));
                 Element authors = specElement.getChild("authors");
                 if (authors != null) {
-                    List authorlist = authors.getChildren();
-                    for (Object e : authorlist) {
-                        Element authorElem = (Element) e;
+                    for (Element authorElem : authors.getChildren()) {
                         specData.setAuthors(authorElem.getText());
                     }
                 }
@@ -291,9 +281,7 @@ public class Marshaller {
     public static List<String> unmarshalCaseIDs(String casesAsXML) {
         List<String> cases = new ArrayList<String>();
         Element casesElem = JDOMUtil.stringToElement(casesAsXML);
-        List caseList = casesElem.getChildren();
-        for (Object o : caseList) {
-            Element caseElem = (Element) o;
+        for (Element caseElem : casesElem.getChildren()) {
             String caseID = caseElem.getText();
             if (caseID != null) {
                 cases.add(caseID);
@@ -305,24 +293,20 @@ public class Marshaller {
 
     public static String getMergedOutputData(Element inputData, Element outputData) {
         try {
-            Element merged = (Element) inputData.clone();
+            Element merged = inputData.clone();
             JDOMUtil.stripAttributes(merged);
             JDOMUtil.stripAttributes(outputData);
 
-            List children = outputData.getChildren();
+            List<Element> children = outputData.getChildren();
 
-            //iterate through the output vars and add them to the merged doc.
+            // iterate through the output vars and add them to the merged doc.
             for (int i = children.size() - 1; i >= 0; i--) {
-                Object o = children.get(i);
-                if (o instanceof Element) {
-                    Element child = (Element) o;
-                    child.detach();
+                Element child = children.get(i);
 
-                    //the input data will be removed from the merged doc and
-                    //the output data will be added.
-                    merged.removeChild(child.getName());
-                    merged.addContent(child);
-                }
+                // the input data will be removed from the merged doc and
+                // the output data will be added.
+                merged.removeChild(child.getName());
+                merged.addContent(child.detach());
             }
             return JDOMUtil.elementToString(merged);
         }
@@ -344,8 +328,7 @@ public class Marshaller {
         for (YParameter parameter : outputParams) {
             Element child = outputData.getChild(parameter.getPreferredName());
             if (null != child) {
-                Element clone = (Element) child.clone();
-                filteredData.addContent(clone);
+                filteredData.addContent(child.clone());
             }
         }
         return JDOMUtil.elementToString(filteredData);

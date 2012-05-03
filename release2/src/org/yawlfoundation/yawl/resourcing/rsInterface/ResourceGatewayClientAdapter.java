@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
@@ -149,10 +149,12 @@ public class ResourceGatewayClientAdapter {
      * @param s the xml string to be converted
      * @return a list of child elements of the converted element passed
      */
-    private List getChildren(String s) {
-        if (s == null) return null;
-        Element parent = JDOMUtil.stringToElement(s);
-        return (parent != null) ? parent.getChildren() : null;
+    private List<Element> getChildren(String s) {
+        if (s != null) {
+            Element parent = JDOMUtil.stringToElement(s);
+            if (parent != null) return parent.getChildren();
+        }
+        return Collections.emptyList();
     }
 
 
@@ -207,18 +209,15 @@ public class ResourceGatewayClientAdapter {
         List<AbstractResourceAttribute> result = new ArrayList<AbstractResourceAttribute>();
 
         // get List of child elements
-        List eList = getChildren(xml);
-        if (eList != null) {
-            for (Object o : eList) {
+        for (Element child : getChildren(xml)) {
 
-                // instantiate a class of the appropriate type
-                AbstractResourceAttribute ra = newAttributeClass(className);
-                if (ra != null) {
+            // instantiate a class of the appropriate type
+            AbstractResourceAttribute ra = newAttributeClass(className);
+            if (ra != null) {
 
-                    // pass the element to the new object to repopulate members
-                    ra.reconstitute((Element) o);
-                    result.add(ra);
-                }
+                // pass the element to the new object to repopulate members
+                ra.reconstitute(child);
+                result.add(ra);
             }
         }
         return result;
@@ -237,20 +236,17 @@ public class ResourceGatewayClientAdapter {
         List<AbstractSelector> result = new ArrayList<AbstractSelector>();
 
         // get List of child elements
-        List eList = getChildren(xml);
-        if (eList != null) {
-            for (Object o : eList) {
+        for (Element child : getChildren(xml)) {
 
-                // instantiate a class of the appropriate type
-                AbstractSelector as = newSelectorClass(className);
-                if (as != null) {
+            // instantiate a class of the appropriate type
+            AbstractSelector as = newSelectorClass(className);
+            if (as != null) {
 
-                    // pass the element to the new object to repopulate members
-                    as.reconstitute((Element) o);
-                    result.add(as);
-                }
-                else break ;
+                // pass the element to the new object to repopulate members
+                as.reconstitute(child);
+                result.add(as);
             }
+            else break ;
         }
         return result;
     }
@@ -388,8 +384,7 @@ public class ResourceGatewayClientAdapter {
         Element e = JDOMUtil.stringToElement(xml);
         List<NonHumanResource> list = new ArrayList<NonHumanResource>();
         if (e != null) {
-            for (Object o : e.getChildren()) {
-                Element child = (Element) o;
+            for (Element child : e.getChildren()) {
                 list.add(buildNonHumanResource(child, handle));
             }    
         }
@@ -564,8 +559,8 @@ public class ResourceGatewayClientAdapter {
         String cStr = successCheck(_rgclient.getCodelets(handle)) ;
         Element eList = JDOMUtil.stringToElement(cStr);
         if (eList != null) {
-            for (Object o : eList.getChildren()) {
-                result.add(new CodeletInfo((Element) o));
+            for (Element e : eList.getChildren()) {
+                result.add(new CodeletInfo(e));
             }
         }
         return result ;
@@ -578,8 +573,7 @@ public class ResourceGatewayClientAdapter {
         String cStr = successCheck(_rgclient.getCodelets(handle)) ;
         Element eList = JDOMUtil.stringToElement(cStr);
         if (eList != null) {
-            for (Object o : eList.getChildren()) {
-                Element codelet = (Element) o;
+            for (Element codelet : eList.getChildren()) {
                 result.put(codelet.getChildText("canonicalname"),
                        JDOMUtil.decodeEscapes(codelet.getChildText("description")));
             }

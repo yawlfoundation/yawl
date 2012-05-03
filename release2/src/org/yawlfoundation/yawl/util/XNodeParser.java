@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.util;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 
 import java.util.ArrayList;

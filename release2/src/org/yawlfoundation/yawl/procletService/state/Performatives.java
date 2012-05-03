@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.procletService.state;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionGraph;
@@ -160,7 +160,7 @@ public class Performatives {
 		myLog.debug("eids:" + eids);
 		Element dataList = wir.getDataList();
 		if (dataList != null) {
-			dataList = (Element)dataList.clone();
+			dataList = dataList.clone();
 			myLog.debug("dataList:" + JDOMUtil.elementToString(dataList));
 			Element eidData = dataList.getChild("entities");
 			List<Element> eltsRemove = new ArrayList<Element>();

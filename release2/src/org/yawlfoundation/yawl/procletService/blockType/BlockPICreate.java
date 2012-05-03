@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.procletService.blockType;
 
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.procletService.ProcletService;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionGraph;
@@ -183,8 +183,7 @@ public class BlockPICreate {
 	private String removeUnneededData (String s, List<EntityID> eids) {
 		myLog.debug("REMOVEUNNEEDEDDATA");
 		List<Element> eltsRemove = new ArrayList<Element>();
-		Element dataList = JDOMUtil.stringToElement(s);
-		dataList = (Element)dataList.clone();
+		Element dataList = JDOMUtil.stringToElement(s).clone();
 		myLog.debug("dataList:" + JDOMUtil.elementToString(dataList));
 		//Element eidData = dataList.getChild("entity");
 		Element eidData = dataList;

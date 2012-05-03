@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.resource;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
@@ -513,21 +513,16 @@ public class SecondaryResources {
 
         protected void parse(Element e, Namespace nsYawl) throws ResourceParseException {
             if (e == null) return;
-            List participants = e.getChildren("participant", nsYawl);
-            for (Object o : participants) {
-                addParticipant(((Element) o).getText());
+            for (Element ePart : e.getChildren("participant", nsYawl)) {
+                addParticipant(ePart.getText());
             }
-            List roles = e.getChildren("role", nsYawl);
-            for (Object o : roles) {
-                addRole(((Element) o).getText());
+            for (Element eRole : e.getChildren("role", nsYawl)) {
+                addRole(eRole.getText());
             }
-            List nonHumanResources = e.getChildren("nonHumanResource", nsYawl);
-            for (Object o : nonHumanResources) {
-                addNonHumanResource(((Element) o).getText());
+            for (Element eNHR : e.getChildren("nonHumanResource", nsYawl)) {
+                addNonHumanResource(eNHR.getText());
             }
-            List nonHumanCategories = e.getChildren("nonHumanCategory", nsYawl);
-            for (Object o : nonHumanCategories) {
-                Element eCat = (Element) o;
+            for (Element eCat : e.getChildren("nonHumanCategory", nsYawl)) {
                 addNonHumanCategory(eCat.getText(), eCat.getAttributeValue("subcategory"));
             }
         }

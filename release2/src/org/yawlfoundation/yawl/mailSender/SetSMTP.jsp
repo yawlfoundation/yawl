@@ -3,9 +3,9 @@
 <%@ page import="javax.xml.transform.*"%>
 <%@ page import="javax.xml.transform.dom.DOMSource"%>
 <%@ page import="javax.xml.transform.stream.StreamResult"%>
-<%@ page import="org.jdom.Document"%>
-<%@ page import="org.jdom.Element"%>
-<%@ page import="org.jdom.output.DOMOutputter"%>
+<%@ page import="org.jdom2.Document"%>
+<%@ page import="org.jdom2.Element"%>
+<%@ page import="org.jdom2.output.DOMOutputter"%>
 
 <%--
   ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.

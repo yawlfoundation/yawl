@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.unmarshal;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -85,7 +85,6 @@ public class YDecompositionParser {
     }
 
 
-    //done
     private YDecomposition createDecomposition(Element decompElem) {
         Namespace schemaInstanceNS = decompElem.getNamespace("xsi");
         String xsiType = _decompElem.getAttributeValue("type", schemaInstanceNS);
@@ -104,12 +103,10 @@ public class YDecompositionParser {
          * AJH: Added to support XML attribute pass-thru from specification into task output data doclet.
          * Load element attributes
          */
-        Iterator iter = decompElem.getAttributes().iterator();
-        while(iter.hasNext())
-        {
-            Attribute attr = (Attribute)iter.next();
+        for (Attribute attr : decompElem.getAttributes()) {
             String attname = attr.getName();
             boolean isXsiNS = attr.getNamespace() == schemaInstanceNS;
+
             //don't add the standard YAWL schema attributes to the pass through list.
             if(!("id".equals(attname) || ("type".equals(attname) && isXsiNS))) {
                 _decomposition.setAttribute(attr.getName(), attr.getValue());
@@ -126,7 +123,6 @@ public class YDecompositionParser {
         return _decomposition;
     }
 
-    //done
     private void parseDecompositionRoles(YDecomposition decomposition, Element decompElem) {
         String name = decompElem.getChildText("name", _yawlNS);
         if (name != null) {
@@ -136,43 +132,36 @@ public class YDecompositionParser {
         if (documentation != null) {
             decomposition.setDocumentation(documentation);
         }
-        List inputParamElems = decompElem.getChildren("inputParam", _yawlNS);
+        List<Element> inputParamElems = decompElem.getChildren("inputParam", _yawlNS);
         for (int i = 0; i < inputParamElems.size(); i++) {
-            Element inputParamElem = (Element) inputParamElems.get(i);
             YParameter yparameter = new YParameter(_decomposition, YParameter._INPUT_PARAM_TYPE);
             yparameter.setOrdering(i);
-            parseParameter(inputParamElem, yparameter, _yawlNS, isBeta2Version());
+            parseParameter(inputParamElems.get(i), yparameter, _yawlNS, isBeta2Version());
             decomposition.addInputParameter(yparameter);
         }
-        List outputParamElems = decompElem.getChildren("outputParam", _yawlNS);
+        List<Element> outputParamElems = decompElem.getChildren("outputParam", _yawlNS);
         for (int i = 0; i < outputParamElems.size(); i++) {
-            Element outputParamElem = (Element) outputParamElems.get(i);
             YParameter yparameter = new YParameter(_decomposition, YParameter._OUTPUT_PARAM_TYPE);
             yparameter.setOrdering(i);
-            parseParameter(outputParamElem, yparameter, _yawlNS, isBeta2Version());
+            parseParameter(outputParamElems.get(i), yparameter, _yawlNS, isBeta2Version());
             decomposition.addOutputParameter(yparameter);
         }
-        List outputExpressions = decompElem.getChildren("outputExpression", _yawlNS);
-        for (int i = 0; i < outputExpressions.size(); i++) {
-            Element outputExpressionElem = (Element) outputExpressions.get(i);
+        for (Element outputExpressionElem : decompElem.getChildren("outputExpression", _yawlNS)) {
             String outputExpressionText = outputExpressionElem.getAttributeValue("query");
             decomposition.setOutputExpression(outputExpressionText);
         }
         markEmptyComplexTypeVariables(decomposition);
     }
 
-    //done
     private void parseWebServiceGateway(YAWLServiceGateway webServiceGateway, Element decompositionElem) {
-        List yawlServiceElems = decompositionElem.getChildren("yawlService", _yawlNS);
-        for (int i = 0; i < yawlServiceElems.size(); i++) {
-            Element yawlServiceElem = (Element) yawlServiceElems.get(i);
+        for (Element yawlServiceElem : decompositionElem.getChildren("yawlService", _yawlNS)) {
             String yawlServiceID = yawlServiceElem.getAttributeValue("id");
             YAWLServiceReference yawlService = new YAWLServiceReference(yawlServiceID, webServiceGateway);
             webServiceGateway.setYawlService(yawlService);
         }
-        List enablementParamElems = decompositionElem.getChildren("enablementParam", _yawlNS);
+        List<Element> enablementParamElems = decompositionElem.getChildren("enablementParam", _yawlNS);
         for (int i = 0; i < enablementParamElems.size(); i++) {
-            Element enablementParamElem = (Element) enablementParamElems.get(i);
+            Element enablementParamElem = enablementParamElems.get(i);
             YParameter parameter = new YParameter(_decomposition, YParameter._ENABLEMENT_PARAM_TYPE);
             parameter.setOrdering(i);
             parseParameter(enablementParamElem, parameter, _yawlNS, isBeta2Version());
@@ -186,15 +175,11 @@ public class YDecompositionParser {
         aNet.setInputCondition((YInputCondition) parseCondition(aNet, inputConditionElem));
         Element outputConditionElem = processControlElementsElem.getChild("outputCondition", _yawlNS);
         aNet.setOutputCondition((YOutputCondition) parseCondition(aNet, outputConditionElem));
-        List taskElems = processControlElementsElem.getChildren("task", _yawlNS);
-        for (int i = 0; i < taskElems.size(); i++) {
-            Element taskElem = (Element) taskElems.get(i);
+        for (Element taskElem : processControlElementsElem.getChildren("task", _yawlNS)) {
             aNet.addNetElement(parseTask(taskElem));
         }
-        List conditionElems = processControlElementsElem.getChildren("condition", _yawlNS);
-        for (int i = 0; i < conditionElems.size(); i++) {
-            Element element = (Element) conditionElems.get(i);
-            aNet.addNetElement(parseCondition(aNet, element));
+        for (Element condElem : processControlElementsElem.getChildren("condition", _yawlNS)) {
+            aNet.addNetElement(parseCondition(aNet, condElem));
         }
     }
 
@@ -256,12 +241,9 @@ public class YDecompositionParser {
 
 
     private void parseExternalTaskRoles(Element externalTaskElem, YTask externalTask) {
-        List<String> removeSet = parseRemoveSet(externalTaskElem);
-        _removeSetIDs.put(externalTask, removeSet);
-        List<Element> removeSetForFlows = parseRemoveSetFromFlow(externalTaskElem);
-        _removeSetForFlows.put(externalTask, removeSetForFlows);
-        List postsetElements = parsePostset(externalTaskElem);
-        this._postsetIDs.add(externalTask.getID(), postsetElements);
+        _removeSetIDs.put(externalTask, parseRemoveSet(externalTaskElem));
+        _removeSetForFlows.put(externalTask, parseRemoveSetFromFlow(externalTaskElem));
+        _postsetIDs.add(externalTask.getID(), parsePostset(externalTaskElem));
         Element startingMappings = externalTaskElem.getChild("startingMappings", _yawlNS);
         if (startingMappings != null) {
             externalTask.setDataMappingsForTaskStarting(parseMappings(startingMappings, true));
@@ -307,22 +289,22 @@ public class YDecompositionParser {
 
 
     private List<Element> parseRemoveSetFromFlow(Element externalTaskElem) {
-        List removeSetForFlows = externalTaskElem.getChildren("removesTokensFromFlow", _yawlNS);
-        List<Element> removeIDs = new Vector<Element>();
+        List<Element> removeSetForFlows =
+                externalTaskElem.getChildren("removesTokensFromFlow", _yawlNS);
         if (removeSetForFlows != null) {
-            for (Object o : removeSetForFlows) {
-                removeIDs.add((Element) o);
+            List<Element> removeIDs = new ArrayList<Element>();
+            for (Element id : removeSetForFlows) {
+                removeIDs.add(id);
             }
+            return removeIDs;
         }
-        return removeIDs;
+        return Collections.emptyList();
     }
 
 
-    private Map parseMappings(Element mappingsElem, boolean isStartMappings) {
-        Map map = new TreeMap();
-        List mappings = mappingsElem.getChildren();
-        for (int i = 0; i < mappings.size(); i++) {
-            Element mapping = (Element) mappings.get(i);
+    private Map<String, String> parseMappings(Element mappingsElem, boolean isStartMappings) {
+        Map<String, String> map = new TreeMap<String, String>();
+        for (Element mapping : mappingsElem.getChildren()) {
             String expression = mapping.getChild("expression", _yawlNS).getAttributeValue("query");
             String varOrParam = mapping.getChildText("mapsTo", _yawlNS);
             if (isStartMappings) {
@@ -335,21 +317,19 @@ public class YDecompositionParser {
     }
 
 
-    private List parseRemoveSet(Element externalTaskElem) {
-        List removeSetElems = externalTaskElem.getChildren("removesTokens", _yawlNS);
-        List<String> removeIDs = new Vector<String>();
-        for (int i = 0; i < removeSetElems.size(); i++) {
-            removeIDs.add(((Element) removeSetElems.get(i)).getAttributeValue("id"));
+    private List<String> parseRemoveSet(Element externalTaskElem) {
+        List<String> removeIDs = new ArrayList<String>();
+        for (Element removesElem : externalTaskElem.getChildren("removesTokens", _yawlNS)) {
+            removeIDs.add(removesElem.getAttributeValue("id"));
         }
         return removeIDs;
     }
 
 
-    //done
     private YCondition parseCondition(YNet aNet, Element conditionElem) {
-        YCondition condition = null;
         String conditionType = conditionElem.getName();
         String id = conditionElem.getAttributeValue("id");
+        YCondition condition = null;
         if ("condition".equals(conditionType)) {
             String label = conditionElem.getChildText("label");
             if (label != null) {
@@ -374,9 +354,10 @@ public class YDecompositionParser {
                 condition = new YOutputCondition(id, aNet);
             }
         }
-        List postsetElements = parsePostset(conditionElem);
+        else condition = new YCondition(id, aNet);        // should never hit this
+
         parseNameAndDocumentation(condition, conditionElem);
-        this._postsetIDs.add(condition.getID(), postsetElements);
+        _postsetIDs.add(condition.getID(), parsePostset(conditionElem));
         return condition;
     }
 
@@ -409,7 +390,7 @@ public class YDecompositionParser {
     }
 
     private void parseConfiguration(YTask task, Element taskElem) {
-         Element configure =  taskElem.getChild("configuration", _yawlNS);
+        Element configure =  taskElem.getChild("configuration", _yawlNS);
         if (configure != null) {
            task.setConfigurationElement(taskElem);
         }
@@ -456,24 +437,13 @@ public class YDecompositionParser {
     }
 
 
-    private List parsePostset(Element netElementElem) {
-        List postsetFlowStructs = new Vector();
-        List flowsIntoElems = netElementElem.getChildren("flowsInto", _yawlNS);
-        for (int i = 0; i < flowsIntoElems.size(); i++) {
-            Element flowsIntoElem = (Element) flowsIntoElems.get(i);
+    private List<FlowStruct> parsePostset(Element netElementElem) {
+        List<FlowStruct> postsetFlowStructs = new ArrayList<FlowStruct>();
+        for (Element flowsIntoElem : netElementElem.getChildren("flowsInto", _yawlNS)) {
             String nextElementRef = flowsIntoElem.getChild("nextElementRef", _yawlNS).getAttributeValue("id");
-
-            /**
-             * AJH: Store label
-             */
-            String documentation = null;
-            Element documentationEl = flowsIntoElem.getChild("documentation", _yawlNS);
-            if (documentationEl != null)
-            {
-                documentation = documentationEl.getText();
-            }
-
-            FlowStruct flowStruct = new FlowStruct(nextElementRef, flowsIntoElem.getChildText("predicate"), documentation);
+            FlowStruct flowStruct = new FlowStruct(nextElementRef,
+                    flowsIntoElem.getChildText("predicate", _yawlNS),
+                    flowsIntoElem.getChildText("documentation", _yawlNS));
             String predicateString = flowsIntoElem.getChildText("predicate", _yawlNS);
             if (predicateString != null) {
                 flowStruct._flowPredicate = predicateString;
@@ -504,9 +474,7 @@ public class YDecompositionParser {
                 if (gateway != null) net.setExternalDataGateway(gateway);
             }
         }
-        List localVariables = netElem.getChildren("localVariable", _yawlNS);
-        for (int i = 0; i < localVariables.size(); i++) {
-            Element localVariableElem = (Element) localVariables.get(i);
+        for (Element localVariableElem : netElem.getChildren("localVariable", _yawlNS)) {
             YVariable localVar = new YVariable(_decomposition);
             parseLocalVariable(localVariableElem, localVar, _yawlNS, isBeta2Version());
             net.setLocalVariable(localVar);
@@ -539,10 +507,10 @@ public class YDecompositionParser {
      * @param localVariableElem
      * @param variable
      */
-    public static void parseLocalVariable(Element localVariableElem, YVariable variable, Namespace ns, boolean version2) {
+    public static void parseLocalVariable(Element localVariableElem, YVariable variable,
+                                          Namespace ns, boolean version2) {
         //parse & set the initial value
-        String initialValue = localVariableElem.getChildText("initialValue", ns);
-        variable.setInitialValue(initialValue);
+        variable.setInitialValue(localVariableElem.getChildText("initialValue", ns));
 
         String name;
         String dataType;
@@ -554,18 +522,17 @@ public class YDecompositionParser {
             dataType = localVariableElem.getChildText("type", ns);
             if (null != dataType) {
                 namespace = dataType.startsWith("xs")
-                        ? "http://www.w3.org/2001/XMLSchema" :
-                        null;
+                        ? "http://www.w3.org/2001/XMLSchema" : null;
+
                 //if data type is of QName form eliminate the first bit as it is useless for
                 //version 2 anyway
                 if (dataType.indexOf(':') != -1) {
                     dataType = dataType.substring(dataType.indexOf(':') + 1);
                 }
             }
-            if (null == namespace) {
-                variable.setUntyped(true);
-            }
-        } else {//must be version 3 or greater
+            if (null == namespace) variable.setUntyped(true);
+        }
+        else { //must be version 3 or greater
             name = localVariableElem.getChildText("name", ns);
             dataType = localVariableElem.getChildText("type", ns);
             namespace = localVariableElem.getChildText("namespace", ns);
@@ -608,7 +575,8 @@ public class YDecompositionParser {
      * @param paramElem the XML data
      * @param parameter the in &amp; out var.
      */
-    public static void parseParameter(Element paramElem, YParameter parameter, Namespace ns, boolean version2) {
+    public static void parseParameter(Element paramElem, YParameter parameter,
+                                      Namespace ns, boolean version2) {
         parseLocalVariable(paramElem, parameter, ns, version2);
 
         String orderStr = paramElem.getChildText("ordering");
@@ -718,6 +686,8 @@ public class YDecompositionParser {
     }
 
 
+    /*****************************************************************************/
+
     private class Postset {
 
         // maps a String ID to a List of FlowStruct objects
@@ -786,6 +756,8 @@ public class YDecompositionParser {
         }
     }
 
+
+    /****************************************************************************/
 
     private static class FlowStruct {
         String _flowInto;

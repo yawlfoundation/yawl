@@ -1,8 +1,8 @@
-<%@ page import="org.jdom.Element" %>
+<%@ page import="org.jdom2.Element" %>
 <%@ page import="org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient" %>
-<%@ page import="org.jdom.output.XMLOutputter" %>
-<%@ page import="org.jdom.output.Format" %>
-<%@ page import="org.jdom.input.SAXBuilder" %>
+<%@ page import="org.jdom2.output.XMLOutputter" %>
+<%@ page import="org.jdom2.output.Format" %>
+<%@ page import="org.jdom2.input.SAXBuilder" %>
 <%@ page import="java.io.StringReader" %>
 
 <!--
@@ -88,7 +88,7 @@
     Element data = (updatedData.getContentSize() > 0) ? updatedData : wir.getChild("data");
 
     // one level down from data is the actual workitem data tree
-    Element wirData = (Element) data.getChildren().get(0);
+    Element wirData = data.getChildren().get(0);
 
     // if there was a problem getting the workitem's xml, the xml will contain an
     // error message instead. It can be tested like this:

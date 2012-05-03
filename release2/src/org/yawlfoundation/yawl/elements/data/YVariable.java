@@ -18,14 +18,15 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YVerifiable;
 import org.yawlfoundation.yawl.engine.YEngine;
+import org.yawlfoundation.yawl.exceptions.YDataValidationException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
-import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
+import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -285,31 +286,47 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public List<YVerificationMessage> verify() {
         List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
-        //check that the initial value is well formed
-        if (_initialValue != null && _initialValue.contains("<")) {
-            Element test = JDOMUtil.stringToElement("<dummy>" + _initialValue + "</dummy>") ;
-            if (test == null) {
-                messages.add(new YVerificationMessage(
+        //check the initial value
+        if (! StringUtil.isNullOrEmpty(_initialValue)) {
+            Element testElem;
+            if (_initialValue.contains("<")) {  // check if well-formed
+                testElem = JDOMUtil.stringToElement(StringUtil.wrap(_initialValue, "data"));
+                if (testElem == null) {
+                    messages.add(new YVerificationMessage(
                         this,
-                        "Problem with InitialValue [" + _initialValue + "] of " + this,
+                        "The initial value [" + _initialValue + "] of variable [" +
+                        getPreferredName() + "] is not well formed.",
                         YVerificationMessage.ERROR_STATUS));
+                }
+            }
+            else {
+                String data = StringUtil.wrap(StringUtil.wrap(_initialValue,
+                        getPreferredName()), "data");
+                testElem = JDOMUtil.stringToElement(data);
+            }
+            try {      // check if correct for data type
+                _parentDecomposition.getSpecification().getDataValidator().validate(
+                        this, testElem, "");
+            }
+            catch (YDataValidationException ydve) {
+                messages.add(new YVerificationMessage(
+                    this,
+                    "The initial Value [" + _initialValue + "] of variable [" +
+                    getPreferredName() + "] is not valid for its data type.",
+                    YVerificationMessage.ERROR_STATUS));
             }
         }
-
-        XMLToolsForYAWL xty = new XMLToolsForYAWL(); //todo MLF: convert to new schema handling
 
         if ((null != _name) && (null != _elementName)) {
             messages.add(new YVerificationMessage(
             this,
-            "name xor element name must be set, not both",
+            "name xor element name must be set, not both.",
             YVerificationMessage.ERROR_STATUS));
         }
 
         //check schema contains type with typename.
         else if (null != _name) {
-            boolean isSchemForSchemType =
-                    xty.getSchema4SchemaNameSpace().equals(_namespaceURI);
-            if (! (_isUntyped || xty.isValidType(_dataTypeName, isSchemForSchemType))) {
+            if (! (_isUntyped || isValidTypeNameForSchema(_dataTypeName))) {
                 messages.add(new YVerificationMessage(
                         this,
                         "The type library (Schema) in specification contains no " +
@@ -319,9 +336,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
                         YVerificationMessage.ERROR_STATUS));
             }
         } else if (null != _elementName) {
-            boolean schemaContainsElement =
-                    xty.getPrimarySchemaElementNames().contains(_elementName);
-            if (!schemaContainsElement) {
+            if (! isValidTypeNameForSchema(_elementName)) {
                 messages.add(new YVerificationMessage(
                         this,
                         "The type library (Schema) in specification contains no " +
@@ -333,7 +348,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         } else {
             messages.add(new YVerificationMessage(
                     this,
-                    "name or element name must be set",
+                    "name or element name must be set.",
                     YVerificationMessage.ERROR_STATUS));
         }
 
@@ -362,8 +377,16 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
             }
         }
 
-        //todo check initial value is of data-type
         return messages;
+    }
+
+
+    private boolean isValidTypeNameForSchema(String dataTypeName) {
+        if (XSDType.getInstance().isBuiltInType(dataTypeName)) return true;
+        for (String name : _parentDecomposition.getSpecification().getDataValidator().getPrimaryTypeNames()) {
+            if (dataTypeName.equals(name)) return true;
+        }
+        return false;
     }
 
 

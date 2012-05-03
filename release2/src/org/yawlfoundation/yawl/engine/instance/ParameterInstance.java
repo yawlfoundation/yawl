@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Author: Michael Adams

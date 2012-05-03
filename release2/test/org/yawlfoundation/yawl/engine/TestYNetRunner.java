@@ -13,9 +13,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 
 import java.io.File;
 import java.io.IOException;
