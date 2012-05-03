@@ -1,19 +1,22 @@
 package org.yawlfoundation.yawl.editor.reductionrules;
 
 
-import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.unmarshal.YMarshal;
-import org.yawlfoundation.yawl.exceptions.*;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.editor.analyser.ResetWFNet;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
-import java.util.*;
-import org.jdom.JDOMException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ResetReductionRuleTester{
 	

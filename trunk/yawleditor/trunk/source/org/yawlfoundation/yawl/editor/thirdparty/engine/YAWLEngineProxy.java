@@ -125,7 +125,10 @@ public class YAWLEngineProxy implements YAWLEngineProxyInterface {
     return implementation.getDataTypeSchema();
   }
 
-  
+  public boolean isDefinedTypeName(String name) {
+    return implementation.isDefinedTypeName(name);
+  }
+
   public boolean hasValidDataTypeDefinition() {
     return implementation.hasValidDataTypeDefinition();
   }

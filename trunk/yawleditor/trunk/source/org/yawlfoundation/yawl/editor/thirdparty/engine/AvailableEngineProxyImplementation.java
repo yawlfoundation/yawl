@@ -31,18 +31,15 @@ import net.sf.saxon.query.QueryParser;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.trans.XPathException;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.swing.data.ValidityEditorPane;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
-import org.yawlfoundation.yawl.schema.ElementCreationInstruction;
-import org.yawlfoundation.yawl.schema.XMLToolsForYAWL;
-import org.yawlfoundation.yawl.unmarshal.SchemaForSchemaValidator;
-import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
+import org.yawlfoundation.yawl.schema.SchemaHandler;
+import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import javax.swing.text.AttributeSet;
@@ -59,7 +56,6 @@ public class AvailableEngineProxyImplementation implements
   
   private static final ResetNetAnalysisResultsParser ANALYSIS_RESULTS_PARSER = new ResetNetAnalysisResultsParser();
   
-  private static final SchemaForSchemaValidator schemaValidator = SchemaForSchemaValidator.getInstance();
   private static final InstanceSchemaValidator instanceValidator = InstanceSchemaValidator.getInstance();
   
   protected String sessionID = "";
@@ -67,8 +63,8 @@ public class AvailableEngineProxyImplementation implements
   protected InterfaceA_EnvironmentBasedClient clientInterfaceA;
 
   protected String engineURI;
-  
-  private XMLToolsForYAWL xmlTools;
+
+  private SchemaHandler schemaHandler;
   
   public void engineFormatFileExport(SpecificationModel editorSpec) {
     EngineSpecificationHandler.getInstance().engineFormatFileExport(editorSpec);
@@ -115,98 +111,50 @@ public class AvailableEngineProxyImplementation implements
 
   public LinkedList getSchemaValidationResults(String schema) {
     LinkedList<String> errorList = new LinkedList<String>();
-    try {
-      String errors = schemaValidator.validateSchema(schema);
+    YDataValidator validator = new YDataValidator(schema);
+    if (validator.validateSchema()) return null;      // OK - no errors
 
-      if (errors == null || errors.trim().equals("")) {
-        return null;
-      }
-      
-      String[] errorsAsArray = errors.split("\n");
-
-      errorList.addAll(Arrays.asList(errorsAsArray));
-      return errorList;
-      
-    } catch (Exception e) {
-      errorList.add(e.toString());
-      return errorList;
-    } 
+    errorList.addAll(validator.getMessages());
+    return errorList;
   }
   
   public void setDataTypeSchema(String schema) {
-    try {
-      xmlTools = new XMLToolsForYAWL();
-      xmlTools.setPrimarySchema(schema); 
-    } catch (Exception e) {
-      xmlTools = null;
-    }
+      schemaHandler = new SchemaHandler(schema);
   }
 
   public String getDataTypeSchema() {
-      String schema = null;
       if (hasValidDataTypeDefinition()) {
-          schema = xmlTools.getSchemaString();
+          return schemaHandler.getSchema();
       }
-      return schema;
+      return null;
   }
   
   public boolean hasValidDataTypeDefinition() {
-    return (xmlTools != null) ;
+      return schemaHandler.compileSchema();
   }
 
-  public Set getPrimarySchemaTypeNames() {
-    if (hasValidDataTypeDefinition()) {
-      return xmlTools.getPrimarySchemaTypeNames();
-    }
-    return null;
+  public Set<String> getPrimarySchemaTypeNames() {
+      return schemaHandler.getPrimaryTypeNames();
   }
+
+    public boolean isDefinedTypeName(String name) {
+        return getPrimarySchemaTypeNames().contains(name);
+    }
   
   public String createSchemaForVariable(String variableName, String dataType) {
-    try {
-      return xmlTools.createYAWLSchema(
-          new ElementCreationInstruction[] 
-            { new ElementCreationInstruction(variableName, dataType, false) },
-          "data"
-      ); 
-    }
-    catch (Exception e) {
-      return null;
-    }    
+      DataSchemaBuilder dsb = new DataSchemaBuilder(schemaHandler.getTypeMap());
+      return dsb.buildSchema("data", variableName, dataType);
   }
   
   public int getDataTypeComplexity(String dataType) {
-    int complexity = UNRECOGNISED_DATA_TYPE_COMPLEXITY;
-    
-    Set schemaTypeNames = getPrimarySchemaTypeNames();
-    Iterator i = schemaTypeNames.iterator();
-    while(i.hasNext()) {
-      String knownTypeName = (String) i.next();
-      if (knownTypeName.equals(dataType)) {
-        String dataTypeSchema = createSchemaForVariable("testVar", knownTypeName);
-        if (dataTypeSchema != null) {
-            complexity = getDataSchemaComplexity(dataTypeSchema);
-            break;
-        }
+      Element definition = schemaHandler.getDataTypeDefinition(dataType);
+      if (definition.getName().endsWith("complexType")) {
+          return COMPLEX_DATA_TYPE_COMPLEXITY;
       }
-    }
-    return complexity;
-  }
-
-
-  private int getDataSchemaComplexity(String schema) {
-      Document doc = JDOMUtil.stringToDocument(schema);
-      Element root = doc.getRootElement();                        // schema
-      Namespace ns = root.getNamespace();
-
-      // schemas for complex and simple types have the same prolog - read & discard
-      Element element = root.getChild("element", ns) ;
-      element = element.getChild("complexType", ns);
-      element = element.getChild("sequence", ns);
-      element = element.getChild("element", ns);
-
-      // the next child is either simpleType or complexType
-      element = element.getChild("complexType", ns);
-      return (element != null) ? COMPLEX_DATA_TYPE_COMPLEXITY : SIMPLE_DATA_TYPE_COMPLEXITY;
+      else if (definition.getName().endsWith("simpleType")) {
+          return SIMPLE_DATA_TYPE_COMPLEXITY;
+      }
+      else return UNRECOGNISED_DATA_TYPE_COMPLEXITY;
   }
 
 

@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.thirdparty.engine;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.actions.net.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.NetGraph;

@@ -31,7 +31,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-public class OpenRecentSpecificationAction extends YAWLNoOpenSpecificationAction implements TooltipTogglingWidget {
+public class OpenRecentSpecificationAction extends YAWLSpecificationAction implements TooltipTogglingWidget {
 
   /**
    *

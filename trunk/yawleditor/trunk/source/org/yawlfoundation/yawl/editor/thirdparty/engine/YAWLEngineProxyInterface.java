@@ -79,6 +79,8 @@ public interface YAWLEngineProxyInterface {
   public int getDataTypeComplexity(String dataType);
   
   public String createSchemaForVariable(String variableName, String dataType);
+
+  public boolean isDefinedTypeName(String name);
   
   public String validateBaseDataTypeInstance(String typeDefinition, String schemeInstance);
   

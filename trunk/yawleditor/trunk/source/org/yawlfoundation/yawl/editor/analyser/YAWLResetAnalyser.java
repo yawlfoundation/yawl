@@ -22,7 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.analyser;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.reductionrules.*;
 import org.yawlfoundation.yawl.elements.YDecomposition;

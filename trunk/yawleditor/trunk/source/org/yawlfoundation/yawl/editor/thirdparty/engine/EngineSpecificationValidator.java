@@ -46,16 +46,16 @@ public class EngineSpecificationValidator {
       for (YVerificationMessage message : verificationList) {
           String messageString = message.getMessage();
 
-          if (messageString.indexOf("composite task may not decompose to other than a net") != -1) {
+          if (messageString.contains("composite task may not decompose to other than a net")) {
               continue;
           }
-          if (messageString.indexOf("is not registered with engine.") != -1) {
+          if (messageString.contains("is not registered with engine.")) {
               // We have no running engine when validating, so this is not valid.
               continue;
           }
 
           // External db validation needs a running engine, so this is not valid.
-          if (messageString.indexOf("could not be successfully parsed. External DB") != -1) {
+          if (messageString.contains("could not be successfully parsed. External DB")) {
               continue;
           }
 
@@ -137,16 +137,14 @@ public class EngineSpecificationValidator {
               valid = _checkedDataTypes.get(datatype);
           }
           else {
-              valid = (null != YAWLEngineProxy.getInstance()
-                                   .createSchemaForVariable(var.getName(), datatype));
+              valid = YAWLEngineProxy.getInstance().isDefinedTypeName(datatype);
               _checkedDataTypes.put(datatype, valid) ;
           }
 
-          // schema will be null if datatype is invalid
           if (! valid) {
               String taskDef = taskName == null ? "" : String.format("Task '%s', ", taskName);
               return String.format(
-                 "Invalid or missing datatype definition '%s' in Net '%s', %sVariable '%s'.",
+                 "Invalid or missing datatype definition '%s' in Net '%s', %s Variable '%s'.",
                                      datatype, netName, taskDef, var.getName());
           }
      }

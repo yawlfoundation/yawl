@@ -36,7 +36,7 @@ import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListen
  * @author Lindsay Bradford
  */
 
-public abstract class YAWLNoOpenSpecificationAction extends YAWLBaseAction 
+public abstract class YAWLSpecificationAction extends YAWLBaseAction
                                                     implements SpecificationFileModelListener {
 
   private final SpecificationFileModel fileModel =
