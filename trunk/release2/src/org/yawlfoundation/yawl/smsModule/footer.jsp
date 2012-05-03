@@ -1,4 +1,4 @@
-<%@ page import="org.jdom.JDOMException,
+<%@ page import="org.jdom2.JDOMException,
                  java.io.IOException"%>
                 <%--
   ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.

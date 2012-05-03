@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
@@ -48,9 +48,7 @@ public class DynFormFieldUnion {
     
     private void parse(Element union, Namespace ns) {
         _memberTypes = parseMemberList(union.getAttributeValue("memberTypes"));
-        List children = union.getChildren("simpleType", ns);
-        for (int i=0; i<children.size(); i++) {
-            Element child = (Element) children.get(i);
+        for (Element child : union.getChildren("simpleType", ns)) {
             Element restriction = child.getChild("restriction", ns);
             if (restriction != null) {
                 _restrictionList.add(new DynFormFieldRestriction(restriction, ns));

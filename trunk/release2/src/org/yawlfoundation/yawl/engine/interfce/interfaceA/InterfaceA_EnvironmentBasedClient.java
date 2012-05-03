@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -32,7 +32,6 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -153,8 +152,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
             if (xml != null && successful(xml)) {
                 Document doc = JDOMUtil.stringToDocument(xml);
 
-                for (Object o : doc.getRootElement().getChildren()) {
-                    Element service = (Element) o;
+                for (Element service : doc.getRootElement().getChildren()) {
                     result.add(YAWLServiceReference.unmarshal(JDOMUtil.elementToString(service)));
                 }
             }
@@ -307,9 +305,8 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         if (successful(result)) {
             Document doc = JDOMUtil.stringToDocument(result);
             if (doc != null) {
-                List children = doc.getRootElement().getChildren();
-                for (Object o : children) {
-                    accounts.add(new YExternalClient((Element) o));
+                for (Element e : doc.getRootElement().getChildren()) {
+                    accounts.add(new YExternalClient(e));
                 }
             }
         }

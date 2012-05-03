@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.exceptions;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * 

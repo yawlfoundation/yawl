@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
@@ -137,13 +137,13 @@ public class SchedulingService extends Service {
      */
     public void checkRelations(Document rup) throws JDOMException {
         _log.debug("checkRelations, rup: " + Utils.element2String(rup.getRootElement(), true));
-        String xpath = XMLUtils.getXPATH_Activities(null);
+        String xpath = XMLUtils.getXPATH_Activities();
         List<Element> activities = XMLUtils.getXMLObjects(rup, xpath);
         for (Element activity : activities) {
             Date from = XMLUtils.getDateValue(activity.getChild(XML_FROM), true);
             Date to = XMLUtils.getDateValue(activity.getChild(XML_TO), true);
             if (from != null && to != null && from.after(to)) {
-                XMLUtils.addErrorValue(activity.getChild(XML_TO), true, "To msgBefore From", null);
+                XMLUtils.addErrorValue(activity.getChild(XML_TO), true, "To msgBefore From");
             }
 
             // validate utilisations against scheduling service
@@ -188,7 +188,7 @@ public class SchedulingService extends Service {
         List<Element> relatedActivities = XMLUtils.getXMLObjects(rup,
                 XMLUtils.getXPATH_Activities(relatedActivityName));
         if (relatedActivities.size() != 1) {
-            XMLUtils.addErrorValue(relatedActivityElem, true, "msgUnknownValue", null);
+            XMLUtils.addErrorValue(relatedActivityElem, true, "msgUnknownValue");
         }
         else {
             relatedFrom = XMLUtils.getDateValue(relatedActivities.get(0).getChild(XML_FROM), true);
@@ -336,7 +336,7 @@ public class SchedulingService extends Service {
      * @return
      */
     public void completeRupFromHistory(Document rup, Set<String> addedActivitiyNames) {
-        String xpath = XMLUtils.getXPATH_Activities(null);
+        String xpath = XMLUtils.getXPATH_Activities();
         List<Element> activities = XMLUtils.getElements(rup, xpath);
         List<List<Element>> nodes;
         boolean changed = false;
@@ -928,7 +928,7 @@ public class SchedulingService extends Service {
                     && reservationIdToMatch.longValue() == reservationId.longValue()) {
                 Element status = reservation.getChild(XML_STATUS);
                 if (status.getText().equals(RESOURCE_STATUS_REQUESTED) || status.getText().equals(RESOURCE_STATUS_RESERVED)) {
-                    XMLUtils.addErrorValue(reservation, true, "msgUnavailable", null);
+                    XMLUtils.addErrorValue(reservation, true, "msgUnavailable");
                     reservationsMatched.add(reservation);
                 }
                 status.setText(statusNew);
@@ -1067,7 +1067,7 @@ public class SchedulingService extends Service {
      */
     private long getOverallTimeInMin(Document rup) {
         long begin = Long.MAX_VALUE, end = 0;
-        List<Element> activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(null));
+        List<Element> activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities());
         for (Element activity2 : activities) {
             String activityName2 = activity2.getChildText(XML_ACTIVITYNAME);
             try {

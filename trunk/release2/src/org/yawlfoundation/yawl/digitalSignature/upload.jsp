@@ -5,9 +5,9 @@
      org.apache.commons.fileupload.disk.DiskFileItemFactory,
      org.apache.commons.fileupload.servlet.ServletFileUpload,
      org.apache.commons.io.FilenameUtils,
-     org.jdom.Element,
-     org.jdom.output.Format,
-     org.jdom.output.XMLOutputter" %>
+     org.jdom2.Element,
+     org.jdom2.output.Format,
+     org.jdom2.output.XMLOutputter" %>
 
 <%@ page import="org.yawlfoundation.yawl.digitalSignature.DigitalSignature" %>
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.Marshaller" %>

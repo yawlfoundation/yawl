@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
@@ -325,8 +325,8 @@ public class WorkQueue {
             _ownerID = element.getChildText("ownerid");
             Element items = element.getChild("workitems");
             if (items != null) {
-                for (Object o : items.getChildren()) {
-                    WorkItemRecord wir = Marshaller.unmarshalWorkItem((Element) o) ;
+                for (Element e : items.getChildren()) {
+                    WorkItemRecord wir = Marshaller.unmarshalWorkItem(e) ;
                     _workitems.put(wir.getID(), wir);
                 }
             }

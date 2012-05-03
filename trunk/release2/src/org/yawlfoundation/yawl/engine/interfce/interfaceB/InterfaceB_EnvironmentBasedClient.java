@@ -18,9 +18,9 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
@@ -930,8 +930,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         if (xml != null && successful(xml)) {
             Document doc = JDOMUtil.stringToDocument(xml);
             if (doc != null) {
-                for (Object o : doc.getRootElement().getChildren()) {
-                    Element item = (Element) o;
+                for (Element item : doc.getRootElement().getChildren()) {
                     result.add(Marshaller.unmarshalWorkItem(item));
                 }
             }

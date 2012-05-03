@@ -18,163 +18,170 @@
 
 package org.yawlfoundation.yawl.schema;
 
-import org.yawlfoundation.yawl.util.DOMUtil;
+import org.jdom2.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.util.Vector;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
 
 /**
- * This object acts a reusable Schema validator for a given schema. Once
- * the schema has been succesfully compiled, any number of XML documents can
+ * This object acts as a reusable Schema validator for a given schema. Once
+ * the schema has been successfully compiled, any number of XML documents can
  * be validated by calling either of the validate methods.
  *
  * @author Mike Fowler
  *         Date: 04-Jul-2006
  */
-public class SchemaHandler
-{
-    /**
-     * String representation of the Schema
-     */
-    private String schemaXML;
+public class SchemaHandler {
 
-    /**
-     * Java Object model of the Schema schemaXML.
-     */
+    // Raw schema source - can be initiated as a String, InputStream or a URL to the xsd
+    private Source schemaSource;
+
+    // Object model of the Schema
     private Schema schema;
 
-    /**
-     * Captures all errors and warning relating to the parsing of an XML document.
-     */
+    // String version of the Schema - needed by calling classes
+    private String schemaString;
+
+    // a map of complex-type names to their element definitions
+    private Map<String, Element> typeMap;
+
+    // Captures all errors and warning relating to the parsing of an XML document
     private ErrorHandler errorHandler;
 
-    /**
-     * Used to capture the last exception thrown by the hanlder or XML parser.
-     */
+    // Used to capture the last exception thrown by the handler or XML parser.
     private String exceptionMessage;
 
-    /**
-     * Indicates if the schema has compiled succesfully.
-     */
+    // Indicates if the schema has compiled successfully.
     private boolean compiled = false;
 
+
     /**
-     * Constructs a new SchemaHandler based on the schema schemaXML.
-     *
-     * @param schemaXML Schema XML to based schemaHandler
+     * Private no-argument constructor
      */
-    public SchemaHandler(String schemaXML)
-    {
-        this.schemaXML = schemaXML;
-        this.errorHandler = new ErrorHandler();
+    private SchemaHandler() {
+        errorHandler = new ErrorHandler();
     }
 
     /**
+     * Constructs a new SchemaHandler
+     * @param xml XML String representing the schema this handler will use for validation
+     */
+    public SchemaHandler(String xml) {
+        this();
+        schemaString = xml;
+        setSchema(schemaString);
+    }
+
+    /**
+     * Constructs a new SchemaHandler
+     * @param is a Stream representing the schema this handler will use for validation
+     */
+    public SchemaHandler(InputStream is) {
+        this();
+        schemaString = StringUtil.streamToString(is);
+        setSchema(schemaString);
+    }
+
+    /**
+     * Constructs a new SchemaHandler
+     * @param url a URL to the XSD representing the schema this handler will use for validation
+     */
+    public SchemaHandler(URL url) {
+        this();
+        schemaString = streamToString(url);
+        schemaSource = new StreamSource(url.toExternalForm());
+    }
+
+
+    /**
+     * Compiles the schema, and if successful validates an XML String against it
+     * @param xml the XML String to validate against Schema
+     * @return true if the Schema compiles without error AND the XML is a valid instance
+     * of the Schema
+     */
+    public boolean compileAndValidate(String xml) {
+        return compileSchema() && validate(xml);
+    }
+
+
+    /**
      * Attempts to compile the schema. If successful, allows an XML document to be validated.
-     *
      * @return true if the schema has compiled successfully.
      */
-    public boolean compileSchema()
-    {
+    public boolean compileSchema() {
+        if (compiled) return true;
+
         errorHandler.reset();
         exceptionMessage = null;
 
-        try
-        {
+        try {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setErrorHandler(errorHandler);
-
-            schema = factory.newSchema(new SAXSource(DOMUtil.createUTF8InputSource(schemaXML)));
+            schema = factory.newSchema(schemaSource);
             return compiled = errorHandler.isValid();
         }
-        catch (Exception e)
-        {
-            exceptionMessage = "Validation failed with exception: " + StringUtil.convertThrowableToString(e);
+        catch (Exception e) {
+            exceptionMessage = "Schema compile failed with exception: " + e.getMessage();
             return false;
         }
     }
 
     /**
      * Validates the given XML document against the compiled schema.
-     *
      * @param xml instance document to be validated.
      * @return true if the xml is a valid instance of the schema
-     * @throws IllegalStateException if schema has not been compiled succesfully
+     * @throws IllegalStateException if schema has not been compiled successfully
      */
-    public boolean validate(String xml)
-    {
-        if(!compiled)
-        {
-            throw new IllegalStateException("SchemaHandler must have a valid compiled schema before validation can be performed.");
+    public boolean validate(String xml) {
+        if (! compiled) {
+            throw new IllegalStateException("Schema must first have been successfully " +
+                    "compiled before validation can be performed.");
         }
 
         errorHandler.reset();
         exceptionMessage = null;
 
-        try
-        {
+        try {
             Validator validator = schema.newValidator();
             validator.setErrorHandler(errorHandler);
-            validator.validate(new SAXSource(DOMUtil.createUTF8InputSource(xml)));
+            validator.validate(stringToSource(xml));
             return errorHandler.isValid();
         }
-        catch (Exception e)
-        {
-            exceptionMessage = "Validation failed with exception: " + StringUtil.convertThrowableToString(e);
+        catch (Exception e) {
+            exceptionMessage = "Validation failed with exception: " + e.getMessage();
             return false;
         }
     }
 
-    /**
-     * Validates the given XML document against the compiled schema. Converts the
-     * dom to a String and calls validate(String xml).
-     *
-     * @param dom document to be validated
-     * @return true if the xml is a valid instance of the schema
-     * @throws IllegalStateException if schema has not been compiled succesfully
-     */
-    public boolean validate(Document dom)
-    {
-        try
-        {
-            return validate(DOMUtil.getXMLStringFragmentFromNode(dom));
-        }
-        catch (TransformerException e)
-        {
-            exceptionMessage = "Validation failed with exception: " + StringUtil.convertThrowableToString(e);
-            return false;
-        }
-    }
 
     /**
      * @return all error messages from the last validation/compilation
      */
-    public Vector<String> getErrorMessages()
-    {
+    public List<String> getErrorMessages() {
         return errorHandler.getErrors();
     }
 
     /**
      * @return all warning messages from the last validation/compilation
      */
-    public Vector<String> getWarningMessages()
-    {
+    public List<String> getWarningMessages() {
         return errorHandler.getWarnings();
     }
 
     /**
      * @return all messages from the last validation/compilation
      */
-    public Vector<String> getMessages()
-    {
-        Vector<String> messages = errorHandler.getErrors();
+    public List<String> getMessages() {
+        List<String> messages = errorHandler.getErrors();
         messages.addAll(errorHandler.getWarnings());
         if (exceptionMessage != null) messages.add(exceptionMessage);
         return messages;
@@ -183,42 +190,104 @@ public class SchemaHandler
     /**
      * @return all messages since the last validation/compilation
      */
-    public String getConcatenatedMessage()
-    {
+    public String getConcatenatedMessage() {
         StringBuilder builder = new StringBuilder();
-
-        for(String string : getErrorMessages())
-        {
-            builder.append(string);
-            builder.append("\n");
+        for (String msg : getMessages()) {
+            builder.append(msg).append("\n");
         }
-
-        for(String string : getWarningMessages())
-        {
-            builder.append(string);
-            builder.append("\n");
-        }
-
-        if (exceptionMessage != null) builder.append(exceptionMessage);
-
         return builder.toString();
     }
 
     /**
      * @return String representation of the schema
      */
-    public String getSchema()
-    {
-        return schemaXML;
+    public String getSchema() {
+        return schemaString;
     }
 
     /**
      * @param schema new schema to use (resets everything)
      */
-    public void setSchema(String schema)
-    {
-        schemaXML = schema;
+    public void setSchema(String schema) {
+        try {
+            schemaSource = stringToSource(schema);
+        }
+        catch (UnsupportedEncodingException uee) {
+            schemaSource = new StreamSource(new StringReader(schema));  // fallback
+        }
         errorHandler.reset();
         compiled = false;
     }
+
+    /**
+     * @return the set of (first-level) type names defined in this schema
+     */
+    public Set<String> getPrimaryTypeNames() {
+        assembleMap();
+        return typeMap.keySet();
+    }
+
+    /**
+     * Gets the schema element definition of a data type by name
+     * @param typeName the data type name
+     * @return the corresponding definition, or null if the type name is unknown
+     */
+    public Element getDataTypeDefinition(String typeName) {
+        assembleMap();
+        return typeMap.get(typeName);
+    }
+
+    /**
+     * Gets the map of data type names to their definitions
+     * @return the map of names to definitions
+     */
+    public Map<String, Element> getTypeMap() {
+        assembleMap();
+        return typeMap;
+    }
+
+    /**
+     * Converts a string to a UTF-8 encoded InputSource
+     * @param xml the XML string
+     * @return a Source object to the String
+     * @throws UnsupportedEncodingException
+     */
+    private Source stringToSource(String xml) throws UnsupportedEncodingException {
+        return new StreamSource(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+    }
+
+
+    /**
+     * Reads the contents at a URL into a String
+     * @param url the URL resource
+     * @return a String containing the resource at the URL
+     */
+    private String streamToString(URL url) {
+        try {
+            return StringUtil.streamToString(url.openStream());
+        }
+        catch (IOException ioe) {       // when opening stream
+            return null;
+        }
+    }
+
+
+    /**
+     * Creates a map of type names to their elements.
+     */
+    private void assembleMap() {
+        if (typeMap == null) {
+            typeMap = new Hashtable<String, Element>();
+            if (schemaString != null) {
+                Element dataSchema = JDOMUtil.stringToElement(getSchema());
+                for (Element child : dataSchema.getChildren()) {
+                    String name = child.getAttributeValue("name");
+                    if (name != null) {
+                        typeMap.put(name, child);
+                    }
+                }
+            }
+        }
+    }
+
 }

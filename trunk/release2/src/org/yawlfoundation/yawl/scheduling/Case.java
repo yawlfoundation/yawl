@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
@@ -193,7 +193,7 @@ public class Case {
 	public String getText(int depth, String xPath) {
 		if (depth < getData().size()) {
 			try	{
-				Element depthElement = (Element) getData().get(depth).clone();
+				Element depthElement = getData().get(depth).clone();
 			    _log.debug("Reading " + xPath + " from " +
                         Utils.element2String(depthElement, true));
 				Element xpathResult = XMLUtils.getElement(
@@ -216,7 +216,7 @@ public class Case {
 	 * @param xPath the expression to evaluate
 	 * @return the text matching the XPath evaluation, or null if no match is found
 	 */
-	public String getText(String xPath)	{;
+	public String getText(String xPath)	{
 		for (int i = (getData().size() - 1); i >= 0; i--) {
 			String text = getText(i, xPath);
 			if (text != null) {

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.jdom.Document;
+import org.jdom2.Document;
 
 /**
  * @author Michael Adams

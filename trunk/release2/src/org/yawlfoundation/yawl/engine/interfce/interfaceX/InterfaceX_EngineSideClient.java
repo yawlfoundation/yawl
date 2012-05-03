@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;

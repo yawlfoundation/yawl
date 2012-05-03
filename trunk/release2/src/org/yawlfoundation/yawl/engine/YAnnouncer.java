@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;

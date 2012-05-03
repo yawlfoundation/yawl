@@ -19,11 +19,11 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.IllegalAddException;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.IllegalAddException;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -34,8 +34,6 @@ import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -311,11 +309,8 @@ public class WorkletRecord {
 
         try {
             // transfer the workitem's data items to the file
-            List dataItems = _datalist.getChildren() ;
-            Iterator itr = dataItems.iterator();
-            while (itr.hasNext()) {
-                Element e = (Element) itr.next() ;
-                eCaseData.addContent((Element) e.clone());
+            for (Element dataItem : _datalist.getChildren()) {
+                eCaseData.addContent(dataItem.clone());
             }
 
             //set values for the workitem identifiers
@@ -377,7 +372,7 @@ public class WorkletRecord {
            fos.close();
       }
       catch (IOException ioe){
-          _log.error("IO Exeception in saving Document to file", ioe) ;
+          _log.error("IO Exception in saving Document to file", ioe) ;
       }
    }
 

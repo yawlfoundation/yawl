@@ -18,10 +18,9 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;
 import java.util.Vector;
@@ -75,56 +74,41 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
 
     public int getMinInstances() {
-        if (_minInstances != null) {
-            return _minInstances.intValue();
-        }
-        Number result = null;
+        if (_minInstances != null) return _minInstances;
+
         try {
-            XPath xpath = XPath.newInstance(_minInstancesQuery);
-            result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (ClassCastException e) {
+            return getQueryValue(_minInstancesQuery);
+        }
+        catch (Exception e) {
             throw new RuntimeException("The minInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");
         }
-        return result.intValue();
     }
 
 
     public int getMaxInstances() {
-        if (_maxInstances != null) {
-            return _maxInstances.intValue();
-        }
-        Number result = null;
+        if (_maxInstances != null) return _maxInstances;
+
         try {
-            XPath xpath = XPath.newInstance(_maxInstancesQuery);
-            result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (ClassCastException e) {
+            return getQueryValue(_maxInstancesQuery);
+        }
+        catch (Exception e) {
             throw new RuntimeException("The maxInstances query at " + _myTask
                     + " didn't produce numerical output as excepted.");
         }
-        return result.intValue();
     }
 
 
     public int getThreshold() {
-        if (_threshold != null) {
-            return _threshold.intValue();
-        }
-        Number result = null;
+        if (_threshold != null) return _threshold;
+
         try {
-            XPath xpath = XPath.newInstance(_thresholdQuery);
-            result = (Number) xpath.selectSingleNode(_myTask._net.getInternalDataDocument());
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (ClassCastException e) {
+            return getQueryValue(_thresholdQuery);
+        }
+        catch (Exception e) {
             throw new RuntimeException("The threshold query at " + _myTask
                     + " didn't produce numerical output as excepted.");
         }
-        return result.intValue();
     }
 
 
@@ -235,5 +219,12 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         }
         return copy;
     }
+
+    private int getQueryValue(String query) throws ClassCastException {
+        Element element = JDOMUtil.selectElement(_myTask._net.getInternalDataDocument(), query);
+        if (element == null) throw new RuntimeException();
+        return new Integer(element.getText());
+    }
+
 }//end class
 

@@ -267,7 +267,7 @@ public class ConfigManager implements Constants {
 
                     String[] subResult = new String[formatsCount];
                     for (int i = 0; i < formatsCount; i++) {
-                        subResult[i] = getLocalizedString(subKeys[arrayCount], null);
+                        subResult[i] = getLocalizedString(subKeys[arrayCount], new String[0]);
                         arrayCount++;
                     }
                     result += format.format(subResult);
@@ -329,7 +329,7 @@ public class ConfigManager implements Constants {
      * @return the value matching the key, or the key itself if not found
      */
     public String getLocalizedString(String key) {
-        return getLocalizedString(key, null);
+        return getLocalizedString(key, new String[0]);
     }
 
 }

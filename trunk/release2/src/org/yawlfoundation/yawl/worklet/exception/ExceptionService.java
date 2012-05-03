@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.worklet.exception;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
@@ -121,7 +121,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     // called from servlet WorkletGateway after contexts are loaded
     public void completeInitialisation() {
-    //    super.completeInitialisation();
+        super.completeInitialisation();
         _ixClient = new InterfaceX_ServiceSideClient(_engineURI.replaceFirst("/ib", "/ix"));
         if (_persisting) restoreDataSets();             // reload running cases data
     }
@@ -1017,17 +1017,14 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         try {
             // only executing items can be removed, so if its only fired or enabled, or
             // if its suspended, move it to executing first
-            if (wir.getStatus().equals(WorkItemRecord.statusSuspended))
-                unsuspendWorkItem(wir);
-            if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                    wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
-                CheckedOutItem coi = executeWorkItem(wir);
-                wir = coi.getChildWorkItem(0);
-            }
+            wir = moveToExecuting(wir);
 
             if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
-                _ixClient.cancelWorkItem(wir.getID(), null, false, _sessionHandle);
-                _log.info("WorkItem successfully removed from Engine: " + wir.getID());
+                String msg = _ixClient.cancelWorkItem(wir.getID(), null, false, _sessionHandle);
+                if (successful(msg)) {
+                    _log.info("WorkItem successfully removed from Engine: " + wir.getID());
+                }
+                else _log.error("Failed to remove work item: " + msg);
             }
             else _log.error("Can't remove a workitem with a status of " + wir.getStatus());
 
@@ -1090,8 +1087,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             String casesForSpec =  _interfaceBClient.getCases(specID, _sessionHandle);
             Element eCases = JDOMUtil.stringToElement(casesForSpec);
 
-            for (Object o : eCases.getChildren()) {
-                removeCase(((Element) o).getText());
+            for (Element eCase : eCases.getChildren()) {
+                removeCase(eCase.getText());
             }
         }
         catch (IOException ioe) {
@@ -1142,22 +1139,19 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // only executing items can complete, so if its only fired or enabled, or
         // if its suspended, move it to executing first
-        if (wir.getStatus().equals(WorkItemRecord.statusSuspended))
-            unsuspendWorkItem(wir);
-        if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
-            CheckedOutItem coi = executeWorkItem(wir);
-            wir = coi.getChildWorkItem(0);
-        }
+        wir = moveToExecuting(wir);
 
         if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
             try {
                 Element data = mergeCompletionData(wir, wir.getDataList(), out);
-                _ixClient.forceCompleteWorkItem(wir, data, _sessionHandle);
-                _log.info("Item successfully force completed: " + wir.getID());
+                String msg = _ixClient.forceCompleteWorkItem(wir, data, _sessionHandle);
+                if (successful(msg)) {
+                    _log.info("Item successfully force completed: " + wir.getID());
+                }
+                else _log.error("Failed to force complete workitem: " + msg);
             }
             catch (IOException ioe) {
-                _log.error("Exception attempting complete workitem: " + wir.getID(), ioe);
+                _log.error("Failed to force complete workitem: " + wir.getID(), ioe);
             }
         }
         else _log.error("Can't force complete a workitem with a status of " + wir.getStatus());
@@ -1171,7 +1165,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // ASSUMPTION: Only an 'executing' workitem may be restarted
         if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
             try {
-                _ixClient.restartWorkItem(wir.getID(), _sessionHandle);
+                String msg = _ixClient.restartWorkItem(wir.getID(), _sessionHandle);
+                if (successful(msg)) {
+                    _log.info("Item successfully restarted: " +wir.getID());
+                }
+                else _log.error("Failed to restart workitem: " + msg);
             }
             catch (IOException ioe) {
                 _log.error("Exception attempting restart workitem: " + wir.getID(), ioe);
@@ -1187,13 +1185,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         try {
             // only executing items can be failed, so if its only fired or enabled, or
             // if its suspended, move it to executing first
-            if (wir.getStatus().equals(WorkItemRecord.statusSuspended))
-                unsuspendWorkItem(wir);
-            if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                    wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
-                CheckedOutItem coi = executeWorkItem(wir);
-                wir = coi.getChildWorkItem(0);
-            }
+            wir = moveToExecuting(wir);
 
             // ASSUMPTION: Only an 'executing' workitem may be failed
             if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
@@ -1422,6 +1414,18 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         CheckedOutItem coItem = checkOutParentItem(wir) ;
         checkOutChildren(coItem) ;	          // always at least one child
         return coItem ;
+    }
+
+
+    private WorkItemRecord moveToExecuting(WorkItemRecord wir) {
+        if (wir.getStatus().equals(WorkItemRecord.statusSuspended))
+            unsuspendWorkItem(wir);
+        if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
+                wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+            CheckedOutItem coi = executeWorkItem(wir);
+            wir = coi.getChildWorkItem(0);
+        }
+        return wir;
     }
 
 

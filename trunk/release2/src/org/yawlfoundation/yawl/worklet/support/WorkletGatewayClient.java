@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;

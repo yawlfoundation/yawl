@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 /**

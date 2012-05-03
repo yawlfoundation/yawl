@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.instance;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.util.JDOMUtil;

@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -348,9 +348,7 @@ public class YWorkItem {
             Map<String, YParameter> params =
                     _engine.getParameters(_specID, getTaskID(), input) ;
             String descriptor = (input ? "Input" : "Output") + "VarAssignment";
-            List list = data.getChildren();
-            for (Object o : list) {
-                Element child = (Element) o;
+            for (Element child : data.getChildren()) {
                 String name = child.getName();
                 String value = child.getValue();
                 YParameter param = params.get(name);

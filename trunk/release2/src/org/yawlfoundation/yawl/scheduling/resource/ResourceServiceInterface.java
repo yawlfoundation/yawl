@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.scheduling.resource;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -133,8 +133,8 @@ public class ResourceServiceInterface implements Constants {
 		_log.debug("-------------available " + avail + " for " + resourceXML);
 
 		List<Element> timeSlots = new ArrayList<Element>();
-		for (Object timeSlot : Utils.string2Element(avail).getChildren())	{
-			timeSlots.add((Element) timeSlot);
+		for (Element timeSlot : Utils.string2Element(avail).getChildren())	{
+			timeSlots.add(timeSlot);
 		}
 		return timeSlots;
 	}
@@ -393,7 +393,7 @@ public class ResourceServiceInterface implements Constants {
 
 	public void addReservations(Document rup, Map<String, List<Element>> res)
             throws JDOMException {
-		String xpath = XMLUtils.getXPATH_Activities(null);
+		String xpath = XMLUtils.getXPATH_Activities();
 		List<Element> activities = XMLUtils.getXMLObjects(rup, xpath);
 		for (Element activity : activities)	{
 			List<Element> l = res.get(activity.getChildText(XML_ACTIVITYNAME));

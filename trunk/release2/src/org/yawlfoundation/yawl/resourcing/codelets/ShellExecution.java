@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.codelets;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import java.io.File;
@@ -123,10 +123,9 @@ public class ShellExecution extends AbstractCodelet {
         Element envElem = inData.getChild("env");
         if (envElem != null) {
             Map<String, String> env = pb.environment();
-            List addToEnvList = envElem.getChildren();
+            List<Element> addToEnvList = envElem.getChildren();
             if (addToEnvList != null) {
-                for (Object envVar : addToEnvList) {
-                    Element child = (Element) envVar;
+                for (Element child : addToEnvList) {
                     env.put(child.getName(), child.getText());
                 }
             }

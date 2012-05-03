@@ -18,11 +18,11 @@
 
 package org.yawlfoundation.yawl.scheduling.util;
 
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -352,7 +352,7 @@ public class Utils implements Constants {
 	{
 		List<Element> list = new ArrayList<Element>();
 		Element tmp = string2Element("<tmp>" + s + "</tmp>");
-		for (Element e : (List<Element>) tmp.getChildren())
+		for (Element e : tmp.getChildren())
 		{
 			// list.add((Element)e.detach());
 			list.add(Utils.string2Element(Utils.element2String(e, false)));

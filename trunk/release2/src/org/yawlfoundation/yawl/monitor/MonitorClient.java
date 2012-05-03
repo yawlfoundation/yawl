@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.monitor;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.instance.CaseInstance;
 import org.yawlfoundation.yawl.engine.instance.ParameterInstance;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
@@ -83,11 +83,11 @@ public class MonitorClient {
         String xml = _interfaceBClient.getCaseInstanceSummary(getEngineHandle());
         Element cases = JDOMUtil.stringToElement(xml);
         if (cases != null) {
-            List children = cases.getChildren();
+            List<Element> children = cases.getChildren();
             if (! children.isEmpty()) {
                 caseList = new ArrayList<CaseInstance>();
-                for (Object child : children) {
-                    caseList.add(new CaseInstance((Element) child));
+                for (Element child : children) {
+                    caseList.add(new CaseInstance(child));
                 }
             }
             String startTime = cases.getAttributeValue("startuptime");
@@ -104,14 +104,11 @@ public class MonitorClient {
         Element items = JDOMUtil.stringToElement(xml);
         if (items != null) {
             itemList = new ArrayList<WorkItemInstance>();
-            List children = items.getChildren();
-            for (Object child : children) {
-                Element eChild = (Element) child;
+            for (Element child : items.getChildren()) {
 
                 // ignore parent workitems
-                if (! "statusIsParent".equals(eChild.getChildText("status"))) {
-                    WorkItemInstance instance = new WorkItemInstance((Element) child);
-                    itemList.add(instance);
+                if (! "statusIsParent".equals(child.getChildText("status"))) {
+                    itemList.add(new WorkItemInstance(child));
                 }
             }
         }
@@ -125,10 +122,8 @@ public class MonitorClient {
         String xml = _interfaceBClient.getParameterInstanceSummary(caseID, itemID, getEngineHandle());
         Element params = JDOMUtil.stringToElement(xml);
         if (params != null) {
-            List children = params.getChildren();
-            for (Object child : children) {
-                ParameterInstance instance = new ParameterInstance((Element) child);
-                paramList.add(instance);
+            for (Element child : params.getChildren()) {
+                paramList.add(new ParameterInstance(child));
             }
         }
         return paramList;
@@ -251,10 +246,8 @@ public class MonitorClient {
         if (successful(xml)) {
             Element events = JDOMUtil.stringToElement(xml);
             if (events != null) {
-                List children = events.getChildren();
-                for (Object child : children) {
-                    YLogEvent event = new YLogEvent((Element) child);
-                    eventList.add(event);
+                for (Element child : events.getChildren()) {
+                    eventList.add(new YLogEvent(child));
                 }
             }
         }
@@ -269,10 +262,8 @@ public class MonitorClient {
         if (successful(xml)) {
             Element events = JDOMUtil.stringToElement(xml);
             if (events != null) {
-                List children = events.getChildren();
-                for (Object child : children) {
-                    ResourceEvent event = new ResourceEvent((Element) child);
-                    eventList.add(event);
+                for (Element child : events.getChildren()) {
+                    eventList.add(new ResourceEvent(child));
                 }
             }
         }

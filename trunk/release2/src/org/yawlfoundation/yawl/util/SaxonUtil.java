@@ -18,25 +18,36 @@
 
 package org.yawlfoundation.yawl.util;
 
-import net.sf.saxon.jdom.DocumentWrapper;
-import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.s9api.*;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Content;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.output.DOMOutputter;
 
 import java.io.StringWriter;
 import java.util.List;
 
 /**
- * Author: Michael Adams
- * Creation Date: 10/07/2008
+ * @author Michael Adams
+ * @date 10/07/2008
  */
 
 public class SaxonUtil {
 
-    private static Processor _processor = new Processor(false);
+    private static final Processor _processor = new Processor(false);
+    private static final Serializer _output = new Serializer();
+    private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
+    private static final DOMOutputter _domOutputter = new DOMOutputter();
 
 
+    /**
+     * Evaluates an XQuery against a data document
+     * @param query the XQuery to evaluate
+     * @param dataDoc a JDOM Document containing the data tree
+     * @return an XML String representing the result of the evaluation
+     * @throws SaxonApiException if there's a problem with the XQuery or Document
+     */
     public static String evaluateQuery(String query, Document dataDoc)
             throws SaxonApiException {
 
@@ -44,28 +55,40 @@ public class SaxonUtil {
         XQueryEvaluator evaluator = initEvaluator(query, dataDoc);
 
         // create a StringWriter to receive the output of the evaluation
-        Serializer output = new Serializer();
         StringWriter writer = new StringWriter();
-        output.setOutputWriter(writer);
+        _output.setOutputWriter(writer);
 
         // evaluate the query & return the result as a string
-        evaluator.run(output);
+        evaluator.run(_output);
         return removeHeader(writer.toString());
     }
 
 
+    /**
+     * Evaluates an XQuery against a data document
+     * @param query the XQuery to evaluate
+     * @param dataDoc a JDOM Document containing the data tree
+     * @return a JDOM Element representing the result of the evaluation
+     * @throws SaxonApiException if there's a problem with the XQuery or Document
+     */
     public static Element evaluateTreeQuery(String query, Document dataDoc)
             throws SaxonApiException {
-
         return JDOMUtil.stringToElement(evaluateQuery(query, dataDoc));
     }
 
 
-    public static List evaluateListQuery(String query, Element data)
+    /**
+     * Evaluates an XQuery against a data document
+     * @param query the XQuery to evaluate
+     * @param dataElem a JDOM Element containing the data tree
+     * @return a List containing the Element(s) resulting from the evaluation
+     * @throws SaxonApiException if there's a problem with the XQuery or Element
+     */
+    public static List<Content> evaluateListQuery(String query, Element dataElem)
             throws SaxonApiException {
 
         // put the element in a jdom document
-        Document dataDoc = new Document((Element) data.clone());
+        Document dataDoc = new Document(dataElem.clone());
         String result = evaluateQuery(query, dataDoc);
 
         // use the string result to create a doc to get it expressed as an element list
@@ -74,27 +97,43 @@ public class SaxonUtil {
     }
 
 
+    /**
+     * Compiles an XQuery so that it can be executed
+     * @param query the XQuery to compile
+     * @return the executable query
+     * @throws SaxonApiException if there's a problem with the XQuery
+     */
     public static XQueryExecutable compileXQuery(String query)
             throws SaxonApiException {
-        return _processor.newXQueryCompiler().compile(query);
+        return _compiler.compile(query);
     }
 
+
+    /******************************************************************************/
 
     private static XQueryEvaluator initEvaluator(String query, Document dataDoc)
             throws SaxonApiException {
 
         // wrap the jdom doc into something saxon understands
-        DocumentInfo saxonDoc = new DocumentWrapper(dataDoc, "",
-                                                _processor.getUnderlyingConfiguration());
-        XdmNode xdmDoc = _processor.newDocumentBuilder().wrap(saxonDoc);
+        org.w3c.dom.Document domDoc = toDOM(dataDoc);
 
         // compile & load query
         XQueryExecutable executable = compileXQuery(query);
         XQueryEvaluator evaluator = executable.load();
 
-        // set the context to the jdom (data) document
-        evaluator.setContextItem(xdmDoc);
+        // set the context to the data document
+        evaluator.setContextItem(_processor.newDocumentBuilder().wrap(domDoc));
         return evaluator ;
+    }
+
+
+    private static org.w3c.dom.Document toDOM(Document doc) throws SaxonApiException {
+        try {
+            return _domOutputter.output(doc);
+        }
+        catch (JDOMException jde) {
+            throw new SaxonApiException("Failed to translate JDOM Document for processing.");
+        }
     }
 
 

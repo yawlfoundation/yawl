@@ -20,10 +20,8 @@ package org.yawlfoundation.yawl.elements;
 
 import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
@@ -498,7 +496,7 @@ public abstract class YTask extends YExternalNetElement {
 
                 if (query.equals(getPreJoiningMIQuery())) {
                     _groupedMultiInstanceOutputData.getRootElement().addContent(
-                            (Element) queryResultElement.clone());
+                            queryResultElement.clone());
                 }
                 else {
                     _localVariableNameToReplaceableOutputData.put(
@@ -512,7 +510,7 @@ public abstract class YTask extends YExternalNetElement {
                     YVariable var = _net.getLocalOrInputVariable(localVarThatQueryResultGetsAppliedTo);
                     try {
                         Element tempRoot = new Element(_decompositionPrototype.getID());
-                        tempRoot.addContent((Element) queryResultElement.clone());
+                        tempRoot.addContent(queryResultElement.clone());
                         /**
                          * MF: Skip schema checking if we have an empty XQuery result to allow us to effectively blank-out
                          * a net variable.
@@ -631,30 +629,30 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private static void generateCompletingReport2(Element resultElem, String forNetVar, String query, Document data) {
+    private static void generateCompletingReport2(Element resultElem, String forNetVar,
+                                                  String query, Document data) {
         if(logger.isDebugEnabled()) {
-            XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
             logger.debug("\n\nYTask::t_completing " +
                     "\n\tstatus: transforming output for net" +
                     "\n\tforNetVar = " + forNetVar +
                     "\n\tquery = " + query +
-                    "\n\tover data = " + out.outputString(data).trim() +
-                    "\n\tresulting data = " + out.outputString(resultElem).trim());
+                    "\n\tover data = " + JDOMUtil.documentToString(data) +
+                    "\n\tresulting data = " + JDOMUtil.elementToString(resultElem));
         }
     }
 
-    private void generateCompletingReport1(String query, Document rawDecompositionData, Element queryResultElement) {
+    private void generateCompletingReport1(String query, Document rawDecompositionData,
+                                           Element queryResultElement) {
         if(logger.isDebugEnabled()) {
-            String debug = "\n\n\nYTask::completing\n\tTaskID = " + getID() + "\n\tquery " + query;
+            StringBuilder debug = new StringBuilder("\n\n\nYTask::completing\n\tTaskID = ");
+            debug.append(getID()).append("\n\tquery ").append(query);
             if (query.equals(getPreJoiningMIQuery())) {
-                debug = debug + "\tquery = [" + query + "] is pre-joining MI query.";
+                debug.append("\tquery = [").append(query).append("] is pre-joining MI query.");
             }
-
-            XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-            String rawDataStr = out.outputString(rawDecompositionData).trim();
-            debug = debug + "\n\trawDecomositionData = " + rawDataStr;
-            String queryResultStr = out.outputString(queryResultElement).trim();
-            debug = debug + "\n\tresult = " + queryResultStr.trim();
+            debug.append("\n\trawDecomositionData = ");
+            debug.append(JDOMUtil.documentToString(rawDecompositionData));
+            debug.append("\n\tresult = ");
+            debug.append(JDOMUtil.elementToString(queryResultElement));
             logger.debug(debug);
         }
     }
@@ -760,7 +758,7 @@ public abstract class YTask extends YExternalNetElement {
                         _dataMappingsForTaskCompletion.get(uniqueInstanceOutputQuery);
                 YVariable var = _net.getLocalOrInputVariable(localVarThatQueryResultGetsAppliedTo);
                 Element tempRoot = new Element(_decompositionPrototype.getID());
-                tempRoot.addContent((Element) result.clone());
+                tempRoot.addContent(result.clone());
                 try {
                     _net.getSpecification().getDataValidator().validate(var,tempRoot,getID());
                 } catch (YDataValidationException e) {
@@ -787,18 +785,16 @@ public abstract class YTask extends YExternalNetElement {
 
     private void generateExitReports3() {
         if(logger.isInfoEnabled()) {
-            XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
             logger.debug("\tresulting net data = " +
-                    out.outputString(_net.getInternalDataDocument()));
+                    JDOMUtil.documentToString(_net.getInternalDataDocument()));
         }
     }
 
     private void generateExitReports2(String miJoiningQuery, Document groupedOutputData, Element result) {
         if(logger.isInfoEnabled()) {
             logger.debug("\tmi JoiningQuery = " + miJoiningQuery);
-            XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-            logger.debug("\tmi groupedOutputData = " + out.outputString(groupedOutputData));
-            logger.debug("\tmi result = " + out.outputString(result));
+            logger.debug("\tmi groupedOutputData = " + JDOMUtil.documentToString(groupedOutputData));
+            logger.debug("\tmi result = " + JDOMUtil.elementToString(result));
         }
     }
 
@@ -1050,7 +1046,7 @@ public abstract class YTask extends YExternalNetElement {
                     if (YEngine.getInstance().generateUIMetaData()) {
                         result.setAttributes(parameter.getAttributes().toJDOM());
                     }
-                    dataForChildCase.addContent((Element) result.clone());
+                    dataForChildCase.addContent(result.clone());
                 }
             }
         }
@@ -1142,7 +1138,7 @@ public abstract class YTask extends YExternalNetElement {
             throws YDataStateException {
         Element tempRoot = new Element(_decompositionPrototype.getID());
         try {
-            tempRoot.addContent((Element) result.clone());
+            tempRoot.addContent(result.clone());
             _net.getSpecification().getDataValidator().validate(param, tempRoot, getID());
         }
         catch (YDataValidationException e) {

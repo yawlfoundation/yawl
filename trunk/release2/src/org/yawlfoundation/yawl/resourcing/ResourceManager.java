@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.resourcing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
@@ -2597,20 +2597,18 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public String getNetParamValue(String caseID, String paramName) throws IOException {
-        String result = null;
         String caseData = _services.getCaseData(caseID) ;
         Element eData = JDOMUtil.stringToElement(caseData);
-        if (eData != null)
-            result = eData.getChildText(paramName) ;
-        return result;
+        return (eData != null) ? eData.getChildText(paramName) : null ;
     }
 
 
     public String getDataSchema(YSpecificationID specID) {
         String result = null ;
         try {
+            Map<String, Element> schemaMap = getSpecificationDataSchema(specID);
             SpecificationData specData = getSpecData(specID);
-            result = new DataSchemaProcessor().createSchema(specData);
+            result = new DataSchemaBuilder(schemaMap).build(specData);
         }
         catch (Exception e) {
             _log.error("Could not retrieve schema for case parameters", e)  ;
@@ -2666,33 +2664,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
         }
         return schemaMap;
-    }
-
-
-    public String getInstanceData(String schema, YSpecificationID specID) {
-        String result = null;
-        SpecificationData specData = getSpecData(specID);
-        if (specData != null) {
-            result = new DataSchemaProcessor()
-                                .getInstanceData(schema, specData.getRootNetID(), null);
-        }
-        return result ;
-    }
-
-    
-    public String getInstanceData(String schema, WorkItemRecord wir) {
-        String result = null;
-        try {
-            TaskInformation taskInfo = getTaskInformation(wir);
-            if (taskInfo != null)
-               result = new DataSchemaProcessor()
-                                .getInstanceData(schema, taskInfo.getDecompositionID(),
-                                                 wir.getDataListString());
-        }
-        catch (IOException ioe) {
-            result = null ;
-        }
-        return result ;
     }
 
 
@@ -2905,11 +2876,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     private Element updateOutputDataList(Element in, Element out) {
 
          // get a copy of the 'in' list
-         Element result = (Element) in.clone() ;
+         Element result = in.clone() ;
 
          // for each child in 'out' list, get its value and copy to 'in' list
-         for (Object o : (out.getChildren())) {
-             Element e = (Element) o;
+         for (Element e : out.getChildren()) {
 
              // if there's a matching 'in' data item, update its value
              Element resData = result.getChild(e.getName());
@@ -2918,7 +2888,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                  else resData.setText(e.getText());
              }
              else {
-                 result.addContent((Element) e.clone()) ;
+                 result.addContent(e.clone()) ;
              }
          }
 

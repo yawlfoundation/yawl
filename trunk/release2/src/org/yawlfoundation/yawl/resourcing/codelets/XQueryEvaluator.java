@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.codelets;
 
 import net.sf.saxon.s9api.SaxonApiException;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
@@ -53,7 +53,7 @@ public class XQueryEvaluator extends AbstractCodelet {
         this.setInputs(inData, inParams, outParams);
 
         // convert input vars to a Doc
-        Document dataDoc = new Document((Element) inData.clone());
+        Document dataDoc = new Document(inData.clone());
 
         String query = (String) getParameterValue("query");
         String output = evaluateQuery(query, dataDoc);

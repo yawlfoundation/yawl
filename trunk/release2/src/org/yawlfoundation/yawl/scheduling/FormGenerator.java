@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
@@ -137,11 +137,11 @@ public class FormGenerator implements Constants {
         String taskId = wirElement.getChildText("taskid");
         String taskName = taskId.substring(0, taskId.lastIndexOf("_"));
 
-        List children = wirElement.getChild("updateddata").getChildren();
-        Element task = (Element) (children.isEmpty() ? null : children.get(0));
+        List<Element> children = wirElement.getChild("updateddata").getChildren();
+        Element task = (children.isEmpty() ? null : children.get(0));
         if (task == null) {
             children = wirElement.getChild("data").getChildren();
-            task = (Element) (children.isEmpty() ? null : children.get(0));
+            task = (children.isEmpty() ? null : children.get(0));
         }
 
         boolean complete = request.getParameter("Complete") != null;
@@ -170,7 +170,7 @@ public class FormGenerator implements Constants {
             Document rupOriginal = new Document(Utils.string2Element(
                     Utils.element2String(rup.getRootElement(), false)));
             String msgDB = "customForm";
-            activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(null));
+            activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities());
 
             updateRUPFromRequest(rup);
 
@@ -196,7 +196,7 @@ public class FormGenerator implements Constants {
             }
 
             if (confirmReservations) {
-                String xpath = XMLUtils.getXPATH_Activities(null);
+                String xpath = XMLUtils.getXPATH_Activities();
                 List<Element> activities = XMLUtils.getXMLObjects(rup, xpath);
                 for (Element activity : activities) {
                     List<Element> reservations = activity.getChildren(XML_RESERVATION);
@@ -239,7 +239,7 @@ public class FormGenerator implements Constants {
                 completeWorkitem(taskName, itemid, handle);
             }
             else {
-                activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(null));
+                activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities());
                 buffer.append(getForm(cas, haveTosave));
 
                 // show javascript alert to confirm the completing of work item
@@ -275,7 +275,7 @@ public class FormGenerator implements Constants {
             boolean haveToSave = XMLUtils.different(rupOriginal.getRootElement(),
                     rup.getRootElement());
             validateAllElements(rup.getRootElement());
-            activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities(null));
+            activities = XMLUtils.getXMLObjects(rup, XMLUtils.getXPATH_Activities());
             buffer.append(getForm(cas, haveToSave));
         }
     }
@@ -303,7 +303,7 @@ public class FormGenerator implements Constants {
      * - set RequestType to POU, but only if SOU or EOU is not set
      */
     public void updateActivities(Document doc) throws JDOMException {
-        activities = XMLUtils.getXMLObjects(doc, XMLUtils.getXPATH_Activities(null));
+        activities = XMLUtils.getXMLObjects(doc, XMLUtils.getXPATH_Activities());
         for (Element activity : activities) {
             String xpath = XMLUtils.getXPATH_ActivityElement(
                     activity.getChildText(XML_ACTIVITYNAME),
@@ -946,7 +946,7 @@ public class FormGenerator implements Constants {
                             tag2.append(">" + config.getLocalizedString(activityType) + "</option>");
                         }
                     } catch (Exception e) {
-                        XMLUtils.addWarningValue(field, "msgActivityTypesWarning", null);
+                        XMLUtils.addWarningValue(field, "msgActivityTypesWarning");
                     }
 
                     // activate if:

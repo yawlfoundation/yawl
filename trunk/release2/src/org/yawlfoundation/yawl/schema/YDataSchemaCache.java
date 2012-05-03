@@ -18,13 +18,12 @@
 
 package org.yawlfoundation.yawl.schema;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,9 +77,7 @@ public class YDataSchemaCache extends ConcurrentHashMap<String, YDataSchemaCache
         SchemaMap map = new SchemaMap();
         if (schema != null) {
             Element dataSchema = JDOMUtil.stringToElement(schema);
-            List list = dataSchema.getChildren();
-            for (Object o : list) {
-                Element child = (Element) o;
+            for (Element child : dataSchema.getChildren()) {
                 String name = child.getAttributeValue("name");
                 if (name != null) {
                     map.put(name, child);

@@ -18,17 +18,17 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.schema.SchemaHandler;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Marshals & Unmarshals specifications
@@ -51,15 +51,11 @@ public class YMarshal {
     private static List<YSpecification> buildSpecifications(
             Element specificationSetElem, Namespace ns, YSchemaVersion version)
             throws YSyntaxException {
-        List<YSpecification> specifications = new Vector<YSpecification>();
-        List specificationElemList = specificationSetElem.getChildren("specification", ns);
+        List<YSpecification> specifications = new ArrayList<YSpecification>();
 
         // parse each specification element into a YSpecification
-        for (Object o : specificationElemList) {
-            Element xmlSpecification = (Element) o;
-
-            YSpecificationParser specParser =
-                    new YSpecificationParser(xmlSpecification, version);
+        for (Element xmlSpecification : specificationSetElem.getChildren("specification", ns)) {
+            YSpecificationParser specParser = new YSpecificationParser(xmlSpecification, version);
             specifications.add(specParser.getSpecification());
         }
         return specifications;
@@ -96,7 +92,7 @@ public class YMarshal {
         
         List<YSpecification> result = null;
 
-        //first check if the xml string is well formed and build a document
+        // first check if the xml string is well formed and build a document
         Document document = JDOMUtil.stringToDocument(specStr);
         if (document != null) {
             Element specificationSetEl = document.getRootElement();
@@ -106,14 +102,13 @@ public class YMarshal {
             // strip layout element, if any (the engine doesn't use it)
             specificationSetEl.removeChild("layout", ns);
 
-            //now check the specification file against its respective schema
+            // now check the specification file against its respective schema
             if (schemaValidate) {
-                String errors = YawlXMLSpecificationValidator.getInstance()
-                              .checkSchema(JDOMUtil.documentToString(document), version);
-                if (errors == null || errors.length() > 0) {
+                SchemaHandler validator = new SchemaHandler(version.getSchemaURL());
+                if (! validator.compileAndValidate(JDOMUtil.documentToString(document))) {
                     throw new YSyntaxException(
                       " The specification file failed to verify against YAWL's Schema:\n"
-                      + errors);
+                            + validator.getConcatenatedMessage());
                 }
             }
 

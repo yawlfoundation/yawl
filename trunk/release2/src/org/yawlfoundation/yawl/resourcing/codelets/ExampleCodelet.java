@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.codelets;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import java.util.ArrayList;

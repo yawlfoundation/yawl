@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.worklet.exception;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.IllegalAddException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.IllegalAddException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -31,7 +31,6 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 import org.yawlfoundation.yawl.worklet.support.WorkletRecord;
 
-import java.util.Iterator;
 import java.util.List;
 
 /** The HandlerRunner class manages an exception handling process. An instance
@@ -344,13 +343,10 @@ public class HandlerRunner extends WorkletRecord {
         Element eWorklets = new Element("worklets") ;
 
         try {
-           // transfer the workitem's data items to the file
-           List dataItems = getDatalist().getChildren() ;
-           Iterator itr = dataItems.iterator();
-           while (itr.hasNext()) {
-               Element e = (Element) itr.next() ;
-               eCaseData.addContent((Element) e.clone());
-           }
+            // transfer the workitem's data items to the file
+            for (Element e : getDatalist().getChildren()) {
+                eCaseData.addContent(e.clone());
+            }
 
            // set values for case identifiers
            eSpecid.setText(_parentMonitor.getSpecID().getIdentifier());
@@ -365,14 +361,12 @@ public class HandlerRunner extends WorkletRecord {
             }
 
             // add the worklet names and case ids
-            Iterator witr = _runners.getAllWorkletNames().iterator() ;
-            while (witr.hasNext()) {
-                Element eWorkletName = new Element("workletName") ;
-                Element eRunningCaseId = new Element("runningcaseid") ;
+            for (String wName : _runners.getAllWorkletNames()) {
+                Element eWorkletName = new Element("workletName");
+                Element eRunningCaseId = new Element("runningcaseid");
                 Element eWorklet = new Element("worklet");
-                String wName = (String) witr.next();
-                eWorkletName.setText(wName) ;
-                eRunningCaseId.setText(_runners.getCaseID(wName)) ;
+                eWorkletName.setText(wName);
+                eRunningCaseId.setText(_runners.getCaseID(wName));
                 eWorklet.addContent(eWorkletName);
                 eWorklet.addContent(eRunningCaseId);
                 eWorklets.addContent(eWorklet);

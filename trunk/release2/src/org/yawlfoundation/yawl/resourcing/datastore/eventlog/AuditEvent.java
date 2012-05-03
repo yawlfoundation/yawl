@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -49,7 +49,7 @@ public class AuditEvent extends BaseEvent {
     }
 
     public void fromXML(Element xml) {
-     	  super.fromXML(xml);
+     	super.fromXML(xml);
         _userid = xml.getChildText("userid");
     }
     

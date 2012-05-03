@@ -19,8 +19,8 @@ public class SchemaTestSuite extends TestSuite{
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTestSuite(TestXSD4YAWLBuilder.class);
-        suite.addTestSuite(TestXMLToolsForYAWL.class);
+        suite.addTestSuite(TestSchemaHandler.class);
+        suite.addTestSuite(TestSchemaHandlerValidation.class);
         return suite;
     }
 }

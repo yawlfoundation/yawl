@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.scheduling.timer;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.*;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
@@ -46,11 +46,9 @@ public class JobCreateTestRUPs4Today implements Runnable, Constants {
 	private SchedulingService service;
 	private Scheduler scheduler;
 	private DataMapper dataMapper;
-	private ConfigManager config;
     private String context;
 
 	public JobCreateTestRUPs4Today(String context) {
-		config = ConfigManager.getInstance();
 		service = SchedulingService.getInstance();
 		scheduler = new Scheduler();
 		dataMapper = new DataMapper();

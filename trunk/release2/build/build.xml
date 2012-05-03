@@ -150,7 +150,7 @@
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
     <property name="jboss-logging" value="jboss-logging-3.1.0.CR2.jar"/>     <!-- hbn -->
     <property name="jboss-transaction" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/> <!-- hbn -->
-    <property name="jdom" value="jdom.jar"/>                                 <!-- mul -->
+    <property name="jdom" value="jdom-2.0.0.jar"/>                           <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
     <property name="jsf-appbase" value="appbase.jar"/>                       <!-- jsf -->
     <property name="jsf-cl" value="jsfcl.jar"/>                              <!-- jsf -->
@@ -379,7 +379,7 @@
                      ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool} ${xerces}"/>
 
     <property name="webapp_test.libs"
-              value="${jdom} ${xerces} ${log4j} ${twitter4j}
+              value="${jdom} ${xerces} ${log4j} ${twitter4j} ${commonsIO}
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_cost.libs"
@@ -753,7 +753,7 @@
     -->
 
     <target name="compile" depends="init, configureDatabaseAccess">
-        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}">
+        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}" deprecation="true" verbose="true">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>

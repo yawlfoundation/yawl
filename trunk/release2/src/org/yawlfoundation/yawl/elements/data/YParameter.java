@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements.data;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.YVerificationMessage;

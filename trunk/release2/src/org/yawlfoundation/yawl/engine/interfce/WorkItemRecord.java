@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 

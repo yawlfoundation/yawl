@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
@@ -331,7 +331,7 @@ public class Scheduler implements Constants
 			Date latestTO = null;
 
 			// get availabilities for all resources of rup between from and to
-			String xpath = XMLUtils.getXPATH_Activities(null);
+			String xpath = XMLUtils.getXPATH_Activities();
 			List<Element> activities = XMLUtils.getXMLObjects(rup, xpath);
 			for (Element activity : activities)
 			{

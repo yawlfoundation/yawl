@@ -9,7 +9,7 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import java.io.IOException;
 import java.io.File;

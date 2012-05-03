@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Button;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -288,7 +288,7 @@ public class visualiser extends AbstractPageBean {
               .append("\" height=\"")
               .append(view.height)
               .append("\"")
-              .append(" archive=\"visualiser.jar,javax.servlet.jar,jdom.jar,")
+              .append(" archive=\"visualiser.jar,javax.servlet.jar,jdom-2.0.0.jar,")
               .append(" resourceService.jar,saxon9.jar,log4j-1.2.16.jar,commons-codec-1.5.jar\"")
               .append(" codebase=\"../../visualiserApplet\"")
               .append(" code=\"worklist.WRKLApplet.class\" MAYSCRIPT>")

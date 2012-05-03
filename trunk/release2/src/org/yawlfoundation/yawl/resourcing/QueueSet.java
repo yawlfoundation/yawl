@@ -18,14 +18,13 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -294,10 +293,9 @@ public class QueueSet {
 
     public void fromXML(Element element) {
         if (element != null) {
-            Iterator itr = element.getChildren().iterator();
-            while (itr.hasNext()) {
+            for (Element qElem : element.getChildren()) {
                 WorkQueue wq = new WorkQueue() ;
-                wq.fromXML((Element) itr.next());
+                wq.fromXML(qElem);
                 setQueue(wq) ;
             }
         }

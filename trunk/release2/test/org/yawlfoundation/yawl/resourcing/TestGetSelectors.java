@@ -3,7 +3,7 @@ package org.yawlfoundation.yawl.resourcing;
 import junit.framework.TestCase;
 
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.jdom.Document;
+import org.jdom2.Document;
 
 /**
  *

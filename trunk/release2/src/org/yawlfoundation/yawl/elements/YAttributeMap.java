@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.jdom.Attribute;
+import org.jdom2.Attribute;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -86,11 +86,10 @@ public class YAttributeMap extends Hashtable<String, String> {
      * @param jdomAttributes a List of JDOM Attribute objects to convert to key=value
      * pairs and place in this map, replacing any previous contents.
      */
-    public void fromJDOM(List jdomAttributes) {
+    public void fromJDOM(List<Attribute> jdomAttributes) {
         if (jdomAttributes != null) {
             this.clear();
-            for (Object o : jdomAttributes) {
-                Attribute attribute = (Attribute) o;
+            for (Attribute attribute : jdomAttributes) {
                 this.put(attribute.getName(), attribute.getValue());
             }
         }

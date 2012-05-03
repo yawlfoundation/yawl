@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.util.JDOMUtil;

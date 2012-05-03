@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -258,9 +258,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         // of required params to operate custom service.
         Element eParams = JDOMUtil.stringToElement(parametersAsString);
         if (eParams != null) {
-            List params = eParams.getChildren();
-            for (Object o : params) {
-                Element paramElem = (Element) o;
+            for (Element paramElem : eParams.getChildren()) {
                 YParameter param = new YParameter(null, paramElem.getName());
                 YDecompositionParser.parseParameter(paramElem, param, null, false);
                 paramResults.add(param);

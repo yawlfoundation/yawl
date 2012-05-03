@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.yawlfoundation.yawl.engine.YWorkItem;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.jdom.Document;
+import org.jdom2.Document;
 
 import java.util.List;
 

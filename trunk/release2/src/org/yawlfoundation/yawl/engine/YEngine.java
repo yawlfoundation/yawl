@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.authentication.YSessionCache;
@@ -1249,15 +1249,14 @@ public class YEngine implements InterfaceADesign,
     public boolean updateCaseData(String idStr, String data)
             throws YPersistenceException {
         YNetRunner runner = _netRunnerRepository.get(idStr);
-        if (runner != null) {
+        if (runner != null && data != null) {
             synchronized(_pmgr) {
                 startTransaction();
                 try {
                     YNet net = runner.getNet();
                     Element updatedVars = JDOMUtil.stringToElement(data);
-                    for (Object o : updatedVars.getChildren()) {
-                        Element eVar = (Element) o;
-                        net.assignData(_pmgr, (Element) eVar.clone());
+                    for (Element eVar : updatedVars.getChildren()) {
+                        net.assignData(_pmgr, eVar.clone());
                     }
                     commitTransaction();
                     return true;
@@ -1598,17 +1597,20 @@ public class YEngine implements InterfaceADesign,
 
         // map data values to params
         Element itemData = JDOMUtil.stringToElement(data);
-        Element outputData = (Element) itemData.clone();
+        Element outputData = itemData.clone();
 
         // remove the input-only params from output data
         for (String name : inputs.keySet())
             if (outputs.get(name) == null) outputData.removeChild(name);
 
         // for each output param:
-        //   1. if matching input param, use its value
-        //   2. else if default value specified, use its value
-        //   3. else use default value for the param's data type
+        //   1. if matching output Element, do nothing
+        //   2. else if matching input param, use its value
+        //   3. else if default value specified, use its value
+        //   4. else use default value for the param's data type
         for (String name : outputs.keySet()) {
+
+            if (outputData.getChild(name) != null) continue;   // matching element
 
             // if the output param has no corresponding input param, add an element
             if (inputs.get(name) == null) {

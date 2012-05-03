@@ -22,7 +22,7 @@ import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.util.HashMap;
 import java.util.Set;

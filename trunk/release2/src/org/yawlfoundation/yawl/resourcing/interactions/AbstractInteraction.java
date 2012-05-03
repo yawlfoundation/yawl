@@ -18,12 +18,11 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
-import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *  Base class for the Offer, Allocate and Start interaction points.
@@ -102,9 +101,7 @@ public abstract class AbstractInteraction {
         HashMap<String, String> result = new HashMap<String, String>() ;
         Element eParams = e.getChild("params", nsYawl);
         if (eParams != null) {
-            List params = eParams.getChildren("param", nsYawl) ;
-            for (Object o : params) {
-                Element eParam = (Element) o ;
+            for (Element eParam : eParams.getChildren("param", nsYawl)) {
                 result.put(eParam.getChildText("key", nsYawl),
                            eParam.getChildText("value", nsYawl));
              }

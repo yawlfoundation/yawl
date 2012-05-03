@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.jdom.JDOMXPath;
-import org.jdom.*;
+import org.jdom2.*;
 import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
 

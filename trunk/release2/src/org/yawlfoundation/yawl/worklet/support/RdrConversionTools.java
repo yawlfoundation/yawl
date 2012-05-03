@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -137,9 +137,7 @@ public class RdrConversionTools {
         Element wirElem = JDOMUtil.stringToElement(xml);
         if (wirElem != null) {
             List<WorkItemRecord> result = new ArrayList<WorkItemRecord>();
-            List children = wirElem.getChildren();
-            for (Object o : children) {
-                Element child = (Element) o;
+            for (Element child : wirElem.getChildren()) {
                 result.add(Marshaller.unmarshalWorkItem(child));
             }
             return result;

@@ -66,7 +66,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     public void setRootNet(YNet rootNet) {
         _rootNet = rootNet;
-        setDecomposition(rootNet);
+        addDecomposition(rootNet);
     }
 
 
@@ -134,6 +134,10 @@ public final class YSpecification implements Cloneable, YVerifiable {
         return _dataValidator;
     }
 
+    public String getDataSchema() {
+        return (_dataValidator != null) ? _dataValidator.getSchema() : null;
+    }
+
 
     public String toXML() {
         StringBuilder xml = new StringBuilder();
@@ -198,7 +202,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
 
-    public void setDecomposition(YDecomposition decomposition) {
+    public void addDecomposition(YDecomposition decomposition) {
         _decompositions.put(decomposition.getID(), decomposition);
     }
 

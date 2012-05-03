@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.instance;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Author: Michael Adams
