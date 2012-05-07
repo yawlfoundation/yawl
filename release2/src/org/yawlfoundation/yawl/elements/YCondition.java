@@ -22,7 +22,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.YIdentifierBag;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.List;
 
@@ -60,8 +60,8 @@ public class YCondition extends YExternalNetElement implements YConditionInterfa
     }
 
 
-    public List<YVerificationMessage> verify() {
-        return super.verify();
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);
     }
 
 

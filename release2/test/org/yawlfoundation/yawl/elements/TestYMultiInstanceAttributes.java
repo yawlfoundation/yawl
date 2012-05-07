@@ -2,7 +2,6 @@ package org.yawlfoundation.yawl.elements;
 
 import junit.framework.TestCase;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.List;

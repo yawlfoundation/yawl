@@ -1035,29 +1035,32 @@ public class caseMgt extends AbstractPageBean {
         return descriptors;
     }
 
-    
+
     private void processErrorMsg(String msg) {
         Element root = JDOMUtil.stringToElement(msg);
         if (root != null) {
             Element reason = root.getChild("reason");
             if (reason != null) {
-                for (Element e : reason.getChildren()) {
-                    if (e.getName().equals("warning")) {
-                        msgPanel.warn(JDOMUtil.elementToStringDump(e));
-                    }
-                    else if (e.getName().equals("error")) {
-                        msgPanel.error(JDOMUtil.elementToStringDump(e));
-                        msgPanel.setTitleText("Upload Specification Failed");
-                    }
-                    else {
-                        msgPanel.info(JDOMUtil.elementToStringDump(e));
+                Element messages = reason.getChild("verificationMessages");
+                if (messages != null) {
+                    for (Element e : messages.getChildren()) {
+                        if (e.getName().equals("warning")) {
+                            msgPanel.warn(JDOMUtil.elementToStringDump(e));
+                        }
+                        else if (e.getName().equals("error")) {
+                            msgPanel.error(JDOMUtil.elementToStringDump(e));
+                            msgPanel.setTitleText("Upload Specification Failed");
+                        }
+                        else {
+                            msgPanel.info(JDOMUtil.elementToStringDump(e));
+                        }
                     }
                 }
             }
         }
     }
-    
-    
+
+
     private boolean validateDelayValue() {
         _sb.setDelayValueError("");
         String value = (String) txtDelayValue.getText();

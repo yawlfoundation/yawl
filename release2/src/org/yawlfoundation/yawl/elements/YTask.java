@@ -36,10 +36,7 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.schema.YDataValidator;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.SaxonUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.*;
 
 import javax.xml.datatype.Duration;
 import java.net.URL;
@@ -208,46 +205,35 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    protected List<YVerificationMessage> checkXQuery(String xQuery, String param) {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-
-        if ((xQuery != null) && (xQuery.length() > 0)) {
+    protected void checkXQuery(String xQuery, String param, YVerificationHandler handler) {
+        if (! StringUtil.isNullOrEmpty(xQuery)) {
             if (ExternalDBGatewayFactory.isExternalDBMappingExpression(xQuery)) {
-                YVerificationMessage errMsg = checkExternalMapping(xQuery);
-                if (errMsg != null) messages.add(errMsg);
+                checkExternalMapping(xQuery, handler);
             }
             else {
                 try {
                     SaxonUtil.compileXQuery(xQuery);
                 }
                 catch (SaxonApiException e) {
-                    messages.add(new YVerificationMessage(this, this +
-                        "(id= " + this.getID() + ") the XQuery could not be successfully" +
-                        " parsed. [" + e.getMessage() + "]",
-                        YVerificationMessage.ERROR_STATUS));
+                    handler.error(this, this + " [id= " + this.getID() +
+                        "] the XQuery could not be successfully" +
+                        " parsed [" + e.getMessage() + "]");
                 }    
             }
         }
-        else messages.add(new YVerificationMessage(this, this +
-                    "(id= " + this.getID() + ") the XQuery for param [" +
-                    param + "] cannot be equal to null" +
-                    " or the empty string.",
-                    YVerificationMessage.ERROR_STATUS));
-
-        return messages;
+        else handler.error(this, this + " [id= " + this.getID() +
+                "] the XQuery for param [" + param +
+                "] cannot be equal to null or the empty string.");
     }
 
 
-    protected YVerificationMessage checkExternalMapping(String query) {
-        YVerificationMessage result = null;
+    protected void checkExternalMapping(String query, YVerificationHandler handler) {
         AbstractExternalDBGateway dbClass = ExternalDBGatewayFactory.getInstance(query);
         if (dbClass == null) {
-            result = new YVerificationMessage(this, this +
-                        "(id= " + this.getID() + ") the mapping could not be successfully" +
-                        " parsed. External DB Class '" + query + "' was not found.",
-                        YVerificationMessage.ERROR_STATUS);
+            handler.error(this, this +
+                     "(id= " + this.getID() + ") the mapping could not be successfully" +
+                     " parsed. External DB Class '" + query + "' was not found.");
         }
-        return result;
     }
 
     protected Set<String> getParamNamesForTaskEnablement() {
@@ -1607,16 +1593,13 @@ public abstract class YTask extends YExternalNetElement {
     //###########################  BEGIN VERIFICATION CODE  ################################
     //######################################################################################
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-        messages.addAll(super.verify());
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);
         if (! (_splitType == _AND || _splitType == _OR || _splitType == _XOR)) {
-            messages.add(new YVerificationMessage(this, this + " Incorrect value for split type",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " has an incorrect value for split type");
         }
         if (! (_joinType == _AND || _joinType == _OR || _joinType == _XOR)) {
-            messages.add(new YVerificationMessage(this, this + " Incorrect value for join type",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " has an incorrect value for join type");
         }
         if (_splitType == _OR || _splitType == _XOR) {
             int defaultCount = 0;
@@ -1627,10 +1610,9 @@ public abstract class YTask extends YExternalNetElement {
                 if (flow.getEvalOrdering() != null) {
                     int thisOrdering = flow.getEvalOrdering();
                     if (thisOrdering == lastOrdering) {
-                        messages.add(new YVerificationMessage(this,
-                                this + " no two elements may posess the same " +
-                                "ordering (" + flow + ") for the same task.",
-                                YVerificationMessage.ERROR_STATUS));
+                        handler.error(this,
+                                this + " no two elements may possess the same " +
+                                "ordering (" + flow + ") for the same task.");
                     }
                     lastOrdering = thisOrdering;
                 }
@@ -1639,84 +1621,71 @@ public abstract class YTask extends YExternalNetElement {
                 }
             }
             if (defaultCount != 1) {
-                messages.add(new YVerificationMessage(this, this + " the postset of any OR/XOR " +
-                        "split must have one default flow. (not " + defaultCount + ")",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, this + " the postset of any OR/XOR split must have" +
+                        " exactly one default flow (not " + defaultCount + ")");
             }
         }
         if (_multiInstAttr != null) {
-            messages.addAll(_multiInstAttr.verify());
+            _multiInstAttr.verify(handler);
         }
         for (YExternalNetElement element : _removeSet) {
             if (element == null) {
-                messages.add(new YVerificationMessage(this,
-                        this + " refers to a non existent element in its remove set.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this,
+                        this + " refers to a non existent element in its remove set.");
             }
             else if (! element._net.equals(_net)) {
-                messages.add(new YVerificationMessage(this,
+                handler.error(this,
                         this + " and " + element + " must be contained in the same net."
-                        + " (container " + _net + " & " + element._net + ")",
-                        YVerificationMessage.ERROR_STATUS));
+                        + " (container " + _net + " & " + element._net + ")");
             }
         }
         if (_decompositionPrototype != null) {
-            messages.addAll(checkParameterMappings());
+            checkParameterMappings(handler);
         }
         else {
             if (_dataMappingsForTaskStarting.size() > 0) {
-                messages.add(new YVerificationMessage(
-                        this, "Syntax error for " + this + " to have startingMappings and no decomposition.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, "Syntax error for " + this +
+                        " to have startingMappings and no decomposition.");
             }
             if (_dataMappingsForTaskCompletion.size() > 0) {
-                messages.add(new YVerificationMessage(
-                        this,
-                        "Syntax error for " + this + " to have completionMappings and no decomposition.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, "Syntax error for " + this +
+                        " to have completionMappings and no decomposition.");
             }
         }
-        return messages;
     }
 
-    private List<YVerificationMessage> checkParameterMappings() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
-        messages.addAll(checkInputParameterMappings());
-        messages.addAll(checkForDuplicateParameterMappings());
-        messages.addAll(checkOutputParameterMappings());
-        return messages;
+    private void checkParameterMappings(YVerificationHandler handler) {
+        checkInputParameterMappings(handler);
+        checkForDuplicateParameterMappings(handler);
+        checkOutputParameterMappings(handler);
     }
 
-    private List<YVerificationMessage> checkOutputParameterMappings() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    private void checkOutputParameterMappings(YVerificationHandler handler) {
         if (_net._specification.getSchemaVersion().usesSimpleRootData()) {
-            messages.addAll(checkOutputParamsPreBeta4());
+            checkOutputParamsPreBeta4(handler);
         }
 
         //check that each output query has valid syntax
         for (String nextQuery : _dataMappingsForTaskCompletion.keySet()) {
             String netVarNam = _dataMappingsForTaskCompletion.get(nextQuery);
-            messages.addAll(checkXQuery(nextQuery, netVarNam));
+            checkXQuery(nextQuery, netVarNam, handler);
         }
 
         //check that non existent local variables are not assigned output.
         for (String localVarName : getLocalVariablesForTaskCompletion()) {
             if (_net.getLocalVariables().get(localVarName) == null &&
                     _net.getInputParameters().get(localVarName) == null) {
-                messages.add(new YVerificationMessage(this,
+                handler.error(this,
                         "The task (id= " + getID() + ") claims to assign its " +
                         "output to a net variable named (" + localVarName + ").  " +
                         "However the containing net does not have " +
-                        "such a variable.",
-                        YVerificationMessage.ERROR_STATUS));
+                        "such a variable.");
             }
         }
-        return messages;
     }
 
 
-    private List<YVerificationMessage> checkForDuplicateParameterMappings() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    private void checkForDuplicateParameterMappings(YVerificationHandler handler) {
 
         //catch the case where several expressions map to the same decomposition input param
         //The only case where the schema misses this is where the muilti-instance input
@@ -1725,61 +1694,51 @@ public abstract class YTask extends YExternalNetElement {
                 _dataMappingsForTaskStarting.values()).size();
         int numParams = _dataMappingsForTaskStarting.size();
         if (numOfUniqueParamsMappedTo != numParams) {
-            messages.add(new YVerificationMessage(this,
+            handler.error(this,
                     "A input parameter is used twice.  The task (id=" + getID() + ") " +
                     "uses the same parameter through its multi-instance input " +
-                    "and its regular input.",
-                    YVerificationMessage.ERROR_STATUS));
+                    "and its regular input.");
         }
 
         //check that the MI data output extract process does not map to a net variable that is
         //already mapped to by the said task.
-        //The only case where the schema misses this is where the muilti-instance output
+        //The only case where the schema misses this is where the multi-instance output
         //is applied to the same net variable as one of regular outputs.
         int numOfUniqueNetVarsMappedTo = new HashSet<String>(
                 _dataMappingsForTaskCompletion.values()).size();
         numParams = _dataMappingsForTaskCompletion.size();
         if (numOfUniqueNetVarsMappedTo != numParams) {
-            messages.add(new YVerificationMessage(this,
+            handler.error(this,
                     "A output parameter is used twice.  The task (id=" + getID() + ") " +
                     "uses the same parameter through its multi-instance output " +
-                    "and its regular output.",
-                    YVerificationMessage.ERROR_STATUS));
+                    "and its regular output.");
         }
-        return messages;
     }
 
-    private List<YVerificationMessage> checkOutputParamsPreBeta4() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    private void checkOutputParamsPreBeta4(YVerificationHandler handler) {
 
         //check there is link to each to each output param(query).
         Set<String> outputQueriesAtDecomposition = _decompositionPrototype.getOutputQueries();
         Set<String> outputQueriesAtTask = getQueriesForTaskCompletion();
         for (String query : outputQueriesAtDecomposition) {
             if (! outputQueriesAtTask.contains(query)) {
-                messages.add(new YVerificationMessage(this,
-                        this + " there exists an output" +
-                        " query(" + query + ") in " + _decompositionPrototype +
-                        " that is" + " not mapped to by this Task.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, this + " there exists an output" +
+                        " query (" + query + ") in " + _decompositionPrototype +
+                        " that is" + " not mapped to by this Task.");
             }
         }
         for (String query : outputQueriesAtTask) {
             if (! outputQueriesAtDecomposition.contains(query)) {
-                messages.add(new YVerificationMessage(this,
-                        this + " there exists an output" +
-                        " query(" + query + ") in this Task that has no " +
+                handler.error(this, this + " there exists an output" +
+                        " query (" + query + ") in this Task that has no " +
                         "corresponding mapping at its decomposition(" +
-                        _decompositionPrototype + ").",
-                        YVerificationMessage.ERROR_STATUS));
+                        _decompositionPrototype + ").");
             }
         }
-        return messages;
     }
 
 
-    private List<YVerificationMessage> checkInputParameterMappings() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    private void checkInputParameterMappings(YVerificationHandler handler) {
 
         //check that there is a link to each inputParam
         Set<String> inputParamNamesAtTask = getParamNamesForTaskStarting();
@@ -1787,18 +1746,16 @@ public abstract class YTask extends YExternalNetElement {
         //check that task input var maps to decomp input var
         for (String paramName : _decompositionPrototype.getInputParameterNames()) {
             String query = _dataMappingsForTaskStarting.get(paramName);
-            messages.addAll(checkXQuery(query, paramName));
+            checkXQuery(query, paramName, handler);
 
             if (! inputParamNamesAtTask.contains(paramName)) {
-                messages.add(new YVerificationMessage(this,
+                handler.error(this,
                         "The task (id= " + this.getID() + ")" +
                         " needs to be connected with the input parameter (" +
                         paramName + ")" + " of decomposition (" +
-                        _decompositionPrototype + ").",
-                        YVerificationMessage.ERROR_STATUS));
+                        _decompositionPrototype + ").");
             }
         }
-        return messages;
     }
 
 

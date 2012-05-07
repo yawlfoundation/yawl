@@ -24,10 +24,7 @@ import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * Represents a server-side reference to a YAWL Custom Service.
@@ -136,20 +133,17 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
     }
     
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    public void verify(YVerificationHandler handler) {
         try {
             if (YEngine.isRunning()) {
                 YEngine engine = YEngine.getInstance();
                 YAWLServiceReference service = engine.getRegisteredYawlService(_yawlServiceID);
                 if (service == null) {
-                    messages.add(new YVerificationMessage(
-                                 this,
-                                 "YAWL service [" + _yawlServiceID + "] " +
-                                  (_webServiceGateway != null
-                                     ? "at WSGateway [" + _webServiceGateway.getID() + "] "
-                                     : " ") + "is not registered with engine.",
-                                  YVerificationMessage.WARNING_STATUS));
+                    handler.warn(this,
+                            "YAWL service [" + _yawlServiceID + "] " +
+                            (_webServiceGateway != null
+                                    ? "at WSGateway [" + _webServiceGateway.getID() + "] "
+                                    : " ") + "is not registered with engine.");
                 }
             }
         }
@@ -158,7 +152,6 @@ public class YAWLServiceReference extends YClient implements YVerifiable {
             // the call to a static YEngine which attempts to create a
             // YPersistenceManager object - ok to ignore the verify check in these instances
         }
-        return messages;
     }
 
 

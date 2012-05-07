@@ -41,6 +41,7 @@ import org.yawlfoundation.yawl.swingWorklist.YWorklistModel;
 import org.yawlfoundation.yawl.swingWorklist.YWorklistTableModel;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import javax.swing.*;
@@ -542,27 +543,27 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
         }
         List<YVerificationMessage> errorMessages = new ArrayList<YVerificationMessage>();
         List<YSpecificationID> newSpecIDs = null;
+        YVerificationHandler verificationHandler = new YVerificationHandler();
         try {
             String specStr = StringUtil.fileToString(selectedFile);
-            newSpecIDs = _engineManagement.addSpecifications(specStr, _ignoreErrors, errorMessages);
+            newSpecIDs = _engineManagement.addSpecifications(specStr, _ignoreErrors,
+                    verificationHandler);
         } catch (Exception e) {
             logError("Failure to load specification", e);
             return;
         }
 
-        if (newSpecIDs.size() == 0 || errorMessages.size() > 0) {
+        if (newSpecIDs.size() == 0 || verificationHandler.hasErrors()) {
             StringBuilder errorMessageStr = new StringBuilder();
-            for (YVerificationMessage message : errorMessages) {
-                errorMessageStr.append(
-                        "\r\n" + message.getStatus() +
-                        ": " + message.getMessage());
+            for (YVerificationMessage message : verificationHandler.getMessages()) {
+                errorMessageStr.append("\r\n").append(message.getMessage());
             }
             JOptionPane.showMessageDialog(this,
                     "The workflow you loaded contains: " + errorMessageStr,
                     "Error Loading Workflow",
                     JOptionPane.ERROR_MESSAGE);
         }
-        if (YVerificationMessage.containsNoErrors(errorMessages)) {
+        if (verificationHandler.hasErrors()) {
             for (YSpecificationID specID : newSpecIDs)
             {
                 spec = _engineManagement.getSpecification(specID);

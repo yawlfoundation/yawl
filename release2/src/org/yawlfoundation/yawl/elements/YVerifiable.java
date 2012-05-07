@@ -18,9 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * Implementers of this interface are contracted to verify themselves against
@@ -34,7 +32,6 @@ public interface YVerifiable {
      * Internally verify the object against YAWL language semantics and
      * report any errors and/or warnings.
      * @see org.yawlfoundation.yawl.util.YVerificationMessage
-     * @return a List of YVerificationMessage objects
      */
-    List<YVerificationMessage> verify();
+    void verify(YVerificationHandler verificationHandler);
 }

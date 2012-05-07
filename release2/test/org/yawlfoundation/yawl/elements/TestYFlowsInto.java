@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 
 /**
  * 

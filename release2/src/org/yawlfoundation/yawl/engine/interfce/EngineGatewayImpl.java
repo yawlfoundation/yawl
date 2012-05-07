@@ -972,10 +972,11 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        List<YVerificationMessage> errorMessages = new ArrayList<YVerificationMessage>();
+        YVerificationHandler verificationHandler = new YVerificationHandler();
         try {
-            _engine.addSpecifications(specificationStr, false, errorMessages);
-        } catch (Exception e) {
+            _engine.addSpecifications(specificationStr, false, verificationHandler);
+        }
+        catch (Exception e) {
             if (e instanceof YPersistenceException) {
                 enginePersistenceFailure = true;
             }
@@ -983,36 +984,8 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
 
-        if (errorMessages.size() > 0) {
-            String status;
-            StringBuilder errorMsg = new StringBuilder();
-            errorMsg.append(OPEN_FAILURE);
-            for (YVerificationMessage message : errorMessages) {
-                status =  message.getStatus().equals(YVerificationMessage.ERROR_STATUS) ?
-                    "error" : "warning";
-
-                errorMsg.append("<" + status + ">");
-                Object src = message.getSource();
-                if (src instanceof YTask) {
-                    YDecomposition decomp = ((YTask) src).getDecompositionPrototype();
-                    if (decomp != null) {
-                        errorMsg.append("<src>").
-                                append(decomp.getName() != null ?
-                                        decomp.getName() : decomp.getID()).
-                                append("</src>");
-                    }
-                }
-                errorMsg.append("<message>").
-                        append(message.getMessage()).
-                        append("</message>").
-                        append("</" + status + ">");
-
-            }
-            errorMsg.append(CLOSE_FAILURE);
-            return errorMsg.toString();
-        } else {
-            return SUCCESS;
-        }
+        return verificationHandler.hasMessages() ?
+                failureMessage(verificationHandler.getMessagesXML()) : SUCCESS;
     }
 
 

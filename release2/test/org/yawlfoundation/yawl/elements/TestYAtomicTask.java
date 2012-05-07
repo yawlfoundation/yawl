@@ -9,7 +9,6 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.HashMap;

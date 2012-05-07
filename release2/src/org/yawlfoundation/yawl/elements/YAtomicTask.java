@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YQueryException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.*;
 
@@ -219,23 +219,21 @@ public class YAtomicTask extends YTask {
      * @return a List of error and/or warning messages. An empty list is returned if
      * the atomic task verifies successfully.
      */
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = super.verify();
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);
         if (_decompositionPrototype == null) {
             if (_multiInstAttr != null && (_multiInstAttr.getMaxInstances() > 1 ||
                     _multiInstAttr.getThreshold() > 1)) {
-                messages.add(new YVerificationMessage(this, this + " cannot have multiInstances and a "
-                        + " blank work description.", YVerificationMessage.ERROR_STATUS));
+                handler.error(this, this +
+                        " cannot have multiple instances and a blank work description.");
             }
         }
         else if (!(_decompositionPrototype instanceof YAWLServiceGateway)) {
-            messages.add(new YVerificationMessage(this, this + " task may not decompose to " +
-                    "other than a WebServiceGateway.", YVerificationMessage.ERROR_STATUS));
-            messages.addAll(checkEnablementParameterMappings());
+            handler.error(this, this +
+                    " task may not decompose to other than a WebServiceGateway.");
+            checkEnablementParameterMappings(handler);
         }
-        return messages;
     }
-
 
 
     /**
@@ -244,8 +242,7 @@ public class YAtomicTask extends YTask {
      * the atomic task's enablement mappings verify successfully.
      * @deprecated Since 2.0, enablement mappings have no function.
      */
-    private List<YVerificationMessage> checkEnablementParameterMappings() {
-        List<YVerificationMessage> messages = new ArrayList<YVerificationMessage>();
+    private void checkEnablementParameterMappings(YVerificationHandler handler) {
 
         //check that there is a link to each enablementParam
         Set<String> enablementParamNamesAtGateway =
@@ -255,28 +252,24 @@ public class YAtomicTask extends YTask {
         //check that task input var maps to decomp input var
         for (String paramName : enablementParamNamesAtGateway) {
             if (! enablementParamNamesAtTask.contains(paramName)) {
-                messages.add(new YVerificationMessage(this,
-                        "The task (id= " + this.getID() +
-                                ") needs to be connected with the enablement parameter (" +
-                                paramName + ") of decomposition (" +
-                                _decompositionPrototype + ").",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this,
+                        "The task [id= " + this.getID() +
+                        "] needs to be connected with the enablement parameter [" +
+                        paramName + "] of decomposition [" +
+                        _decompositionPrototype + "].");
             }
         }
         for (String paramNameAtTask : enablementParamNamesAtTask) {
             String query = _dataMappingsForTaskEnablement.get(paramNameAtTask);
-            messages.addAll(checkXQuery(query, paramNameAtTask));
+            checkXQuery(query, paramNameAtTask, handler);
             if (! enablementParamNamesAtGateway.contains(paramNameAtTask)) {
-                messages.add(new YVerificationMessage(this,
-                        "The task (id= " + this.getID() +
-                                ") cannot connect with enablement parameter (" +
-                                paramNameAtTask + ") because it doesn't exist" +
-                                " at its decomposition (" + _decompositionPrototype + ").",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this,
+                        "The task [id= " + this.getID() +
+                        "] cannot connect with enablement parameter [" +
+                        paramNameAtTask + "] because it doesn't exist" +
+                        " at its decomposition [" + _decompositionPrototype + "].");
             }
         }
-
-        return messages;
     }
 
 }

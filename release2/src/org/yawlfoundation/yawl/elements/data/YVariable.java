@@ -30,11 +30,9 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
 
 /**
  *
@@ -283,113 +281,6 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     }
 
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-
-        //check the initial value
-        if (! StringUtil.isNullOrEmpty(_initialValue)) {
-            Element testElem;
-            if (_initialValue.contains("<")) {  // check if well-formed
-                testElem = JDOMUtil.stringToElement(StringUtil.wrap(_initialValue, "data"));
-                if (testElem == null) {
-                    messages.add(new YVerificationMessage(
-                        this,
-                        "The initial value [" + _initialValue + "] of variable [" +
-                        getPreferredName() + "] is not well formed.",
-                        YVerificationMessage.ERROR_STATUS));
-                }
-            }
-            else {
-                String data = StringUtil.wrap(StringUtil.wrap(_initialValue,
-                        getPreferredName()), "data");
-                testElem = JDOMUtil.stringToElement(data);
-            }
-            try {      // check if correct for data type
-                _parentDecomposition.getSpecification().getDataValidator().validate(
-                        this, testElem, "");
-            }
-            catch (YDataValidationException ydve) {
-                messages.add(new YVerificationMessage(
-                    this,
-                    "The initial Value [" + _initialValue + "] of variable [" +
-                    getPreferredName() + "] is not valid for its data type.",
-                    YVerificationMessage.ERROR_STATUS));
-            }
-        }
-
-        if ((null != _name) && (null != _elementName)) {
-            messages.add(new YVerificationMessage(
-            this,
-            "name xor element name must be set, not both.",
-            YVerificationMessage.ERROR_STATUS));
-        }
-
-        //check schema contains type with typename.
-        else if (null != _name) {
-            if (! (_isUntyped || isValidTypeNameForSchema(_dataTypeName))) {
-                messages.add(new YVerificationMessage(
-                        this,
-                        "The type library (Schema) in specification contains no " +
-                        "type definition with name [" + _dataTypeName + "].  " +
-                        "Therefore the decomposition " + _parentDecomposition +
-                        " cannot create this variable.",
-                        YVerificationMessage.ERROR_STATUS));
-            }
-        } else if (null != _elementName) {
-            if (! isValidTypeNameForSchema(_elementName)) {
-                messages.add(new YVerificationMessage(
-                        this,
-                        "The type library (Schema) in specification contains no " +
-                        "element definition with name [" + _elementName + "].  " +
-                        "\n    Therefore the decomposition " + _parentDecomposition +
-                        " cannot create this variable.",
-                        YVerificationMessage.ERROR_STATUS));
-            }
-        } else {
-            messages.add(new YVerificationMessage(
-                    this,
-                    "name or element name must be set.",
-                    YVerificationMessage.ERROR_STATUS));
-        }
-
-        // check doc store service is available for YDocument vars
-        if (_dataTypeName.endsWith("YDocumentType")) {
-            try {
-                if (YEngine.isRunning()) {
-                    YEngine engine = YEngine.getInstance();
-                    YExternalClient service = engine.getExternalClient("documentStore");
-                    if (service == null) {
-                        messages.add(new YVerificationMessage(
-                             this,
-                             "Variable [" + getPreferredName() + "] in decomposition [" +
-                              _parentDecomposition.getID() + "] is of type 'YDocument', " +
-                              "but the required 'DocumentStore' client service is not " +
-                              "registered with the YAWL engine. Please ensure the " +
-                              "service is registered prior to executing the specification.",
-                              YVerificationMessage.WARNING_STATUS));
-                    }
-                }
-            }
-            catch (NoClassDefFoundError e) {
-                // may occur if called in standalone mode (eg. from the editor), caused by
-                // the call to a static YEngine which attempts to create a
-                // YPersistenceManager object - ok to ignore the verify check in these instances
-            }
-        }
-
-        return messages;
-    }
-
-
-    private boolean isValidTypeNameForSchema(String dataTypeName) {
-        if (XSDType.getInstance().isBuiltInType(dataTypeName)) return true;
-        for (String name : _parentDecomposition.getSpecification().getDataValidator().getPrimaryTypeNames()) {
-            if (dataTypeName.equals(name)) return true;
-        }
-        return false;
-    }
-
-
     /**
      * sets the initial value of the variable
      * @param initialValue
@@ -475,4 +366,111 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public boolean hasAttributes() {
         return ! _attributes.isEmpty();
     }
+
+
+    /*******************************************************************************/
+
+    public void verify(YVerificationHandler handler) {
+
+        //check the initial & default values (if any)
+        checkValue(_initialValue, "initial", handler);
+        checkValue(_defaultValue, "default", handler);
+
+        if ((null != _name) && (null != _elementName)) {
+            handler.error(this,
+                    "Name xor element name for this variable must be set, not both.");
+        }
+
+        //check schema contains type with typename.
+        else if (null != _name) {
+            if (! (_isUntyped || isValidTypeNameForSchema(_dataTypeName))) {
+                handler.error(this,
+                        "The type library (Schema) in specification contains no " +
+                        "type definition with name [" + _dataTypeName + "].  " +
+                        "Therefore the decomposition " + _parentDecomposition +
+                        " cannot create this variable.");
+            }
+        }
+        else if (null != _elementName) {
+            if (! isValidTypeNameForSchema(_elementName)) {
+                handler.error(this,
+                        "The type library (Schema) in specification contains no " +
+                        "element definition with name [" + _elementName + "].  " +
+                        "\n    Therefore the decomposition " + _parentDecomposition +
+                        " cannot create this variable.");
+            }
+        }
+        else {
+            handler.error(this, "A Name or element name for this variable must be set.");
+        }
+
+        // check doc store service is available for YDocument vars
+        if (_dataTypeName.endsWith("YDocumentType")) {
+            try {
+                if (YEngine.isRunning()) {
+                    YEngine engine = YEngine.getInstance();
+                    YExternalClient service = engine.getExternalClient("documentStore");
+                    if (service == null) {
+                        handler.warn(this,
+                             "Variable [" + getPreferredName() + "] in decomposition [" +
+                              _parentDecomposition + "] is of type 'YDocument', " +
+                              "but the required 'DocumentStore' client service is not " +
+                              "registered with the YAWL engine. Please ensure the " +
+                              "service is registered prior to executing the specification.");
+                    }
+                }
+            }
+            catch (NoClassDefFoundError e) {
+                // may occur if called in standalone mode (eg. from the editor), caused by
+                // the call to a static YEngine which attempts to create a
+                // YPersistenceManager object - ok to ignore the verify check in these instances
+            }
+        }
+    }
+
+
+    private boolean isValidTypeNameForSchema(String dataTypeName) {
+        if (XSDType.getInstance().isBuiltInType(dataTypeName)) return true;
+        for (String name : _parentDecomposition.getSpecification().getDataValidator().getPrimaryTypeNames()) {
+            if (dataTypeName.equals(name)) return true;
+        }
+        return false;
+    }
+
+
+    private void checkValue(String value, String label,
+                                                  YVerificationHandler handler) {
+        if (! StringUtil.isNullOrEmpty(value)) {
+            Element testElem;
+
+            // check if well-formed
+            if (value.contains("<")) {
+                testElem = JDOMUtil.stringToElement(StringUtil.wrap(value, "data"));
+            }
+            else {
+                String data = StringUtil.wrap(StringUtil.wrap(value,
+                          getPreferredName()), "data");
+                testElem = JDOMUtil.stringToElement(data);
+            }
+            if (testElem == null) {
+                handler.error(this,
+                        "The " + label + " value [" + value + "] of variable [" +
+                        getPreferredName() + "] in decomposition [" +
+                        _parentDecomposition + "] is not well formed.");
+            }
+
+            // check if correct for data type
+            try {
+                _parentDecomposition.getSpecification().getDataValidator().validate(
+                        this, testElem, "");
+            }
+            catch (YDataValidationException ydve) {
+                handler.error(this,
+                        "The " + label + " value [" + value + "] of variable [" +
+                        getPreferredName() + "] in decomposition [" +
+                        _parentDecomposition + "] is not valid for its data type.");
+            }
+        }
+    }
+
 }
