@@ -34,10 +34,7 @@ import org.yawlfoundation.yawl.elements.state.YSetOfMarkings;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.*;
 
 import java.util.*;
 
@@ -172,44 +169,37 @@ public final class YNet extends YDecomposition {
 
     /**
      * Used to verify that the net conforms to syntax of YAWL.
-     * @return a List of error messages.
      */
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>(super.verify());
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);
 
         if (_inputCondition == null) {
-            messages.add(new YVerificationMessage(this, this + " must contain input condition.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " must contain input condition.");
         }
         if (_outputCondition == null) {
-            messages.add(new YVerificationMessage(this, this + " must contain output condition.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " must contain output condition.");
         }
 
         for (YExternalNetElement element : _netElements.values()) {
-            if (element instanceof YInputCondition && ! _inputCondition.equals(element)) {
-                messages.add(new YVerificationMessage(this, "Only one inputCondition allowed, " +
-                        "and it must be _inputCondition.", YVerificationMessage.ERROR_STATUS));
+            if (element instanceof YInputCondition && ! element.equals(_inputCondition)) {
+                handler.error(this, "Only one Input Condition allowed per net.");
             }
-            if (element instanceof YOutputCondition && !_outputCondition.equals(element)) {
-                messages.add(new YVerificationMessage(this, "Only one outputCondition allowed, " +
-                        "and it must be _outputCondition.", YVerificationMessage.ERROR_STATUS));
+            if (element instanceof YOutputCondition && ! element.equals(_outputCondition)) {
+                handler.error(this, "Only one Output Condition allowed per net.");
             }
-            messages.addAll(element.verify());
+            element.verify(handler);
         }
         for (YVariable var : _localVariables.values()) {
-            messages.addAll(var.verify());
+            var.verify(handler);
         }
         //check that all elements in the net are on a directed path from 'i' to 'o'.
-        messages.addAll(verifyDirectedPath());
+        verifyDirectedPath(handler);
         
-        messages.addAll(new YNetLocalVarVerifier(this).verify());
-        return messages;
+        new YNetLocalVarVerifier(this).verify(handler);
     }
 
 
-    private List<YVerificationMessage> verifyDirectedPath() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    private void verifyDirectedPath(YVerificationHandler handler) {
 
         /* Function isValid(YConditionInterface i, YConditionInterface o, Tasks T, Conditions C): Boolean
         BEGIN:
@@ -261,21 +251,18 @@ public final class YNet extends YDecomposition {
             elementsNotInPath = new HashSet<YExternalNetElement>(allElements);
             elementsNotInPath.removeAll(visitedFw);
             for (YExternalNetElement element : elementsNotInPath) {
-                messages.add(new YVerificationMessage(this, element +
-                        " is not on a forward directed path from i to o.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, element +
+                        " is not on a forward directed path from i to o.");
             }
         }
         if (visitedBk.size() != numElements) {
             elementsNotInPath = new HashSet<YExternalNetElement>(allElements);
             elementsNotInPath.removeAll(visitedBk);
             for (YExternalNetElement element : elementsNotInPath) {
-                messages.add(new YVerificationMessage(this, element +
-                        " is not on a backward directed path from i to o.",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, element +
+                        " is not on a backward directed path from i to o.");
             }
         }
-        return messages;
     }
 
 

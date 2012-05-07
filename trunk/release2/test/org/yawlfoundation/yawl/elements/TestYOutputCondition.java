@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -18,10 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
-import java.util.Vector;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * 
@@ -50,17 +47,11 @@ public final class YInputCondition extends YCondition {
      * This is one of those few cases where the sub-class has tighter constraints than the
      * parent class on one of the supertype members (preset).  ie. an InputCondition must always
      * have an empty preset.
-     * @return a List of error messages.
      */
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    public void verify(YVerificationHandler handler) {
         if (getPresetElements().size() != 0) {
-            messages.add(new YVerificationMessage(this,
-                         this + " preset must be empty: " + getPresetElements(),
-                         YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " preset must be empty: " + getPresetElements());
         }
-        messages.addAll(verifyPostsetFlows());
-        return messages;
     }
 
 

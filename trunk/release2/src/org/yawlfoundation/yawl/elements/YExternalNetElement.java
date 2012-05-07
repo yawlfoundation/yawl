@@ -20,9 +20,12 @@ package org.yawlfoundation.yawl.elements;
 
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YNetElementDocoParser;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -259,64 +262,45 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
 
      /************************************************************************/
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-        messages.addAll(verifyPresetFlows());
-        messages.addAll(verifyPostsetFlows());
-        return messages;
+    public void verify(YVerificationHandler handler) {
+        verifyPresetFlows(handler);
+        verifyPostsetFlows(handler);
     }
 
 
-    protected List<YVerificationMessage> verifyPostsetFlows() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    protected void verifyPostsetFlows(YVerificationHandler handler) {
         if (_net == null) {
-            messages.add(new YVerificationMessage(this,
-                    this + " This must have a net to be valid.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " must have a net to be valid.");
         }
         if (_postsetFlows.size() == 0) {
-            messages.add(new YVerificationMessage(this,
-                    this + " The postset size must be > 0",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " postset size must be > 0");
         }
         for (YFlow flow : _postsetFlows.values()) {
             if (flow.getPriorElement() != this) {
-                messages.add(new YVerificationMessage(
-                        this, "The XML based imports should never cause this ... any flow that "
-                        + this
-                        + " contains should have the getPriorElement() point back to "
-                        + this +
-                        " [END users should never see this message.]",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, "Element [" + flow.getPriorElement() +
+                        "] is a prior element of [" + this + "] but that element" +
+                        " does not contain [" + this + "] on an outgoing flow.");
             }
-            messages.addAll(flow.verify(this));
+            flow.verify(this, handler);
         }
-        return messages;
     }
 
 
-    protected List<YVerificationMessage> verifyPresetFlows() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    protected void verifyPresetFlows(YVerificationHandler handler) {
         if (_presetFlows.size() == 0) {
-            messages.add(new YVerificationMessage(this,
-                    this + " The preset size must be > 0",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " preset size must be > 0");
         }
         for (YFlow flow : _presetFlows.values()) {
             if (flow.getNextElement() != this) {
-                messages.add(new YVerificationMessage(this,
-                        "The XML Schema would have caught this... But the getNextElement()" +
-                        " method must point to the element containing the flow in its preset." +
-                        " [END users should never see this message.]",
-                        YVerificationMessage.ERROR_STATUS));
+                handler.error(this, this + " has a preset flow [" +
+                        flow + "] that does not have " + this + " as a postset element.");
             }
             if (!flow.getPriorElement().getPostsetElements().contains(this)) {
-                messages.add(new YVerificationMessage(this, this + " has a preset element " +
+                handler.error(this, this + " has a flow from a preset element " +
                         flow.getPriorElement() + " that does not have " + this +
-                        " as a postset element.", YVerificationMessage.ERROR_STATUS));
+                        " as a postset element.");
             }
         }
-        return messages;
     }
 
 

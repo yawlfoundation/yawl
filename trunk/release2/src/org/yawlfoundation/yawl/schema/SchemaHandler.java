@@ -209,6 +209,7 @@ public class SchemaHandler {
      * @param schema new schema to use (resets everything)
      */
     public void setSchema(String schema) {
+        schemaString = schema;
         try {
             schemaSource = stringToSource(schema);
         }
@@ -216,6 +217,7 @@ public class SchemaHandler {
             schemaSource = new StreamSource(new StringReader(schema));  // fallback
         }
         errorHandler.reset();
+        typeMap = null;
         compiled = false;
     }
 

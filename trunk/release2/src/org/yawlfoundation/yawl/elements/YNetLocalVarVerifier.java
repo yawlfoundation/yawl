@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.*;
 
@@ -38,6 +38,7 @@ public class YNetLocalVarVerifier {
 
     private YNet _net;
     private Map<String, LocalTaskMap> _uninitialisedLocalVars;
+    private YVerificationHandler _handler;
     private Logger _log;
 
     /**
@@ -53,12 +54,11 @@ public class YNetLocalVarVerifier {
 
     /**
      * Verifies the net
-     * @return a list of verification error messages (may be empty)
      */
-    public List<YVerificationMessage> verify() {
+    public void verify(YVerificationHandler handler) {
         long startTime = System.nanoTime();
 
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+        _handler = handler;
 
         // get all local vars that don't have an initial value
         getUnitialisedLocalVars();
@@ -68,13 +68,11 @@ public class YNetLocalVarVerifier {
 
         // check all paths for each input task for each local var
         for (LocalTaskMap localTaskMap : _uninitialisedLocalVars.values()) {
-            messages.addAll(verify(localTaskMap));
+            verify(localTaskMap);
         }
 
         _log.debug("Net: " + _net.getID() + " | Duration: " +
                    (System.nanoTime() - startTime) + "nanoseconds.");
-
-        return messages;
     }
 
 
@@ -82,19 +80,16 @@ public class YNetLocalVarVerifier {
      * Verifies all tasks with variables that reference a particular uninitialised local
      * variable
      * @param map a map of referencing tasks for a local variable
-     * @return a list of verification error messages (may be empty)
      */
-    private List<YVerificationMessage> verify(LocalTaskMap map) {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    private void verify(LocalTaskMap map) {
 
         // for each affected task, check each of its backward paths to the start
         // condition to see if any tasks on the path output a value to the local var
         for (YTask task : map.getInputTasks()) {
-            messages.addAll(verify(map, task, task, new ArrayList<YExternalNetElement>(),
-                    new Stack<Integer>()));
+            verify(map, task, task, new ArrayList<YExternalNetElement>(),
+                    new Stack<Integer>());
         }
 
-        return messages;
     }
 
 
@@ -108,12 +103,10 @@ public class YNetLocalVarVerifier {
      * @param baseElement the element we're up to in this traversal (changed each recursion)
      * @param visited the list of elements visited so far in this walk
      * @param andStack a stack that keeps track of visited AND splits and joins
-     * @return a list of verification error messages (may be empty)
      */
-    private List<YVerificationMessage> verify(LocalTaskMap map, YTask subjectTask,
+    private void verify(LocalTaskMap map, YTask subjectTask,
                        YExternalNetElement baseElement, List<YExternalNetElement> visited,
                        Stack<Integer> andStack) {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
 
         // add the root net element to the set of those visited on this path
         visited.add(baseElement);
@@ -141,7 +134,7 @@ public class YNetLocalVarVerifier {
 
                     // otherwise add an error message for this path
                     visited.add(preElement);
-                    messages.add(getMessage(map, subjectTask, visited));
+                    _handler.warn(_net, getMessage(map, subjectTask, visited));
                     visited = resetVisited(baseElement);
                 }
                 else if (preElement instanceof YTask) {
@@ -153,17 +146,16 @@ public class YNetLocalVarVerifier {
                         visited = resetVisited(baseElement);                        
                     }
                     else {
-                        messages.addAll(verify(map, subjectTask, preTask, visited, andStack));
+                        verify(map, subjectTask, preTask, visited, andStack);
                     }
                 }
                 else {
 
                     // a plain condition - call recursive
-                    messages.addAll(verify(map, subjectTask, preElement, visited, andStack));
+                    verify(map, subjectTask, preElement, visited, andStack);
                 }
             }
         }
-        return messages;
     }
 
 
@@ -427,7 +419,7 @@ public class YNetLocalVarVerifier {
      *                from the task to the Input Condition
      * @return the constructed message
      */
-    private YVerificationMessage getMessage(LocalTaskMap map, YTask task,
+    private String getMessage(LocalTaskMap map, YTask task,
                                             List<YExternalNetElement> visited) {
 
         YVariable localVar = map.getLocalVar();
@@ -468,7 +460,7 @@ public class YNetLocalVarVerifier {
                 task.getName(), _net.getID(), localVar.getPreferredName(),
                 localVar.getPreferredName(), subMsg, visitedChain, postMsg);
 
-        return new YVerificationMessage(this, msg, YVerificationMessage.WARNING_STATUS);
+        return msg;
     }
 
 

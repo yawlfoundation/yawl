@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,19 +134,15 @@ public final class YCompositeTask extends YTask {
 
     /****** VERIFICATION ***************************************************/
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = super.verify();   // check parent first
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);   // check parent first
         if (_decompositionPrototype == null) {
-            messages.add(new YVerificationMessage(this,
-                    this + " composite task must contain a net.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " composite task must contain a net.");
         }
         if (!(_decompositionPrototype instanceof YNet)) {
-            messages.add(new YVerificationMessage(this,
-                    this + " composite task may not decompose to other than a net.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this,
+                    this + " composite task may not decompose to other than a net.");
         }
-        return messages;
     }
 
 }

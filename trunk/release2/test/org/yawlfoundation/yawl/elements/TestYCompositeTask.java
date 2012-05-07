@@ -6,7 +6,6 @@ import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YMessagePrinter;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;

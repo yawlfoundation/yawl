@@ -502,12 +502,12 @@ public class YEngine implements InterfaceADesign,
     /**
      * Adds the specification(s) (expressed as an xml string) to the engine
      * @param specStr an XML formatted specification
-     * @param ignoreErrors ignore verfication errors and load the spec anyway.
-     * @param errorMessages an in/out param passing any error messages.
+     * @param ignoreErrors ignore verification errors and load the spec anyway.
+     * @param verificationHandler an in/out param passing any error messages.
      * @return the specification ids of the successfully loaded specs
      */
     public List<YSpecificationID> addSpecifications(String specStr,
-                        boolean ignoreErrors, List<YVerificationMessage> errorMessages)
+                        boolean ignoreErrors, YVerificationHandler verificationHandler)
             throws YPersistenceException {
 
         _logger.debug("--> addSpecifications");
@@ -522,8 +522,7 @@ public class YEngine implements InterfaceADesign,
             // catch the xml parser's exception, transform it into YAWL format
             // and abort the load
             for (String msg : e.getMessage().split("\n")) {
-                errorMessages.add(new YVerificationMessage(null, msg,
-                        YVerificationMessage.ERROR_STATUS));
+                verificationHandler.error(null, msg);
             }
             _logger.debug("<-- addSpecifications: syntax exceptions found");
             return result;
@@ -531,13 +530,10 @@ public class YEngine implements InterfaceADesign,
 
         if (newSpecifications != null) {
             for (YSpecification specification : newSpecifications) {
-                List<YVerificationMessage> messages = specification.verify();
-                if (messages.size() > 0 && ! ignoreErrors) {
-                    errorMessages.addAll(messages);
-                }
+                specification.verify(verificationHandler);
 
                 //if the error messages are empty or contain only warnings
-                if (YVerificationMessage.containsNoErrors(errorMessages)) {
+                if (ignoreErrors || ! verificationHandler.hasErrors()) {
                     if (loadSpecification(specification)) {
                         if (_persisting && ! _restoring) {
                             try {
@@ -548,17 +544,15 @@ public class YEngine implements InterfaceADesign,
                                         "Failure whilst persisting new specification", e);
                             }
                         }
-
                         result.add(specification.getSpecificationID());
                     }
                     else {
                         String errDetail = specification.getSchemaVersion().isBetaVersion() ?
                             "URI: " + specification.getURI() : "UID: " + specification.getID();
                         errDetail += "- Version: " + specification.getSpecVersion();
-                        errorMessages.add(new YVerificationMessage(this,
+                        verificationHandler.error(this,
                                 "There is a specification with an identical id to ["
-                                        + errDetail + "] already loaded into the engine.",
-                                YVerificationMessage.ERROR_STATUS));
+                                 + errDetail + "] already loaded into the engine.");
                     }
                 }
             }

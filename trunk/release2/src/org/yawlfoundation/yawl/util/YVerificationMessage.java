@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.util;
 
-import java.util.List;
-
 /**
  * 
  * @author Lachlan Aldred
@@ -30,43 +28,20 @@ import java.util.List;
 public class YVerificationMessage {
     private Object _source;
     private String _message;
-    private String _status;
-    public static final String ERROR_STATUS = "Error";
-    public static final String WARNING_STATUS = "Warning";
 
 
-    public YVerificationMessage(Object source, String message, String status) {
+    public YVerificationMessage(Object source, String message) {
         _source = source;
         _message = message;
-        _status = status;
     }
 
 
-    public Object getSource() {
-        return _source;
-    }
+    public Object getSource() { return _source; }
 
 
-    public String getMessage() {
-        return _message;
-    }
+    public String getMessage() { return _message; }
 
 
-    public String getStatus() {
-        return _status;
-    }
+    public void setSource(Object source) { _source = source; }
 
-
-    public static boolean containsNoErrors(List<YVerificationMessage> messages) {
-        for (YVerificationMessage message : messages) {
-             if (message.getStatus().equals(ERROR_STATUS)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void setSource(Object source) {
-        _source = source;
-    }
 }

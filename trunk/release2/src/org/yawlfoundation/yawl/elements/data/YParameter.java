@@ -21,10 +21,7 @@ package org.yawlfoundation.yawl.elements.data;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
-import java.util.Vector;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * 
@@ -130,15 +127,11 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
     }
 
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-        messages.addAll(super.verify());
+    public void verify(YVerificationHandler handler) {
+        super.verify(handler);
         if (super.isMandatory() && _initialValue != null) {
-            messages.add(new YVerificationMessage(this,
-                    this + "cannot be mandatory and have initial value.",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " cannot be mandatory and have initial value.");
         }
-        return messages;
     }
 
 

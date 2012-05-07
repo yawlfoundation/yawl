@@ -20,10 +20,7 @@ package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
-import java.util.Vector;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * 
@@ -117,31 +114,23 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     }
 
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    public void verify(YVerificationHandler handler) {
         if (_minInstances != null && _minInstances < 1) {
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + " _minInstances < 1", YVerificationMessage.ERROR_STATUS));
+            handler.error(_myTask, _myTask + " _minInstances < 1");
         }
-        if (_minInstances != null && _maxInstances != null &&
-                _minInstances > _maxInstances) {
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._minInstances > _maxInstances", YVerificationMessage.ERROR_STATUS));
+        if (_minInstances != null && _maxInstances != null && _minInstances > _maxInstances) {
+            handler.error(_myTask, _myTask + "._minInstances > _maxInstances");
         }
         if (_maxInstances != null && _maxInstances < 1) {
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._maxInstances < 1", YVerificationMessage.ERROR_STATUS));
+            handler.error(_myTask, _myTask + "._maxInstances < 1");
         }
         if (_threshold != null && _threshold < 1) {
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._threshold < 1", YVerificationMessage.ERROR_STATUS));
+            handler.error(_myTask, _myTask + "._threshold < 1");
         }
         if (!(_creationMode.equalsIgnoreCase("static") || _creationMode.equalsIgnoreCase("dynamic"))) {
-            messages.add(new YVerificationMessage(_myTask, _myTask
-                    + "._creationMode does not equal 'static' or 'dynamic'",
-                    YVerificationMessage.ERROR_STATUS));
+            handler.error(_myTask, _myTask
+                    + "._creationMode does not equal 'static' or 'dynamic'");
         }
-        return messages;
     }
 
     public void setUniqueInputMISplittingQuery(String inputQuery) {

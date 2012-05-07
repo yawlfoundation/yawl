@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YVerificationMessage;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.*;
 
@@ -236,19 +236,15 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     }
 
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
+    public void verify(YVerificationHandler handler) {
         if (_id == null)
-            messages.add(new YVerificationMessage(this, this + " cannot have null id.",
-                             YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " cannot have null id.");
 
         for (YParameter param : _inputParameters.values())
-            messages.addAll(param.verify());
+            param.verify(handler);
 
         for (YParameter param : _outputParameters.values())
-            messages.addAll(param.verify());
-
-        return messages;
+            param.verify(handler);
     }
 
 

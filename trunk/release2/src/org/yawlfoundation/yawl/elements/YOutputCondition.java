@@ -18,10 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
-import java.util.Vector;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 
 /**
@@ -45,15 +42,11 @@ public final class YOutputCondition extends YCondition {
     }
 
 
-    public List<YVerificationMessage> verify() {
-        List<YVerificationMessage> messages = new Vector<YVerificationMessage>();
-
+    public void verify(YVerificationHandler handler) {
         if (getPostsetElements().size() != 0) {
-            messages.add(new YVerificationMessage(this, this
-                    + " postset must be empty: " + getPostsetElements(), YVerificationMessage.ERROR_STATUS));
+            handler.error(this, this + " postset must be empty: " + getPostsetElements());
         }
-        messages.addAll(verifyPresetFlows());
-        return messages;
+        verifyPresetFlows(handler);
     }
 
 
