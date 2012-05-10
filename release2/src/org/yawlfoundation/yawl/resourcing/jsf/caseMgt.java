@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -790,7 +791,7 @@ public class caseMgt extends AbstractPageBean {
                 _sb.setDynFormType(ApplicationBean.DynFormType.netlevel);
                 _sb.setLoadedSpecListChoice(specData);
 
-                DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
+                DynFormFactory df = getDynFormFactory();
                 df.setHeaderText("Starting an Instance of: " + specData.getID());
                 String title = "YAWL " + _sb.getYawlVersion() + " Case Management - Launch Case";
                 if (df.initDynForm(title)) {
@@ -816,8 +817,10 @@ public class caseMgt extends AbstractPageBean {
     private void beginCase(YSpecificationID specID) {
         String caseData = null ;
         String result = "Unknown Error" ;
+        List<Long> docCompIDs = null;
         if (_sb.isCaseLaunch()) {
             caseData = getDynFormFactory().getDataList();
+            docCompIDs = getDynFormFactory().getDocComponentIDs();
             _sb.setCaseLaunch(false);
         }
         try {
@@ -837,10 +840,14 @@ public class caseMgt extends AbstractPageBean {
                 _sb.resetDelayValues();
             }
             else result = _rm.launchCase(specID, caseData, _sb.getSessionhandle());
-            if (_rm.successful(result))
+            if (_rm.successful(result)) {
                 updateRunningCaseList();
-            else
+                handleCaseLevelDocComponents(docCompIDs, result);
+            }
+            else {
                 msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;
+                handleCaseLevelDocComponents(docCompIDs, null);
+            }
         }
         catch (IOException ioe) {
             msgPanel.error("IOException when attempting to launch case.") ;
@@ -871,6 +878,28 @@ public class caseMgt extends AbstractPageBean {
             int i = 0 ;
             for (String caseStr : caseTree) options[i++] = new Option(caseStr) ;
             _sb.setRunningCaseListOptions(options);
+        }
+    }
+
+
+    private void handleCaseLevelDocComponents(List<Long> docIDs, String caseID) {
+        if (docIDs != null) {
+            DocStoreClient client = _rm.getClients().getDocStoreClient();
+            if (client != null) {
+                try {
+                    for (long docID : docIDs) {
+                        if (docID > -1) {   // -1 means no doc was uploaded by component
+                            if (caseID != null) {
+                                client.addCaseID(docID, caseID, client.getHandle());
+                            }
+                            else client.removeDocument(docID, client.getHandle());
+                        }
+                    }
+                }
+                catch (IOException ioe) {
+                    // no more to do
+                }
+            }
         }
     }
 

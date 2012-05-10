@@ -168,6 +168,25 @@ public class DocumentStoreClient extends Interface_Client {
 
 
     /**
+     * Updates a stored document with its case id. When a document is uploaded
+     * at case start, it occurs before the case has been launched and thus there is
+     * not yet a case id allocated. Once the case launch is successful, this method is
+     * called to associate the case id with the already uploaded document.
+     * @param docID the id of the already uploaded document
+     * @param caseID the case id of the case launched with the document as a case param
+     * @param handle a valid session handle
+     * @return a success or error message
+     * @throws IOException if the service can't be reached
+     */
+    public String addCaseID(long docID, String caseID, String handle) throws IOException {
+        YDocument doc = new YDocument();
+        doc.setId(docID);
+        doc.setCaseId(caseID);
+        return executePost(toByteArray(doc, "addcaseid", handle)).toString("UTF-8");
+    }
+
+
+    /**
      * Removes all documents from the Document Store matching a case id
      * @param doc a YDocument containing the case id of the documents to remove
      * @param handle a valid session handle

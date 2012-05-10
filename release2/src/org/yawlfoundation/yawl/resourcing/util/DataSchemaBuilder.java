@@ -131,7 +131,7 @@ public class DataSchemaBuilder {
         // create a new doc with a root element called 'schema'
         Element root = new Element("schema", defNS);
         root.setAttribute("elementFormDefault", "qualified");
-//        Document doc = new Document(root);
+        new Document(root);     // attaches a default doc as parent of root element
 
         // attach an element set to the supplied root name
         Element taskElem = new Element("element", defNS);
