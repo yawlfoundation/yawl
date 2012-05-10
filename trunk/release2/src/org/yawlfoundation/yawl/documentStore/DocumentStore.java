@@ -122,6 +122,10 @@ public class DocumentStore extends HttpServlet {
                 else if (action.equals("clearcase")) {
                     result = clearCase(caseID);
                 }
+                else if (action.equals("addcaseid")) {
+                    result = addCaseID(docID, caseID);
+                }
+
                 else if (action.equals("completecase")) {
                     if (_retainWhenCaseCompletes) {
                         writeString(res,
@@ -230,6 +234,23 @@ public class DocumentStore extends HttpServlet {
         }
         catch (ObjectNotFoundException onfe) {
             return false;
+        }
+    }
+
+
+    private String addCaseID(long id, String caseID) throws IOException {
+        try {
+            YDocument doc = (YDocument) _db.load(YDocument.class, id);
+            if (doc != null) {
+                doc.setCaseId(caseID);
+                if (_db.exec(doc, HibernateEngine.DB_UPDATE, true)) {
+                    return "Case ID successfully updated";
+                }
+            }
+            throw new IOException("No document found with id: " + id);
+        }
+        catch (ObjectNotFoundException onfe) {
+            throw new IOException(onfe.getMessage());
         }
     }
 

@@ -477,7 +477,7 @@ public class DynFormFactory extends AbstractSessionBean {
                                              X_FIELD_OFFSET, FIELD_WIDTH));
                 field.setSubComponentStyles(FIELD_WIDTH);
                 field.setFormWidth(getFormWidth());
-                field.setCaseID(_displayedWIR.getRootCaseID());
+                if (_displayedWIR != null) field.setCaseID(_displayedWIR.getRootCaseID());
             }
             else if (o instanceof StaticTextBlock) {
                 StaticTextBlock field = (StaticTextBlock) o;
@@ -667,6 +667,18 @@ public class DynFormFactory extends AbstractSessionBean {
             }
         }
         return null;
+    }
+
+
+    public List<Long> getDocComponentIDs() {
+        List<Long> ids = new ArrayList<Long>();
+        for (Object o : compPanel.getChildren()) {
+            if (o instanceof DocComponent) {
+                DocComponent docComponent = (DocComponent) o;
+                ids.add(docComponent.getID());
+            }
+        }
+        return ids;
     }
 
     private void setTopStyle(UIComponent component, int top) {

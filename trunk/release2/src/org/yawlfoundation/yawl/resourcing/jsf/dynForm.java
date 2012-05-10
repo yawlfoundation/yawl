@@ -20,6 +20,8 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DocComponent;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
@@ -27,6 +29,8 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.SubPanel;
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
+import java.io.IOException;
+import java.util.List;
 
 /**
  *  Backing bean for the dynamic forms.
@@ -219,6 +223,9 @@ public class dynForm extends AbstractPageBean {
             _sb.setVisualiserReferred(false);
             _sb.setVisualiserEditedWIR(null);
         }
+        else if (refPage.equals("showCaseMgt")) {
+            cleanUpAnyDocs();
+        }
         return refPage;
     }
 
@@ -339,6 +346,26 @@ public class dynForm extends AbstractPageBean {
             return (DocComponent) parent.getAttributes().get("docComponent");
         }
     }
+
+    private void cleanUpAnyDocs() {
+        List<Long> docIDs = getDynFormFactory().getDocComponentIDs();
+        if (! docIDs.isEmpty()) {
+            DocStoreClient client = ResourceManager.getInstance().getClients().getDocStoreClient();
+            if (client != null) {
+                try {
+
+                    // an id of -1 means no doc was uploaded by the doc component
+                    for (Long docID : docIDs) {
+                        if (docID > -1) client.removeDocument(docID, client.getHandle());
+                    }
+                }
+                catch (IOException ioe) {
+                    // nothing more can be done
+                }
+            }
+        }
+    }
+
 
 }
 
