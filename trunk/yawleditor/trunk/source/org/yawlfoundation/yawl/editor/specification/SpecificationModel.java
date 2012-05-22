@@ -26,10 +26,12 @@ package org.yawlfoundation.yawl.editor.specification;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.api.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.client.YConnector;
+import org.yawlfoundation.yawl.editor.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.elements.model.*;
+import org.yawlfoundation.yawl.editor.foundations.LogWriter;
 import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
@@ -40,9 +42,10 @@ import org.yawlfoundation.yawl.editor.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.undo.*;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -96,6 +99,8 @@ public class SpecificationModel {
   private String  validFromTimestamp;
   private String  validUntilTimestamp;
   private boolean _versionChanged;
+  private DataSchemaValidator _schemaValidator;
+
 
   private transient static final SpecificationModel INSTANCE = new SpecificationModel();
   
@@ -180,6 +185,7 @@ public class SpecificationModel {
     nets.clear();
     webServiceDecompositions.clear();
     uniqueIdentifiers.clear();
+      _schemaValidator = new DataSchemaValidator();
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
     defaultVertexBackground = getPreferredVertexBackground();
@@ -414,15 +420,19 @@ public class SpecificationModel {
   
   public void setDataTypeDefinition(String dataTypeDefinition) {
     this.dataTypeDefinition = dataTypeDefinition;
-    YAWLEngineProxy.getInstance().setDataTypeSchema(dataTypeDefinition);
+    _schemaValidator.setDataTypeSchema(dataTypeDefinition);
   }   
   
   public boolean hasValidDataTypeDefinition() {
-    return YAWLEngineProxy.getInstance().hasValidDataTypeDefinition();
+    return _schemaValidator.hasValidDataTypeDefinition();
   }
   
   public Set getDataTypes() {
-    return YAWLEngineProxy.getInstance().getPrimarySchemaTypeNames();
+    return _schemaValidator.getPrimarySchemaTypeNames();
+  }
+
+  public boolean isDefinedTypeName(String typeName) {
+      return _schemaValidator.isDefinedTypeName(typeName);
   }
   
   public HashSet<WebServiceDecomposition> getWebServiceDecompositions() {
@@ -823,5 +833,24 @@ public class SpecificationModel {
         uniqueIdentifiers.rationalise(nets);
     }
 
+
+    public List<String> analyse() {
+        try {
+            return new AnalysisResultsParser().getAnalysisResults(this);
+        }
+        catch (NoClassDefFoundError e) {
+            JOptionPane.showMessageDialog(null,
+                    "The attempt to analyse this specification failed.\n " +
+                    "Please see the log for details", "Save File Error",
+                    JOptionPane.ERROR_MESSAGE);
+            LogWriter.error("The attempt to analyse the specification failed", e);
+            return Collections.emptyList();
+        }
+    }
+
+
+    public DataSchemaValidator getSchemaValidator() {
+        return _schemaValidator;
+    }
 
 }

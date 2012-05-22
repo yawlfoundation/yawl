@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor; 
 
 import junit.framework.*;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.TestDataSchemaValidator;
 
 public class TestYAWLEditor extends TestCase {
 
@@ -57,6 +58,6 @@ public class TestYAWLEditor extends TestCase {
 
   private static void addMacroSuite(TestSuite parentSuite) {
     parentSuite.addTest(org.yawlfoundation.yawl.editor.thirdparty.engine.TestSpecificationEngineHandler.suite());
-    parentSuite.addTest(org.yawlfoundation.yawl.editor.thirdparty.engine.TestAvailableEngineProxyImplementation.suite());
+    parentSuite.addTest(TestDataSchemaValidator.suite());
   }
 }

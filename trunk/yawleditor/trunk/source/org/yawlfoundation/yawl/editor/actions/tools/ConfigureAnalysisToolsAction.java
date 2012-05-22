@@ -24,12 +24,11 @@ package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.analyser.AnalysisDialog;
-import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -114,46 +113,46 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   
   private void rememberResetNetAnalysisPreferences() {
     prefs.putBoolean(
-        YAWLResetAnalyser.RESET_NET_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.RESET_NET_ANALYSIS_PREFERENCE,
         resetNetAnalysisCheckBox.isSelected()
     );
     prefs.putBoolean(
-        YAWLResetAnalyser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE,
         weakSoundnessCheckBox.isSelected()
     );
 
     prefs.putBoolean(
-        YAWLResetAnalyser.SOUNDNESS_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.SOUNDNESS_ANALYSIS_PREFERENCE,
         soundnessCheckBox.isSelected()
     );
     
     prefs.putBoolean(
-        YAWLResetAnalyser.CANCELLATION_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.CANCELLATION_ANALYSIS_PREFERENCE,
         cancellationCheckBox.isSelected()
     );
     
     prefs.putBoolean(
-        YAWLResetAnalyser.ORJOIN_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.ORJOIN_ANALYSIS_PREFERENCE,
         orjoinCheckBox.isSelected()
     );
     
     prefs.putBoolean(
-            YAWLResetAnalyser.ORJOINCYCLE_ANALYSIS_PREFERENCE,
+            AnalysisResultsParser.ORJOINCYCLE_ANALYSIS_PREFERENCE,
             orjoinCycleCheckBox.isSelected()
         );
 
     prefs.putBoolean(
-        YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE,
+        AnalysisResultsParser.SHOW_OBSERVATIONS_PREFERENCE,
         showObservationsCheckBox.isSelected()
     );
     
      prefs.putBoolean(
-        YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE,
+        AnalysisResultsParser.USE_YAWLREDUCTIONRULES_PREFERENCE,
         useYAWLReductionRulesCheckBox.isSelected()
     );
 
      prefs.putBoolean(
-        YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE,
+        AnalysisResultsParser.USE_RESETREDUCTIONRULES_PREFERENCE,
         useResetReductionRulesCheckBox.isSelected()
     );
 
@@ -164,21 +163,21 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   
   private void rememberWofYAWLAnalysisPreferences() {
     prefs.putBoolean(
-        WofYAWLProxy.WOFYAWL_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.WOFYAWL_ANALYSIS_PREFERENCE,
         wofYawlAnalysisCheckBox.isSelected()
     );
     prefs.putBoolean(
-        WofYAWLProxy.STRUCTURAL_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.STRUCTURAL_ANALYSIS_PREFERENCE,
         relaxedSoundnessCheckBox.isSelected()
     );
 
     prefs.putBoolean(
-        WofYAWLProxy.BEHAVIOURAL_ANALYSIS_PREFERENCE,
+        AnalysisResultsParser.BEHAVIOURAL_ANALYSIS_PREFERENCE,
         transitionInvariantCheckBox.isSelected()
     );
 
     prefs.putBoolean(
-        WofYAWLProxy.EXTENDED_COVERABILITY_PREFERENCE,
+        AnalysisResultsParser.EXTENDED_COVERABILITY_PREFERENCE,
         extendedCoverabilityCheckBox.isSelected()
     );
   }
@@ -501,7 +500,7 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
   public void setVisible(boolean visible) {
     if (visible){
       displayResetNetAnalysisPreferences();
-      if (WofYAWLProxy.wofYawlAvailable()) {
+      if (AnalysisResultsParser.wofYawlAvailable()) {
         tabbedPane.setEnabledAt(1,true);
         displayWofYAWLPreferences();
       } else {
@@ -513,39 +512,39 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
 
   private void displayResetNetAnalysisPreferences() {
     resetNetAnalysisCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.RESET_NET_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.RESET_NET_ANALYSIS_PREFERENCE, true)
     );
     
     weakSoundnessCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, true)
     );
     
     soundnessCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.SOUNDNESS_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.SOUNDNESS_ANALYSIS_PREFERENCE, true)
     );
     
     cancellationCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.CANCELLATION_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.CANCELLATION_ANALYSIS_PREFERENCE, true)
     );
     
     orjoinCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.ORJOIN_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.ORJOIN_ANALYSIS_PREFERENCE, true)
     );
 
     orjoinCycleCheckBox.setSelected(
-            prefs.getBoolean(YAWLResetAnalyser.ORJOINCYCLE_ANALYSIS_PREFERENCE, true)
+            prefs.getBoolean(AnalysisResultsParser.ORJOINCYCLE_ANALYSIS_PREFERENCE, true)
         );
 
     showObservationsCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.SHOW_OBSERVATIONS_PREFERENCE, true)
     );
     
      useYAWLReductionRulesCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.USE_YAWLREDUCTIONRULES_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.USE_YAWLREDUCTIONRULES_PREFERENCE, true)
     );
     
     useResetReductionRulesCheckBox.setSelected(
-        prefs.getBoolean(YAWLResetAnalyser.USE_RESETREDUCTIONRULES_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.USE_RESETREDUCTIONRULES_PREFERENCE, true)
     );
 
     keepOpenCheckBox.setSelected(
@@ -557,19 +556,19 @@ class ConfigureAnalysisDialog extends AbstractDoneDialog {
 
   private void displayWofYAWLPreferences() {
     wofYawlAnalysisCheckBox.setSelected(
-        prefs.getBoolean(WofYAWLProxy.WOFYAWL_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.WOFYAWL_ANALYSIS_PREFERENCE, true)
     );
 
     relaxedSoundnessCheckBox.setSelected(
-        prefs.getBoolean(WofYAWLProxy.STRUCTURAL_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.STRUCTURAL_ANALYSIS_PREFERENCE, true)
     );
     
     transitionInvariantCheckBox.setSelected(
-        prefs.getBoolean(WofYAWLProxy.BEHAVIOURAL_ANALYSIS_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.BEHAVIOURAL_ANALYSIS_PREFERENCE, true)
     );
 
     extendedCoverabilityCheckBox.setSelected(
-        prefs.getBoolean(WofYAWLProxy.EXTENDED_COVERABILITY_PREFERENCE, true)
+        prefs.getBoolean(AnalysisResultsParser.EXTENDED_COVERABILITY_PREFERENCE, true)
     );
     enableWofYAWLCheckBoxesAsAppropriate();
   }

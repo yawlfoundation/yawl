@@ -24,10 +24,10 @@
 package org.yawlfoundation.yawl.editor.foundations;
 
 import org.yawlfoundation.yawl.editor.data.DataVariable;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -336,19 +336,10 @@ public class XMLUtilities {
       variableContent = "text()";
     }
     else {
-      switch(YAWLEngineProxy.getInstance().getDataTypeComplexity(variable.getDataType())) {
-        case YAWLEngineProxy.COMPLEX_DATA_TYPE_COMPLEXITY: {
-          variableContent = "*";
-          break;
-        }
-        case YAWLEngineProxy.SIMPLE_DATA_TYPE_COMPLEXITY: {
-          variableContent = "text()";
-          break;
-        }
-        case YAWLEngineProxy.UNRECOGNISED_DATA_TYPE_COMPLEXITY: {
-          variableContent = "text()";
-          break;
-        }
+      switch(SpecificationModel.getInstance().getSchemaValidator().getDataTypeComplexity(variable.getDataType())) {
+        case Complex: variableContent = "*"; break;
+        case Simple:  variableContent = "text()"; break;
+        case Unknown: variableContent = "text()"; break;
       }
     }
     

@@ -24,11 +24,12 @@ package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.api.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.client.YConnector;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -106,7 +107,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
              return;
            }
 
-         String dataSchema = YAWLEngineProxy.getInstance().getDataTypeSchema();
+         String dataSchema = SpecificationModel.getInstance().getSchemaValidator().getDataTypeSchema();
            YConnector.disconnectEngine();
 
          String password = Arrays.toString(enginePasswordField.getPassword());
@@ -129,7 +130,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
            YConnector.setEnginePassword(password);
            YConnector.setEngineURL(engineURIField.getText());
            if (dataSchema != null) {
-               YAWLEngineProxy.getInstance().setDataTypeSchema(dataSchema);
+               SpecificationModel.getInstance().getSchemaValidator().setDataTypeSchema(dataSchema);
            }
            YAWLEditor.setStatusMode("engine", YConnector.isEngineConnected());
 
@@ -315,11 +316,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
    testButton.setMnemonic('T');
-   
-   if (!YAWLEngineProxy.engineLibrariesAvailable()) {
-     testButton.setEnabled(false);
-   }
-   
+
    final EngineDetailDialog detailDialog = this;
    
    testButton.addActionListener(new ActionListener(){
@@ -356,20 +353,17 @@ class EngineDetailDialog extends AbstractDoneDialog {
     if (visible){
       if (engineURIField.getText().equals("")) {
         engineURIField.setText(
-            prefs.get("engineURI", 
-            YAWLEngineProxy.DEFAULT_ENGINE_URI)
+            prefs.get("engineURI", YEngineConnection.DEFAULT_URL)
         );
       }
       if (engineUserField.getText().equals("")) {
         engineUserField.setText(
-            prefs.get("engineUserID", 
-            YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_USER)
+            prefs.get("engineUserID", YEngineConnection.DEFAULT_USERID)
         );
       }
       if (enginePasswordField.getPassword().length == 0) {
         enginePasswordField.setText(
-            prefs.get("engineUserPassword", 
-            YAWLEngineProxy.DEFAULT_ENGINE_ADMIN_PASSWORD)
+            prefs.get("engineUserPassword", YEngineConnection.DEFAULT_PASSWORD)
         );
       }
     }

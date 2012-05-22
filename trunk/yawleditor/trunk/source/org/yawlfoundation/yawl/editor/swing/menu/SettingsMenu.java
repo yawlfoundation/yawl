@@ -25,8 +25,6 @@
 package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.tools.*;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -45,20 +43,11 @@ class SettingsMenu extends JMenu {
     }
 
     protected void buildInterface() {
-
-        if (YAWLEngineProxy.engineLibrariesAvailable())
-            add(new YAWLMenuItem(new SetEngineDetailAction()));
-
+        add(new YAWLMenuItem(new SetEngineDetailAction()));
         add(new YAWLMenuItem(new SetResourcingServiceAction()));
-
-        if (YAWLEngineProxy.engineLibrariesAvailable())
-            add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
-
+        add(new YAWLMenuItem(new ConfigureAnalysisToolsAction()));
         add(new YAWLMenuItem(new ConfigurationSettingsAction()));
         add(new YAWLMenuItem(new SetExternalFilePathsAction()));
     }
 
-    public static boolean needsToBeAddedToMenus() {
-        return YAWLEngineProxy.engineLibrariesAvailable() || WofYAWLProxy.wofYawlAvailable();
-    }
 }

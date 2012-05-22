@@ -23,8 +23,6 @@
  
 package org.yawlfoundation.yawl.editor.swing.data;
 
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-
 public class JXQueryEditor extends ValidityEditorPane {
 
   /**
@@ -34,16 +32,12 @@ public class JXQueryEditor extends ValidityEditorPane {
 
   public JXQueryEditor() {
     super();
-    setDocument(
-        YAWLEngineProxy.getInstance().getXQueryEditorDocument(this,"")
-    );
+    setDocument(new XQueryStyledDocument(this));
   }
   
   public JXQueryEditor(String extraParseText) {
     super();
-    setDocument(
-        YAWLEngineProxy.getInstance().getXQueryEditorDocument(this,extraParseText)
-    );
+    setDocument(new XQueryStyledDocument(this));
   }
   
   public void setPreAndPostEditorText(String preEditorText, String postEditorText) {

@@ -24,9 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.swing.menu;
 
-import javax.swing.JMenuBar;
-
 import org.yawlfoundation.yawl.editor.YAWLEditor;
+
+import javax.swing.*;
 
 public class YAWLMenuBar extends JMenuBar {
   
@@ -44,12 +44,8 @@ public class YAWLMenuBar extends JMenuBar {
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new ElementsMenu());
     YAWLEditor.updateLoadProgress(progress+=10);
-    if (SettingsMenu.needsToBeAddedToMenus()) {
-      add(new SettingsMenu());
-      YAWLEditor.updateLoadProgress(progress+=10);
-    } else {
-      progress+=10;
-    }
+    add(new SettingsMenu());
+    YAWLEditor.updateLoadProgress(progress+=10);
     add(new ViewMenu());
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new HelpMenu());

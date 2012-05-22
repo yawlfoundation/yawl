@@ -6,7 +6,6 @@ import org.yawlfoundation.yawl.editor.data.Decomposition;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.Palette;
-import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -149,7 +148,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     }
 
     private String getWofyawlPath() {
-        return prefs.get("WofyawlFilePath", WofYAWLProxy.getBinaryExecutableFilePath());
+        return prefs.get("WofyawlFilePath", FileUtilities.getHomeDir());
     }
 
     private String getWendyPath() {

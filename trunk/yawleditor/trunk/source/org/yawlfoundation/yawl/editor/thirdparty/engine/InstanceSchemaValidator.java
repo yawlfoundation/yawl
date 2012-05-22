@@ -8,6 +8,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -141,8 +142,8 @@ public class InstanceSchemaValidator extends DefaultHandler {
                                                        String userSuppliedType,
                                                        String complexTypeInstance) {
       String result ;
-      String schema = YAWLEngineProxy.getInstance().createSchemaForVariable(
-          variableName, userSuppliedType
+      String schema = SpecificationModel.getInstance().getSchemaValidator().
+              createSchemaForVariable(variableName, userSuppliedType
       );
 
       if (schema != null) {
