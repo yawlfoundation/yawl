@@ -41,7 +41,7 @@ public class YResourceConnection extends YConnection {
     private List<CodeletInfo> _codeletCache = new ArrayList<CodeletInfo>();
 
     // default URL
-    private static final String DEFAULT_URL = "http://localhost:8080/resourceService/gateway";
+    public static final String DEFAULT_URL = "http://localhost:8080/resourceService/gateway";
 
 
     /*********************************************************************************/
@@ -431,7 +431,7 @@ public class YResourceConnection extends YConnection {
 
     /**********************************************************************************/
 
-    // test class
+    // test this class
     public static void main(String[] args) {
         YResourceConnection conn =
                 new YResourceConnection("http://localhost:8080/resourceService/gateway");

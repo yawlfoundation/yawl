@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.net;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.analyser.AnalysisDialog;
+import org.yawlfoundation.yawl.editor.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.elements.model.CPort;
 import org.yawlfoundation.yawl.editor.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;

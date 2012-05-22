@@ -28,9 +28,8 @@ import org.yawlfoundation.yawl.editor.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.actions.UndoAction;
 import org.yawlfoundation.yawl.editor.actions.net.*;
 import org.yawlfoundation.yawl.editor.actions.specification.*;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.editor.specification.ProcessConfigurationModelListener;
 
 import java.awt.*;
 
@@ -54,17 +53,16 @@ public class ToolBarMenu extends YAWLToolBar implements ProcessConfigurationMode
     setMargin(new Insets(3,2,2,0));
     add(new YAWLToolBarButton(new CreateSpecificationAction()));
     add(new YAWLToolBarButton(new OpenSpecificationAction()));
-    if (YAWLEngineProxy.engineLibrariesAvailable()) {
-        add(new YAWLToolBarButton(new ImportFromEngineFormatAction()));
-    }
+    add(new YAWLToolBarButton(new ImportFromEngineFormatAction()));
     add(new YAWLToolBarButton(new SaveSpecificationAction()));
-	  add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
+    add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
     add(new YAWLToolBarButton(new CloseSpecificationAction()));
-    if (YAWLEngineProxy.engineLibrariesAvailable()) {
-      addSeparator();
-	    add(new YAWLToolBarButton(new ValidateSpecificationAction()));
-      add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
-    }
+
+    addSeparator();
+
+	add(new YAWLToolBarButton(new ValidateSpecificationAction()));
+    add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
+
     addSeparator();
     add(new YAWLToolBarButton(new CreateNetAction()));
   	add(new YAWLToolBarButton(new RemoveNetAction()));

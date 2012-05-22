@@ -22,7 +22,6 @@
 
 package org.yawlfoundation.yawl.editor;
 
-import org.yawlfoundation.yawl.editor.analyser.YAWLResetAnalyser;
 import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
 import org.yawlfoundation.yawl.editor.foundations.LogWriter;
@@ -36,9 +35,8 @@ import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.wofyawl.WofYAWLProxy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -409,25 +407,21 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private void initResetNetAnalysisPreferences() {
-      prefs.putBoolean(YAWLResetAnalyser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(YAWLResetAnalyser.CANCELLATION_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(YAWLResetAnalyser.ORJOIN_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(YAWLResetAnalyser.SHOW_OBSERVATIONS_PREFERENCE,false);
+      prefs.putBoolean(AnalysisResultsParser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(AnalysisResultsParser.CANCELLATION_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(AnalysisResultsParser.ORJOIN_ANALYSIS_PREFERENCE, false);
+      prefs.putBoolean(AnalysisResultsParser.SHOW_OBSERVATIONS_PREFERENCE,false);
   }
 
   private void initWofYAWLAnalysisPreferences() {
-    prefs.putBoolean(WofYAWLProxy.WOFYAWL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(WofYAWLProxy.STRUCTURAL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(WofYAWLProxy.BEHAVIOURAL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(WofYAWLProxy.EXTENDED_COVERABILITY_PREFERENCE, false);
+    prefs.putBoolean(AnalysisResultsParser.WOFYAWL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(AnalysisResultsParser.STRUCTURAL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(AnalysisResultsParser.BEHAVIOURAL_ANALYSIS_PREFERENCE, false);
+    prefs.putBoolean(AnalysisResultsParser.EXTENDED_COVERABILITY_PREFERENCE, false);
   }
 
 
   public static void hideBottomOfSplitPane() {
-    if (!YAWLEngineProxy.engineLibrariesAvailable()) {
-      splitPane.getBottomComponent().setVisible(false);
-      splitPane.setDividerSize(0);
-    }
     splitPane.setDividerLocation((double)1);
   }
 

@@ -33,7 +33,7 @@ public class YEngineConnection extends YConnection {
     private Map<String, String> _externalDbCache = new Hashtable<String, String>();
 
     // default url
-    private static final String DEFAULT_URL = "http://localhost:8080/yawl/ia";
+    public static final String DEFAULT_URL = "http://localhost:8080/yawl/ia";
 
 
     /*********************************************************************************/

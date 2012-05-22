@@ -123,7 +123,7 @@
 	    	 excludes="${unneededEngineLibs}" />
 
 	<property name="neededPackages" value= "com/toedter/** javax/** net/sf/saxon/**
-						org/apache/** org/dom4j/** org/jdom/** org/eclipse/** 
+						org/apache/** org/dom4j/** org/jdom2/** org/eclipse/**
 						com/intellij/** at/jta/** edu/stanford/** net/sf/wraplog/**
 						org/jdesktop/** org/hibernate/HibernateException.class
 	                    ${package.base.dir}/authentication/*Client.class
@@ -329,9 +329,18 @@
             depends="initialize">
 
         <mkdir dir="${filtered.source.dir}" />
-        <copy todir="${filtered.source.dir}" filtering="true">
+        <copy todir="${filtered.source.dir}">
             <fileset dir="${source.dir}"/>
         </copy>
+        <copy todir="${filtered.source.dir}/${package.dir}/actions"
+              file="${source.dir}/${package.dir}/actions/ShowAboutEditorAction.java"
+              filtering="true" overwrite="true"/>
+        <copy todir="${filtered.source.dir}/${package.dir}/swing"
+              file="${source.dir}/${package.dir}/swing/SplashContent.java"
+              filtering="true" overwrite="true"/>
+        <copy todir="${filtered.source.dir}/${package.dir}/thirdparty/engine"
+              file="${source.dir}/${package.dir}/thirdparty/engine/AnalysisResultsParser.java"
+              filtering="true" overwrite="true"/>
 
         <mkdir dir="${classes.dir}" />
         <copy todir="${classes.dir}/${package.dir}/resources">

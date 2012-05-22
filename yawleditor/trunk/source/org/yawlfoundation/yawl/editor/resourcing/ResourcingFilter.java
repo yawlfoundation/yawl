@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.resourcing;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ResourcingFilter implements Serializable {
 
@@ -27,7 +28,7 @@ public class ResourcingFilter implements Serializable {
   }
   
   public ResourcingFilter(String name, String canonicalName, String displayName,
-                          HashMap<String, String> parameters) {
+                          Map<String, String> parameters) {
     setName(name);
     setCanonicalName(canonicalName);
     setDisplayName(displayName);
@@ -70,7 +71,7 @@ public class ResourcingFilter implements Serializable {
     serializationProofAttributeMap.put("description", description);
   }
   
-  public void setParameters(HashMap<String, String> parameters) {
+  public void setParameters(Map<String, String> parameters) {
     serializationProofAttributeMap.put("parameters", parameters);
   }
   

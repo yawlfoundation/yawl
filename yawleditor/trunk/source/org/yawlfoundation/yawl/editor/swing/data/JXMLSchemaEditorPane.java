@@ -22,9 +22,9 @@
 
 package org.yawlfoundation.yawl.editor.swing.data;
 
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.swing.menu.YAWLToolBarButton;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
 
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -99,7 +99,8 @@ class JXMLSchemaEditor extends ValidityEditorPane {
         catch (UnsupportedEncodingException uee) {
             content = getEditor().getText();
         }
-      return YAWLEngineProxy.getInstance().getSchemaValidationResults(content);
+      return SpecificationModel.getInstance().getSchemaValidator().
+              getSchemaValidationResults(content);
     }
     
     public void setPreAndPostEditorText(String preEditorText, String postEditorText) {

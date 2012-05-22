@@ -33,7 +33,7 @@ import org.yawlfoundation.yawl.editor.foundations.XMLUtilities;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationHandler;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
@@ -177,7 +177,7 @@ public class SpecificationArchiveHandler {
       }
 
     try {
-        YAWLEngineProxy.getInstance().engineFormatFileExport(specification);
+        EngineSpecificationHandler.getInstance().engineFormatFileExport(specification);
         OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
         
     } catch (Exception e) {

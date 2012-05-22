@@ -24,12 +24,11 @@ package org.yawlfoundation.yawl.editor.actions.tools;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.api.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.client.YConnector;
 import org.yawlfoundation.yawl.editor.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
-import org.yawlfoundation.yawl.editor.thirdparty.resourcing.ResourcingServiceProxy;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -86,51 +85,44 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
   private JButton testButton;
   private JLabel testMessage = new JLabel();
-  
-  public ResourceServiceDialog() {
-    super("Resource Service Connection Settings", true);
-    setContentPanel(buildResourcingServiceDetailPanel());
 
-    final ResourceServiceDialog dlg = this;
-    getDoneButton().addActionListener(new ActionListener(){
-       public void actionPerformed(ActionEvent e) {
-         if (! hasValidURIPath(resourcingServiceURIField.getText())) {
-           JOptionPane.showMessageDialog(
-             dlg,
-             "The URI supplied must be absolute and\nhave the path '/resourceService/gateway'.",
-             "Invalid URI",
-             JOptionPane.ERROR_MESSAGE
-           );
-           dlg.closeCancelled = true;
-           return;
-         }
+    public ResourceServiceDialog() {
+        super("Resource Service Connection Settings", true);
+        setContentPanel(buildResourcingServiceDetailPanel());
 
-         YConnector.disconnectResource();
-         
-         prefs.put(
-             "resourcingServiceURI", 
-             resourcingServiceURIField.getText()
-         );
+        final ResourceServiceDialog dlg = this;
+        getDoneButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                if (! hasValidURIPath(resourcingServiceURIField.getText())) {
+                    JOptionPane.showMessageDialog(
+                            dlg,
+                            "The URI supplied must be absolute and\n" +
+                            "have the path '/resourceService/gateway'.",
+                            "Invalid URI",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    dlg.closeCancelled = true;
+                    return;
+                }
 
-         prefs.put(
-             "resourcingServiceUserID", 
-             resourcingServiceUserField.getText()
-         );
+                String userid = resourcingServiceUserField.getText();
+                String password = new String(resourcingServicePasswordField.getPassword());
+                String uri = resourcingServiceURIField.getText();
 
-         prefs.put(
-             "resourcingServiceUserPassword", 
-             new String(resourcingServicePasswordField.getPassword())
-         );
+                prefs.put("resourcingServiceURI", uri);
+                prefs.put("resourcingServiceUserID", userid);
+                prefs.put("resourcingServiceUserPassword", password);
 
-         YConnector.setResourceUserID(resourcingServiceUserField.getText());
-         YConnector.setResourcePassword(new String(resourcingServicePasswordField.getPassword()));
-         YConnector.setResourceURL(resourcingServiceURIField.getText());
-         YAWLEditor.setStatusMode("resource", YConnector.isResourceConnected());
+                YConnector.disconnectResource();
+                YConnector.setResourceUserID(userid);
+                YConnector.setResourcePassword(password);
+                YConnector.setResourceURL(uri);
 
-         SpecificationUndoManager.getInstance().setDirty(true);                            
-       }
-    });
-  }
+                YAWLEditor.setStatusMode("resource", YConnector.isResourceConnected());
+                SpecificationUndoManager.getInstance().setDirty(true);
+            }
+        });
+    }
 
   protected void makeLastAdjustments() {
     pack();
@@ -217,16 +209,16 @@ class ResourceServiceDialog extends AbstractDoneDialog {
 
     /* 
      * Below, I replace the default component traversal policy with my own to
-     * ensure that the passwword field and password verification field are together
+     * ensure that the password field and password verification field are together
      * in the focus traversal order.
      */
     
     setFocusTraversalPolicy(new FocusTraversalPolicy() {
-      
+
       public Component getInitialComponent(Window window) {
         return resourcingServiceURIField;
       }
-      
+
       public Component getFirstComponent(Container focusCycleRoot) {
         return resourcingServiceURIField;
       }
@@ -234,7 +226,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
       public Component getDefaultComponent(Container focusCycleRoot) {
         return getDoneButton();
       }
-      
+
       public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
         if (aComponent.equals(resourcingServiceURIField)) {
           return resourcingServiceUserField;
@@ -254,7 +246,6 @@ class ResourceServiceDialog extends AbstractDoneDialog {
         if (aComponent.equals(getCancelButton())) {
           return resourcingServiceURIField;
         }
-        
         return getCancelButton();
       }
 
@@ -277,10 +268,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
         if (aComponent.equals(getDoneButton())) {
           return testButton;
         }
-        
         return getCancelButton();
       }
-      
+
       public Component getLastComponent(Container focusCycleRoot) {
         return getCancelButton();
       }
@@ -309,11 +299,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
   private JButton getTestConnectionButton() {
    testButton = new JButton("Test Connection"); 
    testButton.setMnemonic('T');
-   
-   if (!YAWLEngineProxy.engineLibrariesAvailable()) {
-     testButton.setEnabled(false);
-   }
-   
+
    final ResourceServiceDialog detailDialog = this;
 
       testButton.addActionListener(new ActionListener(){
@@ -351,46 +337,20 @@ class ResourceServiceDialog extends AbstractDoneDialog {
     if (visible){
       if (resourcingServiceURIField.getText().equals("")) {
         resourcingServiceURIField.setText(
-            prefs.get(
-                "resourcingServiceURI", 
-                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_URI
-            )
-        );
+            prefs.get("resourcingServiceURI", YResourceConnection.DEFAULT_URL));
       }
       if (resourcingServiceUserField.getText().equals("")) {
         resourcingServiceUserField.setText(
-            prefs.get(
-                "resourcingServiceUserID", 
-                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USERID
-            )
-        );
+            prefs.get("resourcingServiceUserID", YResourceConnection.DEFAULT_USERID));
       }
       if (resourcingServicePasswordField.getPassword().length == 0) {
         resourcingServicePasswordField.setText(
-            prefs.get(
-                "resourcingServiceUserPassword", 
-                ResourcingServiceProxy.DEFAULT_RESOURCING_SERVICE_USER_PASSWORD
-            )
-        );
+            prefs.get("resourcingServiceUserPassword", YResourceConnection.DEFAULT_PASSWORD));
       }
     }
     super.setVisible(visible);
   }
   
-  private boolean passwordsMatch(char[] password, char[] verifyPassword) {
-    if (password.length != verifyPassword.length) {
-      return false;
-    }
-
-    for(int i = 0; i < password.length; i++) {
-      if (password[i] != verifyPassword[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
 
   private boolean hasValidURIPath(String uriStr) {
       try {

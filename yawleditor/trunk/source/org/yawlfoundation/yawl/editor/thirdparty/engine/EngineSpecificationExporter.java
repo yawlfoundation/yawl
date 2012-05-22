@@ -186,36 +186,19 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return results.isEmpty();
   }
 
-  public static String getAndCheckEngineSpecificationXML(SpecificationModel editorSpec) {
-    boolean verificationNeeded = prefs.getBoolean(VERIFICATION_WITH_EXPORT_PREFERENCE, true);
-    boolean analysisNeeded = prefs.getBoolean(ANALYSIS_WITH_EXPORT_PREFERENCE, true);
+    public static String getAndCheckEngineSpecificationXML(SpecificationModel editorSpec) {
+        YSpecification engineSpec = getEngineSpecAsEngineObjects(editorSpec);
+        List<String> results = new LinkedList<String>();
 
-    YSpecification engineSpec = getEngineSpecAsEngineObjects(editorSpec);   
-    
-    List<String> results = new LinkedList<String>();
-    if (verificationNeeded) {
-      results.addAll(EngineSpecificationValidator.getValidationResults(engineSpec));
+        if (prefs.getBoolean(VERIFICATION_WITH_EXPORT_PREFERENCE, true)) {
+            results.addAll(EngineSpecificationValidator.getValidationResults(engineSpec));
+        }
+        if (prefs.getBoolean(ANALYSIS_WITH_EXPORT_PREFERENCE, true)) {
+            results.addAll(editorSpec.analyse());
+        }
+        YAWLEditor.getInstance().showProblemList("Analysis Results", results);
+        return getEngineSpecificationXML(engineSpec);
     }
-      try {
-          if (analysisNeeded) {
-              results.addAll(
-                      YAWLEngineProxy.getInstance().getAnalysisResults(editorSpec)
-              );
-          }
-      }
-      catch (NoClassDefFoundError e) {
-          JOptionPane.showMessageDialog(null,
-                  "The attempt to analyse this specification failed.\n " +
-                  "Please see the log for details", "Save File Error",
-                  JOptionPane.ERROR_MESSAGE);
-          LogWriter.error("The attempt to analyse the specification failed", e);
-      }
-      
-
-    YAWLEditor.getInstance().showProblemList("Analysis Results", results);
-    
-    return getEngineSpecificationXML(engineSpec);
-  }
   
   public static String getEngineSpecificationXML(SpecificationModel editorSpec) {
     return getEngineSpecificationXML(

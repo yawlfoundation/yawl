@@ -25,7 +25,7 @@
 package org.yawlfoundation.yawl.editor.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationHandler;
 
 import java.awt.*;
 
@@ -138,12 +138,12 @@ public class ArchivingThread extends Thread {
         SpecificationArchiveHandler.getInstance().processSaveAsRequest();
         break;
       }
-      case OPEN: {      
-        YAWLEngineProxy.getInstance().engineFormatFileImport();
+      case OPEN: {
+          EngineSpecificationHandler.getInstance().engineFormatFileImport();
         break;
       }
       case OPEN_FILE: {
-        YAWLEngineProxy.getInstance().engineFormatFileImport(openFileName);
+          EngineSpecificationHandler.getInstance().engineFormatFileImport(openFileName);
         break;
       }
       case EXIT: {
@@ -159,11 +159,12 @@ public class ArchivingThread extends Thread {
         break;
       }
       case VALIDATE: {
-        YAWLEngineProxy.getInstance().validate(specification);
+          EngineSpecificationHandler.getInstance().validate(specification);
         break;
       }
       case ANALYSE: {
-        YAWLEngineProxy.getInstance().analyse(specification);
+          YAWLEditor.getInstance().showProblemList("Analysis Results",
+                  specification.analyse());
         break;
       }
     }

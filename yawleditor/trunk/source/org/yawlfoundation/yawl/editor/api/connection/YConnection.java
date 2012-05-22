@@ -17,8 +17,8 @@ import java.net.URL;
 public abstract class YConnection {
 
     // some default values
-    protected static final String DEFAULT_USERID = "editor";
-    protected static final String DEFAULT_PASSWORD = "yEditor";
+    public static final String DEFAULT_USERID = "editor";
+    public static final String DEFAULT_PASSWORD = "yEditor";
 
     protected URL _url;                                        // the connection's url
     protected String _handle;                                  // a session handle

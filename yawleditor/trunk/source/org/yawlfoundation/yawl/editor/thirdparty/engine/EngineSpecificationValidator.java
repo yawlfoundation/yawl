@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.editor.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.*;
@@ -21,7 +22,8 @@ import java.util.*;
 
 public class EngineSpecificationValidator {
 
-  public static String NO_PROBLEMS_MESSAGE = "No design-time engine validation problems were found in this specification.";
+  public static String NO_PROBLEMS_MESSAGE =
+          "No design-time engine validation problems were found in this specification.";
   
   public static List getValidationResults() {
     return getValidationResults(SpecificationModel.getInstance());
@@ -36,7 +38,9 @@ public class EngineSpecificationValidator {
   }
   
   public static List<String> getValidationResults(YSpecification specification) {
-    return createProblemListFrom(specification.verify());
+      YVerificationHandler verificationHandler = new YVerificationHandler();
+      specification.verify(verificationHandler);
+      return createProblemListFrom(verificationHandler.getMessages());
   }
   
   private static List<String> createProblemListFrom(
@@ -137,7 +141,7 @@ public class EngineSpecificationValidator {
               valid = _checkedDataTypes.get(datatype);
           }
           else {
-              valid = YAWLEngineProxy.getInstance().isDefinedTypeName(datatype);
+              valid = SpecificationModel.getInstance().isDefinedTypeName(datatype);
               _checkedDataTypes.put(datatype, valid) ;
           }
 

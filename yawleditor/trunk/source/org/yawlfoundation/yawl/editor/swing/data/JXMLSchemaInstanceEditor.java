@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.editor.data.DataVariable;
 import org.yawlfoundation.yawl.editor.data.internal.YDocumentType;
 import org.yawlfoundation.yawl.editor.data.internal.YStringListType;
 import org.yawlfoundation.yawl.editor.data.internal.YTimerType;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.YAWLEngineProxy;
+import org.yawlfoundation.yawl.editor.specification.SpecificationModel;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -174,7 +174,8 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   private LinkedList getBaseDataTypeInstanceProblems() {  
     LinkedList problemList = new LinkedList();
    
-    String errors = YAWLEngineProxy.getInstance().validateBaseDataTypeInstance(
+    String errors = SpecificationModel.getInstance().getSchemaValidator().
+            validateBaseDataTypeInstance(
         getInstanceEditor().getTypeDefinition(), 
         getInstanceEditor().getSchemaInstance()
     );
@@ -200,7 +201,8 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
           validationSchema = YDocumentType.getValidationSchema(varName);
       }
 
-      String errors = YAWLEngineProxy.getInstance().validateBaseDataTypeInstance(
+      String errors = SpecificationModel.getInstance().getSchemaValidator().
+              validateBaseDataTypeInstance(
           validationSchema,  getInstanceEditor().getSchemaInstance()
       );
 
@@ -223,7 +225,8 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   private LinkedList getUserSuppliedDataTypeInstanceProblems() {
     LinkedList problemList = new LinkedList();
     
-    String errors = YAWLEngineProxy.getInstance().validateUserSuppliedDataTypeInstance(
+    String errors = SpecificationModel.getInstance().getSchemaValidator().
+            validateUserSuppliedDataTypeInstance(
         getInstanceEditor().getVariableName(), 
         getInstanceEditor().getVariableType(), 
         getInstanceEditor().getSchemaInstance()
