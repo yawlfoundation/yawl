@@ -86,7 +86,7 @@ public class RMarking {
     private boolean compare(RMarking marking, Operator operator) {
         Map<String, Integer> otherPlaces = marking.getMarkedPlaces();
         if (getLocations().containsAll(otherPlaces.keySet())) {
-            for (String netElement : getLocations()) {
+            for (String netElement : otherPlaces.keySet()) {
                 switch (operator) {
                     case equals :
                         if (! _markedPlaces.get(netElement).equals(otherPlaces.get(netElement))) {

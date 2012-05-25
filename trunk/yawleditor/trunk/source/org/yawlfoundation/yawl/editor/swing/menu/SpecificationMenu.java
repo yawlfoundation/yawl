@@ -27,58 +27,77 @@ package org.yawlfoundation.yawl.editor.swing.menu;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.actions.ExitAction;
 import org.yawlfoundation.yawl.editor.actions.specification.*;
+import org.yawlfoundation.yawl.editor.api.plugin.YEditorPlugin;
+import org.yawlfoundation.yawl.editor.api.plugin.YPluginLoader;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
 class SpecificationMenu extends JMenu {
-    
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public SpecificationMenu() {
-    super("Specification");
-    setMnemonic(KeyEvent.VK_S);
-    buildInterface();
-  }   
-  
-  protected void buildInterface() {
-    addMenuItemAction(new CreateSpecificationAction());
-    addMenuItemAction(new OpenSpecificationAction());
-    add(OpenRecentSubMenu.getInstance());
-    addMenuItemAction(new ImportFromEngineFormatAction());
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-    addSeparator();
-    
-    addMenuItemAction(new SaveSpecificationAction());
-    addMenuItemAction(new SaveSpecificationAsAction());
+    public SpecificationMenu() {
+        super("Specification");
+        setMnemonic(KeyEvent.VK_S);
+        buildInterface();
+    }
 
-    YAWLEditor.updateLoadProgress(12);
+    protected void buildInterface() {
+        addMenuItemAction(new CreateSpecificationAction());
+        addMenuItemAction(new OpenSpecificationAction());
+        add(OpenRecentSubMenu.getInstance());
+        addMenuItemAction(new ImportFromEngineFormatAction());
 
-    addSeparator();
-    addMenuItemAction(new ValidateSpecificationAction());
-    addMenuItemAction(new AnalyseSpecificationAction());
+        addSeparator();
 
-    YAWLEditor.updateLoadProgress(16);
+        addMenuItemAction(new SaveSpecificationAction());
+        addMenuItemAction(new SaveSpecificationAsAction());
 
-    addSeparator();
-    addMenuItemAction(new PrintSpecificationAction());
-    addSeparator();
+        YAWLEditor.updateLoadProgress(12);
 
-    addMenuItemAction(new UpdateSpecificationPropertiesAction());
-    addMenuItemAction(new UpdateDataTypeDefinitionsAction());
-    addMenuItemAction(new DeleteOrphanDecompositionAction());
-    addSeparator();
+        addSeparator();
+        addMenuItemAction(new ValidateSpecificationAction());
+        addMenuItemAction(new AnalyseSpecificationAction());
 
-    addMenuItemAction(new CloseSpecificationAction());
-    addMenuItemAction(new ExitAction(this));
+        YAWLEditor.updateLoadProgress(16);
 
-    YAWLEditor.updateLoadProgress(18);
-  }
-  
-  private void addMenuItemAction(AbstractAction action) {
-    add(new YAWLMenuItem(action));
-  }
+        addSeparator();
+        addMenuItemAction(new PrintSpecificationAction());
+        addSeparator();
+
+        addMenuItemAction(new UpdateSpecificationPropertiesAction());
+        addMenuItemAction(new UpdateDataTypeDefinitionsAction());
+        addMenuItemAction(new DeleteOrphanDecompositionAction());
+        addSeparator();
+
+        if (addPlugins() > 0) addSeparator();
+
+        addMenuItemAction(new CloseSpecificationAction());
+        addMenuItemAction(new ExitAction(this));
+
+        YAWLEditor.updateLoadProgress(18);
+    }
+
+
+    private int addPlugins() {
+        int addedItemCount = 0;
+        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+            AbstractAction action = plugin.getSpecificationMenuAction();
+            if (action != null) {
+                addMenuItemAction(action);
+                addedItemCount++;
+            }
+        }
+        return addedItemCount;
+    }
+
+
+    private void addMenuItemAction(AbstractAction action) {
+        add(new YAWLMenuItem(action));
+    }
+
 }

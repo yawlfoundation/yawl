@@ -25,9 +25,12 @@ package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.actions.CutAction;
+import org.yawlfoundation.yawl.editor.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.actions.element.*;
 import org.yawlfoundation.yawl.editor.actions.net.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.actions.net.DeleteAction;
+import org.yawlfoundation.yawl.editor.api.plugin.YEditorPlugin;
+import org.yawlfoundation.yawl.editor.api.plugin.YPluginLoader;
 import org.yawlfoundation.yawl.editor.elements.model.*;
 import org.yawlfoundation.yawl.editor.net.NetGraph;
 import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
@@ -71,6 +74,7 @@ public class VertexPopupMenu extends JPopupMenu {
     addDataPerspectiveMenuItems(vertex);
     addResourcePerspectiveMenuItems(vertex);
     addConfigurableMenuItems();
+      addPlugins();
   }
 
   private void addGraphSpecificMenuItems(YAWLVertex vertex) {
@@ -277,6 +281,20 @@ public class VertexPopupMenu extends JPopupMenu {
 
 	    return cancelationRegionConfigurationItem;
 	  }
+
+    private int addPlugins() {
+        int addedItemCount = 0;
+        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+            YAWLBaseAction action = plugin.getPopupMenuAction();
+            if (action != null) {
+                if (addedItemCount == 0) addSeparator();
+                add(new YAWLPopupMenuItem(action));
+                addedItemCount++;
+            }
+        }
+        return addedItemCount;
+    }
+
 
   public YAWLCell getCell() {
     return cell;
