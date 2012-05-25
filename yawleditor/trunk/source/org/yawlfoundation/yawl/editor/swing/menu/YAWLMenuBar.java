@@ -31,10 +31,10 @@ import javax.swing.*;
 public class YAWLMenuBar extends JMenuBar {
   
   private static final long serialVersionUID = 1L;
-  private int progress = 0;
-  
+
   public YAWLMenuBar() {
     super();
+    int progress = 0;
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new SpecificationMenu());
     YAWLEditor.updateLoadProgress(progress+=10);

@@ -16,7 +16,8 @@ public class OrjoinInCycleUtils {
     public String checkORjoinsInCycle(YNet net) {
         String msg = checkForCycles(net);
         if (msg.length() == 0) {
-            msg = formatXMLMessage("No OR-joins are in a cycle.", true);
+            msg = formatXMLMessage("The net " + net.getID() +
+                    " has no OR-joins in a cycle.", true);
         }
         return msg;
     }

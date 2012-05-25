@@ -25,6 +25,8 @@
 package org.yawlfoundation.yawl.editor.swing.menu;
 
 import org.yawlfoundation.yawl.editor.actions.net.*;
+import org.yawlfoundation.yawl.editor.api.plugin.YEditorPlugin;
+import org.yawlfoundation.yawl.editor.api.plugin.YPluginLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,8 +54,7 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
 		addSeparator();
     add(new YAWLMenuItem(AddToVisibleCancellationSetAction.getInstance()));
     add(new YAWLMenuItem(RemoveFromVisibleCancellationSetAction.getInstance()));
-//    addSeparator();
-//    add(getVertexMenu());
+      addPlugins();
   }
   
   private JMenu getAlignmentMenu() {
@@ -70,6 +71,21 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
 
     return alignmentMenu;
   }
+
+    private int addPlugins() {
+        int addedItemCount = 0;
+        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+            AbstractAction action = plugin.getElementsMenuAction();
+            if (action != null) {
+                if (addedItemCount == 0) addSeparator();
+                add(new YAWLMenuItem(action));
+                addedItemCount++;
+            }
+        }
+        return addedItemCount;
+    }
+
+
 
   private JMenu getVertexMenu() {
       vertexMenu = new JMenu("Element");

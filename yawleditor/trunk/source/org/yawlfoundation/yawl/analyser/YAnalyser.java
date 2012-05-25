@@ -18,8 +18,10 @@ public class YAnalyser {
     private YAWLResetAnalyser _resetAnalyser;
     private Set<YAnalyserEventListener> _listeners;
     private boolean _cancelled;
+    private String _specXML;
 
     public String analyse(String specXML, YAnalyserOptions options) throws YSyntaxException {
+        _specXML = specXML;
         return analyse(YMarshal.unmarshalSpecifications(specXML).get(0), options);
     }
 
@@ -31,8 +33,8 @@ public class YAnalyser {
             results.append(_resetAnalyser.analyse(specification, options, _listeners));
         }
         if (options.isWofAnalysis() && ! _cancelled) {
-            results.append(
-                    new WofYAWLInvoker().getAnalysisResults(specification.toXML(), options));
+            if (_specXML == null) _specXML = specification.toXML();
+            results.append(new WofYAWLInvoker().getAnalysisResults(_specXML, options));
         }
         results.append("</analysis_results>");
         return results.toString();
