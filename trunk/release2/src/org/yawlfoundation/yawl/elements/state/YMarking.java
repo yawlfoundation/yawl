@@ -185,7 +185,7 @@ public class YMarking {
     }
 
 
-    public List getLocations() {
+    public List<YNetElement> getLocations() {
         return _locations;
     }
 

@@ -46,7 +46,6 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YPredicateParser;
 
@@ -1191,6 +1190,10 @@ public class SessionBean extends AbstractSessionBean {
     public Participant getEditedParticipant() { return editedParticipant; }
 
     public void setEditedParticipantToNull() {
+        if (editedParticipant != null) {
+            editedParticipant.removeAttributeReferences();
+        }
+        preEditAttributes = null;
         editedParticipant = null;
     }
 
@@ -1200,7 +1203,7 @@ public class SessionBean extends AbstractSessionBean {
             preEditAttributes = p.getAttributeReferences();
             editedParticipant = p.clone();
         }
-            return editedParticipant;
+        return editedParticipant;
     }
 
     // the set of attributes held by a resource before it has been edited
