@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -50,126 +51,37 @@ public class RandomOrgDataGenerator {
     public RandomOrgDataGenerator() {}
 
     public void generate(int count) {
-        int HOW_MANY_PARTICIPANTS_TO_CREATE = Math.min(count, 100);
-
+        int howManyToCreate = Math.min(count, 100);
         _rm = ResourceManager.getInstance();
         ResourceDataSet orgDataSet = _rm.getOrgDataSet();
 
         // ensure it is valid to generate dummy data to org tables
         if (okToGenerate()) {
             try {
-                Random rand = new Random();
 
                 // make some roles
-                Role r4 = new Role("senior analyst");
-                r4.setPersisting(true);
-                Role r3 = new Role("analyst");
-                r3.setPersisting(true);
-                Role r2 = new Role("programmer");
-                r2.setPersisting(true);
-                Role r1 = new Role("apprentice programmer");
-                r1.setPersisting(true);
+                Role[] roles = createRoles(orgDataSet);
 
-                orgDataSet.addRole(r1);
-                orgDataSet.addRole(r2);
-                orgDataSet.addRole(r3);
-                orgDataSet.addRole(r4);
-
-                r1.setOwnerRole(r2);
-                r2.setOwnerRole(r3);
-                r3.setOwnerRole(r4);
-
-                Role[] roles = {r1, r2, r3, r4};
-
-                // make some org groups
-
-                OrgGroup o1 = new OrgGroup("SoftwareDiv", OrgGroup.GroupType.DIVISION, null,
-                        "Software Division", true);
-                orgDataSet.addOrgGroup(o1);
-
-                OrgGroup o2 = new OrgGroup("progDept", OrgGroup.GroupType.DEPARTMENT, o1,
-                        "Programming Department", true);
-                orgDataSet.addOrgGroup(o2);
-
-                OrgGroup o3 = new OrgGroup("teamA", OrgGroup.GroupType.TEAM, o2,
-                        "Code Team A", true);
-                OrgGroup o4 = new OrgGroup("teamB", OrgGroup.GroupType.TEAM, o2,
-                        "Code Team B", true);
-                orgDataSet.addOrgGroup(o3);
-                orgDataSet.addOrgGroup(o4);
+                // and some org groups
+                OrgGroup[] orgGroups = createOrgGroups(orgDataSet);
 
                 // and some Positions
-                Position p1 = new Position("Vice President");
-                p1.setPersisting(true);
-                Position p2 = new Position("manager");
-                p2.setPersisting(true);
-                Position p3 = new Position("supervisor");
-                p3.setPersisting(true);
-                Position p4 = new Position("level A");
-                p4.setPersisting(true);
+                Position[] positions = createPositions(orgDataSet);
 
-                orgDataSet.addPosition(p1);
-                orgDataSet.addPosition(p2);
-                orgDataSet.addPosition(p3);
-                orgDataSet.addPosition(p4);
-
-                p4.setReportsTo(p3);
-                p3.setReportsTo(p2);
-                p2.setReportsTo(p1);
+                // and some capabilities
+                Capability[] capabilities = createCapabilities(orgDataSet);
 
                 // link positions to groups
-
-                p1.setOrgGroup(o1);
-                p2.setOrgGroup(o2);
-                p3.setOrgGroup(o3) ;
-                p4.setOrgGroup(o3);
-
-                Position[] positions = {p1, p2, p3, p4};
-
-                // and some capabiities
-                Capability c1 = new Capability("firstaid", "first aid officer", true);
-                Capability c2 = new Capability("java", "java programmer", true);
-                Capability c3 = new Capability("forklift", "forklift license", true);
-                Capability c4 = new Capability("mandarin", "mandarin speaker", true);
-                orgDataSet.addCapability(c1);
-                orgDataSet.addCapability(c2);
-                orgDataSet.addCapability(c3);
-                orgDataSet.addCapability(c4);
-
-                Capability[] capabilities = {c1, c2, c3, c4};
+                for (int i=0; i<4; i++) positions[i].setOrgGroup(orgGroups[i]);
 
                 // OK - let's make some Participants
-                ArrayList<String> addedUsers = new ArrayList<String>();
-                boolean unique;
-                String last = "", first = "", user = "";
-                for (int i = 0; i < HOW_MANY_PARTICIPANTS_TO_CREATE; i++) {
+                createParticipants(howManyToCreate, roles, positions, capabilities);
 
-                    // ensure all userids are unique
-                    unique = false;
-                    while (! unique) {
-                        first = f[rand.nextInt(26)];
-                        last = l[rand.nextInt(26)];
-                        user = last + first.substring(0, 1);
-                        if (! addedUsers.contains(user)) {
-                            addedUsers.add(user);
-                            unique = true;
-                        }
-                    }
+                // save the relation updates
+                for (Role r : roles) r.save();
+                for (Position p : positions) p.save();
 
-                    Participant p = new Participant(last, first, user, true);
-                    _rm.addParticipant(p);
-
-                    p.setAdministrator(rand.nextBoolean());
-                    p.setPassword(PasswordEncryptor.encrypt("apple"));
-
-                    p.addPosition(positions[rand.nextInt(4)]);
-                    p.addCapability(capabilities[rand.nextInt(4)]);
-                    p.addRole(roles[rand.nextInt(4)]);
-                    p.getUserPrivileges().allowAll();
-                }
-
-                _log.info("GENERATE ORG DATA: Successfully created " +
-                        HOW_MANY_PARTICIPANTS_TO_CREATE +
+                _log.info("GENERATE ORG DATA: Successfully created " + howManyToCreate +
                         " random Participants and associated org data");
             }
             catch (Exception e) {
@@ -178,7 +90,8 @@ public class RandomOrgDataGenerator {
         }
     }
 
-    public boolean okToGenerate() {
+
+    private boolean okToGenerate() {
         String h = "GENERATE ORG DATA ERROR: ";
         String f = ". Generation of dummy data aborted";
         if (_rm.getOrgDataSet().getParticipantCount() > 0) {
@@ -195,4 +108,120 @@ public class RandomOrgDataGenerator {
         }
         return true;
     }
+
+
+    private Role[] createRoles(ResourceDataSet orgDataSet) {
+        Role r4 = new Role("senior analyst");
+        r4.setPersisting(true);
+        Role r3 = new Role("analyst");
+        r3.setPersisting(true);
+        Role r2 = new Role("programmer");
+        r2.setPersisting(true);
+        Role r1 = new Role("apprentice programmer");
+        r1.setPersisting(true);
+
+        orgDataSet.addRole(r1);
+        orgDataSet.addRole(r2);
+        orgDataSet.addRole(r3);
+        orgDataSet.addRole(r4);
+
+        r1.setOwnerRole(r2);
+        r2.setOwnerRole(r3);
+        r3.setOwnerRole(r4);
+
+        return new Role[] {r1, r2, r3, r4};
+    }
+
+
+    private OrgGroup[] createOrgGroups(ResourceDataSet orgDataSet) {
+        OrgGroup o1 = new OrgGroup("SoftwareDiv", OrgGroup.GroupType.DIVISION, null,
+                "Software Division", true);
+        orgDataSet.addOrgGroup(o1);
+
+        OrgGroup o2 = new OrgGroup("progDept", OrgGroup.GroupType.DEPARTMENT, o1,
+                "Programming Department", true);
+        orgDataSet.addOrgGroup(o2);
+
+        OrgGroup o3 = new OrgGroup("teamA", OrgGroup.GroupType.TEAM, o2,
+                "Code Team A", true);
+        orgDataSet.addOrgGroup(o3);
+
+        OrgGroup o4 = new OrgGroup("teamB", OrgGroup.GroupType.TEAM, o2,
+                "Code Team B", true);
+        orgDataSet.addOrgGroup(o4);
+
+        return new OrgGroup[] {o1, o2, o3, o4};
+    }
+
+
+    private Position[] createPositions(ResourceDataSet orgDataSet) {
+        Position p1 = new Position("Vice President");
+        p1.setPersisting(true);
+        Position p2 = new Position("manager");
+        p2.setPersisting(true);
+        Position p3 = new Position("supervisor");
+        p3.setPersisting(true);
+        Position p4 = new Position("level A");
+        p4.setPersisting(true);
+
+        orgDataSet.addPosition(p1);
+        orgDataSet.addPosition(p2);
+        orgDataSet.addPosition(p3);
+        orgDataSet.addPosition(p4);
+
+        p4.setReportsTo(p3);
+        p3.setReportsTo(p2);
+        p2.setReportsTo(p1);
+
+        return new Position[] {p1, p2, p3, p4};
+    }
+
+
+    private Capability[] createCapabilities(ResourceDataSet orgDataSet) {
+        Capability c1 = new Capability("firstaid", "first aid officer", true);
+        Capability c2 = new Capability("java", "java programmer", true);
+        Capability c3 = new Capability("forklift", "forklift license", true);
+        Capability c4 = new Capability("mandarin", "mandarin speaker", true);
+        orgDataSet.addCapability(c1);
+        orgDataSet.addCapability(c2);
+        orgDataSet.addCapability(c3);
+        orgDataSet.addCapability(c4);
+
+        return new Capability[] {c1, c2, c3, c4};
+    }
+
+
+    private void createParticipants(int howManyToCreate, Role[] roles,
+                                    Position[] positions, Capability[] capabilities) {
+        List<String> addedUsers = new ArrayList<String>();
+        boolean unique;
+        String last = "", first = "", user = "";
+        Random rand = new Random();
+
+        for (int i = 0; i < howManyToCreate; i++) {
+
+            // ensure all userids are unique
+            unique = false;
+            while (! unique) {
+                first = f[rand.nextInt(26)];
+                last = l[rand.nextInt(26)];
+                user = last + first.substring(0, 1);
+                if (! addedUsers.contains(user)) {
+                    addedUsers.add(user);
+                    unique = true;
+                }
+            }
+
+            Participant p = new Participant(last, first, user, true);
+
+            p.setAdministrator(rand.nextBoolean());
+            p.setPassword(PasswordEncryptor.encrypt("apple", "apple"));
+            p.addPosition(positions[rand.nextInt(4)]);
+            p.addCapability(capabilities[rand.nextInt(4)]);
+            p.addRole(roles[rand.nextInt(4)]);
+            p.getUserPrivileges().allowAll();
+            _rm.addParticipant(p);
+        }
+    }
+
 }
