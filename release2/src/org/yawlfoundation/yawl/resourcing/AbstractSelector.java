@@ -102,7 +102,7 @@ public abstract class AbstractSelector {
     public Set<String> getKeys() { return _params.keySet(); }
 
     /** @return a HashMap of parameters of the form [name, value] */
-    public Map getParams() { return _params; }
+    public Map<String, String> getParams() { return _params; }
 
     /** @return the name of this selector class */
     public String getClassName() { return this.getClass().getSimpleName(); }

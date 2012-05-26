@@ -1261,11 +1261,8 @@
         
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
-                     includes="JDOMUtil.class StringUtil.class HttpURLValidator*.class
-                               CharsetFilter.class DOMUtil.class SaxonUtil.class
-                               InstanceBuilder.class PasswordEncryptor.class
-                               XNode*.class YPredicateParser.class
-                               YDataSchemaCache.class YBuildProperties.class"/>
+                     excludes="Hibernate*.class Sessions*.class YIdentifierBag.class
+                               YNetElementDocoParser.class"/>
         </copy>
         
         <!-- 2. copy resourcing classes to relevant dirs -->

@@ -47,7 +47,6 @@ public class StringUtil
     private static final String     TIMESTAMP_FORMAT = DATE_FORMAT + TIMESTAMP_DELIMITER + TIME_FORMAT;
 
 
-
     /**
      * Utility routine to replace one token with another within a string object.
      *
@@ -362,7 +361,23 @@ public class StringUtil
 
 
     public static File stringToFile(String fileName, String contents) {
-        File f = new File(fileName);
+        return stringToFile(new File(fileName), contents);
+    }
+
+
+    public static File stringToTempFile(String contents) {
+        try {
+            return stringToFile(
+                    File.createTempFile(
+                            RandomStringUtils.randomAlphanumeric(12), null), contents);
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
+
+
+    public static File stringToFile(File f, String contents) {
         try {
             BufferedWriter buf = new BufferedWriter(new FileWriter(f));
             buf.write(contents, 0, contents.length());
