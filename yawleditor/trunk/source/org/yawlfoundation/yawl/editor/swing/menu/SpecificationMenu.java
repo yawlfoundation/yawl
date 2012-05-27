@@ -85,7 +85,7 @@ class SpecificationMenu extends JMenu {
 
     private int addPlugins() {
         int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
             AbstractAction action = plugin.getSpecificationMenuAction();
             if (action != null) {
                 addMenuItemAction(action);

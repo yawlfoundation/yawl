@@ -284,7 +284,7 @@ public class VertexPopupMenu extends JPopupMenu {
 
     private int addPlugins() {
         int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
             YAWLBaseAction action = plugin.getPopupMenuAction();
             if (action != null) {
                 if (addedItemCount == 0) addSeparator();

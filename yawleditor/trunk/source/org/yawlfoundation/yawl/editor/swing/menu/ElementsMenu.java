@@ -74,7 +74,7 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
 
     private int addPlugins() {
         int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getPlugins()) {
+        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
             AbstractAction action = plugin.getElementsMenuAction();
             if (action != null) {
                 if (addedItemCount == 0) addSeparator();
