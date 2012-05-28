@@ -18,12 +18,12 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
+import org.yawlfoundation.yawl.resourcing.resource.Capability;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Filters a distribution set based on participant Capabilities
@@ -49,20 +49,26 @@ public class CapabilityFilter extends AbstractFilter {
 
 
     public Set<Participant> performFilter(Set<Participant> distSet) {
-
         if ((distSet == null) || distSet.isEmpty()) return distSet;
+        Set<Participant> result = new HashSet<Participant>();
+        Set<AbstractResource> capableSet = parse(getParamValue("Capability"));
+        for (Participant p : distSet) if (capableSet.contains(p)) result.add(p);
+        return result;
+    }
 
-        String capability = getParamValue("Capability") ;
-        ResourceManager rm = ResourceManager.getInstance() ;
-        Set<Participant> result = new HashSet<Participant>() ;
 
-        if (capability != null ) {
-            Capability cap = rm.getOrgDataSet().getCapabilityByLabel(capability) ;
-            for (Participant p : distSet)
-                if (cap.hasResource(p)) result.add(p) ;
+    private Set<AbstractResource> parse(String expression) {
+        if (expression != null) {
+            List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
+            for (String capName : expression.split("[&|]")) {
+                Capability c = ResourceManager.getInstance().
+                        getOrgDataSet().getCapabilityByLabel(capName.trim());
+                if (c == null) c = new Capability();
+                pSets.add(c.getResources());
+            }
+            return evaluate(pSets, expression);
         }
-
-        return result ;
+        return Collections.emptySet();
     }
 
 }
