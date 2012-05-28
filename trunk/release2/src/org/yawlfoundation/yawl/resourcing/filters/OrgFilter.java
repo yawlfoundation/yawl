@@ -18,13 +18,10 @@
 
 package org.yawlfoundation.yawl.resourcing.filters;
 
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.Position;
-import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Filters a distribution set based on organisational data
@@ -57,36 +54,58 @@ public class OrgFilter extends AbstractFilter {
      * @return the filtered distribution set
      */
     public Set<Participant> performFilter(Set<Participant> distSet) {
-
         if ((distSet == null) || distSet.isEmpty()) return distSet;
-
-        String positionTitle = getParamValue("Position") ;
-        String orgGroupName = getParamValue("OrgGroup") ;
-        ResourceManager rm = ResourceManager.getInstance() ;
         Set<Participant> result = new HashSet<Participant>();
+        String posValue = getParamValue("Position");
+        String ogValue = getParamValue("OrgGroup");
 
         // do posn first as it will usually result in a smaller set
-        if (positionTitle != null ) {
-            Position pos = rm.getOrgDataSet().getPositionByLabel(positionTitle) ;
-            if (pos != null) {
-               for (Participant p : distSet) {
-                   if (pos.hasResource(p)) result.add(p) ;
-               }
-               distSet = result ;
-            }    
+        if (posValue != null) {
+            Set<AbstractResource> positionSet = parsePositionValue(posValue);
+            for (Participant p : distSet) if (positionSet.contains(p)) result.add(p);
+            distSet = result;
         }
 
-        if (orgGroupName != null) {
-            OrgGroup og = rm.getOrgDataSet().getOrgGroupByLabel(orgGroupName) ;
-            if (og != null) {
-                result = new HashSet<Participant>() ;
-                for (Participant p : distSet) {
-                    if (p.isOrgGroupMember(og)) result.add(p) ;
-                }
-            }
+        if (ogValue != null) {
+            result = new HashSet<Participant>() ;
+            Set<AbstractResource> orgGroupSet = parseOrgGroupValue(ogValue, distSet);
+            for (Participant p : distSet) if (orgGroupSet.contains(p)) result.add(p) ;
         }
-        
-        return result ;
+        return result;
+    }
+
+
+    private Set<AbstractResource> parsePositionValue(String expression) {
+        if (expression != null) {
+            List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
+            for (String posName : expression.split("[&|]")) {
+                Position p = ResourceManager.getInstance().
+                        getOrgDataSet().getPositionByLabel(posName.trim());
+                if (p == null) p = new Position();
+                pSets.add(p.getResources());
+            }
+            return evaluate(pSets, expression);
+        }
+        return Collections.emptySet();
+    }
+
+    private Set<AbstractResource> parseOrgGroupValue(String expression,
+                                                     Set<Participant> distSet) {
+        if (expression != null) {
+            List<Set<AbstractResource>> pSets = new ArrayList<Set<AbstractResource>>();
+            for (String ogName : expression.split("[&|]")) {
+                OrgGroup og = ResourceManager.getInstance().
+                        getOrgDataSet().getOrgGroupByLabel(ogName.trim());
+                if (og == null) og = new OrgGroup();
+                Set<AbstractResource> resources = new HashSet<AbstractResource>();
+                for (Participant p : distSet) {
+                    if (p.isOrgGroupMember(og)) resources.add(p);  // hierarchical
+                }
+                pSets.add(resources);
+            }
+            return evaluate(pSets, expression);
+        }
+        return Collections.emptySet();
     }
 
 }

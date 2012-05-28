@@ -20,10 +20,7 @@ package org.yawlfoundation.yawl.resourcing;
 
 import org.jdom2.Element;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The base class inherited by all of the 'selector' classes :- filters, constraints
@@ -180,6 +177,64 @@ public abstract class AbstractSelector {
      * @param value the value to set
      */
     public void setKeyValue(String key, String value) { addParam(key, value); }
+
+
+    /**
+     * Evaluates a list of Sets against an expression. Sets may be unioned (when the
+     * expression operator is '|') or intersected (when '&'). Operator precedence is
+     * strictly left to right. The number of operators in the expression should be
+     * one less than the number of Sets in the List
+     * @param setList the list of sets
+     * @param expression the expression containing the operators
+     * @param <T> the object type contained in each set
+     * @return the resultant final set
+     */
+    protected <T> Set<T> evaluate(List<Set<T>> setList, String expression) {
+        if (setList == null || setList.isEmpty()) return Collections.emptySet();
+        if (setList.size() > 1) {
+            for (char c : expression.toCharArray()) {
+                if (c == '&') {
+                    setList.set(0, intersection(setList.get(0), setList.get(1)));
+                    setList.remove(1);
+                }
+                else if (c == '|') {
+                    setList.set(0, union(setList.get(0), setList.get(1)));
+                    setList.remove(1);
+                }
+                if (setList.size() == 1) break;   // no more operators
+            }
+        }
+        return setList.get(0);
+    }
+
+
+    /**
+     * Performs an intersection over two Sets
+     * @param set1 Set A
+     * @param set2 Set B
+     * @param <T> the object type contained in each set
+     * @return A Set containing only those members that are present in both A and B
+     */
+    protected <T> Set<T> intersection(Set<T> set1, Set<T> set2) {
+        Set<T> intersectedSet = new HashSet<T>();
+        for (T t : set1) if (set2.contains(t)) intersectedSet.add(t);
+        return intersectedSet;
+    }
+
+
+    /**
+     * Performs an union over two Sets
+     * @param set1 Set A
+     * @param set2 Set B
+     * @param <T> the object type contained in each set
+     * @return A Set containing all the members of A and all the members of B
+     */
+    protected <T> Set<T> union(Set<T> set1, Set<T> set2) {
+        Set<T> unionedSet = new HashSet<T>();
+        unionedSet.addAll(set1);
+        unionedSet.addAll(set2);
+        return unionedSet;
+    }
 
 
     public String toString() { return getClass().getCanonicalName() + ": " + _name; }
