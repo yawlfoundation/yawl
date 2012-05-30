@@ -256,7 +256,7 @@
   </xs:simpleType>
   <xs:simpleType name="CreationModeConfigType">
     <xs:restriction base="xs:string">
-        <xs:enumeration value="restict"/>
+        <xs:enumeration value="restrict"/>
         <xs:enumeration value="keep"/>
     </xs:restriction>
   </xs:simpleType>
