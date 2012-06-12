@@ -27,8 +27,8 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.ExitAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
-import org.yawlfoundation.yawl.editor.core.api.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.core.api.plugin.YPluginLoader;
+import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
