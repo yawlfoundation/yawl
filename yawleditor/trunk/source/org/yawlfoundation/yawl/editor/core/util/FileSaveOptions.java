@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.core.api.util;
+package org.yawlfoundation.yawl.editor.core.util;
 
 /**
  * Options for what else to do when saving a specification to file, besides the
