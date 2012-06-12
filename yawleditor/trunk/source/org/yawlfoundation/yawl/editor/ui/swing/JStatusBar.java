@@ -25,7 +25,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import javax.swing.*;
 import java.awt.*;

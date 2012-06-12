@@ -31,8 +31,8 @@ import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.*;

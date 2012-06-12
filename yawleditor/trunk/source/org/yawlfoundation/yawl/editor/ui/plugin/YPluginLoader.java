@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.plugin;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import java.io.File;
 import java.io.FilenameFilter;

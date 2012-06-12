@@ -26,7 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.*;

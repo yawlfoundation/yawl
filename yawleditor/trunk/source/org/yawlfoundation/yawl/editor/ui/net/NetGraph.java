@@ -30,7 +30,7 @@ import org.yawlfoundation.yawl.editor.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;

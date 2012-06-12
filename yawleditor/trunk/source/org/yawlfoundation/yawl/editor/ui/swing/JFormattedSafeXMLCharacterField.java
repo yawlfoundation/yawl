@@ -21,7 +21,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import javax.swing.JFormattedTextField.AbstractFormatter;

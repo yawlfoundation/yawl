@@ -47,7 +47,7 @@ public class TestYAWLEditor extends TestCase {
   }
 
   private static void addMicroSuite(TestSuite parentSuite) {
-    parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.foundations.TestXMLUtilities.suite());
+    parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.util.TestXMLUtilities.suite());
     
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.net.TestNetElementSummary.suite());
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.specification.TestSpecificationModel.suite());

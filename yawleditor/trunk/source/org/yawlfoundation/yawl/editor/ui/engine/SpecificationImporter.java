@@ -31,7 +31,7 @@ import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;

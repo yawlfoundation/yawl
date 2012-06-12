@@ -7,7 +7,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
-import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 import java.io.File;

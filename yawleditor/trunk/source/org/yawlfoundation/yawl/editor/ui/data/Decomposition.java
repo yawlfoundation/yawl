@@ -23,8 +23,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.data;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;

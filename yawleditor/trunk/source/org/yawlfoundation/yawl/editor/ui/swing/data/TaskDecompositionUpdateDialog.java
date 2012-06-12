@@ -29,7 +29,7 @@ import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;

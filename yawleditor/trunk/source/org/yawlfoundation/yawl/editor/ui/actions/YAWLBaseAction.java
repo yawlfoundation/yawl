@@ -23,7 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 

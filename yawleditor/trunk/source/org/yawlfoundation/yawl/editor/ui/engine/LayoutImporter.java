@@ -9,7 +9,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 

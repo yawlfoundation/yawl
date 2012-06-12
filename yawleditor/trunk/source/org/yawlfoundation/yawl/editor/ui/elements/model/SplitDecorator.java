@@ -22,7 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import java.util.*;
 

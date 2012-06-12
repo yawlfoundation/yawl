@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;

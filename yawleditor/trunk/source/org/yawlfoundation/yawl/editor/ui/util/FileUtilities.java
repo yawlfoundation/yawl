@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.yawlfoundation.yawl.editor.ui.foundations;
+package org.yawlfoundation.yawl.editor.ui.util;
 
 import org.yawlfoundation.yawl.editor.YAWLEditor;
 

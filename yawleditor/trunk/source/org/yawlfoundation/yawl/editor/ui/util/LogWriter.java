@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.ui.foundations;
+package org.yawlfoundation.yawl.editor.ui.util;
 
 import org.apache.log4j.*;
 

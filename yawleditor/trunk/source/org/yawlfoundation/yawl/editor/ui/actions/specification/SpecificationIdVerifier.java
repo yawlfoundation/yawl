@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedAlphaNumericField;
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import javax.swing.text.Document;

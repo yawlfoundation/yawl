@@ -28,7 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.text.Document;
 
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 
