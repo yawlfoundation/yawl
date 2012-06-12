@@ -22,21 +22,21 @@
 
 package org.yawlfoundation.yawl.editor;
 
-import org.yawlfoundation.yawl.editor.client.YConnector;
-import org.yawlfoundation.yawl.editor.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.foundations.LogWriter;
-import org.yawlfoundation.yawl.editor.foundations.ResourceLoader;
-import org.yawlfoundation.yawl.editor.specification.ArchivingThread;
-import org.yawlfoundation.yawl.editor.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.specification.SpecificationFileModelListener;
-import org.yawlfoundation.yawl.editor.swing.*;
-import org.yawlfoundation.yawl.editor.swing.menu.Palette;
-import org.yawlfoundation.yawl.editor.swing.menu.ToolBarMenu;
-import org.yawlfoundation.yawl.editor.swing.menu.YAWLMenuBar;
-import org.yawlfoundation.yawl.editor.swing.specification.ProblemMessagePanel;
-import org.yawlfoundation.yawl.editor.swing.specification.SpecificationBottomPanel;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.AnalysisResultsParser;
-import org.yawlfoundation.yawl.editor.thirdparty.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.ui.foundations.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.ui.swing.*;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
+import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
+import org.yawlfoundation.yawl.editor.ui.swing.specification.SpecificationBottomPanel;
+import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationExporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -136,7 +136,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   private static void startLoading() {
     LogWriter.init(FileUtilities.getHomeDir());
     getSplashScreen().setContent(
-        "/org/yawlfoundation/yawl/editor/resources/yawlSplashScreen.jpg",
+            "/org/yawlfoundation/yawl/editor/ui/resources/yawlSplashScreen.jpg",
             SplashContent.getCopyright());
 
     getSplashScreen().show();
@@ -207,7 +207,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
     setIconImage(
       ResourceLoader.getImageAsIcon(
-        "/org/yawlfoundation/yawl/editor/resources/applicationIcon.gif"
+              "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.gif"
       ).getImage()
     );
 
