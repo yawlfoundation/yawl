@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.core.api.util;
+package org.yawlfoundation.yawl.editor.core.util;
 
 import org.yawlfoundation.yawl.util.StringUtil;
 

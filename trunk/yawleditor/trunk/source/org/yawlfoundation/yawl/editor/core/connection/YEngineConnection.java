@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.core.api.connection;
+package org.yawlfoundation.yawl.editor.core.connection;
 
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;

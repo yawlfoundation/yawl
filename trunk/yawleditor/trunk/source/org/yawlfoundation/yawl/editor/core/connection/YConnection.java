@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.core.api.connection;
+package org.yawlfoundation.yawl.editor.core.connection;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;

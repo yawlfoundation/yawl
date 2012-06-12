@@ -1,7 +1,7 @@
-package org.yawlfoundation.yawl.editor.core.api;
+package org.yawlfoundation.yawl.editor.core;
 
-import org.yawlfoundation.yawl.editor.core.api.util.FileOperations;
-import org.yawlfoundation.yawl.editor.core.api.util.FileSaveOptions;
+import org.yawlfoundation.yawl.editor.core.util.FileOperations;
+import org.yawlfoundation.yawl.editor.core.util.FileSaveOptions;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;

@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.core.api.connection.YEngineConnection;
+import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;

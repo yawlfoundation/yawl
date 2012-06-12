@@ -23,7 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.core.api.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;

@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.core.api.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;

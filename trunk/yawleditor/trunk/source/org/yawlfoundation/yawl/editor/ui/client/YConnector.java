@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.client;
 
-import org.yawlfoundation.yawl.editor.core.api.connection.YEngineConnection;
-import org.yawlfoundation.yawl.editor.core.api.connection.YResourceConnection;
+import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
+import org.yawlfoundation.yawl.editor.core.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.resourcing.*;
