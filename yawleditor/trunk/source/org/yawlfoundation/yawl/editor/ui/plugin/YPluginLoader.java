@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.plugin;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 

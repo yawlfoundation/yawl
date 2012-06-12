@@ -23,7 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;

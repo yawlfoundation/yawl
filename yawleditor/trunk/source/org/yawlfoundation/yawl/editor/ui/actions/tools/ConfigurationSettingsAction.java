@@ -6,7 +6,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;

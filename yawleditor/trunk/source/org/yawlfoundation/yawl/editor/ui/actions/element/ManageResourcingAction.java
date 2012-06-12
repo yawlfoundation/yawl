@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;

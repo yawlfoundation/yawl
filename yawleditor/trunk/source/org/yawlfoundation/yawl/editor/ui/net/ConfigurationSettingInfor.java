@@ -5,7 +5,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 
 import java.util.prefs.Preferences;

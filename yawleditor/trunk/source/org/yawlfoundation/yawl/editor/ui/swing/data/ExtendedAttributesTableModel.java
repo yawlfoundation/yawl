@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;

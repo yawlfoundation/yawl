@@ -23,7 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.ProblemList;
 import org.yawlfoundation.yawl.editor.ui.specification.ProblemListSubscriber;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;

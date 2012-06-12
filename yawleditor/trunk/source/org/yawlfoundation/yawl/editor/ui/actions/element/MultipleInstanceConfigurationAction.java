@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.element;
 
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;

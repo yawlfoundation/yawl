@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;

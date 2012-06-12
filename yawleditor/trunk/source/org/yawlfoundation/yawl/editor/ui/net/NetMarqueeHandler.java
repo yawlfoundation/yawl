@@ -4,7 +4,7 @@ import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.Port;
 import org.jgraph.graph.PortView;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.CursorFactory;

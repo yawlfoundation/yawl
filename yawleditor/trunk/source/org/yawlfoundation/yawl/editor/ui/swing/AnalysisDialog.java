@@ -4,7 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.yawlfoundation.yawl.analyser.YAnalyserEvent;
 import org.yawlfoundation.yawl.analyser.YAnalyserEventListener;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
 
 import javax.swing.*;

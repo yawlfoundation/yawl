@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;

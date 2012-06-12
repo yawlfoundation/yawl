@@ -21,7 +21,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.util;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -181,7 +181,7 @@ public class FileUtilities {
     private static String setHomeDir() {
         String result = "";
         try {
-            Class editorClass = Class.forName("org.yawlfoundation.yawl.editor.YAWLEditor");
+            Class editorClass = Class.forName("org.yawlfoundation.yawl.editor.ui.YAWLEditor");
             CodeSource source = editorClass.getProtectionDomain().getCodeSource();
             if (source != null) {
                 URL location = source.getLocation();

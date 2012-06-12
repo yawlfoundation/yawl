@@ -23,7 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.InputCondition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;

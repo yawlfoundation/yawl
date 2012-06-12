@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationHandler;
 
 import java.awt.*;

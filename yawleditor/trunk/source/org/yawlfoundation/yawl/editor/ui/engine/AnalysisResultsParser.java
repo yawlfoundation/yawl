@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.analyser.YAnalyser;
 import org.yawlfoundation.yawl.analyser.YAnalyserOptions;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
