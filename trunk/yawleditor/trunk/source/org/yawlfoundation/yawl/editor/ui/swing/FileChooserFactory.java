@@ -24,7 +24,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

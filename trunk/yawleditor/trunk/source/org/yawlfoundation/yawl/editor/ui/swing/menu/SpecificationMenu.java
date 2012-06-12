@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.ExitAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;

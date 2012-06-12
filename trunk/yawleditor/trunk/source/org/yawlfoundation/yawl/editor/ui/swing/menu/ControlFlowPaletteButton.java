@@ -28,7 +28,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JToggleButton;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.palette.ControlFlowPaletteAction;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 

@@ -26,7 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.view;
 
 import org.jgraph.graph.CellViewRenderer;
 import org.jgraph.graph.VertexView;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.JoinDecorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.SplitDecorator;

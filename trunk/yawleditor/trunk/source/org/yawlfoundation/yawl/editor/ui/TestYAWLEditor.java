@@ -20,7 +20,7 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor; 
+package org.yawlfoundation.yawl.editor.ui;
 
 import junit.framework.*;
 import org.yawlfoundation.yawl.editor.ui.engine.TestDataSchemaValidator;

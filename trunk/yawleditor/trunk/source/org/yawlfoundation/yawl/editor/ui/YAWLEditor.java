@@ -20,7 +20,7 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor;
+package org.yawlfoundation.yawl.editor.ui;
 
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;

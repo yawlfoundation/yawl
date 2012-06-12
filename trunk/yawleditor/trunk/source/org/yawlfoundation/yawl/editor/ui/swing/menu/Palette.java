@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 
 import org.jgraph.event.GraphSelectionEvent;
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
@@ -189,7 +189,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
       }
       case NETS_EXIST: {
         YAWLEditor.setStatusBarText(
-            "Select a net to continue editing it."
+                "Select a net to continue editing it."
         );     
         break;    
       }

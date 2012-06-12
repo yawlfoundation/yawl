@@ -23,7 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import org.yawlfoundation.yawl.editor.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.core.api.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
