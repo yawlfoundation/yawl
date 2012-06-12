@@ -29,7 +29,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 public class CursorFactory {
   public static final int SELECTION               = 0;

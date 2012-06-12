@@ -3,7 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 import org.yawlfoundation.yawl.editor.ui.actions.net.ApplyProcessConfigurationAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.CheckProcessCorrectness;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
 

@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 

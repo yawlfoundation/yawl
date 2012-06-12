@@ -23,9 +23,9 @@
 package org.yawlfoundation.yawl.editor;
 
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
-import org.yawlfoundation.yawl.editor.ui.foundations.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.foundations.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.foundations.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;

@@ -23,7 +23,7 @@
  
 package org.yawlfoundation.yawl.editor.ui.data;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import java.io.Serializable;
 import java.util.*;

@@ -22,7 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions;
 
-import org.yawlfoundation.yawl.editor.ui.foundations.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.data.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
