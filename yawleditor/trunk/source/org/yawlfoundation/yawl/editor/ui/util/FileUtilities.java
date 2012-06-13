@@ -21,8 +21,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.util;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,7 +29,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.security.CodeSource;
-import java.util.prefs.Preferences;
 
 public class FileUtilities {
 
@@ -108,8 +105,8 @@ public class FileUtilities {
     HOME_DIR + RELATIVE_TASK_ICON_PATH;
 
   public static String getAbsoluteTaskIconPath() {
-      return Preferences.userNodeForPackage(YAWLEditor.class)
-              .get("TaskIconsFilePath", ABSOLUTE_TASK_ICON_PATH) ;
+      String path = UserSettings.getTaskIconsFilePath();
+      return path != null ? path : ABSOLUTE_TASK_ICON_PATH;
   }
 
   /**

@@ -29,10 +29,10 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.prefs.Preferences;
 
 public class EngineSpecificationHandler {
   
@@ -151,10 +151,7 @@ public class EngineSpecificationHandler {
     if (fullFileName == null || fullFileName.equals("")) {
 
       // rollback version number if auto-incrementing
-      boolean autoinc = Preferences.userNodeForPackage(YAWLEditor.class).getBoolean(
-              EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
-              false);
-      if (autoinc) {
+      if (UserSettings.getAutoIncrementVersionOnSave()) {
           editorSpec.getVersionNumber().minorRollback();
       }
 

@@ -6,12 +6,12 @@ import org.yawlfoundation.yawl.analyser.YAnalyserEvent;
 import org.yawlfoundation.yawl.analyser.YAnalyserEventListener;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
 
 
 public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
@@ -25,9 +25,6 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
     private boolean cancelled;
     private AnalysisResultsParser _owner;
     private String header;
-
-    private final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-    public static final String KEEP_OPEN_PREFERENCE = "keepAnalysisDialogOpenWhenDone";
 
     public AnalysisDialog(String title) {
         setContentPane(contentPane);
@@ -107,11 +104,11 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
 
 
     private void setKeepOpenCheckbox() {
-        cbxKeepOpen.setSelected(prefs.getBoolean(KEEP_OPEN_PREFERENCE, true));
+        cbxKeepOpen.setSelected(UserSettings.getKeepAnalysisDialogOpen());
     }
 
     private void setKeepOpenPreference() {
-        prefs.putBoolean(KEEP_OPEN_PREFERENCE, cbxKeepOpen.isSelected());
+        UserSettings.setKeepAnalysisDialogOpen(cbxKeepOpen.isSelected());
     }
 
     // put the dialog in bottom right of editor frame

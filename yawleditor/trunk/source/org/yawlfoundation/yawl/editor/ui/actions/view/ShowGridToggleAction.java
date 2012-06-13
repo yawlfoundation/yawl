@@ -22,22 +22,17 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.view;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
 
 public class ShowGridToggleAction extends YAWLBaseAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
   private boolean selected;
-  private Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
@@ -47,7 +42,7 @@ public class ShowGridToggleAction extends YAWLBaseAction {
   }
 
   public ShowGridToggleAction() {
-    selected = prefs.getBoolean("showNetGrid", true);
+    selected = UserSettings.getShowGrid();
   }
  
   public void actionPerformed(ActionEvent event) {
@@ -56,7 +51,7 @@ public class ShowGridToggleAction extends YAWLBaseAction {
     JCheckBoxMenuItem menuItem = 
       (JCheckBoxMenuItem) event.getSource();
     menuItem.setSelected(selected);
-    prefs.putBoolean("showNetGrid",selected);
+    UserSettings.setShowGrid(selected);
     
     SpecificationUtilities.showGridOfNets(
         SpecificationModel.getInstance(), 

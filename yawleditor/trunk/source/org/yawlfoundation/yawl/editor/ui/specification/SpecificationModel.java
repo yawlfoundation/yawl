@@ -23,16 +23,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
@@ -42,7 +41,9 @@ import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingParticipant;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
-import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
@@ -50,7 +51,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 public class SpecificationModel {
   
@@ -213,15 +213,13 @@ public class SpecificationModel {
   }
 
   private Color getPreferredVertexBackground() {
-      Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-      int preferredColor = prefs.getInt("PREFERRED_VERTEX_BACKGROUND_COLOR",
-                                         Color.WHITE.getRGB());
-      return new Color(preferredColor);
+      return new Color(UserSettings.getSettings().getInt(
+              "PREFERRED_VERTEX_BACKGROUND_COLOR", Color.WHITE.getRGB()));
   }
 
     private void setPreferredVertexBackground(Color color) {
-        Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-        prefs.putInt("PREFERRED_VERTEX_BACKGROUND_COLOR", color.getRGB());
+        UserSettings.getSettings().putInt(
+                "PREFERRED_VERTEX_BACKGROUND_COLOR", color.getRGB());
     }
 
 

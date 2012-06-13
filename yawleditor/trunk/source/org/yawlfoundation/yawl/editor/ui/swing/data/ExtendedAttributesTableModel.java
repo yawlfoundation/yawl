@@ -1,9 +1,9 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.prefs.Preferences;
 
 /**
  * @author Mike Fowler
@@ -51,13 +50,15 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     }
 
     private void loadUserDefinedProperties() throws IOException {
-        Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-        String streamPath = (variable != null) ?
-                prefs.get("ExtendedAttributeVariableFilePath",
-                                     DataVariable.PROPERTY_LOCATION) :
-                prefs.get("ExtendedAttributeDecompositionFilePath",
-                                     Decomposition.PROPERTY_LOCATION);
-
+        String streamPath;
+        if (variable != null) {
+            streamPath = UserSettings.getVariableAttributesFilePath();
+            if (streamPath == null) streamPath = DataVariable.PROPERTY_LOCATION;
+        }
+        else {
+            streamPath = UserSettings.getDecompositionAttributesFilePath();
+            if (streamPath == null) streamPath = Decomposition.PROPERTY_LOCATION;
+        }
         if (streamPath != null) {
           props = new Properties();
 

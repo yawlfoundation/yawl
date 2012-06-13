@@ -35,15 +35,11 @@ import org.yawlfoundation.yawl.editor.ui.swing.resourcing.ManageResourcingDialog
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
 
 public class ManageResourcingAction extends YAWLSelectedNetAction
                                     implements TooltipTogglingWidget {
   
   private static final long serialVersionUID = 1L;
-
-  private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-
 
   private YAWLTask task;
   private NetGraph graph;

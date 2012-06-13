@@ -2,11 +2,12 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.ui.elements.model.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -15,11 +16,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 public class ServiceAutomatonTree implements PropertyChangeListener {
-
-    private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
     //this map records the position of the node with a specified ID in the array list
     private HashMap<String, Integer> positionMap;
@@ -68,7 +66,8 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
         nodes = new ArrayList<Node>();
         tasks = new ArrayList<YAWLTask>();
         currentState = "";
-        path = prefs.get("WendyFilePath", FileUtilities.getHomeDir() + "wendy");
+        String savedPath = UserSettings.getWendyFilePath();
+        path = savedPath != null ? savedPath : FileUtilities.getHomeDir() + "wendy";
     }
 
 

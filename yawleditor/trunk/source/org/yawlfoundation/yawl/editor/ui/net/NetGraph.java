@@ -26,17 +26,17 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionChange;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskIconChange;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,14 +45,8 @@ import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.prefs.Preferences;
 
 public class NetGraph extends JGraph {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
   private static final int FLOW_SPACER = 20;
   
@@ -63,9 +57,6 @@ public class NetGraph extends JGraph {
    * being added to a net.
    */
   public static final int WHITESPACE_MARGIN  = 20;
-
-
-  protected transient final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   private YAWLEditorNetPanel frame;
   
@@ -110,13 +101,13 @@ public class NetGraph extends JGraph {
 
   private void buildBasicGraphContent(boolean isRootNet) {
     setGridMode(JGraph.DOT_GRID_MODE);
-    setGridVisible(prefs.getBoolean("showNetGrid", true));
+    setGridVisible(UserSettings.getShowGrid());
     setGridEnabled(true);
     setDoubleBuffered(true);
     setGridSize(4);
     setMinimumMove(4);
     setBackground(new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor()));
-    setAntiAliased(prefs.getBoolean("showAntiAliasing", true));
+    setAntiAliased(UserSettings.getShowAntiAliasing());
     setPortsVisible(false);
     setCloneable(false);
     setTolerance(5);
@@ -177,8 +168,8 @@ public class NetGraph extends JGraph {
     addComponentListener(
       new ComponentAdapter() {
         public void componentResized(ComponentEvent event) {
-          prefs.putInt("internalFrameWidth", (int) (getWidth() * getScale()));
-          prefs.putInt("internalFrameHeight", (int) (getHeight() * getScale()));
+            UserSettings.setInternalFrameWidth((int) (getWidth() * getScale()));
+            UserSettings.setInternalFrameHeight((int) (getHeight() * getScale()));
         } 
     });
   }
@@ -237,8 +228,8 @@ public class NetGraph extends JGraph {
 
 
   private Dimension getDefaultSize() {
-    return new Dimension(prefs.getInt("internalFrameWidth", 500), 
-                         prefs.getInt("internalFrameHeight", 300));
+    return new Dimension(UserSettings.getInternalFrameWidth(),
+                         UserSettings.getInternalFrameHeight());
   }
   
   public NetSelectionListener getSelectionListener() {

@@ -1,11 +1,11 @@
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,17 +15,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.prefs.Preferences;
 
 /**
  * Author: Michael Adams
  * Creation Date: 20/04/2010
  */
 public class ExternalFilePathsDialog extends AbstractDoneDialog {
-
-    private static final long serialVersionUID = 1L;
-
-    private static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
     private JTextField _fldDecomposition;
     private JTextField _fldVariable;
@@ -42,13 +37,11 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
 
         getDoneButton().addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
-               String taskIconsPath = checkPath(_fldIcons.getText());
-               String wendyPath = checkPath(_fldWendy.getText());
-               prefs.put("ExtendedAttributeDecompositionFilePath", _fldDecomposition.getText());
-               prefs.put("ExtendedAttributeVariableFilePath", _fldVariable.getText());
-               prefs.put("TaskIconsFilePath", taskIconsPath);
-               prefs.put("WofyawlFilePath", _fldWofyawl.getText());
-               prefs.put("WendyFilePath", wendyPath);
+               UserSettings.setDecompositionAttributesFilePath(_fldDecomposition.getText());
+               UserSettings.setVariableAttributesFilePath(_fldVariable.getText());
+               UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
+               UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
+               UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
                Palette.getInstance().updatePluginIcons();
            }
 
@@ -136,11 +129,13 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     }
 
     private String getDecompositionPath() {
-        return prefs.get("ExtendedAttributeDecompositionFilePath", Decomposition.PROPERTY_LOCATION);
+        String path = UserSettings.getDecompositionAttributesFilePath();
+        return path != null ? path : Decomposition.PROPERTY_LOCATION;
     }
 
     private String getVariablePath() {
-        return prefs.get("ExtendedAttributeVariableFilePath", DataVariable.PROPERTY_LOCATION);
+        String path = UserSettings.getVariableAttributesFilePath();
+        return path != null ? path : DataVariable.PROPERTY_LOCATION;
     }
 
     private String getTaskIconsPath() {
@@ -148,11 +143,13 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     }
 
     private String getWofyawlPath() {
-        return prefs.get("WofyawlFilePath", FileUtilities.getHomeDir());
+        String path = UserSettings.getWofyawlFilePath();
+        return path != null ? path : FileUtilities.getHomeDir();
     }
 
     private String getWendyPath() {
-        return prefs.get("WendyFilePath", FileUtilities.getHomeDir() + "wendy");
+        String path = UserSettings.getWendyFilePath();
+        return path != null ? path : FileUtilities.getHomeDir() + "wendy";
     }
 
     private String getInitialDir(String cmd) {

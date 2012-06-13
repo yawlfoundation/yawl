@@ -1,32 +1,23 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedAlphaNumericField;
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedSelectField;
-import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.prefs.Preferences;
 
 /**
  * Author: Michael Adams
  * Creation Date: 15/10/2008
  */
 class ExportConfigDialog extends AbstractDoneDialog {
-  /**
-   *
-   */
-
-  protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
-
-  private static final long serialVersionUID = 1L;
 
   private JFormattedAlphaNumericField specificationIDField;
   private JFormattedSelectField versionNumberField;
@@ -38,49 +29,35 @@ class ExportConfigDialog extends AbstractDoneDialog {
   private JLabel idLabel;
   private boolean initialising;
 
-  public ExportConfigDialog() {
-    super("Specification File Save Options", true);
+    public ExportConfigDialog() {
+        super("Specification File Save Options", true);
 
-    setContentPanel(getFontSizePanel());
-    getDoneButton().setText("OK");
-    getDoneButton().addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            prefs.putBoolean(
-                EngineSpecificationExporter.VERIFICATION_WITH_EXPORT_PREFERENCE,
-                verificationCheckBox.isSelected()
-            );
-            prefs.putBoolean(
-                EngineSpecificationExporter.ANALYSIS_WITH_EXPORT_PREFERENCE,
-                analysisCheckBox.isSelected()
-            );
-            prefs.putBoolean(
-                EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
-                autoIncVersionCheckBox.isSelected()
-            );
-              prefs.putBoolean(
-                  EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
-                  backupCheckBox.isSelected()
-              );
-              prefs.putBoolean(
-                  EngineSpecificationExporter.FILE_VERSIONING_PREFERENCE,
-                  versionCopyCheckBox.isSelected()
-              );
+        setContentPanel(getFontSizePanel());
+        getDoneButton().setText("OK");
+        getDoneButton().addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        UserSettings.setVerifyOnSave(verificationCheckBox.isSelected());
+                        UserSettings.setAnalyseOnSave(analysisCheckBox.isSelected());
+                        UserSettings.setAutoIncrementVersionOnSave(
+                                autoIncVersionCheckBox.isSelected());
+                        UserSettings.setFileBackupOnSave(backupCheckBox.isSelected());
+                        UserSettings.setFileVersioningOnSave(versionCopyCheckBox.isSelected());
 
-            SpecificationModel.getInstance().setVersionNumber(
-                    new YSpecVersion(versionNumberField.getText()));
+                        SpecificationModel.getInstance().setVersionNumber(
+                                new YSpecVersion(versionNumberField.getText()));
 
-            if (showSpecIDField()) {
-                SpecificationModel.getInstance().setId(specificationIDField.getText());
-            }
+                        if (showSpecIDField()) {
+                            SpecificationModel.getInstance().setId(specificationIDField.getText());
+                        }
 
-            ArchivingThread.getInstance().engineFileExport(
-                SpecificationModel.getInstance()
-            );
-          }
-        }
-    );
-  }
+                        ArchivingThread.getInstance().engineFileExport(
+                                SpecificationModel.getInstance()
+                        );
+                    }
+                }
+        );
+    }
 
   protected void makeLastAdjustments() {
     pack();
@@ -257,37 +234,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
   public void setVisible(boolean visible) {
     if (visible) {
-      initialising = true;
-      verificationCheckBox.setSelected(
-          prefs.getBoolean(
-              EngineSpecificationExporter.VERIFICATION_WITH_EXPORT_PREFERENCE,
-              true
-          )
-      );
-      analysisCheckBox.setSelected(
-          prefs.getBoolean(
-              EngineSpecificationExporter.ANALYSIS_WITH_EXPORT_PREFERENCE,
-              true
-          )
-      );
-      autoIncVersionCheckBox.setSelected(
-          prefs.getBoolean(
-              EngineSpecificationExporter.AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE,
-              true
-          )
-      );
-      backupCheckBox.setSelected(
-            prefs.getBoolean(
-                EngineSpecificationExporter.FILE_BACKUP_PREFERENCE,
-                true
-          )
-      );
-      versionCopyCheckBox.setSelected(
-          prefs.getBoolean(
-              EngineSpecificationExporter.FILE_VERSIONING_PREFERENCE,
-              true
-          )
-      );
+        initialising = true;
+        verificationCheckBox.setSelected(UserSettings.getVerifyOnSave());
+        analysisCheckBox.setSelected(UserSettings.getAnalyseOnSave());
+        autoIncVersionCheckBox.setSelected(UserSettings.getAutoIncrementVersionOnSave());
+        backupCheckBox.setSelected(UserSettings.getFileBackupOnSave());
+        versionCopyCheckBox.setSelected(UserSettings.getFileVersioningOnSave());
 
       String verStr = SpecificationModel.getInstance().getVersionNumber().toString();
       YSpecVersion version = new YSpecVersion(verStr);

@@ -26,13 +26,12 @@ package org.yawlfoundation.yawl.editor.ui.elements.view;
 
 import org.jgraph.graph.CellViewRenderer;
 import org.jgraph.graph.VertexView;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.JoinDecorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import java.awt.*;
-import java.util.prefs.Preferences;
 
 public class DecoratorView extends VertexView {
   
@@ -62,8 +61,8 @@ class JoinDecoratorRenderer extends DecoratorRenderer {
     super(joinDecorator);
   }
   
-  protected String getFillColorPreference() {
-    return "joinFillColour";
+  protected Color getFillColor() {
+      return UserSettings.getJoinFillColour();
   }
 }
 
@@ -74,18 +73,14 @@ class SplitDecoratorRenderer extends DecoratorRenderer {
     super(splitDecorator);
   }
   
-  protected String getFillColorPreference() {
-    return "splitFillColour";
+  protected Color getFillColor() {
+    return UserSettings.getSplitFillColour();
   }
 }
 
 abstract class DecoratorRenderer extends YAWLVertexRenderer {
-  
-  protected Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   private static Color WHITE_FILL = Color.WHITE;
-  
-  private static final long serialVersionUID = 1L;
   private Decorator decorator;
   
   public DecoratorRenderer(Decorator decorator) {
@@ -100,13 +95,8 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
     graphics.fillRect(0, 0, size.width - 1, size.height - 1);
   }
   
-  abstract protected String getFillColorPreference();
-  
-  protected Color getFillColor() {
-    return new Color(
-        prefs.getInt(getFillColorPreference(), Color.WHITE.getRGB())    
-    );
-  }
+  abstract protected Color getFillColor();
+
   
   protected void drawVertex(Graphics graphics, Dimension size) {
     

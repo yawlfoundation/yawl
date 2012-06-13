@@ -22,23 +22,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.view;
 
-import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.ToolTipManager;
-
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class ToolTipToggleAction extends YAWLBaseAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
   private boolean selected;
-  private Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Toggle showing tooltips. ");
@@ -48,7 +40,7 @@ public class ToolTipToggleAction extends YAWLBaseAction {
   }
 
   public ToolTipToggleAction() {
-    selected = prefs.getBoolean("showToolTips", true);
+    selected = UserSettings.getShowToolTips();
     ToolTipManager.sharedInstance().setEnabled(selected);
   }
  
@@ -59,7 +51,7 @@ public class ToolTipToggleAction extends YAWLBaseAction {
     JCheckBoxMenuItem menuItem = 
       (JCheckBoxMenuItem) event.getSource();
     menuItem.setSelected(selected);
-    prefs.putBoolean("showToolTips",selected);
+    UserSettings.setShowToolTips(selected);
   }
   
   public boolean isSelected() {

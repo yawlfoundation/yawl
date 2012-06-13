@@ -5,25 +5,21 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
-
-import java.util.prefs.Preferences;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 public class ConfigurationSettingInfor {
-
-  protected Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
 	private boolean newElementsConfigurable;
 	private boolean applyAutoGreyOut;
 	private boolean allowBlockingInputPorts;
 	private boolean allowChangingDefaultConfiguration;
 	
-	public ConfigurationSettingInfor(){
-		newElementsConfigurable = prefs.getBoolean("ProcessConfigNewElementsConfigurable", false);
-		applyAutoGreyOut = prefs.getBoolean("ProcessConfigAutoGrayout", false);
-		allowBlockingInputPorts = prefs.getBoolean("ProcessConfigBlockingInputPorts", true);
-		allowChangingDefaultConfiguration = prefs.getBoolean("ProcessConfigAllowDefaultConfigChanges", true);
+	public ConfigurationSettingInfor() {
+		newElementsConfigurable = UserSettings.getConfigurableNewElements();
+		applyAutoGreyOut = UserSettings.getConfigurableAutoGreyout();
+		allowBlockingInputPorts = UserSettings.getConfigurableBlockingInputPorts();
+		allowChangingDefaultConfiguration = UserSettings.getConfigurableAllowDefaultChanges();
     publishState(applyAutoGreyOut);
   }
 
@@ -34,7 +30,7 @@ public class ConfigurationSettingInfor {
 
 	public void setNewElementsConfigurable(boolean setting) {
 		newElementsConfigurable = setting;
-    prefs.putBoolean("ProcessConfigNewElementsConfigurable", setting);
+        UserSettings.setConfigurableNewElements(setting);
 	}
 
 
@@ -45,7 +41,7 @@ public class ConfigurationSettingInfor {
     public void setApplyAutoGreyOut(boolean selected) {
         if (applyAutoGreyOut != selected) {
             applyAutoGreyOut = selected;
-            prefs.putBoolean("ProcessConfigAutoGrayout", selected);
+            UserSettings.setConfigurableAutoGreyout(selected);
             publishState(selected);
         }
     }
@@ -57,7 +53,7 @@ public class ConfigurationSettingInfor {
 
 	public void setAllowBlockingInputPorts(boolean setting) {
 		allowBlockingInputPorts = setting;
-    prefs.putBoolean("ProcessConfigBlockingInputPorts", setting);
+        UserSettings.setConfigurableBlockingInputPorts(setting);
 	}
 
 
@@ -67,7 +63,7 @@ public class ConfigurationSettingInfor {
 
 	public void setAllowChangingDefaultConfiguration(boolean setting) {
 		allowChangingDefaultConfiguration = setting;
-      prefs.putBoolean("ProcessConfigAllowDefaultConfigChanges", setting);
+        UserSettings.setConfigurableAllowDefaultChanges(setting);
 	}
 
 

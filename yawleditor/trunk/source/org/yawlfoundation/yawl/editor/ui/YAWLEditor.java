@@ -23,9 +23,6 @@
 package org.yawlfoundation.yawl.editor.ui;
 
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
@@ -35,8 +32,10 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.SpecificationBottomPanel;
-import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
-import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationExporter;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +45,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 /**
  * The core executable class of the YAWL Editor, responsible for  bootstrapping the editor
@@ -59,8 +57,6 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
    *
    */
   private static final long serialVersionUID = 1L;
-
-  protected final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
 
   private static String loadFileName;
 
@@ -246,19 +242,17 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     final JFrame frame = this;
     addComponentListener(new ComponentAdapter() {
       public void componentMoved(ComponentEvent event) {
-        rememberLocation();
+          savePosition();
       }
 
       public void componentResized(ComponentEvent event) {
-          rememberLocation();
-
-        prefs.putInt("width", frame.getWidth());
-        prefs.putInt("height", frame.getHeight());
+          savePosition();
+          UserSettings.setFrameWidth(frame.getWidth());
+          UserSettings.setFrameHeight(frame.getHeight());
       }
 
-      private void rememberLocation() {
-        prefs.putInt("posX", frame.getX());
-        prefs.putInt("posY", frame.getY());
+      private void savePosition() {
+          UserSettings.setFrameLocation(frame.getX(), frame.getY());
       }
     });
   }
@@ -388,36 +382,34 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
   }
 
   private void processPreferences() {
-    setSize(prefs.getInt("width", 500),
-            prefs.getInt("height", 300));
+    setSize(UserSettings.getFrameWidth(), UserSettings.getFrameHeight());
+    Point pos = UserSettings.getFrameLocation();
 
-    final int posX = prefs.getInt("posX",-1);
-    final int posY = prefs.getInt("posY",-1);
-
-    if (posX == -1 || posY == -1) {
+    if (pos.x == -1 || pos.y == -1) {
       JUtilities.centerWindow(this);
-    } else {
-      this.setLocation(posX, posY);
+    }
+    else {
+      this.setLocation(pos.x, pos.y);
     }
 
-    // initialise analysis 'off'  
-    prefs.putBoolean(EngineSpecificationExporter.ANALYSIS_WITH_EXPORT_PREFERENCE, false);
+    // initialise analysis 'off'
+      UserSettings.setAnalyseOnSave(false);
     initResetNetAnalysisPreferences();
     initWofYAWLAnalysisPreferences();
   }
 
   private void initResetNetAnalysisPreferences() {
-      prefs.putBoolean(AnalysisResultsParser.WEAKSOUNDNESS_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(AnalysisResultsParser.CANCELLATION_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(AnalysisResultsParser.ORJOIN_ANALYSIS_PREFERENCE, false);
-      prefs.putBoolean(AnalysisResultsParser.SHOW_OBSERVATIONS_PREFERENCE,false);
+      UserSettings.setWeakSoundnessAnalysis(false);
+      UserSettings.setCancellationAnalysis(false);
+      UserSettings.setOrJoinAnalysis(false);
+      UserSettings.setShowObservations(false);
   }
 
   private void initWofYAWLAnalysisPreferences() {
-    prefs.putBoolean(AnalysisResultsParser.WOFYAWL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(AnalysisResultsParser.STRUCTURAL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(AnalysisResultsParser.BEHAVIOURAL_ANALYSIS_PREFERENCE, false);
-    prefs.putBoolean(AnalysisResultsParser.EXTENDED_COVERABILITY_PREFERENCE, false);
+      UserSettings.setWofyawlAnalysis(false);
+      UserSettings.setStructuralAnalysis(false);
+      UserSettings.setBehaviouralAnalysis(false);
+      UserSettings.setExtendedCoverability(false);
   }
 
 
@@ -447,13 +439,13 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
 
     private void establishConnections() {
-        YConnector.setEngineUserID(prefs.get("engineUserID", null));
-        YConnector.setEnginePassword(prefs.get("engineUserPassword", null));
-        YConnector.setEngineURL(prefs.get("engineURI", null));
+        YConnector.setEngineUserID(UserSettings.getEngineUserid());
+        YConnector.setEnginePassword(UserSettings.getEnginePassword());
+        YConnector.setEngineURL(UserSettings.getEngineUri());
 
-        YConnector.setResourceUserID(prefs.get("resourcingServiceUserID", null));
-        YConnector.setResourcePassword(prefs.get("resourcingServiceUserPassword", null));
-        YConnector.setResourceURL(prefs.get("resourcingServiceURI", null));
+        YConnector.setResourceUserID(UserSettings.getResourceUserid());
+        YConnector.setResourcePassword(UserSettings.getResourcePassword());
+        YConnector.setResourceURL(UserSettings.getResourceUri());
     }
 
 
@@ -466,7 +458,8 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
       synchronized (lock) {
          try {
            lock.wait(timeToWait);
-         } catch (InterruptedException ex) {
+         }
+         catch (InterruptedException ex) {
          }
       }
       now = System.currentTimeMillis();

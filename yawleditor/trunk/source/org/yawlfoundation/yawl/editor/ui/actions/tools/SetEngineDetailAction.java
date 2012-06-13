@@ -22,14 +22,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
+import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -39,7 +40,6 @@ import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.prefs.Preferences;
 
 public class SetEngineDetailAction extends YAWLBaseAction {
   /**
@@ -72,15 +72,7 @@ public class SetEngineDetailAction extends YAWLBaseAction {
 }
 
 class EngineDetailDialog extends AbstractDoneDialog {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private static final Preferences prefs = 
-    Preferences.userNodeForPackage(YAWLEditor.class);
-  
   private JTextField engineURIField;
   private JTextField engineUserField;
   private JPasswordField enginePasswordField;
@@ -111,20 +103,9 @@ class EngineDetailDialog extends AbstractDoneDialog {
            YConnector.disconnectEngine();
 
          String password = Arrays.toString(enginePasswordField.getPassword());
-
-         prefs.put(
-             "engineURI", 
-             engineURIField.getText()
-         );
-
-         prefs.put(
-             "engineUserID", 
-             engineUserField.getText()
-         );
-
-         prefs.put(
-             "engineUserPassword", password
-         );
+         UserSettings.setEngineUri(engineURIField.getText());
+         UserSettings.setEngineUserid(engineUserField.getText());
+         UserSettings.setEnginePassword(password);
 
            YConnector.setEngineUserID(engineURIField.getText());
            YConnector.setEnginePassword(password);
@@ -348,28 +329,27 @@ class EngineDetailDialog extends AbstractDoneDialog {
    
    return testButton;
   }
-  
-  public void setVisible(boolean visible) {
-    if (visible){
-      if (engineURIField.getText().equals("")) {
-        engineURIField.setText(
-            prefs.get("engineURI", YEngineConnection.DEFAULT_URL)
-        );
-      }
-      if (engineUserField.getText().equals("")) {
-        engineUserField.setText(
-            prefs.get("engineUserID", YEngineConnection.DEFAULT_USERID)
-        );
-      }
-      if (enginePasswordField.getPassword().length == 0) {
-        enginePasswordField.setText(
-            prefs.get("engineUserPassword", YEngineConnection.DEFAULT_PASSWORD)
-        );
-      }
+
+    public void setVisible(boolean visible) {
+        if (visible){
+            if (engineURIField.getText().equals("")) {
+                String uri = UserSettings.getEngineUri();
+                engineURIField.setText(uri != null ? uri : YEngineConnection.DEFAULT_URL);
+            }
+            if (engineUserField.getText().equals("")) {
+                String userid = UserSettings.getEngineUserid();
+                engineUserField.setText(
+                        userid != null ? userid : YEngineConnection.DEFAULT_USERID);
+            }
+            if (enginePasswordField.getPassword().length == 0) {
+                String password = UserSettings.getEnginePassword();
+                enginePasswordField.setText(
+                        password != null ? password : YEngineConnection.DEFAULT_PASSWORD);
+            }
+        }
+        testMessage.setVisible(false);    // reset
+        super.setVisible(visible);
     }
-      testMessage.setVisible(false);    // reset      
-    super.setVisible(visible);
-  }
 
 
   private boolean hasValidURIPath(String uriStr) {

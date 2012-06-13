@@ -22,13 +22,14 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
+import org.yawlfoundation.yawl.editor.core.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.core.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.ui.client.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -37,7 +38,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.prefs.Preferences;
 
 public class SetResourcingServiceAction extends YAWLBaseAction {
   /**
@@ -70,15 +70,7 @@ public class SetResourcingServiceAction extends YAWLBaseAction {
 }
 
 class ResourceServiceDialog extends AbstractDoneDialog {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private static final Preferences prefs = 
-    Preferences.userNodeForPackage(YAWLEditor.class);
-  
   private JTextField resourcingServiceURIField;
   private JTextField resourcingServiceUserField;
   private JPasswordField resourcingServicePasswordField;
@@ -109,9 +101,9 @@ class ResourceServiceDialog extends AbstractDoneDialog {
                 String password = new String(resourcingServicePasswordField.getPassword());
                 String uri = resourcingServiceURIField.getText();
 
-                prefs.put("resourcingServiceURI", uri);
-                prefs.put("resourcingServiceUserID", userid);
-                prefs.put("resourcingServiceUserPassword", password);
+                UserSettings.setResourceUri(uri);
+                UserSettings.setResourceUserid(userid);
+                UserSettings.setResourcePassword(password);
 
                 YConnector.disconnectResource();
                 YConnector.setResourceUserID(userid);
@@ -332,24 +324,27 @@ class ResourceServiceDialog extends AbstractDoneDialog {
    
    return testButton;
   }
-  
-  public void setVisible(boolean visible) {
-    if (visible){
-      if (resourcingServiceURIField.getText().equals("")) {
-        resourcingServiceURIField.setText(
-            prefs.get("resourcingServiceURI", YResourceConnection.DEFAULT_URL));
-      }
-      if (resourcingServiceUserField.getText().equals("")) {
-        resourcingServiceUserField.setText(
-            prefs.get("resourcingServiceUserID", YResourceConnection.DEFAULT_USERID));
-      }
-      if (resourcingServicePasswordField.getPassword().length == 0) {
-        resourcingServicePasswordField.setText(
-            prefs.get("resourcingServiceUserPassword", YResourceConnection.DEFAULT_PASSWORD));
-      }
+
+    public void setVisible(boolean visible) {
+        if (visible){
+            if (resourcingServiceURIField.getText().equals("")) {
+                String uri = UserSettings.getResourceUri();
+                resourcingServiceURIField.setText(
+                        uri != null ? uri : YResourceConnection.DEFAULT_URL);
+            }
+            if (resourcingServiceUserField.getText().equals("")) {
+                String userid = UserSettings.getResourceUserid();
+                resourcingServiceUserField.setText(
+                        userid != null ? userid : YResourceConnection.DEFAULT_USERID);
+            }
+            if (resourcingServicePasswordField.getPassword().length == 0) {
+                String password = UserSettings.getResourcePassword();
+                resourcingServicePasswordField.setText(
+                        password != null ? password : YResourceConnection.DEFAULT_PASSWORD);
+            }
+        }
+        super.setVisible(visible);
     }
-    super.setVisible(visible);
-  }
   
 
   private boolean hasValidURIPath(String uriStr) {
