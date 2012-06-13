@@ -31,14 +31,15 @@ import org.yawlfoundation.yawl.editor.ui.data.internal.YDocumentType;
 import org.yawlfoundation.yawl.editor.ui.data.internal.YStringListType;
 import org.yawlfoundation.yawl.editor.ui.data.internal.YTimerType;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.*;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -67,17 +68,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.prefs.Preferences;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
-
-  protected static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-
-  public static String VERIFICATION_WITH_EXPORT_PREFERENCE = "verifyWithExportCheck";
-  public static String ANALYSIS_WITH_EXPORT_PREFERENCE = "analyseWithExportCheck";
-  public static String AUTO_INCREMENT_VERSION_WITH_EXPORT_PREFERENCE = "autoIncVersionExportCheck";
-  public static String FILE_BACKUP_PREFERENCE = "backupOnExportCheck";
-  public static String FILE_VERSIONING_PREFERENCE = "savePreviousOnExportCheck";
 
   public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
       if (checkUserDefinedDataTypes(editorSpec)) {
@@ -144,11 +136,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       }
 
     try {
-        if (prefs.getBoolean(FILE_BACKUP_PREFERENCE, false)) {
+        if (UserSettings.getFileBackupOnSave()) {
             FileUtilities.backup(fullFileName, fullFileName + ".bak");     // back it up
         }
         if (SpecificationModel.getInstance().isVersionChanged() &&
-                prefs.getBoolean(FILE_VERSIONING_PREFERENCE, false)) {
+                UserSettings.getFileVersioningOnSave()) {
             String versionedFileName = String.format("%s.%s.yawl",
                     FileUtilities.stripFileExtension(fullFileName),
                     SpecificationModel.getInstance().getPreviousVersionNumber().toString());
@@ -190,10 +182,10 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
         YSpecification engineSpec = getEngineSpecAsEngineObjects(editorSpec);
         List<String> results = new LinkedList<String>();
 
-        if (prefs.getBoolean(VERIFICATION_WITH_EXPORT_PREFERENCE, true)) {
+        if (UserSettings.getVerifyOnSave()) {
             results.addAll(EngineSpecificationValidator.getValidationResults(engineSpec));
         }
-        if (prefs.getBoolean(ANALYSIS_WITH_EXPORT_PREFERENCE, true)) {
+        if (UserSettings.getAnalyseOnSave()) {
             results.addAll(editorSpec.analyse());
         }
         YAWLEditor.getInstance().showProblemList("Analysis Results", results);

@@ -3,11 +3,12 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import org.yawlfoundation.yawl.analyser.YAnalyser;
 import org.yawlfoundation.yawl.analyser.YAnalyserOptions;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -16,29 +17,12 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 public class AnalysisResultsParser {
 
-    protected static final Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
     protected static final YAnalyser _analyser = new YAnalyser();
 
     private static final String WOF_YAWL_BINARY = "wofyawl@WofYawlReleaseNumber@.exe";
-
-    public static final String RESET_NET_ANALYSIS_PREFERENCE = "resetNetAnalysisCheck";
-    public static final String SOUNDNESS_ANALYSIS_PREFERENCE = "resetSoundnessCheck";
-    public static final String WEAKSOUNDNESS_ANALYSIS_PREFERENCE = "resetWeakSoundnessCheck";
-    public static final String CANCELLATION_ANALYSIS_PREFERENCE = "resetCancellationCheck";
-    public static final String ORJOIN_ANALYSIS_PREFERENCE = "resetOrjoinCheck";
-    public static final String SHOW_OBSERVATIONS_PREFERENCE = "resetShowObservationsCheck";
-    public static final String USE_YAWLREDUCTIONRULES_PREFERENCE = "yawlReductionRules";
-    public static final String USE_RESETREDUCTIONRULES_PREFERENCE = "resetReductionRules";
-    public static final String ORJOINCYCLE_ANALYSIS_PREFERENCE = "resetOrjoinCycleCheck";
-
-    public static final String WOFYAWL_ANALYSIS_PREFERENCE = "wofYawlAnalysisCheck";
-    public static final String STRUCTURAL_ANALYSIS_PREFERENCE = "wofYawlStructuralAnalysisCheck";
-    public static final String BEHAVIOURAL_ANALYSIS_PREFERENCE = "wofYawlBehaviouralAnalysisCheck";
-    public static final String EXTENDED_COVERABILITY_PREFERENCE = "wofYawlExtendedCoverabilityCheck";
 
 
     public List<String> getAnalysisResults(SpecificationModel editorSpec) {
@@ -86,29 +70,19 @@ public class AnalysisResultsParser {
 
     private YAnalyserOptions getAnalyserOptions() {
         YAnalyserOptions options = new YAnalyserOptions();
-        if (prefs.getBoolean(RESET_NET_ANALYSIS_PREFERENCE, true)) {
-            options.enableResetWeakSoundness(
-                    prefs.getBoolean(WEAKSOUNDNESS_ANALYSIS_PREFERENCE, true));
-            options.enableResetSoundness(
-                    prefs.getBoolean(SOUNDNESS_ANALYSIS_PREFERENCE, true));
-            options.enableResetCancellation(
-                    prefs.getBoolean(CANCELLATION_ANALYSIS_PREFERENCE, true));
-            options.enableResetOrJoin(
-                    prefs.getBoolean(ORJOIN_ANALYSIS_PREFERENCE, true));
-            options.enableResetOrjoinCycle(
-                    prefs.getBoolean(ORJOINCYCLE_ANALYSIS_PREFERENCE, true));
-            options.enableResetReductionRules(
-                    prefs.getBoolean(USE_RESETREDUCTIONRULES_PREFERENCE, true));
-            options.enableYawlReductionRules(
-                    prefs.getBoolean(USE_YAWLREDUCTIONRULES_PREFERENCE, true));
+        if (UserSettings.getResetNetAnalysis()) {
+            options.enableResetWeakSoundness(UserSettings.getWeakSoundnessAnalysis());
+            options.enableResetSoundness(UserSettings.getSoundnessAnalysis());
+            options.enableResetCancellation(UserSettings.getCancellationAnalysis());
+            options.enableResetOrJoin(UserSettings.getOrJoinAnalysis());
+            options.enableResetOrjoinCycle(UserSettings.getOrJoinCycleAnalysis());
+            options.enableResetReductionRules(UserSettings.getUseResetReductionRules());
+            options.enableYawlReductionRules(UserSettings.getUseYawlReductionRules());
         }
-        if (prefs.getBoolean(WOFYAWL_ANALYSIS_PREFERENCE, true)) {
-            options.enableWofBehavioural(
-                    prefs.getBoolean(BEHAVIOURAL_ANALYSIS_PREFERENCE, true));
-            options.enableWofStructural(
-                    prefs.getBoolean(STRUCTURAL_ANALYSIS_PREFERENCE, true));
-            options.enableWofExtendedCoverabiity(
-                    prefs.getBoolean(EXTENDED_COVERABILITY_PREFERENCE, true));
+        if (UserSettings.getWofyawlAnalysis()) {
+            options.enableWofBehavioural(UserSettings.getBehaviouralAnalysis());
+            options.enableWofStructural(UserSettings.getStructuralAnalysis());
+            options.enableWofExtendedCoverabiity(UserSettings.getExtendedCoverability());
             options.setWofYawlExecutableLocation(getWofYawlExecutableFilePath());
         }
         return options;
@@ -124,7 +98,8 @@ public class AnalysisResultsParser {
 
 
     private static String getWofYawlExecutableFilePath() {
-        return prefs.get("WofyawlFilePath", FileUtilities.getHomeDir() + WOF_YAWL_BINARY);
+        String path = UserSettings.getWofyawlFilePath();
+        return path != null ? path : FileUtilities.getHomeDir() + WOF_YAWL_BINARY;
     }
 
     public static boolean wofYawlAvailable() {
@@ -156,7 +131,7 @@ public class AnalysisResultsParser {
             else {
                 parseResetNetErrors(resultsList, resetNode);
                 parseResetNetWarnings(resultsList, resetNode);
-                if (prefs.getBoolean(SHOW_OBSERVATIONS_PREFERENCE, true)) {
+                if (UserSettings.getShowObservations()) {
                     parseResetNetObservations(resultsList, resetNode);
                 }
             }

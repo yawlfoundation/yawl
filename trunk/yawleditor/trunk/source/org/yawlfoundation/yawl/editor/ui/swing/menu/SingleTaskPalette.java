@@ -1,44 +1,22 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.prefs.Preferences;
-
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-
 import org.jgraph.event.GraphSelectionEvent;
-
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleAtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleCompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
 
@@ -97,8 +75,12 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
       return "PaletteOrJoin";
     }
     
-    protected String getButtonColourPreference() {
-      return "joinFillColour";
+    protected Color getButtonColour() {
+      return UserSettings.getJoinFillColour();
+    }
+
+    protected void setButtonColour(Color colour) {
+        UserSettings.setJoinFillColour(colour);
     }
 
     public void setTask(Object task) {
@@ -196,9 +178,13 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
       return "PaletteOrSplit";
     }
     
-    protected String getButtonColourPreference() {
-      return "splitFillColour";
+    protected Color getButtonColour() {
+      return UserSettings.getSplitFillColour();
     }
+
+      protected void setButtonColour(Color colour) {
+          UserSettings.setSplitFillColour(colour);
+      }
     
     public void setTask(Object task) {
       super.setTask(task);
@@ -300,9 +286,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     private JLabel taskLabel;
     
     protected SingleTaskPalette parent;
-    
-    private Preferences prefs = Preferences.userNodeForPackage(YAWLEditor.class);
-    
+
     public DecoratorPanel(SingleTaskPalette parent) {
       this.parent = parent;
       setBorder(new EmptyBorder(3,3,3,3));
@@ -480,11 +464,7 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
       JButton colourButton = new JButton("");
       colourButton.setToolTipText("Select decorator fill colour");
 
-      colourButton.setBackground(
-          new Color(prefs.getInt(
-              getButtonColourPreference(), Color.WHITE.getRGB())
-          )    
-      );
+      colourButton.setBackground(getButtonColour());
       
       colourButton.addActionListener(
           new ActionListener() {
@@ -492,12 +472,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
               Color newColor = JColorChooser.showDialog(
                   YAWLEditor.getInstance(),
                   "Select decorator fill colour",
-                  new Color(prefs.getInt(
-                      getButtonColourPreference(), Color.WHITE.getRGB())
-                  )    
-              );
+                  getButtonColour());
+
               if (newColor != null) {
-                prefs.putInt(getButtonColourPreference(), newColor.getRGB());
+                setButtonColour(newColor);
               }
               ((JButton) event.getSource()).setBackground(newColor);
               SpecificationUtilities.refreshNetViews(
@@ -671,8 +649,9 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     protected abstract String getXorDecorationIconName();
     protected abstract String getOrDecorationIconName();
     protected abstract String getDecoratorString();
-    protected abstract String getButtonColourPreference();
-    
+    protected abstract Color getButtonColour();
+    protected abstract void setButtonColour(Color colour);
+
     
     protected void doTypeSelection(int type) {
       for(int i = 0; i < typeButtons.length; i++) {

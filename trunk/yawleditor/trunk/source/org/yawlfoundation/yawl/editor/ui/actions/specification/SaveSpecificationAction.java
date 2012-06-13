@@ -32,14 +32,9 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.prefs.Preferences;
 
 public class SaveSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
-  protected static final Preferences prefs =  Preferences.userNodeForPackage(YAWLEditor.class);
-  public static final String SHOW_EXPORT_DIALOG_PREFERENCE = "showExportDialog";
+
   boolean shouldShowExportDialog = true;
   private boolean isDialogShownPreviously = false;
 
