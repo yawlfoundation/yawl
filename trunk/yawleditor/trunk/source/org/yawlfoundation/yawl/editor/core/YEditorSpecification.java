@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.core;
 
+import org.yawlfoundation.yawl.editor.core.resourcing.ResourceParameters;
 import org.yawlfoundation.yawl.editor.core.util.FileOperations;
 import org.yawlfoundation.yawl.editor.core.util.FileSaveOptions;
 import org.yawlfoundation.yawl.elements.*;
@@ -9,10 +10,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -25,12 +23,15 @@ public class YEditorSpecification {
     private List<String> _identifiers;
     private FileOperations _fileOps;
 
+    private Map<String, ResourceParameters> _taskResources;
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
 
     public YEditorSpecification() {
         _specification = new YSpecification();
         _fileOps = new FileOperations();
         _identifiers = new ArrayList<String>();
+        _taskResources = new Hashtable<String, ResourceParameters>();
     }
 
     public YEditorSpecification(String name) {
@@ -161,7 +162,11 @@ public class YEditorSpecification {
 
 
     public void load(String file) throws IOException {
-        _specification = _fileOps.load(file);
+        YSpecification loaded = _fileOps.load(file);
+        if (loaded != null) {
+            _specification = loaded;
+            buildResources();
+        }
     }
 
 
@@ -208,7 +213,21 @@ public class YEditorSpecification {
 
     private String generateSpecificationIdentifier() {
          return "UID_" + UUID.randomUUID().toString();
-     }
+    }
+
+
+    private void buildResources() {
+        for (YDecomposition decomposition : _specification.getDecompositions()) {
+            if (decomposition instanceof YNet) {
+                for (YTask task : ((YNet) decomposition).getNetTasks()) {
+                    if (task instanceof YAtomicTask) {
+                        _taskResources.put(task.getID(),
+                                new ResourceParameters((YAtomicTask) task));
+                    }
+                }
+            }
+        }
+    }
 
 
     private void setModified() { _modified = true; }
@@ -221,10 +240,5 @@ public class YEditorSpecification {
     public YSpecificationID getID() {
         return _specification.getSpecificationID();
     }
-
-
-
-
-
 
 }

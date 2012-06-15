@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.resourcing.DataVariableContent;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingRole;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -112,16 +113,26 @@ public class SpecifyBaseDistributionSetPanel extends ResourcingWizardPanel {
   }
 
   public void refresh() {
-      List<ResourcingParticipant> liveList = YConnector.getResourcingParticipants();
-      super.setUserList(liveList);
-      userPanel.setUserList(liveList);
-      userPanel.setSelectedUsers(getResourceMapping().getBaseUserDistributionList());
+      try {
+          List<Participant> liveList = YConnector.getParticipants();
+          super.setUserList(liveList);
+          userPanel.setUserList(liveList);
+          userPanel.setSelectedUsers(getResourceMapping().getBaseUserDistributionList());
+      }
+      catch (IOException ioe) {
+          // nothing to refresh
+      }
 
-      List<ResourcingRole> liveRoles = YConnector.getResourcingRoles();
-      super.setRoleList(liveRoles);
-      rolesPanel.setRoles(liveRoles);
-      rolesPanel.setSelectedRoles(getResourceMapping().getBaseRoleDistributionList());
-    
+      try {
+          List<Role> liveRoles = YConnector.getRoles();
+          super.setRoleList(liveRoles);
+          rolesPanel.setRoles(liveRoles);
+          rolesPanel.setSelectedRoles(getResourceMapping().getBaseRoleDistributionList());
+      }
+      catch (IOException ioe) {
+          // nothing to refresh
+      }
+
       getResourceMapping().syncWithDataPerspective();
       parameterPanel.setVariableContentList(getResourceMapping().getBaseVariableContentList());
   }
@@ -194,11 +205,11 @@ class UserPanel extends JPanel implements ListSelectionListener {
     return new JScrollPane(userList);
   }
   
-  public void setUserList(List<ResourcingParticipant> users) {
+  public void setUserList(List<Participant> users) {
     userList.setUsers(users);
   }
   
-  public void setSelectedUsers(List<ResourcingParticipant> selectedUsers) {
+  public void setSelectedUsers(List<Participant> selectedUsers) {
     userList.setSelectedUsers(selectedUsers);
   }
   
@@ -218,25 +229,25 @@ class UserPanel extends JPanel implements ListSelectionListener {
 class UserList extends JList {
   private static final long serialVersionUID = 1L;
 
-  private List<ResourcingParticipant> users;
+  private List<Participant> users;
 
   public UserList() {
     super();
   }
   
-  public void setUsers(List<ResourcingParticipant> users) {
+  public void setUsers(List<Participant> users) {
    setEnabled(false);
     
     this.users = users;
     String[] userNames = new String[users.size()];
     for(int i = 0; i < users.size(); i++) {
-      userNames[i] = users.get(i).getName();
+      userNames[i] = users.get(i).getFullName() + " (" + users.get(i).getUserID() + ")";
     }
     setListData(userNames);
     setEnabled(true);
   }
   
-  public void setSelectedUsers(List<ResourcingParticipant> selectedUsers) {
+  public void setSelectedUsers(List<Participant> selectedUsers) {
     setEnabled(false);
     clearSelection();
 
@@ -249,7 +260,7 @@ class UserList extends JList {
     boolean selectionValid = false ;
     int j = 0;
     for(int i = 0; i < users.size(); i ++) {
-      for(ResourcingParticipant selectedUser : selectedUsers) {
+      for(Participant selectedUser : selectedUsers) {
         if (users.get(i).equals(selectedUser)) {
           selectedUserIndicies[j] = i;
           j++;
@@ -263,9 +274,9 @@ class UserList extends JList {
     setEnabled(true);
   }
   
-  public List<ResourcingParticipant> getSelectedUsers() {
+  public List<Participant> getSelectedUsers() {
     int[] selectedRoleIndices = getSelectedIndices();
-    List<ResourcingParticipant> selectedRoles = new LinkedList<ResourcingParticipant>();
+    List<Participant> selectedRoles = new LinkedList<Participant>();
     for(int i = 0; i < selectedRoleIndices.length; i++) {
       selectedRoles.add(
         users.get(selectedRoleIndices[i])    
@@ -334,11 +345,11 @@ class RolesPanel extends JPanel implements ListSelectionListener {
     return new JScrollPane(roleList);
   }
   
-  public void setRoles(List<ResourcingRole> roles) {
+  public void setRoles(List<Role> roles) {
     roleList.setRoles(roles);
   }
   
-  public void setSelectedRoles(List<ResourcingRole> selectedRoles) {
+  public void setSelectedRoles(List<Role> selectedRoles) {
     roleList.setSelectedRoles(selectedRoles);
   }
 
@@ -358,13 +369,13 @@ class RolesPanel extends JPanel implements ListSelectionListener {
 class RoleList extends JList {
   private static final long serialVersionUID = 1L;
 
-  private List<ResourcingRole> roles;
+  private List<Role> roles;
 
   public RoleList() {
     super();
   }
   
-  public void setRoles(List<ResourcingRole> roles) {
+  public void setRoles(List<Role> roles) {
     setEnabled(false);
     this.roles = roles;
     String[] roleNames = new String[roles.size()];
@@ -375,7 +386,7 @@ class RoleList extends JList {
     setEnabled(true);
   }
   
-  public void setSelectedRoles(List<ResourcingRole> selectedRoles) {
+  public void setSelectedRoles(List<Role> selectedRoles) {
     setEnabled(false);
     clearSelection();
     
@@ -388,7 +399,7 @@ class RoleList extends JList {
     boolean selectionValid = false ;
     int j = 0;
     for(int i = 0; i < roles.size(); i ++) {
-      for(ResourcingRole selectedRole : selectedRoles) {
+      for(Role selectedRole : selectedRoles) {
         if (roles.get(i).equals(selectedRole)) {
           selectedRoleIndicies[j] = i;
           j++;
@@ -400,9 +411,9 @@ class RoleList extends JList {
     setEnabled(true);
   }
   
-  public List<ResourcingRole> getSelectedRoles() {
+  public List<Role> getSelectedRoles() {
     int[] selectedRoleIndices = getSelectedIndices();
-    List<ResourcingRole> selectedRoles = new LinkedList<ResourcingRole>();
+    List<Role> selectedRoles = new LinkedList<Role>();
     for(int i = 0; i < selectedRoleIndices.length; i++) {
       selectedRoles.add(
         roles.get(selectedRoleIndices[i])    

@@ -1,15 +1,11 @@
 package org.yawlfoundation.yawl.editor.ui.resourcing;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CodeletDataMap implements Serializable, Cloneable {
-
-  private static final long serialVersionUID = 1L;
-
+public class CodeletDataMap {
 
   protected Map<String, String> _codeletMap;
 

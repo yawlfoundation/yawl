@@ -2,6 +2,8 @@ package org.yawlfoundation.yawl.editor.ui.resourcing;
 
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 
 /**
  * Author: Michael Adams
@@ -14,13 +16,13 @@ public class InvalidResourceReference {
     NetGraphModel _net;
     YAWLTask _task;
     ResType _type;
-    ResourcingParticipant _participant;
-    ResourcingRole _role;
+    Participant _participant;
+    Role _role;
 
     public InvalidResourceReference() {}
 
     public InvalidResourceReference(NetGraphModel net, YAWLTask task,
-                                    ResourcingParticipant participant) {
+                                    Participant participant) {
         _net = net;
         _task = task;
         _participant = participant;
@@ -28,8 +30,7 @@ public class InvalidResourceReference {
         _type = ResType.Participant;
     }
 
-    public InvalidResourceReference(NetGraphModel net, YAWLTask task,
-                                    ResourcingRole role) {
+    public InvalidResourceReference(NetGraphModel net, YAWLTask task, Role role) {
         _net = net;
         _task = task;
         _participant = null;

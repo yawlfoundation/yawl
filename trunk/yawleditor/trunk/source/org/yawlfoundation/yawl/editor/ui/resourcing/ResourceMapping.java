@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.resourcing;
 
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariableUtilities;
@@ -13,15 +13,19 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.resourcing.AbstractSelector;
+import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
+import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.schema.XSDType;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.*;
 
-public class ResourceMapping implements Serializable, Cloneable  {
-  
-  private static final long serialVersionUID = 1L;
-  
+public class ResourceMapping {
+
   public static final int SYSTEM_INTERACTION_POINT = 0;
   public static final int USER_INTERACTION_POINT = 1;
 
@@ -33,13 +37,21 @@ public class ResourceMapping implements Serializable, Cloneable  {
   public static final int CAN_SKIP_PRIVILEGE                 = 105;
   public static final int CAN_PILE_PRIVILEGE                 = 106;
 
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  protected HashMap serializationProofAttributeMap = new HashMap();
+    private YAWLAtomicTask resourceRequiringTask;
+    private int offerInteractionPoint;
+    private int allocateInteractionPoint;
+    private int startInteractionPoint;
+    private YAWLAtomicTask retainFamiliarTask;
+    private String retainFamiliarTaskID;
+    private String separationOfDutiesTaskID;
+    private YAWLAtomicTask separationOfDutiesTask;
+    private List<Participant> baseUserDistributionList;
+    private List<Object> secondaryResourcesList;
+    private List<Role> baseRoleDistributionList;
+    private List<DataVariableContent> baseVariableContentList;
+    private List<AbstractSelector> resourcingFilters;
+    private AbstractSelector allocationMechanism;
+    private HashSet<Integer> enabledPrivileges;
 
   public ResourceMapping() {
     super();
@@ -53,14 +65,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
     setEnabledPrivileges(new HashSet<Integer>());
   }
   
-  public void setSerializationProofAttributeMap(HashMap map) {
-    this.serializationProofAttributeMap = map;
-  }
-  
-  public HashMap getSerializationProofAttributeMap() {
-    return this.serializationProofAttributeMap;
-  }
-  
+
   public ResourceMapping(YAWLAtomicTask resourceRequiringTask, boolean setVariableList) {
     super();
     initialise();
@@ -70,54 +75,53 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
   
   public YAWLAtomicTask getResourceRequiringTask() {
-    return (YAWLAtomicTask) serializationProofAttributeMap.get("resourceRequiringTask");
+    return resourceRequiringTask;
   }
   
-  public void setResourceRequiringTask(YAWLAtomicTask resourceRequiringTask) {
-    serializationProofAttributeMap.put("resourceRequiringTask",resourceRequiringTask);
+  public void setResourceRequiringTask(YAWLAtomicTask task) {
+    resourceRequiringTask = task;
   }
 
   /* ------ Offer Related Attributes ------ */
   
   public void setOfferInteractionPoint(int setting) {
-    serializationProofAttributeMap.put("offerInteractionPoint",new Integer(setting));
+    offerInteractionPoint = setting;
   }
   
   public int getOfferInteractionPoint() {
-    return ((Integer) serializationProofAttributeMap.get("offerInteractionPoint")).intValue();
+    return offerInteractionPoint;
   }
   
   public YAWLAtomicTask getRetainFamiliarTask() {
-    return (YAWLAtomicTask) serializationProofAttributeMap.get("retainFamiliarTask");
+    return retainFamiliarTask;
   }
 
   public void setRetainFamiliarTask(YAWLAtomicTask task) {
-    serializationProofAttributeMap.put("retainFamiliarTask", task);
+    retainFamiliarTask = task;
   }
 
     public void setRetainFamiliarTaskID(String taskid) {
-      serializationProofAttributeMap.put("retainFamiliarTaskID", taskid);
+      retainFamiliarTaskID = taskid;
     }
 
     public String getRetainFamiliarTaskID() {
-      return (String) serializationProofAttributeMap.get("retainFamiliarTaskID");
+      return retainFamiliarTaskID;
     }
 
     public String getSeparationOfDutiesTaskID() {
-      return (String) serializationProofAttributeMap.get("separationOfDutiesTaskID");
+      return separationOfDutiesTaskID;
     }
 
     public void setSeparationOfDutiesTaskID(String taskid) {
-      serializationProofAttributeMap.put("separationOfDutiesTaskID", taskid);
+      separationOfDutiesTaskID = taskid;
     }
 
-
   public YAWLAtomicTask getSeparationOfDutiesTask() {
-    return (YAWLAtomicTask) serializationProofAttributeMap.get("separationOfDutiesTask");
+    return separationOfDutiesTask;
   }
 
   public void setSeparationOfDutiesTask(YAWLAtomicTask task) {
-    serializationProofAttributeMap.put("separationOfDutiesTask", task);
+    separationOfDutiesTask = task;
   }
   
   private List<DataVariableContent> buildDefaultBaseVariableContentList() {
@@ -142,54 +146,54 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
 
 
-  public void setBaseUserDistributionList(List<ResourcingParticipant> userList) {
-    serializationProofAttributeMap.put("baseUserDistributionList", userList);
+  public void setBaseUserDistributionList(List<Participant> userList) {
+    baseUserDistributionList = userList;
   }
   
-  public List<ResourcingParticipant> getBaseUserDistributionList() {
-    return (List<ResourcingParticipant>) serializationProofAttributeMap.get("baseUserDistributionList");
+  public List<Participant> getBaseUserDistributionList() {
+    return baseUserDistributionList;
   }
 
     public void setSecondaryResourcesList(List<Object> list) {
-      serializationProofAttributeMap.put("secondaryResourcesList", list);
+      secondaryResourcesList = list;
     }
 
     public List<Object> getSecondaryResourcesList() {
-        List<Object> list = (List<Object>) serializationProofAttributeMap.get("secondaryResourcesList");
-      return list != null ? list : new ArrayList<Object>();
+      return secondaryResourcesList != null ? secondaryResourcesList :
+              Collections.emptyList();
     }
 
-  public void setBaseRoleDistributionList(List<ResourcingRole> roles) {
-    serializationProofAttributeMap.put("baseRoleDistributionList", roles);
+  public void setBaseRoleDistributionList(List<Role> roles) {
+    baseRoleDistributionList = roles;
   }
   
-  public List<ResourcingRole> getBaseRoleDistributionList() {
-    return (List<ResourcingRole>) serializationProofAttributeMap.get("baseRoleDistributionList");
+  public List<Role> getBaseRoleDistributionList() {
+    return baseRoleDistributionList;
   }
   
   public void setBaseVariableContentList(List<DataVariableContent> list) {
-    serializationProofAttributeMap.put("baseVariableContentList", list);
+    baseVariableContentList = list;
   }
   
-  public List<DataVariableContent>  getBaseVariableContentList() {
-    return (List<DataVariableContent>) serializationProofAttributeMap.get("baseVariableContentList");
+  public List<DataVariableContent> getBaseVariableContentList() {
+    return baseVariableContentList;
   }
 
   // remove null members
   public void cleanBaseUserDistributionList() {
-      List<ResourcingParticipant> pList = getBaseUserDistributionList();
+      List<Participant> pList = getBaseUserDistributionList();
       if ((pList != null) && pList.contains(null)) {
-          List<ResourcingParticipant> cleanList = new LinkedList<ResourcingParticipant>();
-          for (ResourcingParticipant p : pList) if (p != null) cleanList.add(p);
+          List<Participant> cleanList = new LinkedList<Participant>();
+          for (Participant p : pList) if (p != null) cleanList.add(p);
           setBaseUserDistributionList(cleanList);
       }
   }
 
   public void cleanBaseRoleDistributionList() {    
-      List<ResourcingRole> rList = getBaseRoleDistributionList();
+      List<Role> rList = getBaseRoleDistributionList();
       if ((rList != null) && rList.contains(null)) {
-          List<ResourcingRole> cleanRoleList = new LinkedList<ResourcingRole>();
-          for (ResourcingRole p : rList) if (p != null) cleanRoleList.add(p);
+          List<Role> cleanRoleList = new LinkedList<Role>();
+          for (Role r : rList) if (r != null) cleanRoleList.add(r);
           setBaseRoleDistributionList(cleanRoleList);
       }
   }
@@ -245,74 +249,65 @@ public class ResourceMapping implements Serializable, Cloneable  {
     }
   }
 
-  public void setResourcingFilters(List<ResourcingFilter> filters) {
-    serializationProofAttributeMap.put("resourcingFilters", filters);
+  public void setResourcingFilters(List<AbstractSelector> filters) {
+    resourcingFilters = filters;
   }
   
-  public List<ResourcingFilter>  getResourcingFilters() {
-    return (List<ResourcingFilter>) serializationProofAttributeMap.get("resourcingFilters");
+  public List<AbstractSelector>  getResourcingFilters() {
+    return resourcingFilters;
   }
   
   /* ------ Allocation Related Attributes ------ */
   
   public void setAllocateInteractionPoint(int setting) {
-    serializationProofAttributeMap.put("allocateInteractionPoint",new Integer(setting));
-    
-    if (getAllocationMechanism() == null) {
-      setAllocationMechanism(AllocationMechanism.DEFAULT_MECHANISM);
-    }
+    allocateInteractionPoint = setting;
   }
   
   public int getAllocateInteractionPoint() {
-    return ((Integer) serializationProofAttributeMap.get("allocateInteractionPoint")).intValue();
+    return allocateInteractionPoint;
   }
 
-  public AllocationMechanism getAllocationMechanism() {
-    if (getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT) {
-      return (AllocationMechanism) serializationProofAttributeMap.get("allocationMechanism");
-    }
-    return null;
+  public AbstractSelector getAllocationMechanism() {
+    return getAllocateInteractionPoint() == SYSTEM_INTERACTION_POINT ?
+       allocationMechanism : null;
   }
   
-  public void setAllocationMechanism(AllocationMechanism allocationMechanism) {
-    serializationProofAttributeMap.put("allocationMechanism", allocationMechanism);
+  public void setAllocationMechanism(AbstractSelector allocator) {
+    allocationMechanism = allocator;
   }
 
   /* ------ Start Related Attributes ------ */
   
   public void setStartInteractionPoint(int setting) {
-    serializationProofAttributeMap.put("startInteractionPoint",new Integer(setting));
+    startInteractionPoint = setting;
   }
 
   
   public int getStartInteractionPoint() {
-    return ((Integer) serializationProofAttributeMap.get("startInteractionPoint")).intValue();
+    return startInteractionPoint;
   }
 
   
   /* ------ Privilege Related Attributes ------ */
 
   public void setEnabledPrivileges(HashSet<Integer> privileges) {
-    serializationProofAttributeMap.put("enabledPrivileges", privileges);
+    enabledPrivileges = privileges;
   }
   
   public HashSet<Integer> getEnabledPrivileges() {
-    return (HashSet<Integer>) serializationProofAttributeMap.get("enabledPrivileges");
+    return enabledPrivileges;
   }
   
   public void enablePrivilege(int privilege, boolean enabled) {
     if (enabled) {
-      getEnabledPrivileges().add(new Integer(privilege));
+      getEnabledPrivileges().add(privilege);
     } else {
       getEnabledPrivileges().remove(new Integer(privilege));
     }
   }
   
   public boolean isPrivilegeEnabled(int  privilege) {
-    if (getEnabledPrivileges().contains(new Integer(privilege))) {
-      return true;
-    }
-    return false;
+      return getEnabledPrivileges().contains(new Integer(privilege));
   }
 
   /*********************************************************************************/
@@ -376,16 +371,13 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
   private boolean parseParticipants(Element e, Namespace nsYawl) {
       boolean badRef = false;
-      Map<String, ResourcingParticipant> liveMap = getUserMap();
-      List<ResourcingParticipant> result = new LinkedList<ResourcingParticipant>();
+      Map<String, Participant> liveMap = getUserMap();
+      List<Participant> result = new LinkedList<Participant>();
 
-      List participants = e.getChildren("participant", nsYawl);
-      Iterator itr = participants.iterator();
-      while (itr.hasNext()) {
-          Element eParticipant = (Element) itr.next();
+      for (Element eParticipant : e.getChildren("participant", nsYawl)) {
           String pid = eParticipant.getText();
           if (pid != null) {
-              ResourcingParticipant p = liveMap.get(pid);
+              Participant p = liveMap.get(pid);
               if (p != null) {
                   result.add(p);
               }
@@ -401,16 +393,13 @@ public class ResourceMapping implements Serializable, Cloneable  {
 
   private boolean parseRoles(Element e, Namespace nsYawl) {
       boolean badRef = false;
-      Map<String, ResourcingRole> liveMap = getRoleMap();
-      List<ResourcingRole> result = new LinkedList<ResourcingRole>();
+      Map<String, Role> liveMap = getRoleMap();
+      List<Role> result = new LinkedList<Role>();
 
-      List roles = e.getChildren("role", nsYawl);
-      Iterator itr = roles.iterator();
-      while (itr.hasNext()) {
-          Element eRole = (Element) itr.next();
+      for (Element eRole : e.getChildren("role", nsYawl)) {
           String rid = eRole.getText();
           if (rid != null) {
-              ResourcingRole r = liveMap.get(rid);
+              Role r = liveMap.get(rid);
               if (r != null) {
                   result.add(r);
               }
@@ -428,10 +417,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
       DataVariableSet netVars = containingNet.getVariableSet();
       List<DataVariableContent> result = new LinkedList<DataVariableContent>();
 
-      List params = e.getChildren("param", nsYawl);
-      Iterator itr = params.iterator();
-      while (itr.hasNext()) {
-          Element eParam = (Element) itr.next();
+      for (Element eParam : e.getChildren("param", nsYawl)) {
           String name = eParam.getChildText("name", nsYawl);
           DataVariable var = netVars.getVariableWithName(name);
           if (var != null) {
@@ -452,36 +438,30 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
 
 
-  private void parseFilters(Element e, Namespace nsYawl) {
-      List<ResourcingFilter> result = new LinkedList<ResourcingFilter>();
-      Element eFilters = e.getChild("filters", nsYawl);
-      if (eFilters != null) {
-          List filters = eFilters.getChildren("filter", nsYawl);
-          if (filters != null) {
-              Iterator itr = filters.iterator();
-              while (itr.hasNext()) {
-                  Element eFilter = (Element) itr.next();
-                  String filterName = eFilter.getChildText("name", nsYawl);
-                  if (filterName != null) {
-                      String simpleName = filterName.substring(filterName.lastIndexOf('.') + 1);
-                      result.add(new ResourcingFilter(simpleName, filterName, null,
-                              (HashMap<String, String>) parseParams(eFilter, nsYawl)));
-                  }
-              }
-          }
-      }
-      setResourcingFilters(result);
-  }
+    private void parseFilters(Element e, Namespace nsYawl) {
+        List<AbstractSelector> result = new LinkedList<AbstractSelector>();
+        Element eFilters = e.getChild("filters", nsYawl);
+        if (eFilters != null) {
+            for (Element eFilter : eFilters.getChildren("filter", nsYawl)) {
+                String filterName = eFilter.getChildText("name", nsYawl);
+                if (filterName != null) {
+                    String simpleName = filterName.substring(filterName.lastIndexOf('.') + 1);
+                    AbstractSelector filter = new GenericFilter(simpleName);
+                    filter.setCanonicalName(filterName);
+                    filter.setParams(parseParams(eFilter, nsYawl));
+                    result.add(filter);
+                }
+            }
+        }
+
+        setResourcingFilters(result);
+    }
 
 
   private void parseConstraints(Element e, Namespace nsYawl, NetGraphModel containingNet) {
       Element eConstraints = e.getChild("constraints", nsYawl);
       if (eConstraints != null) {
-          List constraints = eConstraints.getChildren("constraint", nsYawl);
-          if (constraints != null) {
-              Iterator itr = constraints.iterator();
-              while (itr.hasNext()) {
-                  Element eConstraint = (Element) itr.next();
+              for (Element eConstraint : eConstraints.getChildren("constraint", nsYawl)) {
                   String constraintName = eConstraint.getChildText("name", nsYawl);
                   if ((constraintName != null) &&
                           (constraintName.equals("SeparationOfDuties"))) {
@@ -493,7 +473,6 @@ public class ResourceMapping implements Serializable, Cloneable  {
                   }
               }
           }
-      }
   }
 
 
@@ -538,8 +517,9 @@ public class ResourceMapping implements Serializable, Cloneable  {
               String name = allocator.getChildText("name", nsYawl);
               if (name != null) {
                   String simpleName = name.substring(name.lastIndexOf('.') + 1);
-                  setAllocationMechanism(new AllocationMechanism(simpleName, name, "", ""));
-                  // allocationmechanism.setParams(parseParams(allocator, nsYawl));
+                  GenericAllocator selector = new GenericAllocator(simpleName);
+                  selector.setCanonicalName(name);
+                  setAllocationMechanism(selector);
               }
           }
       }
@@ -551,38 +531,33 @@ public class ResourceMapping implements Serializable, Cloneable  {
   }
 
 
-  private Map<String, ResourcingParticipant> getUserMap() {
-      Map<String, ResourcingParticipant> liveMap = new HashMap<String, ResourcingParticipant>();
-      for (ResourcingParticipant resp : YConnector.getResourcingParticipants()) {
-          liveMap.put(resp.getId(), resp);
-      }
-      return liveMap;
+  private Map<String, Participant> getUserMap() {
+      return YConnector.getParticipantMap();
   }
 
 
-    private Map<String, ResourcingRole> getRoleMap() {
-        Map<String, ResourcingRole> liveMap =  new HashMap<String, ResourcingRole>();
-        for (ResourcingRole role : YConnector.getResourcingRoles()) {
-            liveMap.put(role.getId(), role);
-        }
-        return liveMap;
+    private Map<String, Role> getRoleMap() {
+        return YConnector.getRoleMap();
     }
 
 
-    private Map<String, ResourcingAsset> getAssetMap() {
-        Map<String, ResourcingAsset> liveMap =  new HashMap<String, ResourcingAsset>();
-        for (ResourcingAsset asset : YConnector.getResourcingAssets()) {
-                liveMap.put(asset.getId(), asset);
-        }
-        return liveMap;
+    private Map<String, NonHumanResource> getAssetMap() {
+        return YConnector.getNonHumanResourceMap();
     }
 
 
     private Map<String, ResourcingCategory> getCategoryMap() {
-         Map<String, ResourcingCategory> liveMap =  new HashMap<String, ResourcingCategory>();
-         for (ResourcingCategory category : YConnector.getResourcingCategories()) {
+        Map<String, ResourcingCategory> liveMap =  new HashMap<String, ResourcingCategory>();
+        try {
+            for (ResourcingCategory category :
+                     ResourcingCategory.convertCategories(
+                             YConnector.getNonHumanCategories())) {
                  liveMap.put(category.getKey(), category);
-         }
+            }
+        }
+        catch (IOException ioe) {
+            // fall through to empty map
+        }
          return liveMap;
      }
 
@@ -591,16 +566,16 @@ public class ResourceMapping implements Serializable, Cloneable  {
         if (e == null) return false;                   // no secondary resources defined
         boolean badRef = false;
         List<Object> result = new LinkedList<Object>();
-        Map<String, ResourcingParticipant> userMap = getUserMap();
-        Map<String, ResourcingRole> roleMap = getRoleMap();
-        Map<String, ResourcingAsset> assetMap = getAssetMap();
+        Map<String, Participant> userMap = getUserMap();
+        Map<String, Role> roleMap = getRoleMap();
+        Map<String, NonHumanResource> assetMap = getAssetMap();
         Map<String, ResourcingCategory> categoryMap = getCategoryMap();
 
         List users = e.getChildren("participant", nsYawl);
         for (Object o : users) {
             String id = ((Element) o).getText();
             if (id != null) {
-                ResourcingParticipant p = userMap.get(id);
+                Participant p = userMap.get(id);
                 if (p != null) {
                     result.add(p);
                 }
@@ -611,7 +586,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
         for (Object o : roles) {
             String id = ((Element) o).getText();
             if (id != null) {
-                ResourcingRole r = roleMap.get(id);
+                Role r = roleMap.get(id);
                 if (r != null) {
                     result.add(r);
                 }
@@ -622,7 +597,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
         for (Object o : assets) {
             String id = ((Element) o).getText();
             if (id != null) {
-                ResourcingAsset r = assetMap.get(id);
+                NonHumanResource r = assetMap.get(id);
                 if (r != null) {
                     result.add(r);
                 }
@@ -746,7 +721,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
           "Base User Distribution List:\n" + 
           "---------------------------\n"
       );
-      for(ResourcingParticipant user : getBaseUserDistributionList()) {
+      for(Participant user : getBaseUserDistributionList()) {
         baseUserDistribitionListString.append("  " + user.getName() + "\n");
       }
     }
@@ -757,7 +732,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
           "Base RoleDistribution List:\n" + 
           "---------------------------\n"
       );
-      for(ResourcingRole role : getBaseRoleDistributionList()) {
+      for(Role role : getBaseRoleDistributionList()) {
         baseRoleDistribitionListString.append("  " + role.getName() + "\n");
       }
     }
@@ -782,7 +757,7 @@ public class ResourceMapping implements Serializable, Cloneable  {
           "Resource Filters:\n" + 
           "----------------------\n"
       );
-      for(ResourcingFilter filter : getResourcingFilters()) {
+      for(AbstractSelector filter : getResourcingFilters()) {
         resourceFiltersString.append(
             "  " + filter.getDisplayName() +  "\n"
         );

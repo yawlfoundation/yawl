@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingFilter;
 import org.yawlfoundation.yawl.editor.ui.swing.JSingleSelectTable;
+import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +85,14 @@ public class SpecifyDistributionSetFiltersPanel extends ResourcingWizardPanel {
   }
 
     void refresh() {
-        runtimeFiltersPanel.setFilters(YConnector.getResourcingFilters());
-        runtimeFiltersPanel.setTask((YAWLAtomicTask) getTask());
-        runtimeConstraintsPanel.setTask((YAWLAtomicTask) getTask());
+        try {
+            runtimeFiltersPanel.setFilters(YConnector.getFilters());
+            runtimeFiltersPanel.setTask((YAWLAtomicTask) getTask());
+            runtimeConstraintsPanel.setTask((YAWLAtomicTask) getTask());
+        }
+        catch (IOException ioe) {
+            // nothing to refresh
+        }
     }
 
 
@@ -179,11 +185,11 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
     return new JScrollPane(filterParamTable);
   }
   
-  public void setFilters(List<ResourcingFilter> filters){
+  public void setFilters(List<AbstractSelector> filters){
     filterTable.setFilters(filters);
   }
 
-  public List<ResourcingFilter> getFlaggedFilters() {
+  public List<AbstractSelector> getFlaggedFilters() {
       return filterTable.getFlaggedFilters();
   }
 
@@ -193,7 +199,7 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
       filterParamTable.reset();
     } else {
       filterParamTable.setParameters(
-          filterTable.getSelectedFilter().getParameters()
+          filterTable.getSelectedFilter().getParams()
       );
     }
   }
@@ -202,12 +208,12 @@ class RuntimeFiltersPanel extends JPanel implements ListSelectionListener {
   public boolean hasCompletedFilterParameters() {
       String errTemplate = "Filter '%s' has no parameter values specified.\n";
       String errMsg = "";
-      List<ResourcingFilter> flaggedFilters = getFlaggedFilters();
-      for (ResourcingFilter filter : flaggedFilters) {
+      List<AbstractSelector> flaggedFilters = getFlaggedFilters();
+      for (AbstractSelector filter : flaggedFilters) {
 
           // at least one param needs a value
           boolean valid = false;
-          Map<String, String> params = filter.getParameters() ;
+          Map<String, String> params = filter.getParams() ;
           for (String paramName : params.keySet()) {
               String paramValue = params.get(paramName);
               if ((paramValue != null) && (paramValue.length() > 0)) {
@@ -261,15 +267,13 @@ class SelectableFilterTable extends JSingleSelectTable {
     );
   }
   
-  public void setFilters(List<ResourcingFilter> filters){
+  public void setFilters(List<AbstractSelector> filters){
     getSelectableFilterTableModel().setFilters(filters);
-    setPreferredScrollableViewportSize(
-        getPreferredSize()
-    );
+    setPreferredScrollableViewportSize(getPreferredSize());
   }
 
   
-  public ResourcingFilter getSelectedFilter() {
+  public AbstractSelector getSelectedFilter() {
     if (getSelectedRow() == -1) {
       return null;
     }
@@ -278,7 +282,7 @@ class SelectableFilterTable extends JSingleSelectTable {
     );
   }
   
-  public List<ResourcingFilter> getFlaggedFilters() {
+  public List<AbstractSelector> getFlaggedFilters() {
     return getSelectableFilterTableModel().getFlaggedFilters();
   }
 }
@@ -287,7 +291,7 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
   private static final long serialVersionUID = 1L;
 
-  private List<ResourcingFilter> filters;
+  private List<AbstractSelector> filters;
   private LinkedList<Boolean> filterListSelection;
 
   private ResourceMapping resourceMapping;
@@ -310,17 +314,17 @@ class SelectableFilterTableModel extends AbstractTableModel {
   }
   
   private void setFlaggedFilters() {
-    List<ResourcingFilter> flaggedFilters = getResourceMapping().getResourcingFilters();
+    List<AbstractSelector> flaggedFilters = getResourceMapping().getResourcingFilters();
     if (flaggedFilters == null) {
-      getResourceMapping().setResourcingFilters(new LinkedList<ResourcingFilter>());
+      getResourceMapping().setResourcingFilters(new LinkedList<AbstractSelector>());
       return; // already defaults to false per filter, so we're done here.
     }
     
     for(int i = 0; i < filters.size(); i++) {
       for(int j = 0; j < flaggedFilters.size(); j++) {
 
-        ResourcingFilter flagged = flaggedFilters.get(j);
-        if (getFilterAtRow(i).equals(flagged)) {
+          AbstractSelector flagged = flaggedFilters.get(j);
+        if (getFilterAtRow(i).getName().equals(flagged.getName())) {
 
           // The filters we get off the engine are like classes;  uninstantiated as yet.
           // The filters stored in ResourceMapping are like instances of the classes.
@@ -340,15 +344,12 @@ class SelectableFilterTableModel extends AbstractTableModel {
     return this.resourceMapping;
   }
   
-  public List<ResourcingFilter> getFilters() {
-    return this.filters;
+  public List<AbstractSelector> getFilters() {
+    return filters;
   }
   
-  public ResourcingFilter getFilterAtRow(int row) {
-    if (filters == null) {
-      return null;
-    }
-    return filters.get(row);
+  public AbstractSelector getFilterAtRow(int row) {
+      return filters != null ? filters.get(row) : null;
   }
   
   public Boolean getFilterSelectionAtRow(int row) {
@@ -357,13 +358,13 @@ class SelectableFilterTableModel extends AbstractTableModel {
 
   public void setFilterSelectionAtRow(int row, Boolean value) {
     filterListSelection.set(row, value);
-    ResourcingFilter filterAtRow = getFilterAtRow(row);
-    List<ResourcingFilter> mappedFilters = getResourceMapping().getResourcingFilters();
+    AbstractSelector filterAtRow = getFilterAtRow(row);
+    List<AbstractSelector> mappedFilters = getResourceMapping().getResourcingFilters();
 
     if (value) { // true == filter selected
       boolean filterAlreadySelected = false;
 
-      for(ResourcingFilter selectedFilter : mappedFilters) {
+      for(AbstractSelector selectedFilter : mappedFilters) {
         if (filterAtRow.equals(selectedFilter)) {
           filterAlreadySelected = true;
         }
@@ -373,8 +374,8 @@ class SelectableFilterTableModel extends AbstractTableModel {
       }
     }
     else { // false == filter removed.
-      ResourcingFilter filterToRemove = null;
-      for(ResourcingFilter selectedFilter : mappedFilters) {
+        AbstractSelector filterToRemove = null;
+      for(AbstractSelector selectedFilter : mappedFilters) {
         if (filterAtRow.equals(selectedFilter)) {
             filterToRemove = selectedFilter;
             break;
@@ -384,8 +385,8 @@ class SelectableFilterTableModel extends AbstractTableModel {
     }    
   }
 
-  public List<ResourcingFilter> getFlaggedFilters() {
-    LinkedList<ResourcingFilter> selectedFilters = new LinkedList<ResourcingFilter>();
+  public List<AbstractSelector> getFlaggedFilters() {
+    LinkedList<AbstractSelector> selectedFilters = new LinkedList<AbstractSelector>();
     for(int row = 0; row < getFilters().size(); row++) {
       if (getFilterSelectionAtRow(row)) {
         selectedFilters.add(getFilterAtRow(row));
@@ -394,13 +395,11 @@ class SelectableFilterTableModel extends AbstractTableModel {
     return selectedFilters;
   }
   
-  public void setFilters(List<ResourcingFilter> filters) {
+  public void setFilters(List<AbstractSelector> filters) {
     this.filters = filters;
-    this.filterListSelection = new LinkedList<Boolean>();
-    for(ResourcingFilter filter: filters) {
-       filterListSelection.add(
-           new Boolean(false)
-       ); 
+    filterListSelection = new LinkedList<Boolean>();
+    for (AbstractSelector filter: filters) {
+       filterListSelection.add(new Boolean(false));
     }
     fireTableDataChanged();
   }
