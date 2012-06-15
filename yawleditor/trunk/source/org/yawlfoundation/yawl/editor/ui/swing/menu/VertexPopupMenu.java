@@ -29,13 +29,15 @@ import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.element.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
-import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VertexPopupMenu extends JPopupMenu {
 
@@ -59,6 +61,8 @@ public class VertexPopupMenu extends JPopupMenu {
   private YAWLPopupMenuItem outputPortConfigurationItem;
   private YAWLPopupMenuItem multipleInstanceConfigurationItem;
   private YAWLPopupMenuItem cancelationRegionConfigurationItem;
+
+  private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
 
   public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
     super();
@@ -287,8 +291,13 @@ public class VertexPopupMenu extends JPopupMenu {
         for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
             YAWLBaseAction action = plugin.getPopupMenuAction();
             if (action != null) {
-                if (addedItemCount == 0) addSeparator();
-                add(new YAWLPopupMenuItem(action));
+                if (addedItemCount == 0) {
+                    _item2pluginMap = new HashMap<YAWLPopupMenuItem, YEditorPlugin>();
+                    addSeparator();
+                }
+                YAWLPopupMenuItem item = new YAWLPopupMenuItem(action);
+                add(item);
+                _item2pluginMap.put(item, plugin);
                 addedItemCount++;
             }
         }
@@ -303,7 +312,7 @@ public class VertexPopupMenu extends JPopupMenu {
   public void setVisible(boolean state) {
     if (state) {
 
-      // We didn't necessarilly create items we don't need. 
+      // We didn't necessarily create items we don't need.
       // For those that we did create, let them dictate 
       // whether they''re enabled or visible.
       
@@ -368,6 +377,12 @@ public class VertexPopupMenu extends JPopupMenu {
                 setTimerItem.shouldBeEnabled()
             );
       }
+
+        if (_item2pluginMap != null) {
+            for (YAWLPopupMenuItem item : _item2pluginMap.keySet()) {
+                item.setEnabled(_item2pluginMap.get(item).setPopupMenuItemEnabled(cell));
+            }
+        }
 
     }
     super.setVisible(state);

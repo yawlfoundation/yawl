@@ -23,7 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.resourcing.CodeletData;
 import org.yawlfoundation.yawl.editor.ui.resourcing.CodeletDataMap;
 import org.yawlfoundation.yawl.editor.ui.swing.JOrderedSingleSelectTable;

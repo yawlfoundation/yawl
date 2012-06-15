@@ -45,6 +45,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
+import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
@@ -55,7 +56,10 @@ import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.OfferInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
@@ -1108,9 +1112,9 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return;
     }
 
-    for(ResourcingParticipant participant : editorResourceMapping.getBaseUserDistributionList()) {
+    for(Participant participant : editorResourceMapping.getBaseUserDistributionList()) {
       engineResourceMapping.getOfferInteraction().addParticipantUnchecked(
-          participant.getId()
+          participant.getID()
       );
     }
   }
@@ -1121,10 +1125,8 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return;
     }
 
-    for(ResourcingRole role : editorResourceMapping.getBaseRoleDistributionList()) {
-      engineResourceMapping.getOfferInteraction().addRoleUnchecked(
-          role.getId()
-      );
+    for(Role role : editorResourceMapping.getBaseRoleDistributionList()) {
+      engineResourceMapping.getOfferInteraction().addRoleUnchecked(role.getID());
     }
   }
   
@@ -1149,7 +1151,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   private static void populateOfferFilters(ResourceMapping editorResourceMapping,
                                            ResourceMap engineResourceMapping) {
-    for(ResourcingFilter editorFilter : editorResourceMapping.getResourcingFilters()) {
+    for(AbstractSelector editorFilter : editorResourceMapping.getResourcingFilters()) {
       String filterName = editorFilter.getCanonicalName();
       if (filterName.startsWith("org.yawlfoundation.yawl.")) {
           filterName = filterName.substring(filterName.lastIndexOf('.') + 1);
@@ -1157,7 +1159,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       GenericFilter engineFilter = new GenericFilter(filterName);
 
       // only want params with non-null values  
-      Map<String, String> paramMap = editorFilter.getParameters();
+      Map<String, String> paramMap = editorFilter.getParams();
       for (String name : paramMap.keySet()) {
           String value = paramMap.get(name);
           if ((value != null) && (value.length() > 0)) {
@@ -1242,14 +1244,14 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
         SecondaryResources sr = new SecondaryResources();
         for (Object o : editorResourceMapping.getSecondaryResourcesList()) {
-            if (o instanceof ResourcingParticipant) {
-                sr.getDefaultDataSet().addParticipantUnchecked(((ResourcingParticipant) o).getId());
+            if (o instanceof Participant) {
+                sr.getDefaultDataSet().addParticipantUnchecked(((Participant) o).getID());
             }
-            else if (o instanceof ResourcingRole) {
-                sr.getDefaultDataSet().addRoleUnchecked(((ResourcingRole) o).getId());
+            else if (o instanceof Role) {
+                sr.getDefaultDataSet().addRoleUnchecked(((Role) o).getID());
             }
-            else if (o instanceof ResourcingAsset) {
-                sr.getDefaultDataSet().addNonHumanResourceUnchecked(((ResourcingAsset) o).getId());
+            else if (o instanceof NonHumanResource) {
+                sr.getDefaultDataSet().addNonHumanResourceUnchecked(((NonHumanResource) o).getID());
             }
             else if (o instanceof ResourcingCategory) {
                 ResourcingCategory category = (ResourcingCategory) o;

@@ -45,8 +45,8 @@
     <property name="package.base.dir" value="org/yawlfoundation/yawl" />
     <property name="package.dir" value="${package.base.dir}/editor" />
     <property name="root.classpath"
-              value="org.yawlfoundation.yawl.editor.${root.class.name}" />
-    <property name="source.file" value="${package.dir}/${root.source.file}" />
+              value="org.yawlfoundation.yawl.editor.ui.${root.class.name}" />
+    <property name="source.file" value="${package.dir}/ui/${root.source.file}" />
     <property name="source.release" value="1.5" />
 
     <!--
@@ -332,19 +332,19 @@
         <copy todir="${filtered.source.dir}">
             <fileset dir="${source.dir}"/>
         </copy>
-        <copy todir="${filtered.source.dir}/${package.dir}/actions"
-              file="../source/org/yawlfoundation/yawl/editor/ui/actions/ShowAboutEditorAction.java"
+        <copy todir="${filtered.source.dir}/${package.dir}/ui/actions"
+              file="${source.dir}/${package.dir}/ui/actions/ShowAboutEditorAction.java"
               filtering="true" overwrite="true"/>
-        <copy todir="${filtered.source.dir}/${package.dir}/swing"
-              file="../source/org/yawlfoundation/yawl/editor/ui/swing/SplashContent.java"
+        <copy todir="${filtered.source.dir}/${package.dir}/ui/swing"
+              file="${source.dir}/${package.dir}/ui/swing/SplashContent.java"
               filtering="true" overwrite="true"/>
-        <copy todir="${filtered.source.dir}/${package.dir}/thirdparty/engine"
-              file="../source/org/yawlfoundation/yawl/editor/ui/engine/AnalysisResultsParser.java"
+        <copy todir="${filtered.source.dir}/${package.dir}/ui/engine"
+              file="${source.dir}/${package.dir}/ui/engine/AnalysisResultsParser.java"
               filtering="true" overwrite="true"/>
 
         <mkdir dir="${classes.dir}" />
-        <copy todir="${classes.dir}/${package.dir}/resources">
-            <fileset dir="../source/org/yawlfoundation/yawl/editor/ui/resources">
+        <copy todir="${classes.dir}/${package.dir}/ui/resources">
+            <fileset dir="${source.dir}/${package.dir}/ui/resources">
                 <include name="**/*" />
                 <include name="**/*.*" />
             </fileset>

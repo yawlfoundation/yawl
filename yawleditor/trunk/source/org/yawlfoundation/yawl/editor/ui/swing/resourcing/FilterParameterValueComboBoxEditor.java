@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.resourcing.resource.Capability;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Position;

@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.plugin;
 
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 
 /**
  * @author Michael Adams
@@ -18,5 +19,9 @@ public interface YEditorPlugin {
     YAWLSelectedNetAction getElementsMenuAction();
 
     YAWLSelectedNetAction getPopupMenuAction();
+
+    boolean setPopupMenuItemEnabled(YAWLCell cell);
+
+    boolean setElementsMenuItemEnabled(YAWLCell cell);
 
 }

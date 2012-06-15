@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;

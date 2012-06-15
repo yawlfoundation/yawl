@@ -22,7 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.ui;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;

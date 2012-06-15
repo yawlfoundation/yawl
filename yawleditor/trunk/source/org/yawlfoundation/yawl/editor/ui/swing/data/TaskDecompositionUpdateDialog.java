@@ -24,15 +24,12 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
+import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.data.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.resourcing.SelectCodeletDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
 import javax.swing.*;
@@ -341,7 +338,13 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
         if (decomp instanceof WebServiceDecomposition) {
             String codelet = ((WebServiceDecomposition) decomp).getCodelet();
             if (codelet != null) {
-                newVariableSet.addVariables(YConnector.getCodeletParameters(codelet));
+                try {
+                    newVariableSet.addVariables(DataVariableUtilities.convertYParameters(
+                                            YConnector.getCodeletParameters(codelet)));
+                }
+                catch (IOException ioe) {
+                    // failed to get codelet params
+                }
             }
         }
         newVariableSet.addVariables(
@@ -365,21 +368,25 @@ public class TaskDecompositionUpdateDialog extends NetDecompositionUpdateDialog 
 
             return newVariableSet;
         }
+        String uri = yawlServiceComboBox.getSelectedService().getURI();
+        try {
+            newVariableSet.addVariables(
+                    DataVariableUtilities.convertYParameters(
+                            YConnector.getServiceParameters(uri)));
 
-        newVariableSet.addVariables(YConnector.getServiceParameters(
-            yawlServiceComboBox.getSelectedService().getURI())
-        );
+            java.util.List<DataVariable> currentVars =
+                    getDataVariablePanel().getVariables().getUserDefinedVariables();
 
-        java.util.List<DataVariable> currentVars =
-                getDataVariablePanel().getVariables().getUserDefinedVariables();
-
-        int count = newVariableSet.size();
-        if (count > 0) {
-            for (DataVariable var : currentVars) {
-                var.setIndex(count++);
+            int count = newVariableSet.size();
+            if (count > 0) {
+                for (DataVariable var : currentVars) {
+                    var.setIndex(count++);
+                }
             }
         }
-
+        catch (IOException ioe) {
+            // failed to get service params
+        }
         newVariableSet.addVariables(
                 getDataVariablePanel().getVariables().getUserDefinedVariables()
         );

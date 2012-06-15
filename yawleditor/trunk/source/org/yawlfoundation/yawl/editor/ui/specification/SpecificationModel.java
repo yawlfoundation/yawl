@@ -25,7 +25,7 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
@@ -37,14 +37,14 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.resourcing.InvalidResourceReference;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingParticipant;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingRole;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 
 import javax.swing.*;
 import java.awt.*;
@@ -652,19 +652,19 @@ public class SpecificationModel {
           if (map != null) {
             map.cleanDistributionLists();  
 
-            List<ResourcingParticipant> pList = map.getBaseUserDistributionList();
+            List<Participant> pList = map.getBaseUserDistributionList();
             if (pList != null) {
-              for (ResourcingParticipant p : pList) {
-                if (! pidList.contains(p.getId())) {
+              for (Participant p : pList) {
+                if (! pidList.contains(p.getID())) {
                   badRefs.add(new InvalidResourceReference(netModel, task, p));
                 }
               }
             }
 
-            List<ResourcingRole> rList = map.getBaseRoleDistributionList();
+            List<Role> rList = map.getBaseRoleDistributionList();
             if (rList != null) {
-              for (ResourcingRole r : rList) {
-                if (! ridList.contains(r.getId())) {
+              for (Role r : rList) {
+                if (! ridList.contains(r.getID())) {
                   badRefs.add(new InvalidResourceReference(netModel, task, r));
                 }
               }

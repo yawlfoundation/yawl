@@ -1,16 +1,15 @@
 package org.yawlfoundation.yawl.editor.ui.resourcing;
 
-import java.util.HashMap;
+import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResourcingCategory implements Comparable {
 
-    /* ALL yawl-specific attributes of this object and its descendants
-    * are to be stored in serializationProofAttributeMap, meaning we
-    * won't get problems with incompatible XML serializations as we add
-    * new attributes in the future.
-    */
-
-    protected HashMap serializationProofAttributeMap = new HashMap();
+    private String _id;
+    private String _name;
+    protected String _subCatName;
 
     public ResourcingCategory() {}
 
@@ -25,37 +24,20 @@ public class ResourcingCategory implements Comparable {
         setName(name);
     }
 
-    public void setSerializationProofAttributeMap(HashMap map) {
-        this.serializationProofAttributeMap = map;
-    }
+    public void setId(String id) { _id = id; }
 
-    public HashMap getSerializationProofAttributeMap() {
-        return this.serializationProofAttributeMap;
-    }
+    public String getId() { return _id; }
 
-    public void setId(String id) {
-        serializationProofAttributeMap.put("id", id);
-    }
 
-    public String getId() {
-        return (String) serializationProofAttributeMap.get("id");
-    }
+    public void setName(String name) { _name = name; }
 
-    public void setName(String name) {
-        serializationProofAttributeMap.put("name", name);
-    }
+    public String getName() { return _name; }
 
-    public String getName() {
-        return (String) serializationProofAttributeMap.get("name");
-    }
 
-    public void setSubcategory(String subcat) {
-        serializationProofAttributeMap.put("subcategory", subcat);
-    }
+    public void setSubcategory(String subcat) { _subCatName = subcat; }
 
-    public String getSubcategory() {
-        return (String) serializationProofAttributeMap.get("subcategory");
-    }
+    public String getSubcategory() { return _subCatName; }
+
 
     public String getListLabel() {
         String label = getName();
@@ -66,6 +48,7 @@ public class ResourcingCategory implements Comparable {
         }
         return label;
     }
+
 
     public String getKey() {
         String key = getId();
@@ -89,4 +72,23 @@ public class ResourcingCategory implements Comparable {
         if (! (o instanceof ResourcingCategory)) return 1;
         return getListLabel().compareTo(((ResourcingCategory) o).getListLabel());
     }
+
+    public static List<ResourcingCategory> convertCategories(
+            List<NonHumanCategory> yCategories) {
+
+        List<ResourcingCategory> categories = new ArrayList<ResourcingCategory>();
+        for (NonHumanCategory category : yCategories) {
+            String catName = category.getName();
+            String catID = category.getID();
+            categories.add(new ResourcingCategory(catID, catName));
+            for (String subcat : category.getSubCategoryNames()) {
+                categories.add(new ResourcingCategory(catID, catName, subcat));
+            }
+        }
+        //               Collections.sort(categories);
+
+        return categories;
+    }
+
+
 }

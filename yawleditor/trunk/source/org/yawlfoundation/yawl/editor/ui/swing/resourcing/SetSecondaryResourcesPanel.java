@@ -1,7 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
-import org.yawlfoundation.yawl.editor.ui.resourcing.*;
+import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingCategory;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 
 import javax.swing.*;
@@ -222,12 +225,17 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
             return new JScrollPane(userList);
         }
 
-        public void setUserList(List<ResourcingParticipant> users) {
+        public void setUserList(List<Participant> users) {
             userList.setUsers(users);
         }
 
         public void refresh() {
-            setUserList(YConnector.getResourcingParticipants());
+            try {
+                setUserList(YConnector.getParticipants());
+            }
+            catch (IOException ioe) {
+                // nothing to refresh
+            }
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -247,25 +255,26 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
     class UserList extends JList {
 
         private static final long serialVersionUID = 1L;
-        private List<ResourcingParticipant> users;
+        private List<Participant> users;
 
         public UserList() {
             super();
         }
 
-        public void setUsers(List<ResourcingParticipant> users) {
+        public void setUsers(List<Participant> users) {
             setEnabled(false);
             this.users = users;
             String[] userNames = new String[users.size()];
             for(int i = 0; i < users.size(); i++) {
-                userNames[i] = users.get(i).getName();
+                userNames[i] = users.get(i).getFullName() +
+                        " (" + users.get(i).getUserID() + ")";
             }
             setListData(userNames);
             setEnabled(true);
         }
 
 
-        public ResourcingParticipant getSelected() {
+        public Participant getSelected() {
             int i = getSelectedIndex();
             return (i > -1) ? users.get(i) : null; 
         }
@@ -306,12 +315,17 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
             return new JScrollPane(roleList);
         }
 
-        public void setRoleList(List<ResourcingRole> roles) {
+        public void setRoleList(List<Role> roles) {
             roleList.setRoles(roles);
         }
 
         public void refresh() {
-            setRoleList(YConnector.getResourcingRoles());
+            try {
+                setRoleList(YConnector.getRoles());
+            }
+            catch (IOException  ioe) {
+                // nothing to refresh
+            }
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -331,13 +345,13 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
     class RoleList extends JList {
 
         private static final long serialVersionUID = 1L;
-        private List<ResourcingRole> roles;
+        private List<Role> roles;
 
         public RoleList() {
             super();
         }
 
-        public void setRoles(List<ResourcingRole> roles) {
+        public void setRoles(List<Role> roles) {
             setEnabled(false);
             this.roles = roles;
             String[] roleNames = new String[roles.size()];
@@ -348,7 +362,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
             setEnabled(true);
         }
 
-        public ResourcingRole getSelected() {
+        public Role getSelected() {
             int i = getSelectedIndex();
             return (i > -1) ? roles.get(i) : null; 
         }
@@ -388,22 +402,19 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
             return new JScrollPane(assetsList);
         }
 
-        public void setUserList(List<ResourcingAsset> assets) {
+        public void setUserList(List<NonHumanResource> assets) {
             assetsList.setAssets(assets);
         }
 
         public void refresh() {
-            List<ResourcingAsset> assets = new ArrayList<ResourcingAsset>();
             try {
-                for (NonHumanResource resource : YConnector.getNonHumanResources()) {
-                    assets.add(new ResourcingAsset(resource.getID(), resource.getName()));
-                }
+                List<NonHumanResource> assets = YConnector.getNonHumanResources();
                 Collections.sort(assets);
+                setUserList(assets);
             }
             catch (IOException ioe) {
-                // nothing to do - use empty list
+                // nothing to refresh
             }
-            setUserList(assets);
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -423,13 +434,13 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
     class AssetsList extends JList {
 
         private static final long serialVersionUID = 1L;
-        private List<ResourcingAsset> assets;
+        private List<NonHumanResource> assets;
 
         public AssetsList() {
             super();
         }
 
-        public void setAssets(List<ResourcingAsset> assets) {
+        public void setAssets(List<NonHumanResource> assets) {
             setEnabled(false);
             this.assets = assets;
             String[] assetNames = new String[assets.size()];
@@ -441,7 +452,7 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
 
-        public ResourcingAsset getSelected() {
+        public NonHumanResource getSelected() {
             int i = getSelectedIndex();
             return (i > -1) ? assets.get(i) : null; 
         }
@@ -487,7 +498,13 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         }
 
         public void refresh() {
-            setCategoryList(YConnector.getResourcingCategories());
+            try {
+                setCategoryList(ResourcingCategory.convertCategories(
+                                         YConnector.getNonHumanCategories()));
+            }
+            catch (IOException ioe) {
+                // nothing to refresh
+            }
         }
 
         protected ResourceMapping getResourceMapping() {
@@ -607,9 +624,9 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
         
         public void addSelected(Object o) {
             SelectedResources resources = list.getResourceList();
-            if (o instanceof ResourcingParticipant) resources.addParticipant((ResourcingParticipant) o);
-            else if (o instanceof ResourcingAsset) resources.addResource((ResourcingAsset) o);
-            else if (o instanceof ResourcingRole) resources.addRole((ResourcingRole) o);
+            if (o instanceof Participant) resources.addParticipant((Participant) o);
+            else if (o instanceof NonHumanResource) resources.addResource((NonHumanResource) o);
+            else if (o instanceof Role) resources.addRole((Role) o);
             else if (o instanceof ResourcingCategory) resources.addCategory((ResourcingCategory) o);
 
             refresh();
@@ -661,20 +678,20 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
 
     class SelectedResources {
 
-        List<ResourcingParticipant> participants = new ArrayList<ResourcingParticipant>();
-        List<ResourcingAsset> resources = new ArrayList<ResourcingAsset>();
-        List<ResourcingRole> roles = new ArrayList<ResourcingRole>();
+        List<Participant> participants = new ArrayList<Participant>();
+        List<NonHumanResource> resources = new ArrayList<NonHumanResource>();
+        List<Role> roles = new ArrayList<Role>();
         List<ResourcingCategory> categories = new ArrayList<ResourcingCategory>();
 
-        boolean addParticipant(ResourcingParticipant participant) {
+        boolean addParticipant(Participant participant) {
             return (! participants.contains(participant)) && participants.add(participant);
         }
 
-        boolean addResource(ResourcingAsset resource) {
+        boolean addResource(NonHumanResource resource) {
             return (! resources.contains(resource)) && resources.add(resource);
         }
 
-        boolean addRole(ResourcingRole role) {
+        boolean addRole(Role role) {
             return roles.add(role);
         }
 
@@ -705,13 +722,13 @@ public class SetSecondaryResourcesPanel extends ResourcingWizardPanel {
 
         Object[] getLabels() {
             List<String> labels = new ArrayList<String>();
-            for (ResourcingParticipant participant : participants) {
-                labels.add(participant.getName());
+            for (Participant p : participants) {
+                labels.add(p.getFullName() + " (" + p.getUserID() + ")");
             }
-            for (ResourcingAsset resource : resources) {
+            for (NonHumanResource resource : resources) {
                 labels.add(resource.getName());
             }
-            for (ResourcingRole role : roles) {
+            for (Role role : roles) {
                 labels.add(role.getName());
             }
             for (ResourcingCategory category : categories) {

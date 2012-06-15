@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing.resourcing;
 
-import org.yawlfoundation.yawl.editor.ui.client.YConnector;
-import org.yawlfoundation.yawl.editor.ui.resourcing.AllocationMechanism;
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.List;
 
 public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
@@ -104,11 +105,16 @@ public class SetSystemAllocateBehaviourPanel extends ResourcingWizardPanel {
   public boolean doNext() {  return true; }
 
     public void refresh() {
-        mechanismComboBox.reset();
-        mechanismComboBox.setAllocationMechanisms(YConnector.getAllocationMechanisms());
-        mechanismComboBox.setSelectedAllocationMechanism(
-                getResourceMapping().getAllocationMechanism()
-        );
+        try {
+            List<AbstractSelector> allocators = YConnector.getAllocators();
+            mechanismComboBox.reset();
+            mechanismComboBox.setAllocationMechanisms(allocators);
+            mechanismComboBox.setSelectedAllocationMechanism(
+                    getResourceMapping().getAllocationMechanism());
+        }
+        catch (IOException ioe) {
+            // nothing to refresh
+        }
     }
 
   public boolean shouldDoThisStep() {
@@ -121,14 +127,12 @@ class AllocationMechanismComboBox extends JComboBox {
   
   private static final long serialVersionUID = 1L;
 
-  private List<AllocationMechanism> mechanisms;
+  private List<AbstractSelector> mechanisms;
   
-  public void setAllocationMechanisms(List<AllocationMechanism> mechanisms) {
+  public void setAllocationMechanisms(List<AbstractSelector> mechanisms) {
     this.mechanisms = mechanisms;
-    for(AllocationMechanism mechanism : mechanisms) {
-      addItem(
-          mechanism.getDisplayName()
-       );
+    for(AbstractSelector mechanism : mechanisms) {
+      addItem(mechanism.getDisplayName());
     }
   }
   
@@ -138,14 +142,14 @@ class AllocationMechanismComboBox extends JComboBox {
     mechanisms = null;
   }
   
-  public void addAllocationMechanism(AllocationMechanism mechanism) {
+  public void addAllocationMechanism(AbstractSelector mechanism) {
     if (!mechanisms.contains(mechanism)) {
       mechanisms.add(mechanism);
       addItem(mechanism.getDisplayName());
     }
   }
   
-  public AllocationMechanism getSelectedMechanism() {
+  public AbstractSelector getSelectedMechanism() {
     if (getSelectedIndex()== -1) {
       return null;
     }
@@ -154,11 +158,11 @@ class AllocationMechanismComboBox extends JComboBox {
     );
   }
   
-  public void setSelectedAllocationMechanism(AllocationMechanism selectedMechanism) {
+  public void setSelectedAllocationMechanism(AbstractSelector selectedMechanism) {
     if (selectedMechanism == null) {
       return;
     }
-    for(AllocationMechanism mechanism : mechanisms) {
+    for(AbstractSelector mechanism : mechanisms) {
       if(selectedMechanism.equals(mechanism)) {
         setSelectedItem(mechanism.getDisplayName());
         return;
