@@ -5,6 +5,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 /**
  * 
@@ -18,6 +20,7 @@ public class TestYFlowsInto extends TestCase{
     private YExternalNetElement _XORSplit;
     private YExternalNetElement _ANDSplit;
     private YCondition _condition1;
+    private YVerificationHandler handler = new YVerificationHandler();
 
 
 
@@ -44,16 +47,22 @@ public class TestYFlowsInto extends TestCase{
 
 
     public void testXOR_ORSplitNeedsDefaultFlowNotBoth(){
-        assertTrue(YMessagePrinter.getMessageString(_flowsInto.verify(null)), _flowsInto.verify(null).size() == 2 );
+        handler.reset();
+        _flowsInto.verify(null, handler);
+        assertTrue("Unexpected messages", handler.getMessageCount() == 2);
         _flowsInto.setIsDefaultFlow(true);
-        assertTrue(YMessagePrinter.getMessageString(_flowsInto.verify(null)), _flowsInto.verify(null).size() == 1 );
+        handler.reset();
+        _flowsInto.verify(null, handler);
+        assertTrue("Unexpected messages", handler.getMessageCount() == 1);
         _flowsInto.setXpathPredicate("hi mum");
         /*
         null [error] any flow from any Element (YAtomicTask:XORSplit_1) to any Element (YCondition:condition1) must occur with the bounds of the same net.
         null [error] any flow from any XOR-split (YAtomicTask:XORSplit_1) must have either a predicate or be a default flow (cannot be both).
         null [error] any flow from any XOR-split (YAtomicTask:XORSplit_1) that has a predicate, must have an eval ordering.
         */
-        assertTrue(YMessagePrinter.getMessageString(_flowsInto.verify(null)), _flowsInto.verify(null).size() == 3 );
+        handler.reset();
+        _flowsInto.verify(null, handler);
+        assertTrue("Unexpected messages", handler.getMessageCount() == 3);
     }
 
 
@@ -61,28 +70,43 @@ public class TestYFlowsInto extends TestCase{
         _flowsInto2.setIsDefaultFlow(true);
         _flowsInto2.setXpathPredicate("hi mum");
         _flowsInto2.setEvalOrdering(new Integer(5));
-        int numMessages = _flowsInto2.verify(null).size();
-        if(numMessages != 4){
-            YMessagePrinter.printMessages(_flowsInto2.verify(null));
+        handler.reset();
+        _flowsInto2.verify(null, handler);
+        if (handler.getMessageCount() != 4) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg.getMessage());
+            }
         }
-        assertTrue(numMessages == 4);
+        assertTrue(handler.getMessageCount() == 4);
     }
 
 
     public void testConditionToCondition(){
-        assertTrue(_flowsInto4.verify(null).size() == 1);
-        assertTrue(_flowsInto4.verify(null).size() == 1);
+        handler.reset();
+        _flowsInto4.verify(null, handler);
+        assertTrue(handler.getMessageCount() == 1);
+
         _flowsInto4.setXpathPredicate("hi mum");
-        assertTrue(_flowsInto4.verify(null).size() == 2);
+        handler.reset();
+        _flowsInto4.verify(null, handler);
+        assertTrue(handler.getMessageCount() == 2);
+
         _flowsInto4.setIsDefaultFlow(true);
-        assertTrue(_flowsInto4.verify(null).size() == 3);
+        handler.reset();
+        _flowsInto4.verify(null, handler);
+        assertTrue(handler.getMessageCount() == 3);
+
         _flowsInto4.setEvalOrdering(new Integer(100));
-        assertTrue(_flowsInto4.verify(null).size() == 4);
+        handler.reset();
+        _flowsInto4.verify(null, handler);
+        assertTrue(handler.getMessageCount() == 4);
     }
 
 
     public void testInputOutputFlow(){
-        assertTrue(_flowsInto5.verify(null).size() == 3);
+        handler.reset();
+         _flowsInto5.verify(null, handler);
+         assertTrue(handler.getMessageCount() == 3);
     }
 
 

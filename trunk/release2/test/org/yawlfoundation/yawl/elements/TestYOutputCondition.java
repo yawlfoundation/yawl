@@ -1,12 +1,11 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-
-import java.util.List;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
  * 
@@ -35,14 +34,14 @@ public class TestYOutputCondition extends TestCase{
 
 
     public void testInvalidInputCondition(){
-        List messages = _invalidOutputCondition.verify();
+        YVerificationHandler handler = new YVerificationHandler();
+        _invalidOutputCondition.verify(handler);
         /*
             OutputCondition:ic1 postset must be empty: [YCondition:c2, YAtomicTask:at1]
             OutputCondition:ic1 The preset size must be > 0
         */
-        if(messages.size() != 2){
-            YMessagePrinter.printMessages(messages);
-            fail("Should recieve 2 error messages, but didn't ( messages size == " + messages.size());
+        if(handler.getMessageCount() != 2){
+            fail("Should receive 2 error messages, but didn't ( messages size == " + handler.getMessageCount());
         }
     }
 

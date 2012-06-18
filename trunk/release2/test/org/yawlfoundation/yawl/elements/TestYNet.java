@@ -13,13 +13,13 @@ import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +38,8 @@ public class TestYNet extends TestCase {
     private YIdentifier _id1, _id2, _id3, _id4, _id5, _id6, _id7, _id8;
     private YSpecification _badSpecification;
     private YSpecification _weirdSpecification;
+
+    private YVerificationHandler handler = new YVerificationHandler();
 
 
     /**
@@ -110,19 +112,25 @@ public class TestYNet extends TestCase {
 
 
     public void testGoodNetVerify() {
-        List messages = _goodNet.verify();
+        handler.reset();
+        _goodNet.verify(handler);
         //there's three missing splits stuffs
-        if (messages.size() > 3) {
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage) messages.get(0)).getMessage() + " num msg = "+ messages.size());
+        if (handler.getMessageCount() > 3) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail(handler.getMessages().get(0).getMessage() + " num msg = "+ handler.getMessageCount());
         }
     }
 
 
     public void testBadNetVerify() {
-        List messages = _badSpecification.verify();
-        if (messages.size() != 5) {
-            YMessagePrinter.printMessages(messages);
+        handler.reset();
+        _badSpecification.verify(handler);
+        if (handler.getMessageCount() != 5) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
             /*
             InputCondition:i-leaf-c preset must be empty: [YAtomicTask:h-leaf-c]
             YAtomicTask:h-leaf-c [error] any flow into an InputCondition (InputCondition:i-leaf-c) is not allowed.
@@ -130,8 +138,7 @@ public class TestYNet extends TestCase {
             YCompositeTask:c-top is not on a directed path from i to o.
             YCondition:c2-top is not on a directed path from i to o.
             */
-            ;
-            fail("BadNet should have produced 5 error messages, but didn't. msgs == " + YMessagePrinter.getMessageString(messages));
+            fail("BadNet should have produced 5 error messages, but didn't");
         }
     }
 
@@ -155,10 +162,14 @@ public class TestYNet extends TestCase {
 
 
     public void testCloneVerify() {
-        List messages = _copy.verify();
+        handler.reset();
+        _copy.verify(handler);
         //there's three missing splits stuffs
-        if (messages.size() > 3) {
-            fail(YMessagePrinter.getMessageString(messages));
+        if (handler.getMessageCount() > 3) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail(handler.getMessages().toString());
         }
     }
 

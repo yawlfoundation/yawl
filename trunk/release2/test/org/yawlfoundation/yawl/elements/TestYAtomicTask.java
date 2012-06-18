@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.util.HashMap;
@@ -80,20 +81,25 @@ public class TestYAtomicTask extends TestCase{
 
 
     public void testFullAtomicTask(){
-        List messages = _atomicTask1.verify();
-        if(messages.size() > 0){
-            YMessagePrinter.printMessages(messages);
-            System.out.println("(YVerificationMessage)messages.get(0)).class.getName( = " + messages.get(0).getClass().getName());
-            fail(((YVerificationMessage)messages.get(0)).getMessage() + " " + messages.size());
+        YVerificationHandler handler = new YVerificationHandler();
+        _atomicTask1.verify(handler);
+        if (handler.hasMessages()) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail((handler.getMessages().get(0)).getMessage() + " " + handler.getMessageCount());
         }
     }
 
 
     public void testEmptyAtomicTask(){
-        List messages = _atomicTask2.verify();
-        if(messages.size() > 0){
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage() + " num-messages: " + messages.size());
+        YVerificationHandler handler = new YVerificationHandler();
+        _atomicTask2.verify(handler);
+        if (handler.hasMessages()) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail((handler.getMessages().get(0)).getMessage() + " " + handler.getMessageCount());
         }
     }
 

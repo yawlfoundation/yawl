@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
@@ -32,6 +33,8 @@ public class TestYSpecification extends TestCase {
     private String validType2;
     private String validType3;
     private String validType4;
+
+    private YVerificationHandler handler = new YVerificationHandler();
 
 
     public TestYSpecification(String name) {
@@ -57,20 +60,22 @@ public class TestYSpecification extends TestCase {
 
 
     public void testGoodNetVerify() {
-        List messages = _goodSpecification.verify();
-        if (!YVerificationMessage.containsNoErrors(messages) || messages.size() != 2) {
+        handler.reset();
+        _goodSpecification.verify(handler);
+        if (handler.hasErrors() || handler.getWarnings().size() != 2) {
             /*
             Warning:The decompositon(I) is not being used in this specification.
             Warning:The net (Net:leaf-d) may complete without any generated work.  Check the empty tasks linking from i to o.
             */
-            fail(YMessagePrinter.getMessageString(messages));
+            fail(handler.getMessages().get(0).getMessage());
         }
     }
 
 
     public void testBadSpecVerify() {
-        List messages = _badSpecification.verify();
-        if (messages.size() != 5) {
+        handler.reset();
+        _badSpecification.verify(handler);
+        if (handler.getMessageCount() != 5) {
             /*
             Error:CompositeTask:c-top is not on a backward directed path from i to o.
             Error:ExternalCondition:c1-top is not on a backward directed path from i to o.
@@ -78,19 +83,23 @@ public class TestYSpecification extends TestCase {
             Error:InputCondition:i-leaf-c preset must be empty: [AtomicTask:h-leaf-c]
             Error:AtomicTask:h-leaf-c [error] any flow into an InputCondition (InputCondition:i-leaf-c) is not allowed.
             */
-            fail(YMessagePrinter.getMessageString(messages));
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail(handler.getMessages().get(0).getMessage());
         }
     }
 
     public void testSpecWithLoops() {
-        List messages = _infiniteLoops.verify();
+        handler.reset();
+        _infiniteLoops.verify(handler);
         /*
         Warning:The decompositon(f) is not being used in this specification.
         Error:The element (CompositeTask:d.1) plays a part in an inifinite loop/recursion in which no work items may be created.
         Warning:The net (Net:f) may complete without any generated work.  Check the empty tasks linking from i to o.
         Warning:The net (Net:e) may complete without any generated work.  Check the empty tasks linking from i to o.
         */
-        assertTrue(YMessagePrinter.getMessageString(messages), messages.size() == 4);
+        assertTrue(handler.getMessages().get(0).getMessage(), handler.getMessageCount() == 4);
     }
 
 
@@ -130,7 +139,9 @@ public class TestYSpecification extends TestCase {
      */
     public void testValidDataTypesInSpecification() {
         //Error:Specifications must have a root net.
-        assertTrue(spec.verify().size() == 1);
+        handler.reset();
+        spec.verify(handler);
+        assertTrue(handler.getMessageCount() == 1);
     }
 
 
