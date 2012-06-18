@@ -41,7 +41,7 @@ import java.util.*;
  *  @version 2.0
  */
 
-public abstract class AbstractSelector {
+public abstract class AbstractSelector implements Comparable<AbstractSelector> {
 
     protected String _name ;                       // the simple class name for this selector
     protected String _canonicalName ;              // the full class name for this selector
@@ -107,7 +107,8 @@ public abstract class AbstractSelector {
     /** @return the full name of this selector class */
     public String getCanonicalName() {
         if (_canonicalName != null) return _canonicalName;
-        else return this.getClass().getCanonicalName(); }
+        else return this.getClass().getCanonicalName();
+    }
 
     /**
      * Retrieves the value of the specified parameter
@@ -177,6 +178,26 @@ public abstract class AbstractSelector {
      * @param value the value to set
      */
     public void setKeyValue(String key, String value) { addParam(key, value); }
+
+    /**
+     * AbstractSelectors are considered equal if their canonical names are equal
+     * @param other the object to compare to this
+     * @return true if equal
+     */
+    public boolean equals(Object other) {
+        return (other instanceof AbstractSelector) &&
+                ((AbstractSelector) other).getCanonicalName().equals(getCanonicalName());
+    }
+
+
+    public int hashCode() {
+        return getCanonicalName().hashCode();
+    }
+
+
+    public int compareTo(AbstractSelector other) {
+        return _name != null ? _name.compareTo(other.getName()) : 1;
+    }
 
 
     /**

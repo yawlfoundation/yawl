@@ -1209,7 +1209,7 @@ public class ResourceGatewayClientAdapter {
      * @param handle the current sessionhandle
      * @return the id of the newly added NonHumanResource, or an error message if there was
      * a problem (note: the returned id should be subsequently added to the NonHumanResource
-     * object using cap.setID() )
+     * object using resource.setID() )
      * @throws IOException if there was a problem connecting to the resource service
      */
     public String addNonHumanResource(NonHumanResource resource, String handle)

@@ -207,7 +207,12 @@ public class XNode implements Comparable<XNode> {
     }
 
     public void addContent(String content) {
-        addChild(new XNodeParser().parse(content));
+        XNode tempNode = new XNodeParser(true).parse("<temp>" + content + "</temp>");
+        if (tempNode != null) {
+            for (XNode child : tempNode.getChildren()) {
+                addChild(child);
+            }
+        }
     }
 
 
@@ -434,7 +439,7 @@ public class XNode implements Comparable<XNode> {
     }
 
     public Map<String, String> getAttributes() {
-        return _attributes;
+        return (_attributes != null) ? _attributes : Collections.<String, String>emptyMap();
     }
 
     public boolean hasAttribute(String key) {

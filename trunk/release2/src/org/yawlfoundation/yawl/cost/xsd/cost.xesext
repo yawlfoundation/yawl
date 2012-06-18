@@ -21,8 +21,16 @@
 <xesextension name="Cost"
               prefix="cost"
               uri="http://www.yawlfoundation.org/yawlschema/xes/cost.xesext">
+    <trace>
+        <float key="total"/>
+    </trace>
+    <event>
+        <float key="total"/>
+    </event>
     <meta>
+        <float key="amount"/>
+        <string key="driver"/>
         <string key="type"/>
         <string key="currency"/>
-   	</meta>
+    </meta>
 </xesextension>

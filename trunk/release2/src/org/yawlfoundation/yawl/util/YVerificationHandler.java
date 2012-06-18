@@ -53,6 +53,11 @@ public class YVerificationHandler {
         }
     }
 
+    public void reset() {
+        _errors.clear();
+        _warnings.clear();
+    }
+
     public boolean hasErrors() { return ! _errors.isEmpty(); }
 
     public boolean hasWarnings() { return ! _warnings.isEmpty(); }
@@ -69,6 +74,10 @@ public class YVerificationHandler {
         messages.addAll(_errors);
         messages.addAll(_warnings);
         return messages;
+    }
+
+    public int getMessageCount() {
+        return _errors.size() + _warnings.size();
     }
 
     public String getMessagesXML() {

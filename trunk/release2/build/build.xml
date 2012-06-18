@@ -150,7 +150,8 @@
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
     <property name="jboss-logging" value="jboss-logging-3.1.0.CR2.jar"/>     <!-- hbn -->
     <property name="jboss-transaction" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/> <!-- hbn -->
-    <property name="jdom" value="jdom-2.0.0.jar"/>                           <!-- mul -->
+    <property name="jdom" value="jdom-2.0.1.jar"/>                           <!-- mul -->
+    <property name="jgraph" value="jgraphx.jar"/>                           <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
     <property name="jsf-appbase" value="appbase.jar"/>                       <!-- jsf -->
     <property name="jsf-cl" value="jsfcl.jar"/>                              <!-- jsf -->
@@ -195,6 +196,7 @@
     <property name="stax" value="stax-api-1.0.1.jar"/>                       <!-- prl -->
     <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>            <!-- twi -->
     <property name="ucp" value="ucp.jar"/>                                   <!-- sch -->
+    <property name="vaadin" value="vaadin-6.7.9.jar"/>                       <!-- sch -->
     <property name="wsdl4j" value="wsdl4j-20030807.jar"/>                    <!-- wsi -->
     <property name="wsif" value="wsif.jar"/>                                 <!-- wsi -->
     <property name="wsif-j2c" value="wsif-j2c.jar"/>                         <!-- wsi -->
@@ -522,6 +524,8 @@
 
     <path id="cp.etc">
         <pathelement location="${lib.dir}/${twitter4j}"/>
+        <pathelement location="${lib.dir}/${vaadin}"/>
+        <pathelement location="${lib.dir}/${jgraph}"/>
     </path>
 
     <!--
