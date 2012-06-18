@@ -1,9 +1,9 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.TestCase;
-
-import java.util.List;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 /**
  * 
@@ -30,10 +30,13 @@ public class TestYInputCondition extends TestCase{
     }
 
     public void testInvalidInputCondition(){
-        List messages = _invalidInputCondition.verify();
-        if(messages.size() != 2){
-            YMessagePrinter.printMessages(messages);
-            fail("Should recieve 2 error messages, but didn't.");
+        YVerificationHandler handler = new YVerificationHandler();
+        _invalidInputCondition.verify(handler);
+        if(handler.getMessageCount() != 2) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail("Should receive 2 error messages, but didn't.");
         }
     }
 }

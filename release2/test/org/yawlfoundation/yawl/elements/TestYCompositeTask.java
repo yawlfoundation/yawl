@@ -6,11 +6,11 @@ import org.yawlfoundation.yawl.exceptions.YSchemaBuildingException;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * 
@@ -41,16 +41,20 @@ public class TestYCompositeTask extends TestCase{
 
 
     public void testValidCompositeTask(){
-        List messages = _myCompositeTask1.verify();
-        if(messages.size() > 0){
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage());
+        YVerificationHandler handler = new YVerificationHandler();
+        _myCompositeTask1.verify(handler);
+        if (handler.hasMessages()) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail((handler.getMessages().get(0)).getMessage());
         }
     }
 
     public void testInvalidCompositeTask(){
-        List messages = _myCompositeTask2.verify();
-        if(messages.size() == 0){
+        YVerificationHandler handler = new YVerificationHandler();
+        _myCompositeTask2.verify(handler);
+        if (handler.hasMessages()) {
             fail(_myCompositeTask2 + " should have thrown exception but didn't.");
         }
     }

@@ -2,9 +2,8 @@ package org.yawlfoundation.yawl.elements;
 
 import junit.framework.TestCase;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
-
-import java.util.List;
 
 /**
  * @author aldredl
@@ -32,21 +31,25 @@ public class TestYMultiInstanceAttributes extends TestCase{
 
 
     public void testValidStuff(){
-        List messages = this._validMultiInstance.verify();
+        YVerificationHandler handler = new YVerificationHandler();
+        _validMultiInstance.verify(handler);
         assertEquals(this._validMultiInstance.getMinInstances(), 1);
         assertEquals(this._validMultiInstance.getMaxInstances(), 10);
         assertEquals(this._validMultiInstance.getThreshold(), 15);
         assertEquals(this._validMultiInstance.getCreationMode(), "static");
-        if(messages.size() > 0){
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage());
+        if(handler.hasMessages()){
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail(handler.getMessages().get(0).getMessage());
         }
     }
 
 
     public void testInvalidVerify(){
-        List messages = this._invalidMultiInstanceAttributes.verify();
-        if(messages.size() != 5){
+        YVerificationHandler handler = new YVerificationHandler();
+        _invalidMultiInstanceAttributes.verify(handler);
+        if(handler.getMessageCount() != 5){
             /*
                 YAtomicTask:et1 _minInstances > 1
                 YAtomicTask:et1._minInstances > _maxInstances
@@ -54,8 +57,10 @@ public class TestYMultiInstanceAttributes extends TestCase{
                 YAtomicTask:et1._threshold < 1
                 YAtomicTask:et1._creationMode does not equal 'static' or 'dynamic'
             */
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage());
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg);
+            }
+            fail(handler.getMessages().get(0).getMessage());
         }
     }
 }

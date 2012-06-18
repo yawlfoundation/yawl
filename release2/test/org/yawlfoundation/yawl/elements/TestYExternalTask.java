@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 import org.yawlfoundation.yawl.util.YVerificationMessage;
 import org.yawlfoundation.yawl.util.StringUtil;
 import junit.framework.Test;
@@ -102,11 +103,13 @@ public class TestYExternalTask extends TestCase{
         assertTrue(_aCondition.getPostsetElement("et1").equals(_validTask));
         assertTrue(_validTask.getPresetElement("c1").equals(_aCondition));
         assertTrue(_aCondition.getPresetElement("et1").equals(_validTask));
-        List messages = _validTask.verify();
-        //expect warning about missing default flow
-        if(messages.size() > 1){
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage());
+        YVerificationHandler handler = new YVerificationHandler();
+        _validTask.verify(handler);
+        if (handler.hasMessages()) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg.getMessage());
+            }
+            fail(handler.getMessages().get(0).getMessage());
         }
         _validTask.getRemoveSet();
     }
@@ -130,7 +133,9 @@ public class TestYExternalTask extends TestCase{
         task.setDecompositionPrototype(ysg);
         task.setDataBindingForInputParam("", "fred");
         task.setDataBindingForOutputExpression(null, "localVar");
-        assertTrue(task.verify().size() == 2);
+        YVerificationHandler handler = new YVerificationHandler();
+        task.verify(handler);
+        assertTrue(handler.getMessages().size() == 2);
     }
 
     public void testBadQueries2(){
@@ -152,7 +157,9 @@ public class TestYExternalTask extends TestCase{
         task.setDecompositionPrototype(ysg);
         task.setDataBindingForInputParam("dflkjbdfsk;jnbesdlk;", "fred");
         task.setDataBindingForOutputExpression("><nn>", "localVar");
-        assertTrue(task.verify().size() == 2);
+        YVerificationHandler handler = new YVerificationHandler();
+        task.verify(handler);
+        assertTrue(handler.getMessages().size() == 2);
         /*
         Error:AtomicTask:1(id= 1) the XQuery could be successfully parsed. [XQuery syntax error in "dflkjbdfsk;jnbesdlk;":
             Unexpected token ; beyond end of query]
@@ -163,8 +170,9 @@ public class TestYExternalTask extends TestCase{
 
 
     public void testInvalidVerify(){
-        List messages = _invalidTask.verify();
-        if(messages.size() != 10){
+        YVerificationHandler handler = new YVerificationHandler();
+        _invalidTask.verify(handler);
+        if(handler.getMessages().size() != 10){
             /*
                 YAtomicTask:et2 This must have a net to be valid.
                 YAtomicTask:et2 The postset size must be > 0
@@ -177,24 +185,28 @@ public class TestYExternalTask extends TestCase{
                 YAtomicTask:et2._threshold < 1
                 YAtomicTask:et2._creationMode does not equal 'static' or 'dynamic'
             */
-            YMessagePrinter.printMessages(messages);
-            fail(((YVerificationMessage)messages.get(0)).getMessage() +
-                    " num messages == " +  messages.size());
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg.getMessage());
+            }
+            fail(handler.getMessages().get(0).getMessage() +
+                    " num messages == " +  handler.getMessages().size());
         }
     }
 
 
     public void testNeedsPredicateVerify(){
-        List messages = _needsPredicateString.verify();
-        if(messages.size() == 0){
+        YVerificationHandler handler = new YVerificationHandler();
+        _needsPredicateString.verify(handler);
+        if(! handler.hasMessages()) {
             fail("Should have failed verification but passed.");
         }
     }
 
 
     public void testNeedsNoPredicateVerify(){
-        List messages = _needsNoPredicateString.verify();
-        if(messages.size() == 0){
+        YVerificationHandler handler = new YVerificationHandler();
+        _needsNoPredicateString.verify(handler);
+        if(! handler.hasMessages()) {
             fail("Should have failed verification but passed.");
         }
     }
@@ -362,11 +374,11 @@ public class TestYExternalTask extends TestCase{
 		File yawlXMLFile = new File(fileURL.getFile());
         YSpecification specification = null;
 
-        specification = (YSpecification) YMarshal.
+        specification = YMarshal.
                         unmarshalSpecifications(StringUtil.fileToString(yawlXMLFile.getAbsolutePath())).get(0);
-
-        List verificationList = specification.verify();
-        String verificationResult = YMessagePrinter.getMessageString(verificationList);
+        YVerificationHandler handler = new YVerificationHandler();
+        specification.verify(handler);
+        String verificationResult = handler.getMessages().get(0).getMessage();
         String expectedResult =
                 "\nError:A output parameter is used twice.  " +
                 "The task (id=3) uses the same parameter through " +

@@ -1,9 +1,9 @@
 package org.yawlfoundation.yawl.elements;
 
-import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import junit.framework.TestCase;
-
-import java.util.List;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
+import org.yawlfoundation.yawl.util.YVerificationMessage;
 
 /**
  * 
@@ -38,10 +38,13 @@ public class TestYExternalNetElement extends TestCase{
         assertTrue(_aCondition.getPostsetElement("et1").equals(_aTask));
         assertTrue(_aTask.getPresetElement("c1").equals(_aCondition));
         assertTrue(_aCondition.getPresetElement("et1").equals(_aTask));
-        List messages = _aTask.verify();
-        if(messages.size() > 0){
-            YMessagePrinter.printMessages(messages);
-            fail((String)messages.get(0));
+        YVerificationHandler handler = new YVerificationHandler();
+        _aTask.verify(handler);
+        if (handler.hasMessages()) {
+            for (YVerificationMessage msg : handler.getMessages()) {
+                System.out.println(msg.getMessage());
+            }
+            fail(handler.getMessages().get(0).getMessage());
         }
     }
 }
