@@ -53,6 +53,8 @@ public class AllocateInteraction extends AbstractInteraction {
     }
 
     public AbstractAllocator getAllocator() { return _allocator; }
+
+    public void clearAllocator() { _allocator = null; }
     
 
     public Participant performAllocation(Set offerSet, WorkItemRecord wir) {

@@ -92,7 +92,7 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
 
     /**
      * Gets the named YAWL Service associated with this gateway.
-     * @param yawlServiceID the idnetifier of the service.
+     * @param yawlServiceID the identifier of the service.
      * @return the Service associated with this gateway iff the service matches the id
      * passed, or null if it doesn't match ori f there is no associated gateway.
      */

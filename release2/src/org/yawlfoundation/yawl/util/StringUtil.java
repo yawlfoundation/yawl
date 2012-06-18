@@ -483,6 +483,17 @@ public class StringUtil
     }
 
 
+    public static double strToDouble(String s, double def) {
+        if (isNullOrEmpty(s)) return def;      // short circuit
+        try {
+            return new Double(s);
+        }
+        catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+
     public static Duration strToDuration(String s) {
         if (s != null) {
             try {

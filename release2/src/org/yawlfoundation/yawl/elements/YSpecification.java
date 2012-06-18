@@ -167,14 +167,14 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
                 // set flag for resourcing requirements on task decompositions
                 if (! (decomposition instanceof YNet)) {
-                  if (decomposition.getCodelet() != null) {
-                      xml.append(StringUtil.wrap(decomposition.getCodelet(), "codelet"));
-                  }
-                  if (! _version.isBetaVersion()) {
-                      xml.append("<externalInteraction>")
-                         .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
-                         .append("</externalInteraction>");
-                  }    
+                    if (decomposition.getCodelet() != null) {
+                        xml.append(StringUtil.wrap(decomposition.getCodelet(), "codelet"));
+                    }
+                    if (! _version.isBetaVersion()) {
+                        xml.append("<externalInteraction>")
+                           .append(decomposition.requiresResourcingDecisions() ? "manual": "automated")
+                           .append("</externalInteraction>");
+                    }
                 }
                 xml.append("</decomposition>");
             }

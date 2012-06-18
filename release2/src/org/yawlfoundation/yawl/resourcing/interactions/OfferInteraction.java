@@ -538,7 +538,7 @@ public class OfferInteraction extends AbstractInteraction {
 
         /** the constructor
          *
-         * @param name - the name of a data variable of this task that willcontain
+         * @param name - the name of a data variable of this task that will contain
          *               a runtime value specifying a particular participant or role.
          * @param refers - either USER_PARAM or ROLE_PARAM
          */

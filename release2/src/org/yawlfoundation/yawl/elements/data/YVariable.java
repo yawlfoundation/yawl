@@ -32,7 +32,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  *
@@ -359,7 +359,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         _attributes.put(key, value);
     }
 
-    public void setAttributes(Hashtable<String, String> attributes) {
+    public void setAttributes(Map<String, String> attributes) {
         _attributes.set(attributes);
     }
 
