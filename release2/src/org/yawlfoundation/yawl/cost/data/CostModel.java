@@ -110,7 +110,7 @@ public class CostModel implements XNodeIO {
         XNode node = new XNode("costmodel");
         node.addAttribute("id", id);
         if (specID != null) {
-            XNode specNode = new XNode("processid");
+            XNode specNode = node.addChild("processid");
             specNode.addChild("identifier", specID.getIdentifier());
             specNode.addChild("version", specID.getVersion());
             specNode.addChild("uri", specID.getUri());

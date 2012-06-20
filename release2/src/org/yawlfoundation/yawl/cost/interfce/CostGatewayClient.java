@@ -94,16 +94,49 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
-     *
-     * @param modelXML
-     * @param handle a current sessionhandle to the cost service
-     * @return
+     * Loads a cost model into the service
+     * @param modelXML the model to import
+     * @param handle a current sessionHandle to the cost service
+     * @return a success or error message
      * @throws IOException
      */
     public String importModel(String modelXML, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("importModel", handle);
         params.put("model", modelXML);
         return executePost(_costURI, params);
+    }
+
+
+    /**
+     * Gets the cost models for a specification from the service
+     * @param specID the id of the specification to get the models for
+     * @param handle a current sessionHandle to the cost service
+     * @return a String XML representation of the models if successful or
+     * an error message if not
+     * @throws IOException
+     */
+    public String exportModels(YSpecificationID specID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("exportModels", handle);
+        params.putAll(specID.toMap());
+        return executeGet(_costURI, params);
+    }
+
+
+    /**
+     * Gets a cost model from the service
+     * @param specID the id of the specification to get the model for
+     * @param modelID the id of the model to get
+     * @param handle a current sessionHandle to the cost service
+     * @return a String XML representation of the model if successful or
+     * an error message if not
+     * @throws IOException
+     */
+    public String exportModel(YSpecificationID specID, String modelID, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("exportModel", handle);
+        params.putAll(specID.toMap());
+        params.put("id", modelID);
+        return executeGet(_costURI, params);
     }
 
 
@@ -120,7 +153,7 @@ public class CostGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getAnnotatedLog", handle);
         params.putAll(specID.toMap());
         params.put("withData", String.valueOf(withData));
-        return executePost(_costURI, params);
+        return executeGet(_costURI, params);
     }
 
 

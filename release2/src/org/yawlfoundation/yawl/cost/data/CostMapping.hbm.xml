@@ -31,12 +31,26 @@
 
         <component name="cost"
                    class="org.yawlfoundation.yawl.cost.data.MappingIdentifier" access="field">
+            <property name="type" column="costMappingIDType" access="field">
+               <type name="org.hibernate.type.EnumType">
+                   <param name="enumClass">
+                       org.yawlfoundation.yawl.cost.data.MappingIdType
+                   </param>
+               </type>
+           </property>
             <property name="id" column="costID"/>
             <property name="term" column="costTerm"/>
         </component>
         
         <component name="workflow"
                    class="org.yawlfoundation.yawl.cost.data.MappingIdentifier" access="field">
+            <property name="type" column="workflowMappingIDType" access="field">
+               <type name="org.hibernate.type.EnumType">
+                   <param name="enumClass">
+                       org.yawlfoundation.yawl.cost.data.MappingIdType
+                   </param>
+               </type>
+           </property>
             <property name="id" column="workflowID"/>
             <property name="term" column="workflowTerm"/>
         </component>
