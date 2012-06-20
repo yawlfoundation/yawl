@@ -117,6 +117,12 @@ public class CostGateway extends HttpServlet {
             if (action.equals("importModel")) {
                 result = _service.importModel(req.getParameter("model"));
             }
+            else if (action.equals("exportModels")) {
+                result = _service.exportModels(specID);
+            }
+            else if (action.equals("exportModel")) {
+                result = _service.exportModel(specID, req.getParameter("id"));
+            }
             else if (action.equals("getAnnotatedLog")) {
                 boolean withData = req.getParameter("withData").equalsIgnoreCase("true");
                 result = _service.getAnnotatedLog(specID, withData);

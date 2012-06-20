@@ -113,7 +113,29 @@ public class CostService implements InterfaceX_Service {
             addToCache(new CostModel(costModel), false);
             return "<SUCCESS/>";
         }
-        else return "<failure>Invalid model - check logs for details</failure>";
+        else return failMsg("Invalid model - check logs for details.");
+    }
+
+
+    public String exportModels(YSpecificationID specID) {
+        Set<CostModel> models = getModels(specID);
+        if (models == null) {
+            return failMsg("No models found for specification.");
+        }
+        XNode node = new XNode("costmodels");
+        for (CostModel model : models) {
+            node.addChild(model.toXNode());
+        }
+        return node.toPrettyString();
+    }
+
+
+    public String exportModel(YSpecificationID specID, String modelID) {
+        CostModel model = getModel(specID, modelID);
+        if (model == null) {
+            return failMsg("Model not found.");
+        }
+        return model.toXML();
     }
 
 
