@@ -123,17 +123,26 @@ public class CostService implements InterfaceX_Service {
 
     public String importModels(XNode costModels) {
         if (costModels != null) {
+            int additions = 0;
+            int modelCount = costModels.getChildCount();
             for (XNode costModel : costModels.getChildren("costmodel")) {
                 if (isValidModel(costModel)) {
                     addToCache(new CostModel(costModel), false, false);
+                    additions++;
                 }
             }
-            _dataEngine.commit();
-            return successMsg("Successfully added " + costModels.getChildCount() +
-                    " model(s).");
+            if (additions > 0) {
+                _dataEngine.commit();
+                return successMsg("Successfully added " + additions + " out of " +
+                        modelCount + " model(s).");
+            }
+            else {
+                return failMsg("Import failed: 0 out of " + modelCount + " valid models.");
+            }
         }
-        else return failMsg("Invalid models XML - check logs for details.");
+        else return failMsg("Malformed XML - check logs for details.");
     }
+
 
     public String exportModels(YSpecificationID specID) {
         Set<CostModel> models = getModels(specID);
