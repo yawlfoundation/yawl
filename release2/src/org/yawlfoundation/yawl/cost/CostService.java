@@ -107,15 +107,33 @@ public class CostService implements InterfaceX_Service {
         return importModel(new XNodeParser(false).parse(costModel));
     }
 
+    public String importModels(String costModels) {
+        return importModels(new XNodeParser(false).parse(costModels));
+    }
+
 
     public String importModel(XNode costModel) {
         if (isValidModel(costModel)) {
-            addToCache(new CostModel(costModel), false);
+            addToCache(new CostModel(costModel), false, true);
             return "<SUCCESS/>";
         }
         else return failMsg("Invalid model - check logs for details.");
     }
 
+
+    public String importModels(XNode costModels) {
+        if (costModels != null) {
+            for (XNode costModel : costModels.getChildren("costmodel")) {
+                if (isValidModel(costModel)) {
+                    addToCache(new CostModel(costModel), false, false);
+                }
+            }
+            _dataEngine.commit();
+            return successMsg("Successfully added " + costModels.getChildCount() +
+                    " model(s).");
+        }
+        else return failMsg("Invalid models XML - check logs for details.");
+    }
 
     public String exportModels(YSpecificationID specID) {
         Set<CostModel> models = getModels(specID);
@@ -167,22 +185,45 @@ public class CostService implements InterfaceX_Service {
     }
 
 
-    public boolean removeModel(YSpecificationID specID, String modelID) {
+    public String removeModel(YSpecificationID specID, String modelID) {
         return removeModel(getModel(specID, modelID));
     }
 
+    public String clearModels(YSpecificationID specID) {
+        Set<CostModel> models = getModels(specID);
+        if (models != null) {
+            for (CostModel model : models) {
+                _dataEngine.exec(model, HibernateEngine.DB_DELETE, false);
+            }
+            _dataEngine.commit();
 
-    public boolean removeModel(CostModel model) {
-        return (model != null) && removeModel(model, _models.get(model.getSpecID()));
+            int removed = models.size();
+            _models.get(specID).clear();
+            return successMsg("Successfully removed " + removed + " model(s).");
+        }
+        else return failMsg("No models found for specification.");
     }
 
 
-    public boolean removeModel(CostModel model, CostModelCache cache) {
+    public String removeModel(CostModel model) {
+        if (model != null) {
+            return removeModel(model, _models.get(model.getSpecID()));
+        }
+        return failMsg("Attempt to remove a null cost model.");
+    }
+
+
+    public String removeModel(CostModel model, CostModelCache cache) {
+        return removeModel(model, cache, true);
+    }
+
+    private String removeModel(CostModel model, CostModelCache cache, boolean commit) {
         boolean removed = (cache != null) && cache.remove(model);
         if (removed) {
-            _dataEngine.exec(model, HibernateEngine.DB_DELETE, true);
+            _dataEngine.exec(model, HibernateEngine.DB_DELETE, commit);
         }
-        return removed;
+        return removed ? successMsg("Successfully removed model: " + model.getId()) :
+                failMsg("Failed to remove model" + model.getId());
     }
     
     
@@ -255,6 +296,10 @@ public class CostService implements InterfaceX_Service {
         return "<failure>" + msg + "</failure>";
     }
     
+    private String successMsg(String msg) {
+        return "<success>" + msg + "</success>";
+    }
+
 
     private boolean isValidModel(XNode costModel) {
         if (costModel == null) return false;
@@ -266,7 +311,7 @@ public class CostService implements InterfaceX_Service {
     }
     
     
-    private CostModelCache addToCache(CostModel model, boolean restoring) {
+    private CostModelCache addToCache(CostModel model, boolean restoring, boolean commit) {
         if (model == null) return null;
         YSpecificationID specID = model.getSpecID();
         CostModelCache cache = _models.get(specID);
@@ -276,7 +321,7 @@ public class CostService implements InterfaceX_Service {
         }
         removePrevVersion(cache, model);      // if any
         if (cache.add(model) && (! restoring)) {
-            _dataEngine.exec(model, HibernateEngine.DB_INSERT, true);
+            _dataEngine.exec(model, HibernateEngine.DB_INSERT, commit);
         }
         return cache;
     }
@@ -285,7 +330,7 @@ public class CostService implements InterfaceX_Service {
     private void removePrevVersion(CostModelCache cache, CostModel model) {
         CostModel oldModel = cache.getModel(model.getId());   // get prev version if any
         if (oldModel != null) {
-            removeModel(oldModel, cache);
+            removeModel(oldModel, cache, false);
         }
     }
 
@@ -294,8 +339,9 @@ public class CostService implements InterfaceX_Service {
         List objects = _dataEngine.getObjectsForClass("CostModel");
         if (objects != null) {
             for (Object o : objects) {
-                addToCache((CostModel) o, true);
+                addToCache((CostModel) o, true, false);
             }
+            _dataEngine.commit();
         }
     }
 

@@ -74,6 +74,12 @@ public class CostModelCache {
         dirtyMatrix = dirtyMatrix || removed;
         return removed;
     }
+
+
+    public void clear() {
+        dirtyMatrix = dirtyMatrix || ! models.isEmpty();
+        models.clear();
+    }
     
     
     public CostModel getModel(String modelID) {
