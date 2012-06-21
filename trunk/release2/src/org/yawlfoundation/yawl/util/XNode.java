@@ -206,7 +206,14 @@ public class XNode implements Comparable<XNode> {
         return (_children != null) && _children.remove(child);
     }
 
+    public void removeChildren() {
+        if (_children != null) _children.clear();
+    }
+
     public void addContent(String content) {
+        if (content.trim().startsWith(_header)) {
+            content = content.substring(_header.length() + 1);
+        }
         XNode tempNode = new XNodeParser(true).parse("<temp>" + content + "</temp>");
         if (tempNode != null) {
             for (XNode child : tempNode.getChildren()) {
@@ -294,6 +301,14 @@ public class XNode implements Comparable<XNode> {
     public void setText(String text) {
         _text = text;
     }
+
+    public void setText(String text, boolean escape) {
+        if (escape) {
+            text = JDOMUtil.encodeEscapes(text);
+        }
+        setText(text);
+    }
+
 
     public void setText(boolean value) {
         setText(String.valueOf(value));

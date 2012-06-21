@@ -108,6 +108,22 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
+     * Loads a number of cost models into the service
+     * @param modelsXML the set of models to import, represented as an set of valid
+     *                  cost mode XML child elements contained within an outer element
+     *                  called 'costmodels'
+     * @param handle a current sessionHandle to the cost service
+     * @return a success or error message
+     * @throws IOException
+     */
+    public String importModels(String modelsXML, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("importModels", handle);
+        params.put("models", modelsXML);
+        return executePost(_costURI, params);
+    }
+
+
+    /**
      * Gets the cost models for a specification from the service
      * @param specID the id of the specification to get the models for
      * @param handle a current sessionHandle to the cost service
@@ -136,6 +152,38 @@ public class CostGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("exportModel", handle);
         params.putAll(specID.toMap());
         params.put("id", modelID);
+        return executeGet(_costURI, params);
+    }
+
+
+    /**
+     * Removes a cost model from the service
+     * @param specID the id of the specification to remove the model for
+     * @param modelID the id of the model to remove
+     * @param handle a current sessionHandle to the cost service
+     * @return an XML success or error message
+     * @throws IOException
+     */
+    public String removeModel(YSpecificationID specID, String modelID, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("removeModel", handle);
+        params.putAll(specID.toMap());
+        params.put("id", modelID);
+        return executeGet(_costURI, params);
+    }
+
+
+    /**
+     * Clears all the cost model for a particular specification from the service
+     * @param specID the id of the specification to remove the models for
+     * @param handle a current sessionHandle to the cost service
+     * @return an XML success or error message
+     * @throws IOException
+     */
+    public String clearModels(YSpecificationID specID, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("clearModels", handle);
+        params.putAll(specID.toMap());
         return executeGet(_costURI, params);
     }
 
