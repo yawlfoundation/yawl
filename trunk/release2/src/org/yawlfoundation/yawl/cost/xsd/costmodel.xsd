@@ -51,7 +51,7 @@
         </xs:complexType>
     </xs:element>
     <xs:complexType name="mappingElementType">
-        <xs:attribute name="id" type="xs:ID"/>
+        <xs:attribute name="id" type="xs:NCName"/>
         <xs:attribute name="term" type="xs:string" use="required"/>
     </xs:complexType>
 </xs:schema>

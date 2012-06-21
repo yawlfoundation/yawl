@@ -23,7 +23,7 @@
     <xs:element name="processid">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="identifier" type="xs:ID"/>
+                <xs:element name="identifier" type="xs:NCName"/>
                 <xs:element name="version" type="xs:double"/>
                 <xs:element name="uri" type="xs:string"/>
             </xs:sequence>

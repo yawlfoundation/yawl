@@ -39,7 +39,7 @@
                             <xs:element ref="costtypes"/>
                             <xs:element ref="unitcost"/>
                         </xs:sequence>
-                        <xs:attribute name="id" type="xs:ID"/>
+                        <xs:attribute name="id" type="xs:NCName"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
@@ -63,7 +63,7 @@
                             <xs:element name="name" type="xs:string"/>
                             <xs:element name="value" type="xs:string" minOccurs="0"/>
                         </xs:sequence>
-                        <xs:attribute name="id" type="xs:ID"/>
+                        <xs:attribute name="id" type="xs:NCName"/>
                         <xs:attribute ref="aspect" use="required"/>
                     </xs:complexType>
                 </xs:element>
