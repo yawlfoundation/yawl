@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.*;
 
@@ -277,7 +278,8 @@ public abstract class AbstractSelector implements Comparable<AbstractSelector> {
             for (String key : _params.keySet()) {
                 xml.append("<param>") ;
                 xml.append("<key>").append(key).append("</key>");
-                xml.append("<value>").append(_params.get(key)).append("</value>");
+                xml.append("<value>")
+                   .append(JDOMUtil.encodeEscapes(_params.get(key))).append("</value>");
                 xml.append("</param>");
             }
             xml.append("</params>");
