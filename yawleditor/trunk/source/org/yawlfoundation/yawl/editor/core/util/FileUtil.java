@@ -3,7 +3,10 @@ package org.yawlfoundation.yawl.editor.core.util;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
+import java.security.CodeSource;
 
 /**
  * Generic File Utilities
@@ -14,6 +17,8 @@ import java.nio.channels.FileChannel;
 public class FileUtil {
 
     private final static int WRITE_BUFFER_SIZE = 32768;
+    private static final String HOME_DIR = setHomeDir();
+
 
     /**
      * Moves one file to another. Note that if a file already exists with the same
@@ -87,6 +92,33 @@ public class FileUtil {
 
         return content;
     }
+
+    // returns the path from which the editor was loaded (ie. the location of the editor jar)
+    private static String setHomeDir() {
+        String result = "";
+        try {
+            Class editorClass = Class.forName("org.yawlfoundation.yawl.editor.core.YConnector");
+            CodeSource source = editorClass.getProtectionDomain().getCodeSource();
+            if (source != null) {
+                URL location = source.getLocation();
+                String path = URLDecoder.decode(location.getPath(), "UTF-8");
+                if (path.charAt(2) == ':') path = path.substring(1);
+                int lastSep = path.lastIndexOf('/') ;
+                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+                if (File.separatorChar != '/')
+                    result = result.replace('/', File.separatorChar);
+            }
+        }
+        catch ( Exception e ) {
+            e.printStackTrace();
+            result = System.getProperty("user.dir");   // default to current working dir
+        }
+        return result;
+    }
+
+
+    public static String getHomeDir() { return HOME_DIR; }
+
 
 
 }
