@@ -2,18 +2,17 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.DefaultGraphCell;
+import org.yawlfoundation.yawl.editor.core.layout.*;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.elements.YSpecification;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -22,147 +21,141 @@ import java.util.Set;
  */
 public class LayoutExporter {
 
+    private Font defaultFont;
+
     public LayoutExporter() {}
 
     public String export(SpecificationModel model) {
-        StringBuilder xml = new StringBuilder("<layout>");
-        xml.append(writeLocale());
-
-        xml.append("<specification id=\"");
-        xml.append(model.getId());
+        YSpecification _specification = SpecificationModel.getSpec().getSpecification();
+        YLayout layout = new YLayout(_specification);
         if (model.getDefaultNetBackgroundColor() != Color.WHITE.getRGB()) {
-            xml.append("\" defaultBgColor=\"");
-            xml.append(String.valueOf(model.getDefaultNetBackgroundColor()));
+            layout.setGlobalFillColor(new Color(model.getDefaultNetBackgroundColor()));
         }
-        xml.append("\">");
-
-        xml.append(writeDesktopDimension());
+        defaultFont = getDefaultFont(model.getFontSize());
+        layout.setGlobalFontSize(model.getFontSize());
+        layout.setSize(getDesktopSize());
 
         for (NetGraphModel net : model.getNets()) {
-            xml.append(getNetLayout(net));
+            YNetLayout netLayout = layout.newNetLayoutInstance(unspace(net.getName()));
+            layout.addNetLayout(getNetLayout(net, netLayout));
         }
-        if (model.getFontSize() != 15) {
-            xml.append(StringUtil.wrap(String.valueOf(model.getFontSize()),
-                    "labelFontSize"));
-        }
-        xml.append("</specification></layout>");
-        return xml.toString();
+        return layout.toXML();
     }
 
 
-    private String getNetLayout(NetGraphModel net) {
-        String bgColor = "";
-        Color bgNet = net.getGraph().getBackground();
+    private YNetLayout getNetLayout(NetGraphModel net, YNetLayout layout) {
+        NetGraph graph = net.getGraph();
+        Color bgNet = graph.getBackground();
         if (! isBlackOrWhite(bgNet, false)) {
-            bgColor = String.format(" bgColor=\"%d\"", bgNet.getRGB());
+            layout.setFillColor(bgNet);
         }
-        StringBuilder xml = new StringBuilder(
-                String.format("<net id=\"%s\"%s>", unspace(net.getName()), bgColor));
-
-        ImageIcon bgImage = net.getGraph().getBackgroundImage();
+        ImageIcon bgImage = graph.getBackgroundImage();
         if (bgImage != null) {                            // desc contains path to image
-            xml.append(StringUtil.wrap(bgImage.getDescription(), "bgImage"));
+            layout.setBackgroundImagePath(bgImage.getDescription());
         }
 
-        xml.append(getNetDimensions(net.getGraph()));
-
-        double scale = net.getGraph().getScale();
-        if (Math.abs(scale-1) > 0.01) {                      // allow for rounding error
-            xml.append(StringUtil.wrap(String.format("%.3f",scale), "scale"));
-        }
+        layout.setViewport(graph.getFrame().getCurrentViewportBounds());
+        layout.setBounds(graph.getBounds());
+        layout.setScale(graph.getScale());
 
         // if the net currently has a cancellation set showing, remember it
-        YAWLTask cancelTask = net.getGraph().getCancellationSetModel().getTriggeringTask();
+        YAWLTask cancelTask = graph.getCancellationSetModel().getTriggeringTask();
         if (cancelTask != null) {
-            xml.append(StringUtil.wrap(cancelTask.getEngineId(), "cancellationtask"));
+            layout.setCancellationTaskID(cancelTask.getEngineId());
         }
 
         for (Object o : net.getRoots()) {
-           if (o instanceof VertexContainer)
-               xml.append(getContainerLayout((VertexContainer) o));
-           else if (o instanceof YAWLFlowRelation)
-               xml.append(getFlowLayout((YAWLFlowRelation) o));
-           else if (o instanceof YAWLVertex)                              // empty tasks
-               xml.append(getVertexLayout((YAWLVertex) o, false));
+           if (o instanceof VertexContainer) {
+               addContainerLayout((VertexContainer) o, layout);
+           }
+           else if (o instanceof YAWLFlowRelation) {
+               addFlowLayout((YAWLFlowRelation) o, layout);
+           }
+           else if (o instanceof YAWLVertex) {              // conditions & empty tasks
+               YAWLVertex vertex = (YAWLVertex) o;
+               YNetElementNode nodeLayout = getLayoutForVertex(vertex, layout,
+                       vertex.getEngineId());
+               addVertexLayout(vertex, nodeLayout);
+               layout.addLayoutNode(nodeLayout);
+           }
         }
-
-        xml.append("</net>");
-        return xml.toString();
+        return layout;
     }
 
 
-    private String getContainerLayout(VertexContainer container) {
-        String id = getContainerID(container);
-        StringBuilder xml = new StringBuilder(String.format("<container id=\"%s\">", id));
+    private YNetElementNode getLayoutForVertex(YAWLVertex vertex, YNetLayout netLayout,
+                                               String id) {
+        if (vertex instanceof YAWLTask) {
+            return netLayout.newTaskLayoutInstance(id);
+        }
+        else {
+            return netLayout.newConditionLayoutInstance(id);
+        }
+    }
+
+
+    private void addContainerLayout(VertexContainer container, YNetLayout netLayout) {
+        YNetElementNode layout = getLayoutForVertex(container.getVertex(), netLayout,
+                getContainerID(container));
 
         for (Object o : container.getChildren()) {
-            if (o instanceof VertexLabel)
-                xml.append(getLabelLayout((VertexLabel) o));
-            else if (o instanceof YAWLVertex)
-                xml.append(getVertexLayout((YAWLVertex) o, true));
-            else if (o instanceof Decorator)
-                xml.append(getDecoratorLayout((Decorator) o));
+            if (o instanceof VertexLabel) {
+                addLabelLayout((VertexLabel) o, layout);
+            }
+            else if (o instanceof YAWLVertex) {
+                addVertexLayout((YAWLVertex) o, layout);
+            }
+            else if (o instanceof Decorator) {
+                addDecoratorLayout((Decorator) o, (YTaskLayout) layout);
+            }
         }
-
-        xml.append("</container>");
-        return xml.toString();
+        netLayout.addLayoutNode(layout);
     }
 
 
-    private String getFlowLayout(YAWLFlowRelation flow) {
-        StringBuilder xml = new StringBuilder(getFlowTagContents(flow));
-        xml.append(">");
+    private void addFlowLayout(YAWLFlowRelation flow, YNetLayout netLayout) {
+        String sourceID = getPortID((YAWLPort) flow.getSource());
+        String targetID = getPortID((YAWLPort) flow.getTarget());
+        YFlowLayout layout = netLayout.newFlowLayoutInstance(sourceID, targetID);
+
+        layout.setSourcePort(getFlowPortPosition(flow, true));
+        layout.setTargetPort(getFlowPortPosition(flow, false));
 
         String label = (String) flow.getUserObject();
         if (label != null) {
-            xml.append(StringUtil.wrap(StringUtil.xmlEncode(label), "label"));
+            layout.setLabel(label);
         }
-        xml.append(writePorts(flow));
-        xml.append(writeAttributes(flow));
-        xml.append("</flow>");
-        return xml.toString();
+        getFlowAttributes(flow, layout);
+        netLayout.addFlowLayout(layout);
     }
 
 
-    private String getLabelLayout(VertexLabel label) {
-        StringBuilder xml = new StringBuilder("<label>") ;
-        xml.append(writeAttributes(label));
-        xml.append("</label>");
-        return xml.toString();
+    private void addLabelLayout(VertexLabel label, YNetElementNode layout) {
+        getNodeAttributes(label, layout);
     }
 
 
-    private String getVertexLayout(YAWLVertex vertex, boolean inContainer) {
-        StringBuilder xml = new StringBuilder("<vertex");
-        if (! inContainer) {
-            xml.append(String.format(" id=\"%s\"", vertex.getEngineId()));
-        }
-        xml.append(">");
-
-        String iconpath = vertex.getIconPath();
-        if (iconpath != null)
-            xml.append(StringUtil.wrap(iconpath, "iconpath"));
-
-        xml.append(writeAttributes(vertex));
+    private void addVertexLayout(YAWLVertex vertex, YLayoutNode layout) {
+        getNodeAttributes(vertex, layout);
 
         String notes = vertex.getDesignNotes();
         if ((notes != null) && (notes.length() > 0)) {
-            xml.append(StringUtil.wrap(StringUtil.xmlEncode(notes), "notes"));
+            layout.setDesignNotes(notes);
         }
-        xml.append("</vertex>");
-        return xml.toString();
+
+        String iconPath = vertex.getIconPath();    // only tasks have icons
+        if (iconPath != null) {
+            ((YTaskLayout) layout).setIconPath(vertex.getIconPath());
+        }
     }
 
 
-    private String getDecoratorLayout(Decorator decorator) {
-        StringBuilder xml = new StringBuilder(
-        String.format("<decorator type=\"%s\">",
-                        unspace(decorator.toString())));
-        xml.append(StringUtil.wrap(String.valueOf(decorator.getCardinalPosition()),
-                "position"));
-        xml.append(writeAttributes(decorator));
-        xml.append("</decorator>");
-        return xml.toString();
+    private void addDecoratorLayout(Decorator decorator, YTaskLayout taskLayout) {
+        YDecoratorLayout layout = taskLayout.newDecoratorLayoutInstance();
+        layout.setType(unspace(decorator.toString()));
+        layout.setPosition(decorator.getCardinalPosition());
+        getNodeAttributes(decorator, layout);
+        taskLayout.addDecoratorLayout(layout);
     }
 
 
@@ -177,14 +170,6 @@ public class LayoutExporter {
     }
 
 
-    private String getFlowTagContents(YAWLFlowRelation flow) {
-        return String.format("<flow source=\"%s\" target=\"%s\"",
-                    getPortID((YAWLPort) flow.getSource()),
-                    getPortID((YAWLPort) flow.getTarget()));
-
-    }
-
-
     private String getPortID(YAWLPort port) {
         YAWLCell cell = (YAWLCell) port.getParent();
         if (cell instanceof Decorator) {
@@ -196,25 +181,7 @@ public class LayoutExporter {
         }
     }
 
-    private String getLabelID(VertexLabel label) {
-        for (Enumeration sibling = label.getParent().children();
-             sibling.hasMoreElements();) {
-            Object o = sibling.nextElement();
-            if (o instanceof YAWLVertex) {
-                return ((YAWLVertex) o).getEngineId();
-            }
-        }
-        return label.getLabel();                                // default
-    }
 
-
-    private String writePorts(YAWLFlowRelation flow) {
-        return String.format("<ports in=\"%d\" out=\"%d\"/>",
-                getFlowPortPosition(flow, true),
-                getFlowPortPosition(flow, false)) ;
-    }
-
-    
     private int getFlowPortPosition(YAWLFlowRelation flow, boolean source) {
         YAWLPort p = source ? (YAWLPort) flow.getSource() : (YAWLPort) flow.getTarget();
         YAWLPort[] ports = new YAWLPort[0];
@@ -244,66 +211,61 @@ public class LayoutExporter {
     }
 
 
-    private String writePoint(String key, AttributeMap.SerializablePoint2D point) {
-        double x = point.getX(), y = point.getY();
-        return String.format("<%s x=\"%1.1f\" y=\"%1.1f\"/>", key, x, y) ;
-    }
-
-
-    private String writeAttributes(DefaultGraphCell cell) {
+    private void getNodeAttributes(DefaultGraphCell cell, YLayoutNode layout) {
         AttributeMap map = cell.getAttributes();
-        StringBuilder xml = new StringBuilder("<attributes>");
         for (Object o : map.keySet()) {
-            String attribute = (String) o;
+            String key = (String) o;
             Object value = map.get(o);
 
-            // only write non-default colours
-            if (value instanceof Color) {
-                xml.append(writeColorAttribute(attribute, (Color) value));
+            if (key.equals("backgroundColor") && ! isWhite((Color) value)) {
+                layout.setFillColor((Color) value);
             }
-
-            // always write bounds
-            else if (value instanceof AttributeMap.SerializableRectangle2D) {
-                xml.append(writeRectangle(attribute,
-                        (AttributeMap.SerializableRectangle2D) value));
+            else if (key.equals("foregroundColor") && ! isBlack((Color) value)) {
+                layout.setColor((Color) value);
             }
-
-            else if (value instanceof AttributeMap.SerializablePoint2D) {
-                xml.append(writePoint(attribute,
-                        (AttributeMap.SerializablePoint2D) value));
+            else if (key.equals("bounds")) {
+                Rectangle r = ((AttributeMap.SerializableRectangle2D) value).getBounds();
+                if (cell instanceof VertexLabel) {
+                    layout.setLabelBounds(r);
+                }
+                else {
+                    layout.setBounds(r);
+                }
             }
-
-            // always write size
-            else if (value instanceof Dimension) {
-                xml.append(writeDimension(attribute, (Dimension) value));
+            else if (key.equals("font") && ! defaultFont.equals(value)) {
+                layout.setFont((Font) value);
             }
-
-            // always write points
-            else if (value instanceof java.util.List) {
-                xml.append(writeList(attribute, (java.util.List) value));
-            }
-
-            else if (attribute.equals("lineStyle")) {
-                xml.append(StringUtil.wrap(map.get(o).toString(), attribute));
-            }
-
         }
-        xml.append("</attributes>");
-        return xml.toString();
     }
 
 
-    private String writeColorAttribute(String key, Color color) {
-        if ((key.equals("backgroundColor") && isBlackOrWhite(color, false)) ||
-           ((key.equals("foregroundColor") || key.equals("linecolor")) &&
-                   isBlackOrWhite(color, true))) {
-            return "";
-        }
-        else {
-           return StringUtil.wrap(String.valueOf(color.getRGB()), key);
-        }
+    private void getFlowAttributes(DefaultGraphCell cell, YFlowLayout layout) {
+        AttributeMap map = cell.getAttributes();
+        for (Object o : map.keySet()) {
+            String key = (String) o;
+            Object value = map.get(o);
 
+            if (key.equals("points")) {
+                layout.setPoints((java.util.List<Point2D.Double>) value);
+            }
+            else if (key.equals("lineStyle")) {
+                layout.setLineStyle(LineStyle.valueOf(new Integer(value.toString())));
+            }
+            else if (key.equals("offset")) {
+                layout.setOffset((Point2D.Double) value);
+            }
+            else if (key.equals("linecolor")) {
+                layout.setLineColor(new Integer(value.toString()));
+            }
+            else if (key.equals("labelposition")) {
+                layout.setLabelPosition((Point2D.Double) value);
+            }
+        }
     }
+
+    private boolean isBlack(Color color) { return isBlackOrWhite(color, true); }
+
+    private boolean isWhite(Color color) { return isBlackOrWhite(color, false); }
 
     private boolean isBlackOrWhite(Color color, boolean black) {
         int hue = black ? 0 : 255;
@@ -313,83 +275,18 @@ public class LayoutExporter {
     }
 
 
-    private String writeDimension(String key, Dimension dimension) {
-        Double h = dimension.getHeight();
-        Double w = dimension.getWidth();
-        return String.format("<%s w=\"%1.0f\" h=\"%1.0f\"/>", key, w, h);
-    }
-
-
-    private String writeRectangle(String key, AttributeMap.SerializableRectangle2D value) {
-        double x = value.getX(), y = value.getY(),
-               w = value.getWidth(), h = value.getHeight();
-        return String.format("<%s x=\"%1.1f\" y=\"%1.1f\" w=\"%1.1f\" h=\"%1.1f\"/>",
-                              key, x, y, w, h);
-    }
-
-
-    private String writeList(String key, java.util.List list) {
-        if ((list != null) && (! list.isEmpty())) {
-            Object o = list.get(0);
-            if (o instanceof Point2D.Double) {
-                return writeDoubleList(key, list);
-            }
-        }
-        return "";
-    }
-
-
-    private String writeDoubleList(String key, java.util.List list) {
-        StringBuilder xml = new StringBuilder(String.format("<%s>", key));
-        for (Object o: list) {
-            Point2D.Double value = (Point2D.Double) o;
-            xml.append(String.format("<value x=\"%1.1f\" y=\"%1.1f\"/>",
-                       value.getX(), value.getY()));
-        }
-        xml.append(String.format("</%s>", key)) ;
-        return xml.toString();
-    }
-
-
-    private String writeFont(String key, Font font) {
-        StringBuilder xml = new StringBuilder(String.format("<%s>", key));
-        xml.append(StringUtil.wrap(font.getName(), "name"));
-        xml.append(StringUtil.wrap(String.valueOf(font.getStyle()), "style"));
-        xml.append(StringUtil.wrap(String.valueOf(font.getSize()), "size"));
-        xml.append(String.format("</%s>", key)) ;
-        return xml.toString();
-    }
-
-
     private String unspace(String s) { return s.replaceAll(" ", "_"); }
 
 
-    private String getNetDimensions(NetGraph netGraph) {
-        String template = "<%s x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"/>";
-        Rectangle frame = netGraph.getFrame().getBounds();
-        Rectangle viewport = netGraph.getFrame().getCurrentViewportBounds();
-        Rectangle bounds = netGraph.getBounds();
-        return String.format(template, "bounds", bounds.x, bounds.y, bounds.width, bounds.height) +
-               String.format(template, "frame", frame.x, frame.y, frame.width, frame.height) +
-               String.format(template, "viewport", viewport.x, viewport.y,
-                              viewport.width, viewport.height) ;
+    private Dimension getDesktopSize() {
+        Dimension size = YAWLEditorDesktop.getInstance().getPreferredSize();
+        if (size == null) size = new Dimension(800, 600);        // default
+        return size;
     }
 
 
-    private String writeDesktopDimension() {
-        String template = "<size w=\"%d\" h=\"%d\"/>";
-        Dimension dimension = YAWLEditorDesktop.getInstance().getPreferredSize();
-        if (dimension != null) {
-            return String.format(template, dimension.width, dimension.height);
-        }
-        return String.format(template, 800, 600) ;                          // default
-    }
-
-
-    private String writeLocale() {
-        Locale locale = Locale.getDefault();
-        return String.format("<locale language=\"%s\" country=\"%s\"/>",
-                locale.getLanguage(), locale.getCountry());
+    private Font getDefaultFont(float size) {
+        return UIManager.getDefaults().getFont("Label.font").deriveFont(size);
     }
 
 }

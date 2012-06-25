@@ -24,24 +24,19 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
-import java.awt.Point;
-import java.util.List;
-
-import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
+import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
-
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
-import junit.framework.*;
+import java.awt.*;
+import java.util.List;
 
 public class TestSpecificationEngineHandler extends TestCase {
   private NetGraphModel rootNet;
@@ -420,10 +415,7 @@ public class TestSpecificationEngineHandler extends TestCase {
     try {
       List problemList = EngineSpecificationValidator.getValidationResults();
       String firstProblem = (String) problemList.get(0);
-      if (firstProblem.equals(EngineSpecificationValidator.NO_PROBLEMS_MESSAGE) && problemList.size() == 1) {
-        return true;
-      }
-      return false;
+      return  (firstProblem.startsWith("No design-time engine validation problems"));
     } catch (Exception e) {
       // e.printStackTrace();
     }

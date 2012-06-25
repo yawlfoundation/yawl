@@ -42,11 +42,6 @@ public abstract class EngineEditorInterpretor {
   protected static boolean SpecificationParametersIncludeYStringListType;
   protected static boolean SpecificationParametersIncludeYDocumentType;
   protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
-
-  protected static final String ENGINE_RESOURCE_ALLOCATION_PARAMETER = "YawlResourceAllocationQuery";
-
-  protected static final String ENGINE_RESOURCE_AUTHORISATION_PARAMETER = "YawlResourceAuthorisationQuery";
-
   protected static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd");
   
   public static void initialise() {

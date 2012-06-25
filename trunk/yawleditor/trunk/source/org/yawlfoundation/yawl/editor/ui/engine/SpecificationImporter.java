@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.core.YConnector;
@@ -86,9 +87,14 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         _invalidResourceReferences = new ArrayList<String>();
         convertEngineSpecObjectsToEditorObjects(editorSpec);
 
-        Element layout = getLayoutElement(SpecificationModel.getSpec());
-        if (layout != null) {
-            LayoutImporter.importAndApply(editorSpec, layout) ;
+          if (SpecificationModel.getSpec().getLayoutXML() != null) {
+              try {
+                  LayoutImporter.importAndApply(SpecificationModel.getInstance());
+              }
+              catch (YLayoutParseException ylpe) {
+                 removeUnnecessaryDecorators(editorSpec);
+                 DefaultLayoutArranger.layoutSpecification();
+              }
         }
         else {
             removeUnnecessaryDecorators(editorSpec);
