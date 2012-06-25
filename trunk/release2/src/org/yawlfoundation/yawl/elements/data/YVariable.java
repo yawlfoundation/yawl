@@ -79,7 +79,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
 
     /**
-     * Beta 3 constructer for variables
+     * Beta 3 constructor for variables
      * @param dec parent decomposition
      */
     public YVariable(YDecomposition dec) {
@@ -342,6 +342,26 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     public void setOptional(boolean option) {
         addAttribute("optional", String.valueOf(option));
     }
+
+
+    /**
+     * Determine whether this variable requires a value to be mapped to it
+     * @return true if the variable will validate with an empty data value
+     */
+    public boolean requiresInputValue() {
+        if (XSDType.getInstance().isBuiltInType(_dataTypeName)) return true;
+
+        // build an empty data element and try to validate it
+        Element emptyValue = new Element("data");
+        emptyValue.addContent(new Element(getPreferredName()));
+        try {
+            checkDataTypeValue(emptyValue);
+            return false;                     // passed, so no value is required
+        }
+        catch (YDataValidationException ydve) {
+            return true;                     // failed, so needs to have a value assigned
+        }
+    }
     
 
     /**
@@ -461,8 +481,7 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
             // check if correct for data type
             try {
-                _parentDecomposition.getSpecification().getDataValidator().validate(
-                        this, testElem, "");
+                checkDataTypeValue(testElem);
             }
             catch (YDataValidationException ydve) {
                 handler.error(this,
@@ -471,6 +490,12 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
                         _parentDecomposition + "] is not valid for its data type.");
             }
         }
+    }
+
+
+    private void checkDataTypeValue(Element value) throws YDataValidationException {
+        _parentDecomposition.getSpecification().getDataValidator().validate(
+                this, value, "");
     }
 
 }

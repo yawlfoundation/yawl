@@ -28,7 +28,7 @@ import java.util.*;
 
 /**
  * Walks the net in reverse to discover any task-level input data variables that map from
- * net-level local variables that have no initial value won't be assigned a value by a
+ * net-level local variables that have no initial value and won't be assigned a value by a
  * task earlier in the net.
  *
  * @author Michael Adams
@@ -166,7 +166,13 @@ public class YNetLocalVarVerifier {
         Set<String> outputParamNames = _net.getOutputParameterNames();
 
         for (YVariable local : _net.getLocalVariables().values()) {
-            if ((! local.isOptional()) && StringUtil.isNullOrEmpty(local.getInitialValue())) {
+
+            // if its optional or a complex type with minOccurs=0 then this local var
+            // doesn't need a value when its mapped to a task input var
+            if (local.isOptional() || ! local.requiresInputValue()) continue;
+
+            // if it needs an initial value but doesn't have one
+            if (StringUtil.isNullOrEmpty(local.getInitialValue())) {
 
                 // output parameters have a mirrored local var created, although they
                 // are not true local vars, so any of those need to be ignored
