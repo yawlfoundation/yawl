@@ -4,12 +4,14 @@ import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.util.Arrays;
 
 public class SpecificationBottomPanel extends JTabbedPane implements SpecificationSelectionSubscriber {
 
@@ -33,20 +35,16 @@ public class SpecificationBottomPanel extends JTabbedPane implements Specificati
       setEnabledAt(DESIGN_NOTES_PANEL_INDEX, false);
       setSelectedComponent(problemMessagePanel);
 
-      SpecificationSelectionListener.getInstance().subscribe(
-           this,
-           new int[] { 
-             SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-             SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
-             SpecificationSelectionListener.STATE_SINGLE_ELEMENT_SELECTED,
-           }
-       );
+        Publisher.getInstance().subscribe(this,
+                Arrays.asList(GraphState.NoElementSelected,
+                        GraphState.ElementsSelected,
+                        GraphState.OneElementSelected));
     }
 
-    public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
       switch(state) {
-        case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: 
-        case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED:{
+        case ElementsSelected:
+        case NoElementSelected:{
           setEnabledAt(DESIGN_NOTES_PANEL_INDEX, false);
           setTitleAt(DESIGN_NOTES_PANEL_INDEX, "Notes");
 

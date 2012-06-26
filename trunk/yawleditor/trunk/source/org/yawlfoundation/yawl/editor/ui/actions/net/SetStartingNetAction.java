@@ -86,7 +86,6 @@ class StartingNetDialog extends AbstractDoneDialog {
                     if (netComboBox.isEnabled()) {
                         SpecificationModel.getInstance().setStartingNet(
                                 SpecificationUtilities.getNetModelFromName(
-                                        SpecificationModel.getInstance(),
                                         (String) netComboBox.getSelectedItem()
                                 )
                         );

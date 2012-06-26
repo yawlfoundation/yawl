@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
@@ -46,16 +46,8 @@ public class ExitAction extends YAWLOpenSpecificationAction implements TooltipTo
         ArchivingThread.getInstance().exit();
     }
 
-    public void specificationFileModelStateChanged(int state) {
-        switch(state) {
-            case SpecificationFileModel.BUSY: {
-                setEnabled(false);
-                break;
-            }
-            default: {
-                setEnabled(true);
-            }
-        }
+    public void specificationFileStateChange(FileState state) {
+        setEnabled(state != FileState.Busy);
     }
 
     public String getEnabledTooltipText() {

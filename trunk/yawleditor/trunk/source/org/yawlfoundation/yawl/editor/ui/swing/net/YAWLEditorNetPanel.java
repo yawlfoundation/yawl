@@ -78,7 +78,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         while (!validNameFound) {
             counter++;
             newTitle = "New Net " + counter;
-            if (SpecificationUtilities.getNetModelFromName(model,newTitle) == null) {
+            if (SpecificationUtilities.getNetModelFromName(newTitle) == null) {
                 validNameFound = true;
             }
         }
@@ -181,7 +181,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     public void showRenameDialog() {
         String oldName = getNet().getNetModel().getName();
         String newName = null;
-        while(SpecificationUtilities.getNetModelFromName(SpecificationModel.getInstance(),newName) != getNet().getNetModel()) {
+        while(SpecificationUtilities.getNetModelFromName(newName) != getNet().getNetModel()) {
             newName = JOptionPane.showInputDialog(this,
                     "Change Net Name to:",
                     oldName);

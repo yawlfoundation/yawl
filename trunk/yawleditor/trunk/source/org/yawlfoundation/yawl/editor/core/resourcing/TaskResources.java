@@ -1,12 +1,20 @@
 package org.yawlfoundation.yawl.editor.core.resourcing;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidParticipantReference;
+import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
+import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidRoleReference;
 import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,10 +24,12 @@ import java.util.Set;
 public class TaskResources {
 
     private YAtomicTask _task;
+    private YNet _net;
     private ResourceParameters _resources;
 
     public TaskResources(YAtomicTask task) {
         _task = task;
+        _net = task.getNet();
         _resources = new ResourceParameters(_task);
     }
 
@@ -149,10 +159,30 @@ public class TaskResources {
     }
 
 
-//    public Set<String> validate() {
-//        Map<String, Participant> connectedParticipants = YConnector.getParticipantMap();
-//
-//    }
+    public Set<InvalidReference> validate() {
+        if (! YConnector.isResourceConnected()) return Collections.emptySet();
+
+        Set<InvalidReference> invalidRefs = new HashSet<InvalidReference>();
+        List<String> pids = YConnector.getParticipantIDs();
+        for (Participant p : getParticipants()) {
+            if (! pids.contains(p.getID())) {
+                invalidRefs.add(new InvalidParticipantReference(_net, _task, p.getID()));
+            }
+        }
+
+        List<String> rids = YConnector.getRoleIDs();
+        for (Role r : getRoles()) {
+            if (! rids.contains(r.getID())) {
+                invalidRefs.add(new InvalidRoleReference(_net, _task, r.getID()));
+            }
+        }
+
+        // todo: other stuff
+
+        return invalidRefs;
+    }
+
+
 
 
 }

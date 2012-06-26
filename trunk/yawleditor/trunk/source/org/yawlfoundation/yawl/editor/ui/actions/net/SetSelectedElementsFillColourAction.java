@@ -30,14 +30,16 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
                                 implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
@@ -58,11 +60,9 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
 
   public SetSelectedElementsFillColourAction() {
     super();
-    SpecificationSelectionListener.getInstance().subscribe(
-        this,
-        new int[] { SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-                    SpecificationSelectionListener.ONE_OR_MORE_VERTEX_SELECTED }
-    );
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.NoElementSelected,
+                      GraphState.MultipleVerticesSelected));
   }
 
     public void actionPerformed(ActionEvent event) {
@@ -110,17 +110,8 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
       return " You must have a one or more net elements selected ";
     }
 
-    public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {
-        switch(state) {
-          case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
-            setEnabled(false);
-            break;
-          }
-          case SpecificationSelectionListener.ONE_OR_MORE_VERTEX_SELECTED: {
-            setEnabled(true);
-            break;
-          }
-       }
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        setEnabled(state == GraphState.MultipleVerticesSelected);
     }
 
 }

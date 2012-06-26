@@ -13,7 +13,7 @@ import org.yawlfoundation.yawl.editor.ui.net.ConfigureSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,14 +37,14 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
     private boolean selected;
     private boolean disabledViaSettings;
     private boolean hasOpenNetState;
-    private SpecificationModel.State lastPublishedNetState;
+    private SpecificationState lastPublishedNetState;
 
 
     // called from getInstance()
     private PreviewConfigurationProcessAction() {
         init();
         disabledViaSettings = false;
-        lastPublishedNetState = SpecificationModel.State.NO_NETS_EXIST;
+        lastPublishedNetState = SpecificationState.NoNetsExist;
         ProcessConfigurationModel.getInstance().subscribe(this);
     }
 
@@ -133,13 +133,13 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
         setEnabled();
     }
 
-    public void receiveSpecificationModelNotification(SpecificationModel.State state) {
+    public void specificationStateChange(SpecificationState state) {
         lastPublishedNetState = state;
         hasOpenNetState = checkOpenState();
         if (! disabledViaSettings) {
-            super.receiveSpecificationModelNotification(state);
+            super.specificationStateChange(state);
         }
-        else if (lastPublishedNetState == SpecificationModel.State.SOME_NET_SELECTED) {
+        else if (lastPublishedNetState == SpecificationState.NetSelected) {
             if (! selected) actionPerformed(null);
         }
         else if (! hasOpenNetState) {
@@ -148,8 +148,8 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
     }
 
     private boolean checkOpenState() {
-        return ! ((lastPublishedNetState == SpecificationModel.State.NO_NETS_EXIST) ||
-                  (lastPublishedNetState == SpecificationModel.State.NO_NET_SELECTED));
+        return ! ((lastPublishedNetState == SpecificationState.NoNetsExist) ||
+                  (lastPublishedNetState == SpecificationState.NoNetSelected));
     }
 
 

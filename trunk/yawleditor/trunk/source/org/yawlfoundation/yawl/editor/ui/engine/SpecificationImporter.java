@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -101,8 +102,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
             DefaultLayoutArranger.layoutSpecification();
         }
 
-        SpecificationModel.getInstance().setFileName(fullFileName);
-        SpecificationFileModel.getInstance().incrementFileCount();
+        Publisher.getInstance().publishOpenFileEvent();
         SpecificationUndoManager.getInstance().discardAllEdits();
 
         if (! _invalidResourceReferences.isEmpty()) {
@@ -752,8 +752,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     mapUniqueElementID(editorCompositeTask, engineCompositeTask.getID()) ;
 
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
-      SpecificationModel.getInstance(),
-      engineCompositeTask.getDecompositionPrototype().getID()    
+            engineCompositeTask.getDecompositionPrototype().getID()
     );
     
     editorCompositeTask.setDecomposition(decomposedEditorNet.getDecomposition());
@@ -768,8 +767,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     mapUniqueElementID(editorMultipleCompositeTask, engineCompositeTask.getID()) ;
 
     NetGraphModel decomposedEditorNet = SpecificationUtilities.getNetModelFromName(
-        SpecificationModel.getInstance(),
-        engineCompositeTask.getDecompositionPrototype().getID()    
+            engineCompositeTask.getDecompositionPrototype().getID()
       );
       
     editorMultipleCompositeTask.setDecomposition(decomposedEditorNet.getDecomposition());

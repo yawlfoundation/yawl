@@ -27,12 +27,14 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 public class AlignRightAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
@@ -51,15 +53,11 @@ public class AlignRightAction extends YAWLSelectedNetAction implements TooltipTo
   }
   
   private AlignRightAction() {
-    SpecificationSelectionListener.getInstance().subscribe(
-        this,
-        new int[] { 
-          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
-          SpecificationSelectionListener.STATE_MORE_THAN_ONE_VERTEX_SELECTED
-        }
-    );
-  };  
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.NoElementSelected,
+                      GraphState.ElementsSelected,
+                      GraphState.MultipleVerticesSelected));
+  }
   
   public static AlignRightAction getInstance() {
     return INSTANCE; 
@@ -81,16 +79,7 @@ public class AlignRightAction extends YAWLSelectedNetAction implements TooltipTo
            " to align them ";
   }
   
-  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
-    switch(state) {
-      case SpecificationSelectionListener.STATE_MORE_THAN_ONE_VERTEX_SELECTED: {
-        setEnabled(true);
-        break;
-      }
-      default: {
-        setEnabled(false);
-        break;
-      }
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        setEnabled(state == GraphState.MultipleVerticesSelected);
     }
-  }
 }

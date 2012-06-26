@@ -26,16 +26,19 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
-public class DecreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
+public class DecreaseSizeAction extends YAWLSelectedNetAction
+        implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
 
   /**
    * 
@@ -54,14 +57,10 @@ public class DecreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
   }
   
   private DecreaseSizeAction() {
-    SpecificationSelectionListener.getInstance().subscribe(
-        this,
-        new int[] { 
-          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED
-        }
-    );
-  };  
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.NoElementSelected,
+                      GraphState.ElementsSelected));
+  }
   
   public static DecreaseSizeAction getInstance() {
     return INSTANCE; 
@@ -83,16 +82,7 @@ public class DecreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
            " to decrease their size ";
   }
 
-  public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
-    switch(state) {
-      case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
-        setEnabled(false);
-        break;
-      }
-      case SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED: {
-        setEnabled(true);
-        break;
-      }
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        setEnabled(state == GraphState.ElementsSelected);
     }
-  }
 }

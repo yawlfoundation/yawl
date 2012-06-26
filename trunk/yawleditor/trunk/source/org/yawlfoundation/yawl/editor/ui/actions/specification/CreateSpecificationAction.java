@@ -24,8 +24,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -50,7 +50,7 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
   }
   
   public void actionPerformed(ActionEvent event) {
-    SpecificationFileModel.getInstance().incrementFileCount();
+    Publisher.getInstance().publishOpenFileEvent();
     YAWLEditorDesktop.getInstance().newNet();
     SpecificationUndoManager.getInstance().discardAllEdits();
   }

@@ -133,7 +133,7 @@ public class EngineSpecificationHandler {
     File file = EXPORT_FILE_CHOOSER.getSelectedFile();
 
     if (file.exists() && 
-        !getFullNameFromFile(file).equals(SpecificationModel.getInstance().getEngineFileName())) {
+        !getFullNameFromFile(file).equals(SpecificationModel.getSpec().getFileName())) {
       if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(YAWLEditor.getInstance(),
               "You have chosen an existing engine specification file.\n" +
               "If you save to this file, you will overwrite the file's contents.\n\n" +

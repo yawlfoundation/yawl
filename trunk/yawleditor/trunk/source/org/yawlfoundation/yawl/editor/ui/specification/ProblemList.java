@@ -1,9 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.specification;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class ProblemList extends LinkedList<String> {
+public class ProblemList extends ArrayList<String> {
   
   public static enum STATUS {
     NO_ENTRIES,

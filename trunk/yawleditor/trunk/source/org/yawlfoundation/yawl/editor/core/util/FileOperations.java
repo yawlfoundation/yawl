@@ -37,6 +37,8 @@ public class FileOperations {
 
     public FileSaveOptions getFileSaveOptions() { return _saveOptions; }
 
+    public String getFileName() { return _fileName; }
+
 
     public YSpecification load(String file) throws IOException {
         String specXML = FileUtil.load(file);

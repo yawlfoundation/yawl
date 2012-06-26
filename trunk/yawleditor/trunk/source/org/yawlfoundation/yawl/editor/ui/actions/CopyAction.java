@@ -24,13 +24,15 @@ package org.yawlfoundation.yawl.editor.ui.actions;
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
 /**
  * @author Lindsay Bradford
@@ -52,13 +54,10 @@ public class CopyAction extends YAWLBaseAction
 
 
     private CopyAction() {
-        SpecificationSelectionListener.getInstance().subscribe(this,
-                new int[] {
-                        SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-                        SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
-                        SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED
-                }
-        );
+        Publisher.getInstance().subscribe(this,
+                Arrays.asList(GraphState.NoElementSelected,
+                        GraphState.ElementsSelected,
+                        GraphState.CopyableElementSelected));
     }
 
 
@@ -91,16 +90,7 @@ public class CopyAction extends YAWLBaseAction
                 " to copy them ";
     }
 
-    public void receiveGraphSelectionNotification(int state,GraphSelectionEvent event) {
-        switch(state) {
-            case SpecificationSelectionListener.STATE_COPYABLE_ELEMENTS_SELECTED: {
-                setEnabled(true);
-                break;
-            }
-            default: {
-                setEnabled(false);
-                break;
-            }
-        }
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        setEnabled(state == GraphState.CopyableElementSelected);
     }
 }

@@ -9,8 +9,8 @@ import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.*;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 
 import javax.swing.*;
@@ -406,9 +406,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
     }
 
 
-    public void receiveSpecificationModelNotification(SpecificationModel.State state) {
-        if (state != SpecificationModel.State.SOME_NET_SELECTED) {
-            super.receiveSpecificationModelNotification(state);
+    public void specificationStateChange(SpecificationState state) {
+        if (state != SpecificationState.NetSelected) {
+            super.specificationStateChange(state);
         }
         else {
             NetGraph graph = YAWLEditorDesktop.getInstance().getSelectedGraph();

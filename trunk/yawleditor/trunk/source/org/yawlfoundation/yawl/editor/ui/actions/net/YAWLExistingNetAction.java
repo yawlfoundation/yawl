@@ -25,8 +25,10 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 class YAWLExistingNetAction extends YAWLBaseAction 
                             implements SpecificationModelListener {
@@ -36,21 +38,21 @@ class YAWLExistingNetAction extends YAWLBaseAction
     SpecificationModel.getInstance();
 
   {
-    getSpecificationModel().subscribe(this);   
+    Publisher.getInstance().subscribe(this);
   }                                  
 
-  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
+  public void specificationStateChange(SpecificationState state) {
     switch(state) {
-      case NO_NETS_EXIST: {
+      case NoNetsExist: {
         setEnabled(false);     
         break;    
       }
-      case NETS_EXIST: {
+      case NetsExist: {
         setEnabled(true);
         break;    
       }
-      case NO_NET_SELECTED: 
-      case SOME_NET_SELECTED: {
+      case NoNetSelected:
+      case NetSelected: {
         break;
       }
       default: {
