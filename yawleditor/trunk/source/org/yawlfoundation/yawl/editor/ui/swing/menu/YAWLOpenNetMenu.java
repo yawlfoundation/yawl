@@ -24,47 +24,30 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
-import javax.swing.JMenu;
+import javax.swing.*;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModelListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+abstract class YAWLOpenNetMenu extends JMenu implements SpecificationModelListener {
 
-abstract class YAWLOpenNetMenu extends JMenu 
-                                implements SpecificationModelListener {
-    
-  private static final SpecificationModel specificationModel =  
-    SpecificationModel.getInstance(); 
-    
-  public YAWLOpenNetMenu(String title, int keyEventCode) {
-    super(title);
-    setMnemonic(keyEventCode);
-    buildInterface();
-    specificationModel.subscribe(
-        this,
-        new SpecificationModel.State[] {
-            SpecificationModel.State.NO_NETS_EXIST,
-            SpecificationModel.State.NETS_EXIST
-        }
-        
-    );
-  }
-  
-  protected abstract void buildInterface();
-  
-  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
-    switch (state) {
-      case NO_NETS_EXIST: {
-        setEnabled(false);  
-        break;    
-      }
-      case NETS_EXIST: {
-        setEnabled(true);
-        break;   
-      }
-      default: {
-         assert false: "Invalid state passed to receiveSpecificationModelNotification().";   
-      }    
+    public YAWLOpenNetMenu(String title, int keyEventCode) {
+        super(title);
+        setMnemonic(keyEventCode);
+        buildInterface();
+        Publisher.getInstance().subscribe(this);
     }
-  }
+
+
+    public void specificationStateChange(SpecificationState state) {
+        switch (state) {
+            case NoNetsExist: setEnabled(false); break;
+            case NetsExist: setEnabled(true); break;
+        }
+    }
+
+
+    protected abstract void buildInterface();
+
 }

@@ -7,11 +7,12 @@ package org.yawlfoundation.yawl.editor.ui.actions.tools;
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -19,15 +20,11 @@ import java.awt.event.ActionEvent;
 public class ConfigurationSettingsAction extends YAWLBaseAction
         implements SpecificationFileModelListener {
 
-    private final SpecificationFileModel fileModel =
-      SpecificationFileModel.getInstance();
-
     {
-      fileModel.subscribe(this);
+        Publisher.getInstance().subscribe(this);
     }
 
 
-	private static final long serialVersionUID = 1L;
 
 	{
 	    putValue(Action.SHORT_DESCRIPTION, "Process Configuration Settings");
@@ -53,8 +50,8 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
 	}
 
 
-  public void specificationFileModelStateChanged(int state) {
-      setEnabled(state == SpecificationFileModel.EDITING);
+  public void specificationFileStateChange(FileState state) {
+      setEnabled(state == FileState.Busy);
   }
 	
 	/**

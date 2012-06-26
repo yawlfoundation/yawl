@@ -61,8 +61,7 @@ public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
        public void actionPerformed(ActionEvent e) {
          NetGraphModel netModel = 
            SpecificationUtilities.getNetModelFromName(
-               SpecificationModel.getInstance(),
-              (String) netComboBox.getSelectedItem()
+                   (String) netComboBox.getSelectedItem()
            );
          
          if (netModel != null) {

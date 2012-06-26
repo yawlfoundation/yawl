@@ -6,9 +6,10 @@ import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
@@ -17,8 +18,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
-public class SingleTaskPalette extends JTabbedPane implements SpecificationSelectionSubscriber{
+public class SingleTaskPalette extends JTabbedPane
+        implements SpecificationSelectionSubscriber{
 
   private static final long serialVersionUID = 1L;
 
@@ -36,14 +39,10 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
 
     setVisible(false);
 
-    SpecificationSelectionListener.getInstance().subscribe(
-         this,
-         new int[] { 
-           SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-           SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED,
-           SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED
-         }
-     );
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.NoElementSelected,
+                      GraphState.ElementsSelected,
+                      GraphState.OneTaskSelected));
   }
   
   public void refreshComponentValidity() {
@@ -755,14 +754,13 @@ public class SingleTaskPalette extends JTabbedPane implements SpecificationSelec
     }
   }
   
-  public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {
+  public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
     switch(state) {
-      case SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED: {
+      case OneTaskSelected: {
         joinPanel.setTask(event.getCell());
         joinPanel.setNet((NetGraph) event.getSource());
         splitPanel.setTask(event.getCell());
         splitPanel.setNet((NetGraph) event.getSource());
-
         setVisible(true);
         break;
       }

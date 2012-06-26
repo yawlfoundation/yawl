@@ -24,6 +24,8 @@
 package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
@@ -50,7 +52,7 @@ public class SpecificationArchiveHandler {
             );
 
 
-    private transient static final SpecificationArchiveHandler INSTANCE
+    private static final SpecificationArchiveHandler INSTANCE
             = new SpecificationArchiveHandler();
 
     public static SpecificationArchiveHandler getInstance() {
@@ -182,9 +184,6 @@ public class SpecificationArchiveHandler {
 
     public void processCloseRequest() {
         YAWLEditor.setStatusBarText("Closing Specification...");
-        if (SpecificationFileModel.getInstance().getFileCount() == 0) {
-            return;
-        }
         if (SpecificationUndoManager.getInstance().isDirty()) {
             int response = getSaveOnCloseConfirmation();
             if (response == JOptionPane.CANCEL_OPTION) {
@@ -215,7 +214,7 @@ public class SpecificationArchiveHandler {
 
     private void doPreSaveClosingWork() {
         YAWLEditorDesktop.getInstance().setVisible(false);
-        SpecificationFileModel.getInstance().decrementFileCount();
+        Publisher.getInstance().publishCloseFileEvent();
         SpecificationModel.getInstance().nothingSelected();
     }
 
@@ -259,7 +258,7 @@ public class SpecificationArchiveHandler {
 
         boolean saveNotCancelled = true;
 
-        if (SpecificationFileModel.getInstance().getFileCount() > 0) {
+        if (Publisher.getInstance().getFileState() != FileState.Idle) {
             if (SpecificationUndoManager.getInstance().isDirty()) {
                 int response = getSaveOnCloseConfirmation();
                 if (response == JOptionPane.CANCEL_OPTION) {

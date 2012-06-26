@@ -23,9 +23,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
@@ -37,6 +37,8 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.resourcing.InvalidResourceReference;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
@@ -53,19 +55,10 @@ import java.util.*;
 import java.util.List;
 
 public class SpecificationModel {
-  
-  public static enum State {
-    NO_NETS_EXIST,
-    NETS_EXIST,
-    NO_NET_SELECTED,
-    SOME_NET_SELECTED,
-    NET_DETAIL_CHANGED
-  }
-  
-  private int netCount;
-  private HashSet<NetGraphModel> nets;
-  private State state;
-  
+
+    private int netCount;
+  private Set<NetGraphModel> nets;
+
   public static final int   DEFAULT_FONT_SIZE = 15;
   public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
 
@@ -83,14 +76,8 @@ public class SpecificationModel {
         reset();
     }
 
-  /**
-   * A mapping of possible selection states against subscribers that care to receive
-   * notifications of a particular state.
-   */
-  private transient HashMap<State,LinkedList<SpecificationModelListener>> 
-      stateSubscriberMap = new HashMap<State,LinkedList<SpecificationModelListener>>();
 
-  private HashSet<WebServiceDecomposition> webServiceDecompositions;
+  private Set<WebServiceDecomposition> webServiceDecompositions;
   private ElementIdentifiers uniqueIdentifiers;
   private int     fontSize;
   private int     defaultNetBackgroundColor;
@@ -108,7 +95,7 @@ public class SpecificationModel {
   private DataSchemaValidator _schemaValidator;
 
 
-  private transient static final SpecificationModel INSTANCE = new SpecificationModel();
+  private static final SpecificationModel INSTANCE = new SpecificationModel();
   
   public SpecificationModel() {
       nets = new HashSet<NetGraphModel>();
@@ -120,71 +107,8 @@ public class SpecificationModel {
   public static SpecificationModel getInstance() {
     return INSTANCE; 
   }
-  
-  /**
-   * A convenience legacy method that subscribes the specified 
-   * object to set of more coarse-grained specification model events. 
-   * Namely {State.NO_NETS_EXIST},  {State.NETS_EXIST},
-   * {State.NO_NET_SELECTED}, {SOME_NET_SELECTED}.
-   * @param subscriber
-   * @see SpecificationModelListener
-   */
-  
-  public void subscribe(final SpecificationModelListener subscriber) {
-    subscribe(
-        subscriber, 
-        new State[] {
-            State.NO_NETS_EXIST,
-            State.NETS_EXIST,
-            State.NO_NET_SELECTED,
-            State.SOME_NET_SELECTED,
-        }
-    );
-  }
 
-  /**
-   * Allows a subscriber to begin receiviing callback notifications for changes of
-   * state that the subscriber has defined as being important to it. The subscriber
-   * must implement the interface {@link SpecificationModelListener}.
-   * @param subscriber
-   * @param statesOfInterest
-   * @see SpecificationModelListener
-   * @see State
-   */
-  
-  public void subscribe(final SpecificationModelListener subscriber, State[] statesOfInterest) {
-    for(State stateOfInterest: statesOfInterest) {
-      LinkedList<SpecificationModelListener> stateSubscribers = stateSubscriberMap.get(stateOfInterest);
-      
-      if (stateSubscribers == null) {
-        stateSubscribers = new LinkedList<SpecificationModelListener>();
-        stateSubscriberMap.put(stateOfInterest, stateSubscribers);
-      }
-      stateSubscribers.add(subscriber);
-      if (stateOfInterest == state) {
-        subscriber.receiveSpecificationModelNotification(state);
-      }
-    }
-  }
-  
-  private void publishState(final State state) {
-    LinkedList<SpecificationModelListener> stateSubscribers =  stateSubscriberMap.get(state);
-    if (stateSubscribers == null) {
-      return;
-    }
-    for(SpecificationModelListener subscriber : stateSubscribers) {
-      subscriber.receiveSpecificationModelNotification(state);
-    }
-  }
-  
-  public void setState(State state) {
-    this.state = state;
-    publishState(state);
-  }
-  
-  public State getState() {
-    return this.state;
-  }
+    private Publisher getPublisher() { return Publisher.getInstance(); }
   
   public void reset() {
     netCount = 0;
@@ -195,8 +119,6 @@ public class SpecificationModel {
     fontSize = DEFAULT_FONT_SIZE;
     defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
     defaultVertexBackground = getPreferredVertexBackground();
-      setFileName("");
-    setEngineFileName("");
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
 
     setName("");
@@ -207,7 +129,7 @@ public class SpecificationModel {
     setValidFromTimestamp("");
     setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
-    setState(State.NO_NETS_EXIST);
+      getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
     prevVersionNumber = null;
       setVersionChanged(false);
   }
@@ -223,13 +145,8 @@ public class SpecificationModel {
     }
 
 
-
-  public void setNetCount(int netCount) {
-    this.netCount = netCount;
-  }
-  
   public int getNetCount() {
-    return this.netCount;
+    return nets.size();
   }
   
   public void setNets(HashSet nets) {
@@ -247,26 +164,22 @@ public class SpecificationModel {
   }
   
   public NetGraphModel getStartingNet() {
-    Object[] netSetArray = nets.toArray();
-      for (Object aNetSetArray : netSetArray) {
-          NetGraphModel thisNet = (NetGraphModel) aNetSetArray;
-          if (thisNet.isStartingNet()) {
-              return thisNet;
+      for (NetGraphModel net : nets) {
+          if (net.isStartingNet()) {
+              return net;
           }
       }
-    return null;
+      return null;
   }
   
-  public Set getSubNets() {
-    HashSet subNets = new HashSet();
-    Object[] netSetArray = nets.toArray();
-    for(int i = 0; i < netSetArray.length; i++) {
-      NetGraphModel thisNet = (NetGraphModel) netSetArray[i];
-      if (!thisNet.isStartingNet()) {
-        subNets.add(thisNet);
+  public Set<NetGraphModel> getSubNets() {
+      Set<NetGraphModel> subNets = new HashSet<NetGraphModel>();
+      for (NetGraphModel net : nets) {
+          if (! net.isStartingNet()) {
+              subNets.add(net);
+          }
       }
-    }
-    return subNets;
+      return subNets;
   }
 
   public NetGraphModel getNet(String id) {
@@ -289,7 +202,7 @@ public class SpecificationModel {
         )
     );
     SpecificationUndoManager.getInstance().stopCompoundingEdits();
-    publishState(State.NET_DETAIL_CHANGED);
+      getPublisher().publishState(SpecificationState.NetDetailChanged);
   }
   
 
@@ -307,11 +220,11 @@ public class SpecificationModel {
   }
   
   public void addNetNotUndoable(NetGraphModel netModel) {
-    if (netCount == 0) {
+    if (nets.isEmpty()) {
       netModel.setIsStartingNet(true);
     }
     if (nets.add(netModel)) {
-      publishNetCountIncrement();
+        getPublisher().publishAddNetEvent();
     }
   }
   
@@ -336,13 +249,13 @@ public class SpecificationModel {
   public boolean removeNetNotUndoable(NetGraphModel netModel) {
     boolean removalSuccessful = nets.remove(netModel);
     if (removalSuccessful) {
-      publishNetCountDecrement();
+        getPublisher().publishRemoveNetEvent(nets.isEmpty());
     }
     return removalSuccessful;
   }
   
   private NetGraphModel selectAnotherStartingNet(NetGraphModel netModel) {
-    if (netCount > 0 && netModel.isStartingNet()) {
+    if (! nets.isEmpty() && netModel.isStartingNet()) {
       netModel.setIsStartingNet(false);
       ((NetGraphModel) nets.toArray()[0]).setIsStartingNet(true);
       return (NetGraphModel) nets.toArray()[0];
@@ -350,24 +263,7 @@ public class SpecificationModel {
     return null;
   }
 
-  private void publishNetCountIncrement() {
-    final int oldNetCount = netCount;
-    netCount++;
-    if (oldNetCount == 0) {
-      setState(State.NETS_EXIST);    
-    }
-    publishState(State.NET_DETAIL_CHANGED);
-  }
 
-  private void publishNetCountDecrement() {
-    final int oldNetCount = netCount;
-    netCount--;
-    if (oldNetCount == 1)  {
-        setState(State.NO_NETS_EXIST);    
-    }
-    publishState(State.NET_DETAIL_CHANGED);
-  }
-  
   public HashSet<YAWLCompositeTask> resetUnfoldingCompositeTasks(NetGraphModel netModel) {
 
     HashSet<YAWLCompositeTask> changedTasks = new HashSet<YAWLCompositeTask>();
@@ -385,34 +281,27 @@ public class SpecificationModel {
   }
   
   public void somethingSelected() {
-    publishState(State.SOME_NET_SELECTED);  
+      getPublisher().publishState(SpecificationState.NetSelected);
   }
   
   public void nothingSelected() {
-    if (state != State.NO_NETS_EXIST) {
-      publishState(State.NO_NET_SELECTED); 
+    if (getPublisher().getSpecificationState() != SpecificationState.NoNetsExist) {
+        getPublisher().publishState(SpecificationState.NoNetSelected);
     }
   }
   
   public String getFileName() {
-    return SpecificationFileModel.getInstance().getFileName();
+    return _specification.getFileName();
   }
   
   public void setFileName(String fileName) {
-    SpecificationFileModel.getInstance().setFileName(fileName);
+//    SpecificationFileModel.getInstance().setFileName(fileName);
   }
 
-  public String getEngineFileName() {
-    return SpecificationFileModel.getInstance().getEngineFileName();
-  }
-  
-  public void setEngineFileName(String fileName) {
-    SpecificationFileModel.getInstance().setEngineFileName(fileName);
-  }
   
   public boolean isValidNewDecompositionName(String name) {
     return (name != null) &&
-           (SpecificationUtilities.getNetModelFromName(this, name) == null) &&
+           (SpecificationUtilities.getNetModelFromName(name) == null) &&
            (getDecompositionFromLabel(name) == null);
     }
 
@@ -439,7 +328,7 @@ public class SpecificationModel {
       return _schemaValidator.isDefinedTypeName(typeName);
   }
   
-  public HashSet<WebServiceDecomposition> getWebServiceDecompositions() {
+  public Set<WebServiceDecomposition> getWebServiceDecompositions() {
     return this.webServiceDecompositions;
   }
   
@@ -512,7 +401,7 @@ public class SpecificationModel {
     }
 
     SpecificationUndoManager.getInstance().stopCompoundingEdits();
-    this.publishState(State.NET_DETAIL_CHANGED);
+      getPublisher().publishState(SpecificationState.NetDetailChanged);
   }
   
   public void changeDecompositionInQueries(String oldLabel, String newLabel) {

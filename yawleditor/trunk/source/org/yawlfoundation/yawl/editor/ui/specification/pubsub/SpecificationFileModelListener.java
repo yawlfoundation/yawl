@@ -22,8 +22,9 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.specification;
+package org.yawlfoundation.yawl.editor.ui.specification.pubsub;
 
-public interface SpecificationModelListener {
-  public abstract void receiveSpecificationModelNotification(SpecificationModel.State state);    
+public interface SpecificationFileModelListener {
+
+    public abstract void specificationFileStateChange(FileState state);
 }

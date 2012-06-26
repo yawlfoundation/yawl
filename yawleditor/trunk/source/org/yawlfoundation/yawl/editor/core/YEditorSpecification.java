@@ -194,6 +194,8 @@ public class YEditorSpecification {
 
     public void close() { }
 
+    public String getFileName() { return _fileOps.getFileName(); }
+
 
     public void setLayoutXML(String xml) { _fileOps.setLayoutXML(xml); }
 

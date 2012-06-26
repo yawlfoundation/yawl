@@ -28,7 +28,9 @@ import org.yawlfoundation.yawl.editor.ui.actions.view.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
@@ -41,10 +43,6 @@ import java.util.SortedSet;
 
 
 class ViewMenu extends JMenu implements SpecificationModelListener {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
   private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
@@ -53,19 +51,13 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   
   private boolean noNetList = true;
   
-  private LinkedList<Component> netListMenuItems = new LinkedList<Component>();
+  private java.util.List<Component> netListMenuItems = new LinkedList<Component>();
   
   public ViewMenu() {
     super("View");
     setMnemonic(KeyEvent.VK_V);
     buildInterface();
-    specificationModel.subscribe(
-        this,
-        new SpecificationModel.State[] {
-            SpecificationModel.State.NET_DETAIL_CHANGED,
-            SpecificationModel.State.NO_NETS_EXIST
-        }
-    );
+      Publisher.getInstance().subscribe(this);
   }
   
   protected void buildInterface() {
@@ -117,19 +109,10 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
       return new JMenuItem(new DefaultElementBackgroundColourAction());
     }
 
-  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
+  public void specificationStateChange(SpecificationState state) {
     switch (state) {
-      case NO_NETS_EXIST: {
-        removeNetList();  
-        break;    
-      }
-      case NET_DETAIL_CHANGED: {
-        rebuildNetList();
-        break;   
-      }
-      default: {
-         assert false: "Invalid state passed to receiveSpecificationModelNotification().";   
-      }    
+      case NoNetsExist: removeNetList(); break;
+      case NetDetailChanged: rebuildNetList(); break;
     }
   }
     

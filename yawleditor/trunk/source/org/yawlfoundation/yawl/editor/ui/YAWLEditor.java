@@ -24,8 +24,10 @@ package org.yawlfoundation.yawl.editor.ui;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.swing.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
@@ -100,7 +102,7 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     updateLoadProgress(5);
       establishConnections();
     buildInterface();
-    SpecificationFileModel.getInstance().subscribe(this);
+    Publisher.getInstance().subscribe(this);
   }
 
   private static void setLookAndFeel() {
@@ -417,21 +419,16 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
     splitPane.setDividerLocation((double)1);
   }
 
-  public void specificationFileModelStateChanged(int state) {
+  public void specificationFileStateChange(FileState state) {
     switch(state) {
-      case SpecificationFileModel.EDITING: {
-        String title = SpecificationFileModel.getInstance().getFileName();
-        if (title != null) {
-          setTitle(title);
-        }
+      case Ready: {
+        String title = SpecificationModel.getInstance().getFileName();
+        if (title != null) setTitle(title);
         break;
       }
-      case SpecificationFileModel.IDLE: {
+      case Idle: {
         setTitle("");
         splitPane.setDividerLocation((double)1);
-        break;
-      }
-      default: {
         break;
       }
     }

@@ -28,14 +28,12 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModelListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette.SelectionState;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +42,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Palette extends JPanel implements SpecificationModelListener {
@@ -117,7 +116,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
         )
     );
     
-    SpecificationModel.getInstance().subscribe(this);
+      Publisher.getInstance().subscribe(this);
     
     CONTROL_FLOW_PALETTE.subscribeForSelectionStateChanges(
         TASK_TEMPLATE_PALETTE    
@@ -163,7 +162,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
   }
   
   public void doPostBuildProcessing() {
-    SpecificationModel.getInstance().subscribe(this);   
+      Publisher.getInstance().subscribe(this);
   }
   
   public void setEnabled(boolean enabled) {
@@ -175,9 +174,9 @@ public class Palette extends JPanel implements SpecificationModelListener {
     super.setEnabled(enabled);
   }
   
-  public void receiveSpecificationModelNotification(SpecificationModel.State state) {
+  public void specificationStateChange(SpecificationState state) {
     switch(state) {
-      case NO_NETS_EXIST: {
+      case NoNetsExist: {
         CONTROL_FLOW_PALETTE.setSelectedState(
             ControlFlowPalette.SelectionState.MARQUEE
         );
@@ -187,20 +186,20 @@ public class Palette extends JPanel implements SpecificationModelListener {
         );     
         break;    
       }
-      case NETS_EXIST: {
+      case NetsExist: {
         YAWLEditor.setStatusBarText(
                 "Select a net to continue editing it."
         );     
         break;    
       }
-      case NO_NET_SELECTED: {
+      case NoNetSelected: {
         YAWLEditor.setStatusBarText(
             "Select a net to continue editing it."
         );     
         setEnabled(false);
         break;
       }
-      case SOME_NET_SELECTED: {
+      case NetSelected: {
         YAWLEditor.setStatusBarText(
             "Use the palette toolbar to edit the selected net."
         );     
@@ -208,7 +207,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
         break;
       }
       default: {
-        assert false : "Invalid state passed to receiveSpecificationModelNotification()";   
+        assert false : "Invalid state passed to specificationStateChange()";
       }    
     }
   }
@@ -231,14 +230,10 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
     buildInterface();
     bindDragAndDropComponents();
     
-    SpecificationSelectionListener.getInstance().subscribe(
-        this,
-        new int[] { 
-          SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED,          
-          SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED,
-          SpecificationSelectionListener.STATE_ONE_OR_MORE_ELEMENTS_SELECTED
-        }
-    );
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.NoElementSelected,
+                      GraphState.ElementsSelected,
+                      GraphState.OneTaskSelected));
    setEnabled(false);
   }
 
@@ -320,22 +315,18 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
     }
   }
   
-  public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {
+  public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
     switch(state) {
-      case SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED: {
+      case OneTaskSelected: {
         nothingSelected = false;
         Object cell = event.getCell();
         if (cell instanceof VertexContainer) {
           cell = ((VertexContainer) cell).getVertex(); 
         }
-        if (cell instanceof YAWLAtomicTask) {
-          atomicTaskSelected = true;
-        } else {
-          atomicTaskSelected = false;
-        }
+          atomicTaskSelected = cell instanceof YAWLAtomicTask;
         break;
       }
-      case SpecificationSelectionListener.STATE_NO_ELEMENTS_SELECTED: {
+      case NoElementSelected: {
         nothingSelected = true;
         atomicTaskSelected = false;
         break;
@@ -366,12 +357,8 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
     
     this.selectionModel = this.getSelectionModel();
     
-    SpecificationSelectionListener.getInstance().subscribe(
-        this,
-        new int[] { 
-          SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED
-        }
-    );
+      Publisher.getInstance().subscribe(this,
+              Arrays.asList(GraphState.OneTaskSelected));
     
     addTreeSelectionListener(
         new TreeSelectionListener() {
@@ -450,7 +437,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
     
   }
 
-  public void receiveGraphSelectionNotification(int state, GraphSelectionEvent event) {
+  public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
     Object cell = event.getCell();
     if (cell instanceof VertexContainer) {
       cell = ((VertexContainer) cell).getVertex(); 
@@ -462,13 +449,7 @@ class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
     YAWLAtomicTask task = (YAWLAtomicTask) cell;
 
     switch(state) {
-    
-      case SpecificationSelectionListener.STATE_SINGLE_TASK_SELECTED: {
-        selectNodeWithIconPath(
-            task.getIconPath()
-        );
-        break;
-      }
+      case OneTaskSelected: selectNodeWithIconPath(task.getIconPath());
     }
   }
   

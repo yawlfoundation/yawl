@@ -26,8 +26,9 @@ package org.yawlfoundation.yawl.editor.ui.swing.specification;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.ProblemList;
 import org.yawlfoundation.yawl.editor.ui.specification.ProblemListSubscriber;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.swing.ProblemTable;
 
 import javax.swing.*;
@@ -35,18 +36,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
-public class ProblemMessagePanel extends JPanel  implements SpecificationFileModelListener, ProblemListSubscriber {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class ProblemMessagePanel extends JPanel implements SpecificationFileModelListener,
+        ProblemListSubscriber {
+
   private JScrollPane problemScrollPane;
   private static ProblemTable problemResultsTable = buildProblemMessageTable();
   
   private String title;
   
-  public static final ProblemMessagePanel 
-    INSTANCE = new ProblemMessagePanel();
+  public static final ProblemMessagePanel INSTANCE = new ProblemMessagePanel();
   
   public static ProblemMessagePanel getInstance() {
     return INSTANCE;
@@ -56,7 +54,7 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
     super();
 
     buildContent();
-    SpecificationFileModel.getInstance().subscribe(this);
+      Publisher.getInstance().subscribe(this);
     problemResultsTable.subscribeForProblemListUpdates(this);
   }
   
@@ -99,16 +97,8 @@ public class ProblemMessagePanel extends JPanel  implements SpecificationFileMod
     return table;     
   }
   
-  public void specificationFileModelStateChanged(int state) {
-    switch(state) {
-      case SpecificationFileModel.IDLE: {
-        problemResultsTable.reset();
-        break;
-      }
-      default: {
-        break;
-      }
-    }
+  public void specificationFileStateChange(FileState state) {
+      if (state == FileState.Idle) problemResultsTable.reset();
   }
   
   public String getTitle() {

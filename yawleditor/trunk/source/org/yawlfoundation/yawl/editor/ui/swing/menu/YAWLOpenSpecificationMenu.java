@@ -25,39 +25,25 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 
-import javax.swing.JMenu;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileModelListener;
+import javax.swing.*;
 
 abstract class YAWLOpenSpecificationMenu extends JMenu 
                                 implements SpecificationFileModelListener {
-    
-  private static final SpecificationFileModel fileModel =  
-    SpecificationFileModel.getInstance(); 
-    
+
   public YAWLOpenSpecificationMenu(String title, int keyEventCode) {
     super(title);
     setMnemonic(keyEventCode);
     buildInterface();
-    fileModel.subscribe(this);
+      Publisher.getInstance().subscribe(this);
   }
   
   protected abstract void buildInterface();
   
-  public void specificationFileModelStateChanged(int state) {
-    switch (state) {
-      case SpecificationFileModel.IDLE: {
-        setEnabled(false);  
-        break;    
-      }
-      case SpecificationFileModel.EDITING: {
-        setEnabled(true);
-        break;   
-      }
-      default: {
-         assert false: "Invalid state passed to updateState().";   
-      }    
-    }
+  public void specificationFileStateChange(FileState state) {
+      setEnabled(state != FileState.Idle);
   }
 }

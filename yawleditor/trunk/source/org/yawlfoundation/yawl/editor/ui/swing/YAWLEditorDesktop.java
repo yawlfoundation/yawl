@@ -26,7 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationSelectionListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
@@ -66,8 +66,7 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
   public void openNet(NetGraph graph) {
       YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds(), graph);
       bindFrame(frame);
-      SpecificationSelectionListener.getInstance().publishSubscriptions(
-              graph.getSelectionModel(), null);
+      graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
   }
 
 

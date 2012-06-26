@@ -26,6 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationHandler;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import java.awt.*;
 
@@ -118,7 +119,7 @@ public class ArchivingThread extends Thread {
     Cursor oldCursor = YAWLEditor.getInstance().getCursor();
     YAWLEditor.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     
-    SpecificationFileModel.getInstance().busy();
+    Publisher.getInstance().publishFileBusyEvent();
     switch (request) {
       case CLOSE: {
         SpecificationArchiveHandler.getInstance().processCloseRequest();
@@ -155,7 +156,7 @@ public class ArchivingThread extends Thread {
       }
     }
     request = NOTHING;
-    SpecificationFileModel.getInstance().notBusy();
+      Publisher.getInstance().publishFileUnbusyEvent();
     YAWLEditor.getInstance().setCursor(oldCursor);
   }
 }

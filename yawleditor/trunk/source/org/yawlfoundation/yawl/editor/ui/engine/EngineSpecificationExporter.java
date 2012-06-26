@@ -908,8 +908,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       if (editorTask.getDecomposition() != null) {
         NetGraphModel editorUnfoldingNet = 
           SpecificationUtilities.getNetModelFromName(
-              editorSpec,
-              editorTask.getDecomposition().getLabel()
+                  editorTask.getDecomposition().getLabel()
           );
         
         engineCompositeTask.setDecompositionPrototype(

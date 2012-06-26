@@ -22,15 +22,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import java.util.HashSet;
-
 import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
-import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * A library of standard utilities that return information on, or manipulate 
@@ -72,48 +68,17 @@ public final class SpecificationUtilities {
     }
   }
 
-  public static void setSpecificationFontSizeNoUndo(SpecificationModel specification, int fontSize) {
-    specification.setFontSize(fontSize);
 
-    for (NetGraphModel net : specification.getNets()) {
-      NetCellUtilities.propogateFontChangeAcrossNetNoUndo(
-          net.getGraph(), 
-          net.getGraph().getFont().deriveFont(
-              (float) fontSize
-          )
-      );
-    }
-  }
-  
-  public static HashSet<WebServiceDecomposition> getUsedWebServiceDecompositions(SpecificationModel specification) {
-    HashSet<WebServiceDecomposition> usedDecompositions = new HashSet<WebServiceDecomposition>();
-
-    for(NetGraphModel net: SpecificationModel.getInstance().getNets()) {
-      
-      for(Object taskAsObject: NetUtilities.getAllTasks(net)) {
-        YAWLTask task = (YAWLTask) taskAsObject;
-        if (task.getDecomposition()!= null  && 
-            task.getDecomposition() instanceof WebServiceDecomposition) {
-          usedDecompositions.add((WebServiceDecomposition) task.getDecomposition());
+    public static NetGraphModel getNetModelFromName(String name) {
+        if (! StringUtil.isNullOrEmpty(name)) {
+            for (NetGraphModel net: SpecificationModel.getInstance().getNets()) {
+                if (net.getName().equals(name)) {
+                    return net;
+                }
+            }
         }
-      }
+        return null;
     }
-    return usedDecompositions;
-  }
-  
-  public static NetGraphModel getNetModelFromName(SpecificationModel specification, String name) {
-    if (name == null || name.equals("")) {
-      return null;
-    }
-    
-    for(NetGraphModel net: SpecificationModel.getInstance().getNets()) {
-      if (net.getName().equals(name)) {
-        return net;
-      }
-    }
-
-    return null;
-  }
   
   
   public static boolean isValidDecompositionLabel(SpecificationModel specification, String label) {
