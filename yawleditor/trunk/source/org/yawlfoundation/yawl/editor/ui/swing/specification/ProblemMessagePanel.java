@@ -24,11 +24,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.ProblemList;
-import org.yawlfoundation.yawl.editor.ui.specification.ProblemListSubscriber;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.ProblemListStateListener;
 import org.yawlfoundation.yawl.editor.ui.swing.ProblemTable;
 
 import javax.swing.*;
@@ -36,8 +33,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
-public class ProblemMessagePanel extends JPanel implements SpecificationFileModelListener,
-        ProblemListSubscriber {
+public class ProblemMessagePanel extends JPanel implements FileStateListener,
+        ProblemListStateListener {
 
   private JScrollPane problemScrollPane;
   private static ProblemTable problemResultsTable = buildProblemMessageTable();
@@ -54,8 +51,8 @@ public class ProblemMessagePanel extends JPanel implements SpecificationFileMode
     super();
 
     buildContent();
-      Publisher.getInstance().subscribe(this);
-    problemResultsTable.subscribeForProblemListUpdates(this);
+      Publisher.getInstance().subscribe((FileStateListener) this);
+      Publisher.getInstance().subscribe((ProblemListStateListener) this);
   }
   
   private void buildContent() {
@@ -98,27 +95,22 @@ public class ProblemMessagePanel extends JPanel implements SpecificationFileMode
   }
   
   public void specificationFileStateChange(FileState state) {
-      if (state == FileState.Idle) problemResultsTable.reset();
+      if (state == FileState.Closed) problemResultsTable.reset();
   }
   
   public String getTitle() {
     return title;
   }
   
-  public void problemListUpdated(ProblemList.STATUS status) {
-    switch(status) {
-      case HAS_ENTRIES: {
+  public void contentChange(ProblemListState state) {
+    if (state == ProblemListState.Entries) {
         if (isVisible()) {
           repaint();
-        } else {
+        }
+        else {
           setVisible(true);
         }
         YAWLEditor.getInstance().indicateProblemsTabActivity();
-        break;
-      }
-      case NO_ENTRIES: {
-        break;
-      }
     }
   }
 }

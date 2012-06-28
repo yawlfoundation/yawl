@@ -26,7 +26,6 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
@@ -36,12 +35,8 @@ import java.awt.*;
 
 public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
   private static final SpecificationModel model = SpecificationModel.getInstance();
-  private static YAWLEditorDesktop INSTANCE = null;
+  private static YAWLEditorDesktop INSTANCE;
 
 
    private YAWLEditorDesktop() {
@@ -50,8 +45,7 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
    }
 
     public static YAWLEditorDesktop getInstance( ) {
-       if (INSTANCE == null)
-           INSTANCE = new YAWLEditorDesktop();
+       if (INSTANCE == null) INSTANCE = new YAWLEditorDesktop();
        return INSTANCE;
    }
 
@@ -91,9 +85,9 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
     public void closeAllNets() {
         Component[] frames = getComponents();
 
-        for(int i = 0; i < frames.length; i++) {
-            ((YAWLEditorNetPanel) frames[i]).resetFrame();
-            remove(frames[i]);
+        for (Component frame : frames) {
+            ((YAWLEditorNetPanel) frame).resetFrame();
+            remove(frame);
         }
     }
 
@@ -138,10 +132,7 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
     
   public NetGraph getSelectedGraph() {
       YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
-    if (frame != null) {
-      return frame.getNet();
-    }
-    return null;
+      return frame != null ? frame.getNet() : null;
   }
 
   public void stateChanged(ChangeEvent e) {

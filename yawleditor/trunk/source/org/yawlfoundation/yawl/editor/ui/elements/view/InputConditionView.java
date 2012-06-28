@@ -31,10 +31,6 @@ import java.awt.*;
 
 public class InputConditionView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final InputConditionRenderer renderer = new InputConditionRenderer();
 
   public InputConditionView(Object vertex) {
@@ -46,11 +42,9 @@ public class InputConditionView extends VertexView {
   }
 }
 
+
 class InputConditionRenderer extends ConditionView.ConditionRenderer {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
   private static final Color fillColor = new Color(240,255,240);
 
   protected void drawVertex(Graphics graphics, Dimension size) {

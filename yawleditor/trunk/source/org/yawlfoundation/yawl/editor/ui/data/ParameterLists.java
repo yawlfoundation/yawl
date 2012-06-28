@@ -30,16 +30,6 @@ public class ParameterLists implements Serializable, Cloneable {
   
   // TODO: Seal these so input params cannot be assigned to the output list and vica-versa.
   
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   protected HashMap serializationProofAttributeMap = new HashMap();
 
   public ParameterLists() {

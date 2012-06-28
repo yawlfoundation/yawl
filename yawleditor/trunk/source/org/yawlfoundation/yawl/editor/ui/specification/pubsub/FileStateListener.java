@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification.pubsub;
 
-public interface SpecificationFileModelListener {
+public interface FileStateListener {
 
     public abstract void specificationFileStateChange(FileState state);
 }

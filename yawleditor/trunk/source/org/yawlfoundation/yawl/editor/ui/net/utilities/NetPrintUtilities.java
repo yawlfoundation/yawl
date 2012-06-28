@@ -76,7 +76,8 @@ public class NetPrintUtilities {
 
     Dimension d = bounds.getBounds().getSize();
 
-    String printoutLabel = "Specification ID: " + SpecificationModel.getInstance().getId() +
+    String printoutLabel = "Specification ID: " +
+            SpecificationModel.getSpec().getID().getUri() +
                            ", Net ID:  " + net.getName();
 
     int characterHeight = net.getFontMetrics(net.getFont()).getHeight();

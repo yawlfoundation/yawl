@@ -23,24 +23,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.data;
 
-import java.io.Serializable;
-import java.util.HashMap;
+public class Parameter {
 
-public class Parameter implements Serializable {
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  protected HashMap serializationProofAttributeMap = new HashMap();
-
-  private transient ParameterList list;
+  private ParameterList _list;
+    private DataVariable _variable;
+    private String _query;
   
   public Parameter() {
     setVariable(null);
@@ -52,31 +39,20 @@ public class Parameter implements Serializable {
     setQuery(query);
   }
   
-  public void setVariable(DataVariable variable) {
-    serializationProofAttributeMap.put("variable",variable);
-  }
+  public void setVariable(DataVariable variable) { _variable = variable; }
 
-  public DataVariable getVariable() {
-    return (DataVariable) serializationProofAttributeMap.get("variable");
-  }
-  
-  public void setQuery(String query) {
-    serializationProofAttributeMap.put("query",query);
-  }
+  public DataVariable getVariable() { return _variable; }
 
-  public String getQuery() {
-    return (String) serializationProofAttributeMap.get("query");
-  }
+
+  public void setQuery(String query) { _query = query; }
+
+  public String getQuery() { return _query; }
+
+
+  public String getVariableName() { return getVariable().getName(); }
+
+
+  public void setList(ParameterList list) { _list = list; }
   
-  public String getVariableName() {
-    return getVariable().getName();
-  }
-  
-  public void setList(ParameterList list) {
-    this.list = list;
-  }
-  
-  public ParameterList getList() {
-    return this.list;
-  }
+  public ParameterList getList() { return _list; }
 }

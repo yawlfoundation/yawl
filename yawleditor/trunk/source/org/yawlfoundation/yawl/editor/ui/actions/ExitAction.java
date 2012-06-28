@@ -55,6 +55,6 @@ public class ExitAction extends YAWLOpenSpecificationAction implements TooltipTo
     }
 
     public String getDisabledTooltipText() {
-        return " You cannot exit the application until there the current file operation completes ";
+        return " You cannot exit the application until the current file operation completes ";
     }
 }

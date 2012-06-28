@@ -32,10 +32,6 @@ import java.awt.*;
 
 public class MultipleAtomicTaskView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final MultipleAtomicTaskRenderer renderer = new MultipleAtomicTaskRenderer();
 
   public MultipleAtomicTaskView(Object vertex) {
@@ -46,11 +42,8 @@ public class MultipleAtomicTaskView extends VertexView {
     return renderer;
   }
 
+
   public static class MultipleAtomicTaskRenderer extends YAWLVertexRenderer {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
 
     public static final int GAP_DIVISOR = 4;
 

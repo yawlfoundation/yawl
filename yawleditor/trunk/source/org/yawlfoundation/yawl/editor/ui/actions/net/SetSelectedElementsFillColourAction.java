@@ -30,7 +30,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -42,7 +42,7 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
-                                implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
+                                implements TooltipTogglingWidget, GraphStateListener {
 
   /**
    *

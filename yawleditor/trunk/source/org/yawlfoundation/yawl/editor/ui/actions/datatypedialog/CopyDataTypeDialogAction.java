@@ -20,30 +20,28 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.actions;
+package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class FindTextDataTypeDialogAction extends YAWLBaseAction {
-
-    private DataTypeDialogToolBarMenu toolbar;
+public class CopyDataTypeDialogAction extends YAWLBaseAction {
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Find text");
-        putValue(Action.NAME, "FindText");
-        putValue(Action.LONG_DESCRIPTION, "Find Text");
-        putValue(Action.SMALL_ICON, getPNGIcon("find"));
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
+        putValue(Action.SHORT_DESCRIPTION, " Copy the selected text to the Clipboard");
+        putValue(Action.NAME, "Copy");
+        putValue(Action.LONG_DESCRIPTION, "Copy the selected text");
+        putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
     }
 
-    public FindTextDataTypeDialogAction(DataTypeDialogToolBarMenu bar) {
-        toolbar = bar;
-    }
 
     public void actionPerformed(ActionEvent event) {
-        DataTypeDialogToolBarMenu.getEditorPane().findText(toolbar.getFindText());
+        DataTypeDialogToolBarMenu.getEditorPane().getEditor().copy();
+        DataTypeDialogToolBarMenu.getInstance().getButton("paste").setEnabled(true);
     }
 }

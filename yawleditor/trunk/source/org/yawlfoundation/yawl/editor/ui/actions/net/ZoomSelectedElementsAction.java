@@ -26,7 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
@@ -36,7 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
-public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements SpecificationSelectionSubscriber  {
+public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements GraphStateListener {
 
   private static final int ZOOM_PADDING = 20;
   /**

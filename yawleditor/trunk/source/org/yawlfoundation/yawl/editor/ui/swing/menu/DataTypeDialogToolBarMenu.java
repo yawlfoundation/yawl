@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.actions.*;
+import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
 import org.yawlfoundation.yawl.editor.ui.swing.data.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.swing.data.JXMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;

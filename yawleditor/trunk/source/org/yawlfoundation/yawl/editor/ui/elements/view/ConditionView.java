@@ -24,43 +24,33 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.view;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-
-import org.jgraph.graph.VertexView;
 import org.jgraph.graph.CellViewRenderer;
+import org.jgraph.graph.VertexView;
+
+import java.awt.*;
 
 public class ConditionView extends VertexView {
+    private static final ConditionRenderer renderer = new ConditionRenderer();
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final ConditionRenderer renderer = new ConditionRenderer();
-
-  public ConditionView(Object vertex) {
-    super(vertex);
-  }
-
-  public CellViewRenderer getRenderer() {
-    return renderer;
-  }
-  
-  public static class ConditionRenderer extends YAWLVertexRenderer {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    protected void fillVertex(Graphics graphics, Dimension size) {
-      graphics.fillOval(0, 0, size.width, size.height);
-
+    public ConditionView(Object vertex) {
+        super(vertex);
     }
-  
-    protected void drawVertex(Graphics graphics, Dimension size) {
-      graphics.drawOval(0, 0, size.width - 1, size.height - 1);
+
+    public CellViewRenderer getRenderer() {
+        return renderer;
     }
-  }
+
+    public static class ConditionRenderer extends YAWLVertexRenderer {
+
+        protected void fillVertex(Graphics graphics, Dimension size) {
+            graphics.fillOval(0, 0, size.width, size.height);
+
+        }
+
+        protected void drawVertex(Graphics graphics, Dimension size) {
+            graphics.drawOval(0, 0, size.width - 1, size.height - 1);
+        }
+    }
 }
 
 

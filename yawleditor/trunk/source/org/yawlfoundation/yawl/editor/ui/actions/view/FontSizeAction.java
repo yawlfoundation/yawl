@@ -34,121 +34,105 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class FontSizeAction extends YAWLBaseAction {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final FontSizeDialog dialog = new FontSizeDialog();
-  private boolean isFirstInvocation = false;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Set the element label font size. ");
-    putValue(Action.NAME, "Label Font Size...");
-    putValue(Action.LONG_DESCRIPTION, "Set the element label font size.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
-  }
+    private static final FontSizeDialog dialog = new FontSizeDialog();
+    private boolean isFirstInvocation = false;
 
-  public FontSizeAction() {
-  }
- 
-  public void actionPerformed(ActionEvent event) {
-    if (!isFirstInvocation) {
-      dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-      isFirstInvocation = true;       
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Set the element label font size. ");
+        putValue(Action.NAME, "Label Font Size...");
+        putValue(Action.LONG_DESCRIPTION, "Set the element label font size.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
     }
-    dialog.setVisible(true);
-  }
+
+    public FontSizeAction() { }
+
+    public void actionPerformed(ActionEvent event) {
+        if (!isFirstInvocation) {
+            dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+            isFirstInvocation = true;
+        }
+        dialog.setVisible(true);
+    }
 }
 
 class FontSizeDialog extends AbstractDoneDialog {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  protected JSpinner labelFontSizeSpinner;
-  
-  public FontSizeDialog() {
-    super("Set Element Label Font Size", true);
 
-    setContentPanel(getFontSizePanel());
-    getDoneButton().addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            if (labelFontSizeSpinner.isEnabled()) {
-              int oldFontSize = getFontSize();
-               setFontSize(
-                   oldFontSize, 
-                   ((Integer) labelFontSizeSpinner.getModel().getValue()).intValue()
-               );
-            }
-          }
-        }
-    );
-  }
+    protected JSpinner labelFontSizeSpinner;
 
-  protected void makeLastAdjustments() {
-    pack();
-    setResizable(false);
-  }
+    public FontSizeDialog() {
+        super("Set Element Label Font Size", true);
 
-  public void setVisible(boolean state) {
-    if (state == true) {
-      setSpinnerValue();
+        setContentPanel(getFontSizePanel());
+        getDoneButton().addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (labelFontSizeSpinner.isEnabled()) {
+                            setFontSize(getFontSize(),
+                                    (Integer) labelFontSizeSpinner.getModel().getValue()
+                            );
+                        }
+                    }
+                }
+        );
     }
-    super.setVisible(state);
-  }
-  
-  private JPanel getFontSizePanel() {
 
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
+    protected void makeLastAdjustments() {
+        pack();
+        setResizable(false);
+    }
 
-    JPanel panel = new JPanel(gbl);
-    panel.setBorder(new EmptyBorder(12,12,0,11));
+    public void setVisible(boolean state) {
+        if (state) setSpinnerValue();
+        super.setVisible(state);
+    }
 
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.insets = new Insets(0,0,0,5);
-    gbc.anchor = GridBagConstraints.EAST;
+    private JPanel getFontSizePanel() {
 
-    JLabel label = new JLabel("Label Font Size:");
-    label.setDisplayedMnemonicIndex(0);
-    panel.add(label, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
+        GridBagLayout gbl = new GridBagLayout();
+        GridBagConstraints gbc = new GridBagConstraints();
 
-    labelFontSizeSpinner = getLabelFontSizeSpinner();
+        JPanel panel = new JPanel(gbl);
+        panel.setBorder(new EmptyBorder(12,12,0,11));
 
-    label.setLabelFor(labelFontSizeSpinner);
-    
-    panel.add(labelFontSizeSpinner, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0,0,0,5);
+        gbc.anchor = GridBagConstraints.EAST;
 
-    return panel;
-  }
-  
-  private JSpinner getLabelFontSizeSpinner() {
-    JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, 50, 1));
+        JLabel label = new JLabel("Label Font Size:");
+        label.setDisplayedMnemonicIndex(0);
+        panel.add(label, gbc);
 
-    return spinner;
-  }
-  
-  private void setSpinnerValue() {
-    labelFontSizeSpinner.setEnabled(false);
+        gbc.gridx++;
+        gbc.anchor = GridBagConstraints.WEST;
 
-    labelFontSizeSpinner.getModel().setValue(new Integer(getFontSize()));
-    
-    labelFontSizeSpinner.setEnabled(true);
-    pack();
-  }
-  
-  private int getFontSize() {
-    return SpecificationModel.getInstance().getFontSize();
-  }
-  
-  private void setFontSize(int oldSize, int newSize) {
-    SpecificationModel.getInstance().undoableSetFontSize(oldSize, newSize);
-  }
+        labelFontSizeSpinner = getLabelFontSizeSpinner();
+
+        label.setLabelFor(labelFontSizeSpinner);
+
+        panel.add(labelFontSizeSpinner, gbc);
+
+        return panel;
+    }
+
+    private JSpinner getLabelFontSizeSpinner() {
+        return new JSpinner(new SpinnerNumberModel(0, 0, 50, 1));
+    }
+
+    private void setSpinnerValue() {
+        labelFontSizeSpinner.setEnabled(false);
+        labelFontSizeSpinner.getModel().setValue(getFontSize());
+        labelFontSizeSpinner.setEnabled(true);
+        pack();
+    }
+
+    private int getFontSize() {
+        return SpecificationModel.getInstance().getFontSize();
+    }
+
+    private void setFontSize(int oldSize, int newSize) {
+        SpecificationModel.getInstance().undoableSetFontSize(oldSize, newSize);
+    }
 }
 

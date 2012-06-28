@@ -29,10 +29,6 @@ import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import java.awt.geom.Point2D;
 
 public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     /**
      * This constructor is ONLY to be invoked when we are reconstructing an
@@ -90,7 +86,4 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
         return getTimeoutDetail() != null;
     }
 
-    public boolean isAutomated() {
-        return (getDecomposition() != null) && (!getDecomposition().isManualInteraction());
-    }
 }

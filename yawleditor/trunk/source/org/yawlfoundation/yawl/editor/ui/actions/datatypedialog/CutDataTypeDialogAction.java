@@ -20,8 +20,9 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.actions;
+package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;

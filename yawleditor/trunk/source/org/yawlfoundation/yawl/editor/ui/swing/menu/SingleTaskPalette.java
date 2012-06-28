@@ -6,7 +6,7 @@ import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -21,7 +21,7 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 public class SingleTaskPalette extends JTabbedPane
-        implements SpecificationSelectionSubscriber{
+        implements GraphStateListener {
 
   private static final long serialVersionUID = 1L;
 

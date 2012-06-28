@@ -31,10 +31,6 @@ import java.awt.*;
 
 public class OutputConditionView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final OutputConditionRenderer renderer = new OutputConditionRenderer();
 
   public OutputConditionView(Object vertex) {
@@ -47,10 +43,7 @@ public class OutputConditionView extends VertexView {
 }
 
 class OutputConditionRenderer extends ConditionView.ConditionRenderer {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
   private static final Color fillColor = new Color(255,240,240);
 
   protected void drawVertex(Graphics graphics, Dimension size) {

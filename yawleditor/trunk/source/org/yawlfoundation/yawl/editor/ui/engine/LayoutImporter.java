@@ -8,7 +8,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
-import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -26,17 +25,8 @@ public class LayoutImporter {
 
     private LayoutImporter() {}
 
-    public static void importAndApply(SpecificationModel model)
-            throws YLayoutParseException {
-        YSpecification specification = SpecificationModel.getSpec().getSpecification();
-        String layoutXML = SpecificationModel.getSpec().getLayoutXML();
-        YLayout layout = new YLayout(specification);
-        layout.parse(layoutXML);
-        setLayout(model, layout);
-    }
-
-
-    private static void setLayout(SpecificationModel model, YLayout layout) {
+    public static void importAndApply(YLayout layout) throws YLayoutParseException {
+        SpecificationModel model = SpecificationModel.getInstance();
         for (YNetLayout netLayout : layout.getNetLayouts().values()) {
             NetGraphModel netModel = model.getNet(netLayout.getID());
             setNetLayout(netModel, netLayout);

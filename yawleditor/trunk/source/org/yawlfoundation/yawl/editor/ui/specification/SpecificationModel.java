@@ -25,12 +25,15 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
+import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.elements.model.SplitDecorator;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
@@ -43,7 +46,8 @@ import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
@@ -61,6 +65,8 @@ public class SpecificationModel {
 
   public static final int   DEFAULT_FONT_SIZE = 15;
   public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
+    public static final String DEFAULT_WORKLIST_LABEL = "Default Engine Worklist";
+    public static final String ENGINE_WORKLIST_NAME = "DefaultWorklist";
 
   public static final String DEFAULT_TYPE_DEFINITION = 
     "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
@@ -82,15 +88,8 @@ public class SpecificationModel {
   private int     fontSize;
   private int     defaultNetBackgroundColor;
   private Color   defaultVertexBackground;
-  private String  name;
-  private String  description;
-  private String  id;
-  private String  uniqueID = "UID_" + UUID.randomUUID().toString();
-  private String  author;
   private YSpecVersion versionNumber;
   private YSpecVersion prevVersionNumber;
-  private String  validFromTimestamp;
-  private String  validUntilTimestamp;
   private boolean _versionChanged;
   private DataSchemaValidator _schemaValidator;
 
@@ -121,13 +120,7 @@ public class SpecificationModel {
     defaultVertexBackground = getPreferredVertexBackground();
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
 
-    setName("");
-    setDescription("No description has been given.");
-    setId("");
-    setAuthor(System.getProperty("user.name"));
     setVersionNumber(new YSpecVersion("0.0"));
-    setValidFromTimestamp("");
-    setValidUntilTimestamp("");
     YAWLEditor.setStatusBarText("Open or create a net to begin.");
       getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
     prevVersionNumber = null;
@@ -145,22 +138,13 @@ public class SpecificationModel {
     }
 
 
-  public int getNetCount() {
-    return nets.size();
-  }
-  
-  public void setNets(HashSet nets) {
-    this.nets = nets;
-  }
 
   public Set<NetGraphModel> getNets() {
     return nets;
   }
   
-  public SortedSet<NetGraphModel> getSortedNets() {
-    TreeSet<NetGraphModel> sortedNets = new TreeSet<NetGraphModel>();
-    sortedNets.addAll(getNets());
-    return sortedNets;
+  public Set<NetGraphModel> getSortedNets() {
+      return new TreeSet<NetGraphModel>(nets);
   }
   
   public NetGraphModel getStartingNet() {
@@ -295,7 +279,7 @@ public class SpecificationModel {
   }
   
   public void setFileName(String fileName) {
-//    SpecificationFileModel.getInstance().setFileName(fileName);
+     _specification.setFileName(fileName);
   }
 
   
@@ -629,46 +613,6 @@ public class SpecificationModel {
     }
 
 
-  public void setName(String name) {
-    this.name = name;
-  }
-  
-  public String getName() {
-    return this.name;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-  
-  public String getDescription() {
-    return this.description;
-  }
-  
-  public void setId(String id) {
-    this.id = id;
-  }
-  
-  public String getId() {
-    if (this.id == null || this.id.trim().equals("")) {
-      this.id = XMLUtilities.fileNameToURI(this.getFileName());
-    }
-    return this.id;
-  }
-
-  public String getUniqueID() { return uniqueID; }
-
-  public void setUniqueID(String id) { uniqueID = id; }
-    
-  
-  public void setAuthor(String author) {
-    this.author = author;
-  }
-  
-  public String getAuthor() {
-    return this.author;
-  }
-
   public void setVersionNumber(YSpecVersion version) {
       if (versionNumber != null) {
           _versionChanged = (! versionNumber.equals(version));
@@ -692,22 +636,6 @@ public class SpecificationModel {
   public YSpecVersion getPreviousVersionNumber() { return prevVersionNumber; }  
 
   public boolean isVersionChanged() { return _versionChanged; }
-  
-  public void setValidFromTimestamp(String timestamp) {
-    this.validFromTimestamp = timestamp;
-  }
-  
-  public String getValidFromTimestamp() {
-    return this.validFromTimestamp;
-  }
-
-  public void setValidUntilTimestamp(String timestamp) {
-    this.validUntilTimestamp = timestamp;
-  }
-  
-  public String getValidUntilTimestamp() {
-    return this.validUntilTimestamp;
-  }
 
   
     public EngineIdentifier getUniqueIdentifier(String label) {

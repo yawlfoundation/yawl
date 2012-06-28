@@ -26,7 +26,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -38,7 +38,7 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 public class DecreaseSizeAction extends YAWLSelectedNetAction
-        implements TooltipTogglingWidget, SpecificationSelectionSubscriber {
+        implements TooltipTogglingWidget, GraphStateListener {
 
   /**
    * 

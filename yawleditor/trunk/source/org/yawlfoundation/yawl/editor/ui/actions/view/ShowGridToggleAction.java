@@ -32,34 +32,29 @@ import java.awt.event.ActionEvent;
 
 public class ShowGridToggleAction extends YAWLBaseAction {
 
-  private boolean selected;
+    private boolean selected;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
-    putValue(Action.NAME, "Show Grids in Diagrams");
-    putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_G));
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
+        putValue(Action.NAME, "Show Grids in Diagrams");
+        putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_G));
+    }
 
-  public ShowGridToggleAction() {
-    selected = UserSettings.getShowGrid();
-  }
- 
-  public void actionPerformed(ActionEvent event) {
-    selected = !selected;
-    
-    JCheckBoxMenuItem menuItem = 
-      (JCheckBoxMenuItem) event.getSource();
-    menuItem.setSelected(selected);
-    UserSettings.setShowGrid(selected);
-    
-    SpecificationUtilities.showGridOfNets(
-        SpecificationModel.getInstance(), 
-        selected
-    );
-  }
-  
-  public boolean isSelected() {
-    return selected; 
-  }
+    public ShowGridToggleAction() {
+        selected = UserSettings.getShowGrid();
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        selected = !selected;
+
+        JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
+        menuItem.setSelected(selected);
+        UserSettings.setShowGrid(selected);
+        SpecificationUtilities.showGridOfNets(SpecificationModel.getInstance(), selected);
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
 }

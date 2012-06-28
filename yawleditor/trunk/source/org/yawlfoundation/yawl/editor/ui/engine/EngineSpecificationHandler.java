@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.io.File;
@@ -80,7 +81,7 @@ public class EngineSpecificationHandler {
 
   public void engineFormatFileExport(SpecificationModel editorSpec) {
     String fileName = editorSpec.getFileName();
-    if (fileName == null) fileName = promptForSaveFileName();
+    if (StringUtil.isNullOrEmpty(fileName)) fileName = promptForSaveFileName();
     saveSpecificationToFile(editorSpec, fileName);
   }
 

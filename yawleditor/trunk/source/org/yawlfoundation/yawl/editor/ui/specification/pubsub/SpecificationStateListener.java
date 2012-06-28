@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification.pubsub;
 
-public interface SpecificationModelListener {
+public interface SpecificationStateListener {
 
     public abstract void specificationStateChange(SpecificationState state);
 }
