@@ -22,7 +22,6 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.specification.ProblemList;
-import org.yawlfoundation.yawl.editor.ui.specification.ProblemListSubscriber;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -68,10 +67,7 @@ public class ProblemTable extends JSingleSelectTable {
   public void reset() {
     getMessageModel().reset();
   }
-  
-  public void subscribeForProblemListUpdates(ProblemListSubscriber subscriber) {
-    getMessageModel().subscribeForProblemListUpdates(subscriber);
-  }
+
   
   public int getMessageHeight() {
     return getFontMetrics(getFont()).getHeight();
@@ -147,10 +143,7 @@ class MessageTableModel extends AbstractTableModel {
   public void reset() {
     messages.clear();
   }
-  
-  public void subscribeForProblemListUpdates(ProblemListSubscriber subscriber) {
-    messages.subscribe(subscriber);
-  }
+
 
   public String getColumnName(int columnIndex) {
     return null;

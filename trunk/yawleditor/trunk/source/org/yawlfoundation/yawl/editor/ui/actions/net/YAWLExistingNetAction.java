@@ -26,12 +26,12 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 class YAWLExistingNetAction extends YAWLBaseAction 
-                            implements SpecificationModelListener {
+                            implements SpecificationStateListener {
 
   private static final long serialVersionUID = 1L;
   private final SpecificationModel specificationModel = 

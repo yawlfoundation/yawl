@@ -31,29 +31,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Set the default net background colour. ");
-    putValue(Action.NAME, "Default Net Background Colour...");
-    putValue(Action.LONG_DESCRIPTION, "Set the default net background colour.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
-  }
-
-  public DefaultNetBackgroundColourAction() {}
- 
-  public void actionPerformed(ActionEvent event) {
-    Color newColor = JColorChooser.showDialog(
-        YAWLEditor.getInstance(),
-        "Select Default Net Background Color",
-        new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor())
-    );
-    if (newColor != null) {
-      SpecificationModel.getInstance().setDefaultNetBackgroundColor(newColor.getRGB());
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Set the default net background colour. ");
+        putValue(Action.NAME, "Default Net Background Colour...");
+        putValue(Action.LONG_DESCRIPTION, "Set the default net background colour.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
     }
-  }
+
+    public DefaultNetBackgroundColourAction() {}
+
+    public void actionPerformed(ActionEvent event) {
+        Color newColor = JColorChooser.showDialog(
+                YAWLEditor.getInstance(),
+                "Select Default Net Background Color",
+                new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor())
+        );
+        if (newColor != null) {
+            SpecificationModel.getInstance().setDefaultNetBackgroundColor(newColor.getRGB());
+        }
+    }
 }

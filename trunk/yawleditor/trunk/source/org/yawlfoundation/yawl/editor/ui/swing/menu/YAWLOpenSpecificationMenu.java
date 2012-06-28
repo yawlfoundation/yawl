@@ -26,13 +26,13 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 
 import javax.swing.*;
 
 abstract class YAWLOpenSpecificationMenu extends JMenu 
-                                implements SpecificationFileModelListener {
+                                implements FileStateListener {
 
   public YAWLOpenSpecificationMenu(String title, int keyEventCode) {
     super(title);
@@ -44,6 +44,6 @@ abstract class YAWLOpenSpecificationMenu extends JMenu
   protected abstract void buildInterface();
   
   public void specificationFileStateChange(FileState state) {
-      setEnabled(state != FileState.Idle);
+      setEnabled(state != FileState.Closed);
   }
 }

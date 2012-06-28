@@ -25,12 +25,12 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 import javax.swing.*;
 
-abstract class YAWLOpenNetMenu extends JMenu implements SpecificationModelListener {
+abstract class YAWLOpenNetMenu extends JMenu implements SpecificationStateListener {
 
     public YAWLOpenNetMenu(String title, int keyEventCode) {
         super(title);

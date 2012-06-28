@@ -4,7 +4,7 @@ import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.util.Arrays;
 
-public class SpecificationBottomPanel extends JTabbedPane implements SpecificationSelectionSubscriber {
+public class SpecificationBottomPanel extends JTabbedPane implements GraphStateListener {
 
     private static final long serialVersionUID = 1L;
 

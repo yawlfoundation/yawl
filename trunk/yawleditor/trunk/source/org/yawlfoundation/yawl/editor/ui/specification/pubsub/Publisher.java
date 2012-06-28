@@ -13,18 +13,20 @@ public class Publisher {
     private SpecificationState _specState;
     private FileState _fileState;
 
-    private Set<SpecificationModelListener> _specListeners;
-    private Set<SpecificationFileModelListener> _fileListeners;
-    private Map<GraphState, Set<SpecificationSelectionSubscriber>> _graphListeners;
+    private Set<SpecificationStateListener> _specListeners;
+    private Set<FileStateListener> _fileListeners;
+    private Set<ProblemListStateListener> _problemListListeners;
+    private Map<GraphState, Set<GraphStateListener>> _graphListeners;
 
     private static Publisher _instance;
 
 
     private Publisher() {
-        _specListeners = new HashSet<SpecificationModelListener>();
-        _fileListeners = new HashSet<SpecificationFileModelListener>();
+        _specListeners = new HashSet<SpecificationStateListener>();
+        _fileListeners = new HashSet<FileStateListener>();
+        _problemListListeners = new HashSet<ProblemListStateListener>();
         initGraphListenersMap();
-        _fileState = FileState.Idle;
+        _fileState = FileState.Closed;
         _specState = SpecificationState.NoNetsExist;
     }
 
@@ -35,42 +37,53 @@ public class Publisher {
     }
 
 
-    public void subscribe(SpecificationModelListener listener) {
+    public void subscribe(SpecificationStateListener listener) {
         _specListeners.add(listener);
         listener.specificationStateChange(_specState);
     }
 
 
-    public void subscribe(SpecificationFileModelListener listener) {
+    public void subscribe(FileStateListener listener) {
         _fileListeners.add(listener);
         listener.specificationFileStateChange(_fileState);
     }
 
 
-    public void subscribe(SpecificationSelectionSubscriber listener,
+    public void subscribe(ProblemListStateListener listener) {
+        _problemListListeners.add(listener);
+    }
+
+    public void subscribe(GraphStateListener listener,
                           List<GraphState> interestedStates) {
         for (GraphState state : interestedStates) {
             _graphListeners.get(state).add(listener);
-//            listener.graphSelectionChange(state, null);
         }
     }
 
 
     public void publishState(SpecificationState state) {
-        for (SpecificationModelListener listener : _specListeners) {
+        for (SpecificationStateListener listener : _specListeners) {
             listener.specificationStateChange(state);
         }
     }
 
 
     public void publishState(FileState state) {
-        for (SpecificationFileModelListener listener : _fileListeners) {
+        for (FileStateListener listener : _fileListeners) {
             listener.specificationFileStateChange(state);
         }
     }
 
+
+    public void publishState(ProblemListState state) {
+        for (ProblemListStateListener listener : _problemListListeners) {
+            listener.contentChange(state);
+        }
+    }
+
+
     public void publishState(GraphState state, GraphSelectionEvent event) {
-        for (SpecificationSelectionSubscriber listener : _graphListeners.get(state)) {
+        for (GraphStateListener listener : _graphListeners.get(state)) {
             listener.graphSelectionChange(state, event);
         }
     }
@@ -113,12 +126,12 @@ public class Publisher {
 
 
     public void publishOpenFileEvent() {
-        setFileState(FileState.Ready);
+        setFileState(FileState.Open);
     }
 
 
     public void publishCloseFileEvent() {
-        setFileState(FileState.Idle);
+        setFileState(FileState.Closed);
     }
 
     public void publishFileBusyEvent() {
@@ -131,9 +144,9 @@ public class Publisher {
 
 
     private void initGraphListenersMap() {
-        _graphListeners = new Hashtable<GraphState, Set<SpecificationSelectionSubscriber>>();
+        _graphListeners = new Hashtable<GraphState, Set<GraphStateListener>>();
         for (GraphState state : GraphState.values()) {
-            _graphListeners.put(state, new HashSet<SpecificationSelectionSubscriber>());
+            _graphListeners.put(state, new HashSet<GraphStateListener>());
         }
     }
 

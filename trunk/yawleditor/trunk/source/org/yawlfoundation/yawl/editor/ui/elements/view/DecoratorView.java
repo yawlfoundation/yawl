@@ -35,7 +35,6 @@ import java.awt.*;
 
 public class DecoratorView extends VertexView {
   
-  private static final long serialVersionUID = 1L;
   private DecoratorRenderer decoratorRenderer;
 
   public DecoratorView(Decorator decorator) {
@@ -55,7 +54,6 @@ public class DecoratorView extends VertexView {
 }
 
 class JoinDecoratorRenderer extends DecoratorRenderer {
-  private static final long serialVersionUID = 1L;
 
   public JoinDecoratorRenderer(JoinDecorator joinDecorator) {
     super(joinDecorator);
@@ -67,7 +65,6 @@ class JoinDecoratorRenderer extends DecoratorRenderer {
 }
 
 class SplitDecoratorRenderer extends DecoratorRenderer {
-  private static final long serialVersionUID = 1L;
 
   public SplitDecoratorRenderer(SplitDecorator splitDecorator) {
     super(splitDecorator);
@@ -234,7 +231,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
   }
   
   /**
-   * Dwaws a decorator. The basic process is to fill the decorator space with
+   * Draws a decorator. The basic process is to fill the decorator space with
    * the color specified by backingColor, then to fill the area taken by the polygon
    * shape of the decorator with it's polygonColor, then to draw a border around the 
    * polygon, and then finally, draw a border around the entire decorator.

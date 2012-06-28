@@ -26,7 +26,7 @@ import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -41,7 +41,7 @@ import java.util.Arrays;
  *
  */
 public class CutAction extends YAWLBaseAction
-        implements TooltipTogglingWidget, SpecificationSelectionSubscriber  {
+        implements TooltipTogglingWidget, GraphStateListener {
 
     private static final CutAction INSTANCE = new CutAction();
 

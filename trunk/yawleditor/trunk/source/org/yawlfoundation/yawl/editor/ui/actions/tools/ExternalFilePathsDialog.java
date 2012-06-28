@@ -1,7 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
@@ -27,6 +26,9 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     private JTextField _fldIcons;
     private JTextField _fldWofyawl;
     private JTextField _fldWendy;
+
+    public static final String PROPERTY_LOCATION =
+            FileUtilities.getDecompositionPropertiesExtendeAttributePath();
 
 
     public ExternalFilePathsDialog() {
@@ -130,7 +132,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
 
     private String getDecompositionPath() {
         String path = UserSettings.getDecompositionAttributesFilePath();
-        return path != null ? path : Decomposition.PROPERTY_LOCATION;
+        return path != null ? path : PROPERTY_LOCATION;
     }
 
     private String getVariablePath() {

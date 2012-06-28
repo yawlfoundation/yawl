@@ -32,28 +32,23 @@ import java.awt.event.ActionEvent;
 
 public class DefaultElementBackgroundColourAction extends YAWLBaseAction {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
-
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Set the default element fill colour. ");
-    putValue(Action.NAME, "Default Element Fill Colour...");
-    putValue(Action.LONG_DESCRIPTION, "Set the default element fill colour.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
-  }
-
-  public DefaultElementBackgroundColourAction() {}
-
-  public void actionPerformed(ActionEvent event) {
-    Color newColor = JColorChooser.showDialog(
-        YAWLEditor.getInstance(),
-        "Select Default Element Background Color",
-         SpecificationModel.getInstance().getDefaultVertexBackgroundColor()
-    );
-    if (newColor != null) {
-      SpecificationModel.getInstance().setDefaultVertexBackgroundColor(newColor);
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Set the default element fill colour. ");
+        putValue(Action.NAME, "Default Element Fill Colour...");
+        putValue(Action.LONG_DESCRIPTION, "Set the default element fill colour.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
     }
-  }
+
+    public DefaultElementBackgroundColourAction() {}
+
+    public void actionPerformed(ActionEvent event) {
+        Color newColor = JColorChooser.showDialog(
+                YAWLEditor.getInstance(),
+                "Select Default Element Background Color",
+                SpecificationModel.getInstance().getDefaultVertexBackgroundColor()
+        );
+        if (newColor != null) {
+            SpecificationModel.getInstance().setDefaultVertexBackgroundColor(newColor);
+        }
+    }
 }

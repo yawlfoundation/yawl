@@ -22,6 +22,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
+import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
+import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
@@ -33,7 +35,9 @@ import org.yawlfoundation.yawl.editor.ui.data.internal.YTimerType;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.ui.resourcing.*;
+import org.yawlfoundation.yawl.editor.ui.resourcing.DataVariableContent;
+import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.editor.ui.resourcing.ResourcingCategory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
@@ -60,7 +64,6 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
-import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -75,17 +78,11 @@ import java.util.*;
 
 public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
-  public static void exportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
-      if (checkUserDefinedDataTypes(editorSpec)) {
-          String specXML = getEngineSpecificationXML(editorSpec);
-          if (successful(specXML)) {
-              exportStringToFile(addLayoutData(specXML, editorSpec), fullFileName);
-          }
-      }
-      reset();
-  }
+    private static YEditorSpecification _spec = SpecificationModel.getSpec();
+
   
-  public static boolean checkAndExportEngineSpecToFile(SpecificationModel editorSpec, String fullFileName) {
+  public static boolean checkAndExportEngineSpecToFile(SpecificationModel editorSpec,
+                                                       String fullFileName) {
       boolean success = false;
       try {
           if (checkUserDefinedDataTypes(editorSpec)) {
@@ -267,33 +264,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
 
   private static void generateEngineMetaData(SpecificationModel editorSpec, 
                                              YSpecification engineSpec) {
-    
-    engineSpec.setVersion(YSchemaVersion.TwoPointTwo);
-    
+
     YMetaData metaData = new YMetaData();
 
-    if (editorSpec.getName() != null && 
-        !editorSpec.getName().trim().equals("")) {
-      metaData.setTitle(
-          XMLUtilities.quoteSpecialCharacters(
-            editorSpec.getName()
-          )
-      );
-    }
-    if (editorSpec.getDescription() != null &&
-        !editorSpec.getDescription().trim().equals("")) {
-      metaData.setDescription(
-          XMLUtilities.quoteSpecialCharacters(
-            editorSpec.getDescription()
-          )
-      );
-    }
-    if (editorSpec.getAuthor() != null &&
-        !editorSpec.getAuthor().trim().equals("")) {
-        List<String> authors = new ArrayList<String>();
-        authors.add(XMLUtilities.quoteSpecialCharacters(editorSpec.getAuthor()));
-        metaData.setCreators(authors);
-    }
+      metaData.setTitle(_spec.getTitle());
+    metaData.setDescription(_spec.getDescription());
+    metaData.setCreators(_spec.getAuthors());
 
     YSpecVersion version = editorSpec.getVersionNumber();
     if (version.toString().equals("0.0")) {
@@ -301,31 +277,11 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     }
     metaData.setVersion(version);
 
-    try {
-      if (editorSpec.getValidFromTimestamp() != null &&
-          !editorSpec.getValidFromTimestamp().trim().equals("")) {
-        metaData.setValidFrom(
-            TIMESTAMP_FORMAT.parse(
-                editorSpec.getValidFromTimestamp()
-            )
-        );
-      }
-      if (editorSpec.getValidUntilTimestamp() != null &&
-          !editorSpec.getValidUntilTimestamp().trim().equals("")) {
-        metaData.setValidUntil(
-            TIMESTAMP_FORMAT.parse(
-                editorSpec.getValidUntilTimestamp()
-            )
-        );
-      }
-      if (editorSpec.getUniqueID() != null) {
-          metaData.setUniqueID(editorSpec.getUniqueID());
-        }
 
-    } catch (Exception e) {
-        LogWriter.error("Error parsing timestamps.", e);
-    }
-    
+    metaData.setValidFrom(_spec.getValidFrom());
+    metaData.setValidUntil(_spec.getValidUntil());
+    metaData.setUniqueID(_spec.getUniqueID());
+
     engineSpec.setMetaData(metaData);
   }
   
@@ -601,7 +557,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       if (editorTask.getDecomposition() != null) {
         YAWLServiceGateway engineDecomposition = 
           (YAWLServiceGateway) engineSpec.getDecomposition(
-              editorTask.getDecomposition().getLabelAsElementName()
+                  XMLUtilities.toValidXMLName(editorTask.getDecomposition().getID())
           );
         if (engineDecomposition == null) {
           engineDecomposition = 
@@ -692,12 +648,12 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   private static YAWLServiceGateway generateAtomicDecompositionFor(YSpecification engineSpec, 
                                                                    YAWLTask editorTask) {
 
-    WebServiceDecomposition editorDecomposition = 
+    WebServiceDecomposition editorDecomposition =
       ((YAWLAtomicTask)editorTask).getWSDecomposition();
     
     YAWLServiceGateway engineDecomposition = 
       new YAWLServiceGateway(
-          editorDecomposition.getLabelAsElementName(), 
+              XMLUtilities.toValidXMLName(editorDecomposition.getID()),
           engineSpec
       );
     
@@ -1322,7 +1278,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       return false;
     }
     
-    WebServiceDecomposition decomposition = 
+    WebServiceDecomposition decomposition =
       (WebServiceDecomposition) editorTask.getDecomposition();
 
 //    if (decomposition.getServiceURI() == null ||

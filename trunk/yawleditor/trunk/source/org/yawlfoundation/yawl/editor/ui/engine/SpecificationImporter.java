@@ -23,6 +23,10 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
+import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
+import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
@@ -39,10 +43,15 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
-import org.yawlfoundation.yawl.editor.ui.specification.*;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationArchiveHandler;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -88,9 +97,10 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         _invalidResourceReferences = new ArrayList<String>();
         convertEngineSpecObjectsToEditorObjects(editorSpec);
 
-          if (SpecificationModel.getSpec().getLayoutXML() != null) {
+        YLayout layout = SpecificationModel.getSpec().getLayout();
+          if (layout != null) {
               try {
-                  LayoutImporter.importAndApply(SpecificationModel.getInstance());
+                  LayoutImporter.importAndApply(layout);
               }
               catch (YLayoutParseException ylpe) {
                  removeUnnecessaryDecorators(editorSpec);
@@ -119,15 +129,10 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     }
 
 
-  public static Element getLayoutElement(YEditorSpecification spec) {
-      return JDOMUtil.stringToElement(spec.getLayoutXML());
-  }
-  
   public static void convertEngineSpecObjectsToEditorObjects(
                           SpecificationModel editorSpec) {
     initialise();
       YSpecification engineSpec = SpecificationModel.getSpec().getSpecification();
-    editorSpec.setId(engineSpec.getURI());
     convertEngineMetaData(engineSpec);
     convertEngineDataTypeDefinition(engineSpec);
     convertRootNet(engineSpec);
@@ -138,33 +143,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
   private static void convertEngineMetaData(YSpecification engineSpecification) {
     YMetaData metaData = engineSpecification.getMetaData();
     
-    if (metaData.getTitle() != null) {
-      SpecificationModel.getInstance().setName(
-          metaData.getTitle()    
-      );
-    }
 
-    if (metaData.getTitle() != null) {
-      SpecificationModel.getInstance().setName(
-          metaData.getTitle()    
-      );
-    }
-
-    if (metaData.getDescription() != null) {
-      SpecificationModel.getInstance().setDescription(
-          metaData.getDescription()
-      );
-    }
-    
-    //TODO: Current mismatch between editor and engine: engine allows several creators yet editor allows a single creator.
-
-    if (metaData.getCreators().size() > 0) {
-      SpecificationModel.getInstance().setAuthor(
-          metaData.getCreators().iterator().next()
-      );
-    }
-
-    
     SpecificationModel.getInstance().setVersionNumber(
           metaData.getVersion()
     );
@@ -172,21 +151,6 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     // reset version change for file open
     SpecificationModel.getInstance().setVersionChanged(false);  
 
-    if (metaData.getValidFrom() != null) {
-      SpecificationModel.getInstance().setValidFromTimestamp(
-          TIMESTAMP_FORMAT.format(metaData.getValidFrom())
-      );
-    }
-    
-    if (metaData.getValidUntil() != null) {
-      SpecificationModel.getInstance().setValidUntilTimestamp(
-          TIMESTAMP_FORMAT.format(metaData.getValidUntil())
-      );
-    }
-
-    if (metaData.getUniqueID() != null) {
-        SpecificationModel.getInstance().setUniqueID(metaData.getUniqueID());
-    }
   }
   
   private static void convertEngineDataTypeDefinition(YSpecification engineSpecification) {
@@ -328,7 +292,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         }
     }
   
-  private static void createEditorVariable(Decomposition editorDecomposition, 
+  private static void createEditorVariable(Decomposition editorDecomposition,
                                            int editorUsage,
                                            int index,
                                            String dataType, 

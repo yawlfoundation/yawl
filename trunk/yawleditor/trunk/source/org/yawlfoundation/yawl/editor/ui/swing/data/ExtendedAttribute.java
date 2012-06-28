@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.util.DynamicValue;
 
 import javax.swing.*;
 import java.awt.*;

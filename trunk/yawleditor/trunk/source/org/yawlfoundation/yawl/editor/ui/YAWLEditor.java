@@ -26,8 +26,8 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.swing.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
@@ -53,7 +53,7 @@ import java.util.List;
  * This class is a singleton extension of JFrame.
  */
 
-public class YAWLEditor extends JFrame implements SpecificationFileModelListener {
+public class YAWLEditor extends JFrame implements FileStateListener {
 
   /**
    *
@@ -421,12 +421,12 @@ public class YAWLEditor extends JFrame implements SpecificationFileModelListener
 
   public void specificationFileStateChange(FileState state) {
     switch(state) {
-      case Ready: {
+      case Open: {
         String title = SpecificationModel.getInstance().getFileName();
         if (title != null) setTitle(title);
         break;
       }
-      case Idle: {
+      case Closed: {
         setTitle("");
         splitPane.setDividerLocation((double)1);
         break;

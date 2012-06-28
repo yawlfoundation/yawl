@@ -48,15 +48,10 @@ public class AntiAliasedToggleAction extends YAWLBaseAction {
   public void actionPerformed(ActionEvent event) {
     selected = !selected;
     
-    JCheckBoxMenuItem menuItem = 
-      (JCheckBoxMenuItem) event.getSource();
+    JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
     menuItem.setSelected(selected);
     UserSettings.setShowAntiAliasing(selected);
-
-    SpecificationUtilities.showAntiAliasing(
-        SpecificationModel.getInstance(), 
-        selected
-    );
+    SpecificationUtilities.showAntiAliasing(SpecificationModel.getInstance(), selected);
   }
   
   public boolean isSelected() {

@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuItem;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
@@ -18,7 +18,7 @@ import java.util.List;
  * Author: Michael Adams
  * Creation Date: 25/02/2009
  */
-public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelListener {
+public class OpenRecentSubMenu extends JMenu implements FileStateListener {
 
     private static OpenRecentSubMenu INSTANCE = null;
     private YAWLMenuItem[] items;
@@ -94,7 +94,7 @@ public class OpenRecentSubMenu extends JMenu implements SpecificationFileModelLi
 
 
     public void specificationFileStateChange(FileState state) {
-        setEnabled(state == FileState.Idle);
+        setEnabled(state == FileState.Closed);
     }
 
 }

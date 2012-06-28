@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationSelectionSubscriber;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette.SelectionState;
@@ -45,7 +45,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class Palette extends JPanel implements SpecificationModelListener {
+public class Palette extends JPanel implements SpecificationStateListener {
 
   private static final long serialVersionUID = 1L;
 
@@ -213,7 +213,7 @@ public class Palette extends JPanel implements SpecificationModelListener {
   }
 }
 
-class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, SpecificationSelectionSubscriber  {
+class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, GraphStateListener {
 
   private static final long serialVersionUID = 1L;
   
@@ -342,7 +342,7 @@ class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, 
 }
 
 
-class TaskIconTree extends JTree implements SpecificationSelectionSubscriber {
+class TaskIconTree extends JTree implements GraphStateListener {
   
   private static final long serialVersionUID = 1L;
   

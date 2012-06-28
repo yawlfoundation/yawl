@@ -31,11 +31,7 @@ import java.awt.*;
 
 public class MultipleCompositeTaskView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final MultipleCompositeTaskRenderer renderer = 
+  private static final MultipleCompositeTaskRenderer renderer =
     new MultipleCompositeTaskRenderer();
 
   public MultipleCompositeTaskView(Object vertex) {
@@ -49,11 +45,6 @@ public class MultipleCompositeTaskView extends VertexView {
 
 class MultipleCompositeTaskRenderer extends 
   CompositeTaskView.CompositeTaskRenderer {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
   private static final int GAP_DIVISOR = 
     MultipleAtomicTaskView.MultipleAtomicTaskRenderer.GAP_DIVISOR;

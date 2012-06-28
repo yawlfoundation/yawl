@@ -26,8 +26,8 @@ package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileModelListener;
 
 /**
  * This class is an abstract class that supplies a basic Action for concrete Action classes
@@ -38,14 +38,14 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationFileM
  */
 
 public abstract class YAWLSpecificationAction extends YAWLBaseAction
-                                              implements SpecificationFileModelListener {
+                                              implements FileStateListener {
 
   {
       Publisher.getInstance().subscribe(this);
   }                                  
 
   public void specificationFileStateChange(FileState state) {
-      setEnabled(state == FileState.Idle);
+      setEnabled(state == FileState.Closed);
   }
 
 }

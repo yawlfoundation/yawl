@@ -29,8 +29,8 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
@@ -39,10 +39,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
-import java.util.SortedSet;
+import java.util.Set;
 
 
-class ViewMenu extends JMenu implements SpecificationModelListener {
+class ViewMenu extends JMenu implements SpecificationStateListener {
 
   private static final SpecificationModel specificationModel =  
     SpecificationModel.getInstance(); 
@@ -132,7 +132,7 @@ class ViewMenu extends JMenu implements SpecificationModelListener {
   private void rebuildNetList() {
     removeNetList();
 
-    SortedSet<NetGraphModel> nets = specificationModel.getSortedNets();
+    Set<NetGraphModel> nets = specificationModel.getSortedNets();
     if (nets == null) {
       return;
     }

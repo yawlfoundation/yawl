@@ -20,26 +20,31 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.actions;
+package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class ToggleLineNumbersDataTypeDialogAction extends YAWLBaseAction {
+public class FindTextDataTypeDialogAction extends YAWLBaseAction {
+
+    private DataTypeDialogToolBarMenu toolbar;
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Show or hide line numbers");
-        putValue(Action.NAME, "ToggleLineNumbers");
-        putValue(Action.LONG_DESCRIPTION, "Show or hide line numbers");
-        putValue(Action.SMALL_ICON, getPNGIcon("linenumbers"));
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
+        putValue(Action.SHORT_DESCRIPTION, " Find text");
+        putValue(Action.NAME, "FindText");
+        putValue(Action.LONG_DESCRIPTION, "Find Text");
+        putValue(Action.SMALL_ICON, getPNGIcon("find"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
     }
 
-    public ToggleLineNumbersDataTypeDialogAction(DataTypeDialogToolBarMenu bar) { }
+    public FindTextDataTypeDialogAction(DataTypeDialogToolBarMenu bar) {
+        toolbar = bar;
+    }
 
     public void actionPerformed(ActionEvent event) {
-        DataTypeDialogToolBarMenu.getEditorPane().toggleShowLineNumbers();
+        DataTypeDialogToolBarMenu.getEditorPane().findText(toolbar.getFindText());
     }
 }

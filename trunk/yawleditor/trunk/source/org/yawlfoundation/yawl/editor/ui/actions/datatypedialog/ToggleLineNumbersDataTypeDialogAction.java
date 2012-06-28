@@ -20,27 +20,27 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.actions;
+package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class CopyDataTypeDialogAction extends YAWLBaseAction {
+public class ToggleLineNumbersDataTypeDialogAction extends YAWLBaseAction {
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Copy the selected text to the Clipboard");
-        putValue(Action.NAME, "Copy");
-        putValue(Action.LONG_DESCRIPTION, "Copy the selected text");
-        putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
+        putValue(Action.SHORT_DESCRIPTION, " Show or hide line numbers");
+        putValue(Action.NAME, "ToggleLineNumbers");
+        putValue(Action.LONG_DESCRIPTION, "Show or hide line numbers");
+        putValue(Action.SMALL_ICON, getPNGIcon("linenumbers"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
     }
 
+    public ToggleLineNumbersDataTypeDialogAction(DataTypeDialogToolBarMenu bar) { }
 
     public void actionPerformed(ActionEvent event) {
-        DataTypeDialogToolBarMenu.getEditorPane().getEditor().copy();
-        DataTypeDialogToolBarMenu.getInstance().getButton("paste").setEnabled(true);
+        DataTypeDialogToolBarMenu.getEditorPane().toggleShowLineNumbers();
     }
 }

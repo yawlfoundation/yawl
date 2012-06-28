@@ -31,55 +31,48 @@ import java.awt.*;
 
 public class CompositeTaskView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final CompositeTaskRenderer renderer = new CompositeTaskRenderer();
+    private static final CompositeTaskRenderer renderer = new CompositeTaskRenderer();
 
-  public CompositeTaskView(Object vertex) {
-    super(vertex);
-  }
-
-  public CellViewRenderer getRenderer() {
-    return renderer;
-  }
-
-  public static class CompositeTaskRenderer extends YAWLVertexRenderer {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    protected static final int INNER_GAP_DIVISOR = 8;
-
-    protected int innerHorizontalGap;
-    protected int innerVerticalGap;  
-
-    protected int doubleInnerHorizontalGap;
-    protected int doubleInnerVerticalGap;
-    
-
-    protected void fillVertex(Graphics graphics, Dimension size) {
-      innerHorizontalGap = size.width/INNER_GAP_DIVISOR;
-      innerVerticalGap = size.height/INNER_GAP_DIVISOR;
-
-      doubleInnerHorizontalGap = innerHorizontalGap * 2;
-      doubleInnerVerticalGap = innerVerticalGap * 2;
-
-      graphics.fillRect(0, 0, size.width, size.height);
-   }
-  
-    protected void drawVertex(Graphics graphics, Dimension size) {
-      graphics.drawRect(0, 0,size.width - 1, size.height - 1);
-
-      // inner rect should always have a pen width of 1, regardless of outer pen width  
-      ((Graphics2D) graphics).setStroke(new BasicStroke(1));
-      graphics.drawRect(innerHorizontalGap, innerVerticalGap, 
-                        size.width  - (1 + doubleInnerHorizontalGap), 
-                        size.height - (1 + doubleInnerVerticalGap));
+    public CompositeTaskView(Object vertex) {
+        super(vertex);
     }
-  }
+
+    public CellViewRenderer getRenderer() {
+        return renderer;
+    }
+
+
+    public static class CompositeTaskRenderer extends YAWLVertexRenderer {
+
+        protected static final int INNER_GAP_DIVISOR = 8;
+
+        protected int innerHorizontalGap;
+        protected int innerVerticalGap;
+
+        protected int doubleInnerHorizontalGap;
+        protected int doubleInnerVerticalGap;
+
+
+        protected void fillVertex(Graphics graphics, Dimension size) {
+            innerHorizontalGap = size.width/INNER_GAP_DIVISOR;
+            innerVerticalGap = size.height/INNER_GAP_DIVISOR;
+
+            doubleInnerHorizontalGap = innerHorizontalGap * 2;
+            doubleInnerVerticalGap = innerVerticalGap * 2;
+
+            graphics.fillRect(0, 0, size.width, size.height);
+        }
+
+        protected void drawVertex(Graphics graphics, Dimension size) {
+            graphics.drawRect(0, 0,size.width - 1, size.height - 1);
+
+            // inner rect should always have a pen width of 1, regardless of outer pen width
+            ((Graphics2D) graphics).setStroke(new BasicStroke(1));
+            graphics.drawRect(innerHorizontalGap, innerVerticalGap,
+                    size.width  - (1 + doubleInnerHorizontalGap),
+                    size.height - (1 + doubleInnerVerticalGap));
+        }
+    }
 }
 
 

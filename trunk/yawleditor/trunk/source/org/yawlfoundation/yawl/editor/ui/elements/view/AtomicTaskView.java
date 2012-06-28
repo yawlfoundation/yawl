@@ -31,36 +31,26 @@ import java.awt.*;
 
 public class AtomicTaskView extends VertexView {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final AtomicTaskRenderer renderer = new AtomicTaskRenderer();
+    private static final AtomicTaskRenderer renderer = new AtomicTaskRenderer();
 
-  public AtomicTaskView(Object vertex) {
-    super(vertex);
-  }
+    public AtomicTaskView(Object vertex) {
+        super(vertex);
+    }
 
-  public CellViewRenderer getRenderer() {
-    return renderer;
-  }
-  
-  public static CellViewRenderer getClassRenderer() {
-    return renderer;
-  }
+    public CellViewRenderer getRenderer() {
+        return renderer;
+    }
+
 }
 
 class AtomicTaskRenderer extends YAWLVertexRenderer {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  protected void fillVertex(Graphics graphics, Dimension size) {
-    graphics.fillRect(0, 0, size.width, size.height);
-  }
-  
-  protected void drawVertex(Graphics graphics, Dimension size) {
-    graphics.drawRect(0, 0,size.width-1, size.height-1);
-  }
+    protected void fillVertex(Graphics graphics, Dimension size) {
+        graphics.fillRect(0, 0, size.width, size.height);
+    }
+
+    protected void drawVertex(Graphics graphics, Dimension size) {
+        graphics.drawRect(0, 0, size.width-1, size.height-1);
+    }
+
 }
