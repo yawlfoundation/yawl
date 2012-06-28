@@ -1,6 +1,5 @@
-package org.yawlfoundation.yawl.editor.ui.specification;
+package org.yawlfoundation.yawl.editor.core.identity;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.EngineIdentifier;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
@@ -24,11 +23,11 @@ public class ElementIdentifiers {
     private Map<String, SuffixStore> uniqueIdentifiers;
 
 
-    protected ElementIdentifiers() {
+    public ElementIdentifiers() {
         uniqueIdentifiers = new Hashtable<String, SuffixStore>();
     }
 
-    protected void clear() { uniqueIdentifiers.clear(); }
+    public void clear() { uniqueIdentifiers.clear(); }
 
 
     /**
@@ -36,19 +35,19 @@ public class ElementIdentifiers {
      * @param label the label name to check
      * @return an EngineIdentifier containing the name and a unique suffix
      */
-    protected EngineIdentifier getIdentifier(String label) {
+    public EngineIdentifier getIdentifier(String label) {
         if (label == null) label = DEFAULT_ELEMENT_NAME;
         return new EngineIdentifier(label, getSuffixStore(label).getNextSuffix());
     }
 
 
     /**
-     * Checks an EngineIdentifier to ensureit is unique within its specification
+     * Checks an EngineIdentifier to ensure it is unique within its specification
      * @param id the EngineIdentifier to check
      * @return the same EngineIdentifier if it is unique, or else one with the same
      * name but a new unique suffix
      */
-    protected EngineIdentifier ensureUniqueness(EngineIdentifier id) {
+    public EngineIdentifier ensureUniqueness(EngineIdentifier id) {
         if (id != null) {
             SuffixStore suffixes = getSuffixStore(id.getName());
             if (suffixes.isUsed(id.getSuffix())) {                // if suffix is taken
@@ -65,7 +64,7 @@ public class ElementIdentifiers {
      * Removes an EngineIdentifier from the set
      * @param engineID the EngineIdentifier to remove
      */
-    protected void removeIdentifier(EngineIdentifier engineID) {
+    public void removeIdentifier(EngineIdentifier engineID) {
         if (engineID != null) {
             SuffixStore suffixes = uniqueIdentifiers.get(engineID.getName());
             if (suffixes != null) {
@@ -81,7 +80,7 @@ public class ElementIdentifiers {
      * to the lowest contiguous set.
      * @param nets the set of nets in the current specification
      */
-    protected void rationalise(Set<NetGraphModel> nets) {
+    public void rationalise(Set<NetGraphModel> nets) {
         uniqueIdentifiers.clear();
         for (NetGraphModel net : nets) {
             for (Object o : net.getRoots()) {

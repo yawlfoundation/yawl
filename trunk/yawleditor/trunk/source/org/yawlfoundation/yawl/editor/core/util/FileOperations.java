@@ -1,7 +1,10 @@
 package org.yawlfoundation.yawl.editor.core.util;
 
-import org.yawlfoundation.yawl.elements.YSpecVersion;
-import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
+import org.yawlfoundation.yawl.editor.core.resourcing.ResourcesCache;
+import org.yawlfoundation.yawl.editor.core.resourcing.TaskResources;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -20,11 +23,12 @@ import java.util.UUID;
  */
 public class FileOperations {
 
-    private String _layoutXML;
     private String _fileName;
     private FileSaveOptions _saveOptions;
     private YSpecVersion _prevVersion;
     private YSpecification _specification;
+    private YLayout _layout;
+    private ResourcesCache _taskResources;
 
 
     public FileOperations() {
@@ -39,6 +43,8 @@ public class FileOperations {
 
     public String getFileName() { return _fileName; }
 
+    public void setFileName(String name) { _fileName = name; }  // temp for migration
+
 
     public YSpecification load(String file) throws IOException {
         String specXML = FileUtil.load(file);
@@ -48,7 +54,8 @@ public class FileOperations {
                     YMarshal.unmarshalSpecifications(specXML, false);
             _fileName = file;
             _specification = specifications.get(0);
-            _layoutXML = unmarshalLayout(specXML);
+            parseLayout(specXML);
+            parseResources();
         }
         catch (YSyntaxException yse) {
             throw new IOException(yse.getMessage());
@@ -65,6 +72,7 @@ public class FileOperations {
     public void save(FileSaveOptions saveOptions) throws IOException {
         if (saveOptions.autoIncVersion()) incVersion();
         _specification.setVersion(YSchemaVersion.defaultVersion());
+        _taskResources.primeTasks();
         String specXML = getSpecificationXML();
         if (saveOptions.backupOnSave()) backup();
         if (saveOptions.versioningOnSave()) savePrevVersion();
@@ -89,18 +97,52 @@ public class FileOperations {
     }
 
 
-    private String unmarshalLayout(String xml) {
+    public YLayout getLayout() { return _layout; }
+
+    public void setLayout(YLayout layout) { _layout = layout; }
+
+
+    public TaskResources getTaskResources(String netID, String taskID) {
+        return _taskResources.get(netID, taskID);
+    }
+
+    public void addTaskResources(TaskResources resources) {
+        _taskResources.add(resources);
+    }
+
+    public TaskResources removeTaskResources(String netID, String taskID) {
+        return _taskResources.remove(netID, taskID);
+    }
+
+
+    private void parseLayout(String xml) {
+        _layout = new YLayout(_specification);
         XNode specNode = new XNodeParser().parse(xml);
         if (specNode != null) {
             XNode layoutNode = specNode.getChild("layout");
-            return layoutNode != null ? layoutNode.toString() : "";
+            try {
+                _layout.parse(layoutNode);
+            }
+            catch (YLayoutParseException ylpe) {
+                // report?
+            }
         }
-        return "";
     }
 
-    public void setLayoutXML(String xml) { _layoutXML = xml; }
 
-    public String getLayoutXML() { return _layoutXML; }
+    private void parseResources() {
+        _taskResources = new ResourcesCache();
+        for (YDecomposition decomposition : _specification.getDecompositions()) {
+            if (decomposition instanceof YNet) {
+                for (YTask task : ((YNet) decomposition).getNetTasks()) {
+                    if (task instanceof YAtomicTask) {
+                        _taskResources.add(decomposition.getID(), task.getID(),
+                                new TaskResources((YAtomicTask) task));
+                    }
+                }
+            }
+        }
+    }
 
 
     private String getSpecificationXML() throws IOException {
@@ -155,10 +197,11 @@ public class FileOperations {
 
 
     private String appendLayout(String specXML) {
-        if (! ((specXML == null) || (_layoutXML == null))) {
+        String layoutXML = _layout.toXML();
+        if (! ((specXML == null) || (layoutXML == null))) {
             int closingTag = specXML.lastIndexOf("</");
             return specXML.substring(0, closingTag) +
-                   _layoutXML +
+                   layoutXML +
                    specXML.substring(closingTag) ;    // insert layout info
 
         }
