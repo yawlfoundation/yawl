@@ -43,8 +43,10 @@ public class Decomposition {
     private String _externalGateway;
     private DataVariableSet _dataSet;
 
+    // called from WebServiceDecomposition
     public Decomposition() {
-        this(false);
+        _decomposition = SpecificationModel.getSpec().addTaskDecomposition("__temp__");
+        setVariables(new DataVariableSet());
     }
 
     public Decomposition(boolean isRootNet) {
@@ -52,8 +54,7 @@ public class Decomposition {
             _decomposition = SpecificationModel.getSpec().getRootNet();
         }
         else {
-            _decomposition = SpecificationModel.getSpec().createSubNet("NewNet");
-            _decomposition.setName("");
+            _decomposition = SpecificationModel.getSpec().addSubNet("NewNet");
         }
         setDescription("The default (empty) decomposition");
         setVariables(new DataVariableSet());
