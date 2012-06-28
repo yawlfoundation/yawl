@@ -34,6 +34,14 @@ public class TaskResources {
     }
 
 
+    public YAtomicTask getTask() { return _task; }
+
+
+    protected void primeTask() {
+        _task.setResourcingXML(_resources.toXML());
+    }
+
+
     public boolean setOfferInitiator(int initiator) {
         return _resources.getOffer().setInitiator(initiator);
     }

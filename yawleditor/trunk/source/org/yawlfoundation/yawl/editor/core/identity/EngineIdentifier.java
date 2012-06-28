@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.ui.elements.model;
+package org.yawlfoundation.yawl.editor.core.identity;
 
 /**
  * @author Michael Adams
