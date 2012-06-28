@@ -44,11 +44,6 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     private Decomposition _decomposition;
     private YEditorSpecification _specification = SpecificationModel.getSpec();
 
-    public NetGraphModel(NetGraph graph) {
-        super();
-        _graph = graph;
-        _decomposition = new Decomposition();
-    }
 
     public NetGraphModel(NetGraph graph, boolean isRootNet) {
         super();

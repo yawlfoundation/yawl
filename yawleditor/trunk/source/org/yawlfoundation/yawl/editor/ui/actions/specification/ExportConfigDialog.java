@@ -48,7 +48,8 @@ class ExportConfigDialog extends AbstractDoneDialog {
                                 new YSpecVersion(versionNumberField.getText()));
 
                         if (showSpecIDField()) {
-                            SpecificationModel.getInstance().setId(specificationIDField.getText());
+                            SpecificationModel.getSpec().getSpecification()
+                                    .getSpecificationID().setUri(specificationIDField.getText());
                         }
 
                         ArchivingThread.getInstance().engineFileExport(
@@ -219,7 +220,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
 
   private boolean showSpecIDField() {
-      String id = SpecificationModel.getInstance().getId();
+      String id = SpecificationModel.getSpec().getSpecification().getSpecificationID().getUri();
       return (id == null) || (id.length() == 0) || (id.equals("unnamed.ywl"));
   }
 

@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -109,13 +110,15 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     getDoneButton().addActionListener( 
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
-          SpecificationModel.getInstance().setName(specificationNameField.getText());
-          SpecificationModel.getInstance().setDescription(specificationDescriptionField.getText());
-          SpecificationModel.getInstance().setId(specificationIDField.getText());
-          SpecificationModel.getInstance().setAuthor(specificationAuthorField.getText());
+          SpecificationModel.getSpec().setTitle(specificationNameField.getText());
+          SpecificationModel.getSpec().setDescription(specificationDescriptionField.getText());
+          SpecificationModel.getSpec().getSpecification().getSpecificationID().setUri(
+                  specificationIDField.getText());
+          SpecificationModel.getSpec().setAuthors(StringUtil.splitToList(
+                  specificationAuthorField.getText(), ","));
           SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(versionNumberField.getText()));
-          SpecificationModel.getInstance().setValidFromTimestamp(validFromPanel.getTimestamp());
-          SpecificationModel.getInstance().setValidUntilTimestamp(validUntilPanel.getTimestamp());           
+          SpecificationModel.getSpec().setValidFrom(validFromPanel.getDate());
+          SpecificationModel.getSpec().setValidUntil(validUntilPanel.getDate());
           SpecificationUndoManager.getInstance().setDirty(true);
         }
       }
@@ -256,16 +259,16 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
   public void setVisible(boolean state) {
     if (state) {
       specificationNameField.setText(
-        SpecificationModel.getInstance().getName()    
+        SpecificationModel.getSpec().getTitle()
       );
       specificationDescriptionField.setText(
-          SpecificationModel.getInstance().getDescription()    
+          SpecificationModel.getSpec().getDescription()
       );
       specificationIDField.setText(
-          SpecificationModel.getInstance().getId()    
+          SpecificationModel.getSpec().getSpecification().getSpecificationID().getUri()
       );
-      specificationAuthorField.setText(
-          SpecificationModel.getInstance().getAuthor()    
+      specificationAuthorField.setText(StringUtil.join(
+          SpecificationModel.getSpec().getAuthors(), ',')
       );
       versionNumberField.setText(
           SpecificationModel.getInstance().getVersionNumber().toString()
@@ -274,8 +277,8 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
               (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
       svv.setStartingVersion(SpecificationModel.getInstance().getVersionNumber());
 
-      validFromPanel.setTimestamp(SpecificationModel.getInstance().getValidFromTimestamp());
-      validUntilPanel.setTimestamp(SpecificationModel.getInstance().getValidUntilTimestamp());
+      validFromPanel.setDate(SpecificationModel.getSpec().getValidFrom());
+      validUntilPanel.setDate(SpecificationModel.getSpec().getValidUntil());
     } 
     super.setVisible(state);
   }
@@ -359,8 +362,6 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
   }
 
 }
-
-
 
 
 class TimeStampPanel extends JPanel {
@@ -448,7 +449,7 @@ class TimeStampPanel extends JPanel {
        buttonGroup.setSelected(alwaysButton.getModel(), true);
        dateField.setDate(new Date());  // today
      } else {
-       dateField.setDateViaTimestamp(timestamp.substring(0,8));
+       dateField.setDateViaTimestamp(timestamp.substring(0, 8));
        buttonGroup.setSelected(timestampButton.getModel(), true);
      }
      setWidgetsCorrectly();
@@ -460,6 +461,21 @@ class TimeStampPanel extends JPanel {
      }
      return dateField.getTimestamp();
    }
+
+    public Date getDate() {
+        return alwaysButton.isSelected() ? null : dateField.getDate();
+    }
+
+    public void setDate(Date date) {
+        if (date == null) {
+          buttonGroup.setSelected(alwaysButton.getModel(), true);
+          dateField.setDate(new Date());  // today
+        } else {
+          dateField.setDate(date);
+          buttonGroup.setSelected(timestampButton.getModel(), true);
+        }
+        setWidgetsCorrectly();
+    }
 }
 
 

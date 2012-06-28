@@ -214,9 +214,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
   public static YSpecification getEngineSpecAsEngineObjects(SpecificationModel editorSpec) {
     initialise();
 
-    YSpecification engineSpec = new YSpecification(
-        editorSpec.getId()
-    );
+    YSpecification engineSpec = new YEditorSpecification().getSpecification();
     
     generateEngineMetaData(editorSpec,engineSpec);
     
@@ -557,7 +555,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
       if (editorTask.getDecomposition() != null) {
         YAWLServiceGateway engineDecomposition = 
           (YAWLServiceGateway) engineSpec.getDecomposition(
-                  XMLUtilities.toValidXMLName(editorTask.getDecomposition().getID())
+                  XMLUtilities.toValidXMLName(editorTask.getDecomposition().getLabel())
           );
         if (engineDecomposition == null) {
           engineDecomposition = 
@@ -653,7 +651,7 @@ public class EngineSpecificationExporter extends EngineEditorInterpretor {
     
     YAWLServiceGateway engineDecomposition = 
       new YAWLServiceGateway(
-              XMLUtilities.toValidXMLName(editorDecomposition.getID()),
+              XMLUtilities.toValidXMLName(editorDecomposition.getLabel()),
           engineSpec
       );
     

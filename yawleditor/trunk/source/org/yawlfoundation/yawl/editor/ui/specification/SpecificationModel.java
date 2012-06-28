@@ -30,6 +30,8 @@ import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
+import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
+import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.SplitDecorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
@@ -46,8 +48,6 @@ import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
