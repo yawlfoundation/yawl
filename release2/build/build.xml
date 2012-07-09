@@ -853,7 +853,7 @@
         Adjust specific hibernate properties for the type of database selected.
     -->
 
-    <target name="configureHbmXML" depends="configureOracleHbmXML">
+    <target name="configureHbmXML" depends="configureOracleHbmXML, configureH2HbmXML">
         <echo message="Adjusted hibernate properties for ${database.type} database"/>
     </target>
 
@@ -876,6 +876,13 @@
         </replace>
     </target>
 
+    <!-- H2 binary types default to length 255, so override to 5Mb -->
+    <target name="configureH2HbmXML" if="use_h2">
+        <replace dir="${classes.dir}${packageRoot}" token="type=&quot;binary&quot;"
+                 value="type=&quot;binary&quot; length=&quot;5242880&quot;">
+            <include name="**/engine/interfce/WorkItemRecord.hbm.xml"/>
+        </replace>
+    </target>
 
     <!--
         Build the engine (yawl webapp) WAR

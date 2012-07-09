@@ -639,4 +639,21 @@ public class StringUtil
         return new String(chars);
     }
 
+
+    public static String join(List<String> strList, char separator) {
+        if (strList == null || strList.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (String s : strList) {
+            if (sb.length() > 0) sb.append(separator);
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+
+    public static List<String> splitToList(String s, String separator) {
+        if (isNullOrEmpty(s)) return Collections.emptyList();
+        return Arrays.asList(s.split(separator));
+    }
+
 }

@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
+import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
@@ -106,6 +107,8 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     public String getID() { return _id; }
 
+    public void setID(String id) { _id = id; }
+
 
     public YAttributeMap getAttributes() { return _attributes; }
 
@@ -119,6 +122,9 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         _attributes.put(name, value);
     }
 
+    public void setAttribute(String name, DynamicValue value) {
+        _attributes.put(name, value);
+    }
 
     public String getDocumentation() { return _documentation; }
 
@@ -185,6 +191,7 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
     public void setExternalInteraction(boolean interaction) {
         _manualInteraction = interaction ;
     }
+
 
     // when external interactions are specified as manual, tasks that decompose to
     // this will require resourcing decisions to be specified at design time
