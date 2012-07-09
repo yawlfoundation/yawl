@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Attribute;
+import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -31,16 +32,22 @@ import java.util.*;
  */
 public class YAttributeMap extends Hashtable<String, String> {
 
+    // a map of dynamically constructed values (each time the attributes are read)
+    Map<String, DynamicValue> _dynamics;
+
     /**
      * Construct an (initially) empty attribute map.
      */
-    public YAttributeMap() { }
+    public YAttributeMap() {
+        _dynamics = new Hashtable<String, DynamicValue>();
+    }
 
     /**
      * Construct an attribute map, and initialise it with the specified attributes.
      * @param attributes a map of key=value pairs to initialise the map.
      */
     public YAttributeMap(Map<String, String> attributes) {
+        this();
         if (attributes != null) this.putAll(attributes);
     }
 
@@ -52,6 +59,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public void set(Map<String, String> attributes) {
         this.clear();
+        _dynamics.clear();
         this.putAll(attributes);
     }
 
@@ -64,7 +72,41 @@ public class YAttributeMap extends Hashtable<String, String> {
      * the String "true" (case-insensitive).
      */
     public boolean getBoolean(String key) {
-        return containsKey(key) && get(key).equalsIgnoreCase("true");
+        String value = getValue(key);
+        return value != null && value.equalsIgnoreCase("true");
+    }
+
+
+    /**
+     * Adds a key + DynamicValue to the dynamic map
+     * @param key the key
+     * @param value the DynamicValue
+     * @return the added DynamicValue
+     */
+    public DynamicValue put(String key, DynamicValue value) {
+        return _dynamics.put(key, value);
+    }
+
+
+    /**
+     * Gets the stored value for the key (as a String). If the key refers to a
+     * DynamicValue object, its value is dynamically evaluated
+     * @param key the key
+     * @return the stored String value
+     */
+    public String get(String key) {
+        return getValue(key);
+    }
+
+
+    /**
+     * Removes a value the store
+     * @param key the key that refers to a DynamicValue
+     * @return
+     */
+    public void remove(String key) {
+        if (this.contains(key)) this.remove(key);
+        else _dynamics.remove(key);
     }
 
 
@@ -76,6 +118,9 @@ public class YAttributeMap extends Hashtable<String, String> {
         Set<Attribute> result = new HashSet<Attribute>();
         for (String key : this.keySet()) {
             result.add(new Attribute(key, this.get(key)));
+        }
+        for (String key : _dynamics.keySet()) {
+            result.add(new Attribute(key, _dynamics.get(key).toString()));
         }
         return result;
     }
@@ -104,7 +149,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public String toXML(String key) {
         String xml = "";
-        String value = this.get(key);
+        String value = getValue(key);
         if (value != null) xml = String.format("%s=\"%s\"", key, value);
         return xml;
     }
@@ -118,7 +163,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public String toXMLElement(String key) {
         String xml = "";
-        String value = this.get(key);
+        String value = getValue(key);
         if (value != null) xml = StringUtil.wrap(value, key);
         return xml;
     }
@@ -148,6 +193,17 @@ public class YAttributeMap extends Hashtable<String, String> {
              xml += " " + toXMLElement(key);
         }
         return xml;
+    }
+
+
+    // Gets the stored value for a key - tries the basic table first, then the dynamic one
+    private String getValue(String key) {
+        String value = super.get(key);
+        if (value == null) {
+            Object objValue = _dynamics.get(key);
+            if (objValue != null) value = objValue.toString();
+        }
+        return value;
     }
 
 }
