@@ -474,8 +474,16 @@ public final class YNet extends YDecomposition {
 
 
     private String produceXMLStringForSet(Set<YExternalNetElement> elements) {
+        List<YExternalNetElement> elementList = new ArrayList<YExternalNetElement>(elements);
+        Collections.sort(elementList, new Comparator<YExternalNetElement>() {
+            public int compare(YExternalNetElement e1, YExternalNetElement e2) {
+                if ((e1 == null) || (e1.getID() == null)) return -1;
+                if ((e2 == null) || (e2.getID() == null)) return 1;
+                return e1.getID().compareTo(e2.getID());
+            }
+        });
         StringBuilder xml = new StringBuilder();
-        for (YExternalNetElement element : elements) {
+        for (YExternalNetElement element : elementList) {
             if (element instanceof YTask) {
                 xml.append(element.toXML());
             }

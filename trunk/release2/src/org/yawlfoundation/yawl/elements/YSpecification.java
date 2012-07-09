@@ -27,10 +27,7 @@ import org.yawlfoundation.yawl.unmarshal.YMetaData;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -155,7 +152,23 @@ public final class YSpecification implements Cloneable, YVerifiable {
         xml.append(_rootNet.toXML());
         xml.append("</decomposition>");
 
-        for (YDecomposition decomposition : _decompositions.values()) {
+        // sort decompositions by YNet, then ID
+        List<YDecomposition> sortedDecompositions  =
+                new ArrayList<YDecomposition>(_decompositions.values());
+        Collections.sort(sortedDecompositions, new Comparator<YDecomposition>() {
+            public int compare(YDecomposition d1, YDecomposition d2) {
+                    if (d1 instanceof YNet) {
+                        if (! (d2 instanceof YNet)) return -1;   // d1 is YNet, d2 is not
+                    }
+                    else if (d2 instanceof YNet) return 1;       // d2 is YNet, d1 is not
+
+                    if (d1.getID() == null) return -1;           // either both are YNets
+                    if (d2.getID() == null) return 1;            // or both are not
+                    return d1.getID().compareTo(d2.getID());     // so sort on ids
+                }
+        });
+
+        for (YDecomposition decomposition : sortedDecompositions) {
             if (! decomposition.getID().equals(_rootNet.getID())) {
                 String factsType = (decomposition instanceof YNet) ? "NetFactsType" :
                                                         "WebServiceGatewayFactsType";
