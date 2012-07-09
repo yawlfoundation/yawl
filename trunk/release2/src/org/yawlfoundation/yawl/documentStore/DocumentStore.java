@@ -29,11 +29,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.sql.*;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -50,14 +49,18 @@ public class DocumentStore extends HttpServlet {
 
 
     public void init() {
-        
+        ServletContext context = getServletContext();
+
+        // check size-fix for H2 databases
+        fixH2BinarySize(context);
+
         // setup database connection
         Set<Class> persistedClasses = new HashSet<Class>();
         persistedClasses.add(YDocument.class);
         _db = HibernateEngine.getInstance(true, persistedClasses);
-        
+
+
         // set up session connections
-        ServletContext context = getServletContext();
         _sessions = new Sessions();
         _sessions.setupInterfaceA(
                 context.getInitParameter("InterfaceA_Backend"),
@@ -275,6 +278,68 @@ public class DocumentStore extends HttpServlet {
             sb.append("Error removing documents for case: ").append(id);
         }
         return sb.toString();
+    }
+
+
+    /**
+     * Increases the maximum column length for stored documents in H2 databases from 255
+     * to 5Mb.
+     *
+     * H2 defaults to 255 chars for binary types, and this default went out
+     * with the 2.3 release. This method (1) checks if we are using a H2 database, then
+     * if so (2) checks the relevant column length, then if it is 255 (3) increases it
+     * to 5Mb maximum and (4) writes a flag file so that the method short-circuits on
+     * future executions (i.e. it only runs once).
+     *
+     * @param context the current servlet context
+     */
+    private void fixH2BinarySize(ServletContext context) {
+
+        // if the flag files already exists, go no further
+        if (context.getResourceAsStream("/WEB-INF/classes/dbfixed.bin") != null) {
+            return;
+        }
+
+        // get the db properties from hibernate.properties
+        Connection connection = null;
+        Properties p = new Properties();
+        try {
+            p.load(context.getResourceAsStream("/WEB-INF/classes/hibernate.properties"));
+            String dialect = p.getProperty("hibernate.dialect");
+
+            // proceed only if this is a H2 database
+            if (dialect != null && dialect.equals("org.hibernate.dialect.H2Dialect")) {
+                Class.forName(p.getProperty("hibernate.connection.driver_class"));
+                connection = DriverManager.getConnection(
+                        p.getProperty("hibernate.connection.url"));
+                if (connection != null) {
+
+                    // get the YDOC column size, and increase if required
+                    DatabaseMetaData dbmd = connection.getMetaData();
+                    ResultSet rs = dbmd.getColumns(null, null, "YDOCUMENT", "YDOC");
+                    rs.next();
+                    if (rs.getInt("COLUMN_SIZE") <= 255)  {
+                        connection.createStatement().executeUpdate(
+                                "alter table ydocument alter column ydoc varbinary(5242880)");
+
+                        // write flag file for next time
+                        new File(context.getRealPath("WEB-INF/classes/dbfixed.bin")).createNewFile();
+                    }
+                    connection.close();
+                }
+            }
+        }
+        catch (Exception e) {
+            // can't update
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            }
+            catch (SQLException sqle) {
+                //
+            }
+        }
     }
 
 }
