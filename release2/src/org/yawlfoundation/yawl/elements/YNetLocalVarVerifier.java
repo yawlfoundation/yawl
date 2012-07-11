@@ -132,9 +132,9 @@ public class YNetLocalVarVerifier {
                     // ...unless there are other paths to check from an AND join
                     if (! allPathsWalked(andStack)) continue;
 
-                    // otherwise add an error message for this path
+                    // otherwise add an error or warning message for this path
                     visited.add(preElement);
-                    _handler.warn(_net, getMessage(map, subjectTask, visited));
+                    addMessage(map, subjectTask, visited);
                     visited = resetVisited(baseElement);
                 }
                 else if (preElement instanceof YTask) {
@@ -425,8 +425,8 @@ public class YNetLocalVarVerifier {
      *                from the task to the Input Condition
      * @return the constructed message
      */
-    private String getMessage(LocalTaskMap map, YTask task,
-                                            List<YExternalNetElement> visited) {
+    private void addMessage(LocalTaskMap map, YTask task,
+                            List<YExternalNetElement> visited) {
 
         YVariable localVar = map.getLocalVar();
 
@@ -466,7 +466,11 @@ public class YNetLocalVarVerifier {
                 task.getName(), _net.getID(), localVar.getPreferredName(),
                 localVar.getPreferredName(), subMsg, visitedChain, postMsg);
 
-        return msg;
+        // add it to the handler
+        if (postMsg.equals("")) {         // a warning
+           _handler.warn(_net, msg);
+        }
+        else _handler.error(_net, msg);
     }
 
 

@@ -298,7 +298,10 @@ public class RdrNode {
         node.addChild("trueChild", trueChild != null ? trueChild.getNodeId() : -1);
         node.addChild("falseChild", falseChild != null ? falseChild.getNodeId() : -1);
         node.addChild("condition", condition, true);                // escape contents
-        if (conclusion != null) node.addContent(JDOMUtil.elementToString(conclusion));
+        if (conclusion != null) {
+            RdrConclusion temp = new RdrConclusion(conclusion);    // parse to v2
+            node.addChild(temp.toXNode());
+        }
         if (cornerstone != null) node.addContent(JDOMUtil.elementToString(cornerstone));
         if (description != null) node.addChild("description", description);
         return node;

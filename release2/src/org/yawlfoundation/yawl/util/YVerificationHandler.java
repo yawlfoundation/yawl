@@ -43,7 +43,7 @@ public class YVerificationHandler {
     }
 
     public void warn(Object object, String message) {
-        _errors.add(new YVerificationMessage(object, message));
+        _warnings.add(new YVerificationMessage(object, message));
     }
 
     public void add(Object object, String message, MessageType mType) {
