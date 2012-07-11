@@ -375,6 +375,11 @@ public class XNode implements Comparable<XNode> {
     }
 
 
+    public XNode getChild(int index) {
+        return (index < 0 || index >= _children.size()) ? null : _children.get(index);
+    }
+
+
     public List<XNode> getChildren() {
         return (_children != null) ? _children : Collections.<XNode>emptyList();
     }
