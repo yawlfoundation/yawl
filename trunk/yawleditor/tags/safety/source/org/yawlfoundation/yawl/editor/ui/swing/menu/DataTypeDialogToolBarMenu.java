@@ -1,0 +1,109 @@
+/*
+ * Created on 06/10/2003
+ * YAWLEditor v1.0 
+ *
+ * @author Lindsay Bradford
+ * 
+ * 
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ */
+
+package org.yawlfoundation.yawl.editor.ui.swing.menu;
+
+import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
+import org.yawlfoundation.yawl.editor.ui.swing.data.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.ui.swing.data.JXMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class DataTypeDialogToolBarMenu extends YAWLToolBar {
+
+    private static DataTypeDialogToolBarMenu _me;
+    private static JXMLSchemaEditorPane editorPane;
+
+    private YAWLToolBarButton cutButton;
+    private YAWLToolBarButton copyButton;
+    private YAWLToolBarButton pasteButton;
+    private YAWLToolBarButton formatButton;
+    private JTextField findText;
+
+
+    public DataTypeDialogToolBarMenu(JXMLSchemaEditorPane pane) {
+        super("DataType Dialog ToolBar");
+        setEditorPane(pane);
+        _me = this;
+    }
+
+    public static DataTypeDialogToolBarMenu getInstance() {
+        return _me;
+    }
+
+    public static JXMLSchemaEditorPane getEditorPane() {
+        return editorPane;
+    }
+
+    public static void setEditorPane(JXMLSchemaEditorPane pane) {
+        editorPane = pane;
+        AbstractXMLStyledDocument doc =
+                (AbstractXMLStyledDocument) editorPane.getEditor().getDocument();
+        doc.addUndoableEditListener(UndoableDataTypeDialogActionListener.getInstance());
+    }
+
+    protected void buildInterface() {
+        setMargin(new Insets(3, 2, 2, 0));
+        cutButton = new YAWLToolBarButton(new CutDataTypeDialogAction());
+        add(cutButton);
+        copyButton = new YAWLToolBarButton(new CopyDataTypeDialogAction());
+        add(copyButton);
+        pasteButton = new YAWLToolBarButton(new PasteDataTypeDialogAction());
+        pasteButton.setEnabled(false);
+        add(pasteButton);
+        addSeparator();
+        add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getUndoAction()));
+        add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getRedoAction()));
+        addSeparator();
+        add(new YAWLToolBarButton(new ToggleLineNumbersDataTypeDialogAction(this)));
+        formatButton = new YAWLToolBarButton(new ReformatDataTypeDialogAction(this));
+        add(formatButton);
+        addSeparator();
+
+        FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
+        layout.setHgap(0);
+        JPanel innerPanel = new JPanel(layout);
+        findText = new JTextField(8);
+        innerPanel.add(findText);
+        innerPanel.add(new YAWLToolBarButton(new FindTextDataTypeDialogAction(this)));
+        add(innerPanel);
+
+    }
+
+    public YAWLToolBarButton getButton(String btype) {
+        if (btype.equals("cut")) return cutButton;
+        if (btype.equals("copy")) return copyButton;
+        if (btype.equals("paste")) return pasteButton;
+        if (btype.equals("format")) return formatButton;
+        return null;
+    }
+
+    public String getFindText() {
+        return findText.getText();
+    }
+
+
+}
