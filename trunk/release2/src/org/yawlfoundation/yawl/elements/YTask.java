@@ -30,15 +30,16 @@ import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
 import org.yawlfoundation.yawl.engine.*;
-import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YTimerVariable;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.schema.YDataValidator;
-import org.yawlfoundation.yawl.util.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.SaxonUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import javax.xml.datatype.Duration;
 import java.net.URL;
 import java.util.*;
 
@@ -96,7 +97,7 @@ public abstract class YTask extends YExternalNetElement {
     private Element _resourcingSpec = null;      // populated on spec parse
 
     // optional timer params [name, value]
-    private Map<String, Object> _timerParams ;
+    private YTimerParameters _timerParams ;
     private YTimerVariable _timerVariable;
 
     // optional URI to a custom form (rather than inbuilt dynamic form)
@@ -1348,7 +1349,7 @@ public abstract class YTask extends YExternalNetElement {
         }
 
         if (_timerParams != null) {
-            xml.append(timerParamsToXML());
+            xml.append(_timerParams.toXML());
         }
 
         if (_resourcingXML != null) {
@@ -1797,90 +1798,18 @@ public abstract class YTask extends YExternalNetElement {
 
     /*** TIMER SETTINGS ***/
 
-    public void setTimerParameters(String netParamName) {
-        initTimerParameters() ;
-        _timerParams.put("netparam", netParamName) ;
-    }
-
-
-    public void setTimerParameters(YWorkItemTimer.Trigger trigger, Date expiryTime) {
-        initTimerParameters() ;
-        _timerParams.put("trigger", trigger) ;
-        _timerParams.put("expiry", expiryTime) ;
-    }
-
-
-    public void setTimerParameters(YWorkItemTimer.Trigger trigger, long ticks,
-                                   YTimer.TimeUnit timeUnit) {
-        initTimerParameters() ;
-        _timerParams.put("trigger", trigger) ;
-        _timerParams.put("ticks", ticks) ;
-
-        if (timeUnit == null) timeUnit = YTimer.TimeUnit.MSEC ;
-
-        _timerParams.put("interval", timeUnit);
-    }
-
-    public void setTimerParameters(YWorkItemTimer.Trigger trigger, Duration duration) {
-        initTimerParameters() ;
-        _timerParams.put("trigger", trigger) ;
-        _timerParams.put("duration", duration) ;        
-    }
-
-    private void initTimerParameters() {
-        _timerParams = new HashMap<String, Object>() ;
+    public void setTimerParameters(YTimerParameters timerParameters) {
+        _timerParams = timerParameters;
         _timerVariable = new YTimerVariable(this);
     }
+
 
     public YTimerVariable getTimerVariable() {
         return _timerVariable;
     }
 
 
-    public Map getTimeParameters() { return _timerParams; }
-
-
-    public String timerParamsToXML() {
-        if (_timerParams == null) return null ;
-
-        StringBuilder xml = new StringBuilder("<timer>") ;
-
-        // if there's a net-level param specified, that's all we need
-        String netParam = (String) _timerParams.get("netparam");
-        if (netParam != null) {
-            xml.append(StringUtil.wrap(netParam, "netparam")) ;
-        }
-        else {
-            YWorkItemTimer.Trigger trigger =
-                                  (YWorkItemTimer.Trigger) _timerParams.get("trigger") ;
-            xml.append(StringUtil.wrap(trigger.name(), "trigger"));
-
-            // if there's an expiry time, get it and we're done
-            Date expiry = (Date) _timerParams.get("expiry") ;
-            if (expiry != null) {
-                Long dateAsLong = expiry.getTime();
-                xml.append(StringUtil.wrap(dateAsLong.toString(), "expiry"));
-            }
-            else {
-                // this is a duration timer
-                Duration duration = (Duration) _timerParams.get("duration");
-                if (duration != null) {
-                    xml.append(StringUtil.wrap(duration.toString(), "duration"));
-                }
-                else {
-                    // duration supplied as ticks / interval params
-                    xml.append("<durationparams>");
-                    Long ticks = (Long) _timerParams.get("ticks") ;
-                    YTimer.TimeUnit interval = (YTimer.TimeUnit) _timerParams.get("interval") ;
-                    xml.append(StringUtil.wrap(ticks.toString(), "ticks"));
-                    xml.append(StringUtil.wrap(interval.name(), "interval"));
-                    xml.append("</durationparams>");
-                }
-            }
-        }
-        xml.append("</timer>") ;
-        return xml.toString();
-    }
+    public YTimerParameters getTimerParameters() { return _timerParams; }
 
 
     // process configuration setters & getters

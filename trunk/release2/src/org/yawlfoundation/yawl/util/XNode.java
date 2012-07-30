@@ -560,6 +560,10 @@ public class XNode implements Comparable<XNode> {
         return toString(true, _depth, tabSize, false);
     }
 
+    public String toPrettyString(int offset, int tabSize) {        // print with indents
+        return toString(true, offset, tabSize, false);
+    }
+
     public String toPrettyString(boolean header, int tabSize) {    // print with indents
         return toString(true, _depth, tabSize, header);
     }

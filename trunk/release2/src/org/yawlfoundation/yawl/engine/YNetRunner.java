@@ -732,7 +732,7 @@ public class YNetRunner {
         }
 
         // set timer params and start timer if required
-        Map timerParams = atomicTask.getTimeParameters();
+        YTimerParameters timerParams = atomicTask.getTimerParameters();
         if (timerParams != null) {
             workItem.setTimerParameters(timerParams);
             workItem.checkStartTimer(pmgr, _netdata);

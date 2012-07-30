@@ -25,19 +25,14 @@ import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -80,7 +75,7 @@ public class YWorkItem {
 
     private String _deferredChoiceGroupID = null ;
 
-    private Map _timerParameters ;                         // timer extensions
+    private YTimerParameters _timerParameters ;                      // timer extensions
     private boolean _timerStarted ;
     private long _timerExpiry = 0;                     // set to expiry when timer starts
 
@@ -212,61 +207,22 @@ public class YWorkItem {
      * @return true if the param is successfully unpacked.
      */
     private boolean unpackTimerParams(String param, YNetData data) {
-        if (data == null)
-            data = _engine.getCaseData(_workItemID.getCaseID());
-
+        if (data == null) data = _engine.getCaseData(_workItemID.getCaseID());
         if (data == null) return false ;                    // couldn't get case data
 
         Element eData = JDOMUtil.stringToElement(data.getData());
-
         Element timerParams = eData.getChild(param) ;
         if (timerParams == null) return false ;            // no var with param's name
 
-        String trigger = timerParams.getChildText("trigger");
-        if (trigger == null) {
-            _log.warn("Unable to set timer for workitem: " + getIDString() +
-                      ". Missing 'trigger' parameter." ) ;
-            return false ;                                 // no trigger value set
-        }
-        _timerParameters.put("trigger", YWorkItemTimer.Trigger.valueOf(trigger));
-
-        String expiry = timerParams.getChildText("expiry");
-        if (expiry == null) {
-            _log.warn("Unable to set timer for workitem: " + getIDString() +
-                      ". Missing 'expiry' parameter." ) ;
-            return false ;                                 // no expiry value set            
-        }
-
-        if (expiry.startsWith("P")) {                    // duration types start with P
-            try {
-                Duration duration = DatatypeFactory.newInstance().newDuration(expiry) ;
-                _timerParameters.put("duration", duration);
-                return true ;                        // OK - trigger & duration set
-            }
-            catch (DatatypeConfigurationException dce) {
-                // do nothing here - trickle down
-            }
-        }
-
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try {
-            Date date = sdf.parse(expiry);                        // test for dateTime
-            _timerParameters.put("expiry", date);
+            _timerParameters.parseYTimerType(timerParams);
             return true;
         }
-        catch (ParseException pe) {
-            // do nothing here - trickle down                
-        }
+        catch (IllegalArgumentException iae) {
+            _log.warn("Unable to set timer for workitem '" + getIDString() +
+                      "' - " + iae.getMessage()) ;
+            return false ;
 
-        try {
-            long time = Long.parseLong(expiry);                 // test for long value
-            _timerParameters.put("expiry", new Date(time));
-            return true ;                                 // OK - trigger & expiry set
-        }
-        catch (NumberFormatException nfe) {
-            _log.warn("Unable to set timer for workitem: " + getIDString() +
-                      ". Invalid 'expiry' parameter." ) ;
-            return false ;                             // not duration, dateTime or long
         }
     }
 
@@ -434,56 +390,40 @@ public class YWorkItem {
 
     public void checkStartTimer(YPersistenceManager pmgr, YNetData data)
             throws YPersistenceException {
-        YWorkItemTimer timer = null ;
 
         if (_timerParameters != null) {
 
             // get values from net-level var if necessary
-            String netParam = (String) _timerParameters.get("netparam") ;
-            if (netParam != null)
+            String netParam = _timerParameters.getVariableName();
+            if (netParam != null) {
                 if (!unpackTimerParams(netParam, data)) return ;
-
-            YWorkItemTimer.Trigger trigger =
-                          (YWorkItemTimer.Trigger) _timerParameters.get("trigger") ;
+            }
 
             // if current workitem status equals trigger status, start the timer
-            if (((trigger == YWorkItemTimer.Trigger.OnEnabled) &&
-                                (_status.equals(statusEnabled))) ||
-                ((trigger == YWorkItemTimer.Trigger.OnExecuting) &&
-                                (_status.equals(statusExecuting)))) {
-
-                // try expiry type first
-                Date expiryTime = (Date) _timerParameters.get("expiry");
-                if (expiryTime != null) {
-                    timer = new YWorkItemTimer(_workItemID.toString(), expiryTime, (pmgr != null)) ;
-                    _timerStarted = true ;
-                }
-                else {
-                    // try duration type
-                    Duration duration = (Duration) _timerParameters.get("duration");
-                    if (duration != null) {
-                        timer = new YWorkItemTimer(_workItemID.toString(), duration, (pmgr != null));
-                        _timerStarted = true ;
+            if (_timerParameters.statusMatchesTrigger(_status)) {
+                YWorkItemTimer timer = null ;
+                switch (_timerParameters.getTimerType()) {
+                    case Expiry: {
+                        timer = new YWorkItemTimer(_workItemID.toString(),
+                                _timerParameters.getDate(), (pmgr != null)) ;
+                        break;
                     }
-                    else {
-                        // other duration settings
-                        long ticks = (Long) _timerParameters.get("ticks");
-                        if (ticks > 0) {
-                            YTimer.TimeUnit interval = (YTimer.TimeUnit)
-                                                      _timerParameters.get("interval") ;
-
-                            if (interval == null) interval = YTimer.TimeUnit.MSEC ;
-                            timer = new YWorkItemTimer(_workItemID.toString(),
-                                                       ticks, interval, (pmgr != null)) ;
-                            _timerStarted = true ;
-                        }
-                    }    
+                    case Duration: {
+                        timer = new YWorkItemTimer(_workItemID.toString(),
+                                _timerParameters.getDuration(), (pmgr != null));
+                        break;
+                    }
+                    case Interval: {
+                        timer = new YWorkItemTimer(_workItemID.toString(),
+                                _timerParameters.getTicks(), _timerParameters.getTimeUnit(), (pmgr != null)) ;
+                    }
                 }
-            }
-            if (_timerStarted && (timer != null)) {
-                _timerExpiry = timer.getEndTime();
-                setTimerActive();
-                if (pmgr != null) pmgr.storeObject(timer);
+                if (timer != null) {
+                    _timerExpiry = timer.getEndTime();
+                    setTimerActive();
+                    _timerStarted = true ;
+                    if (pmgr != null) pmgr.storeObject(timer);
+                }
             }
         }
     }
@@ -810,9 +750,9 @@ public class YWorkItem {
 
     public YSpecificationID getSpecificationID() { return _specID ; }
 
-    public Map getTimerParameters() { return _timerParameters; }
+    public YTimerParameters getTimerParameters() { return _timerParameters; }
 
-    public void setTimerParameters(Map params) {
+    public void setTimerParameters(YTimerParameters params) {
         _timerParameters = params;
     }
 
@@ -908,7 +848,7 @@ public class YWorkItem {
             }    
         }
         if (_timerParameters != null) {
-            YWorkItemTimer.Trigger trigger = (YWorkItemTimer.Trigger) _timerParameters.get("trigger");
+            YWorkItemTimer.Trigger trigger = _timerParameters.getTrigger();
             if (trigger != null) {
                 String triggerName = trigger.name();
                 xml.append(StringUtil.wrap(triggerName, "timertrigger"));

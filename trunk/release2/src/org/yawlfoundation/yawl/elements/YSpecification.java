@@ -410,7 +410,7 @@ public final class YSpecification implements Cloneable, YVerifiable {
         for (YExternalNetElement element : relevantTasks) {
             YTask task = (YTask) element;
             if (task.getDecompositionPrototype() == null) {
-                if (task.getTimeParameters() != null) {
+                if (task.getTimerParameters() != null) {
                     handler.warn(task, "The task [" + task + "] has timer settings but " +
                              "no decomposition. The timer settings will be ignored at runtime.");
                 }
