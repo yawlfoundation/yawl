@@ -43,6 +43,9 @@ public abstract class YNetElement implements Cloneable, Comparable {
         return _id;
     }
 
+    public void setID(String id) { _id = id; }
+
+
     public String toString() {
         String fullClassName = getClass().getName();
         String shortClassName = fullClassName.substring(fullClassName.lastIndexOf('.') + 2);

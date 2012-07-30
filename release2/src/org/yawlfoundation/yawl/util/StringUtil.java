@@ -656,4 +656,31 @@ public class StringUtil
         return Arrays.asList(s.split(separator));
     }
 
+
+    public static String insert(String base, String addition, int position) {
+        if (base == null || addition == null ||
+                position < 0 || position > base.length() -1) {
+            return base;
+        }
+        StringBuilder sb = new StringBuilder(base);
+        sb.insert(position, addition);
+        return sb.toString();
+    }
+
+
+    public static String pad(String s, int len, char padChar) {
+        return pad(s, len, padChar, true);                       // default to left
+    }
+
+    public static String pad(String s, int len, char padChar, boolean left) {
+        if (len <= s.length()) return s;
+
+        StringBuilder sb = new StringBuilder();
+        char[] pad = new char[len - s.length()];
+        Arrays.fill(pad, padChar);
+        if (left) sb.append(pad).append(s);
+        else sb.append(s).append(pad);
+        return sb.toString();
+    }
+
 }
