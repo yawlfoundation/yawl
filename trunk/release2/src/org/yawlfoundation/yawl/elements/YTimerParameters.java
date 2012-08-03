@@ -184,18 +184,14 @@ public class YTimerParameters {
 
         XNode node = new XNode("timer");
         switch (_timerType) {
-            case LateBound: {
-                node.addChild("netparam", _variableName);
+            case Duration: {
+                node.addChild("trigger", _trigger.name());
+                node.addChild("duration", _duration.toString());
                 break;
             }
             case Expiry: {
                 node.addChild("trigger", _trigger.name());
                 node.addChild("expiry", _expiryTime.getTime());
-                break;
-            }
-            case Duration: {
-                node.addChild("trigger", _trigger.name());
-                node.addChild("duration", _duration.toString());
                 break;
             }
             case Interval: {
@@ -205,8 +201,25 @@ public class YTimerParameters {
                 params.addChild("interval", _timeUnit.name());
                 break;
             }
+            case LateBound: {
+                node.addChild("netparam", _variableName);
+                break;
+            }
         }
         return node.toString();
+    }
+
+
+    public String toString() {
+        if (_timerType == TimerType.Nil) return "Nil";
+        String s = _trigger == YWorkItemTimer.Trigger.OnExecuting ? "Start: " : "Offer: ";
+        switch (_timerType) {
+            case Duration: s += _duration.toString(); break;
+            case Expiry: s += new SimpleDateFormat().format(_expiryTime); break;
+            case Interval: s += _ticks + " " + _timeUnit.name(); break;
+            case LateBound: s += _variableName; break;
+        }
+        return s;
     }
 
 }

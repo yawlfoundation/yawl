@@ -172,7 +172,9 @@ public class YParameter extends YVariable implements Comparable<YVariable> {
         return getParamTypeStr(_ENABLEMENT_PARAM_TYPE);
     }
 
-    public String getParamType() { return getParamTypeStr(_paramType); }
+    public String getParamTypeStr() { return getParamTypeStr(_paramType); }
+
+    public int getParamType() { return _paramType; }
 
     
     private static int getParamType(String typeStr) {

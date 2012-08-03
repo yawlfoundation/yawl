@@ -40,7 +40,7 @@ public class FormParameter extends YParameter implements Serializable {
 
     // Constructor - casts a YParameter UP
     public FormParameter(YParameter param) {
-        super(param.getParentDecomposition(), param.getParamType()) ;
+        super(param.getParentDecomposition(), param.getParamTypeStr()) ;
         setInitialValue(param.getInitialValue());
         setDataTypeAndName(param.getDataTypeName(), param.getName(),
                            param.getDataTypeNameSpace());
