@@ -225,7 +225,7 @@ public abstract class AbstractCodelet {
         List<YParameter> requiredParams = getRequiredParams();
         if (requiredParams != null) {
             for (YParameter param : requiredParams) {
-                String paramType = param.getParamType();
+                String paramType = param.getParamTypeStr();
                 xml.append("<").append(paramType).append(">")
                    .append(StringUtil.wrap(param.getPreferredName(), "name"))
                    .append(StringUtil.wrap(param.getDataTypeName(), "datatype"))

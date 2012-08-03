@@ -503,9 +503,7 @@ public final class YNet extends YDecomposition {
         List<YVariable> variables = new ArrayList<YVariable>(_localVariables.values());
         Collections.sort(variables, new Comparator<YVariable>() {
             public int compare(YVariable var1, YVariable var2) {
-                if ((var1 == null) || (var1.getPreferredName() == null)) return -1;
-                if ((var2 == null) || (var2.getPreferredName() == null)) return 1;
-                return var1.getPreferredName().compareTo(var2.getPreferredName());
+                return var1.getOrdering() - var2.getOrdering();
             }
         });
         return variables;

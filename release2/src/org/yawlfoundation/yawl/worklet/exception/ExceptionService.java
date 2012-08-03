@@ -321,7 +321,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
 
     private void handleTimeout(WorkItemRecord wir) {
-        handleItemException(wir, null, RuleType.ItemTimeout);
+        handleItemException(wir, wir.getDataListString(), RuleType.ItemTimeout);
     }
 
     public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir, 
@@ -346,7 +346,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         CaseMonitor monitor = _monitoredCases.get(caseID);
         if (monitor == null) monitor = new CaseMonitor(new YSpecificationID(wir), caseID, data);
 
-        monitor.updateData(data);
+        if (data != null) monitor.updateData(data);
         monitor.addProcessInfo(wir);
 
         // get the exception handler for this task (if any)

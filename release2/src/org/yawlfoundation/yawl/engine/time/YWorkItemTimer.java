@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class YWorkItemTimer implements YTimedObject {
 
-    public enum Trigger { OnEnabled, OnExecuting }
+    public enum Trigger { OnEnabled, OnExecuting, Never }
 
     public enum State { dormant, active, closed, expired }
 
