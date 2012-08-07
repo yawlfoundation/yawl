@@ -17,8 +17,8 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:yawl="http://www.yawlfoundation.org/yawlschema"
-	targetNamespace="http://www.yawlfoundation.org/yawlschema"
+	xmlns:yawl="http://www.yawlfoundation.org/yawlschema/orgdata"
+	targetNamespace="http://www.yawlfoundation.org/yawlschema/orgdata"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	version="2.2">
 
