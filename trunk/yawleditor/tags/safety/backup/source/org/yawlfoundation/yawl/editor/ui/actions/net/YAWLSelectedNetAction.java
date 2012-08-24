@@ -1,0 +1,63 @@
+/*
+ * Created on 9/10/2003
+ * YAWLEditor v1.0 
+ *
+ * @author Lindsay Bradford
+ * 
+ * 
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ */
+
+package org.yawlfoundation.yawl.editor.ui.actions.net;
+
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+
+public class YAWLSelectedNetAction extends YAWLExistingNetAction 
+                                implements SpecificationStateListener {
+  
+  private static final long serialVersionUID = 1L;
+
+  public YAWLSelectedNetAction() {
+      Publisher.getInstance().subscribe(this);
+  }
+
+  public void specificationStateChange(SpecificationState state) {
+    switch(state) {
+      case NoNetsExist: {
+        setEnabled(false);     
+        break;    
+      }
+      case NetsExist: {
+        break;    
+      }
+      case NoNetSelected: {
+        setEnabled(false);
+        break;
+      }
+      case NetSelected: {
+        setEnabled(true);
+        break;
+      }
+      default: {
+        assert false : "Invalid state passed to updateState()";   
+      }    
+    }
+  }
+
+}
