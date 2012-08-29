@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 /**
@@ -78,8 +79,13 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         }
         catch (Exception e) {
             throw new RuntimeException("The minInstances query at " + _myTask
-                    + " didn't produce numerical output as excepted.");
+                    + " didn't produce numerical output as expected.");
         }
+    }
+
+
+    public String getMinInstancesQuery() {
+        return _minInstances != null ? _minInstances.toString() : _minInstancesQuery;
     }
 
 
@@ -91,8 +97,13 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         }
         catch (Exception e) {
             throw new RuntimeException("The maxInstances query at " + _myTask
-                    + " didn't produce numerical output as excepted.");
+                    + " didn't produce numerical output as expected.");
         }
+    }
+
+
+    public String getMaxInstancesQuery() {
+        return _maxInstances != null ? _maxInstances.toString() : _maxInstancesQuery;
     }
 
 
@@ -104,13 +115,23 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         }
         catch (Exception e) {
             throw new RuntimeException("The threshold query at " + _myTask
-                    + " didn't produce numerical output as excepted.");
+                    + " didn't produce numerical output as expected.");
         }
+    }
+
+
+    public String getThresholdQuery() {
+        return _threshold != null ? _threshold.toString() : _thresholdQuery;
     }
 
 
     public String getCreationMode() {
         return this._creationMode;
+    }
+
+
+    public boolean isDynamicCreationMode() {
+        return _creationMode.equalsIgnoreCase(_creationModeDynamic);
     }
 
 
@@ -167,15 +188,14 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder();
-
-        xml.append("<minimum>" + (_minInstances != null ? _minInstances.toString() : JDOMUtil.encodeEscapes(_minInstancesQuery)) + "</minimum>");
-        xml.append("<maximum>" + (_maxInstances != null ? _maxInstances.toString() : JDOMUtil.encodeEscapes(_maxInstancesQuery)) + "</maximum>");
-        xml.append("<threshold>" + (_threshold != null ? _threshold.toString() : JDOMUtil.encodeEscapes(_thresholdQuery)) + "</threshold>");
+        xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMinInstancesQuery()), "minimum"));
+        xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMaxInstancesQuery()), "maximum"));
+        xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMinInstancesQuery()), "threshold"));
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
         xml.append("<expression query=\"" + JDOMUtil.encodeEscapes(_myTask.getPreSplittingMIQuery()) + "\"/>");
         xml.append("<splittingExpression query=\"" + JDOMUtil.encodeEscapes(_inputSplittingQuery) + "\"/>");
-        xml.append("<formalInputParam>" + _inputVarName + "</formalInputParam>");
+        xml.append(StringUtil.wrap(_inputVarName, "formalInputParam"));
         xml.append("</miDataInput>");
         if (_remoteOutputQuery != null) {
             xml.append("<miDataOutput>");
@@ -191,11 +211,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     }
 
     public boolean isMultiInstance() {
-        if (_maxInstances != null) {
-            return _maxInstances.intValue() > 1;
-        } else {
-            return _maxInstancesQuery != null;
-        }
+        return _maxInstances != null ? _maxInstances > 1 : _maxInstancesQuery != null;
     }
 
 

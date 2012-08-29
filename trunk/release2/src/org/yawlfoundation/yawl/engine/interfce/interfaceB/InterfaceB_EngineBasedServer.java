@@ -123,6 +123,11 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         if (_engine != null) {
             _engine.notifyServletInitialisationComplete(maxWaitSeconds);
         }
+        else {
+            logger.fatal("Failed to initialise Engine (unspecified failure). Please " +
+                    "consult the logs for details");
+            throw new UnavailableException("Unspecified engine failure");
+        }
     }
 
 

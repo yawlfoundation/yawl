@@ -101,7 +101,14 @@ public class InterfaceClients {
      * @param client an IB Client instance
      */
     protected void setInterfaceBClient(InterfaceB_EnvironmentBasedClient client) {
-        _interfaceBClient = client;
+        if (client != null) {
+            _interfaceBClient = client;
+        }
+        else if (_engineURI != null && engineIsAvailable()) {
+                _interfaceBClient = new InterfaceB_EnvironmentBasedClient(_engineURI);
+        }
+        else throw new IllegalArgumentException("Unable to setup engine client. " +
+                    "Client = " + client);
     }
 
 

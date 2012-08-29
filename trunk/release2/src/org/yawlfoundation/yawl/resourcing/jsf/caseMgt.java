@@ -615,7 +615,10 @@ public class caseMgt extends AbstractPageBean {
 
         if (uploadedFile != null) {
             String uploadedFileName = stripPath(uploadedFile.getOriginalName());
-            if (validExtension(uploadedFileName)) {
+            if (uploadedFileName.length() == 0) {
+                msgPanel.error("Please choose a file to upload.");
+            }
+            else if (validExtension(uploadedFileName)) {
                 String fileAsString ;
 
                 // try getting the uploaded spec in the correct encoding
