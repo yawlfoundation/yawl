@@ -435,6 +435,11 @@ public final class YNet extends YDecomposition {
     }
 
 
+    public YVariable removeLocalVariable(String name) {
+        return _localVariables.remove(name);
+    }
+
+
     public YVariable getLocalOrInputVariable(String name) {
         return _localVariables.containsKey(name) ? _localVariables.get(name) :
                getInputParameters().get(name);

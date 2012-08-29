@@ -251,6 +251,15 @@ public abstract class YTask extends YExternalNetElement {
         return _dataMappingsForTaskCompletion.keySet();
     }
 
+
+    public Map<String, String> getDataMappingsForTaskStarting() {
+        return _dataMappingsForTaskStarting;
+    }
+
+    public Map<String, String> getDataMappingsForTaskCompletion() {
+        return _dataMappingsForTaskCompletion;
+    }
+
     public Set<YExternalNetElement> getRemoveSet() {
         if (_removeSet != null) {
             return new HashSet<YExternalNetElement>(_removeSet);
@@ -341,7 +350,7 @@ public abstract class YTask extends YExternalNetElement {
         return childIdentifiers;
     }
 
-    /*changed to public for persistance*/
+    /*changed to public for persistence*/
     public void prepareDataDocsForTaskOutput() {
         if (null == getDecompositionPrototype()) {
             return;
@@ -395,7 +404,7 @@ public abstract class YTask extends YExternalNetElement {
                     queryString,
                     dataToSplit,
                     this.getID(),
-                    "No data avaliable for MI splitting at task Start");
+                    "No data available for MI splitting at task start");
         }
 
         generateBeginReport1();
@@ -425,14 +434,8 @@ public abstract class YTask extends YExternalNetElement {
 
     public String getPreSplittingMIQuery() {
         String miVarNameInDecomposition = _multiInstAttr.getMIFormalInputParam();
-        if (miVarNameInDecomposition != null) {
-            for (String name : _dataMappingsForTaskStarting.keySet()) {
-                if (miVarNameInDecomposition.equals(name)) {
-                    return _dataMappingsForTaskStarting.get(name);
-                }
-            }    
-        }
-        return null;
+        return miVarNameInDecomposition != null ?
+                _dataMappingsForTaskStarting.get(miVarNameInDecomposition) : null;
     }
 
 
@@ -1046,7 +1049,7 @@ public abstract class YTask extends YExternalNetElement {
              */
             for (String attrName : getDecompositionPrototype().getAttributes().keySet()) {
                 String attrValue = getDecompositionPrototype().getAttributes().get(attrName);
-                if (STANDARD_TASK_ATTRIBUTES.indexOf("/" + attrName + "/") == -1) {
+                if (!STANDARD_TASK_ATTRIBUTES.contains("/" + attrName + "/")) {
                     dataForChildCase.setAttribute(attrName, attrValue);
                 }
             }

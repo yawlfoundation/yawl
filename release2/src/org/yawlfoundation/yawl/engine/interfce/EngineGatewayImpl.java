@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.authentication.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -445,17 +444,6 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle));
             return successMessage(child.toXML());
-//            YWorkItem item = _engine.getWorkItem(workItemID);
-//            if (item != null) {
-//                YWorkItem child = _engine.startWorkItem(item, getClient(sessionHandle));
-//                if( child == null ) {
-//                	throw new YAWLException(
-//                			"Engine failed to start work item " + item.toString() +
-//                			". The engine returned no work items." );
-//                }
-//                return successMessage(child.toXML());
-//            }
-//            return failureMessage("No work item found with id = " + workItemID);
         }
         catch (YAWLException e) {
             if (e instanceof YPersistenceException) {
@@ -466,7 +454,7 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
-        /**
+    /**
      *
      * @param workItemID
      * @param sessionHandle

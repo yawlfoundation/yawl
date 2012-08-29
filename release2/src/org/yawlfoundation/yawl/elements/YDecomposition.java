@@ -158,6 +158,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         return _inputParameters.remove(parameter.getPreferredName());
     }
 
+    public YParameter removeInputParameter(String name) {
+        return _inputParameters.remove(name);
+    }
+
     public void addOutputParameter(YParameter parameter) {
         if (parameter.isInput()) {
             throw new RuntimeException("Can't set an input param as an output param.");
@@ -174,6 +178,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
 
     public YParameter removeOutputParameter(YParameter parameter) {
         return _outputParameters.remove(parameter.getPreferredName());
+    }
+
+    public YParameter removeOutputParameter(String name) {
+        return _outputParameters.remove(name);
     }
 
 
