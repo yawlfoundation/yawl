@@ -248,19 +248,19 @@ public class YFlowLayout extends YLayoutNode {
     private XNode getPointsNode() {
         XNode node = new XNode("points");
         for (Point2D.Double point : _points) {
-            node.addChild(YLayoutUtil.toPointNode(point, "value"));
+            node.addChild(YLayoutUtil.toPointNode(point, "value", getNumberFormatter()));
         }
         return node;
     }
 
 
     private XNode getOffsetNode() {
-        return YLayoutUtil.toPointNode(_offset, "offset");
+        return YLayoutUtil.toPointNode(_offset, "offset", getNumberFormatter());
     }
 
 
     private XNode getLabelPositionNode() {
-        return YLayoutUtil.toPointNode(_labelPosition, "labelposition");
+        return YLayoutUtil.toPointNode(_labelPosition, "labelposition", getNumberFormatter());
     }
 
 }

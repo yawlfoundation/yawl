@@ -191,10 +191,15 @@ public class YLayout {
      * @return the generated XML
      */
     public String toXML() {
+        return toXNode().toPrettyString();
+    }
+
+
+    public XNode toXNode() {
         XNode node = new XNode("layout");
         node.addChild(getLocaleNode());
         node.addChild(getSpecificationNode());
-        return node.toPrettyString();
+        return node;
     }
 
 

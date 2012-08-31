@@ -75,7 +75,7 @@ public class YLayoutUtil {
 
     /**
      * Converts a String to a double, using a number format of a specific locale (some
-     * locales uses '.' to separate decimals, others use ','
+     * locales uses '.' to separate decimals, others use ',')
      * @param s the String to convert
      * @param formatter the number format of the originator's locale
      * @param def a default value to return if the conversion fails
@@ -96,25 +96,32 @@ public class YLayoutUtil {
     }
 
 
-    protected static XNode toPointNode(Point2D.Double point, String name) {
+    protected static XNode toPointNode(Point2D.Double point, String name,
+                                       NumberFormat formatter) {
         XNode node = new XNode(name);
-        node.addAttribute("x", point.getX());
-        node.addAttribute("y", point.getY());
+        node.addAttribute("x", formatter.format(point.getX()));
+        node.addAttribute("y", formatter.format(point.getY()));
         return node;
     }
 
 
-    protected static XNode getRectNode(String name, Rectangle rect) {
+    protected static XNode getRectNode(String name, Rectangle rect, NumberFormat formatter) {
         XNode node = new XNode(name);
-        node.addAttribute("x", rect.getX());
-        node.addAttribute("y", rect.getY());
-        node.addAttribute("w", rect.getWidth());
-        node.addAttribute("h", rect.getHeight());
+        node.addAttribute("x", formatter.format(rect.getX()));
+        node.addAttribute("y", formatter.format(rect.getY()));
+        node.addAttribute("w", formatter.format(rect.getWidth()));
+        node.addAttribute("h", formatter.format(rect.getHeight()));
         return node;
     }
 
-
-
+    public static XNode getRectNodeAsInt(String name, Rectangle rect) {
+        XNode node = new XNode(name);
+        node.addAttribute("x", rect.x);
+        node.addAttribute("y", rect.y);
+        node.addAttribute("w", rect.width);
+        node.addAttribute("h", rect.height);
+        return node;
+    }
 
     protected static byte[] loadIcon(String iconPath) throws IOException {
         final int BUF_SIZE = 16384;
