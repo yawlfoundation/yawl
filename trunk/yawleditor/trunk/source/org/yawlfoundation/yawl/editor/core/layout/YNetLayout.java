@@ -326,9 +326,9 @@ public class YNetLayout {
         if (! (_fillColor == null || _fillColor.equals(Color.WHITE))) {
             node.addAttribute("bgColor", _fillColor.getRGB());
         }
-        node.addChild(YLayoutUtil.getRectNode("bounds", _bounds));
-        node.addChild("frame");                   // required for schema, but never used
-        node.addChild(YLayoutUtil.getRectNode("viewport", _viewport));
+        node.addChild(YLayoutUtil.getRectNodeAsInt("bounds", _bounds));
+        node.addChild(YLayoutUtil.getRectNodeAsInt("frame", _viewport)); // required for schema, but never used
+        node.addChild(YLayoutUtil.getRectNodeAsInt("viewport", _viewport));
 
         if (_bgImagePath != null) {
             node.addChild("bgImage", _bgImagePath);

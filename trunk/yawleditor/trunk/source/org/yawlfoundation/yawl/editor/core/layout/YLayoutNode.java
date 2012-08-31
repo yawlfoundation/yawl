@@ -163,7 +163,8 @@ public abstract class YLayoutNode {
 
     protected XNode getAttributesNode() {
         XNode node = new XNode("attributes");
-        if (_bounds != null) node.addChild(YLayoutUtil.getRectNode("bounds", _bounds));
+        if (_bounds != null) node.addChild(
+                YLayoutUtil.getRectNode("bounds", _bounds, _nbrFormatter));
         addCommonAttributes(node);
         return node;
     }
@@ -173,7 +174,8 @@ public abstract class YLayoutNode {
         XNode node = new XNode("label");
         XNode attributeNode = node.addChild("attributes");
         if (_labelBounds != null) {
-            attributeNode.addChild(YLayoutUtil.getRectNode("bounds", _labelBounds));
+            attributeNode.addChild(
+                    YLayoutUtil.getRectNode("bounds", _labelBounds, _nbrFormatter));
         }
         addCommonAttributes(attributeNode);
         return node;
