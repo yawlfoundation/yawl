@@ -139,16 +139,16 @@
     <property name="ehcache" value="ehcache-core-2.4.3.jar"/>                <!-- hbn -->
     <property name="h2" value="h2-1.3.166.jar"/>                             <!-- dbd -->
     <property name="hibernate" value="hibernate3.jar"/>                      <!-- mul -->
-    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.2.Final.jar"/>  <!-- mul -->
-    <property name="hibernate-core" value="hibernate-core-4.1.2.Final.jar"/>  <!-- mul -->
+    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.7.Final.jar"/>  <!-- mul -->
+    <property name="hibernate-core" value="hibernate-core-4.1.7.Final.jar"/>  <!-- mul -->
     <property name="hibernate-commons" value="hibernate-commons-annotations-4.0.1.Final.jar"/>  <!-- mul -->
-    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.2.Final.jar"/> <!-- hbn -->
+    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.7.Final.jar"/> <!-- hbn -->
     <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/> <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
     <property name="javaAssist" value="javassist-3.15.0-GA.jar"/>            <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.3.jar"/>                    <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
-    <property name="jboss-logging" value="jboss-logging-3.1.0.CR2.jar"/>     <!-- hbn -->
+    <property name="jboss-logging" value="jboss-logging-3.1.0.GA.jar"/>     <!-- hbn -->
     <property name="jboss-transaction" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/> <!-- hbn -->
     <property name="jdom" value="jdom-2.0.1.jar"/>                           <!-- mul -->
     <property name="jgraph" value="jgraphx.jar"/>                           <!-- mul -->

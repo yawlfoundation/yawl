@@ -154,12 +154,20 @@ public class JDOMUtil {
 
     public static String encodeEscapes(String s) {
         if (s == null) return s;
-        return s.replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll("\"", "&quot;")
-                .replaceAll("'", "&apos;") ;
+        StringBuilder sb = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) {
+            switch(c) {
+                case '\'' : sb.append("&apos;"); break;
+                case '\"' : sb.append("&quot;"); break;
+                case '>'  : sb.append("&gt;"); break;
+                case '<'  : sb.append("&lt;"); break;
+                case '&'  : sb.append("&amp;"); break;
+                default   : sb.append(c);
+            }
+        }
+        return sb.toString();
     }
+
 
     public static String decodeEscapes(String s) {
         if ((s == null) || (s.indexOf('&') < 0)) return s;  // short circuit if no encodes
