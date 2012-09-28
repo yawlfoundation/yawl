@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.exceptions.YDataValidationException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
@@ -378,6 +379,11 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
         if ((key == null) || (value == null)) return;
         _attributes.put(key, value);
     }
+
+    public void addAttribute(String name, DynamicValue value) {
+        _attributes.put(name, value);
+    }
+
 
     public void setAttributes(Map<String, String> attributes) {
         _attributes.set(attributes);

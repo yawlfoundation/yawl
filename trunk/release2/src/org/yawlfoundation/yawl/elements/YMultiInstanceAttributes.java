@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.apache.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -78,8 +79,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_minInstancesQuery);
         }
         catch (Exception e) {
-            throw new RuntimeException("The minInstances query at " + _myTask
-                    + " didn't produce numerical output as expected.");
+            Logger.getLogger(this.getClass()).warn("The minInstances query at " + _myTask
+                    + " didn't produce numerical output as expected. Returning default 1.");
+            return 1;
         }
     }
 
@@ -96,8 +98,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_maxInstancesQuery);
         }
         catch (Exception e) {
-            throw new RuntimeException("The maxInstances query at " + _myTask
-                    + " didn't produce numerical output as expected.");
+            Logger.getLogger(this.getClass()).warn("The maxInstances query at " + _myTask
+                    + " didn't produce numerical output as expected. Returning default 2.");
+            return 2;
         }
     }
 
@@ -114,8 +117,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_thresholdQuery);
         }
         catch (Exception e) {
-            throw new RuntimeException("The threshold query at " + _myTask
-                    + " didn't produce numerical output as expected.");
+            Logger.getLogger(this.getClass()).warn("The threshold query at " + _myTask
+                    + " didn't produce numerical output as expected. Returning default 1.");
+            return 1;
         }
     }
 
@@ -225,9 +229,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         return copy;
     }
 
-    private int getQueryValue(String query) throws ClassCastException {
+    private int getQueryValue(String query) throws IllegalArgumentException {
         Element element = JDOMUtil.selectElement(_myTask._net.getInternalDataDocument(), query);
-        if (element == null) throw new RuntimeException();
+        if (element == null) throw new IllegalArgumentException();
         return new Integer(element.getText());
     }
 
