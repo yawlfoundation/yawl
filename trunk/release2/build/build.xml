@@ -175,7 +175,7 @@
     <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>     <!-- prl -->
     <property name="jung-samples" value="jung-samples-2.0.jar"/>             <!-- prl -->
     <property name="jung-visualization" value="jung-visualization-2.0.jar"/> <!-- prl -->
-    <property name="junit" value="junit-4.5.jar"/>                           <!-- mul -->
+    <property name="junit" value="junit-4.10.jar"/>                          <!-- mul -->
     <property name="log4j" value="log4j-1.2.16.jar"/>                        <!-- mul -->
     <property name="mail" value="mail.jar"/>                                 <!-- mss -->
     <property name="mailapi" value="mailapi.jar"/>                           <!-- sml -->
@@ -1363,7 +1363,11 @@
         <jar destfile="${output.dir}/YResourceServiceClient.jar"
              basedir="${classes.dir}"
              includes="org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClient.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClientAdapter.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClientAdapter.class
                        org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClient.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayException.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceMarshaller.class
                        org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
                        org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
                        org/yawlfoundation/yawl/engine/interfce/ServletUtils.class
@@ -1381,6 +1385,7 @@
                                org/apache/commons/codec/EncoderException.class
                                org/apache/commons/codec/DecoderException.class
                                org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
                                org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
@@ -1389,6 +1394,51 @@
             </manifest>
         </jar>
         <checksum file="${output.dir}/YResourceServiceClient.jar"/>
+    </target>
+
+    <!--
+        Build the simulator JAR
+    -->
+
+    <target name="build_simulator.jar" depends="compile">
+        <mkdir dir="${output.dir}/simulator"/>
+        <mkdir dir="${output.dir}/simulator/lib"/>
+        <copy todir="${output.dir}/simulator">
+            <fileset dir="${classes.dir}${packageRoot}/simulation" excludes="*.class"/>
+        </copy>
+        <copy todir="${output.dir}/simulator/lib">
+            <fileset dir="${lib.dir}"
+                     includes="${servlet} ${jdom} ${log4j} ${xerces} ${commonsCodec}"/>
+        </copy>
+
+        <copy todir="${output.dir}/simulator/lib" file="${classes.dir}/log4j.properties"/>
+        <copy todir="${output.dir}/simulator/lib" file="${output.dir}/yawl-lib-2.3.jar"/>
+
+        <jar destfile="${output.dir}/simulator/YSimulator.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/simulation/*.class">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.simulation.YSimulator"/>
+                <attribute name="Class-Path"
+                           value="lib/${servlet} lib/${jdom} lib/${log4j}
+                                  lib/${commonsCodec} lib/${xerces} lib/yawl-lib-2.3.jar"/>
+            </manifest>
+        </jar>
+
+        <zip destfile="${output.dir}/YSimulator.zip" basedir="${output.dir}/simulator"/>
+
+    </target>
+
+    <target name="build_costModelUploader.jar" depends="compile">
+        <jar destfile="${output.dir}/ModelUploader.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/cost/interfce/ModelUpload.class">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.cost.interfce.ModelUpload"/>
+             </manifest>
+        </jar>
     </target>
         
     <!--

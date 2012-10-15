@@ -203,7 +203,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
             YParameter[] params = _controller.describeRequiredParams();
             StringBuilder output = new StringBuilder();
             for (YParameter param : params) {
-                output.append(param.toXML());
+                if (param != null) output.append(param.toXML());
             }
             return output.toString();
         }

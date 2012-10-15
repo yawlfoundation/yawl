@@ -313,7 +313,7 @@ public class StringUtil
         if (xml != null) {
             int start = xml.indexOf('>') + 1;
             int end = xml.lastIndexOf('<');
-            if (end > start) {
+            if (end >= start) {
                 return xml.substring(start, end);
             }
         }
