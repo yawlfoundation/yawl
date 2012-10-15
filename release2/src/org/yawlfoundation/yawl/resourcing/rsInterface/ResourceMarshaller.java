@@ -135,7 +135,6 @@ public class ResourceMarshaller {
         for (Element e : getChildren(xml)) {
             result.add(Marshaller.unmarshalWorkItem(e));
         }
-        if (result.isEmpty()) return null;
         return result ;
     }
 

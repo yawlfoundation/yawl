@@ -678,8 +678,8 @@ public class InterfaceClients {
             _log.debug(response);
         }
         catch (IOException ioe) {
-            _log.error("Error removing uploaded docs for case " + caseID +
-                    " - could not connect to Document Store");
+            _log.warn("Unable to remove uploaded docs for case " + caseID +
+                    " (if any) - could not connect to Document Store");
         }
     }
 
