@@ -139,7 +139,7 @@ public class Sessions {
      * @return true if the session handle is known and active, false otherwise
      */
     public boolean checkConnection(String handle) {
-        if (handleToTimer.containsKey(handle)) {
+        if (handle != null && handleToTimer.containsKey(handle)) {
             refreshActivityTimer(handle);
             return true;
         }
