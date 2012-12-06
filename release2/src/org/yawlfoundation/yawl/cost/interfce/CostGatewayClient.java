@@ -30,36 +30,42 @@ import java.util.Set;
 /**
  * An API to be used by clients that want to retrieve data from the cost service.
  *
- *  @author Michael Adams
- *  11/07/2011
+ * @author Michael Adams
+ *         11/07/2011
  */
 
 public class CostGatewayClient extends Interface_Client {
 
-    /** the uri of the YAWL Cost Service
-     * a default would be "http://localhost:8080/costService/"
+    /**
+     * the uri of the YAWL Cost Service
+     * a default would be "http://localhost:8080/costService/gateway"
      */
     protected String _costURI;
 
-    /** the constructors
+    /**
+     * the constructors
+     *
      * @param uri the uri of the YAWL Cost Service
      */
     public CostGatewayClient(String uri) {
-        _costURI = uri ;
+        _costURI = uri;
     }
 
 
-    public CostGatewayClient() { }
-    
-    
-    public void setURI(String uri)  { _costURI = uri; }
+    public CostGatewayClient() {
+        _costURI = "http://localhost:8080/costService/gateway";
+    }
+
+
+    public void setURI(String uri) { _costURI = uri; }
 
 
     /*******************************************************************************/
 
     /**
      * Connects an external entity to the cost service
-     * @param userID the userid
+     *
+     * @param userID   the userid
      * @param password the corresponding password
      * @return a sessionHandle if successful, or a failure message if not
      * @throws IOException if the service can't be reached
@@ -68,23 +74,25 @@ public class CostGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("connect", null);
         params.put("userid", userID);
         params.put("password", PasswordEncryptor.encrypt(password, null));
-        return executeGet(_costURI, params) ;
+        return executeGet(_costURI, params);
     }
 
 
     /**
      * Check that a session handle is active
+     *
      * @param handle the session handle to check
      * @return "true" if the id is valid, "false" if otherwise
      * @throws IOException if the service can't be reached
      */
     public String checkConnection(String handle) throws IOException {
-        return executeGet(_costURI, prepareParamMap("checkConnection", handle)) ;
+        return executeGet(_costURI, prepareParamMap("checkConnection", handle));
     }
 
 
     /**
      * Disconnects an external entity from the cost service
+     *
      * @param handle the sessionHandle to disconnect
      * @throws IOException if the service can't be reached
      */
@@ -95,8 +103,9 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Loads a cost model into the service
+     *
      * @param modelXML the model to import
-     * @param handle a current sessionHandle to the cost service
+     * @param handle   a current sessionHandle to the cost service
      * @return a success or error message
      * @throws IOException
      */
@@ -109,10 +118,11 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Loads a number of cost models into the service
+     *
      * @param modelsXML the set of models to import, represented as an set of valid
      *                  cost mode XML child elements contained within an outer element
      *                  called 'costmodels'
-     * @param handle a current sessionHandle to the cost service
+     * @param handle    a current sessionHandle to the cost service
      * @return a success or error message
      * @throws IOException
      */
@@ -125,10 +135,11 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Gets the cost models for a specification from the service
+     *
      * @param specID the id of the specification to get the models for
      * @param handle a current sessionHandle to the cost service
      * @return a String XML representation of the models if successful or
-     * an error message if not
+     *         an error message if not
      * @throws IOException
      */
     public String exportModels(YSpecificationID specID, String handle) throws IOException {
@@ -140,11 +151,12 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Gets a cost model from the service
-     * @param specID the id of the specification to get the model for
+     *
+     * @param specID  the id of the specification to get the model for
      * @param modelID the id of the model to get
-     * @param handle a current sessionHandle to the cost service
+     * @param handle  a current sessionHandle to the cost service
      * @return a String XML representation of the model if successful or
-     * an error message if not
+     *         an error message if not
      * @throws IOException
      */
     public String exportModel(YSpecificationID specID, String modelID, String handle)
@@ -158,9 +170,10 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Removes a cost model from the service
-     * @param specID the id of the specification to remove the model for
+     *
+     * @param specID  the id of the specification to remove the model for
      * @param modelID the id of the model to remove
-     * @param handle a current sessionHandle to the cost service
+     * @param handle  a current sessionHandle to the cost service
      * @return an XML success or error message
      * @throws IOException
      */
@@ -175,6 +188,7 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Clears all the cost model for a particular specification from the service
+     *
      * @param specID the id of the specification to remove the models for
      * @param handle a current sessionHandle to the cost service
      * @return an XML success or error message
@@ -189,10 +203,9 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
-     *
      * @param specID
      * @param withData
-     * @param handle a current sessionhandle to the cost service
+     * @param handle   a current sessionhandle to the cost service
      * @return
      * @throws IOException
      */
@@ -205,15 +218,25 @@ public class CostGatewayClient extends Interface_Client {
     }
 
 
+    public boolean evaluate(YSpecificationID specID, String caseID, String predicate,
+                            String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("evaluate", handle);
+        params.putAll(specID.toMap());
+        params.put("id", caseID);
+        params.put("predicate", predicate);
+        return executeGet(_costURI, params).equals("true");
+    }
+
     /**
      * Gets an XML list of all cost functions for the specified specification - task
      * combination.
-     * @param specID the specification identifier
+     *
+     * @param specID   the specification identifier
      * @param taskName the task identifier (may be null, in which case only the case level
-     * functions are required)
-     * @param handle a current sessionhandle to the cost service
+     *                 functions are required)
+     * @param handle   a current sessionhandle to the cost service
      * @return an XML list of the cost functions requested, or an appropriate failure
-     * message.
+     *         message.
      * @throws IOException if there's a problem connecting to the service
      */
     public String getFunctionList(YSpecificationID specID, String taskName, String handle)
@@ -226,14 +249,15 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
-      * Gets an XML list of all the fixed costs for the specified specification - task
-      * combination.
-      * @param specID the specification identifier
-      * @param taskName the task identifier (may be null, in which case only the case level
-      * costs are required)
-      * @param handle a current sessionhandle to the cost service
-      * @return an XML list of the costs requested, or an appropriate failure message.
-      * @throws IOException if there's a problem connecting to the service
+     * Gets an XML list of all the fixed costs for the specified specification - task
+     * combination.
+     *
+     * @param specID   the specification identifier
+     * @param taskName the task identifier (may be null, in which case only the case level
+     *                 costs are required)
+     * @param handle   a current sessionhandle to the cost service
+     * @return an XML list of the costs requested, or an appropriate failure message.
+     * @throws IOException if there's a problem connecting to the service
      */
     public String getFixedCosts(YSpecificationID specID, String taskName, String handle)
             throws IOException {
@@ -246,13 +270,14 @@ public class CostGatewayClient extends Interface_Client {
 
     /**
      * Gets the cost of performing an activity for each resource in a Set.
-     * @param specID the specification identifier
-     * @param taskName the task name (may be null, in which case only the case level
-     * costs are required)
+     *
+     * @param specID    the specification identifier
+     * @param taskName  the task name (may be null, in which case only the case level
+     *                  costs are required)
      * @param resources an XML document containing participant ids
-     * @param handle a current sessionhandle to the cost service
+     * @param handle    a current sessionhandle to the cost service
      * @return an XML document containing the actual result of applying the costParams
-     * to the relevant cost functions.
+     *         to the relevant cost functions.
      * @throws IOException if there's a problem connecting to the service
      */
     public String getResourceCosts(YSpecificationID specID, String taskName,
@@ -266,22 +291,21 @@ public class CostGatewayClient extends Interface_Client {
 
 
     /**
-     *
-     * @param specID the specification identifier
-     * @param taskName the task name
+     * @param specID    the specification identifier
+     * @param taskName  the task name
      * @param resources the set of participant ids to get costs for
-     * @param handle a current sessionhandle to the cost service
+     * @param handle    a current sessionhandle to the cost service
      * @return
      * @throws IOException
      */
     public String getResourceCosts(YSpecificationID specID, String taskName,
-                                  Set<String> resources, String handle) throws IOException {
+                                   Set<String> resources, String handle) throws IOException {
         XNode node = new XNode("resources");
         for (String resource : resources) {
             node.addChild("id", resource);
         }
         return getResourceCosts(specID, taskName, node.toString(), handle);
     }
-    
+
 
 }

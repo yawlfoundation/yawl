@@ -38,12 +38,11 @@ import java.util.Set;
 
 
 /**
-  *  Shell servlet for the cost service.
-  *
-  *  @author Michael Adams
-  *  @date 11/07/2011
-  *
-  */
+ * Shell servlet for the cost service.
+ *
+ * @author Michael Adams
+ * @date 11/07/2011
+ */
 
 public class CostGateway extends HttpServlet {
 
@@ -52,7 +51,9 @@ public class CostGateway extends HttpServlet {
     private static final Logger _log = Logger.getLogger(CostGateway.class);
 
 
-    /** Read settings from web.xml and use them to initialise the service */
+    /**
+     * Read settings from web.xml and use them to initialise the service
+     */
     public void init() {
         try {
             ServletContext context = getServletContext();
@@ -61,7 +62,7 @@ public class CostGateway extends HttpServlet {
             // load and process init params from web.xml
             String ixURI = context.getInitParameter("InterfaceX_BackEnd");
             if (ixURI != null) _service.setInterfaceXBackend(ixURI);
-            
+
             String rsLogURI = context.getInitParameter("ResourceServiceLogGateway");
             if (rsLogURI != null) _service.setResourceLogURI(rsLogURI);
 
@@ -75,8 +76,7 @@ public class CostGateway extends HttpServlet {
             _service.setEngineLogonPassword(engineLogonPassword);
             _sessions = new Sessions();
             _sessions.setupInterfaceA(iaURI, engineLogonName, engineLogonPassword);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             _log.error("Cost Service Initialisation Exception", e);
         }
     }
@@ -89,13 +89,13 @@ public class CostGateway extends HttpServlet {
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         doPost(req, res);                                // redirect all GETs to POSTs
     }
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-                               throws IOException {
+            throws IOException {
         String action = req.getParameter("action");
         String handle = req.getParameter("sessionHandle");
         YSpecificationID specID = constructSpecID(req);
@@ -106,51 +106,40 @@ public class CostGateway extends HttpServlet {
             String userid = req.getParameter("userid");
             String password = req.getParameter("password");
             result = _sessions.connect(userid, password);
-        }
-        else if (action.equals("checkConnection")) {
+        } else if (action.equals("checkConnection")) {
             result = String.valueOf(_sessions.checkConnection(handle));
-        }
-        else if (action.equals("disconnect")) {
+        } else if (action.equals("disconnect")) {
             result = String.valueOf(_sessions.disconnect(handle));
-        }
-        else if (_sessions.checkConnection(handle)) {
+        } else if (_sessions.checkConnection(handle)) {
             if (action.equals("importModel")) {
                 result = _service.importModel(req.getParameter("model"));
-            }
-            else if (action.equals("importModels")) {
+            } else if (action.equals("importModels")) {
                 result = _service.importModels(req.getParameter("models"));
-            }
-            else if (action.equals("exportModels")) {
+            } else if (action.equals("exportModels")) {
                 result = _service.exportModels(specID);
-            }
-            else if (action.equals("exportModel")) {
+            } else if (action.equals("exportModel")) {
                 result = _service.exportModel(specID, req.getParameter("id"));
-            }
-            else if (action.equals("removeModel")) {
+            } else if (action.equals("removeModel")) {
                 result = _service.removeModel(specID, req.getParameter("id"));
-            }
-            else if (action.equals("clearModels")) {
+            } else if (action.equals("clearModels")) {
                 result = _service.clearModels(specID);
-            }
-            else if (action.equals("getAnnotatedLog")) {
+            } else if (action.equals("getAnnotatedLog")) {
                 boolean withData = req.getParameter("withData").equalsIgnoreCase("true");
                 result = _service.getAnnotatedLog(specID, withData);
-            }
-            else if (action.equals("getResourceCost")) {
+            } else if (action.equals("getResourceCosts")) {
                 result = getResourceCost(specID, taskName, req.getParameter("resources"));
-            }
-            else if (action.equals("getFunctionList")) {
+            } else if (action.equals("getFunctionList")) {
                 result = getFunctionList(specID, taskName);
-            }
-            else if (action.equals("getFixedCosts")) {
+            } else if (action.equals("getFixedCosts")) {
                 result = getFixedCosts(specID, taskName);
-            }
-            else if (action.equals("disconnect")) {
+            } else if (action.equals("evaluate")) {
+                String caseID = req.getParameter("id");
+                String predicate = req.getParameter("predicate");
+                result = String.valueOf(_service.evaluate(specID, caseID, predicate));
+            } else if (action.equals("disconnect")) {
                 result = String.valueOf(_sessions.disconnect(handle));
-            }
-            else throw new IOException("Unknown Cost Service action: " + action);
-        }
-        else throw new IOException("Unknown or inactive session handle");
+            } else throw new IOException("Unknown Cost Service action: " + action);
+        } else throw new IOException("Unknown or inactive session handle");
 
         // generate the output
         res.setContentType("text/xml; charset=UTF-8");
@@ -164,11 +153,12 @@ public class CostGateway extends HttpServlet {
     /**
      * Gets an XML list of all cost functions for the specified specification - task
      * combination.
+     *
      * @param specID the specification identifier
      * @param taskID the task identifier (may be null, in which case only the case level
-     * functions are required)
+     *               functions are required)
      * @return an XML list of the cost functions requested, or an appropriate failure
-     * message.
+     *         message.
      */
     private String getFunctionList(YSpecificationID specID, String taskID) {
         // TODO
@@ -179,9 +169,10 @@ public class CostGateway extends HttpServlet {
     /**
      * Gets an XML list of all the fixed costs for the specified specification - task
      * combination.
+     *
      * @param specID the specification identifier
      * @param taskID the task identifier (may be null, in which case only the case level
-     * costs are required)
+     *               costs are required)
      * @return an XML list of the costs requested, or an appropriate failure message.
      */
     private String getFixedCosts(YSpecificationID specID, String taskID) {
@@ -192,9 +183,10 @@ public class CostGateway extends HttpServlet {
 
     /**
      * Calculates the cost of an activity.
-     * @param specID the specification identifier
-     * @param  taskName the task identifier (may be null, in which case only the case level
-     * costs are required)
+     *
+     * @param specID    the specification identifier
+     * @param taskName  the task identifier (may be null, in which case only the case level
+     *                  costs are required)
      * @param resources an XML set of participant ids
      * @return an XML string containing cost data for each listed resource for the task
      */
@@ -210,23 +202,20 @@ public class CostGateway extends HttpServlet {
                     resourceSet.add(resource.getText());
                 }
                 reply = cache.getDriverMatrix().getCostMapAsXML(taskName, resourceSet);
-            }
-            else reply = failMessage("Error parsing list of participant ids");
-        }
-        else reply = failMessage("No cost models for specification");
+            } else reply = failMessage("Error parsing list of participant ids");
+        } else reply = failMessage("No cost models for specification");
 
         return reply;
     }
 
 
     private YSpecificationID constructSpecID(HttpServletRequest req) {
-        String version = req.getParameter("specversion") ;
-        String uri = req.getParameter("specuri") ;
+        String version = req.getParameter("specversion");
+        String uri = req.getParameter("specuri");
         if ((uri != null) && (version != null)) {
-            String identifier = req.getParameter("specidentifier") ;
+            String identifier = req.getParameter("specidentifier");
             return new YSpecificationID(identifier, version, uri);
-        }
-        else return null;
+        } else return null;
     }
 
 

@@ -22,15 +22,15 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * One row of the logTask table, representing a unique task 'template' of a parent net
- *
+ * <p/>
  * Author: Michael Adams
  * Creation Date: 6/04/2009
  */
 public class YLogTask {
 
     private long taskID;                          // PK - auto generated
-    private String name ;
-    private long parentNetID ;                    // FK to YLogNet
+    private String name;
+    private long parentNetID;                    // FK to YLogNet
     private long childNetID;                      // FK to YLogNet (composite tasks only)
 
     public YLogTask() { }
@@ -56,10 +56,11 @@ public class YLogTask {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getUnqualifiedName() {
-        int pos = name.lastIndexOf('_');
-        return pos > 0 ? name.substring(0, pos) : name;
+
+        // truncate unique _digits from end of task id (e.g. _98)
+        return name.split("_\\d+$")[0];
     }
 
     public long getParentNetID() {

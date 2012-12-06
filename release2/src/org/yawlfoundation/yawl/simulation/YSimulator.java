@@ -29,6 +29,11 @@ public class YSimulator {
     private Map<String, ParticipantSummary> _summaryMap;
     private Map<String, String> _userToPidMap;
     private Map<String, Set<String>> _roleToPidsMap;
+    private Map<String, Long> _caseStartTimeMap;
+    private long _startTime;
+    private long _slowestCaseTime;
+    private long _fastestCaseTime;
+    private long _totalTime;
 
     protected static final String DEFAULT_URL = ":8080/resourceService/workqueuegateway";
     private static final String DEFAULT_USER = "admin";
@@ -36,7 +41,7 @@ public class YSimulator {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss.SSS");
     private static final Timer _timer = new Timer();
 
-    protected enum SimulationType { Workitem, Resource, Process }
+    protected enum SimulationType {Workitem, Resource, Process}
 
 
     private void run() {
@@ -45,8 +50,7 @@ public class YSimulator {
             _props.parse();
             checkSpecLoaded();
             start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             fail("Failed to run simulation: " + e.getMessage());
         }
@@ -58,18 +62,22 @@ public class YSimulator {
         _summaryMap = new Hashtable<String, ParticipantSummary>();
         _userToPidMap = new Hashtable<String, String>();
         _roleToPidsMap = new Hashtable<String, Set<String>>();
+        _caseStartTimeMap = new Hashtable<String, Long>();
+        _slowestCaseTime = 0;
+        _fastestCaseTime = Long.MAX_VALUE;
+        _totalTime = 0;
     }
 
 
     protected void connect(String url) {
         _wqAdapter = new WorkQueueGatewayClientAdapter(url);
         _handle = _wqAdapter.connect(DEFAULT_USER, DEFAULT_PASSWORD);
-        if (! successful(_handle)) {
+        if (!successful(_handle)) {
             fail("Failed to connect to a resource service using: " + url +
-                 ", reason: " + _handle);
+                    ", reason: " + _handle);
         }
 
-         // can use same handle
+        // can use same handle
         _resAdapter = new ResourceGatewayClientAdapter(url.replaceFirst("workqueue", ""));
     }
 
@@ -108,11 +116,10 @@ public class YSimulator {
         Set<Participant> pSet = _resAdapter.getParticipantsWithRole(roleName, _handle);
         if (pSet != null) {
             for (Participant p : pSet) {
-               pids.add(p.getID());
+                pids.add(p.getID());
                 _summaryMap.put(p.getID(), new ParticipantSummary(p));
             }
-        }
-        else fail("No role found with name: " + roleName);
+        } else fail("No role found with name '" + roleName + "' or role has no members.");
 
         _roleToPidsMap.put(roleName, pids);
         return pids;
@@ -120,8 +127,9 @@ public class YSimulator {
 
 
     private void start() throws IOException, ResourceGatewayException {
+        _startTime = System.currentTimeMillis();
         startPoller();
-        for (int i=1; i <= _props.getCaseCount(); i++) {
+        for (int i = 1; i <= _props.getCaseCount(); i++) {
             TimedCaseLauncher launcher = new TimedCaseLauncher(i);
             _timer.schedule(launcher, _props.getInterval() * i);
         }
@@ -145,13 +153,12 @@ public class YSimulator {
             if (successful(response)) {
                 XNode cases = new XNodeParser().parse(response);
                 for (XNode caseNode : cases.getChildren()) {
-                     if (successful(_wqAdapter.cancelCase(caseNode.getText(), _handle))) {
+                    if (successful(_wqAdapter.cancelCase(caseNode.getText(), _handle))) {
                         print(now() + " - Cancelled case " + caseNode.getText());
                     }
                 }
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             // forget it - just trying to clean up anyway
         }
     }
@@ -188,24 +195,24 @@ public class YSimulator {
         }
 
         // ignore busy resources if required
-        if (_props.getConcurrent(wir.getTaskName(), pid) <= getExecutingCount(pid)) {
+        if (_props.getConcurrent(wir.getTaskID(), pid) <= getExecutingCount(pid)) {
             return false;
         }
 
         wir = _wqAdapter.startItem(pid, wir.getID(), _handle);
-        int processingTime = _props.getProcessingTime(wir.getTaskName(), pid);
-        _summaryMap.get(pid).addWork(wir.getTaskName(), processingTime);
+        int processingTime = _props.getProcessingTime(wir.getTaskID(), pid);
+        _summaryMap.get(pid).addWork(wir.getTaskID(), processingTime);
         print(MessageFormat.format("{0} - Started workitem {1} and processing for {2} ms",
                 now(), wir.getID(), processingTime));
         limit.increment(processingTime);
         TimedItemCompleter completer = new TimedItemCompleter(wir, pid);
         _timer.schedule(completer, processingTime);
         return true;
-     }
+    }
 
 
     protected boolean successful(String s) {
-        return ! (s == null || s.startsWith("<fail"));
+        return !(s == null || s.startsWith("<fail"));
     }
 
     protected void fail(String msg) {
@@ -229,7 +236,35 @@ public class YSimulator {
     }
 
 
-    /**************************************************************************/
+    private String getCaseSummary() {
+        long now = System.currentTimeMillis();
+        StringBuilder s = new StringBuilder();
+        s.append("Summary for all cases:\n")
+                .append("\tSimulation Started: ")
+                .append(SDF.format(new Date(_startTime)))
+                .append("\n\tSimulation Completed: ")
+                .append(SDF.format(new Date(now)))
+                .append("\n\tTotal running time: ")
+                .append(now - _startTime)
+                .append(" ms")
+                .append("\n\tNumber of cases completed: ")
+                .append(_props.getCaseCount())
+                .append("\n\tFastest case completion: ")
+                .append(_fastestCaseTime)
+                .append(" ms")
+                .append("\n\tSlowest case completion: ")
+                .append(_slowestCaseTime)
+                .append(" ms")
+                .append("\n\tAverage case completion: ")
+                .append(_totalTime / _props.getCaseCount())
+                .append(" ms");
+        return s.toString();
+    }
+
+
+    /**
+     * **********************************************************************
+     */
 
     class TimedQueuePoller extends TimerTask {
 
@@ -242,24 +277,22 @@ public class YSimulator {
                             startedOne = process(pid, wir) || startedOne;
                         }
                     }
-                    if (! startedOne && deadlocked()) {
+                    if (!startedOne && deadlocked()) {
                         summariseAndExit(false);
                     }
-                }
-                else {
+                } else {
                     summariseAndExit(true);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // break
             }
         }
 
+
         private void summariseAndExit(boolean successful) {
             if (successful) {
                 print("Simulation completed successfully.\n");
-            }
-            else {
+            } else {
                 _timer.cancel();
                 cancelAllCases();
                 print("Simulation completed prematurely - " +
@@ -268,13 +301,16 @@ public class YSimulator {
             for (ParticipantSummary summary : _summaryMap.values()) {
                 print(summary.getSummary());
             }
+            print(getCaseSummary());
             System.exit(0);
         }
 
     }
 
 
-    /**************************************************************************/
+    /**
+     * **********************************************************************
+     */
 
     class TimedItemCompleter extends TimerTask {
 
@@ -292,8 +328,18 @@ public class YSimulator {
             try {
                 _wqAdapter.completeItem(pid, wir.getID(), _handle);
                 print(now() + " - Completed workitem " + wir.getID());
-            }
-            catch (Exception e) {
+
+                // check if case has completed
+                if (!successful(_wqAdapter.getCaseData(wir.getRootCaseID(), _handle))) {
+                    long startTime = _caseStartTimeMap.remove(wir.getRootCaseID());
+                    long caseLength = System.currentTimeMillis() - startTime;
+                    print(MessageFormat.format("{0} - Completed case {1} in {2} ms",
+                            now(), wir.getRootCaseID(), caseLength));
+                    if (caseLength > _slowestCaseTime) _slowestCaseTime = caseLength;
+                    if (caseLength < _fastestCaseTime) _fastestCaseTime = caseLength;
+                    _totalTime += caseLength;
+                }
+            } catch (Exception e) {
                 print("Failed to complete workitem " + wir.getID() + ": " + e.getMessage());
             }
         }
@@ -301,12 +347,13 @@ public class YSimulator {
     }
 
 
-    /**************************************************************************/
+    /**
+     * **********************************************************************
+     */
 
     class TimedCaseLauncher extends TimerTask {
 
         int count;
-
 
         TimedCaseLauncher(int count) { this.count = count; }
 
@@ -314,11 +361,11 @@ public class YSimulator {
         public void run() {
             try {
                 String caseID = _wqAdapter.launchCase(_props.getSpecID(), null, _handle);
-                if (! successful(caseID)) fail("Failed to launch case: " + caseID);
+                if (!successful(caseID)) fail("Failed to launch case: " + caseID);
+                _caseStartTimeMap.put(caseID, System.currentTimeMillis());
                 print(MessageFormat.format("{0} - Started case {1} ({2}/{3})",
                         now(), caseID, count, _props.getCaseCount()));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 fail("Failed to launch case: " + e.getMessage());
             }
         }
@@ -326,7 +373,9 @@ public class YSimulator {
     }
 
 
-    /*******************************************************************************/
+    /**
+     * ***************************************************************************
+     */
 
     class ParticipantSummary {
 
@@ -352,11 +401,11 @@ public class YSimulator {
 
 
         void reportLimitReached() {
-            if (! reported) {
+            if (!reported) {
                 print(MessageFormat.format(
-                     "{0} - The work limit for resource {1} (userid {2}) has " +
-                             "been reached for this run.",
-                     now(), p.getFullName(), p.getUserID()));
+                        "{0} - The work limit for resource {1} (userid {2}) has " +
+                                "been reached for this run.",
+                        now(), p.getFullName(), p.getUserID()));
                 reported = true;
             }
         }
@@ -382,9 +431,8 @@ public class YSimulator {
                     .append(totalTime);
             if (totalTasks > 0) {
                 s.append(" msec total time, ")
-                 .append((int) totalTime / totalTasks).append(" average per instance.\n");
-            }
-            else s.append(" msec total time.\n");
+                        .append((int) totalTime / totalTasks).append(" average per instance.\n");
+            } else s.append(" msec total time.\n");
 
             return s.toString();
         }

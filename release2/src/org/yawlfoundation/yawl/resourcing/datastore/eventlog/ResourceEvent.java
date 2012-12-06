@@ -26,27 +26,31 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * An object representing one resourcing event for logging.
  *
  * @author Michael Adams
- * Date: 23/08/2009
+ *         Date: 23/08/2009
  */
 public class ResourceEvent extends BaseEvent implements Cloneable {
 
     private long _specKey;                                       // FK to SpecLog table
-    private String _caseID ;
-    private String _taskID ;
-    private String _itemID ;
+    private String _caseID;
+    private String _taskID;
+    private String _itemID;
     private String _resourceID;
 
 
     public ResourceEvent() {}                                    // for reflection
 
-    /** Constructor for item level events **/
+    /**
+     * Constructor for item level events *
+     */
     public ResourceEvent(long specKey, WorkItemRecord wir, String pid, EventLogger.event eType) {
         this(specKey, wir.getCaseID(), pid, eType);
-        _taskID = wir.getTaskName(); 
+        _taskID = wir.getTaskID();
         _itemID = wir.getID();
     }
 
-    /** Constructor for case level and secondary resource events **/
+    /**
+     * Constructor for case level and secondary resource events *
+     */
     public ResourceEvent(long specKey, String caseID, String id, EventLogger.event eType) {
         super(eType.name());
         _specKey = specKey;
@@ -54,7 +58,9 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
         _resourceID = id;
     }
 
-    /** Constructor for unmarshalling from xml **/
+    /**
+     * Constructor for unmarshalling from xml *
+     */
     public ResourceEvent(Element xml) {
         super();
         fromXML(xml);
@@ -63,8 +69,7 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     public final ResourceEvent clone() {
         try {
             return (ResourceEvent) super.clone();
-        }
-        catch (CloneNotSupportedException cnse) {
+        } catch (CloneNotSupportedException cnse) {
             return null;
         }
     }
@@ -100,12 +105,12 @@ public class ResourceEvent extends BaseEvent implements Cloneable {
     public String toXML() {
         StringBuilder xml = new StringBuilder(String.format("<event key=\"%d\">", _id));
         xml.append(StringUtil.wrap(String.valueOf(_specKey), "speckey"))
-           .append(StringUtil.wrap(_caseID, "caseid"))
-           .append(StringUtil.wrap(_taskID, "taskid"))
-           .append(StringUtil.wrap(_itemID, "itemid"))
-           .append(StringUtil.wrap(_resourceID, "resourceid"))
-           .append(super.toXML())
-           .append("</event>") ;
+                .append(StringUtil.wrap(_caseID, "caseid"))
+                .append(StringUtil.wrap(_taskID, "taskid"))
+                .append(StringUtil.wrap(_itemID, "itemid"))
+                .append(StringUtil.wrap(_resourceID, "resourceid"))
+                .append(super.toXML())
+                .append("</event>");
         return xml.toString();
     }
 

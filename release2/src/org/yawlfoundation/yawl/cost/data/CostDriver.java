@@ -52,17 +52,25 @@ public class CostDriver implements XNodeIO {
     private long getDriverID() { return driverID; }
 
     private void setDriverID(long id) { driverID = id; }
-    
+
 
     public String getID() { return id; }
 
 
     public UnitCost getUnitCost() { return unitCost; }
-    
+
     public Set<DriverFacet> getFacets() { return facets; }
-    
+
     public Set<CostType> getCostTypes() { return costTypes; }
-    
+
+
+    public boolean hasFacetAspect(FacetAspect aspect) {
+        for (DriverFacet facet : facets) {
+            if (facet.getFacetAspect() == aspect) return true;
+        }
+        return false;
+    }
+
     public String getCostTypesAsCSV() {
         String csv = "";
         for (CostType costType : costTypes) {

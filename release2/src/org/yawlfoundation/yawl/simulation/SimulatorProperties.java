@@ -57,8 +57,7 @@ class SimulatorProperties {
 
     protected void parse() throws ResourceGatewayException, IOException {
         ySimulator.print("Parsing configuration...");
-        String xml = StringUtil.fileToString("config.xml");
-//        String xml = StringUtil.fileToString("/Users/adamsmj/Documents/Subversion/yawl2/release2/src/org/yawlfoundation/yawl/simulation/config.xml");
+        String xml = StringUtil.fileToString("/Users/adamsmj/Documents/temp/moe/simulationexperiments/config.xml");
         if (xml == null) ySimulator.fail("Failed to load config file 'config.xml'");
         XNode node = new XNodeParser().parse(xml);
         if (node == null) ySimulator.fail("Failed to parse config file");
@@ -75,7 +74,8 @@ class SimulatorProperties {
 
     private void parseSimType(XNode node) {
         String type = node.getAttributeValue("view");
-        if (type == null) ySimulator.fail("Config file does not specify a simulation view");
+        if (type == null)
+            ySimulator.fail("Config file does not specify a simulation view");
         else if (type.equals("workitem")) simType = YSimulator.SimulationType.Workitem;
         else if (type.equals("resource")) simType = YSimulator.SimulationType.Resource;
         else if (type.equals("process")) simType = YSimulator.SimulationType.Process;
@@ -96,15 +96,13 @@ class SimulatorProperties {
         XNode specNode = node.getChild("specification");
         if (specNode == null) {
             ySimulator.fail("Config file does not contain a specification ID");
-        }
-        else {
+        } else {
             String id = specNode.getChildText("id");
             String version = specNode.getChildText("version");
             String uri = specNode.getChildText("name");
             if (id == null || version == null || uri == null) {
                 ySimulator.fail("Invalid specification ID in config file");
-            }
-            else specID = new YSpecificationID(id, version, uri);
+            } else specID = new YSpecificationID(id, version, uri);
         }
     }
 
@@ -126,16 +124,11 @@ class SimulatorProperties {
                 if (userID != null) {
                     addTaskResource(taskID, ySimulator.getParticipantID(userID),
                             timeSet, concurrent);
-                }
-                else {
+                } else {
                     String roleName = resourceNode.getAttributeValue("role");
                     if (roleName != null) {
                         for (String pid : ySimulator.getPIDsForRole(roleName)) {
-
-                            // don't overwrite individual settings with role duplicate
-                            if (! resources.containsKey(pid)) {
-                                addTaskResource(taskID, pid, timeSet, concurrent);
-                            }
+                            addTaskResource(taskID, pid, timeSet, concurrent);
                         }
                     }
                 }
@@ -148,8 +141,7 @@ class SimulatorProperties {
         String time = resourceNode.getAttributeValue("time");
         if (time != null) {
             times.add(time);
-        }
-        else {
+        } else {
             for (XNode timeNode : resourceNode.getChildren("time")) {
                 times.add(timeNode.getText());
             }
@@ -166,8 +158,7 @@ class SimulatorProperties {
             String userid = resourceNode.getAttributeValue("userid");
             if (userid != null) {
                 addLimit(ySimulator.getParticipantID(userid), limit);
-            }
-            else {
+            } else {
                 String roleName = resourceNode.getAttributeValue("role");
                 if (roleName != null) {
                     for (String pid : ySimulator.getPIDsForRole(roleName)) {
@@ -213,7 +204,12 @@ class SimulatorProperties {
             timeMap = new Hashtable<String, TaskResourceSettings>();
             tasks.put(taskID, timeMap);
         }
-        timeMap.put(pid, resourceSettings);
+
+        // don't overwrite individual settings with role duplicate
+        if (!timeMap.containsKey(pid)) {
+            timeMap.put(pid, resourceSettings);
+        }
+
         resources.put(pid, null);
     }
 
