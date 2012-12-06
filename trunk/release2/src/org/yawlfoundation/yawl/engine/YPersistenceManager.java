@@ -39,15 +39,12 @@ import java.util.List;
 
 
 /**
- * 
  * This class acts as a handler for transactional persistence within the engine.
  *
  * @author Andrew Hastie (M2 Investments)
  *         Date: 21/06/2005
  *         Time: 13:46:54
- *
  * @author Michael Adams - updated for v2.1 11/2009
- *
  */
 public class YPersistenceManager {
 
@@ -55,7 +52,7 @@ public class YPersistenceManager {
     public static final int DB_UPDATE = 0;
     public static final int DB_DELETE = 1;
     public static final int DB_INSERT = 2;
-    
+
     private static Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
             YNetData.class, YAWLServiceReference.class, YExternalClient.class,
@@ -63,7 +60,7 @@ public class YPersistenceManager {
             YLogSpecification.class, YLogNet.class, YLogTask.class, YLogNetInstance.class,
             YLogTaskInstance.class, YLogEvent.class, YLogDataItemInstance.class,
             YLogDataType.class, YLogService.class, YAuditEvent.class
-    } ;
+    };
 
     private static final boolean INSERT = false;
     private static final boolean UPDATE = true;
@@ -96,8 +93,7 @@ public class YPersistenceManager {
                 factory = cfg.buildSessionFactory();
                 new SchemaUpdate(cfg).execute(false, true);
                 setEnabled(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 logger.fatal("Failure initialising persistence layer", e);
                 throw new YPersistenceException("Failure initialising persistence layer", e);
@@ -141,8 +137,7 @@ public class YPersistenceManager {
                 if ((session != null) && (session.isOpen())) {
                     session.close();
                 }
-            }
-            catch (HibernateException e) {
+            } catch (HibernateException e) {
                 logger.error("Failure to close Hibernate session", e);
             }
         }
@@ -169,16 +164,17 @@ public class YPersistenceManager {
     public boolean isStatisticsEnabled() {
         return (factory != null) && factory.getStatistics().isStatisticsEnabled();
     }
-    
+
 
     /**
      * Start a new Hibernate transaction.
+     *
      * @return true if a transaction is started successfully, false if the session
-     * already has an active transaction
-     * @throws YPersistenceException if there's a problem starting a transaction 
+     *         already has an active transaction
+     * @throws YPersistenceException if there's a problem starting a transaction
      */
     public boolean startTransaction() throws YPersistenceException {
-        if ((! isEnabled()) || isActiveTransaction()) return false;
+        if ((!isEnabled()) || isActiveTransaction()) return false;
         logger.debug("---> start Transaction");
         try {
             getSession().beginTransaction();
@@ -222,45 +218,42 @@ public class YPersistenceManager {
 
 
     /**
-      * Causes the supplied object to be removed from the persistence cache when the
-      * current transaction is committed.
+     * Causes the supplied object to be removed from the persistence cache when the
+     * current transaction is committed.
+     *
+     * @param obj The object to be persisted
+     * @throws YPersistenceException
+     */
+    protected void deleteObject(Object obj) throws YPersistenceException {
+        if (!isEnabled()) return;
 
-      * @param obj The object to be persisted
-      * @throws YPersistenceException
-      */
-     protected void deleteObject(Object obj) throws YPersistenceException {
-         if (! isEnabled()) return;
-
-         if (logger.isDebugEnabled()) {
-             logger.debug("--> delete: Object=" + obj.getClass().getName() +
-                          ": " + obj.toString());
-         }
-         try {
-             getSession().delete(obj);
-             getSession().flush();
-         }
-         catch (HibernateException e) {
-             logger.error("Failed to delete - " + e.getMessage());
-         }
-         try {
-             getSession().evict(obj);
-         }
-         catch (HibernateException he) {
-             // nothing to do
-         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("--> delete: Object=" + obj.getClass().getName() +
+                    ": " + obj.toString());
+        }
+        try {
+            getSession().delete(obj);
+            getSession().flush();
+        } catch (HibernateException e) {
+            logger.error("Failed to delete - " + e.getMessage());
+        }
+        try {
+            getSession().evict(obj);
+        } catch (HibernateException he) {
+            // nothing to do
+        }
         logger.debug("<-- delete");
-     }
+    }
 
 
     private void updateOrMerge(Object obj) {
         try {
             getSession().saveOrUpdate(obj);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Persistence update failed, trying merge. Object: "
                     + obj.toString());
             getSession().merge(obj);
-       }
+        }
     }
 
 
@@ -269,7 +262,7 @@ public class YPersistenceManager {
         return (transaction != null) && transaction.isActive();
     }
 
-    
+
     /**
      * Causes the supplied object to be persisted when the current transaction is committed.
      * This method simply calls {@link #storeObject(Object)} but is public in scope.
@@ -293,11 +286,11 @@ public class YPersistenceManager {
 
 
     /**
-      * Causes the supplied object to be unpersisted when the current transaction is committed.
-      * This method simply calls {@link #deleteObject(Object)} but is public in scope.
-      *
-      * @param obj The object to be unpersisted
-      */
+     * Causes the supplied object to be unpersisted when the current transaction is committed.
+     * This method simply calls {@link #deleteObject(Object)} but is public in scope.
+     *
+     * @param obj The object to be unpersisted
+     */
     public void deleteObjectFromExternal(Object obj) throws YPersistenceException {
         deleteObject(obj);
     }
@@ -307,25 +300,23 @@ public class YPersistenceManager {
             throws YPersistenceException {
         if (logger.isDebugEnabled()) {
             logger.debug("--> doPersistAction: Mode=" +
-                    (update ? "Update " : "Create ")  + "; Object = " +
-                    obj.getClass().getName() + ": " + obj.toString());
+                    (update ? "Update " : "Create ") + "; Object = " +
+                    obj.getClass().getName() + ": " + obj.toString() +
+                    "; Object identity = " + System.identityHashCode(obj));
         }
         try {
             if (update) {
                 updateOrMerge(obj);
-            }
-            else {
+            } else {
                 getSession().save(obj);
             }
             getSession().flush();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Failure detected whilst persisting instance of " +
                     obj.getClass().getName(), e);
             try {
                 getTransaction().rollback();
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 throw new YPersistenceException("Failure to rollback transactional session", e2);
             }
             throw new YPersistenceException("Failure detected whilst persisting instance of " +
@@ -334,20 +325,18 @@ public class YPersistenceManager {
 
         try {
             getSession().evict(obj);
-        }
-        catch (HibernateException e) {
+        } catch (HibernateException e) {
             logger.warn("Failure whilst evicting object from Hibernate session cache", e);
         }
         logger.debug("<-- doPersistAction");
     }
 
 
-     public void commit() throws YPersistenceException {
+    public void commit() throws YPersistenceException {
         logger.debug("--> start commit");
         try {
             if (isEnabled() && isActiveTransaction()) getTransaction().commit();
-        }
-        catch (Exception e1) {
+        } catch (Exception e1) {
             logger.fatal("Failure to commit transactional session - Rolling Back Transaction", e1);
             rollbackTransaction();
             throw new YPersistenceException("Failure to commit transactional session", e1);
@@ -364,11 +353,9 @@ public class YPersistenceManager {
         if (isEnabled() && isActiveTransaction()) {
             try {
                 getTransaction().rollback();
-            }
-            catch (HibernateException e) {
+            } catch (HibernateException e) {
                 throw new YPersistenceException("Failure to rollback transaction", e);
-            }
-            finally {
+            } finally {
                 closeSession();
             }
         }
@@ -380,8 +367,7 @@ public class YPersistenceManager {
         if (isEnabled()) {
             try {
                 return getSession().createQuery(queryString);
-            }
-            catch (HibernateException e) {
+            } catch (HibernateException e) {
                 throw new YPersistenceException("Failure to create Hibernate query object", e);
             }
         }
@@ -394,27 +380,28 @@ public class YPersistenceManager {
     }
 
 
-     /**
-      * executes a Query object based on the sql string passed
-      * @param query - the sql query to execute
-      * @throws YPersistenceException if there's a problem reading the db
-      * @return the List of objects returned
-      */
-     public List execQuery(Query query) throws YPersistenceException {
-         try {
-              return (query != null) ? query.list() : null;
-         }
-         catch (HibernateException he) {
-              throw new YPersistenceException("Error executing query: " + query.getQueryString(), he);
-         }
-     }
+    /**
+     * executes a Query object based on the sql string passed
+     *
+     * @param query - the sql query to execute
+     * @return the List of objects returned
+     * @throws YPersistenceException if there's a problem reading the db
+     */
+    public List execQuery(Query query) throws YPersistenceException {
+        try {
+            return (query != null) ? query.list() : null;
+        } catch (HibernateException he) {
+            throw new YPersistenceException("Error executing query: " + query.getQueryString(), he);
+        }
+    }
 
 
     /**
      * returns all the instances currently persisted for the class passed
+     *
      * @param className - the name of the class to retrieve instances of
-     * @throws YPersistenceException if there's a problem reading the db
      * @return a List of the instances retrieved
+     * @throws YPersistenceException if there's a problem reading the db
      */
     public List getObjectsForClass(String className) throws YPersistenceException {
         return execQuery("from " + className);
@@ -424,20 +411,20 @@ public class YPersistenceManager {
     /**
      * returns all the instances currently persisted for the class passed that
      * match the condition specified in the where clause
-     * @param className the name of the class to retrieve instances of
+     *
+     * @param className   the name of the class to retrieve instances of
      * @param whereClause the condition (without the 'where' part) e.g. "age=21"
-     * @throws YPersistenceException if there's a problem reading the db
      * @return a List of the instances retrieved
+     * @throws YPersistenceException if there's a problem reading the db
      */
     public List getObjectsForClassWhere(String className, String whereClause)
-                                                      throws YPersistenceException {
+            throws YPersistenceException {
         try {
             String qry = String.format("from %s as tbl where tbl.%s",
-                                        className, whereClause) ;
+                    className, whereClause);
             Query query = createQuery(qry);
             return (query != null) ? query.list() : null;
-        }
-        catch (HibernateException he) {
+        } catch (HibernateException he) {
             throw new YPersistenceException("Error reading data for class: " + className, he);
         }
     }
@@ -445,22 +432,25 @@ public class YPersistenceManager {
 
     /**
      * gets a scalar value (as an object) based on the values passed
+     *
      * @param className - the type of object to select
-     * @param field - the column name which contains the queried value
-     * @param value - the value to find in the 'field' column
+     * @param field     - the column name which contains the queried value
+     * @param value     - the value to find in the 'field' column
      * @return the first (or only) object matching 'where [field] = [value]'
      */
     public Object selectScalar(String className, String field, String value)
             throws YPersistenceException {
         String qryStr = String.format("from %s as tbl where tbl.%s=%s",
-                                       className, field, value);
+                className, field, value);
         Iterator itr = createQuery(qryStr).iterate();
         if (itr.hasNext()) return itr.next();
-        else return null ;
+        else return null;
     }
 
 
-    /** same as above but takes a long value instead */
+    /**
+     * same as above but takes a long value instead
+     */
     public Object selectScalar(String className, String field, long value)
             throws YPersistenceException {
         return selectScalar(className, field, String.valueOf(value));

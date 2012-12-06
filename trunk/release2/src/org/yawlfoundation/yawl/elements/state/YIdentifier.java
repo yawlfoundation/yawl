@@ -29,13 +29,11 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * 
  * This class has control over data structures that allow for
  * storing an identifer and managing a set of children.
- * @author Lachlan Aldred
  *
+ * @author Lachlan Aldred
  * @author Michael Adams (refactored for v2.0, 06/08 & 04/09)
- * 
  */
 public class YIdentifier {
 
@@ -48,7 +46,7 @@ public class YIdentifier {
     private String id = null;
     private String _idString;
 
-    private long _logKey = -1 ;                    // the FK of the logged task instance
+    private long _logKey = -1;                    // the FK of the logged task instance
 
 
     public YIdentifier() { }                       // only for hibernate
@@ -147,7 +145,7 @@ public class YIdentifier {
             String childIDSuffix = childID.substring(childID.lastIndexOf('.') + 1);
             if (childNumStr.equals(childIDSuffix)) {
                 throw new IllegalArgumentException(
-                                   "Childnum uses an int already being used.");
+                        "Childnum uses an int already being used.");
             }
         }
         return createChildWithID(pmgr, this._idString + "." + childNumStr);
@@ -163,7 +161,7 @@ public class YIdentifier {
 
         if (pmgr != null) {
             pmgr.storeObjectFromExternal(identifier);
-            pmgr.updateObjectExternal(this);
+            updateThis(pmgr);
         }
         return identifier;
     }
@@ -173,7 +171,7 @@ public class YIdentifier {
         return _parent;
     }
 
-    public boolean hasParent() { return _parent != null; } 
+    public boolean hasParent() { return _parent != null; }
 
 
     public boolean isImmediateChildOf(YIdentifier identifier) {
@@ -185,7 +183,7 @@ public class YIdentifier {
         return parent != null && (parent.equals(this) || isAncestorOf(parent));
     }
 
-    
+
     public String toString() {
         return _idString;
     }
@@ -201,33 +199,26 @@ public class YIdentifier {
         if ((condition instanceof YCondition) && !(condition instanceof YInputCondition)) {
             String locName = condition.toString();
             locationNames.add(locName.substring(locName.indexOf(":") + 1, locName.length()));
-        }
-        else {
+        } else {
             locationNames.add(condition.toString());
         }
 
-        if (pmgr != null) {
-            pmgr.updateObjectExternal(this);
-        }
+        updateThis(pmgr);
     }
 
-    
+
     public synchronized void clearLocations(YPersistenceManager pmgr)
             throws YPersistenceException {
         _locations.clear();
         locationNames.clear();
-        if (pmgr != null) {
-            pmgr.updateObjectExternal(this);
-        }
+        updateThis(pmgr);
     }
 
 
     public synchronized void clearLocation(YPersistenceManager pmgr, YNetElement condition)
             throws YPersistenceException {
         removeLocation(pmgr, condition);
-        if (pmgr != null) {
-            pmgr.updateObjectExternal(this);
-        }
+        updateThis(pmgr);
     }
 
 
@@ -243,10 +234,10 @@ public class YIdentifier {
         if (condition instanceof YCondition && !(condition instanceof YInputCondition)) {
             String locName = condition.toString();
             locationNames.remove(locName.substring(locName.indexOf(":") + 1, locName.length()));
-        }
-        else {
+        } else {
             locationNames.remove(condition.toString());
         }
+        updateThis(pmgr);
     }
 
 
@@ -257,10 +248,7 @@ public class YIdentifier {
         }
         _locations.add(task);
         locationNames.add(task.getID());
-
-        if (pmgr != null) {
-            pmgr.updateObjectExternal(this);
-        }
+        updateThis(pmgr);
     }
 
 
@@ -278,15 +266,22 @@ public class YIdentifier {
         return _locations;
     }
 
-    
+
     public YIdentifier getRootAncestor() {
         return getRootAncestor(this);
     }
 
-    
+
     private YIdentifier getRootAncestor(YIdentifier identifier) {
         YIdentifier parent = identifier.getParent();
         return (parent != null) ? getRootAncestor(parent) : identifier;
+    }
+
+
+    private void updateThis(YPersistenceManager pmgr) throws YPersistenceException {
+        if (pmgr != null) {
+            pmgr.updateObjectExternal(this);
+        }
     }
 
     public long getLogKey() {
@@ -315,6 +310,7 @@ public class YIdentifier {
 
     /**
      * Returns a hash code value for the object.
+     *
      * @return a hash code value for this object.
      * @see Object#equals(Object)
      * @see java.util.Hashtable
