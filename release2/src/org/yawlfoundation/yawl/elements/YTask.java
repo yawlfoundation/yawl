@@ -634,7 +634,7 @@ public abstract class YTask extends YExternalNetElement {
             if (query.equals(getPreJoiningMIQuery())) {
                 debug.append("\tquery = [").append(query).append("] is pre-joining MI query.");
             }
-            debug.append("\n\trawDecomositionData = ");
+            debug.append("\n\trawDecompositionData = ");
             debug.append(JDOMUtil.documentToString(rawDecompositionData));
             debug.append("\n\tresult = ");
             debug.append(JDOMUtil.elementToString(queryResultElement));
