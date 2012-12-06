@@ -18,13 +18,13 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
     <class name="org.yawlfoundation.yawl.cost.data.CostType"
-           table="cost_DriverCostTypes">
+           table="cost_DriverCostTypes" lazy="false">
 
         <id name="costTypeID" type="long">
             <generator class="native"/>

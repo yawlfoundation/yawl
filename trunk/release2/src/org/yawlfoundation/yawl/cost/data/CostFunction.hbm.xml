@@ -18,12 +18,13 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
-    <class name="org.yawlfoundation.yawl.cost.data.CostFunction" table="cost_Functions">
+    <class name="org.yawlfoundation.yawl.cost.data.CostFunction" table="cost_Functions"
+           lazy="false">
 
         <id name="functionID" type="long">
             <generator class="native"/>
@@ -34,7 +35,8 @@
         <property name="expression" column="functionExpression" access="field"/>
         <property name="returnType" column="functionReturnType" access="field"/>
 
-        <list name="parameters" table="cost_FunctionParameters" access="field" cascade="all">
+        <list name="parameters" table="cost_FunctionParameters" access="field"
+              cascade="all" lazy="false">
             <key column="functionID"/>
             <index column="index"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.FunctionParameter"/>

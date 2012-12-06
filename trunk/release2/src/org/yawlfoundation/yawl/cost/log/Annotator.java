@@ -33,12 +33,13 @@ import java.util.Set;
 /**
  * Annotates the events an XES formatted log with corresponding cost information
  * where applicable.
+ *
  * @author Michael Adams
  * @date 27/10/11
  */
 public class Annotator {
-    
-    private String _unannotatedLog;              // raw engine of resource xes log
+
+    private String _unannotatedLog;              // raw engine or resource xes log
     private YSpecificationID _specID;            // specification id for the log
     private Map<String, TaskTimings> _timings;   // timestamp grouping per task
 
@@ -54,6 +55,7 @@ public class Annotator {
 
     /**
      * Constructs a new Annotator with the log specified
+     *
      * @param unannotatedLog an XES log to annotate with cost data
      */
     public Annotator(String unannotatedLog) {
@@ -64,6 +66,7 @@ public class Annotator {
 
     /**
      * Sets the unannotated log
+     *
      * @param unannotatedLog an XES log to annotate with cost data
      */
     public void setUnannotatedLog(String unannotatedLog) {
@@ -73,6 +76,7 @@ public class Annotator {
 
     /**
      * Sets the specification id for this log
+     *
      * @param id the specification id
      */
     public void setSpecID(YSpecificationID id) { _specID = id; }
@@ -80,23 +84,25 @@ public class Annotator {
 
     /**
      * Annotates a log with applicable cost data
+     *
      * @param unannotatedLog an XES log to annotate with cost data
      * @return the cost-data annotated log
      * @throws IllegalStateException if the unannotatedLog is null or has
-     * an invalid format
+     *                               an invalid format
      */
     public String annotate(String unannotatedLog) throws IllegalStateException {
-        setUnannotatedLog(unannotatedLog); 
+        setUnannotatedLog(unannotatedLog);
         return annotate();
     }
 
 
     /**
      * Annotates a log with applicable cost data
+     *
      * @return the cost-data annotated log
      * @throws IllegalStateException if the unannotatedLog is null (i.e. has
-     * not been previously set via the relevant constructor or mutator) or has
-     * an invalid format
+     *                               not been previously set via the relevant constructor or mutator) or has
+     *                               an invalid format
      */
     public String annotate() throws IllegalStateException {
         if (_unannotatedLog == null) {
@@ -108,12 +114,13 @@ public class Annotator {
         }
         return annotate(head);
     }
-    
-    
+
+
     /***************************************************************************************/
 
     /**
      * Annotates a log with applicable cost data
+     *
      * @param head a root node (hierarchically) containing the entire unannotated log
      * @return the node with (hierarchically) annotated cost data
      */
@@ -131,9 +138,10 @@ public class Annotator {
 
     /**
      * Annotates a log trace (i.e. a single case) with applicable cost data
-     * @param trace a node containing all the events for a single case
+     *
+     * @param trace        a node containing all the events for a single case
      * @param driverMatrix a matrix of all cost drivers for the log's specification
-     * mapped by task, resource and data
+     *                     mapped by task, resource and data
      */
     private void annotate(XNode trace, DriverMatrix driverMatrix) {
         for (XNode eventNode : trace.getChildren("event")) {
@@ -147,7 +155,7 @@ public class Annotator {
             timings.update(unbundled);
 
             // "completed" or "cancelled" events are candidates for cost annotation
-            if (unbundled.isCompletedTransition() && (! timings.isProcessed())) {
+            if (unbundled.isCompletedTransition() && (!timings.isProcessed())) {
                 processDrivers(driverMatrix, unbundled, timings);
             }
         }
@@ -157,10 +165,11 @@ public class Annotator {
     /**
      * Find the cost drivers corresponding to this event and use them to calculate the
      * relevant cost data, then annotate the data to the logged event
+     *
      * @param driverMatrix a matrix of all cost drivers for the log's specification
-     * mapped by task, resource and data
-     * @param event the (unbundled) completed or cancelled event to process
-     * @param timings the set of timestamps for the task referenced by this event
+     *                     mapped by task, resource and data
+     * @param event        the (unbundled) completed or cancelled event to process
+     * @param timings      the set of timestamps for the task referenced by this event
      */
     private void processDrivers(DriverMatrix driverMatrix, UnbundledEvent event,
                                 TaskTimings timings) {
@@ -196,6 +205,7 @@ public class Annotator {
 
     /**
      * Gets the cost models for the log's specification
+     *
      * @param head a root node (hierarchically) containing the entire unannotated log
      * @return the Set of CostModels applicable to this log's process specification
      */
@@ -218,11 +228,12 @@ public class Annotator {
     /**
      * For each driver in a Set, checks that all of its entities are satisfied in an event,
      * and if so, evaluates and annotates the cost data to the event
-     * @param event the event to annotate
-     * @param drivers the set of drivers that relate to this event
-     * @param timings the set of timestamps for the task this event relates to
+     *
+     * @param event        the event to annotate
+     * @param drivers      the set of drivers that relate to this event
+     * @param timings      the set of timestamps for the task this event relates to
      * @param driverMatrix a matrix of all cost drivers for the log's specification
-     *                  resource entity
+     *                     resource entity
      */
     private void evaluateDrivers(UnbundledEvent event, Set<CostDriver> drivers,
                                  TaskTimings timings, DriverMatrix driverMatrix) {
@@ -232,7 +243,7 @@ public class Annotator {
             boolean satisfied = true;
             for (DriverFacet facet : driver.getFacets()) {
                 satisfied = evaluateEntity(facet, event, driverMatrix);
-                if (! satisfied) break;
+                if (!satisfied) break;
             }
 
             // if all are satisfied, calculate and annotate
@@ -246,8 +257,9 @@ public class Annotator {
 
     /**
      * Calculate and return the costs associated with this event
-     * @param event the event to calculate the costs for
-     * @param driver the cost driver to use for the calculation
+     *
+     * @param event   the event to calculate the costs for
+     * @param driver  the cost driver to use for the calculation
      * @param timings the set of timestamps for the task this event relates to
      * @return the calculated cost
      */
@@ -265,13 +277,26 @@ public class Annotator {
         long period;
         String instance = event.getInstance();
         switch (unitCost.getDuration()) {
-            case assigned  : period = timings.getAssignedTime(); break;
-            case allocated : period = timings.getAllocatedTime(instance); break;
-            case busy      : period = timings.getBusyTime(instance); break;
-            case active    : period = timings.getActiveTime(instance); break;
-            case inactive  : period = timings.getInactiveTime(instance); break;
-            case suspended : period = timings.getSuspendedTime(instance); break;
-            default        : return unitCost.getCostValue().getAmount(dataMap);  // incl. nil
+            case assigned:
+                period = timings.getAssignedTime();
+                break;
+            case allocated:
+                period = timings.getAllocatedTime(instance);
+                break;
+            case busy:
+                period = timings.getBusyTime(instance);
+                break;
+            case active:
+                period = timings.getActiveTime(instance);
+                break;
+            case inactive:
+                period = timings.getInactiveTime(instance);
+                break;
+            case suspended:
+                period = timings.getSuspendedTime(instance);
+                break;
+            default:
+                return unitCost.getCostValue().getAmount(dataMap);  // incl. nil
         }
 
         // -1 denotes calculation error, in which case return the simple amount
@@ -282,8 +307,9 @@ public class Annotator {
 
     /**
      * Creates a properly formatted cost node for insertion into the log
+     *
      * @param driver the driver which produced the cost annotation
-     * @param cost the calculated cost amount
+     * @param cost   the calculated cost amount
      * @return the cost node for insertion into the log
      */
     private XNode createCostNode(CostDriver driver, double cost) {
@@ -297,7 +323,8 @@ public class Annotator {
 
     /**
      * Creates a float node to insert into an event log
-     * @param key the value of the 'key' attribute
+     *
+     * @param key   the value of the 'key' attribute
      * @param value the value of the 'value' attribute
      * @return the constructed node
      */
@@ -310,7 +337,8 @@ public class Annotator {
 
     /**
      * Creates a string node to insert into an event log
-     * @param key the value of the 'key' attribute
+     *
+     * @param key   the value of the 'key' attribute
      * @param value the value of the 'value' attribute
      * @return the constructed node
      */
@@ -320,11 +348,12 @@ public class Annotator {
         return stringNode;
     }
 
-    
+
     /**
      * Adds attributes to a node
-     * @param node the node to add the attributes to
-     * @param key the value of the 'key' attribute
+     *
+     * @param node  the node to add the attributes to
+     * @param key   the value of the 'key' attribute
      * @param value the value of the 'value' attribute
      */
     private void addAttributes(XNode node, String key, String value) {
@@ -335,6 +364,7 @@ public class Annotator {
 
     /**
      * Adds the extra header information for cost annotations to the log headers
+     *
      * @param head a root node (hierarchically) containing the entire unannotated log
      */
     private void addCostHeaders(XNode head) {
@@ -364,26 +394,32 @@ public class Annotator {
 
     /**
      * Checks whether an facet is referenced by an event
-     * @param facet the facet to check
-     * @param event the event in question
+     *
+     * @param facet        the facet to check
+     * @param event        the event in question
      * @param driverMatrix a matrix of all cost drivers for the log's specification
      * @return true if the facet matches a value in the event
      */
     private boolean evaluateEntity(DriverFacet facet, UnbundledEvent event,
                                    DriverMatrix driverMatrix) {
         switch (facet.getFacetAspect()) {
-            case task     : return facet.getName().equals(event.getName());
-            case resource : return driverMatrix.hasResourceMatch(
-                                facet.getName(), event.getResource());
-            case data     : return event.hasData() &&
-                                event.hasDataMatch(facet.getName(), facet.getValue());
-            default       : return false;
+            case task:
+                return facet.getName().equals(event.getName());
+            case resource:
+                return driverMatrix.hasResourceMatch(
+                        facet.getName(), event.getResource());
+            case data:
+                return event.hasData() &&
+                        event.hasDataMatch(facet.getName(), facet.getValue());
+            default:
+                return false;
         }
     }
 
 
     /**
      * Gets the grouping of task timestamps for an event
+     *
      * @param event the event to get the timings object for
      * @return the timings object
      */

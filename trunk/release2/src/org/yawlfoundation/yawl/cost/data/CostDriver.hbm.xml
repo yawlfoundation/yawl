@@ -18,12 +18,13 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
-    <class name="org.yawlfoundation.yawl.cost.data.CostDriver" table="cost_Drivers">
+    <class name="org.yawlfoundation.yawl.cost.data.CostDriver" table="cost_Drivers"
+           lazy="false">
 
         <id name="driverID" type="long">
             <generator class="native"/>
@@ -32,31 +33,36 @@
         <property name="id" column="internalID" access="field"/>
 
         <component name="metadata"
-                   class="org.yawlfoundation.yawl.cost.data.DriverMetaData" access="field">
+                   class="org.yawlfoundation.yawl.cost.data.DriverMetaData" access="field"
+                   lazy="false">
             <property name="name" column="mdName"/>
             <property name="description" column="mdDescription"/>
             <property name="type" column="mdType"/>
         </component>
 
-        <set name="facets" table="cost_DriverEntities" access="field" cascade="all">
+        <set name="facets" table="cost_DriverEntities" access="field" cascade="all"
+             lazy="false">
             <key column="driverID"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.DriverFacet"/>
         </set>
 
-        <set name="costTypes" table="cost_DriverCostTypes" access="field" cascade="all">
+        <set name="costTypes" table="cost_DriverCostTypes" access="field" cascade="all"
+             lazy="false">
             <key column="driverID"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.CostType"/>
         </set>
-        
+
         <component name="unitCost"
-                   class="org.yawlfoundation.yawl.cost.data.UnitCost" access="field">
+                   class="org.yawlfoundation.yawl.cost.data.UnitCost" access="field"
+                   lazy="false">
             <property name="unit" column="costUnit"/>
             <component name="costValue"
-                       class="org.yawlfoundation.yawl.cost.data.CostValue" access="field">
+                       class="org.yawlfoundation.yawl.cost.data.CostValue" access="field"
+                       lazy="false">
                 <property name="amount" column="costValueAmount"/>
                 <property name="currency" column="costValueCurrency"/>
             </component>
-            <property name="facetStatus" access="field">
+            <property name="facetStatus" access="field" lazy="false">
                 <type name="org.hibernate.type.EnumType">
                     <param name="enumClass">
                         org.yawlfoundation.yawl.cost.data.FacetStatus

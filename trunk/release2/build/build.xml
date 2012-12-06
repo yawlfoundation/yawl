@@ -111,103 +111,202 @@
           - wsi: WSInvoker Service
           - xsd: schema validation (used by several services)
     -->
-    <property name="activation" value="activation.jar"/>                <!-- wsi, mss -->
-    <property name="antlr" value="antlr-2.7.7.jar"/>                         <!-- hbn -->
-    <property name="apacheSoap" value="apache_soap-2_3_1.jar"/>              <!-- wsi -->
-    <property name="axis" value="axis-1.1RC2.jar"/>                          <!-- wsi -->
-    <property name="bcmail" value="bcmail-jdk15-139.jar"/>                   <!-- dss -->
-    <property name="bcprov" value="bcprov-jdk15-139.jar"/>                   <!-- dss -->
-    <property name="c3p0" value="c3p0-0.9.1.jar"/>                           <!-- hbn -->
-    <property name="collections-generic" value="collections-generic-4.01.jar"/> <!-- prl -->
-    <property name="colt" value="colt-1.2.0.jar"/>                           <!-- prl -->
-    <property name="common" value="common.jar"/>                        <!-- eng, xsd -->
-    <property name="commonsBeanutils" value="commons-beanutils.jar"/>    <!-- eng Dom -->
-    <property name="commonsCodec" value="commons-codec-1.5.jar"/>            <!-- mul -->
-    <property name="commonsCollections" value="commons-collections-3.2.1.jar"/> <!-- hbn -->
-    <property name="commonsDbcp" value="commons-dbcp-1.3.jar"/>              <!-- sch -->
-    <property name="commonsDigester" value="commons-digester.jar"/>          <!-- mul -->
-    <property name="commonsDiscovery" value="commons-discovery.jar"/>        <!-- wsi -->
-    <property name="commonsFileupload" value="commons-fileupload-1.2.2.jar"/> <!-- jsf, dss, mss -->
-    <property name="commonsIO" value="commons-io-2.0.1.jar"/>      <!-- jsf, dss, mss -->
-    <property name="commonsLang" value="commons-lang-2.3.jar"/>              <!-- mul -->
-    <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>      <!-- mul -->
-    <property name="commonsPool" value="commons-pool-1.5.4.jar"/>            <!-- sch -->
-    <property name="concurrent" value="concurrent-1.3.4.jar"/>               <!-- prl -->
-    <property name="derby" value="derbyclient.jar"/>                         <!-- dbd -->
-    <property name="dom4j" value="dom4j-1.6.1.jar"/>                         <!-- hbn -->
-    <property name="ecore" value="ecore.jar"/>                          <!-- eng, xsd -->
-    <property name="ehcache" value="ehcache-core-2.4.3.jar"/>                <!-- hbn -->
-    <property name="h2" value="h2-1.3.166.jar"/>                             <!-- dbd -->
-    <property name="hibernate" value="hibernate3.jar"/>                      <!-- mul -->
-    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.7.Final.jar"/>  <!-- mul -->
-    <property name="hibernate-core" value="hibernate-core-4.1.7.Final.jar"/>  <!-- mul -->
-    <property name="hibernate-commons" value="hibernate-commons-annotations-4.0.1.Final.jar"/>  <!-- mul -->
-    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.7.Final.jar"/> <!-- hbn -->
-    <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/> <!-- hbn -->
-    <property name="hsql" value="hsqldb.jar"/>                               <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.15.0-GA.jar"/>            <!-- hbn -->
-    <property name="jaxen" value="jaxen-1.1.3.jar"/>                    <!-- eng, sch -->
-    <property name="jaxrpc" value="jaxrpc.jar"/>                             <!-- wsi -->
-    <property name="jboss-logging" value="jboss-logging-3.1.0.GA.jar"/>     <!-- hbn -->
-    <property name="jboss-transaction" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/> <!-- hbn -->
-    <property name="jdom" value="jdom-2.0.1.jar"/>                           <!-- mul -->
-    <property name="jgraph" value="jgraphx.jar"/>                           <!-- mul -->
-    <property name="jsf-api" value="jsf-api.jar"/>                           <!-- jsf -->
-    <property name="jsf-appbase" value="appbase.jar"/>                       <!-- jsf -->
-    <property name="jsf-cl" value="jsfcl.jar"/>                              <!-- jsf -->
-    <property name="jsf-dataprovider" value="dataprovider.jar"/>             <!-- jsf -->
-    <property name="jsf-defaulttheme-gray" value="defaulttheme-gray.jar"/>   <!-- jsf -->
-    <property name="jsf-errorhandler" value="errorhandler.jar"/>             <!-- jsf -->
-    <property name="jsf-impl" value="jsf-impl.jar"/>                         <!-- jsf -->
-    <property name="jsf-rowset" value="rowset.jar"/>                         <!-- jsf -->
-    <property name="jsf-standard" value="standard.jar"/>                     <!-- jsf -->
-    <property name="jsf-webui" value="webui.jar"/>                           <!-- jsf -->
-    <property name="json" value="json.jar"/>                                 <!-- sch -->
-    <property name="jstl" value="jstl.jar"/>                                 <!-- jsf -->
-    <property name="jung-3d" value="jung-3d-2.0.jar"/>                       <!-- prl -->
-    <property name="jung-3d-demos" value="jung-3d-demos-2.0.jar"/>           <!-- prl -->
-    <property name="jung-algorithms" value="jung-algorithms-2.0.jar"/>       <!-- prl -->
-    <property name="jung-api" value="jung-api-2.0.jar"/>                     <!-- prl -->
-    <property name="jung-api-tests" value="jung-api-2.0-tests.jar"/>         <!-- prl -->
-    <property name="jung-graph" value="jung-graph-impl-2.0.jar"/>            <!-- prl -->
-    <property name="jung-io" value="jung-io-2.0.jar"/>                       <!-- prl -->
-    <property name="jung-jai" value="jung-jai-2.0.jar"/>                     <!-- prl -->
-    <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>     <!-- prl -->
-    <property name="jung-samples" value="jung-samples-2.0.jar"/>             <!-- prl -->
-    <property name="jung-visualization" value="jung-visualization-2.0.jar"/> <!-- prl -->
-    <property name="junit" value="junit-4.10.jar"/>                          <!-- mul -->
-    <property name="log4j" value="log4j-1.2.16.jar"/>                        <!-- mul -->
-    <property name="mail" value="mail.jar"/>                                 <!-- mss -->
-    <property name="mailapi" value="mailapi.jar"/>                           <!-- sml -->
-    <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>     <!-- dbd -->
-  	<property name="oracle" value="ojdbc6_9.jar"/>                           <!-- dbd -->
-    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>        <!-- dbd -->
-    <property name="saaj" value="saaj.jar"/>                                 <!-- wsi -->
-    <property name="saxon" value="saxon9.jar"/>                              <!-- mul -->
-    <property name="saxonapi" value="saxon9-s9api.jar"/>                     <!-- mul -->
-    <property name="saxondom" value="saxon9-dom.jar"/>                       <!-- mul -->
-    <property name="saxonjdom" value="saxon9-jdom.jar"/>                     <!-- mul -->
-    <property name="servlet" value="servlet-api.jar"/>                       <!-- mul -->
-    <property name="simplemail" value="simple-java-mail-v1.8.jar"/>          <!-- sml -->
-    <property name="slf4j" value="slf4j-api-1.6.1.jar"/>                     <!-- hbn -->
-    <property name="slf4j-log4j" value="slf4j-log4j12-1.6.0.jar"/>           <!-- hbn -->
-    <property name="smtp" value="smtp.jar"/>                                 <!-- sml -->
-    <property name="soaprmi" value="soaprmi-1_1.jar"/>                       <!-- wsi -->
-    <property name="stax" value="stax-api-1.0.1.jar"/>                       <!-- prl -->
-    <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>            <!-- twi -->
-    <property name="ucp" value="ucp.jar"/>                                   <!-- sch -->
-    <property name="vaadin" value="vaadin-6.7.9.jar"/>                       <!-- sch -->
-    <property name="wsdl4j" value="wsdl4j-20030807.jar"/>                    <!-- wsi -->
-    <property name="wsif" value="wsif.jar"/>                                 <!-- wsi -->
-    <property name="wsif-j2c" value="wsif-j2c.jar"/>                         <!-- wsi -->
-    <property name="wstx" value="wstx-asl-3.2.6.jar"/>                       <!-- prl -->
-    <property name="xalan" value="xalan.jar"/>                               <!-- sch -->
-    <property name="xdb" value="xdb.jar"/>                                   <!-- sch -->
-    <property name="xerces" value="xercesImpl.jar"/>                         <!-- mul -->
-    <property name="xmlparserv" value="xmlparserv2.jar"/>                    <!-- sch -->
-    <property name="xmlunit" value="xmlunit-1.3.jar"/>                       <!-- sch -->
-    <property name="xsd" value="xsd.jar"/>                              <!-- eng, xsd -->
-    <property name="xsd.resources" value="xsd.resources.jar"/>          <!-- eng, xsd -->
+    <property name="activation" value="activation.jar"/>
+    <!-- wsi, mss -->
+    <property name="antlr" value="antlr-2.7.7.jar"/>
+    <!-- hbn -->
+    <property name="apacheSoap" value="apache_soap-2_3_1.jar"/>
+    <!-- wsi -->
+    <property name="axis" value="axis-1.1RC2.jar"/>
+    <!-- wsi -->
+    <property name="bcmail" value="bcmail-jdk15-139.jar"/>
+    <!-- dss -->
+    <property name="bcprov" value="bcprov-jdk15-139.jar"/>
+    <!-- dss -->
+    <property name="c3p0" value="c3p0-0.9.1.jar"/>
+    <!-- hbn -->
+    <property name="collections-generic" value="collections-generic-4.01.jar"/>
+    <!-- prl -->
+    <property name="colt" value="colt-1.2.0.jar"/>
+    <!-- prl -->
+    <property name="common" value="common.jar"/>
+    <!-- eng, xsd -->
+    <property name="commonsBeanutils" value="commons-beanutils.jar"/>
+    <!-- eng Dom -->
+    <property name="commonsCodec" value="commons-codec-1.5.jar"/>
+    <!-- mul -->
+    <property name="commonsCollections" value="commons-collections-3.2.1.jar"/>
+    <!-- hbn -->
+    <property name="commonsDbcp" value="commons-dbcp-1.3.jar"/>
+    <!-- sch -->
+    <property name="commonsDigester" value="commons-digester.jar"/>
+    <!-- mul -->
+    <property name="commonsDiscovery" value="commons-discovery.jar"/>
+    <!-- wsi -->
+    <property name="commonsFileupload" value="commons-fileupload-1.2.2.jar"/>
+    <!-- jsf, dss, mss -->
+    <property name="commonsIO" value="commons-io-2.0.1.jar"/>
+    <!-- jsf, dss, mss -->
+    <property name="commonsLang" value="commons-lang-2.3.jar"/>
+    <!-- mul -->
+    <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>
+    <!-- mul -->
+    <property name="commonsPool" value="commons-pool-1.5.4.jar"/>
+    <!-- sch -->
+    <property name="concurrent" value="concurrent-1.3.4.jar"/>
+    <!-- prl -->
+    <property name="derby" value="derbyclient.jar"/>
+    <!-- dbd -->
+    <property name="dom4j" value="dom4j-1.6.1.jar"/>
+    <!-- hbn -->
+    <property name="ecore" value="ecore.jar"/>
+    <!-- eng, xsd -->
+    <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
+    <!-- hbn -->
+    <property name="h2" value="h2-1.3.166.jar"/>
+    <!-- dbd -->
+    <property name="hibernate" value="hibernate3.jar"/>
+    <!-- mul -->
+    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.7.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-core" value="hibernate-core-4.1.7.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-commons"
+              value="hibernate-commons-annotations-4.0.1.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.7.Final.jar"/>
+    <!-- hbn -->
+    <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+    <!-- hbn -->
+    <property name="hsql" value="hsqldb.jar"/>
+    <!-- dbd -->
+    <property name="javaAssist" value="javassist-3.15.0-GA.jar"/>
+    <!-- hbn -->
+    <property name="jaxen" value="jaxen-1.1.3.jar"/>
+    <!-- eng, sch -->
+    <property name="jaxrpc" value="jaxrpc.jar"/>
+    <!-- wsi -->
+    <property name="jboss-logging" value="jboss-logging-3.1.0.GA.jar"/>
+    <!-- hbn -->
+    <property name="jboss-transaction"
+              value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+    <!-- hbn -->
+    <property name="jdom" value="jdom-2.0.1.jar"/>
+    <!-- mul -->
+    <property name="jgraph" value="jgraphx.jar"/>
+    <!-- mul -->
+    <property name="jsf-api" value="jsf-api.jar"/>
+    <!-- jsf -->
+    <property name="jsf-appbase" value="appbase.jar"/>
+    <!-- jsf -->
+    <property name="jsf-cl" value="jsfcl.jar"/>
+    <!-- jsf -->
+    <property name="jsf-dataprovider" value="dataprovider.jar"/>
+    <!-- jsf -->
+    <property name="jsf-defaulttheme-gray" value="defaulttheme-gray.jar"/>
+    <!-- jsf -->
+    <property name="jsf-errorhandler" value="errorhandler.jar"/>
+    <!-- jsf -->
+    <property name="jsf-impl" value="jsf-impl.jar"/>
+    <!-- jsf -->
+    <property name="jsf-rowset" value="rowset.jar"/>
+    <!-- jsf -->
+    <property name="jsf-standard" value="standard.jar"/>
+    <!-- jsf -->
+    <property name="jsf-webui" value="webui.jar"/>
+    <!-- jsf -->
+    <property name="json" value="json.jar"/>
+    <!-- sch -->
+    <property name="jstl" value="jstl.jar"/>
+    <!-- jsf -->
+    <property name="jung-3d" value="jung-3d-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-3d-demos" value="jung-3d-demos-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-algorithms" value="jung-algorithms-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-api" value="jung-api-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-api-tests" value="jung-api-2.0-tests.jar"/>
+    <!-- prl -->
+    <property name="jung-graph" value="jung-graph-impl-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-io" value="jung-io-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-jai" value="jung-jai-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-samples" value="jung-samples-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-visualization" value="jung-visualization-2.0.jar"/>
+    <!-- prl -->
+    <property name="junit" value="junit-4.10.jar"/>
+    <!-- mul -->
+    <property name="log4j" value="log4j-1.2.16.jar"/>
+    <!-- mul -->
+    <property name="mail" value="mail.jar"/>
+    <!-- mss -->
+    <property name="mailapi" value="mailapi.jar"/>
+    <!-- sml -->
+    <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>
+    <!-- dbd -->
+    <property name="oracle" value="ojdbc6_9.jar"/>
+    <!-- dbd -->
+    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>
+    <!-- dbd -->
+    <property name="saaj" value="saaj.jar"/>
+    <!-- wsi -->
+    <property name="saxon" value="saxon9.jar"/>
+    <!-- mul -->
+    <property name="saxonapi" value="saxon9-s9api.jar"/>
+    <!-- mul -->
+    <property name="saxondom" value="saxon9-dom.jar"/>
+    <!-- mul -->
+    <property name="saxonjdom" value="saxon9-jdom.jar"/>
+    <!-- mul -->
+    <property name="servlet" value="servlet-api.jar"/>
+    <!-- mul -->
+    <property name="simplemail" value="simple-java-mail-v1.8.jar"/>
+    <!-- sml -->
+    <property name="slf4j" value="slf4j-api-1.6.1.jar"/>
+    <!-- hbn -->
+    <property name="slf4j-log4j" value="slf4j-log4j12-1.6.0.jar"/>
+    <!-- hbn -->
+    <property name="smtp" value="smtp.jar"/>
+    <!-- sml -->
+    <property name="soaprmi" value="soaprmi-1_1.jar"/>
+    <!-- wsi -->
+    <property name="stax" value="stax-api-1.0.1.jar"/>
+    <!-- prl -->
+    <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>
+    <!-- twi -->
+    <property name="ucp" value="ucp.jar"/>
+    <!-- sch -->
+    <property name="vaadin" value="vaadin-6.7.9.jar"/>
+    <!-- sch -->
+    <property name="wsdl4j" value="wsdl4j-20030807.jar"/>
+    <!-- wsi -->
+    <property name="wsif" value="wsif.jar"/>
+    <!-- wsi -->
+    <property name="wsif-j2c" value="wsif-j2c.jar"/>
+    <!-- wsi -->
+    <property name="wstx" value="wstx-asl-3.2.6.jar"/>
+    <!-- prl -->
+    <property name="xalan" value="xalan.jar"/>
+    <!-- sch -->
+    <property name="xdb" value="xdb.jar"/>
+    <!-- sch -->
+    <property name="xerces" value="xercesImpl.jar"/>
+    <!-- mul -->
+    <property name="xmlparserv" value="xmlparserv2.jar"/>
+    <!-- sch -->
+    <property name="xmlunit" value="xmlunit-1.3.jar"/>
+    <!-- sch -->
+    <property name="xsd" value="xsd.jar"/>
+    <!-- eng, xsd -->
+    <property name="xsd.resources" value="xsd.resources.jar"/>
+    <!-- eng, xsd -->
 
     <!--
         Filters and properties for per-database-type operations, using
@@ -256,9 +355,9 @@
     <condition property="dbClient" value="${hsql}">
         <equals arg1="${database.type}" arg2="hypersonic"/>
     </condition>
-	<condition property="dbClient" value="${oracle}">
-	    <equals arg1="${database.type}" arg2="oracle" />
-	</condition>
+    <condition property="dbClient" value="${oracle}">
+        <equals arg1="${database.type}" arg2="oracle"/>
+    </condition>
 
     <condition property="use_mysql" value="true">
         <equals arg1="${database.type}" arg2="mysql"/>
@@ -281,9 +380,9 @@
     <condition property="use_hypersonic" value="true">
         <equals arg1="${database.type}" arg2="hypersonic"/>
     </condition>
-	<condition property="use_oracle" value="true">
-		<equals arg1="${database.type}" arg2="oracle" />
-	</condition>
+    <condition property="use_oracle" value="true">
+        <equals arg1="${database.type}" arg2="oracle"/>
+    </condition>
 
     <!--
         JAR grouping properties. Used to define JAR groupings for dependencies
@@ -385,14 +484,14 @@
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_cost.libs"
-               value="${jdom} ${xerces} ${log4j} ${persistence.libs}
+              value="${jdom} ${xerces} ${log4j} ${persistence.libs}
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_docStore.libs"
-               value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
+              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
 
     <property name="webapp_procletService.libs"
-               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
+              value="${persistence.libs} ${commonsCodec} ${proclet.libs}
                       ${dbClient} ${jdom} ${log4j} ${xerces}"/>
 
     <!--
@@ -502,7 +601,7 @@
         <pathelement location="${lib.dir}/${simplemail}"/>
         <pathelement location="${lib.dir}/${smtp}"/>
     </path>
-    
+
     <path id="cp.proclet">
         <pathelement location="${lib.dir}/${collections-generic}"/>
         <pathelement location="${lib.dir}/${colt}"/>
@@ -582,7 +681,7 @@
 
     <target name="javadoc" depends="compile"
             description="Create Javadoc API documentation">
-        
+
         <mkdir dir="${javadoc.dir}/docs/api"/>
         <javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}/docs/api"
                  packagenames="org.yawlfoundation.yawl.*" author="true"
@@ -601,7 +700,7 @@
             <tag name="date" scope="all" description="Created/Last Date:"/>
             <tag name="pre" scope="all" description="Precondition:"/>
             <tag name="post" scope="all" description="Postcondition:"/>
-        
+
             <!-- links to 3rd party javadocs -->
             <link offline="false" href="http://download.oracle.com/javase/6/docs/api/"/>
             <link offline="false" href="http://www.jdom.org/docs/apidocs/"/>
@@ -641,7 +740,7 @@
                                ${commonsCodec} ${jaxen}"
                      excludes="hibernate.cfg.xml"/>
         </unzip>
-        
+
         <jar destfile="${output.dir}/YAWL_Standalone_${app.version}.jar">
             <fileset dir="${classes.dir}" excludes="junit junit3.8.1"/>
             <fileset dir="${enumeratedClasses}"/>
@@ -661,7 +760,7 @@
 
     <target name="build_sourcecode" depends="compile"
             description="Create ZIP file of source code (for release)">
-        
+
         <copy todir="${classes.dir}">
             <fileset dir="${test.dir}" excludes="**/*.java"/>
         </copy>
@@ -721,7 +820,7 @@
         <delete dir="${classes.dir}"/>
         <delete dir="${javadoc.dir}"/>
         <delete dir="${output.dir}"/>
-        
+
         <delete dir="${temp.dir}/${engine.app.name}"/>
         <delete dir="${temp.dir}/${wsInvoker.app.name}"/>
         <delete dir="${temp.dir}/${smsInvoker.app.name}"/>
@@ -737,7 +836,7 @@
         <delete dir="${temp.dir}/${scheduling.app.name}"/>
         <delete dir="${temp.dir}/${docStore.app.name}"/>
         <delete dir="${temp.dir}/${proclet.app.name}"/>
-     </target>
+    </target>
 
     <!--
         Initialise build environment
@@ -757,7 +856,8 @@
     -->
 
     <target name="compile" depends="init, configureDatabaseAccess">
-        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}" deprecation="true" verbose="true">
+        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
+               deprecation="true" verbose="true">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
@@ -772,12 +872,12 @@
             <classpath refid="cp.proclet"/>
             <classpath refid="cp.etc"/>
         </javac>
-        
+
         <!-- copy in specification schema files -->
         <copy todir="${classes.dir}${packageRoot}/unmarshal">
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
-        
+
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
             <fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd"
                      excludes="org/yawlfoundation/yawl/engine/gui"/>
@@ -786,12 +886,12 @@
             </manifest>
         </jar>
         <checksum file="${output.dir}/yawl-lib-${app.version}.jar"/>
-        
+
         <!-- copy in non-java files from source (ie. files that don't need compiling) -->
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}" excludes="**/*.java"/>
         </copy>
-        
+
         <!-- prepare Log4J properties file -->
         <copy filtering="true" overwrite="true"
               file="${properties.dir}/log4j.properties" todir="${classes.dir}"/>
@@ -808,28 +908,28 @@
     <target name="configureDatabaseAccess"
             depends="hibernate_postgres8, hibernate_mysql, hibernate_derby,
                      hibernate_h2, hibernate_hypersonic, hibernate_oracle">
-        
+
         <echo message="Set up Hibernate properties for ${database.type}"/>
     </target>
-        
+
     <target name="hibernate_postgres8" if="use_postgres8">
         <copy file="${properties.dir}/hibernate.properties.postgres8"
               filtering="true" overwrite="true"
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
-        
+
     <target name="hibernate_mysql" if="use_mysql">
         <copy file="${properties.dir}/hibernate.properties.mysql"
               filtering="true" overwrite="true"
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
-        
+
     <target name="hibernate_derby" if="use_derby">
         <copy file="${properties.dir}/hibernate.properties.derby"
               filtering="true" overwrite="true"
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
-        
+
     <target name="hibernate_h2" if="use_h2">
         <copy file="${properties.dir}/hibernate.properties.h2"
               filtering="true" overwrite="true"
@@ -842,11 +942,11 @@
               tofile="${classes.dir}/hibernate.properties"/>
     </target>
 
-	<target name="hibernate_oracle" if="use_oracle">
-		<copy file="${properties.dir}/hibernate.properties.oracle"
-			  filtering="true" overwrite="true"
-			  tofile="${classes.dir}/hibernate.properties"/>
-	</target>
+    <target name="hibernate_oracle" if="use_oracle">
+        <copy file="${properties.dir}/hibernate.properties.oracle"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
 
 
     <!--
@@ -925,8 +1025,15 @@
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="*.class"/>
         </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/cost/interfce"
+              file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
+
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF"
               file="${build.dir}/engine/web.xml"/>
+
+        <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes"
+              file="${classes.dir}${packageRoot}/engine/defaultClients.properties"/>
+
         <propertyfile file="${build.dir}/engine/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
@@ -961,7 +1068,7 @@
 
     <target name="build_WS_Invoker.war"
             depends="compile, build_WS_Invoker_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -1029,7 +1136,7 @@
 
     <target name="build_SMS_Invoker.war"
             depends="compile, build_SMS_Invoker_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -1097,7 +1204,7 @@
 
     <target name="build_workletService.war"
             depends="compile, build_workletService_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
                      includes="YClient.class YExternalClient.class"/>
@@ -1106,7 +1213,7 @@
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine"
-              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>      
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements" includes="*.class"/>
         </copy>
@@ -1213,7 +1320,7 @@
 
     <target name="build_resourceService.war"
             depends="compile, build_resourceService_SharedTomcat">
-        
+
         <!-- 1. Copy required yawl classes into dir structure -->
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
@@ -1222,15 +1329,15 @@
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/cost/interfce"
               file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/documentStore">
-              <fileset dir="${classes.dir}${packageRoot}/documentStore"
-                       includes="DocumentStoreClient.class YDocument.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                     includes="DocumentStoreClient.class YDocument.class"/>
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-        
+
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements" includes="*.class"/>
         </copy>
@@ -1250,42 +1357,42 @@
                                YQueryException.class YAuthenticationException.class
                                YPersistenceException.class YDataValidationException.class
                                YLogException.class"/>
-        </copy>        
+        </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/logging">
             <fileset dir="${classes.dir}${packageRoot}/logging"
                      includes="YLogDataItem.class YLogDataItemList.class
                        YLogPredicate.class YLogPredicateParser.class
                        YXESBuilder.class XESTimestampComparator.class"/>
         </copy>
-        
+
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/schema">
             <fileset dir="${classes.dir}${packageRoot}/schema"
                      includes="*.class"/>
         </copy>
-        
+
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/unmarshal">
             <fileset dir="${classes.dir}${packageRoot}/unmarshal"
                      includes="YDecompositionParser.class SchemaValidator.class
                        SchemaForSchemaValidator.class XMLValidator.class"/>
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
-        
+
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      excludes="Hibernate*.class Sessions*.class YIdentifierBag.class
                                YNetElementDocoParser.class"/>
         </copy>
-        
+
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/resourcing">
             <fileset dir="${classes.dir}${packageRoot}/resourcing"
                      includes="**/*.class **/*.xml **/YawlUI.properties"/>
         </copy>
-        
+
         <!-- 2b. Copy required resourcing support files into dir root -->
         <copy todir="${temp.dir}/${resource.app.name}"
               file="${build.dir}/${resource.app.name}/welcome/welcome.htm"/>
-        
+
         <!-- 2c. Copy in graphics for welcome page -->
         <copy todir="${temp.dir}/${resource.app.name}/graphics">
             <fileset dir="${build.dir}/${resource.app.name}/welcome/graphics"/>
@@ -1296,12 +1403,12 @@
               file="${graphics.dir}/subtext.jpg"/>
         <copy todir="${temp.dir}/${resource.app.name}/graphics"
               file="${graphics.dir}/yawl.swf"/>
-        
+
         <!-- 2c(i). Copy in resources for jsps -->
         <copy todir="${temp.dir}/${resource.app.name}/resources">
             <fileset dir="${build.dir}/${resource.app.name}/resources"/>
         </copy>
-        
+
         <!-- 2d. Copy in jsps -->
         <copy todir="${temp.dir}/${resource.app.name}">
             <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"
@@ -1322,20 +1429,20 @@
             <entry key="OS" value="${os.name}"/>
             <entry key="OSVersion" value="${os.version}"/>
         </propertyfile>
-        
+
         <copy file="${build.dir}/${resource.app.name}/version.properties"
               tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/version.properties"/>
-        
+
         <!-- 5. Copy web.xml file into dir structure -->
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF"
               file="${build.dir}/${resource.app.name}/web.xml"/>
-        
+
         <!-- 6. create Web Archive file -->
         <jar destfile="${output.dir}/${resource.app.name}.war">
             <fileset dir="${temp.dir}/${resource.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${resource.app.name}.war"/>
-        
+
         <!-- 7. Remove temp build area -->
         <delete dir="${temp.dir}/${resource.app.name}"/>
     </target>
@@ -1355,7 +1462,7 @@
     -->
 
     <target name="build_YResourceServiceClient.jar" depends="compile">
-        <tstamp />
+        <tstamp/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
@@ -1437,17 +1544,17 @@
             <manifest>
                 <attribute name="Main-Class"
                            value="org.yawlfoundation.yawl.cost.interfce.ModelUpload"/>
-             </manifest>
+            </manifest>
         </jar>
     </target>
-        
+
     <!--
         Build the monitor service WAR
     -->
-        
+
     <target name="build_monitorService.war"
             depends="compile, build_monitorService_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/interfce/interfaceB">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
         </copy>
@@ -1565,13 +1672,13 @@
 
     <target name="build_testService.war"
             depends="compile, build_testService_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/documentStore">
-              <fileset dir="${classes.dir}${packageRoot}/documentStore"
-                       includes="DocumentStoreClient.class YDocument.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                     includes="DocumentStoreClient.class YDocument.class"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
@@ -1586,8 +1693,8 @@
             <fileset dir="${classes.dir}${packageRoot}/engine"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/cost">
-              <fileset dir="${classes.dir}${packageRoot}/cost"/>
-          </copy>
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/schema">
             <fileset dir="${classes.dir}${packageRoot}/schema"
                      includes="XSDType.class YDataSchemaCache.class"/>
@@ -1694,8 +1801,8 @@
             <fileset dir="${classes.dir}${packageRoot}/engine"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
-              <fileset dir="${classes.dir}${packageRoot}/cost"/>
-          </copy>
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/logging">
             <fileset dir="${classes.dir}${packageRoot}/logging"
                      includes="YLogPredicate.class YLogPredicateParser.class
@@ -1745,7 +1852,8 @@
 
     <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_cost.libs}"/>
@@ -1758,7 +1866,7 @@
 
     <target name="build_twitterService.war"
             depends="compile, build_twitterService_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>
@@ -1797,13 +1905,13 @@
               file="${build.dir}/${twitter.app.name}/web.xml"/>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes"
               file="${build.dir}/${twitter.app.name}/twitter4j.properties"/>
-        
+
         <jar destfile="${output.dir}/${twitter.app.name}.war">
             <fileset dir="${temp.dir}/${twitter.app.name}"/>
         </jar>
         <delete dir="${temp.dir}/${twitter.app.name}"/>
     </target>
-        
+
     <target name="build_twitterService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
@@ -1829,20 +1937,20 @@
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine"
               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/exceptions">
-              <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/unmarshal">
-             <fileset dir="${classes.dir}${packageRoot}/unmarshal"
-                      includes="YDecompositionParser.class"/>
-             <fileset dir="${schema.dir}" includes="*.xsd"/>
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/schema">
-               <fileset dir="${classes.dir}${packageRoot}/schema"
-                        includes="XSDType.class YSchemaVersion.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YSchemaVersion.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
-                    includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class"/>
+                     includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
@@ -1872,81 +1980,81 @@
          Build the scheduling service WAR
      -->
 
-     <target name="build_schedulingService.war"
-             depends="compile, build_schedulingService_SharedTomcat">
+    <target name="build_schedulingService.war"
+            depends="compile, build_schedulingService_SharedTomcat">
 
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/resource">
-             <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
-                      excludes="**/*.hbm.xml"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/rsInterface">
-             <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
-         </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
+                     excludes="**/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+        </copy>
 
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/elements">
-             <fileset dir="${classes.dir}${packageRoot}/elements"
-                      excludes="**/*.hbm.xml"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine"
-               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/exceptions"
-               file="${classes.dir}${packageRoot}/exceptions/YAWLException.class"/>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     excludes="**/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/exceptions"
+              file="${classes.dir}${packageRoot}/exceptions/YAWLException.class"/>
 
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/unmarshal">
-              <fileset dir="${classes.dir}${packageRoot}/unmarshal"
-                       includes="YDecompositionParser.class"/>
-              <fileset dir="${schema.dir}" includes="*.xsd"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/schema">
-                <fileset dir="${classes.dir}${packageRoot}/schema"
-                         includes="XSDType.class YSchemaVersion.class"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/util">
-             <fileset dir="${classes.dir}${packageRoot}/util"
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="JDOMUtil.class StringUtil.class CharsetFilter.class
                                PasswordEncryptor.class XNode*.class
                                HibernateEngine.class"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
-             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/scheduling">
-             <fileset dir="${classes.dir}${packageRoot}/scheduling"/>
-         </copy>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/scheduling">
+            <fileset dir="${classes.dir}${packageRoot}/scheduling"/>
+        </copy>
 
 
-         <copy todir="${temp.dir}/${scheduling.app.name}">
-              <fileset dir="${build.dir}/${scheduling.app.name}/resources"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
-             <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
-             <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
-         </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}">
+            <fileset dir="${build.dir}/${scheduling.app.name}/resources"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+            <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
+            <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
+        </copy>
 
-         <war destfile="${output.dir}/${scheduling.app.name}.war"
-              webxml="${build.dir}/${scheduling.app.name}/web.xml">
-             <fileset dir="${temp.dir}/${scheduling.app.name}"/>
-         </war>
-         <delete dir="${temp.dir}/${scheduling.app.name}"/>
-     </target>
+        <war destfile="${output.dir}/${scheduling.app.name}.war"
+             webxml="${build.dir}/${scheduling.app.name}/web.xml">
+            <fileset dir="${temp.dir}/${scheduling.app.name}"/>
+        </war>
+        <delete dir="${temp.dir}/${scheduling.app.name}"/>
+    </target>
 
-     <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
-         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
-             <fileset dir="${classes.dir}"
-                      includes="log4j.properties hibernate.properties"/>
-         </copy>
-         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
-             <fileset dir="${lib.dir}" includes="${webapp_scheduling.libs}"/>
-         </copy>
-     </target>
+    <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_scheduling.libs}"/>
+        </copy>
+    </target>
 
-     <!--
-        Build the digital signature service WAR
-    -->
+    <!--
+       Build the digital signature service WAR
+   -->
 
     <target name="build_digitalSignature.war"
             depends="compile, build_digitalSignature_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -2014,7 +2122,7 @@
 
     <target name="build_mailSender.war"
             depends="compile, build_mailSender_SharedTomcat">
-        
+
         <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/elements">
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="**/*.class **/*.xsd"/>
@@ -2072,11 +2180,11 @@
 
 
     <target name="build_docStore.war"
-             depends="compile, build_docStore_SharedTomcat">
+            depends="compile, build_docStore_SharedTomcat">
 
-         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/${docStore.app.name}">
-             <fileset dir="${classes.dir}${packageRoot}/${docStore.app.name}"/>
-         </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/${docStore.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${docStore.app.name}"/>
+        </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
                      includes="YExternalClient.class YClient.class"/>
@@ -2085,24 +2193,25 @@
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="YAWLServiceReference.class YVerifiable.class"/>
         </copy>
-         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
-             <fileset dir="${classes.dir}${packageRoot}/util"
-                      includes="StringUtil.class CharsetFilter.class Sessions*.class
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="StringUtil.class CharsetFilter.class Sessions*.class
                           PasswordEncryptor.class HibernateEngine.class"/>
-         </copy>
-         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
-             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
-         </copy>
-         <jar destfile="${output.dir}/${docStore.app.name}.war">
-             <fileset dir="${temp.dir}/${docStore.app.name}"/>
-         </jar>
-         <checksum file="${output.dir}/${docStore.app.name}.war"/>
-         <delete dir="${temp.dir}/${docStore.app.name}"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${docStore.app.name}.war">
+            <fileset dir="${temp.dir}/${docStore.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${docStore.app.name}.war"/>
+        <delete dir="${temp.dir}/${docStore.app.name}"/>
     </target>
 
     <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_docStore.libs}"/>
@@ -2110,14 +2219,13 @@
     </target>
 
 
-
     <target name="build_procletService.war"
-             depends="compile, build_procletEditor.jar, build_procletService_SharedTomcat">
+            depends="compile, build_procletEditor.jar, build_procletService_SharedTomcat">
 
-         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}">
-             <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"
-                      excludes="**/editor/**"/>
-         </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"
+                     excludes="**/editor/**"/>
+        </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
                      includes="YExternalClient.class YClient.class"/>
@@ -2126,41 +2234,42 @@
             <fileset dir="${classes.dir}${packageRoot}/elements"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine"
-               file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine/interfce">
-                    <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
-         </copy>
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/exceptions">
             <fileset dir="${classes.dir}${packageRoot}/exceptions"
                      includes="YAWLException.class"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/schema"
-               file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
+              file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/unmarshal"
-               file="${classes.dir}${packageRoot}/unmarshal/YDecompositionParser.class"/>
+              file="${classes.dir}${packageRoot}/unmarshal/YDecompositionParser.class"/>
 
-         <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
-             <fileset dir="${classes.dir}${packageRoot}/util"/>
-         </copy>
-         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF"
-             file="${build.dir}/${proclet.app.name}/web.xml"/>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF"
+              file="${build.dir}/${proclet.app.name}/web.xml"/>
 
         <copy todir="${temp.dir}/${proclet.app.name}"
               file="${output.dir}/procletEditor.jar"/>
         <copy todir="${temp.dir}/${proclet.app.name}">
-              <fileset dir="${build.dir}/${proclet.app.name}" excludes="web.xml"/>
+            <fileset dir="${build.dir}/${proclet.app.name}" excludes="web.xml"/>
         </copy>
 
-         <jar destfile="${output.dir}/${proclet.app.name}.war">
-             <fileset dir="${temp.dir}/${proclet.app.name}"/>
-         </jar>
-         <checksum file="${output.dir}/${proclet.app.name}.war"/>
-         <delete dir="${temp.dir}/${proclet.app.name}"/>
+        <jar destfile="${output.dir}/${proclet.app.name}.war">
+            <fileset dir="${temp.dir}/${proclet.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${proclet.app.name}.war"/>
+        <delete dir="${temp.dir}/${proclet.app.name}"/>
     </target>
 
     <target name="build_procletService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties hibernate.properties"/>
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_procletService.libs}"/>
@@ -2169,7 +2278,7 @@
 
 
     <target name="build_procletEditor.jar" depends="compile">
-        <tstamp />
+        <tstamp/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
@@ -2253,55 +2362,55 @@
             <fileset file="${output.dir}/${engine.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployWorkletService" depends="build_workletService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${worklet.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployResourceService" depends="build_resourceService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${resource.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployWsInvoker" depends="build_WS_Invoker.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${wsInvoker.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deploySMS" depends="build_SMS_Invoker.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${smsInvoker.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployMonitorService" depends="build_monitorService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${monitor.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployDigitalSignature" depends="build_digitalSignature.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${digitalSignature.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployMailSender" depends="build_mailSender.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${mailSender.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployTestService" depends="build_testService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${test.app.name}.war"/>
         </copy>
     </target>
-        
+
     <target name="deployCostService" depends="build_costService.war">
         <copy todir="${webapps.dir}">
             <fileset file="${output.dir}/${cost.app.name}.war"/>
@@ -2333,14 +2442,14 @@
     </target>
 
     <target name="deploySchedulingService" depends="build_schedulingService.war">
-         <copy todir="${webapps.dir}">
-             <fileset file="${output.dir}/${scheduling.app.name}.war"/>
-         </copy>
-     </target>
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${scheduling.app.name}.war"/>
+        </copy>
+    </target>
 
-     <!--
-        Copies to Tomcat shared lib folder if this is a dedicated Tomcat installation
-    -->
+    <!--
+       Copies to Tomcat shared lib folder if this is a dedicated Tomcat installation
+   -->
 
     <target name="deployCoreSharedLibs" if="tomcat.isDedicated">
         <copy overwrite="true" todir="${sharedLibs.dir}">
@@ -2445,7 +2554,7 @@
 
     <target name="removeDependancyInfo"
             description="Force Intellij recompile by cleaning out .dependency-info">
-        
+
         <delete dir="${classes.dir}/.dependency-info"/>
     </target>
 
@@ -2465,22 +2574,22 @@
     -->
 
     <!-- Define the Sonar task -->
-   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-       <classpath path="${sharedLibs.dir}/sonar-ant-task-1.1.jar" />
-   </taskdef>
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+        <classpath path="${sharedLibs.dir}/sonar-ant-task-1.1.jar"/>
+    </taskdef>
 
 
     <!-- The target -->
     <target name="sonar">
-       <property name="sonar.host.url" value="http://localhost:8080/sonar" />
-       <property name="sonar.sources" value="${src.dir}" />
-       <property name="sonar.projectName" value="YAWL" />
-       <!--<property name="sonar.binaries" value="list of directories which contain for example the Java bytecode" />-->
-       <property name="sonar.tests" value="${test.dir}" />
-       <property name="sonar.libraries" value="${lib.dir}" />
+        <property name="sonar.host.url" value="http://localhost:8080/sonar"/>
+        <property name="sonar.sources" value="${src.dir}"/>
+        <property name="sonar.projectName" value="YAWL"/>
+        <!--<property name="sonar.binaries" value="list of directories which contain for example the Java bytecode" />-->
+        <property name="sonar.tests" value="${test.dir}"/>
+        <property name="sonar.libraries" value="${lib.dir}"/>
 
-       <sonar:sonar key="OldEditor:Initial" version="0.1-SNAPSHOT"
-                    xmlns:sonar="antlib:org.sonar.ant"/>
+        <sonar:sonar key="OldEditor:Initial" version="0.1-SNAPSHOT"
+                     xmlns:sonar="antlib:org.sonar.ant"/>
     </target>
 
 

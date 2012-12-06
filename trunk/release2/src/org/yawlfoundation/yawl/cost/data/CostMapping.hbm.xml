@@ -18,44 +18,47 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
-    <class name="org.yawlfoundation.yawl.cost.data.CostMapping" table="cost_Mappings">
+    <class name="org.yawlfoundation.yawl.cost.data.CostMapping" table="cost_Mappings"
+           lazy="false">
 
         <id name="mappingID" type="long">
             <generator class="native"/>
         </id>
 
         <component name="cost"
-                   class="org.yawlfoundation.yawl.cost.data.MappingIdentifier" access="field">
+                   class="org.yawlfoundation.yawl.cost.data.MappingIdentifier"
+                   access="field" lazy="false">
             <property name="type" column="costMappingIDType" access="field">
-               <type name="org.hibernate.type.EnumType">
-                   <param name="enumClass">
-                       org.yawlfoundation.yawl.cost.data.MappingIdType
-                   </param>
-               </type>
-           </property>
+                <type name="org.hibernate.type.EnumType">
+                    <param name="enumClass">
+                        org.yawlfoundation.yawl.cost.data.MappingIdType
+                    </param>
+                </type>
+            </property>
             <property name="id" column="costID"/>
             <property name="term" column="costTerm"/>
         </component>
-        
+
         <component name="workflow"
-                   class="org.yawlfoundation.yawl.cost.data.MappingIdentifier" access="field">
+                   class="org.yawlfoundation.yawl.cost.data.MappingIdentifier"
+                   access="field" lazy="false">
             <property name="type" column="workflowMappingIDType" access="field">
-               <type name="org.hibernate.type.EnumType">
-                   <param name="enumClass">
-                       org.yawlfoundation.yawl.cost.data.MappingIdType
-                   </param>
-               </type>
-           </property>
+                <type name="org.hibernate.type.EnumType">
+                    <param name="enumClass">
+                        org.yawlfoundation.yawl.cost.data.MappingIdType
+                    </param>
+                </type>
+            </property>
             <property name="id" column="workflowID"/>
             <property name="term" column="workflowTerm"/>
         </component>
 
-        <property name="mappingType" column="mappingType" access="field">
+        <property name="mappingType" column="mappingType" access="field" lazy="false">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">
                     org.yawlfoundation.yawl.cost.data.FacetAspect

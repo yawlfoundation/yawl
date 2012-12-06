@@ -30,10 +30,10 @@ import java.util.Map;
  * @date 11/02/12
  */
 public class ModelUpload {
-    
+
     private String url = "http://localhost:8080/costService/gateway";
     private Map<String, String> params = new Hashtable<String, String>();
-   
+
     public ModelUpload() {}
 
 
@@ -44,21 +44,21 @@ public class ModelUpload {
         disconnect(handle);
         return successful(result) ? "Model successfully added to cost service" : result;
     }
-    
-    
+
+
     public String getLog(String id, String version, String uri) {
         String handle = getSession();
         String result = getLog(id, version, uri, handle);
         disconnect(handle);
-        return result;        
+        return result;
     }
-    
-    
+
+
     private String loadModel(String fileName) {
         return fileToString(fileName);
     }
-    
-    
+
+
     private String getLog(String id, String version, String uri, String handle) {
         params.clear();
         params.put("action", "getAnnotatedLog");
@@ -81,38 +81,37 @@ public class ModelUpload {
         params.put("password", "Se4tMaQCi9gr0Q2usp7P56Sk5vM=");
         return post();
     }
-    
-    
+
+
     private String upload(String model, String handle) {
         params.clear();
         params.put("action", "importModel");
         params.put("sessionHandle", handle);
         params.put("model", model);
-        return post(); 
+        return post();
     }
-    
+
     private void disconnect(String handle) {
         params.clear();
         params.put("action", "disconnect");
-        params.put("sessionHandle", handle);        
+        params.put("sessionHandle", handle);
     }
-    
-    
+
+
     private String post() {
         String result = null;
         try {
-            result = stripOuterElement(send(url, params));
+            result = send(url, params);
             if (!successful(result)) {
                 abort(stripOuterElement(result));
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             abort(ioe.getMessage());
         }
         return result;
-        
+
     }
-    
+
     private void abort(String msg) {
         System.err.println("ERROR: " + msg);
         System.exit(0);
@@ -125,7 +124,7 @@ public class ModelUpload {
         HttpURLConnection connection = initPostConnection(urlStr);
 
         // encode data and send query
-        sendData(connection, encodeData(paramsMap)) ;
+        sendData(connection, encodeData(paramsMap));
 
         //retrieve reply
         String result = readStream(connection.getInputStream(), -1);
@@ -137,6 +136,7 @@ public class ModelUpload {
 
     /**
      * Initialises a HTTP POST connection
+     *
      * @param urlStr the url to connect to
      * @return an initialised POST connection
      * @throws IOException when there's some kind of communication problem
@@ -150,14 +150,15 @@ public class ModelUpload {
         // required to ensure the connection is not reused. When not set, spurious
         // intermittent problems (double posts, missing posts) occur under heavy load.
         connection.setRequestProperty("Connection", "close");
-        return connection ;
+        return connection;
     }
 
 
-     /**
+    /**
      * Encodes parameter values for HTTP transport
+     *
      * @param params a map of the data parameter values, of the form
-     *        [param1=value1],[param2=value2]...
+     *               [param1=value1],[param2=value2]...
      * @return a formatted http data string with the data values encoded
      */
     private String encodeData(Map<String, String> params) {
@@ -167,8 +168,8 @@ public class ModelUpload {
             if (value != null) {
                 if (result.length() > 0) result.append("&");
                 result.append(param)
-                      .append("=")
-                      .append(urlEncode(value));
+                        .append("=")
+                        .append(urlEncode(value));
             }
         }
         return result.toString();
@@ -178,18 +179,17 @@ public class ModelUpload {
         if (s == null) return s;
         try {
             return URLEncoder.encode(s, "UTF-8");
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             return s;
         }
     }
 
 
-
     /**
      * Submits data on a HTTP connection
+     *
      * @param connection a valid, open HTTP connection
-     * @param data the data to submit
+     * @param data       the data to submit
      * @throws IOException when there's some kind of communication problem
      */
     private void sendData(HttpURLConnection connection, String data)
@@ -202,6 +202,7 @@ public class ModelUpload {
 
     /**
      * Receives a reply from a HTTP submission
+     *
      * @param is the InputStream of a URL or Connection object
      * @return the stream's contents (ie. the HTTP reply)
      * @throws IOException when there's some kind of communication problem
@@ -235,15 +236,15 @@ public class ModelUpload {
             BufferedWriter buf = new BufferedWriter(new FileWriter(f));
             buf.write(contents, 0, contents.length());
             buf.close();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             abort(ioe.getMessage());
         }
     }
 
-    
+
     /**
      * Removes the outermost set of xml tags from a string, if any
+     *
      * @param xml the xml string to strip
      * @return the stripped xml string
      */
@@ -253,7 +254,7 @@ public class ModelUpload {
             int end = xml.lastIndexOf('<');
             if (end > start) {
                 return xml.substring(start, end);
-            }    
+            }
         }
         return xml;
     }
@@ -261,13 +262,14 @@ public class ModelUpload {
 
     /**
      * Tests a response message for success or failure
+     *
      * @param message the response message to test
      * @return true if the response represents success
      */
     public boolean successful(String message) {
-        return (message != null)  &&
-               (message.length() > 0) &&
-               (! message.contains("<failure>")) ;
+        return (message != null) &&
+                (message.length() > 0) &&
+                (!message.contains("<failure>"));
     }
 
 
@@ -276,13 +278,11 @@ public class ModelUpload {
         if (f.exists()) {
             try {
                 int bufsize = (int) f.length();
-                result = readStream(new FileInputStream(f), bufsize) ;
-            }
-            catch (Exception e) {
+                result = readStream(new FileInputStream(f), bufsize);
+            } catch (Exception e) {
                 abort(e.getMessage());
             }
-        }
-        else abort("File not found: " + f.getAbsolutePath());
+        } else abort("File not found: " + f.getAbsolutePath());
 
         return result;
     }
@@ -292,9 +292,6 @@ public class ModelUpload {
         return fileToString(new File(filename));
     }
 
-
-
-    
 
     private static void usage() {
         System.out.println();
@@ -309,18 +306,16 @@ public class ModelUpload {
         System.out.println("NOTE: The Cost Service must be running locally.");
         System.out.println();
     }
-    
-    
+
+
     public static void main(String[] args) {
         if (args.length == 1) {
             String result = new ModelUpload().add(args[0]);
             System.out.println(result);
-        }
-        else if (args.length == 4 && args[0].equals("-l")) {
+        } else if (args.length == 4 && args[0].equals("-l")) {
             String result = new ModelUpload().getLog(args[1], args[2], args[3]);
             System.out.println(result);
-        }
-        else usage();
+        } else usage();
     }
-    
+
 }

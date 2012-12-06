@@ -18,12 +18,13 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
-    <class name="org.yawlfoundation.yawl.cost.data.CostModel" table="cost_Models">
+    <class name="org.yawlfoundation.yawl.cost.data.CostModel" table="cost_Models"
+           lazy="false">
 
         <id name="modelID" type="long">
             <generator class="native"/>
@@ -32,7 +33,8 @@
         <property name="id" column="externalID"/>
 
         <component name="specID"
-                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field"
+                   lazy="false">
             <property name="identifier" column="specID"/>
             <component name="version"
                        class="org.yawlfoundation.yawl.elements.YSpecVersion">
@@ -40,18 +42,21 @@
             </component>
             <property name="uri" column="specURI"/>
         </component>
-        
-        <set name="mappings" table="cost_Mappings" access="field" cascade="all">
+
+        <set name="mappings" table="cost_Mappings" access="field" cascade="all"
+             lazy="false">
             <key column="modelID"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.CostMapping"/>
         </set>
 
-        <set name="drivers" table="cost_Drivers" access="field" cascade="all">
+        <set name="drivers" table="cost_Drivers" access="field" cascade="all"
+             lazy="false">
             <key column="modelID"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.CostDriver"/>
         </set>
 
-        <set name="functions" table="cost_Functions" access="field" cascade="all">
+        <set name="functions" table="cost_Functions" access="field" cascade="all"
+             lazy="false">
             <key column="modelID"/>
             <one-to-many class="org.yawlfoundation.yawl.cost.data.CostFunction"/>
         </set>

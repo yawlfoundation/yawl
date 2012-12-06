@@ -18,13 +18,13 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
 
     <class name="org.yawlfoundation.yawl.cost.data.DriverFacet"
-           table="cost_DriverEntities">
+           table="cost_DriverEntities" lazy="false">
 
         <id name="entityID" type="long">
             <generator class="native"/>
@@ -32,7 +32,7 @@
 
         <property name="id" column="internalID" access="field"/>
 
-        <property name="facetAspect" column="facetAspect" access="field">
+        <property name="facetAspect" column="facetAspect" access="field" lazy="false">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">
                     org.yawlfoundation.yawl.cost.data.FacetAspect
