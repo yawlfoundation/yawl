@@ -42,40 +42,36 @@ public class PluginLoader {
 
     /**
      * Instantiates a single pluggable class.
-     * @param c the type of class to instantiate
-     * @param localPkg the class's package (may be null if class is located externally
-     * to the resource service) 
+     *
+     * @param c         the type of class to instantiate
+     * @param localPkg  the class's package (may be null if class is located externally
+     *                  to the resource service)
      * @param className the canonical name of the required class (no extension)
-     * @param external true if the clas is stored in an external directory
+     * @param external  true if the class is stored in an external directory
      * @return the instantiated class, or null if there was a problem
      * @throws PluginLoaderException a wrapper for the various exceptions that may occur
      */
     public static <T> T loadInstance(Class<T> c, String localPkg, String className, boolean external)
             throws PluginLoaderException {
-        if ((localPkg != null) && (! className.contains(".")))
+        if ((localPkg != null) && (!className.contains(".")))
             className = localPkg + className;
 
         try {
             return (external) ? loadInstance(c, className)
-                              : (T) Class.forName(className).newInstance();
-        }
-        catch (ClassNotFoundException cnfe) {
+                    : (T) Class.forName(className).newInstance();
+        } catch (ClassNotFoundException cnfe) {
             throw new PluginLoaderException("ClassNotFoundException: class '" +
                     className + "' could not be found - class ignored.", cnfe);
-        }
-        catch (IllegalAccessException iae) {
+        } catch (IllegalAccessException iae) {
             throw new PluginLoaderException("IllegalAccessException: class '" +
                     className + "' could not be accessed - class ignored.", iae);
-	    	}
-        catch (InstantiationException ie) {
+        } catch (InstantiationException ie) {
             throw new PluginLoaderException("InstantiationException: class '" +
                     className + "' could not be instantiated - class ignored.", ie);
-		    }
-        catch (ClassCastException cce) {
+        } catch (ClassCastException cce) {
             throw new PluginLoaderException("ClassCastException: class '" +
                     className + "' does not extend its Abstract Class - class ignored.", cce);
-        }
-        catch (MalformedURLException mue) {
+        } catch (MalformedURLException mue) {
             throw new PluginLoaderException("MalformedURLException: class '" +
                     className + "' has a malformed classpath - class ignored.", mue);
         }
@@ -84,9 +80,10 @@ public class PluginLoader {
 
     /**
      * Instantiates a single pluggable class.
-     * @param c the type of class to instantiate
-     * @param localPkg the class's package (may be null if class is located externally
-     * to the resource service)
+     *
+     * @param c         the type of class to instantiate
+     * @param localPkg  the class's package (may be null if class is located externally
+     *                  to the resource service)
      * @param className the canonical name of the required class (no extension)
      * @return the instantiated class, or null if there was a problem
      * @throws PluginLoaderException a wrapper for the various exceptions that may occur
@@ -94,16 +91,17 @@ public class PluginLoader {
     public static <T> T loadInstance(Class<T> c, String localPkg, String className)
             throws PluginLoaderException {
         boolean external = (localPkg == null) ||
-                (className.contains(".") && (! className.startsWith(localPkg)));
+                (className.contains(".") && (!className.startsWith(localPkg)));
         return loadInstance(c, localPkg, className, external);
     }
 
 
     /**
      * Instantiates all the classes matching the parameters passed.
-     * @param c the type of class to instantiate
-     * @param pkg the classes package (may be null if class is located externally
-     * to the resource service)
+     *
+     * @param c        the type of class to instantiate
+     * @param pkg      the classes package (may be null if class is located externally
+     *                 to the resource service)
      * @param excludes an array of the class names to not instantiate from those found
      * @return a Set of instantiated classes, or null if there was a problem
      */
@@ -119,10 +117,11 @@ public class PluginLoader {
 
     /**
      * Instantiates a single pluggable class, located externally.
-     * @param c the type of class to instantiate
+     *
+     * @param c         the type of class to instantiate
      * @param className the fully qualified name of the required class (no extension)
      * @return the instantiated class, or null if there was a problem
-     * @throws MalformedURLException 
+     * @throws MalformedURLException
      * @throws ClassNotFoundException
      * @throws ClassCastException
      * @throws InstantiationException
@@ -130,7 +129,7 @@ public class PluginLoader {
      */
     private static <T> T loadInstance(Class<T> c, String className)
             throws MalformedURLException, ClassNotFoundException, ClassCastException,
-                   InstantiationException, IllegalAccessException {
+            InstantiationException, IllegalAccessException {
         ClassLoader primaryLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader loader = new URLClassLoader(getPluginsDirs(), primaryLoader);
         return (T) loader.loadClass(className).newInstance();
@@ -139,23 +138,25 @@ public class PluginLoader {
 
     /**
      * Instantiates all the internal pluggable classes matching the parameters passed.
-     * @param c the type of class to instantiate
-     * @param pkg the classes package
+     *
+     * @param c        the type of class to instantiate
+     * @param pkg      the classes package
      * @param category the type of class to load (eg. codelets, filters, allocators etc)
      * @param excludes an array of the class names to not instantiate from those found
      * @return a Set of instantiated classes, or null if there was a problem
      */
     private static <T> Set<T> getInternalInstances(Class<T> c, String pkg,
                                                    String category, String[] excludes) {
-        String pkgPath = Docket.getPackageFileDir(category) ;
+        String pkgPath = Docket.getPackageFileDir(category);
         String[] classes = new File(pkgPath).list(new ClassFileFilter(excludes));
         return getInstances(c, pkg, classes, false);
     }
 
-    
+
     /**
      * Instantiates all the external pluggable classes matching the parameters passed.
-     * @param c the type of class to instantiate
+     *
+     * @param c        the type of class to instantiate
      * @param category the type of class to load (eg. codelets, filters, allocators etc)
      * @return a Set of instantiated classes, or null if there was a problem
      */
@@ -172,10 +173,11 @@ public class PluginLoader {
 
     /**
      * Instantiates all the classes matching the parameters passed.
-     * @param c the (base) type of class to instantiate
-     * @param pkg the classes package
+     *
+     * @param c          the (base) type of class to instantiate
+     * @param pkg        the classes package
      * @param classNames an array of the class names to instantiate
-     * @param external true if classes are outside the default package
+     * @param external   true if classes are outside the default package
      * @return a Set of instantiated classes, or an empty set if there was a problem
      */
     private static <T> Set<T> getInstances(Class<T> c, String pkg,
@@ -187,8 +189,7 @@ public class PluginLoader {
             String sansExtn = className.substring(0, className.lastIndexOf('.'));
             try {
                 instances.add(loadInstance(c, null, pkg + sansExtn, external));
-            }
-            catch (PluginLoaderException ple) {
+            } catch (PluginLoaderException ple) {
                 _log.warn(ple.getMessage());
             }
         }
@@ -198,8 +199,9 @@ public class PluginLoader {
 
     /**
      * Gets the array of external locations loaded from web.xml on startup
+     *
      * @return the array of external file locations
-     * @throws MalformedURLException if a loaded path is invalid
+     * @throws MalformedURLException  if a loaded path is invalid
      * @throws ClassNotFoundException if the path string wasn't loaded at startup
      */
     private static URL[] getPluginsDirs()
@@ -213,8 +215,9 @@ public class PluginLoader {
 
     /**
      * Inits the array of external locations loaded from web.xml on startup
+     *
      * @return the array of external file locations
-     * @throws MalformedURLException if a loaded path is invalid
+     * @throws MalformedURLException  if a loaded path is invalid
      * @throws ClassNotFoundException if the path string wasn't loaded at startup
      */
     private static URL[] initPluginsDirs()
@@ -225,7 +228,7 @@ public class PluginLoader {
             int i = 0;
             for (String path : baseDirs) {
                 path = path.trim();
-                if (! path.endsWith(File.separator)) path += File.separator;
+                if (!path.endsWith(File.separator)) path += File.separator;
                 urls[i++] = new URL("file://" + path);
             }
             return urls;
@@ -236,6 +239,7 @@ public class PluginLoader {
 
     /**
      * Processes the external plugin path string from web.xml into a list of paths
+     *
      * @return the list of loaded dirs
      */
     private static List<String> getBaseDirs() {
@@ -251,6 +255,7 @@ public class PluginLoader {
 
     /**
      * Gets a list of external classNames
+     *
      * @param pluginCategory the type of class to get the names for
      * @return a list of classNames
      */
@@ -274,8 +279,9 @@ public class PluginLoader {
 
     /**
      * Locates a subdir of a specified directory
+     *
      * @param basePath the name of the starting directory
-     * @param dir the name of the subdir to find
+     * @param dir      the name of the subdir to find
      * @return the subdir if found, or null if not found
      */
     private static File locateDir(String basePath, String dir) {
@@ -285,7 +291,8 @@ public class PluginLoader {
 
     /**
      * Locates a subdir of a specified directory
-     * @param f the starting directory
+     *
+     * @param f   the starting directory
      * @param dir the name of the subdir to find
      * @return the subdir if found, or null if not found
      */
@@ -308,7 +315,8 @@ public class PluginLoader {
 
     /**
      * Subtracts basePath from packagePath, then converts it into a package name
-     * @param basePath the root path
+     *
+     * @param basePath    the root path
      * @param packagePath the root path + the package path
      * @return the package name
      */
@@ -320,6 +328,7 @@ public class PluginLoader {
 
     /**
      * Gets the category of a class from its package name (ie. codelets, filters, etc.)
+     *
      * @param c
      * @return
      */
@@ -351,13 +360,13 @@ public class PluginLoader {
                         return true;
                     }
                 }
-            }    
+            }
             return false;
         }
 
         public boolean accept(File dir, String name) {
-            return (! new File(dir, name).isDirectory()) &&    // ignore dirs
-                   (! isExcluded(name)) &&                     // ignore excludes
+            return (!new File(dir, name).isDirectory()) &&    // ignore dirs
+                    (!isExcluded(name)) &&                     // ignore excludes
                     name.toLowerCase().endsWith(".class");     // only want .class files
         }
     }
