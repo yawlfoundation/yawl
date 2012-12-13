@@ -53,10 +53,10 @@ public class WorkItemInstance implements YInstance {
     private long completionTime;
     private long timerExpiry;
     private SimpleDateFormat dateFormatter;
-    private Map<String, ParameterInstance> parameters ;
+    private Map<String, ParameterInstance> parameters;
 
     public WorkItemInstance() {
-        dateFormatter = new SimpleDateFormat("yyyy-MM-dd H:mm:ss");
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd H:mm:ss:SSS");
         parameters = new Hashtable<String, ParameterInstance>();
     }
 
@@ -99,7 +99,7 @@ public class WorkItemInstance implements YInstance {
         return taskID;
     }
 
-    
+
     public void setTaskID(String s) { taskID = s; }
 
 
@@ -208,26 +208,25 @@ public class WorkItemInstance implements YInstance {
         return formatAge(System.currentTimeMillis() - getTimerExpiry());
     }
 
-        /**
+    /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'
+     *
      * @param age the time value (in milliseconds)
      * @return the formatted time string
      */
     public String formatAge(long age) {
-        long secsPerHour = 60 * 60 ;
-        long secsPerDay = 24 * secsPerHour ;
-        age = age / 1000 ;                             // ignore the milliseconds
+        long secsPerHour = 60 * 60;
+        long secsPerDay = 24 * secsPerHour;
+        age = age / 1000;                             // ignore the milliseconds
 
-        long days = age / secsPerDay ;
-        age %= secsPerDay ;
-        long hours = age / secsPerHour ;
-        age %= secsPerHour ;
-        long mins = age / 60 ;
-        age %= 60 ;                                    // seconds leftover
-        return String.format("%d:%02d:%02d:%02d", days, hours, mins, age) ;
+        long days = age / secsPerDay;
+        age %= secsPerDay;
+        long hours = age / secsPerHour;
+        age %= secsPerHour;
+        long mins = age / 60;
+        age %= 60;                                    // seconds leftover
+        return String.format("%d:%02d:%02d:%02d", days, hours, mins, age);
     }
-
-
 
 
     public Map<String, ParameterInstance> getParameterMap() {
@@ -264,8 +263,8 @@ public class WorkItemInstance implements YInstance {
 
 
     private void addParameterSets(Map<String, YParameter> inputParams,
-                                   Map<String, YParameter> outputParams,
-                                   YTask task, Element data) {
+                                  Map<String, YParameter> outputParams,
+                                  YTask task, Element data) {
         ParameterInstance.Usage usage;
         for (YParameter param : inputParams.values()) {
             String name = param.getPreferredName();
@@ -277,7 +276,7 @@ public class WorkItemInstance implements YInstance {
         usage = ParameterInstance.Usage.outputOnly;
         for (YParameter param : outputParams.values()) {
             String name = param.getPreferredName();
-            if (! inputParams.containsKey(name)) {
+            if (!inputParams.containsKey(name)) {
                 addParameterInstance(param, task, usage, data.getChild(name));
             }
         }
@@ -290,10 +289,10 @@ public class WorkItemInstance implements YInstance {
     }
 
     private void updateParameterValues(Document dataDoc) {
-         if (dataDoc != null) {
-             Element data = dataDoc.getRootElement();
-             for (ParameterInstance param : parameters.values()) {
-                Element paramData = data.getChild(param.getName()) ;
+        if (dataDoc != null) {
+            Element data = dataDoc.getRootElement();
+            for (ParameterInstance param : parameters.values()) {
+                Element paramData = data.getChild(param.getName());
                 if (paramData != null) {
                     param.setValue(paramData);
                 }
@@ -301,7 +300,7 @@ public class WorkItemInstance implements YInstance {
         }
     }
 
-    
+
     public ParameterInstance getParameterInstance(String name) {
         return parameters.get(name);
     }
@@ -365,8 +364,8 @@ public class WorkItemInstance implements YInstance {
         if (s != null) {
             try {
                 result = new Long(s);
+            } catch (NumberFormatException ignore) {
             }
-            catch (NumberFormatException ignore) {}
         }
         return result;
     }
