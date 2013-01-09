@@ -42,7 +42,7 @@ import java.util.Set;
  * @date 18/11/11
  */
 public class DocumentStore extends HttpServlet {
-    
+
     private Sessions _sessions;            // maintains sessions with external services
     private HibernateEngine _db;           // communicates with underlying database
     private boolean _retainWhenCaseCompletes;
@@ -66,7 +66,7 @@ public class DocumentStore extends HttpServlet {
                 context.getInitParameter("InterfaceA_Backend"),
                 context.getInitParameter("EngineLogonUserName"),
                 context.getInitParameter("EngineLogonPassword"));
-        
+
         // set retention flag
         String retain = context.getInitParameter("RetainStoredDocsOnCaseCompletion");
         _retainWhenCaseCompletes = (retain != null) && retain.equalsIgnoreCase("true");
@@ -80,13 +80,13 @@ public class DocumentStore extends HttpServlet {
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         doPost(req, res);                                // redirect all GETs to POSTs
     }
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-                               throws IOException {
+            throws IOException {
         try {
 
             // all request parameters are passed via the request's input stream
@@ -98,51 +98,40 @@ public class DocumentStore extends HttpServlet {
 
             if (action == null) {
                 throw new IOException("action is null");
-            }
-            else if (action.equals("connect")) {
+            } else if (action.equals("connect")) {
                 String userid = dis.readUTF();
                 String password = dis.readUTF();
                 result = _sessions.connect(userid, password);
-            }
-            else if (action.equals("checkConnection")) {
+            } else if (action.equals("checkConnection")) {
                 result = String.valueOf(_sessions.checkConnection(handle));
-            }
-            else if (action.equals("disconnect")) {
+            } else if (action.equals("disconnect")) {
                 result = String.valueOf(_sessions.disconnect(handle));
-            }
-            else if (_sessions.checkConnection(handle)) {
+            } else if (_sessions.checkConnection(handle)) {
                 String caseID = dis.readUTF();
                 long docID = dis.readLong();
                 if (action.equals("get")) {
                     writeDocument(res, getDocument(docID));
-                }
-                else if (action.equals("put")) {
+                } else if (action.equals("put")) {
                     result = String.valueOf(putDocument(new YDocument(caseID, docID, dis)));
-                }
-                else if (action.equals("remove")) {
+                } else if (action.equals("remove")) {
                     result = String.valueOf(removeDocument(docID));
-                }
-                else if (action.equals("clearcase")) {
+                } else if (action.equals("clearcase")) {
                     result = clearCase(caseID);
-                }
-                else if (action.equals("addcaseid")) {
+                } else if (action.equals("addcaseid")) {
                     result = addCaseID(docID, caseID);
-                }
-
-                else if (action.equals("completecase")) {
+                } else if (action.equals("completecase")) {
                     if (_retainWhenCaseCompletes) {
                         writeString(res,
                                 "Documents not cleared: configured to retain on case completion",
                                 "failure");
-                    }
-                    else result = clearCase(caseID);
+                    } else result = clearCase(caseID);
                 }
-            }
-            else writeString(res, "Invalid or disconnected session handle", "failure");
+            } else writeString(res, "Invalid or disconnected session handle", "failure");
 
             if (result != null) writeString(res, result, "response");
-        }
-        catch (IOException ioe) {
+        } catch (EOFException eofe) {              // occurs when the inputStream is null
+            writeString(res, "Welcome to the YAWL Document Store Service", "response");
+        } catch (IOException ioe) {
             writeString(res, ioe.getMessage(), "failure");
         }
     }
@@ -150,6 +139,7 @@ public class DocumentStore extends HttpServlet {
 
     /**
      * Writes a binary file to a response's output stream
+     *
      * @param res the response
      * @param doc a YDocument wrapper containing the binary file
      * @throws IOException if there's a problem writing to the stream
@@ -168,6 +158,7 @@ public class DocumentStore extends HttpServlet {
 
     /**
      * Writes a UTF-8 String to a response's output stream
+     *
      * @param res the response
      * @param msg the message to write
      * @param tag the xml tag to wrap the message in
@@ -187,6 +178,7 @@ public class DocumentStore extends HttpServlet {
 
     /**
      * Reads a document from the database
+     *
      * @param id the id of the document to read
      * @return a YDocument wrapper for the document
      * @throws IOException if no document can be found with the id passed
@@ -194,8 +186,7 @@ public class DocumentStore extends HttpServlet {
     private YDocument getDocument(long id) throws IOException {
         try {
             return (YDocument) _db.load(YDocument.class, id);
-        }
-        catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException onfe) {
             throw new IOException("No stored document found with id: " + id);
         }
     }
@@ -203,6 +194,7 @@ public class DocumentStore extends HttpServlet {
 
     /**
      * Writes a document to the database
+     *
      * @param doc a YDocument wrapper for the document to write
      * @return the id (primary key) of the stored document
      * @throws IOException if the document can't be read from the request stream
@@ -215,18 +207,17 @@ public class DocumentStore extends HttpServlet {
                 YDocument existingDoc = getDocument(doc.getId());
                 existingDoc.setDocument(doc.getDocument());
                 _db.exec(existingDoc, HibernateEngine.DB_UPDATE, true);
-            }
-            else {
+            } else {
                 _db.exec(doc, HibernateEngine.DB_INSERT, true);
             }
             return doc.getId();
-        }
-        else throw new IOException("Could not read document from request stream");
+        } else throw new IOException("Could not read document from request stream");
     }
 
 
     /**
      * Removes a document from the database
+     *
      * @param id the id of the document to remove
      * @return true if successful
      */
@@ -234,8 +225,7 @@ public class DocumentStore extends HttpServlet {
         try {
             YDocument doc = (YDocument) _db.load(YDocument.class, id);
             return (doc != null) && _db.exec(doc, HibernateEngine.DB_DELETE, true);
-        }
-        catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException onfe) {
             return false;
         }
     }
@@ -251,8 +241,7 @@ public class DocumentStore extends HttpServlet {
                 }
             }
             throw new IOException("No document found with id: " + id);
-        }
-        catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException onfe) {
             throw new IOException(onfe.getMessage());
         }
     }
@@ -260,6 +249,7 @@ public class DocumentStore extends HttpServlet {
 
     /**
      * Removes all the documents from the database that match the case id passed
+     *
      * @param id the case id to remove documents for
      * @return a message indicating success or otherwise
      */
@@ -270,11 +260,10 @@ public class DocumentStore extends HttpServlet {
         sb.delete(0, sb.length());
         if (rowsDeleted > -1) {
             sb.append(rowsDeleted).append(" document")
-              .append(rowsDeleted > 1 ? "s " : " ")
-              .append("removed for case: ")
-              .append(id);
-        }
-        else {
+                    .append(rowsDeleted > 1 ? "s " : " ")
+                    .append("removed for case: ")
+                    .append(id);
+        } else {
             sb.append("Error removing documents for case: ").append(id);
         }
         return sb.toString();
@@ -284,7 +273,7 @@ public class DocumentStore extends HttpServlet {
     /**
      * Increases the maximum column length for stored documents in H2 databases from 255
      * to 5Mb.
-     *
+     * <p/>
      * H2 defaults to 255 chars for binary types, and this default went out
      * with the 2.3 release. This method (1) checks if we are using a H2 database, then
      * if so (2) checks the relevant column length, then if it is 255 (3) increases it
@@ -318,7 +307,7 @@ public class DocumentStore extends HttpServlet {
                     DatabaseMetaData dbmd = connection.getMetaData();
                     ResultSet rs = dbmd.getColumns(null, null, "YDOCUMENT", "YDOC");
                     rs.next();
-                    if (rs.getInt("COLUMN_SIZE") <= 255)  {
+                    if (rs.getInt("COLUMN_SIZE") <= 255) {
                         connection.createStatement().executeUpdate(
                                 "alter table ydocument alter column ydoc varbinary(5242880)");
 
@@ -328,15 +317,13 @@ public class DocumentStore extends HttpServlet {
                     connection.close();
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // can't update
         }
         if (connection != null) {
             try {
                 connection.close();
-            }
-            catch (SQLException sqle) {
+            } catch (SQLException sqle) {
                 //
             }
         }
