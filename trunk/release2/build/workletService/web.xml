@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
+        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
 
@@ -10,11 +10,13 @@
 
     <display-name>YAWL Worklet Dynamic Selection and Exception Service</display-name>
     <description>
-        This custom YAWL Service dynamically selects an appropriate sub-process for an executing
+        This custom YAWL Service dynamically selects an appropriate sub-process for an
+        executing
         workitem, and handles any process exceptions.
         Copyright 2006 Queensland University of Technology. All rights reserved.
         Author: Michael Adams
-        For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads' section under
+        For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
+        section under
         http://www.yawlfoundation.org/.
     </description>
 
@@ -36,7 +38,8 @@
 
     <context-param>
         <param-name>InterfaceX_Service</param-name>
-        <param-value>org.yawlfoundation.yawl.worklet.exception.ExceptionService</param-value>
+        <param-value>org.yawlfoundation.yawl.worklet.exception.ExceptionService
+        </param-value>
         <description>
             The class name of the Interface X Service implementation.
         </description>
@@ -102,7 +105,7 @@
         <param-name>Repository</param-name>
         <param-value>${catalina.base}\webapps\workletService\repository\</param-value>
         <description>
-           The path where the worklet repository is installed.
+            The path where the worklet repository is installed.
         </description>
     </context-param>
 
@@ -124,56 +127,34 @@
         </description>
     </context-param>
 
-    <!-- Servlet definitions for the servlets that make up
-         your web application, including initialization
-         parameters.  With Tomcat, you can also send requests
-         to servlets not listed here with a request like this:
 
-           http://localhost:8080/{context-path}/servlet/{classname}
-
-         but this usage is not guaranteed to be portable.  It also
-         makes relative references to images and other resources
-         required by your servlet more complicated, so defining
-         all of your servlets (and defining a mapping to them with
-         a servlet-mapping element) is recommended.
-
-         Servlet initialization parameters can be retrieved in a
-         servlet or JSP page by calling:
-
-             String value =
-               getServletConfig().getInitParameter("name");
-
-         where "name" matches the <param-name> element of
-         one of these initialization parameters.
-
-         You can define any number of servlets, including zero.
-    -->
-
-    <!--servlet>
-        <servlet-name>ErrorServlet</servlet-name>
+    <context-param>
+        <param-name>ResourceServiceURL</param-name>
+        <param-value>http://localhost:8080/resourceService</param-value>
         <description>
-            Reports that the URI request found nothing, hence the error report.
+            The base URL of the resource service, used for communication
+            between the worklet service and the resource service's default
+            admin pages
         </description>
-        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet-->
+    </context-param>
+
 
     <!--CharsetFilter -->
 
-     <filter>
-       <filter-name>CharsetFilter</filter-name>
-       <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
-         <init-param>
-           <param-name>requestEncoding</param-name>
-           <param-value>UTF-8</param-value>
-         </init-param>
-     </filter>
+    <filter>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
 
-     <filter-mapping>
-       <filter-name>CharsetFilter</filter-name>
-       <url-pattern>/*</url-pattern>
-     </filter-mapping>
-    
+    <filter-mapping>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 
     <servlet>
         <servlet-name>InterfaceB_Servlet</servlet-name>
@@ -199,13 +180,14 @@
     </servlet>
 
     <servlet>
-		<servlet-name>ErrorServlet</servlet-name>
-		<description>
+        <servlet-name>ErrorServlet</servlet-name>
+        <description>
             Reports that the URI request found nothing, hence the error report.
         </description>
-		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
+        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
 
     <servlet-mapping>
@@ -218,29 +200,30 @@
         <url-pattern>/ix</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>ErrorServlet</servlet-name>
-		<url-pattern>/error</url-pattern>
-	</servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ErrorServlet</servlet-name>
+        <url-pattern>/error</url-pattern>
+    </servlet-mapping>
 
 
-<!-- this servlet provides a gateway from the .NET rdrEditor -->
+    <!-- this servlet provides a gateway from the .NET rdrEditor -->
 
     <servlet>
         <servlet-name>wsGateway</servlet-name>
         <description>
             For replacing a started worklet with another one.
         </description>
-        <servlet-class>org.yawlfoundation.yawl.worklet.support.WorkletGateway</servlet-class>
+        <servlet-class>org.yawlfoundation.yawl.worklet.support.WorkletGateway
+        </servlet-class>
         <load-on-startup>2</load-on-startup>
-    </servlet> 
-    
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>wsGateway</servlet-name>
         <url-pattern>/gateway</url-pattern>
     </servlet-mapping>
 
-    
+
     <!-- this servlet provides an external gateway to the Exception Service -->
 
     <servlet>
@@ -344,8 +327,6 @@
     </servlet-mapping>
 
 
-
-
     <!--
         Define the default session timeout for your application,
         in minutes.  From a servlet or JSP page, you can modify
@@ -354,7 +335,8 @@
     -->
 
     <session-config>
-        <session-timeout>60</session-timeout><!-- 60 minutes -->
+        <session-timeout>60</session-timeout>
+        <!-- 60 minutes -->
     </session-config>
 
 

@@ -309,7 +309,7 @@ public class DocumentStore extends HttpServlet {
                     rs.next();
                     if (rs.getInt("COLUMN_SIZE") <= 255) {
                         connection.createStatement().executeUpdate(
-                                "alter table ydocument alter column ydoc varbinary(5242880)");
+                                "ALTER TABLE ydocument ALTER COLUMN ydoc varbinary(5242880)");
 
                         // write flag file for next time
                         new File(context.getRealPath("WEB-INF/classes/dbfixed.bin")).createNewFile();

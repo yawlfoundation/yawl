@@ -28,11 +28,9 @@
 <%!
     ExceptionService _exceptionService = null;
     String _engineURI;
-
-    String _rootResServiceURL = "http://localhost:8080/resourceService/faces/";
-    String _worklistURL = _rootResServiceURL + "userWorkQueues.jsp";
-    String _adminlistURL = _rootResServiceURL + "adminQueues.jsp";
-    String _caseMgtURL = _rootResServiceURL + "caseMgt.jsp";
+    String _worklistURL;
+    String _adminlistURL;
+    String _caseMgtURL;
 
     public void jspInit() {
         ServletContext context = getServletContext();
@@ -43,6 +41,18 @@
             context.setAttribute("org.yawlfoundation.yawl.worklet.exception.ExceptionService",
                     _exceptionService);
         }
+
+        // set resource service admin page urls
+        String resourceServiceURL = _exceptionService.getResourceServiceURL();
+        if (resourceServiceURL == null) {
+            resourceServiceURL = "http://localhost:8080/resourceService";   // a default
+        }
+        if (!resourceServiceURL.endsWith("/")) {
+            resourceServiceURL += "/";
+        }
+        _worklistURL = resourceServiceURL + "faces/userWorkQueues.jsp";
+        _adminlistURL = resourceServiceURL + "faces/adminQueues.jsp";
+        _caseMgtURL = resourceServiceURL + "faces/caseMgt.jsp";
     }
 %>
 <script language="JavaScript">
