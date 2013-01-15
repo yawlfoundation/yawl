@@ -167,20 +167,20 @@
     <!-- dbd -->
     <property name="hibernate" value="hibernate3.jar"/>
     <!-- mul -->
-    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.7.Final.jar"/>
+    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.9.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-core" value="hibernate-core-4.1.7.Final.jar"/>
+    <property name="hibernate-core" value="hibernate-core-4.1.9.Final.jar"/>
     <!-- mul -->
     <property name="hibernate-commons"
               value="hibernate-commons-annotations-4.0.1.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.7.Final.jar"/>
+    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.9.Final.jar"/>
     <!-- hbn -->
     <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
     <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>
     <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.15.0-GA.jar"/>
+    <property name="javaAssist" value="javassist-3.17.0-GA.jar"/>
     <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.3.jar"/>
     <!-- eng, sch -->
@@ -249,7 +249,7 @@
     <!-- mss -->
     <property name="mailapi" value="mailapi.jar"/>
     <!-- sml -->
-    <property name="mysql" value="mysql-connector-java-5.1.13-bin.jar"/>
+    <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
     <!-- dbd -->
