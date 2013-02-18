@@ -180,7 +180,7 @@
     <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>
     <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.17.0-GA.jar"/>
+    <property name="javaAssist" value="javassist-3.17.1-GA.jar"/>
     <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.3.jar"/>
     <!-- eng, sch -->
