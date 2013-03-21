@@ -44,10 +44,17 @@ public class YSimulator {
     protected enum SimulationType {Workitem, Resource, Process}
 
 
-    private void run() {
+    public static void main(String[] args) {
+        YSimulator sim = new YSimulator();
+        String configFile = (args.length > 0) ? args[0] : "config.xml";
+        sim.run(configFile);
+    }
+
+
+    private void run(String configFile) {
         init();
         try {
-            _props.parse();
+            _props.parse(configFile);
             checkSpecLoaded();
             start();
         } catch (Exception e) {
@@ -191,6 +198,7 @@ public class YSimulator {
         ResourceLimit limit = _props.getLimit(pid);
         if (limit.hasBeenExceeded()) {
             _summaryMap.get(pid).reportLimitReached();
+            _wqAdapter.deallocateItem(pid, wir.getID(), _handle);
             return false;
         }
 
@@ -227,12 +235,6 @@ public class YSimulator {
 
     private String now() {
         return SDF.format(new Date(System.currentTimeMillis()));
-    }
-
-
-    public static void main(String[] args) {
-        YSimulator sim = new YSimulator();
-        sim.run();
     }
 
 

@@ -101,8 +101,8 @@ public class Annotator {
      *
      * @return the cost-data annotated log
      * @throws IllegalStateException if the unannotatedLog is null (i.e. has
-     *                               not been previously set via the relevant constructor or mutator) or has
-     *                               an invalid format
+     *                               not been previously set via the relevant constructor
+     *                               or mutator) or has an invalid format
      */
     public String annotate() throws IllegalStateException {
         if (_unannotatedLog == null) {

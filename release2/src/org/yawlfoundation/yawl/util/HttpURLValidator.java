@@ -28,26 +28,26 @@ import java.net.*;
 /**
  * A simple static checker that (1) checks that the url string passed in is a valid
  * URL, and then (2) that the server at the URL is responsive.
- *
+ * <p/>
  * Author: Michael Adams
  * Creation Date: 7/05/2009
  */
 public class HttpURLValidator {
-    
+
     private static final int CONNECT_TIMEOUT = 1000;
     private static boolean _cancelled = false;
 
     /**
-     * validaets a url passed as a String
+     * validates a url passed as a String
+     *
      * @param urlStr the url to validate
      * @return a message describing the success of failure of the validation
      */
     public static String validate(String urlStr) {
         try {
             return validate(createURL(urlStr));
-        }
-        catch (MalformedURLException mue) {
-            return getErrorMessage(mue.getMessage()) ;
+        } catch (MalformedURLException mue) {
+            return getErrorMessage(mue.getMessage());
         }
     }
 
@@ -60,11 +60,9 @@ public class HttpURLValidator {
             int response = httpConnection.getResponseCode();
             if ((response < 0) || (response >= 300))             // indicates some error
                 return getErrorMessage(response + " " + httpConnection.getResponseMessage());
-        }
-        catch (SocketTimeoutException ste) {
+        } catch (SocketTimeoutException ste) {
             return getErrorMessage("Error attempting to validate URL: " + ste.getMessage());
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             return getErrorMessage("Error attempting to validate URL: " + ioe.getMessage());
         }
 
@@ -76,8 +74,8 @@ public class HttpURLValidator {
 
         // escape early if urlStr is obviously bad
         if (urlStr == null) throw new MalformedURLException("URL is null");
-        if (! urlStr.startsWith("http://"))
-            throw new MalformedURLException("URL does not begin with 'http://'") ;
+        if (!urlStr.startsWith("http://"))
+            throw new MalformedURLException("URL does not begin with 'http://'");
 
         // this will throw an exception if the URL is invalid
         return new URL(urlStr);
@@ -107,11 +105,9 @@ public class HttpURLValidator {
             Socket socket = new Socket(address, port);
             socket.close();
             return true;
-        }
-        catch (UnknownHostException uhe) {
+        } catch (UnknownHostException uhe) {
             return false;
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             return false;
         }
     }
@@ -120,10 +116,9 @@ public class HttpURLValidator {
     public static boolean isTomcatRunning(String urlStr) {
         try {
             return simplePing(new URL(urlStr).getHost(), getTomcatServerPort());
-        }
-        catch (MalformedURLException mue) {
+        } catch (MalformedURLException mue) {
             return false;
-        }    
+        }
     }
 
 
@@ -140,11 +135,11 @@ public class HttpURLValidator {
 
 
     private static Document loadTomcatConfigFile(String filename) {
-        if (! filename.startsWith("conf")) {
+        if (!filename.startsWith("conf")) {
             filename = "conf" + File.separator + filename;
         }
         File configFile = new File(filename);
-        if (! configFile.isAbsolute()) {
+        if (!configFile.isAbsolute()) {
             configFile = new File(System.getProperty("catalina.base"), filename);
         }
         return (configFile.exists()) ? JDOMUtil.fileToDocument(configFile) : null;
@@ -164,15 +159,13 @@ public class HttpURLValidator {
                     if (_cancelled) throw new InterruptedException();
                     Thread.sleep(CONNECT_TIMEOUT);
                     now = System.currentTimeMillis();
-                }
-                catch (InterruptedException ie) {
+                } catch (InterruptedException ie) {
                     return false;
                 }
             }
             return false;
         }
     }
-
 
 
 }

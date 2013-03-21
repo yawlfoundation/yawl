@@ -55,10 +55,11 @@ class SimulatorProperties {
     }
 
 
-    protected void parse() throws ResourceGatewayException, IOException {
+    protected void parse(String configFile) throws ResourceGatewayException, IOException {
         ySimulator.print("Parsing configuration...");
-        String xml = StringUtil.fileToString("/Users/adamsmj/Documents/temp/moe/simulationexperiments/config.xml");
-        if (xml == null) ySimulator.fail("Failed to load config file 'config.xml'");
+        String xml = StringUtil.fileToString(configFile);
+        if (xml == null)
+            ySimulator.fail("Failed to load config file from: " + configFile);
         XNode node = new XNodeParser().parse(xml);
         if (node == null) ySimulator.fail("Failed to parse config file");
 
