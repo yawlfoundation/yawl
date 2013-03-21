@@ -48,7 +48,7 @@ import java.util.*;
  */
 public class SchedulingService extends Service {
 
-    private enum HistoricalMode { most, least, average, median }
+    private enum HistoricalMode {most, least, average, median}
 
     private ResourceServiceInterface _rs;
     private Scheduler _scheduler;
@@ -101,8 +101,7 @@ public class SchedulingService extends Service {
             String taskType = elem.getName();
             if (taskType.equals(XML_UTILISATION) || taskType.equals(XML_RESCHEDULING)) {
                 handleUtilisationTask(mapping, elem, false);
-            }
-            else {
+            } else {
                 throw new SchedulingException("Handling of data type '" +
                         taskType + "' is not implemented");
             }
@@ -176,8 +175,7 @@ public class SchedulingService extends Service {
         String thisUtilisationType = utilisation.getChild(XML_THISUTILISATIONTYPE).getText();
         if (thisUtilisationType.equals(UTILISATION_TYPE_BEGIN)) {
             thisTime = getTime(from);
-        }
-        else if (thisUtilisationType.equals(UTILISATION_TYPE_END)) {
+        } else if (thisUtilisationType.equals(UTILISATION_TYPE_END)) {
             thisTime = getTime(to);
         }
 
@@ -189,16 +187,14 @@ public class SchedulingService extends Service {
                 XMLUtils.getXPATH_Activities(relatedActivityName));
         if (relatedActivities.size() != 1) {
             XMLUtils.addErrorValue(relatedActivityElem, true, "msgUnknownValue");
-        }
-        else {
+        } else {
             relatedFrom = XMLUtils.getDateValue(relatedActivities.get(0).getChild(XML_FROM), true);
             relatedTo = XMLUtils.getDateValue(relatedActivities.get(0).getChild(XML_TO), true);
         }
 
         if (relatedUtilisationType.equals(UTILISATION_TYPE_BEGIN)) {
             relatedTime = getTime(relatedFrom);
-        }
-        else if (relatedUtilisationType.equals(UTILISATION_TYPE_END)) {
+        } else if (relatedUtilisationType.equals(UTILISATION_TYPE_END)) {
             relatedTime = getTime(relatedTo);
         }
 
@@ -221,8 +217,7 @@ public class SchedulingService extends Service {
         if (min != null && diffMinutes < min) {
             XMLUtils.addAttributeValue(utilisation, msgType, "msgDistanceToActivityShorterAsDefined",
                     Long.toString(diffMinutes), relatedActivityElem.getText(), min.toString());
-        }
-        else if (max != null && diffMinutes > max) {
+        } else if (max != null && diffMinutes > max) {
             XMLUtils.addAttributeValue(utilisation, msgType, "msgDistanceToActivityLongerAsDefined",
                     Long.toString(diffMinutes), relatedActivityElem.getText(), max.toString());
         }
@@ -251,7 +246,7 @@ public class SchedulingService extends Service {
     }
 
 
-    public Case loadCase(String caseId)  throws SQLException {
+    public Case loadCase(String caseId) throws SQLException {
         Case caseToLoad;
 
         List<Case> cases = _dataMapper.getRupByCaseId(caseId);
@@ -270,8 +265,7 @@ public class SchedulingService extends Service {
             caseToLoad = new Case(caseId, null, null, doc);
             _log.info("Created empty RUP for case Id " + caseId + ", " +
                     caseToLoad.getRupAsString());
-        }
-        else {
+        } else {
             caseToLoad = cases.get(0);
             _log.info("Loaded RUP for case Id " + caseId + " from database: "
                     + caseToLoad.getRupAsString());
@@ -396,15 +390,13 @@ public class SchedulingService extends Service {
                         try {
                             sum += Long.parseLong(node.getText());
                             count++;
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             try {
                                 sum += Utils.duration2Minutes(XMLUtils.getDurationValue(node, true));
                                 isDurationValue = true;
                                 count++;
-                            }
-                            catch (Exception e1) {
-                                 _log.debug(Utils.toString(node) + " cannot be parsed", e1);
+                            } catch (Exception e1) {
+                                _log.debug(Utils.toString(node) + " cannot be parsed", e1);
                             }
                         }
                     }
@@ -416,16 +408,14 @@ public class SchedulingService extends Service {
                     if (isDurationValue) {
                         try {
                             e.setText(Utils.stringMinutes2stringXMLDuration(e.getText()));
-                        }
-                        catch (DatatypeConfigurationException e1) {
+                        } catch (DatatypeConfigurationException e1) {
                         }
                     }
                     List<Element> list = new ArrayList<Element>();
                     list.add(e);
                     nodes.add(list);
                 }
-            }
-            else if (mode.equals(HistoricalMode.median)) {
+            } else if (mode.equals(HistoricalMode.median)) {
                 boolean isDurationValue = false;
                 List<Long> values = new ArrayList<Long>();
                 List<Element> nodeList = null;
@@ -459,8 +449,7 @@ public class SchedulingService extends Service {
                     list.add(e);
                     nodes.add(list);
                 }
-            }
-            else { // least, most
+            } else { // least, most
                 boolean descOrder = mode.equals(HistoricalMode.most);
                 SortedMap<Object, Comparable> sortedNodes = new TreeMap(new Utils.ValueComparer(sortMap, descOrder));
                 sortedNodes.putAll(sortMap);
@@ -571,69 +560,6 @@ public class SchedulingService extends Service {
         return sortMap;
     }
 
-    /**
-     * generates key for list of elements and cleans irrelevant nodes, e.g.
-     * errors, warnings, Ids and status set by RS ...
-     *
-     * @param nodeList
-     * @return
-     */
-    private String getKeyForNodeList(List<Element> nodeList) {
-        if (nodeList.isEmpty()) {
-            return "";
-        } else {
-            List<String> keyParts = new ArrayList<String>();
-            List<Element> newNodeList = new ArrayList<Element>();
-
-            for (Element node : nodeList) {
-                // _log.debug("node: " + Utils.toString(node));
-                if (node.getName().equals(XML_RESERVATION)) {
-                    Element reservation = FormGenerator.getTemplate(XML_RESERVATION);
-                    Element resource = reservation.getChild(XML_RESOURCE);
-
-                    Element resourceNode = node.getChild(XML_RESOURCE);
-
-                    String keyPart = resourceNode.getChildText(XML_CAPABILITY);
-                    resource.getChild(XML_CAPABILITY).setText(resourceNode.getChildText(XML_CAPABILITY));
-
-                    keyPart = resourceNode.getChildText(XML_ROLE) + keyPart;
-                    resource.getChild(XML_ROLE).setText(resourceNode.getChildText(XML_ROLE));
-
-                    keyPart = resourceNode.getChildText(XML_SUBCATEGORY) + keyPart;
-                    resource.getChild(XML_SUBCATEGORY).setText(resourceNode.getChildText(XML_SUBCATEGORY));
-
-                    keyPart = resourceNode.getChildText(XML_CATEGORY) + keyPart;
-                    resource.getChild(XML_CATEGORY).setText(resourceNode.getChildText(XML_CATEGORY));
-
-                    if (keyPart.isEmpty()) { // use Id, because it was set in custom form or Schedule
-                        keyPart = resourceNode.getChildText(XML_ID);
-                        resource.getChild(XML_ID).setText(resourceNode.getChildText(XML_ID));
-                    } else {
-                        resource.getChild(XML_ID).setText(""); // remove Id, because
-                        // it was set in RS
-                    }
-
-                    keyPart = keyPart + node.getChildText(XML_WORKLOAD);
-                    reservation.getChild(XML_WORKLOAD).setText(node.getChildText(XML_WORKLOAD));
-
-                    // _log.debug("keyPart: " + keyPart);
-                    keyParts.add(keyPart);
-
-                    newNodeList.add(reservation);
-                } else {
-                    Element newNode = new Element(node.getName());
-                    keyParts.add(node.getText());
-                    newNode.setText(node.getText());
-
-                    newNodeList.add(newNode);
-                }
-            }
-
-            Collections.sort(keyParts);
-            nodeList = newNodeList;
-            return Utils.toString(keyParts);
-        }
-    }
 
     /**
      * Get all RUPs that have at least one started activity. (SOU) und endzeit <
@@ -853,7 +779,7 @@ public class SchedulingService extends Service {
 
                 // _log.debug("caseId: "+caseId+", requestType: "+requestType+", from: "+from.getText()+", to: "+to.getText());
                 if (requestType.equals(UTILISATION_TYPE_BEGIN) &&
-                         toDate.before(now)) {
+                        toDate.before(now)) {
                     XMLUtils.setDateValue(to, now);
                     XMLUtils.setDurationValue(duration, toDate.getTime() - fromDate.getTime());
 
@@ -916,7 +842,6 @@ public class SchedulingService extends Service {
 
         return errors;
     }
-
 
 
     private List<Element> updateMatchingReservations(Long reservationIdToMatch, List<Element> reservations,
@@ -983,13 +908,12 @@ public class SchedulingService extends Service {
                 try {
                     address = _props.getYAWLProperty("SchedulingMessageReceiver.backEndURI");
                     String result = ResourceServiceInterface.getInstance()
-                              .registerCalendarStatusChangeListener(address);
+                            .registerCalendarStatusChangeListener(address);
                     if (result.startsWith("<failure>")) {
                         throw new SchedulingException(result);
                     }
                     _log.info("successfully registered " + address + " as YAWL calendar StatusChangeListener");
-                }
-                catch (Throwable e) {
+                } catch (Throwable e) {
                     _log.error("cannot register MessageReceiveServlet", e);
                 }
             }
