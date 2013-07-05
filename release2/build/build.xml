@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="2.3"/>
+    <property name="app.version" value="2.3.5"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -692,7 +692,7 @@
 
             <!-- titles, headers & footers -->
             <doctitle>
-                <![CDATA[<h1>YAWL Environment version 2.3</h1>]]></doctitle>
+                <![CDATA[<h1>YAWL Environment version 2.3.5</h1>]]></doctitle>
             <bottom>
                 <![CDATA[<i>Copyright &#169; 2004-2012 The YAWL Foundation.</i>]]></bottom>
 
@@ -1519,7 +1519,8 @@
         </copy>
 
         <copy todir="${output.dir}/simulator/lib" file="${classes.dir}/log4j.properties"/>
-        <copy todir="${output.dir}/simulator/lib" file="${output.dir}/yawl-lib-2.3.jar"/>
+        <copy todir="${output.dir}/simulator/lib"
+              file="${output.dir}/yawl-lib-2.3.5.jar"/>
 
         <jar destfile="${output.dir}/simulator/YSimulator.jar"
              basedir="${classes.dir}"
@@ -1529,7 +1530,7 @@
                            value="org.yawlfoundation.yawl.simulation.YSimulator"/>
                 <attribute name="Class-Path"
                            value="lib/${servlet} lib/${jdom} lib/${log4j}
-                                  lib/${commonsCodec} lib/${xerces} lib/yawl-lib-2.3.jar"/>
+                                  lib/${commonsCodec} lib/${xerces} lib/yawl-lib-2.3.5.jar"/>
             </manifest>
         </jar>
 

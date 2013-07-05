@@ -21,10 +21,12 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -63,7 +65,7 @@ public class userWorkQueues extends AbstractPageBean {
             _init();
         } catch (Exception e) {
             log("userWorkQueues Initialization Failure", e);
-            throw e instanceof FacesException ? (FacesException) e: new FacesException(e);
+            throw e instanceof FacesException ? (FacesException) e : new FacesException(e);
         }
     }
 
@@ -76,18 +78,20 @@ public class userWorkQueues extends AbstractPageBean {
 
     // Return references to scoped data beans //
     protected RequestBean getRequestBean() {
-        return (RequestBean)getBean("RequestBean");
+        return (RequestBean) getBean("RequestBean");
     }
 
     protected ApplicationBean getApplicationBean() {
-        return (ApplicationBean)getBean("ApplicationBean");
+        return (ApplicationBean) getBean("ApplicationBean");
     }
 
     protected SessionBean getSessionBean() {
-        return (SessionBean)getBean("SessionBean");
+        return (SessionBean) getBean("SessionBean");
     }
 
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
     // PAGE COMPONENT DECLARATIONS, GETTERS & SETTERS //
 
@@ -308,7 +312,7 @@ public class userWorkQueues extends AbstractPageBean {
     public void setMetaRefresh(Meta m) { metaRefresh = m; }
 
 
-    private PanelLayout pnlContainer ;
+    private PanelLayout pnlContainer;
 
     public PanelLayout getPnlContainer() { return pnlContainer; }
 
@@ -329,6 +333,13 @@ public class userWorkQueues extends AbstractPageBean {
     public void setBtnException(Button btn) { btnException = btn; }
 
 
+    private Button btnCost = new Button();
+
+    public Button getBtnCost() { return btnCost; }
+
+    public void setBtnCost(Button btn) { btnCost = btn; }
+
+
     private String btnExceptionStyle;
 
     public String getBtnExceptionStyle() {
@@ -338,13 +349,28 @@ public class userWorkQueues extends AbstractPageBean {
     public void setBtnExceptionStyle(String style) { btnExceptionStyle = style; }
 
 
-    /********************************************************************************/
+    private String btnCostStyle;
+
+    public String getBtnCostStyle() {
+        if (_rm.isVisualiserEnabled() && getApplicationBean().isExceptionServiceEnabled()) {
+            return "left: 682px;";
+        } else if (_rm.isVisualiserEnabled()) {
+            return "left: 711px;";
+        } else return "left: 740px";
+    }
+
+    public void setBtnCostStyle(String style) { btnCostStyle = style; }
+
+
+    /**
+     * ****************************************************************************
+     */
 
     // SPECIFIC DELARATIONS AND METHODS //
 
     private final SessionBean _sb = getSessionBean();
     private final ResourceManager _rm = getApplicationBean().getResourceManager();
-    private final MessagePanel msgPanel = _sb.getMessagePanel() ;
+    private final MessagePanel msgPanel = _sb.getMessagePanel();
 
 
     /**
@@ -374,38 +400,33 @@ public class userWorkQueues extends AbstractPageBean {
             tabSet.setSelected(_sb.getSourceTab());
             _sb.setSourceTab(null);
         }
-        
+
         // get the last selected tab
-        String selTabName = tabSet.getSelected() ;
+        String selTabName = tabSet.getSelected();
         Tab selTab = null;
 
         // if no last selected tab, this is the first rendering of the page
         if (selTabName != null) {
             if (selTabName.equals("tabOffered")) {
-                tabOffered_action() ;
+                tabOffered_action();
                 selTab = tabOffered;
-            }
-            else if (selTabName.equals("tabAllocated")) {
-                tabAllocated_action() ;
+            } else if (selTabName.equals("tabAllocated")) {
+                tabAllocated_action();
                 selTab = tabAllocated;
-            }
-            else if (selTabName.equals("tabStarted")) {
-                tabStarted_action() ;
+            } else if (selTabName.equals("tabStarted")) {
+                tabStarted_action();
                 selTab = tabStarted;
-            }
-            else if (selTabName.equals("tabSuspended")) {
-                tabSuspended_action() ;
+            } else if (selTabName.equals("tabSuspended")) {
+                tabSuspended_action();
                 selTab = tabSuspended;
-            }
-            else {
+            } else {
                 selTab = initDefaultTab();
             }
-        }
-        else {
+        } else {
             selTab = initDefaultTab();
         }
 
-        updateTabHeaders(selTab) ;          // highlight selected tab and update counts
+        updateTabHeaders(selTab);          // highlight selected tab and update counts
 
         _sb.setActiveTab(tabSet.getSelected());
 
@@ -415,28 +436,29 @@ public class userWorkQueues extends AbstractPageBean {
 
     private Tab initDefaultTab() {
         // default to offered list
-        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.OFFERED) ;
+        WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.OFFERED);
         if (wir != null) ((pfQueueUI) getBean("pfQueueUI")).populateTextBoxes(wir);
         tabSet.setSelected("tabOffered");
-        tabOffered_action() ;
+        tabOffered_action();
         return tabOffered;
     }
 
 
-    /**********************************************************************************/
+    /**
+     * ******************************************************************************
+     */
 
     // TAB ACTIONS //
-
     public String tabOffered_action() {
         populateQueue(WorkQueue.OFFERED);
-        processUserPrivileges(WorkQueue.OFFERED) ;
+        processUserPrivileges(WorkQueue.OFFERED);
         return null;
     }
 
 
     public String tabAllocated_action() {
         populateQueue(WorkQueue.ALLOCATED);
-        processUserPrivileges(WorkQueue.ALLOCATED) ;
+        processUserPrivileges(WorkQueue.ALLOCATED);
         return null;
     }
 
@@ -453,17 +475,18 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /**********************************************************************************/
+    /**
+     * ******************************************************************************
+     */
 
     // BUTTON ACTIONS //
-
     public String btnRefresh_action() {
-        return null ;
+        return null;
     }
 
 
     public String btnVisualise_action() {
-        return "showVisualiser" ;
+        return "showVisualiser";
     }
 
 
@@ -477,51 +500,50 @@ public class userWorkQueues extends AbstractPageBean {
                 _sb.setAddInstanceItemID(wir.getID());
                 _sb.setAddInstanceHeader(wir.getTaskName());
                 return "addInstance";
-            }
-            else
+            } else
                 msgPanel.error("Could not retrieve task parameter from Engine for new instance creation.");
         }
         return null;
     }
 
     public String btnStart_action() {
-        return doAction(WorkQueue.ALLOCATED, "start") ;
+        return doAction(WorkQueue.ALLOCATED, "start");
     }
 
     public String btnDeallocate_action() {
-        return doAction(WorkQueue.ALLOCATED, "deallocate") ;
+        return doAction(WorkQueue.ALLOCATED, "deallocate");
     }
 
     public String btnSkip_action() {
-        return doAction(WorkQueue.ALLOCATED, "skip") ;
+        return doAction(WorkQueue.ALLOCATED, "skip");
     }
 
     public String btnPile_action() {
-        return doAction(WorkQueue.ALLOCATED, "pile") ;
+        return doAction(WorkQueue.ALLOCATED, "pile");
     }
 
     public String btnChain_action() {
-        return doAction(WorkQueue.OFFERED, "chain") ;
+        return doAction(WorkQueue.OFFERED, "chain");
     }
 
     public String btnAccept_action() {
-        return doAction(WorkQueue.OFFERED, "acceptOffer") ;
+        return doAction(WorkQueue.OFFERED, "acceptOffer");
     }
 
     public String btnAcceptStart_action() {
-        return doAction(WorkQueue.OFFERED, "acceptStart") ;
+        return doAction(WorkQueue.OFFERED, "acceptStart");
     }
 
     public String btnUnsuspend_action() {
-        return doAction(WorkQueue.SUSPENDED, "unsuspend") ;
+        return doAction(WorkQueue.SUSPENDED, "unsuspend");
     }
 
     public String btnSuspend_action() {
-        return doAction(WorkQueue.STARTED, "suspend") ;
+        return doAction(WorkQueue.STARTED, "suspend");
     }
 
     public String btnStateless_action() {
-        return reallocateItem(false) ;
+        return reallocateItem(false);
     }
 
     public String btnStateful_action() {
@@ -529,7 +551,7 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
     public String btnComplete_action() {
-        return doAction(WorkQueue.STARTED, "complete") ;
+        return doAction(WorkQueue.STARTED, "complete");
     }
 
 
@@ -540,8 +562,8 @@ public class userWorkQueues extends AbstractPageBean {
         // maybe the wir was part of a cancellation set and now it's gone
         if (wir == null) {
             msgPanel.error("Cannot view item contents - it appears that the " +
-                           "selected item may have been removed or cancelled. " +
-                           "Please see the log files for details.");
+                    "selected item may have been removed or cancelled. " +
+                    "Please see the log files for details.");
             return null;
         }
 
@@ -551,25 +573,23 @@ public class userWorkQueues extends AbstractPageBean {
         if (result.startsWith("<failure>")) {
             msgPanel.error(result);
             return null;
-        }
-        else if (result.startsWith("http")) {                // custom form
+        } else if (result.startsWith("http")) {                // custom form
             redirect(result);
             return null;
-        }
-        else {
+        } else {
             return result;
         }
     }
 
 
     public String btnDelegate_action() {
-        String redirect = buildSubordinatesList("delegate") ;
+        String redirect = buildSubordinatesList("delegate");
         if (redirect != null)
-            _sb.setUserListFormHeaderText("Delegate workitem to:") ;
+            _sb.setUserListFormHeaderText("Delegate workitem to:");
         return redirect;
     }
 
-    
+
     public String btnException_action() {
         int activeQueue = getApplicationBean().getActiveQueue(tabSet.getSelected());
         if (activeQueue != WorkQueue.UNDEFINED) {
@@ -579,30 +599,34 @@ public class userWorkQueues extends AbstractPageBean {
                 if (ixURI != null) {
                     try {
                         FacesContext.getCurrentInstance().getExternalContext()
-                            .redirect(ixURI + "/workItemException?workItemID=" + wir.getID());
-                    }
-                    catch (IOException ioe) {
+                                .redirect(ixURI + "/workItemException?workItemID=" + wir.getID());
+                    } catch (IOException ioe) {
                         msgPanel.error(ioe.getMessage());
                     }
                 }
             }
-        }
-        else msgPanel.error("No work item selected to raise exception against.");
+        } else msgPanel.error("No work item selected to raise exception against.");
 
-        return null ;
+        return null;
+    }
+
+    public String btnCost_action() {
+        showCostInfo();
+        return null;
     }
 
 
     /**
      * Reallocate a workitem to the chosen participant
+     *
      * @param stateful - if true, reallocate with state preserved
      * @return which form to navigate to
      */
     private String reallocateItem(boolean stateful) {
-        String redirect = buildSubordinatesList("reallocate") ;
+        String redirect = buildSubordinatesList("reallocate");
         if (redirect != null) {
             _sb.setReallocatingStateful(stateful);
-            _sb.setUserListFormHeaderText("Reallocate workitem to:") ;
+            _sb.setUserListFormHeaderText("Reallocate workitem to:");
         }
         return redirect;
     }
@@ -618,7 +642,7 @@ public class userWorkQueues extends AbstractPageBean {
 
             // build the option list
             Option[] options = new Option[underlings.size()];
-            int i = 0 ;
+            int i = 0;
             for (Participant p : underlings) {
                 options[i++] = new Option(p.getID(), p.getFullName());
             }
@@ -626,16 +650,17 @@ public class userWorkQueues extends AbstractPageBean {
             _sb.configureSelectUserListBox("delegate");
             _sb.setNavigateTo("showUserQueues");
             result = "userSelect";
-        }
-        else {
-             msgPanel.warn(String.format(
-                "There are no participants that you are authorised to %s to.", action));
+        } else {
+            msgPanel.warn(String.format(
+                    "There are no participants that you are authorised to %s to.", action));
         }
         return result;
     }
 
 
-    /** Performs the appropriate user action with the specified queue */
+    /**
+     * Performs the appropriate user action with the specified queue
+     */
     private String doAction(int queueType, String action) {
         Participant p = _sb.getParticipant();
         WorkItemRecord wir = _sb.getChosenWIR(queueType);
@@ -647,77 +672,67 @@ public class userWorkQueues extends AbstractPageBean {
         try {
             if (action.equals("deallocate")) {
                 _rm.deallocateWorkItem(p, wir);
-            }
-            else if (action.equals("skip")) {
+            } else if (action.equals("skip")) {
                 if (isEngineSuspended(wir, "skipped")) return null;
                 _rm.skipWorkItem(p, wir);
-            }
-            else if (action.equals("start")) {
+            } else if (action.equals("start")) {
                 if (isEngineSuspended(wir, "started")) return null;
-                if (! _rm.start(p, wir)) {
+                if (!_rm.start(p, wir)) {
                     msgPanel.error("Could not start workitem '" + wir.getID() +
-                       "'. Please see the log files for details.");
+                            "'. Please see the log files for details.");
                 }
-            }
-            else if (action.equals("suspend")) {
+            } else if (action.equals("suspend")) {
                 if (isEngineSuspended(wir, "suspended")) return null;
                 _rm.suspendWorkItem(p, wir);
-            }
-            else if (action.equals("unsuspend")) {
+            } else if (action.equals("unsuspend")) {
                 _rm.unsuspendWorkItem(p, wir);
-            }
-            else if (action.equals("acceptOffer")) {
+            } else if (action.equals("acceptOffer")) {
                 _rm.acceptOffer(p, wir);
-            }    
-            else if (action.equals("acceptStart")) {
+            } else if (action.equals("acceptStart")) {
                 _rm.acceptOffer(p, wir);
                 if (isEngineSuspended(wir, "started")) return null;
 
                 // if the accepted offer has a system-initiated start, it's
                 // already started, so don't do it again
                 if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceAllocated)) {
-                    if (! _rm.start(p, wir)) {
+                    if (!_rm.start(p, wir)) {
                         msgPanel.error("Could not start workitem '" + wir.getID() +
-                         "'. Please see the log files for details.");
+                                "'. Please see the log files for details.");
                     }
                 }
-            }
-            else if (action.equals("pile")) {
+            } else if (action.equals("pile")) {
                 if (isEngineSuspended(wir, "piled")) return null;
                 String result = _rm.pileWorkItem(p, wir);
                 if (result.startsWith("Cannot"))
                     msgPanel.error(result);
                 else
                     msgPanel.success(result);
-            }
-            else if (action.equals("chain")) {
+            } else if (action.equals("chain")) {
                 if (isEngineSuspended(wir, "chained")) return null;
                 String result = _rm.chainCase(p, wir);
                 if (result.startsWith("Cannot"))
                     msgPanel.error(result);
                 else
                     msgPanel.success(result);
-            }
-            else if (action.equals("complete")) {
+            } else if (action.equals("complete")) {
 
                 // warn user if workitem has params but hasn't yet been edited
-                if ((! getApplicationBean().isEmptyWorkItem(wir)) &&
-                   (wir.getUpdatedData() == null) && (! _sb.hasWarnedForNonEdit(wir.getID()))) {
+                if ((!getApplicationBean().isEmptyWorkItem(wir)) &&
+                        (wir.getUpdatedData() == null) && (!_sb.hasWarnedForNonEdit(wir.getID()))) {
                     msgPanel.info("Warning: This item has not been edited. If you are " +
-                                  "sure you want to complete without editing, click " +
-                                  "the 'Complete' button again.");
-                    _sb.setWarnedForNonEdit(wir.getID()) ;
-                    return null ;
+                            "sure you want to complete without editing, click " +
+                            "the 'Complete' button again.");
+                    _sb.setWarnedForNonEdit(wir.getID());
+                    return null;
                 }
                 completeWorkItem(wir, p);
             }
-        }
-        catch (Exception e) {
-            msgPanel.error("The attempt to " + action + " the selected workitem was "+
-                           "unsuccessful. Please check the log files for details.");
+        } catch (Exception e) {
+            msgPanel.error("The attempt to " + action + " the selected workitem was " +
+                    "unsuccessful. Please check the log files for details.");
             _rm.getLogger().error("Exception in user work queues: ", e);
         }
-        return null ;                                         // stay on same form
+        return null;                                         // stay on same form
     }
 
 
@@ -734,25 +749,27 @@ public class userWorkQueues extends AbstractPageBean {
 
     // POST BACK ACTIONS //
 
-    /** perform reallocation after user selection on secondary screen */
+    /**
+     * perform reallocation after user selection on secondary screen
+     */
     private void postReallocate() {
         if (_sb.isReallocating()) {
             Participant pFrom = _sb.getParticipant();
             Object selection = _sb.getSelectUserListBoxSelections();
             String userIDTo = (String) selection;
-            Participant pTo = _rm.getOrgDataSet().getParticipant(userIDTo) ;
+            Participant pTo = _rm.getOrgDataSet().getParticipant(userIDTo);
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.STARTED);
 
-            boolean successful ;
+            boolean successful;
             if (_sb.isReallocatingStateful())
                 successful = _rm.reallocateStatefulWorkItem(pFrom, pTo, wir);
             else
                 successful = _rm.reallocateStatelessWorkItem(pFrom, pTo, wir);
 
             if (successful)
-               msgPanel.success("Workitem successfully reallocated.");
+                msgPanel.success("Workitem successfully reallocated.");
             else
-               msgPanel.error("Failed to reallocate workitem.");
+                msgPanel.error("Failed to reallocate workitem.");
 
             _sb.setReallocating(false);                              // reset flag
             if (msgPanel.hasMessage()) forceRefresh();               // to show message
@@ -760,12 +777,14 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** perform delegation after user selection on secondary screen */
+    /**
+     * perform delegation after user selection on secondary screen
+     */
     private void postDelegate() {
         if (_sb.isDelegating()) {
             Participant pFrom = _sb.getParticipant();
-            String pIDTo = (String) _sb.getSelectUserListBoxSelections() ;  // this is the p-id
-            Participant pTo =  _rm.getOrgDataSet().getParticipant(pIDTo) ;
+            String pIDTo = (String) _sb.getSelectUserListBoxSelections();  // this is the p-id
+            Participant pTo = _rm.getOrgDataSet().getParticipant(pIDTo);
             WorkItemRecord wir = _sb.getChosenWIR(WorkQueue.ALLOCATED);
 
             if (_rm.delegateWorkItem(pFrom, pTo, wir))
@@ -779,19 +798,19 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-
-    /** takes necessary action after editing a form */
+    /**
+     * takes necessary action after editing a form
+     */
     private void postFormDisplay() {
-        String msg ;
+        String msg;
         FormViewer form = _sb.getFormViewerInstance();
         if (form != null) {
-            msg = form.postDisplay(_sb.getChosenWIR(WorkQueue.STARTED)) ;
-        }
-        else {
-            msg = "Unsuccessful form completion - could not finalise form." ;
+            msg = form.postDisplay(_sb.getChosenWIR(WorkQueue.STARTED));
+        } else {
+            msg = "Unsuccessful form completion - could not finalise form.";
         }
         _sb.resetPostFormDisplay();
-        if (! msg.startsWith("<success/>")) {
+        if (!msg.startsWith("<success/>")) {
             msgPanel.error(msg);
         }
         if (msgPanel.hasMessage()) forceRefresh();
@@ -803,17 +822,15 @@ public class userWorkQueues extends AbstractPageBean {
         if (paramValue != null) {
             String data = StringUtil.wrap(paramValue, _sb.getAddInstanceParamName());
             WorkItemRecord newWir = _rm.createNewWorkItemInstance(
-                                              _sb.getAddInstanceItemID(), data);
+                    _sb.getAddInstanceItemID(), data);
             if (newWir != null) {
                 _rm.getWorkItemCache().updateResourceStatus(newWir, WorkItemRecord.statusResourceAllocated);
                 _sb.getParticipant().getWorkQueues().addToQueue(newWir, WorkQueue.ALLOCATED);
                 msgPanel.success("New instance successfully created and added to allocate queue.");
-            }
-            else msgPanel.error("Create Instance Error: " +
-                                "Engine failed to create new instance. See logs for details.");
-        }
-        else msgPanel.error("Create Instance Error: " +
-                            "Problem reading parameter value from New Instance form.");
+            } else msgPanel.error("Create Instance Error: " +
+                    "Engine failed to create new instance. See logs for details.");
+        } else msgPanel.error("Create Instance Error: " +
+                "Problem reading parameter value from New Instance form.");
 
         _sb.clearAddInstanceParam();
         if (msgPanel.hasMessage()) forceRefresh();
@@ -825,8 +842,7 @@ public class userWorkQueues extends AbstractPageBean {
         if (_rm.successful(result)) {
             _sb.removeWarnedForNonEdit(wir.getID());
             getApplicationBean().removeWorkItemParams(wir);
-        }
-        else msgPanel.error(result) ;
+        } else msgPanel.error(result);
     }
 
 
@@ -834,7 +850,9 @@ public class userWorkQueues extends AbstractPageBean {
 
     // MISC METHODS //
 
-    /** refreshes the page */
+    /**
+     * refreshes the page
+     */
     public void forceRefresh() {
         redirect("userWorkQueues.jsp");
     }
@@ -846,13 +864,10 @@ public class userWorkQueues extends AbstractPageBean {
             if (context != null) {
                 context.redirect(uri);
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             msgPanel.error(ioe.getMessage());
         }
     }
-
-
 
 
     // Highlight selected tab's name and show queue's item count on each tab
@@ -866,9 +881,9 @@ public class userWorkQueues extends AbstractPageBean {
         if (selected != null) selected.setStyle("color: #3277ba");
 
         // get counts for each queue
-        int[] itemCount = new int[4] ;
+        int[] itemCount = new int[4];
         for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
-            itemCount[queue] = _sb.getQueueSize(queue) ;
+            itemCount[queue] = _sb.getQueueSize(queue);
 
         // update heading text for each tab
         tabOffered.setText(String.format("Offered (%d)", itemCount[WorkQueue.OFFERED]));
@@ -879,15 +894,16 @@ public class userWorkQueues extends AbstractPageBean {
 
     /**
      * Sets the auto refresh rate of the page
+     *
      * @param rate if <0, disables page refreshes; if >0, set refresh rate to that
-     *        number of seconds; if 0, set the rate to the default provided by the
-     *        resourceService's web.xml
+     *             number of seconds; if 0, set the rate to the default provided by the
+     *             resourceService's web.xml
      */
     public void setRefreshRate(int rate) {
         if (rate < 0)
-            metaRefresh.setContent(null) ;
+            metaRefresh.setContent(null);
         else {
-            if (rate == 0) rate = getApplicationBean().getDefaultJSFRefreshRate() ;
+            if (rate == 0) rate = getApplicationBean().getDefaultJSFRefreshRate();
             metaRefresh.setContent(rate + "; url=./userWorkQueues.jsp");
         }
     }
@@ -895,16 +911,17 @@ public class userWorkQueues extends AbstractPageBean {
 
     /**
      * Populates the specified queue's workitem list and shows the selected items details
+     *
      * @param queueType the queue to populate
      * @return the number of items in the queue
      */
     private int populateQueue(int queueType) {
         int result = -1;                                    // default for empty queue
         Set<WorkItemRecord> queue = _sb.refreshQueue(queueType);
-        processButtonEnablement(queueType) ;                // disable btns if queue empty
-        boolean queueHasItems = (! ((queue == null) || queue.isEmpty()));
+        processButtonEnablement(queueType);                // disable btns if queue empty
+        boolean queueHasItems = (!((queue == null) || queue.isEmpty()));
         ((pfQueueUI) getBean("pfQueueUI")).clearQueueGUI();
-        ((pfQueueUI) getBean("pfQueueUI")).getTxtDocumentation().setReadOnly(! queueHasItems);
+        ((pfQueueUI) getBean("pfQueueUI")).getTxtDocumentation().setReadOnly(!queueHasItems);
 
         if (queueHasItems) {
 
@@ -914,47 +931,49 @@ public class userWorkQueues extends AbstractPageBean {
             showWorkItem(choice);                                   // show details
             processTaskPrivileges(choice, queueType);
             result = queue.size();
-        }
-        else {
-            if (! (_sb.isDelegating() || _sb.isReallocating() ||
-                   _sb.isCustomFormPost() || _sb.isWirEdit()))
+        } else {
+            if (!(_sb.isDelegating() || _sb.isReallocating() ||
+                    _sb.isCustomFormPost() || _sb.isWirEdit()))
                 _sb.setWorklistChoice(null);
         }
-        return result ;
+        return result;
     }
 
-    /** populate the text fields with the details of the workitem */
+    /**
+     * populate the text fields with the details of the workitem
+     */
     private void showWorkItem(WorkItemRecord wir) {
         pfQueueUI itemsSubPage = (pfQueueUI) getBean("pfQueueUI");
         itemsSubPage.getLbxItems().setSelected(wir.getID());
-        itemsSubPage.populateTextBoxes(wir) ;
+        itemsSubPage.populateTextBoxes(wir);
     }
 
 
     /**
      * Create list of queued items and add to listbox (via sessionbean)
+     *
      * @param queue the set of items in the queue
      * @return the first item in the list
      */
     private void addItemsToListOptions(Set<WorkItemRecord> queue,
-                                                 WorkItemRecord selected) {
-        Option[] options = new Option[queue.size()] ;
+                                       WorkItemRecord selected) {
+        Option[] options = new Option[queue.size()];
         WorkItemRecord first = null;
         boolean listContainsSelected = false;
         SortedSet<WorkItemRecord> qSorted =
-                               new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
+                new TreeSet<WorkItemRecord>(new WorkItemAgeComparator());
         qSorted.addAll(queue);
-        int i = 0 ;
+        int i = 0;
         for (WorkItemRecord wir : qSorted) {
             if (wir != null) {
-                if (i==0) first = wir;                       // get first non-null item
-                options[i++] = new Option(wir.getID()) ;
+                if (i == 0) first = wir;                       // get first non-null item
+                options[i++] = new Option(wir.getID());
                 if ((selected != null) && (selected.getID().equals(wir.getID()))) {
                     listContainsSelected = true;
                 }
             }
         }
-        if (! listContainsSelected) {
+        if (!listContainsSelected) {
             _sb.setChosenWIR(first);                             // set first listed
         }
         _sb.setWorklistOptions(options);
@@ -972,8 +991,10 @@ public class userWorkQueues extends AbstractPageBean {
     }
 
 
-    /** Enable/disable buttons depending on user/task privileges
-     *  Pre: wir != null */
+    /**
+     * Enable/disable buttons depending on user/task privileges
+     * Pre: wir != null
+     */
     private void processTaskPrivileges(WorkItemRecord wir, int qType) {
         Participant p = _sb.getParticipant();
         boolean suspended = wir.hasStatus(WorkItemRecord.statusSuspended);
@@ -981,45 +1002,45 @@ public class userWorkQueues extends AbstractPageBean {
         if (qType == WorkQueue.OFFERED) {
             btnAcceptStart.setDisabled(suspended);
             btnChain.setDisabled(suspended);
-        }
-        else if (qType == WorkQueue.ALLOCATED) {
+        } else if (qType == WorkQueue.ALLOCATED) {
             btnStart.setDisabled(suspended);
-            btnDeallocate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_DEALLOCATE));
-            btnDelegate.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_DELEGATE));
-            btnSkip.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_SKIP)) || suspended);
-            btnPile.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_PILE)) || suspended);
-        }
-        else if (qType == WorkQueue.STARTED) {
-            btnSuspend.setDisabled((! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_SUSPEND)) || suspended);
-            btnStateful.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_REALLOCATE_STATEFUL));
-            btnStateless.setDisabled(! _rm.hasUserTaskPrivilege(p, wir,
-                                               TaskPrivileges.CAN_REALLOCATE_STATELESS));
+            btnDeallocate.setDisabled(!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_DEALLOCATE));
+            btnDelegate.setDisabled(!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_DELEGATE));
+            btnSkip.setDisabled((!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_SKIP)) || suspended);
+            btnPile.setDisabled((!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_PILE)) || suspended);
+        } else if (qType == WorkQueue.STARTED) {
+            btnSuspend.setDisabled((!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_SUSPEND)) || suspended);
+            btnStateful.setDisabled(!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_REALLOCATE_STATEFUL));
+            btnStateless.setDisabled(!_rm.hasUserTaskPrivilege(p, wir,
+                    TaskPrivileges.CAN_REALLOCATE_STATELESS));
 
             // set view & complete buttons
             boolean emptyItem = getApplicationBean().isEmptyWorkItem(wir);
             btnView.setDisabled(emptyItem && (wir.getCustomFormURL() == null));
-            btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null)));
+            btnComplete.setDisabled(!(emptyItem || (wir.getUpdatedData() != null)));
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
             String niAllowed = wir.getAllowsDynamicCreation();
             boolean canCreate = (niAllowed != null) && niAllowed.equalsIgnoreCase("true");
-            btnNewInstance.setDisabled(! (canCreate && _rm.canAddNewInstance(wir)));
+            btnNewInstance.setDisabled(!(canCreate && _rm.canAddNewInstance(wir)));
         }
     }
 
 
-    /** Enable/disable buttons using user privileges */
+    /**
+     * Enable/disable buttons using user privileges
+     */
     private void processUserPrivileges(int queue) {
         Participant p = _sb.getParticipant();
-        if (! p.isAdministrator()) {
+        if (!p.isAdministrator()) {
             if ((queue == WorkQueue.OFFERED) && (_sb.getQueueSize(WorkQueue.OFFERED) > 0)) {
-                btnChain.setDisabled(! p.getUserPrivileges().canChainExecution());
+                btnChain.setDisabled(!p.getUserPrivileges().canChainExecution());
                 btnAcceptStart.setDisabled(isStartDisabled(p));
 
             }
@@ -1027,10 +1048,10 @@ public class userWorkQueues extends AbstractPageBean {
 
                 btnStart.setDisabled(isStartDisabled(p));
 
-                if (! btnStart.isDisabled() &&
-                   (! (p.getUserPrivileges().canChooseItemToStart() ||
-                       p.getUserPrivileges().canReorder()))) {
-                    btnStart.setDisabled(! _sb.isFirstWorkItemChosen());
+                if (!btnStart.isDisabled() &&
+                        (!(p.getUserPrivileges().canChooseItemToStart() ||
+                                p.getUserPrivileges().canReorder()))) {
+                    btnStart.setDisabled(!_sb.isFirstWorkItemChosen());
                 }
             }
         }
@@ -1040,35 +1061,64 @@ public class userWorkQueues extends AbstractPageBean {
     // returns true if the participant does not have start-concurrent privileges
     // and there is already a started workitem on their workqueues
     private boolean isStartDisabled(Participant p) {
-        return (! p.getUserPrivileges().canStartConcurrent()) &&
-               ((_sb.getQueueSize(WorkQueue.STARTED) > 0) ||
-               (_sb.getQueueSize(WorkQueue.SUSPENDED) > 0));
+        return (!p.getUserPrivileges().canStartConcurrent()) &&
+                ((_sb.getQueueSize(WorkQueue.STARTED) > 0) ||
+                        (_sb.getQueueSize(WorkQueue.SUSPENDED) > 0));
     }
 
 
-    /** Disables buttons if queue is empty, enables them if not */
+    /**
+     * Disables buttons if queue is empty, enables them if not
+     */
     private void processButtonEnablement(int queueType) {
 
-        boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0) ;
+        boolean isEmptyQueue = (_sb.getQueueSize(queueType) == 0);
         switch (queueType) {
-            case WorkQueue.OFFERED   : btnAccept.setDisabled(isEmptyQueue);
-                                       btnAcceptStart.setDisabled(isEmptyQueue);
-                                       btnChain.setDisabled(isEmptyQueue);
-                                       break;
-            case WorkQueue.ALLOCATED : btnStart.setDisabled(isEmptyQueue);
-                                       btnDeallocate.setDisabled(isEmptyQueue);
-                                       btnDelegate.setDisabled(isEmptyQueue);
-                                       btnSkip.setDisabled(isEmptyQueue);
-                                       btnPile.setDisabled(isEmptyQueue);
-                                       break;
-            case WorkQueue.STARTED   : btnView.setDisabled(isEmptyQueue);
-                                       btnSuspend.setDisabled(isEmptyQueue);
-                                       btnStateful.setDisabled(isEmptyQueue);
-                                       btnStateless.setDisabled(isEmptyQueue);
-                                       btnNewInstance.setDisabled(isEmptyQueue);
-                                       btnComplete.setDisabled(isEmptyQueue);
-                                       break;
-            case WorkQueue.SUSPENDED : btnUnsuspend.setDisabled(isEmptyQueue);
+            case WorkQueue.OFFERED:
+                btnAccept.setDisabled(isEmptyQueue);
+                btnAcceptStart.setDisabled(isEmptyQueue);
+                btnChain.setDisabled(isEmptyQueue);
+                break;
+            case WorkQueue.ALLOCATED:
+                btnStart.setDisabled(isEmptyQueue);
+                btnDeallocate.setDisabled(isEmptyQueue);
+                btnDelegate.setDisabled(isEmptyQueue);
+                btnSkip.setDisabled(isEmptyQueue);
+                btnPile.setDisabled(isEmptyQueue);
+                break;
+            case WorkQueue.STARTED:
+                btnView.setDisabled(isEmptyQueue);
+                btnSuspend.setDisabled(isEmptyQueue);
+                btnStateful.setDisabled(isEmptyQueue);
+                btnStateless.setDisabled(isEmptyQueue);
+                btnNewInstance.setDisabled(isEmptyQueue);
+                btnComplete.setDisabled(isEmptyQueue);
+                break;
+            case WorkQueue.SUSPENDED:
+                btnUnsuspend.setDisabled(isEmptyQueue);
+        }
+    }
+
+    //todo: replace dummy with realdata
+    private void showCostInfo() {
+        int activeQueue = getApplicationBean().getActiveQueue(tabSet.getSelected());
+        if (activeQueue == WorkQueue.UNDEFINED) return;
+
+        WorkItemRecord wir = _sb.getChosenWIR(activeQueue);
+        if (wir != null) {
+            System.out.println(LogMiner.getInstance().getTaskEvents(
+                    new YSpecificationID(wir), wir.getTaskName()));
+
+            msgPanel.setTitleText("Cost Data");
+            msgPanel.info("WORK ITEM: " + wir.getID());
+            msgPanel.info("SPECIFICATION: " + wir.getSpecURI());
+            msgPanel.info("VERSION: " + wir.getSpecVersion());
+            msgPanel.info("INSTANCE COUNT: 23");
+            msgPanel.info("MINIMUM COST: $32.40");
+            msgPanel.info("MAXIMUM COST: $84.70");
+            msgPanel.info("AVERAGE COST: $57.75");
+        } else {
+            msgPanel.warn("Please select a work item to retrieve cost data for");
         }
     }
 
@@ -1078,7 +1128,6 @@ public class userWorkQueues extends AbstractPageBean {
                 "form1:pfQueueUI:lbxItems");
         _sb.showMessagePanel();
     }
-    
 
 
     /********************************************************************************/

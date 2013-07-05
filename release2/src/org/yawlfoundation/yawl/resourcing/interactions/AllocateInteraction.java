@@ -28,54 +28,53 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import java.util.Set;
 
 /**
- *  This class describes the requirements of a task at the allocate phase of
- *  allocating resources.
+ * This class describes the requirements of a task at the allocate phase of
+ * allocating resources.
  *
- *  @author Michael Adams
- *  v0.1, 02/08/2007
+ * @author Michael Adams
+ *         v0.1, 02/08/2007
  */
 
 public class AllocateInteraction extends AbstractInteraction {
 
-    private AbstractAllocator _allocator ;
+    private AbstractAllocator _allocator;
 
     public AllocateInteraction(int initiator) {
-        super(initiator) ;
+        super(initiator);
     }
 
     public AllocateInteraction() { super(); }
 
-    public AllocateInteraction(String ownerTaskID) { super(ownerTaskID) ; }
+    public AllocateInteraction(String ownerTaskID) { super(ownerTaskID); }
 
 
     public void setAllocator(AbstractAllocator allocator) {
-        _allocator = allocator ;
+        _allocator = allocator;
     }
 
     public AbstractAllocator getAllocator() { return _allocator; }
 
     public void clearAllocator() { _allocator = null; }
-    
 
-    public Participant performAllocation(Set offerSet, WorkItemRecord wir) {
-        return _allocator.performAllocation(offerSet, wir) ;
+
+    public Participant performAllocation(Set<Participant> offerSet, WorkItemRecord wir) {
+        return _allocator.performAllocation(offerSet, wir);
     }
 
     public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
-        parseInitiator(e, nsYawl) ;
+        parseInitiator(e, nsYawl);
 
-        Element eAllocator = e.getChild("allocator", nsYawl) ;
+        Element eAllocator = e.getChild("allocator", nsYawl);
         if (eAllocator != null) {
-            String allocatorClassName = eAllocator.getChildText("name", nsYawl) ;
+            String allocatorClassName = eAllocator.getChildText("name", nsYawl);
             if (allocatorClassName != null) {
                 _allocator = AllocatorFactory.getInstance(allocatorClassName);
                 if (_allocator != null)
                     _allocator.setParams(parseParams(eAllocator, nsYawl));
                 else
                     throw new ResourceParseException("Unknown allocator name: " +
-                                                               allocatorClassName);
-            }
-            else throw new ResourceParseException("Missing allocator element: name") ;
+                            allocatorClassName);
+            } else throw new ResourceParseException("Missing allocator element: name");
         }
     }
 
@@ -83,9 +82,9 @@ public class AllocateInteraction extends AbstractInteraction {
     public String toXML() {
         StringBuilder xml = new StringBuilder("<allocate ");
         xml.append("initiator=\"").append(getInitiatorString()).append("\">");
-        
+
         if (isSystemInitiated())
-             if (_allocator != null) xml.append(_allocator.toXML()) ;
+            if (_allocator != null) xml.append(_allocator.toXML());
         xml.append("</allocate>");
         return xml.toString();
     }

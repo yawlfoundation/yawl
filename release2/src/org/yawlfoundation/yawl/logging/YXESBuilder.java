@@ -60,41 +60,29 @@ public class YXESBuilder {
         String xesEvent;
         if (yawlEvent.equals(YWorkItemStatus.statusEnabled.toString())) {
             xesEvent = "schedule";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusExecuting.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusExecuting.toString())) {
             xesEvent = "start";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusComplete.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusComplete.toString())) {
             xesEvent = "complete";
-        }
-        else if (yawlEvent.equals(YEventLogger.CASE_CANCEL)) {
+        } else if (yawlEvent.equals(YEventLogger.CASE_CANCEL)) {
             xesEvent = "pi_abort";
-        }
-        else if (yawlEvent.equals(YEventLogger.NET_START)) {
+        } else if (yawlEvent.equals(YEventLogger.NET_START)) {
             xesEvent = "schedule";
-        }
-        else if (yawlEvent.equals(YEventLogger.NET_COMPLETE)) {
+        } else if (yawlEvent.equals(YEventLogger.NET_COMPLETE)) {
             xesEvent = "complete";
-        }
-        else if (yawlEvent.equals(YEventLogger.NET_CANCEL)) {
+        } else if (yawlEvent.equals(YEventLogger.NET_CANCEL)) {
             xesEvent = "ate_abort";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusDeleted.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusDeleted.toString())) {
             xesEvent = "ate_abort";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusCancelledByCase.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusCancelledByCase.toString())) {
             xesEvent = "pi_abort";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusFailed.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusFailed.toString())) {
             xesEvent = "ate_abort";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusForcedComplete.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusForcedComplete.toString())) {
             xesEvent = "complete";
-        }
-        else if (yawlEvent.equals(YWorkItemStatus.statusSuspended.toString())) {
+        } else if (yawlEvent.equals(YWorkItemStatus.statusSuspended.toString())) {
             xesEvent = "suspend";
-        }
-        else xesEvent = "unknown";
+        } else xesEvent = "unknown";
 
         return xesEvent;
     }
@@ -138,7 +126,9 @@ public class YXESBuilder {
     }
 
 
-    /*************************************************************************/
+    /**
+     * *********************************************************************
+     */
 
     private XNode beginLogOutput(YSpecificationID specid) {
         XNode log = new XNode("log");
@@ -222,8 +212,7 @@ public class YXESBuilder {
                 String value = dataItem.getChildText("value");
                 if ((value != null) && value.startsWith("<")) {
                     processComplexTypeDataEvent(dataItem, eventNode);
-                }
-                else {
+                } else {
                     eventNode.addChild(formatDataNode(dataItem));
                 }
             }
@@ -241,15 +230,15 @@ public class YXESBuilder {
 
 
     private void processComplexTypeDataValues(XNode eventNode, XNode valueNode,
-                      Map<String, String> typeMap, String rootName) {
+                                              Map<String, String> typeMap, String rootName) {
         if (valueNode.hasChildren()) {
             for (XNode subValueNode : valueNode.getChildren()) {
-                String subName = rootName + "/" + subValueNode.getName();
+                String subName = concatName(rootName, subValueNode.getName());
                 String subValue = subValueNode.getText();
                 String typeName = typeMap.get(subValueNode.getName());
 
                 // a node with no subnodes and no text gets a default value of ""
-                if ((subValue == null) && (! subValueNode.hasChildren())) {
+                if ((subValue == null) && (!subValueNode.hasChildren())) {
                     subValue = "";
                 }
                 if (subValue != null) {
@@ -259,7 +248,14 @@ public class YXESBuilder {
                 // recurse
                 processComplexTypeDataValues(eventNode, subValueNode, typeMap, subName);
             }
-        }        
+        }
+    }
+
+
+    private String concatName(String rootName, String subName) {
+        StringBuilder s = new StringBuilder(rootName);
+        s.append('/').append(subName);
+        return s.toString();
     }
 
 
@@ -288,7 +284,7 @@ public class YXESBuilder {
 
     private XNode formatDataNode(XNode node) {
         return formatDataNode(node.getChildText("name"), node.getChildText("value"),
-                              node.getChildText("typeDefinition"));
+                node.getChildText("typeDefinition"));
     }
 
 
@@ -298,7 +294,7 @@ public class YXESBuilder {
         return entryNode(tag, name, value);
     }
 
-    
+
     private String formatDateValue(String type, String value) {
         if (value == null || value.length() == 0) {
             return "1970-01-01T00:00:00";
@@ -314,13 +310,11 @@ public class YXESBuilder {
             int insertPos = value.indexOf('-', 4) + 6;
             if (insertPos == value.length()) {
                 formattedDateTime = value + blankTime;
-            }
-            else {
+            } else {
                 formattedDateTime = value.substring(0, insertPos) + blankTime +
-                                    value.substring(insertPos);
+                        value.substring(insertPos);
             }
-        }
-        else if (type.endsWith("time")) {
+        } else if (type.endsWith("time")) {
             formattedDateTime = "1970-01-01T" + value;
         }
         return formattedDateTime;
@@ -337,30 +331,26 @@ public class YXESBuilder {
 
     private String getTagType(String typeDef) {
         if (typeDef == null) return "string";
-        
+
         if (typeDef.contains(":")) {
             typeDef = typeDef.substring(typeDef.indexOf(':') + 1);
         }
         if (XSDType.getInstance().isBooleanType(typeDef)) {
             return "boolean";
-        }
-        else if (XSDType.getInstance().isDateType(typeDef)) {
+        } else if (XSDType.getInstance().isDateType(typeDef)) {
             return "date";
-        }
-        else if (XSDType.getInstance().isFloatType(typeDef)) {
+        } else if (XSDType.getInstance().isFloatType(typeDef)) {
             return "float";
-        }
-        else if (XSDType.getInstance().isIntegralType(typeDef)) {
+        } else if (XSDType.getInstance().isIntegralType(typeDef)) {
             return "int";
-        }
-        else return "string";
+        } else return "string";
     }
 
 
     private void processCaseEvents(XNode yawlEvent, XNode trace) {
         for (XNode netInstance : yawlEvent.getChildren()) {
             for (XNode taskInstance : netInstance.getChildren()) {
-                 processTaskEvents(taskInstance, trace);
+                processTaskEvents(taskInstance, trace);
             }
         }
     }
@@ -370,12 +360,11 @@ public class YXESBuilder {
         String instanceID = taskInstance.getChildText("engineinstanceid");
         XNode dataChanges = extractDataChangeEvents(taskInstance);
         for (XNode event : taskInstance.getChildren("event")) {
-            if (! getDescriptor(event).equals("DataValueChange")) {
+            if (!getDescriptor(event).equals("DataValueChange")) {
                 XNode node = eventNode(event, taskName, instanceID);
                 if (getDescriptor(event).equals("Executing")) {
                     addDataEvents(node, dataChanges.getChild("input"));
-                }
-                else if (getDescriptor(event).equals("Complete")) {
+                } else if (getDescriptor(event).equals("Complete")) {
                     addDataEvents(node, dataChanges.getChild("output"));
                 }
                 trace.addChild(node);
@@ -394,8 +383,7 @@ public class YXESBuilder {
                 for (XNode item : items.getChildren()) {
                     if (getDescriptor(item).startsWith("Input")) {
                         inputs.addChild(item);
-                    }
-                    else outputs.addChild(item);
+                    } else outputs.addChild(item);
                 }
             }
         }
