@@ -19,39 +19,39 @@
 package org.yawlfoundation.yawl.elements;
 
 /**
- *  A simple version numbering implementation stored as a major part and a minor part
- *  (both int) but represented externally as a dotted String (eg 5.12)
+ * A simple version numbering implementation stored as a major part and a minor part
+ * (both int) but represented externally as a dotted String (eg 5.12)
  *
- *  @author Michael Adams
- *  Date: 18/10/2007
- *  Last Date: 05/06/08
+ * @author Michael Adams
+ *         Date: 18/10/2007
+ *         Last Date: 05/06/08
  */
 
-public class YSpecVersion implements Comparable {
-    private int _major ;
-    private int _minor ;
+public class YSpecVersion implements Comparable<YSpecVersion> {
+    private int _major;
+    private int _minor;
 
     // Constructor with default starting version
     public YSpecVersion() {
-        _major = 0 ;
-        _minor = 1 ;
+        _major = 0;
+        _minor = 1;
     }
 
     // Constructor with two ints
     public YSpecVersion(int major, int minor) {
-        setVersion(major, minor) ;
+        setVersion(major, minor);
     }
 
     // Constructor as string
     public YSpecVersion(String version) {
-        if (version == null) version = "0.1" ;
+        if (version == null) version = "0.1";
         setVersion(version);
     }
 
 
     public String setVersion(int major, int minor) {
-        _major = major ;
-        _minor = minor ;
+        _major = major;
+        _minor = minor;
         return toString();
     }
 
@@ -61,13 +61,11 @@ public class YSpecVersion implements Comparable {
                 String[] part = version.split("\\.");
                 _major = Integer.parseInt(part[0]);
                 _minor = Integer.parseInt(part[1]);
-            }
-            else {                        // handle versions numbers without a decimal
+            } else {                        // handle versions numbers without a decimal
                 _major = Integer.parseInt(version);
                 _minor = 1;
             }
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             setVersion(0, 1);             // default
         }
 
@@ -81,9 +79,8 @@ public class YSpecVersion implements Comparable {
     public double toDouble() {                                         // legacy method
         try {
             return new Double(toString());
-        }
-        catch (Exception e) {
-            return 0.1 ;                                               // default
+        } catch (Exception e) {
+            return 0.1;                                               // default
         }
     }
 
@@ -97,40 +94,34 @@ public class YSpecVersion implements Comparable {
     public int getMinorVersion() { return _minor; }
 
     public String minorIncrement() {
-        _minor++ ;
+        _minor++;
         return toString();
     }
 
     public String majorIncrement() {
-        _major++ ;
+        _major++;
         return toString();
     }
 
     public String minorRollback() {
-        _minor-- ;
+        _minor--;
         return toString();
     }
 
     public String majorRollback() {
-        _major-- ;
+        _major--;
         return toString();
     }
 
-    public int compareTo(Object obj) {
-        if (obj instanceof YSpecVersion) {
-            YSpecVersion other = (YSpecVersion) obj ;
-
-            if (this.equals(other))
-                return 0;
-            else if (this.equalsMajorVersion(other))
-                return this.getMinorVersion() - other.getMinorVersion() ;
-            else
-                return this.getMajorVersion() - other.getMajorVersion();
-        }
-        else throw new ClassCastException("Invalid compare of YSpecVersion and " +
-                                           obj.toString());
+    public int compareTo(YSpecVersion other) {
+        if (this.equals(other))
+            return 0;
+        else if (this.equalsMajorVersion(other))
+            return this.getMinorVersion() - other.getMinorVersion();
+        else
+            return this.getMajorVersion() - other.getMajorVersion();
     }
-  
+
     public boolean equalsMajorVersion(YSpecVersion other) {
         return this.getMajorVersion() == other.getMajorVersion();
     }
@@ -146,6 +137,6 @@ public class YSpecVersion implements Comparable {
     }
 
     public int hashCode() {
-        return (17 * _major) * (31 * _minor); 
+        return (17 * _major) * (31 * _minor);
     }
 }
