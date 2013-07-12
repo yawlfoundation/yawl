@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.yawlfoundation.yawl.resourcing.resource">
+
+	<class name="OrgGroup" table="rs_OrgGroup" lazy="false">
+
+        <id name="_id"
+            column="GroupID"
+            type="string"
+            access="field"/>
+
+        <property name="_groupName"
+                  column="GroupName"
+                  type="string"
+                  unique="true"
+                  access="field"/>
+
+        <!-- grouptype is an enum, so access is by a getter & a setter -->
+        <property name="_groupType"
+                  column="GroupType"
+                  type="string"/>
+
+        <property name="_description"
+                  column="Description"
+                  type="text"
+                  access="field"/>
+
+        <many-to-one name="_belongsTo"
+                     column="BelongsTo"
+                     class="OrgGroup"
+                     access="field"/>
+
+     </class>
+  
+
+</hibernate-mapping>
