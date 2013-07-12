@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- General description of your web application -->
+
+    <display-name>YAWL Worklet Dynamic Selection and Exception Service</display-name>
+    <description>
+        This custom YAWL Service dynamically selects an appropriate sub-process for an
+        executing
+        workitem, and handles any process exceptions.
+        Copyright 2006 Queensland University of Technology. All rights reserved.
+        Author: Michael Adams
+        For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
+        section under
+        http://www.yawlfoundation.org/.
+    </description>
+
+    <context-param>
+        <param-name>InterfaceB_BackEnd</param-name>
+        <param-value>http://localhost:8080/yawl/ib</param-value>
+        <description>
+            The URL of the engine's interface B.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceBWebSideController</param-name>
+        <param-value>org.yawlfoundation.yawl.worklet.WorkletService</param-value>
+        <description>
+            The class name of the Interface B Server implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>InterfaceX_Service</param-name>
+        <param-value>org.yawlfoundation.yawl.worklet.exception.ExceptionService
+        </param-value>
+        <description>
+            The class name of the Interface X Service implementation.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonUserName</param-name>
+        <param-value>workletService</param-value>
+        <description>
+            The name of the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EngineLogonPassword</param-name>
+        <param-value>yWorklet</param-value>
+        <description>
+            The password for the logon used by the service to connect with the engine.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>UserName</param-name>
+        <param-value></param-value>
+        <description>
+            If you need to invoke a web service and this is deployed behind
+            an authenticating proxy server then you ought to set this variable
+            appropriately.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>Password</param-name>
+        <param-value></param-value>
+        <description>
+            If you need to invoke a web service and this is deployed behind
+            an authenticating proxy server then you ought to set this variable
+            appropriately.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>ProxyHost</param-name>
+        <param-value></param-value>
+        <description>
+            If you need to invoke a web service and this is deployed behind
+            an authenticating proxy server then you ought to set this variable
+            appropriately.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>ProxyPort</param-name>
+        <param-value></param-value>
+        <description>
+            If you need to invoke a web service and this is deployed behind
+            an authenticating proxy server then you ought to set this variable
+            appropriately.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>Repository</param-name>
+        <param-value>${catalina.base}\webapps\workletService\repository\</param-value>
+        <description>
+            The path where the worklet repository is installed.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnablePersistence</param-name>
+        <param-value>true</param-value>
+        <description>
+            'true' to enable persistence and logging
+            'false' to disable
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnableExceptionHandling</param-name>
+        <param-value>false</param-value>
+        <description>
+            'true' to enable exception handling functionality
+            'false' to disable
+        </description>
+    </context-param>
+
+
+    <context-param>
+        <param-name>ResourceServiceURL</param-name>
+        <param-value>http://localhost:8080/resourceService</param-value>
+        <description>
+            The base URL of the resource service, used for communication
+            between the worklet service and the resource service's default
+            admin pages
+        </description>
+    </context-param>
+
+
+    <!--CharsetFilter -->
+
+    <filter>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>org.yawlfoundation.yawl.util.CharsetFilter</filter-class>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+    <servlet>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <description>
+            Listens to notification of work items from the engine.
+            Shouldn't need to change this.
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
+        </servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <description>
+            Listens to notification of exceptions from the engine.
+        </description>
+        <servlet-class>
+            org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ErrorServlet</servlet-name>
+        <description>
+            Reports that the URI request found nothing, hence the error report.
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>InterfaceB_Servlet</servlet-name>
+        <url-pattern>/ib</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>InterfaceX_Servlet</servlet-name>
+        <url-pattern>/ix</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ErrorServlet</servlet-name>
+        <url-pattern>/error</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- this servlet provides a gateway from the .NET rdrEditor -->
+
+    <servlet>
+        <servlet-name>wsGateway</servlet-name>
+        <description>
+            For replacing a started worklet with another one.
+        </description>
+        <servlet-class>org.yawlfoundation.yawl.worklet.support.WorkletGateway
+        </servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>wsGateway</servlet-name>
+        <url-pattern>/gateway</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- this servlet provides an external gateway to the Exception Service -->
+
+    <servlet>
+        <servlet-name>ItemExceptionJSP</servlet-name>
+        <description>
+            Handles an externally triggered exception for a workitem.
+        </description>
+        <jsp-file>/jsp/wsItemException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ItemExceptionJSP</servlet-name>
+        <url-pattern>/workItemException</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>NewItemExceptionJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a item-level external exception.
+        </description>
+        <jsp-file>/jsp/wsNewItemException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>NewItemExceptionJSP</servlet-name>
+        <url-pattern>/newItemException</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CaseExceptionJSP</servlet-name>
+        <description>
+            Handles an externally triggered exception for a case.
+        </description>
+        <jsp-file>/jsp/wsCaseException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CaseExceptionJSP</servlet-name>
+        <url-pattern>/caseException</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>NewCaseExceptionJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsNewCaseException.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>NewCaseExceptionJSP</servlet-name>
+        <url-pattern>/newCaseException</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>AdminTasksJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsAdminTasks.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AdminTasksJSP</servlet-name>
+        <url-pattern>/wsAdminTasks</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>AdminTaskDetailJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsAdminTaskDetail.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AdminTaskDetailJSP</servlet-name>
+        <url-pattern>/wsAdminTaskDetail</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RejectWorkletJSP</servlet-name>
+        <description>
+            Handles a request for a new handler for a case-level external exception.
+        </description>
+        <jsp-file>/jsp/wsRejectWorklet.jsp</jsp-file>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>RejectWorkletJSP</servlet-name>
+        <url-pattern>/rejectWorklet</url-pattern>
+    </servlet-mapping>
+
+
+    <!--
+        Define the default session timeout for your application,
+        in minutes.  From a servlet or JSP page, you can modify
+        the timeout for a particular session dynamically by using
+        HttpSession.getMaxInactiveInterval().
+    -->
+
+    <session-config>
+        <session-timeout>60</session-timeout>
+        <!-- 60 minutes -->
+    </session-config>
+
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error</location>
+    </error-page>
+
+</web-app>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.yawlfoundation.yawl.engine.YWorkItem" table="Work_Items">
+
+        <id name="_thisID" column="thisid" type="string">
+   		    <generator class="assigned"/>
+    	</id>
+
+        <component name="_specID"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID" access="field">
+            <property name="identifier" column="specID"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
+
+        <property name="_enablementTime" column="enablement_time" type="timestamp" access="field"/>
+        <property name="_firingTime" column="firing_time" type="timestamp" access="field"/>
+        <property name="_startTime" column="start_time" type="timestamp" access="field"/>
+        <property name="_status" column="status" type="string"/>
+        <property name="_prevStatus" column="prevstatus" type="string"/>
+        <property name="_externalClient" column="ownerService" type="string"/>
+        <property name="_allowsDynamicCreation" column="allows_dynamic_creation" type="boolean" access="field"/>
+        <property name="_requiresManualResourcing" column="requires_manual_resourcing" type="boolean" access="field"/>
+        <property name="_dataString" column="data_string" type="text" access="field"/>
+        <property name="_timerStarted" column="timerstarted" type="boolean" access="field"/>
+        <property name="_timerExpiry" column="timerexpiry" type="long" access="field"/>
+        <property name="_deferredChoiceGroupID" column="deferredgroupid" access="field"/>
+        <property name="_codelet" column="codelet" access="field"/>
+
+        <set name="_children" access="field">
+    		<key column="parent_id"/>
+	    	<one-to-many class="org.yawlfoundation.yawl.engine.YWorkItem"/>
+        </set>
+
+        <many-to-one name="_parent" column="parent"
+                     class="org.yawlfoundation.yawl.engine.YWorkItem"
+                     access="field"/>
+
+	</class>
+	
+</hibernate-mapping>
