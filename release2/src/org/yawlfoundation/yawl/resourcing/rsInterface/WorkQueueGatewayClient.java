@@ -30,39 +30,46 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *  The WorkQueue Gateway externalises the full worklist functionality of the
- *  Resource Service by providign a gateway (or a set of API) between the 
- *  Service and the participant workqueue jsps.
+ * The WorkQueue Gateway externalises the full worklist functionality of the
+ * Resource Service by providign a gateway (or a set of API) between the
+ * Service and the participant workqueue jsps.
  *
- *  @author Michael Adams
- *  v0.1, 13/08/2007
- *
- *  Last Date: 17/12/2008
+ * @author Michael Adams
+ *         v0.1, 13/08/2007
+ *         <p/>
+ *         Last Date: 17/12/2008
  */
 
 public class WorkQueueGatewayClient extends Interface_Client {
 
-   /** the uri of the resource service's **workqueue gateway**
-    * a default would be "http://localhost:8080/resourceService/workqueuegateway"
-    */
-    private String _serviceURI ;
+    /**
+     * the uri of the resource service's **workqueue gateway**
+     * a default would be "http://localhost:8080/resourceService/workqueuegateway"
+     */
+    private String _serviceURI;
 
 
-    /** a mapping of parameter names and values */
+    /**
+     * a mapping of parameter names and values
+     */
     private Map<String, String> params = new HashMap<String, String>();
 
 
-    /** empty constructor */
+    /**
+     * empty constructor
+     */
     public WorkQueueGatewayClient() {
         super();
     }
 
-    /** constructor
+    /**
+     * constructor
+     *
      * @param uri the uri of the resourceService's workqueue gateway
      */
     public WorkQueueGatewayClient(String uri) {
         super();
-        _serviceURI = uri ;
+        _serviceURI = uri;
     }
 
     /*******************************************************************************/
@@ -71,32 +78,34 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     /**
      * a wrapper for the executeGet method
+     *
      * @param action the name of the gateway method to call
      * @return the resultant reply String
      * @throws IOException if the service can't be reached
      */
     private String performGet(String action, String handle) throws IOException {
-        return executeGet(_serviceURI, prepareParamMap(action, handle)) ;
+        return executeGet(_serviceURI, prepareParamMap(action, handle));
 
     }
 
     /**
      * a wrapper for the executeGet method - returns a String
+     *
      * @param action the name of the gateway method to call
-     * @param map a map of parameters and values
+     * @param map    a map of parameters and values
      * @param handle an active sessionhandle
      * @return the resultant reply String
      * @throws java.io.IOException if there's a problem connecting to the engine
      */
     private String performGet(String action, Map<String, String> map, String handle)
-                                                                     throws IOException {
+            throws IOException {
         Map<String, String> params = prepareParamMap(action, handle);
         if (map != null) params.putAll(map);
         return executeGet(_serviceURI, params);
     }
 
     private String performPost(String action, Map<String, String> map, String handle)
-                                                                     throws IOException {
+            throws IOException {
         Map<String, String> params = prepareParamMap(action, handle);
         if (map != null) params.putAll(map);
         return executePost(_serviceURI, params);
@@ -120,8 +129,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
             Set<String> set = new HashSet<String>();
             set.add(id);
             return idListToXML(set);
-        }
-        else return null;
+        } else return null;
     }
 
 
@@ -131,6 +139,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     /**
      * Connects an external entity to the resource service
+     *
      * @param userID
      * @param password
      * @return a sessionHandle if successful, or a failure message if not
@@ -146,6 +155,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     /**
      * Disconnects an external entity from the resource service
+     *
      * @param handle the sessionHandle to disconnect
      * @throws IOException
      */
@@ -165,46 +175,47 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return executeGet(_serviceURI, params);
     }
 
-    
+
     public String userlogin(String userID, String password) throws IOException {
         return userlogin(userID, password, true);
     }
 
 
     public String userlogout(String handle) throws IOException {
-       return performPost("userlogout", null, handle);
+        return performPost("userlogout", null, handle);
     }
 
 
     public String isValidUserSession(String handle) throws IOException {
-        return performGet("isValidUserSession", handle) ;
+        return performGet("isValidUserSession", handle);
     }
 
 
     public String checkConnection(String handle) throws IOException {
-        return performGet("checkConnection", handle) ;
+        return performGet("checkConnection", handle);
     }
 
 
-    /******************************************************************************/
+    /**
+     * **************************************************************************
+     */
 
     // PARTICIPANT INFO //
-
     public String getParticipantFromUserID(String userid, String handle)
-                                                               throws IOException {
+            throws IOException {
         Map<String, String> params = prepareParamMap("getParticipantFromUserID", handle);
         params.put("userid", userid);
-        String result = executeGet(_serviceURI, params) ;
+        String result = executeGet(_serviceURI, params);
         return (result.equals("<null>")) ? null : result;
     }
 
 
     public String getFullNameForUserID(String userid, String handle) throws IOException {
-        String result = null ;
+        String result = null;
         if (userid != null) {
             params.clear();
             params.put("userid", userid);
-            result = performGet("getFullNameForUserID", params, handle) ;
+            result = performGet("getFullNameForUserID", params, handle);
         }
         return result;
     }
@@ -212,75 +223,76 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String getUserPrivileges(String pid, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        return performGet("getUserPrivileges", params, handle) ;
+        params.put("participantid", pid);
+        return performGet("getUserPrivileges", params, handle);
     }
 
 
     public String getTaskPrivileges(String itemid, String handle) throws IOException {
         params.clear();
-        params.put("workitemid", itemid) ;
-        return performGet("getTaskPrivileges", params, handle) ;
+        params.put("workitemid", itemid);
+        return performGet("getTaskPrivileges", params, handle);
     }
 
 
     public String getReportingToParticipant(String pid, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        return performGet("getParticipantsReportingTo", params, handle) ;
+        params.put("participantid", pid);
+        return performGet("getParticipantsReportingTo", params, handle);
     }
 
 
     public String getOrgGroupMembers(String oid, String handle) throws IOException {
         params.clear();
-        params.put("groupid", oid) ;
-        return performGet("getOrgGroupMembers", params, handle) ;
+        params.put("groupid", oid);
+        return performGet("getOrgGroupMembers", params, handle);
     }
 
 
     public String getRoleMembers(String rid, String handle) throws IOException {
         params.clear();
-        params.put("roleid", rid) ;
-        return performGet("getRoleMembers", params, handle) ;
+        params.put("roleid", rid);
+        return performGet("getRoleMembers", params, handle);
     }
 
 
     public String getParticipant(String pid, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        return performGet("getParticipant", params, handle) ;
+        params.put("participantid", pid);
+        return performGet("getParticipant", params, handle);
     }
 
 
     public String getAllParticipants(String handle) throws IOException {
-        return performGet("getParticipants", handle) ;
+        return performGet("getParticipants", handle);
     }
 
 
     public String getDistributionSet(String itemid, String handle) throws IOException {
         params.clear();
-        params.put("workitemid", itemid) ;
-        return performGet("getDistributionSet", params, handle) ;
+        params.put("workitemid", itemid);
+        return performGet("getDistributionSet", params, handle);
     }
 
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
     // QUEUE INFO & MANIPULATION //
-
     public String getAdminQueues(String handle) throws IOException {
         return performGet("getAdminQueues", handle);
     }
 
 
     public String getQueuedWorkItems(String pid, int queue, String handle)
-                                                                    throws IOException {
+            throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
+        params.put("participantid", pid);
         params.put("queue", String.valueOf(queue));
-        return performGet("getQueuedWorkItems", params, handle) ;
+        return performGet("getQueuedWorkItems", params, handle);
     }
 
-    
+
     public String getWorkItem(String itemID, String handle) throws IOException {
         params.clear();
         params.put("workitemid", itemID);
@@ -300,7 +312,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
         params.clear();
         params.put("workitemid", itemID);
         params.put("data", data);
-        return performGet("updateWorkItemData", params, handle);        
+        return performGet("updateWorkItemData", params, handle);
     }
 
 
@@ -308,7 +320,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
             throws IOException {
         params.clear();
         params.put("workitemid", itemID);
-        return performGet("getWorkItemParameters", params, handle);        
+        return performGet("getWorkItemParameters", params, handle);
     }
 
 
@@ -327,7 +339,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return performGet("getCaseDataSchema", params, handle);
     }
 
-    
+
     public String getWorkItemOutputOnlyParameters(String itemID, String handle)
             throws IOException {
         params.clear();
@@ -337,185 +349,186 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
 
     public String synchroniseCaches(String handle) throws IOException {
-        return performGet("synchroniseCaches", null, handle) ;
+        return performGet("synchroniseCaches", null, handle);
     }
 
 
     public String getParticipantsAssignedWorkItem(String workItemID, int queueType,
                                                   String handle) throws IOException {
         params.clear();
-        params.put("workitemid", workItemID) ;
+        params.put("workitemid", workItemID);
         params.put("queue", String.valueOf(queueType));
-        return performGet("getParticipantsAssignedWorkItem", params, handle) ;
+        return performGet("getParticipantsAssignedWorkItem", params, handle);
     }
 
 
     public String acceptOffer(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("acceptOffer", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("acceptOffer", params, handle);
     }
 
 
     public String startItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("startWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("startWorkItem", params, handle);
     }
 
 
     public String deallocateItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("deallocateWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("deallocateWorkItem", params, handle);
     }
 
-    
+
     public String delegateItem(String pFrom, String pTo, String itemID, String handle)
-                                                                     throws IOException {
+            throws IOException {
         params.clear();
-        params.put("pfrom", pFrom) ;
-        params.put("pto", pTo) ;
-        params.put("workitemid", itemID) ;
-        return performPost("delegateWorkItem", params, handle) ;
+        params.put("pfrom", pFrom);
+        params.put("pto", pTo);
+        params.put("workitemid", itemID);
+        return performPost("delegateWorkItem", params, handle);
     }
 
 
     public String skipItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("skipWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("skipWorkItem", params, handle);
     }
 
 
     public String pileItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("pileWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("pileWorkItem", params, handle);
     }
 
 
     public String suspendItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("suspendWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("suspendWorkItem", params, handle);
     }
 
-    
+
     public String reallocateItem(String pFrom, String pTo, String itemID,
-                               boolean stateful, String handle) throws IOException {
+                                 boolean stateful, String handle) throws IOException {
         if (pFrom == null) {
             return reallocateItem(pTo, itemID, handle);    // admin queue realloc
         }
         params.clear();
-        params.put("pfrom", pFrom) ;
-        params.put("pto", pTo) ;
-        params.put("workitemid", itemID) ;
+        params.put("pfrom", pFrom);
+        params.put("pto", pTo);
+        params.put("workitemid", itemID);
         if (stateful)
-            return performPost("reallocateStatefulWorkItem", params, handle) ;
+            return performPost("reallocateStatefulWorkItem", params, handle);
         else
-            return performPost("reallocateStatelessWorkItem", params, handle) ;
+            return performPost("reallocateStatelessWorkItem", params, handle);
     }
 
-    
+
     public String completeItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("completeWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("completeWorkItem", params, handle);
     }
 
 
     public String unsuspendItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantid", pid) ;
-        params.put("workitemid", itemID) ;
-        return performPost("unsuspendWorkItem", params, handle) ;
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return performPost("unsuspendWorkItem", params, handle);
     }
 
 
     public String offerItem(Set<String> pids, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantids", idListToXML(pids)) ;
-        params.put("workitemid", itemID) ;
-        return performPost("offerWorkItem", params, handle) ;
+        params.put("participantids", idListToXML(pids));
+        params.put("workitemid", itemID);
+        return performPost("offerWorkItem", params, handle);
     }
 
 
     public String reofferItem(Set<String> pids, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantids", idListToXML(pids)) ;
-        params.put("workitemid", itemID) ;
-        return performPost("reofferWorkItem", params, handle) ;
+        params.put("participantids", idListToXML(pids));
+        params.put("workitemid", itemID);
+        return performPost("reofferWorkItem", params, handle);
     }
 
 
     public String allocateItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantids", idStringToXML(pid)) ;
-        params.put("workitemid", itemID) ;
-        return performPost("allocateWorkItem", params, handle) ;
+        params.put("participantids", idStringToXML(pid));
+        params.put("workitemid", itemID);
+        return performPost("allocateWorkItem", params, handle);
     }
 
 
     public String reallocateItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantids", idStringToXML(pid)) ;
-        params.put("workitemid", itemID) ;
-        return performPost("reallocateWorkItem", params, handle) ;
+        params.put("participantids", idStringToXML(pid));
+        params.put("workitemid", itemID);
+        return performPost("reallocateWorkItem", params, handle);
     }
 
 
     public String restartItem(String pid, String itemID, String handle) throws IOException {
         params.clear();
-        params.put("participantids", idStringToXML(pid)) ;
-        params.put("workitemid", itemID) ;
-        return performPost("restartWorkItem", params, handle) ;
+        params.put("participantids", idStringToXML(pid));
+        params.put("workitemid", itemID);
+        return performPost("restartWorkItem", params, handle);
     }
 
 
     public String redirectWorkItemToYawlService(String itemID, String serviceName,
                                                 String handle) throws IOException {
         params.clear();
-        params.put("workitemid", itemID) ;
-        params.put("serviceName", serviceName) ;
-        return performPost("redirectWorkItemToYawlService", params, handle) ;
-    }           
+        params.put("workitemid", itemID);
+        params.put("serviceName", serviceName);
+        return performPost("redirectWorkItemToYawlService", params, handle);
+    }
 
 
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
     // SPEC AND INSTANCE ACTIONS //
-
     public String getLoadedSpecs(String handle) throws IOException {
-        return performGet("getLoadedSpecs", handle) ;
+        return performGet("getLoadedSpecs", handle);
     }
 
 
     public String getSpecList(String handle) throws IOException {
-        return performGet("getSpecList", handle) ;
+        return performGet("getSpecList", handle);
     }
 
 
     public String getSpecData(YSpecificationID specID, String handle) throws IOException {
         params.clear();
         params.putAll(specID.toMap());
-        return performGet("getSpecData", params, handle) ;
+        return performGet("getSpecData", params, handle);
     }
 
 
     public String uploadSpecification(String fileContents, String fileName, String handle)
-                                                                     throws IOException {
+            throws IOException {
         params.clear();
         params.put("filecontents", fileContents);
         params.put("filename", fileName);
-        return performPost("uploadSpecification", params, handle) ;
+        return performPost("uploadSpecification", params, handle);
     }
 
 
@@ -527,18 +540,18 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
 
     public String launchCase(YSpecificationID specID, String caseData, String handle)
-                                                                   throws IOException {
+            throws IOException {
         params.clear();
         params.putAll(specID.toMap());
         params.put("casedata", caseData);
-        return performPost("launchCase", params, handle) ;
+        return performPost("launchCase", params, handle);
     }
 
 
     public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
         params.clear();
         params.putAll(specID.toMap());
-        return performGet("getRunningCases", params, handle) ;
+        return performGet("getRunningCases", params, handle);
     }
 
 
@@ -551,27 +564,27 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String updateWIRCache(WorkItemRecord wir, String handle) throws IOException {
         params.clear();
-        params.put("wir", wir.toXML()) ;
-        return performPost("updateWorkItemCache", params, handle) ;
+        params.put("wir", wir.toXML());
+        return performPost("updateWorkItemCache", params, handle);
     }
 
 
     public String getDecompID(WorkItemRecord wir, String handle) throws IOException {
         params.clear();
-        params.put("workitemid", wir.getID()) ;
-        return performGet("getDecompID", params, handle) ;
+        params.put("workitemid", wir.getID());
+        return performGet("getDecompID", params, handle);
     }
 
 
     public String getCaseData(String caseID, String handle) throws IOException {
-         params.clear();
-         params.put("caseid", caseID) ;
-         return performGet("getCaseData", params, handle);
-     }
+        params.clear();
+        params.put("caseid", caseID);
+        return performGet("getCaseData", params, handle);
+    }
 
     public String getWorkItemDurationsForParticipant(YSpecificationID specID,
-                                           String taskName, String pid, String handle)
-                                           throws IOException {
+                                                     String taskName, String pid, String handle)
+            throws IOException {
         params.clear();
         params.putAll(specID.toMap());
         params.put("taskname", taskName);
@@ -580,11 +593,11 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
-
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
     // REGISTERED SERVICE INFO //
-
     public String getRegisteredServices(String handle) throws IOException {
         return performGet("getRegisteredServices", handle);
     }
@@ -592,18 +605,19 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String removeRegisteredService(String id, String handle) throws IOException {
         params.clear();
-        params.put("serviceid", id) ;
+        params.put("serviceid", id);
         return performPost("removeRegisteredService", params, handle);
     }
 
 
-    public String addRegisteredService(String uri, String name, String doco,
+    public String addRegisteredService(String uri, String name, String password, String doco,
                                        boolean assignable, String handle) throws IOException {
         params.clear();
-        params.put("uri", uri) ;
-        params.put("name", name) ;
-        params.put("doco", doco) ;
-        params.put("assignable", String.valueOf(assignable)) ;
+        params.put("uri", uri);
+        params.put("name", name);
+        params.put("password", password);
+        params.put("doco", doco);
+        params.put("assignable", String.valueOf(assignable));
         return performPost("addRegisteredService", params, handle);
     }
 
