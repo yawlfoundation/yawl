@@ -1674,6 +1674,9 @@
     <target name="build_testService.war"
             depends="compile, build_testService_SharedTomcat">
 
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"/>
+        </copy>
         <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements/data">
             <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
         </copy>

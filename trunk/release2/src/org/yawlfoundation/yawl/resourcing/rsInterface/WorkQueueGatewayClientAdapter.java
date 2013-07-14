@@ -38,17 +38,16 @@ import java.util.Set;
 /**
  * This adapter class adds a transformation layer to the resource gateway client,
  * effectively reconstituting the Strings returned from the gateway into java objects.
- *
+ * <p/>
  * Author: Michael Adams
  * Date: 26/10/2007
  * Version: 2.0
- *
  */
 
 public class WorkQueueGatewayClientAdapter {
 
     protected WorkQueueGatewayClient _wqclient;        // the gateway client
-    protected String _uri ;                            // the uri of the service gateway
+    protected String _uri;                            // the uri of the service gateway
 
     protected ResourceMarshaller _marshaller = new ResourceMarshaller();
 
@@ -56,60 +55,61 @@ public class WorkQueueGatewayClientAdapter {
 
     public WorkQueueGatewayClientAdapter() {}
 
-    public WorkQueueGatewayClientAdapter(String uri) { setClientURI(uri) ; }
+    public WorkQueueGatewayClientAdapter(String uri) { setClientURI(uri); }
 
 
     // GETTER & SETTER //
 
     public void setClientURI(String uri) {
-        _uri = uri ;
-        _wqclient = new WorkQueueGatewayClient(uri) ;
+        _uri = uri;
+        _wqclient = new WorkQueueGatewayClient(uri);
     }
 
-    public String getClientURI() { return _uri ; }
+    public String getClientURI() { return _uri; }
 
 
     public boolean successful(String result) {
-        return (result != null) && (! result.startsWith("<failure>"));
+        return (result != null) && (!result.startsWith("<failure>"));
     }
 
 
     protected String successCheck(String xml) throws ResourceGatewayException {
         if (successful(xml)) {
             return xml;
-        }
-        else throw new ResourceGatewayException(xml);
+        } else throw new ResourceGatewayException(xml);
     }
 
-    
+
     /*****************************************************************************/
 
     // PUBLIC METHODS //
 
     /**
      * Checks that the connection to the service is valid
+     *
      * @param handle the current sessionhandle
      * @return true if the connection is valid, false if otherwise
      */
     public boolean checkConnection(String handle) {
         try {
-            return successful(_wqclient.checkConnection(handle)) ;
+            return successful(_wqclient.checkConnection(handle));
+        } catch (IOException ioe) {
+            return false;
         }
-        catch (IOException ioe) { return false; }
     }
 
 
     /**
      * Attempts to connect to the service (as a service)
-     * @param userid the userid
-     * @param password  the corresponding password
+     *
+     * @param userid   the userid
+     * @param password the corresponding password
      * @return a sessionhandle if successful, or a failure message if otherwise
      */
     public String connect(String userid, String password) {
         try {
-            return _wqclient.connect(userid, password) ;
-        }
-        catch (IOException ioe) {
+            return _wqclient.connect(userid, password);
+        } catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";
         }
     }
@@ -117,8 +117,9 @@ public class WorkQueueGatewayClientAdapter {
 
     /**
      * Attempts to connect to the service (as a user/participant)
-     * @param userid the userid
-     * @param password  the corresponding password
+     *
+     * @param userid   the userid
+     * @param password the corresponding password
      * @return a sessionhandle if successful, or a failure message if otherwise
      */
     public String userlogin(String userid, String password) {
@@ -128,15 +129,15 @@ public class WorkQueueGatewayClientAdapter {
 
     /**
      * Logs out a user session (as opposed to a service connection)
+     *
      * @param handle the session handle
      * @return a success message
      * @throws IOException
      */
     public String userlogout(String handle) {
         try {
-            return _wqclient.userlogout(handle) ;
-        }
-        catch (IOException ioe) {
+            return _wqclient.userlogout(handle);
+        } catch (IOException ioe) {
             return "<failure>";
         }
     }
@@ -144,17 +145,17 @@ public class WorkQueueGatewayClientAdapter {
 
     /**
      * Attempts to connect to the service (as a user/participant)
-     * @param userid the userid
-     * @param password  the corresponding password
-     * @param encrypt true if encryption is required (most cases); false if the
-     *        password is already encrypted
+     *
+     * @param userid   the userid
+     * @param password the corresponding password
+     * @param encrypt  true if encryption is required (most cases); false if the
+     *                 password is already encrypted
      * @return a sessionhandle if successful, or a failure message if otherwise
      */
     public String userlogin(String userid, String password, boolean encrypt) {
         try {
-            return _wqclient.userlogin(userid, password, encrypt) ;
-        }
-        catch (IOException ioe) {
+            return _wqclient.userlogin(userid, password, encrypt);
+        } catch (IOException ioe) {
             return "<failure>IOException attempting to connect to Service.</failure>";
         }
     }
@@ -162,13 +163,14 @@ public class WorkQueueGatewayClientAdapter {
 
     /**
      * Disconnects a session from the service
+     *
      * @param handle the sessionhandle of the session to disconnect
      */
     public void disconnect(String handle) {
         try {
             _wqclient.disconnect(handle);
-        }
-        catch (IOException ioe) { } // nothing to do
+        } catch (IOException ioe) {
+        } // nothing to do
     }
 
 
@@ -179,7 +181,7 @@ public class WorkQueueGatewayClientAdapter {
 
     public Participant getParticipantFromUserID(String userid, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getParticipantFromUserID(userid, handle) ;
+        String xml = _wqclient.getParticipantFromUserID(userid, handle);
         return _marshaller.unmarshallParticipant(successCheck(xml));
     }
 
@@ -194,8 +196,8 @@ public class WorkQueueGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getUserPrivileges(pid, handle);
         successCheck(xml);
-        UserPrivileges result = new UserPrivileges() ;
-        result.fromXML(xml);  
+        UserPrivileges result = new UserPrivileges();
+        result.fromXML(xml);
         return result;
     }
 
@@ -215,9 +217,8 @@ public class WorkQueueGatewayClientAdapter {
             String allowallStr = privilege.getChildText("allowall");
             if (allowallStr != null) {
                 if (allowallStr.equals("true")) {
-                   taskPrivileges.allowAll(name);
-                }
-                else taskPrivileges.disallowAll(name); 
+                    taskPrivileges.allowAll(name);
+                } else taskPrivileges.disallowAll(name);
             }
 
             XNode set = privilege.getChild("set");
@@ -253,53 +254,55 @@ public class WorkQueueGatewayClientAdapter {
 
     public Set<Participant> getReportingToParticipant(String pid, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getReportingToParticipant(pid, handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+        String xml = _wqclient.getReportingToParticipant(pid, handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
 
     public Set<Participant> getOrgGroupMembers(String oid, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getOrgGroupMembers(oid, handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+        String xml = _wqclient.getOrgGroupMembers(oid, handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
 
     public Set<Participant> getRoleMembers(String rid, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getRoleMembers(rid, handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+        String xml = _wqclient.getRoleMembers(rid, handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
 
     public Participant getParticipant(String pid, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getParticipant(pid, handle) ;
+        String xml = _wqclient.getParticipant(pid, handle);
         return _marshaller.unmarshallParticipant(successCheck(xml));
     }
 
 
     public Set<Participant> getAllParticipants(String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getAllParticipants(handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+        String xml = _wqclient.getAllParticipants(handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
 
     public Set<Participant> getDistributionSet(String itemID, String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getDistributionSet(itemID, handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+        String xml = _wqclient.getDistributionSet(itemID, handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
-    
-    /*****************************************************************************/
+
+    /**
+     * *************************************************************************
+     */
 
     public QueueSet getAdminQueues(String handle)
             throws IOException, ResourceGatewayException {
-        String xml = _wqclient.getAdminQueues(handle) ;
+        String xml = _wqclient.getAdminQueues(handle);
         successCheck(xml);
-        QueueSet result = new QueueSet("admin", QueueSet.setType.adminSet, false) ;
+        QueueSet result = new QueueSet("admin", QueueSet.setType.adminSet, false);
         result.fromXML(xml);
         return result;
     }
@@ -322,7 +325,7 @@ public class WorkQueueGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getWorkItemChildren(itemID, handle);
         return _marshaller.unmarshallWorkItemRecords(successCheck(xml));
-    }   
+    }
 
 
     public Set<YParameter> getWorkItemParameters(String itemID, String handle)
@@ -337,7 +340,7 @@ public class WorkQueueGatewayClientAdapter {
         String result = successCheck(_wqclient.getWorkItemOutputOnlyParameters(itemID, handle));
         return _marshaller.parseWorkItemParams(result);
     }
-    
+
 
     public String getWorkItemDataSchema(String itemID, String handle)
             throws IOException, ResourceGatewayException {
@@ -366,8 +369,8 @@ public class WorkQueueGatewayClientAdapter {
                                                             int queueType, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getParticipantsAssignedWorkItem(workItemID,
-                                                               queueType, handle) ;
-        return _marshaller.unmarshallParticipants(successCheck(xml)) ;
+                queueType, handle);
+        return _marshaller.unmarshallParticipants(successCheck(xml));
     }
 
 
@@ -376,7 +379,7 @@ public class WorkQueueGatewayClientAdapter {
         return successCheck(_wqclient.acceptOffer(pid, itemID, handle));
     }
 
-    
+
     public WorkItemRecord startItem(String pid, String itemID, String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_wqclient.startItem(pid, itemID, handle));
@@ -459,14 +462,15 @@ public class WorkQueueGatewayClientAdapter {
     public String redirectWorkItemToYawlService(String itemID, String serviceName,
                                                 String handle)
             throws IOException, ResourceGatewayException {
-            return successCheck(_wqclient.redirectWorkItemToYawlService(itemID,
-                    serviceName, handle));
+        return successCheck(_wqclient.redirectWorkItemToYawlService(itemID,
+                serviceName, handle));
     }
 
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
-     // SPEC AND INSTANCE ACTIONS //
-
+    // SPEC AND INSTANCE ACTIONS //
     public Set<SpecificationData> getLoadedSpecs(String handle) throws IOException {
         String xml = _wqclient.getLoadedSpecs(handle);
         return _marshaller.unmarshallSpecificationDataSet(xml);
@@ -487,30 +491,30 @@ public class WorkQueueGatewayClientAdapter {
 
 
     public String uploadSpecification(String fileContents, String fileName, String handle)
-                                                                   throws IOException {
-        return _wqclient.uploadSpecification(fileContents, fileName, handle) ;
+            throws IOException {
+        return _wqclient.uploadSpecification(fileContents, fileName, handle);
     }
 
 
     public String unloadSpecification(YSpecificationID specID, String handle)
             throws IOException {
-        return _wqclient.unloadSpecification(specID, handle) ;
+        return _wqclient.unloadSpecification(specID, handle);
     }
 
 
     public String launchCase(YSpecificationID specID, String caseData, String handle)
-                                                                    throws IOException {
+            throws IOException {
         return _wqclient.launchCase(specID, caseData, handle);
     }
 
 
     public String getRunningCases(YSpecificationID specID, String handle) throws IOException {
-        return _wqclient.getRunningCases(specID, handle) ;
+        return _wqclient.getRunningCases(specID, handle);
     }
 
 
     public String cancelCase(String caseID, String handle) throws IOException {
-        return _wqclient.cancelCase(caseID, handle) ;
+        return _wqclient.cancelCase(caseID, handle);
     }
 
 
@@ -520,29 +524,29 @@ public class WorkQueueGatewayClientAdapter {
 
 
     public String getDecompID(WorkItemRecord wir, String handle) throws IOException {
-        return _wqclient.getDecompID(wir, handle) ;
+        return _wqclient.getDecompID(wir, handle);
     }
 
 
     public String getCaseData(String caseID, String handle) throws IOException {
-        return _wqclient.getCaseData(caseID, handle) ;
+        return _wqclient.getCaseData(caseID, handle);
     }
 
-    
+
     public String getWorkItemDurationsForParticipant(YSpecificationID specID,
-                                           String taskName, String pid, String handle)
-                                           throws IOException {
+                                                     String taskName, String pid, String handle)
+            throws IOException {
         return _wqclient.getWorkItemDurationsForParticipant(specID, taskName, pid, handle);
     }
 
 
-
-    /********************************************************************************/
+    /**
+     * ****************************************************************************
+     */
 
     // REGISTERED SERVICE INFO //
-
     public Set<YAWLServiceReference> getRegisteredServices(String handle) throws IOException {
-        String xml = _wqclient.getRegisteredServices(handle) ;
+        String xml = _wqclient.getRegisteredServices(handle);
         return _marshaller.unmarshallServices(xml);
     }
 
@@ -553,9 +557,10 @@ public class WorkQueueGatewayClientAdapter {
 
 
     public String addRegisteredService(YAWLServiceReference service, String handle)
-                                                                    throws IOException {
+            throws IOException {
         return _wqclient.addRegisteredService(service.getURI(), service.get_serviceName(),
-                service.getDocumentation(), service.isAssignable(), handle);
+                service.getPassword(), service.getDocumentation(), service.isAssignable(),
+                handle);
     }
 
 }
