@@ -37,44 +37,38 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class StringUtil
-{
-    private static final String     TIMESTAMP_DELIMITER = " ";
-    private static final String     DATE_DELIMITER = "-";
-    private static final String     TIME_DELIMITER = ":";
-    private static final String     TIME_FORMAT = "HH" + TIME_DELIMITER + "mm" + TIME_DELIMITER + "ss";
-    private static final String     DATE_FORMAT = "yyyy" + DATE_DELIMITER + "MM" + DATE_DELIMITER + "dd";
-    private static final String     TIMESTAMP_FORMAT = DATE_FORMAT + TIMESTAMP_DELIMITER + TIME_FORMAT;
+public class StringUtil {
+    private static final String TIMESTAMP_DELIMITER = " ";
+    private static final String DATE_DELIMITER = "-";
+    private static final String TIME_DELIMITER = ":";
+    private static final String TIME_FORMAT = "HH" + TIME_DELIMITER + "mm" + TIME_DELIMITER + "ss";
+    private static final String DATE_FORMAT = "yyyy" + DATE_DELIMITER + "MM" + DATE_DELIMITER + "dd";
+    private static final String TIMESTAMP_FORMAT = DATE_FORMAT + TIMESTAMP_DELIMITER + TIME_FORMAT;
 
 
     /**
      * Utility routine to replace one token with another within a string object.
      *
-     * @param buffer       String object to be manipulated
-     * @param fromToken    Token to be replaced
-     * @param toToken      Token used in replacement
-     * @return             String object holding modified String
+     * @param buffer    String object to be manipulated
+     * @param fromToken Token to be replaced
+     * @param toToken   Token used in replacement
+     * @return String object holding modified String
      */
-    public static String replaceTokens(String buffer, String fromToken, String toToken)
-    {
+    public static String replaceTokens(String buffer, String fromToken, String toToken) {
         /*
          * Note: We don't use the StringTokenizer class as it doesn't cope with '\n' substrings
          * correctly.
          */
         int old = 0;
         StringBuilder temp = new StringBuilder();
-        while (true)
-        {
+        while (true) {
             int pos = buffer.indexOf(fromToken, old);
 
-            if (pos != -1)
-            {
+            if (pos != -1) {
                 String subText = buffer.substring(old, pos);
                 temp.append(subText + toToken);
                 old = pos + fromToken.length();
-            }
-            else
-            {
+            } else {
                 String subText = buffer.substring(old);
                 temp.append(subText);
                 break;
@@ -86,11 +80,10 @@ public class StringUtil
     /**
      * Utility routine to return the date supplied as an ISO formatted string.
      *
-     * @param date          Date object to be formatted
-     * @return              String object holding ISO formatted representation of date supplied
+     * @param date Date object to be formatted
+     * @return String object holding ISO formatted representation of date supplied
      */
-    public static String getISOFormattedDate(Date date)
-    {
+    public static String getISOFormattedDate(Date date) {
         SimpleDateFormat fmt = new SimpleDateFormat(TIMESTAMP_FORMAT);
         return fmt.format(date);
     }
@@ -99,33 +92,30 @@ public class StringUtil
      * Utility routine to return a debug message suitable for logging. It basically prefixes the supplied message
      * with the current timestamp in ISO format.
      *
-     * @param msg           Body of debug message to be prefixed with the current timestamp
-     * @return              String object holding debug message prefixed with ISO formatted current timestamp
+     * @param msg Body of debug message to be prefixed with the current timestamp
+     * @return String object holding debug message prefixed with ISO formatted current timestamp
      */
-    public static String getDebugMessage(String msg)
-    {
+    public static String getDebugMessage(String msg) {
         return getISOFormattedDate(new Date()) + " " + msg;
     }
 
     /**
      * Utility method to take a string and return the string in revserse sequence.
      *
-     * @param   inputString String to be reversed
-     * @return  Reversed string
+     * @param inputString String to be reversed
+     * @return Reversed string
      */
-    public static String reverseString(String inputString)
-    {
+    public static String reverseString(String inputString) {
         char[] inputChars = new char[inputString.length()];
         char[] outputChars = new char[inputString.length()];
 
-        inputString.getChars(0, inputString.length() ,inputChars, 0);
-        int pointer = inputChars.length -1;
+        inputString.getChars(0, inputString.length(), inputChars, 0);
+        int pointer = inputChars.length - 1;
 
 
-        for(int i=0;i<=inputChars.length -1 ;i++)
-        {
+        for (int i = 0; i <= inputChars.length - 1; i++) {
             outputChars[pointer] = inputChars[i];
-            pointer --;
+            pointer--;
         }
 
         return new String(outputChars);
@@ -133,50 +123,50 @@ public class StringUtil
 
     /**
      * Removes all white space from a string.
+     *
      * @param string String to remove white space from
      * @return Resulting whitespaceless string.
      */
-    public static String removeAllWhiteSpace(String string)
-    {
+    public static String removeAllWhiteSpace(String string) {
         Pattern p = Pattern.compile("[\\s]");
         Matcher m;
-        do
-        {
+        do {
             m = p.matcher(string);
-            if (m.find())
-            {
+            if (m.find()) {
                 string = m.replaceAll("");
             }
-        }while(m.find());
+        } while (m.find());
 
         return string;
     }
 
     /**
      * Formats a postcode into standard Royal Mail format
+     *
      * @param postcode
      * @return Postcode correctly formatted
      */
-    public static String formatPostCode(String postcode)
-    {
-        if(postcode == null) return null;
+    public static String formatPostCode(String postcode) {
+        if (postcode == null) return null;
         postcode = removeAllWhiteSpace(postcode).toUpperCase();
-        if(postcode.length() < 3) return postcode;
-        else return postcode.substring(0,postcode.length()-3) + " " + postcode.substring(postcode.length()-3, postcode.length());
+        if (postcode.length() < 3) return postcode;
+        else
+            return postcode.substring(0, postcode.length() - 3) + " " + postcode.substring(postcode.length() - 3, postcode.length());
     }
 
     /**
      * Formats a sortcode into the common form nn-nn-nn
+     *
      * @param sortcode
      * @return Sortcode correctly formatted
      */
-    public static String formatSortCode(String sortcode)
-    {
-        return sortcode.substring(0,2) + "-" + sortcode.substring(2,4) + "-" + sortcode.substring(4,6);
+    public static String formatSortCode(String sortcode) {
+        return sortcode.substring(0, 2) + "-" + sortcode.substring(2, 4) + "-" + sortcode.substring(4, 6);
     }
 
     /**
      * Converts a string to all lower case, and capitalises the first letter of the string
+     *
      * @param s unformated string.
      * @return The formated string.
      */
@@ -190,12 +180,12 @@ public class StringUtil
     /**
      * Utility routine that takes in a Calendar referece and returns a date/time stamp suitable for use
      * in a Portlets environment.
+     *
      * @param calendar
      * @return Date/timestamp suitable for display.
      * @deprecated Use TimeUtil.formatUIDate
      */
-    public static String formatUIDate(Calendar calendar)
-    {
+    public static String formatUIDate(Calendar calendar) {
         SimpleDateFormat fmt = null;
 
         /**
@@ -203,12 +193,9 @@ public class StringUtil
          * Ok, this is slightly flawed as an assumption as we could be bang on midnight.......
          */
         if ((calendar.get(Calendar.HOUR) == 0) && (calendar.get(Calendar.MINUTE) == 0)
-                && (calendar.get(Calendar.SECOND) == 0))
-        {
+                && (calendar.get(Calendar.SECOND) == 0)) {
             fmt = new SimpleDateFormat("dd-MMM-yy");
-        }
-        else
-        {
+        } else {
             fmt = new SimpleDateFormat("dd-MMM-yy hh:mm a");
         }
 
@@ -218,10 +205,10 @@ public class StringUtil
     /**
      * Utility routine which takes a decimal value as a string (e.g. 0.25 equating to 25p) and returns the
      * value in UI currency format (e.g. £0.25).
-     * @return  A formatted currency
+     *
+     * @return A formatted currency
      */
-    public static String formatDecimalCost(BigDecimal value)
-    {
+    public static String formatDecimalCost(BigDecimal value) {
         Currency currency = Currency.getInstance(Locale.getDefault());
         NumberFormat fmt = DecimalFormat.getInstance();
         fmt.setMinimumFractionDigits(2);
@@ -232,23 +219,24 @@ public class StringUtil
 
     /**
      * formats a long time value into a string of the form 'ddd:hh:mm:ss'
+     *
      * @param time the time value (in milliseconds)
      * @return the formatted time string
      */
     public static String formatTime(long time) {
-        long secsPerHour = 60 * 60 ;
-        long secsPerDay = 24 * secsPerHour ;
+        long secsPerHour = 60 * 60;
+        long secsPerDay = 24 * secsPerHour;
 
         long millis = time % 1000;
         time /= 1000;
-        long days = time / secsPerDay ;
-        time %= secsPerDay ;
-        long hours = time / secsPerHour ;
-        time %= secsPerHour ;
-        long mins = time / 60 ;
-        time %= 60 ;
+        long days = time / secsPerDay;
+        time %= secsPerDay;
+        long hours = time / secsPerHour;
+        time %= secsPerHour;
+        long mins = time / 60;
+        time %= 60;
 
-        return String.format("%d:%02d:%02d:%02d.%04d", days, hours, mins, time, millis) ;
+        return String.format("%d:%02d:%02d:%02d.%04d", days, hours, mins, time, millis);
     }
 
     /**
@@ -257,8 +245,7 @@ public class StringUtil
      * @param t Throwable to convert to a String
      * @return String representation of Throwable t
      */
-    public static String convertThrowableToString(Throwable t)
-    {
+    public static String convertThrowableToString(Throwable t) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(baos);
         t.printStackTrace(writer);
@@ -269,11 +256,11 @@ public class StringUtil
     /**
      * Esacpes all HTML entities and "funky accents" into the HTML 4.0 encodings, replacing
      * new lines with "&lt;br&gt;", tabs with four "&amp;nbsp;" and single spaces with "&amp;nbsp;".
+     *
      * @param string to escape
      * @return escaped string
      */
-    public static String formatForHTML(String string)
-    {
+    public static String formatForHTML(String string) {
         string = StringEscapeUtils.escapeHtml(string);
         string = string.replaceAll("\n", "<br>");
         string = string.replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -281,9 +268,10 @@ public class StringUtil
         return string;
     }
 
-    /** encases a string with a pair of xml tags
+    /**
+     * encases a string with a pair of xml tags
      *
-     * @param core the text to encase
+     * @param core    the text to encase
      * @param wrapTag the name of the tag to encase the text
      * @return the encased string (e.g. "<wrapTag>core</wrapTag>")
      */
@@ -292,8 +280,7 @@ public class StringUtil
         sb.append('<').append(wrapTag);
         if (core != null) {
             sb.append('>').append(core).append("</").append(wrapTag).append('>');
-        }
-        else {
+        } else {
             sb.append("/>");
         }
         return sb.toString();
@@ -306,6 +293,7 @@ public class StringUtil
 
     /**
      * Removes an outer set of xml tags from an xml string, if possible
+     *
      * @param xml the xml string to strip
      * @return the stripped xml string
      */
@@ -319,9 +307,10 @@ public class StringUtil
         }
         return xml;
     }
-    
+
     /**
      * Encodes reserved characters in an xml string
+     *
      * @param s the string to encode
      * @return the newly encoded string
      */
@@ -329,14 +318,14 @@ public class StringUtil
         if (s == null) return s;
         try {
             return URLEncoder.encode(s, "UTF-8");
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             return s;
         }
     }
 
     /**
      * Decodes reserved characters in an xml string
+     *
      * @param s the string to decode
      * @return the newly decoded string
      */
@@ -344,15 +333,14 @@ public class StringUtil
         if (s == null) return s;
         try {
             return URLDecoder.decode(s, "UTF-8");
-        }
-        catch (UnsupportedEncodingException uee) {
+        } catch (UnsupportedEncodingException uee) {
             return s;
         }
     }
 
     public static boolean isIntegerString(String s) {
         if (s == null) return false;
-        char[] digits = s.toCharArray() ;
+        char[] digits = s.toCharArray();
         for (char digit : digits) {
             if ((digit < '0') || (digit > '9')) return false;
         }
@@ -370,8 +358,7 @@ public class StringUtil
             return stringToFile(
                     File.createTempFile(
                             RandomStringUtils.randomAlphanumeric(12), null), contents);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -382,8 +369,7 @@ public class StringUtil
             BufferedWriter buf = new BufferedWriter(new FileWriter(f));
             buf.write(contents, 0, contents.length());
             buf.close();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             f = null;
         }
         return f;
@@ -396,12 +382,10 @@ public class StringUtil
                 int bufsize = (int) f.length();
                 InputStream fis = new FileInputStream(f);
                 return streamToString(fis, bufsize);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 return null;
             }
-        }
-        else return null;
+        } else return null;
     }
 
     public static String streamToString(InputStream is) {
@@ -428,12 +412,10 @@ public class StringUtil
             // convert the bytes to a UTF-8 string
             return outStream.toString("UTF-8");
 
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             return null;
         }
     }
-
 
 
     public static String fileToString(String filename) {
@@ -465,8 +447,7 @@ public class StringUtil
         if (isNullOrEmpty(s)) return def;      // short circuit
         try {
             return new Integer(s);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return def;
         }
     }
@@ -476,8 +457,7 @@ public class StringUtil
         if (isNullOrEmpty(s)) return def;      // short circuit
         try {
             return new Long(s);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return def;
         }
     }
@@ -487,8 +467,7 @@ public class StringUtil
         if (isNullOrEmpty(s)) return def;      // short circuit
         try {
             return new Double(s);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return def;
         }
     }
@@ -497,25 +476,22 @@ public class StringUtil
     public static Duration strToDuration(String s) {
         if (s != null) {
             try {
-                return DatatypeFactory.newInstance().newDuration(s) ;
-            }
-            catch (DatatypeConfigurationException dce) {
+                return DatatypeFactory.newInstance().newDuration(s);
+            } catch (DatatypeConfigurationException dce) {
                 // nothing to do - null will be returned
-            }
-            catch (IllegalArgumentException dce) {
+            } catch (IllegalArgumentException dce) {
                 // nothing to do - null will be returned
             }
         }
         return null;
     }
 
-    
+
     public static boolean isValidDurationString(String s) {
         try {
-            DatatypeFactory.newInstance().newDuration(s) ;
+            DatatypeFactory.newInstance().newDuration(s);
             return true;
-        }
-        catch (DatatypeConfigurationException dce) {
+        } catch (DatatypeConfigurationException dce) {
             return false;
         }
     }
@@ -540,8 +516,7 @@ public class StringUtil
             XMLGregorianCalendar cal =
                     DatatypeFactory.newInstance().newXMLGregorianCalendar(s);
             return cal.toGregorianCalendar().getTimeInMillis();
-        }
-        catch (DatatypeConfigurationException dce) {
+        } catch (DatatypeConfigurationException dce) {
             return -1;
         }
     }
@@ -553,8 +528,7 @@ public class StringUtil
             XMLGregorianCalendar cal =
                     DatatypeFactory.newInstance().newXMLGregorianCalendar(gregCal);
             return cal.toXMLFormat();
-        }
-        catch (DatatypeConfigurationException dce) {
+        } catch (DatatypeConfigurationException dce) {
             return null;
         }
     }
@@ -590,17 +564,17 @@ public class StringUtil
 
             if (toSearch.charAt(i) != lastCharToFind) {
                 while ((i += skipTable[toSearch.charAt(i) & 255]) < toSearch.length()
-                        && toSearch.charAt(i) != lastCharToFind);
+                        && toSearch.charAt(i) != lastCharToFind) ;
 
                 if (i < toSearch.length()) {
                     int j = i - 1;
                     int index = i - toFind.length() + 1;
                     for (int k = lastCharToFindIndex - 1;
-                         j > index && toSearch.charAt(j) == toFind.charAt(k); j--, k--);
+                         j > index && toSearch.charAt(j) == toFind.charAt(k); j--, k--)
+                        ;
 
                     if (j == index) return index;
-                }
-                else break;
+                } else break;
             }
         }
         return -1;
@@ -613,15 +587,15 @@ public class StringUtil
 
     public static List<Integer> findAll(String toSearch, String toFind, boolean ignoreCase) {
         if (ignoreCase) {
-            if (! ((toSearch == null) || (toFind == null))) {
+            if (!((toSearch == null) || (toFind == null))) {
                 toSearch = toSearch.toUpperCase();
                 toFind = toFind.toUpperCase();
-            }    
+            }
         }
         return findAll(toSearch, toFind);
     }
 
-    
+
     public static List<Integer> findAll(String toSearch, String toFind) {
         List<Integer> foundList = new ArrayList<Integer>();
         int start = 0;
@@ -631,11 +605,11 @@ public class StringUtil
         }
         return foundList;
     }
-    
-    
+
+
     public static String repeat(char c, int count) {
         char[] chars = new char[count];
-        for (int i=0; i < count; i++) chars[i] = c;
+        for (int i = 0; i < count; i++) chars[i] = c;
         return new String(chars);
     }
 
@@ -659,7 +633,7 @@ public class StringUtil
 
     public static String insert(String base, String addition, int position) {
         if (base == null || addition == null ||
-                position < 0 || position > base.length() -1) {
+                position < 0 || position > base.length() - 1) {
             return base;
         }
         StringBuilder sb = new StringBuilder(base);
@@ -681,6 +655,12 @@ public class StringUtil
         if (left) sb.append(pad).append(s);
         else sb.append(s).append(pad);
         return sb.toString();
+    }
+
+
+    public static String firstWord(String s) {
+        if (s == null) return s;
+        return s.split("\\s")[0];
     }
 
 }

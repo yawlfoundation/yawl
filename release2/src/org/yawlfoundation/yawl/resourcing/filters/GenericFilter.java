@@ -20,23 +20,26 @@ package org.yawlfoundation.yawl.resourcing.filters;
 
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- *  A base or generic filter class which allows external entities such as the
- *  Editor the ability to instantiate it as a medium for specification XML generation
+ * A base or generic filter class which allows external entities such as the
+ * Editor the ability to instantiate it as a medium for specification XML generation
+ * <p/>
+ * Create Date: 14/08/2007. Last Date: 12/11/2007
  *
- *  Create Date: 14/08/2007. Last Date: 12/11/2007
- *
- *  @author Michael Adams (BPM Group, QUT Australia)
- *  @version 2.0
+ * @author Michael Adams (BPM Group, QUT Australia)
+ * @version 2.0
  */
 
 public class GenericFilter extends AbstractFilter {
 
-    public GenericFilter(String name) { super(name) ; }
-
     public GenericFilter() {}
+
+    public GenericFilter(String name) { super(name); }
+
+    public GenericFilter(String name, Map<String, String> params) { super(name, params); }
 
     public Set<Participant> performFilter(Set<Participant> resources) { return null; }
 
