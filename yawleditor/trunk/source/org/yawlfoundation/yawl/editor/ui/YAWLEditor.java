@@ -22,13 +22,18 @@
 
 package org.yawlfoundation.yawl.editor.ui;
 
+import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import org.yawlfoundation.yawl.editor.core.YConnector;
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.swing.*;
+import org.yawlfoundation.yawl.editor.ui.swing.JStatusBar;
+import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
@@ -55,384 +60,338 @@ import java.util.List;
 
 public class YAWLEditor extends JFrame implements FileStateListener {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
-
-  private static String loadFileName;
-
-  private final Palette paletteBar = Palette.getInstance();
-
-  private static JSplitPane splitPane;
-  private static SpecificationBottomPanel specificationBottomPanel;
-  private static YAWLEditorDesktop editDesktop;
-  private static YAWLEditor INSTANCE;
-
-  private static final JSplashScreen splashScreen = new JSplashScreen();
-  private static final JStatusBar statusBar = new JStatusBar();
+    private static Palette paletteBar;
+    private static JStatusBar statusBar;
+    private static JSplitPane splitPane;
+    private static YPropertySheet sheet;
+    private static SpecificationBottomPanel specificationBottomPanel;
+    private static YAWLEditor INSTANCE;
 
 
 
-  public static YAWLEditor getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new YAWLEditor();
-    }
-    return INSTANCE;
-  }
-
-  public static void main(String[] args) {
-
-    setLookAndFeel();
-
-    startLoading();
-
-    validateParameter(args);
-
-    getInstance().setVisible(true);
-    hideBottomOfSplitPane();  // Yes, I can only move the split pane when the editor is visible.
-
-    processParametersAsNecessary();
-
-    finishLoading();
-  }
-
-  private YAWLEditor() {
-    super();
-    updateLoadProgress(5);
-      establishConnections();
-    buildInterface();
-    Publisher.getInstance().subscribe(this);
-  }
-
-  private static void setLookAndFeel() {
-
-    // move menu to screen top - only affects mac installs
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-
-//      try {
-//          for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-//              if ("Nimbus".equals(info.getName())) {
-//                  UIManager.setLookAndFeel(info.getClassName());
-//                  break;
-//              }
-//          }
-//      } catch (Exception e) {
-//          // stick with default laf
-//      }
-  }
-
-  private static JSplashScreen getSplashScreen() {
-    return splashScreen;
-  }
-
-  public static void updateLoadProgress(int completionValue) {
-    getSplashScreen().updateProgressBar(completionValue);
-  }
-
-  private static void startLoading() {
-    LogWriter.init(FileUtilities.getHomeDir());
-    getSplashScreen().setContent(
-            "/org/yawlfoundation/yawl/editor/ui/resources/yawlSplashScreen.jpg",
-            SplashContent.getCopyright());
-
-    getSplashScreen().show();
-  }
-
-  private static void finishLoading() {
-    getSplashScreen().finish();
-  }
-
-  private static void validateParameter(String[] args) {
-    if (args.length > 1) {
-      LogWriter.warn("Usage: " + System.getProperty("java.class.path") + " [<EditorSaveFile>]");
-      System.exit(1);
+    private YAWLEditor() {
+        super();
+        updateLoadProgress(5);
+        establishConnections();
+        buildInterface();
+        Publisher.getInstance().subscribe(this);
     }
 
-    if (args.length == 1) {
-      loadFileName = args[0];
-    }
-  }
 
-  private static void processParametersAsNecessary() {
-    if (loadFileName != null) {
-      ArchivingThread.getInstance().open(loadFileName);
-    }
-  }
-
-  private static JStatusBar getStatusBar() {
-    return statusBar;
-  }
-
-  public static void setStatusBarText(String statusString) {
-    getStatusBar().setStatusBarText(statusString);
-  }
-
-  public static void setStatusBarTextToPrevious(){
-    getStatusBar().setStatusBarTextToPrevious();
-  }
-
-  public static void resetStatusBarProgress() {
-    getStatusBar().resetStatusBarProgress();
-  }
-
-  public static void finishStatusBarProgress() {
-    getStatusBar().finishStatusBarProgress();
-  }
-
-  public static void progressStatusBarOverSeconds(int seconds) {
-    getStatusBar().progressStatusBarOverSeconds(seconds);
-  }
-
-  public static void setStatusMode(String component, boolean on) {
-      getStatusBar().setStatusMode(component, on);
-  }
-
-
-  private void buildInterface() {
-
-    setJMenuBar(new YAWLMenuBar());
-    Container pane = this.getContentPane();
-
-    pane.setLayout(new BorderLayout());
-    pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
-
-    pane.add(getVerticalSplitPane(), BorderLayout.CENTER);
-    pane.add(getStatusBar(),BorderLayout.SOUTH);
-
-    setTitle("");
-
-    setIconImage(
-      ResourceLoader.getImageAsIcon(
-              "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.gif"
-      ).getImage()
-    );
-
-    updateLoadProgress(90);
-
-    ArchivingThread.getInstance().start();
-    processPreferences();
-    installEventListeners();
-
-    updateLoadProgress(95);
-  }
-
-
-  public void setTitle(String title) {
-    String titleSeparator = "";
-    if (!title.equals("")) {
-      titleSeparator = " - ";
-    }
-    super.setTitle("YAWLEditor" + titleSeparator + title);
-  }
-
-  private void installEventListeners() {
-    setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    addWindowListener(new WindowAdapter() {
-      private boolean closing = false;
-      public void windowClosing(WindowEvent we) {
-        synchronized(this) {
-          if (!closing) {
-            closing = true;
-            ArchivingThread.getInstance().exit();
-            closing = false;
-          }
+    public static YAWLEditor getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new YAWLEditor();
         }
-      }
-    });
-    final JFrame frame = this;
-    addComponentListener(new ComponentAdapter() {
-      public void componentMoved(ComponentEvent event) {
-          savePosition();
-      }
-
-      public void componentResized(ComponentEvent event) {
-          savePosition();
-          UserSettings.setFrameWidth(frame.getWidth());
-          UserSettings.setFrameHeight(frame.getHeight());
-      }
-
-      private void savePosition() {
-          UserSettings.setFrameLocation(frame.getX(), frame.getY());
-      }
-    });
-  }
-
-  private JSplitPane getVerticalSplitPane() {
-    splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
-    splitPane.setTopComponent(getTopPanel());
-    splitPane.setBottomComponent(getBottomPanel());
-
-    splitPane.setDividerSize(10);
-    splitPane.setResizeWeight(0);
-    splitPane.setOneTouchExpandable(true);
-
-    return splitPane;
-  }
-
-  public void indicateSplitPaneActivity() {
-
-    // We choose an animation here because I have
-    // no control over the colour of the divider
-    // via the Swing interface.
-
-    final int originalDividerLocation = splitPane.getDividerLocation();
-
-    splitPane.setDividerLocation(
-      originalDividerLocation - 20
-    );
-
-    pause(200); 
-
-    splitPane.setDividerLocation(
-        originalDividerLocation
-    );
-
-    pause(200);
-
-    splitPane.setDividerLocation(
-        originalDividerLocation - 20
-    );
-
-    pause(200);
-
-    splitPane.setDividerLocation(
-        originalDividerLocation
-    );
-  }
-
-  public void selectNotesTab() {
-    specificationBottomPanel.selectNotesTab();
-  }
-
-  public void indicateProblemsTabActivity() {
-    specificationBottomPanel.selectProblemsTab();
-  }
-
-  public void showProblemList(String title, List problemList) {
-    try {
-      ProblemMessagePanel.getInstance().setProblemList(
-          title,
-          problemList
-      );
-      splitPane.setDividerLocation(0.8);
-
-    } catch (Exception e) {
-
-      LinkedList<String> stackMessageList = new LinkedList<String>();
-      stackMessageList.add(e.getMessage());
-
-      ProblemMessagePanel.getInstance().setProblemList(
-          "Programming Exception with problem list generation",
-          stackMessageList
-      );
-    }
-  }
-
-
-  private JSplitPane getTopPanel() {
-    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-    splitPane.setLeftComponent(getPalette());
-
-    updateLoadProgress(70);
-
-    splitPane.setRightComponent(getEditPanel());
-
-    updateLoadProgress(80);
-
-    splitPane.setDividerSize(10);
-    splitPane.setResizeWeight(0);
-    splitPane.setOneTouchExpandable(true);
-
-    return splitPane;
-  }
-
-  private JPanel getToolbarMenuPanel() {
-    JPanel toolbarMenuPanel = new JPanel();
-    toolbarMenuPanel.setLayout(new BoxLayout(toolbarMenuPanel, BoxLayout.X_AXIS));
-    toolbarMenuPanel.add(new ToolBarMenu());
-    toolbarMenuPanel.add(Box.createVerticalGlue());
-    return toolbarMenuPanel;
-  }
-
-  private Palette getPalette() {
-    return this.paletteBar;
-  }
-
-  private JPanel getBottomPanel() {
-    JPanel bottomPanel = new JPanel(new BorderLayout());
-
-    specificationBottomPanel = new SpecificationBottomPanel();
-
-    bottomPanel.add(
-        specificationBottomPanel,
-        BorderLayout.CENTER
-    );
-
-    return bottomPanel;
-  }
-
-  private JPanel getEditPanel() {
-    JPanel editPanel = new JPanel(new BorderLayout());
-    editDesktop = YAWLEditorDesktop.getInstance();
-    editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-    editPanel.add(editDesktop, BorderLayout.CENTER);
-    return editPanel;
-  }
-
-  private void processPreferences() {
-    setSize(UserSettings.getFrameWidth(), UserSettings.getFrameHeight());
-    Point pos = UserSettings.getFrameLocation();
-
-    if (pos.x == -1 || pos.y == -1) {
-      JUtilities.centerWindow(this);
-    }
-    else {
-      this.setLocation(pos.x, pos.y);
+        return INSTANCE;
     }
 
-    // initialise analysis 'off'
-      UserSettings.setAnalyseOnSave(false);
-    initResetNetAnalysisPreferences();
-    initWofYAWLAnalysisPreferences();
-  }
 
-  private void initResetNetAnalysisPreferences() {
-      UserSettings.setWeakSoundnessAnalysis(false);
-      UserSettings.setCancellationAnalysis(false);
-      UserSettings.setOrJoinAnalysis(false);
-      UserSettings.setShowObservations(false);
-  }
-
-  private void initWofYAWLAnalysisPreferences() {
-      UserSettings.setWofyawlAnalysis(false);
-      UserSettings.setStructuralAnalysis(false);
-      UserSettings.setBehaviouralAnalysis(false);
-      UserSettings.setExtendedCoverability(false);
-  }
+    public static void main(String[] args) {
+        showGUI(validateParameter(args));
+    }
 
 
-  public static void hideBottomOfSplitPane() {
-    splitPane.setDividerLocation((double)1);
-  }
+    private static void showGUI(final String fileName) {
+        SwingUtilities.invokeLater(new Runnable() {
+             public void run() {
+                 setLookAndFeel();
+                 startLoading();
+                 getInstance().setVisible(true);
+                 finishLoading();
+                 hideBottomOfSplitPane();
+                 processParametersAsNecessary(fileName);
+             }
+        });
+    }
 
-  public void specificationFileStateChange(FileState state) {
-    switch(state) {
-      case Open: {
-        String title = SpecificationModel.getInstance().getFileName();
-        if (title != null) setTitle(title);
-        break;
-      }
-      case Closed: {
+
+    private static String validateParameter(String[] args) {
+        if (args.length > 1) {
+            System.err.println("Usage: " + System.getProperty("java.class.path") +
+                    " [<EditorSaveFile>]");
+            System.exit(1);
+        }
+        return args.length == 1 ? args[0] : null;
+    }
+
+
+    private static void setLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
+        }
+        catch (Exception e) {
+            //
+        }
+
+        // move menu to screen top - only affects mac installs
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+    }
+
+
+    public static void updateLoadProgress(int completionValue) {
+
+        YSplashScreen.updateProgress(completionValue);
+    }
+
+    private static void startLoading() {
+        YSplashScreen.init();
+        LogWriter.init(FileUtilities.getHomeDir());
+    }
+
+    private static void finishLoading() {
+        YSplashScreen.close();
+    }
+
+    private static void processParametersAsNecessary(String loadFileName) {
+        if (loadFileName != null) {
+            FileOperations.open(loadFileName);
+        }
+    }
+
+    private static JStatusBar getStatusBar() {
+        return statusBar;
+    }
+
+    public static void setStatusBarText(String statusString) {
+        getStatusBar().setStatusBarText(statusString);
+    }
+
+    public static void setStatusBarTextToPrevious(){
+        getStatusBar().setStatusBarTextToPrevious();
+    }
+
+    public static void resetStatusBarProgress() {
+        getStatusBar().resetStatusBarProgress();
+    }
+
+    public static void finishStatusBarProgress() {
+        getStatusBar().finishStatusBarProgress();
+    }
+
+    public static void progressStatusBarOverSeconds(int seconds) {
+        getStatusBar().progressStatusBarOverSeconds(seconds);
+    }
+
+    public static void setStatusMode(String component, boolean on) {
+        getStatusBar().setStatusMode(component, on);
+    }
+
+
+    private void buildInterface() {
+        statusBar = new JStatusBar();
+        paletteBar = Palette.getInstance();
+        setJMenuBar(new YAWLMenuBar());
+        Container pane = getContentPane();
+
+        pane.setLayout(new BorderLayout());
+        pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
+        pane.add(getVerticalSplitPane(), BorderLayout.CENTER);
+        pane.add(getStatusBar(),BorderLayout.SOUTH);
         setTitle("");
-        splitPane.setDividerLocation((double)1);
-        break;
-      }
+
+        setIconImage(
+                ResourceLoader.getImageAsIcon(
+                        "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.gif"
+                ).getImage()
+        );
+
+        updateLoadProgress(90);
+        processPreferences();
+        installEventListeners();
+        updateLoadProgress(95);
     }
-  }
+
+
+    public void setTitle(String title) {
+        String titleSeparator = title.equals("") ? "" : " - ";
+        super.setTitle("YAWLEditor" + titleSeparator + title);
+    }
+
+
+    private void installEventListeners() {
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            private boolean closing = false;
+            public void windowClosing(WindowEvent we) {
+                synchronized(this) {
+                    if (! closing) {
+                        closing = true;
+                        FileOperations.exit();
+                        closing = false;
+                    }
+                }
+            }
+        });
+        final JFrame frame = this;
+        addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent event) {
+                savePosition();
+            }
+
+            public void componentResized(ComponentEvent event) {
+                savePosition();
+                UserSettings.setFrameWidth(frame.getWidth());
+                UserSettings.setFrameHeight(frame.getHeight());
+            }
+
+            private void savePosition() {
+                UserSettings.setFrameLocation(frame.getX(), frame.getY());
+            }
+        });
+    }
+
+    private JSplitPane getVerticalSplitPane() {
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setTopComponent(getTopPanel());
+        splitPane.setBottomComponent(getBottomPanel());
+        splitPane.setDividerSize(8);
+        splitPane.setResizeWeight(0);
+        splitPane.setOneTouchExpandable(true);
+        return splitPane;
+    }
+
+
+    public void selectNotesTab() {
+        specificationBottomPanel.selectNotesTab();
+    }
+
+
+    public void selectProblemsTab() {
+        specificationBottomPanel.selectProblemsTab();
+    }
+
+
+    public void showProblemList(String title, List problemList) {
+        try {
+            ProblemMessagePanel.getInstance().setProblemList(
+                    title,
+                    problemList
+            );
+            splitPane.setDividerLocation(0.8);
+
+        }
+        catch (Exception e) {
+            List<String> stackMessageList = new LinkedList<String>();
+            stackMessageList.add(e.getMessage());
+
+            ProblemMessagePanel.getInstance().setProblemList(
+                    "Program Exception with problem list generation",
+                    stackMessageList
+            );
+        }
+    }
+
+
+    private JSplitPane getTopPanel() {
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setLeftComponent(getLeftPane());
+        updateLoadProgress(70);
+        splitPane.setRightComponent(getEditPanel());
+        updateLoadProgress(80);
+        splitPane.setDividerSize(8);
+        splitPane.setResizeWeight(0);
+        splitPane.setOneTouchExpandable(true);
+        return splitPane;
+    }
+
+
+    private JPanel getToolbarMenuPanel() {
+        JPanel toolbarMenuPanel = new JPanel();
+        toolbarMenuPanel.setLayout(new GridLayout(1,0));
+        ToolBarMenu menu = new ToolBarMenu();
+        toolbarMenuPanel.add(menu);
+        return toolbarMenuPanel;
+    }
+
+
+    private JPanel getLeftPane() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(paletteBar, BorderLayout.NORTH);
+        panel.add(getPropertiesPane(), BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel getBottomPanel() {
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        specificationBottomPanel = new SpecificationBottomPanel();
+        bottomPanel.add(specificationBottomPanel, BorderLayout.CENTER);
+        return bottomPanel;
+    }
+
+    private JPanel getEditPanel() {
+        JPanel editPanel = new JPanel(new BorderLayout());
+        editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        editPanel.add(YAWLEditorDesktop.getInstance(), BorderLayout.CENTER);
+        return editPanel;
+    }
+
+    private JPanel getPropertiesPane() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Properties"));
+        sheet = new YPropertySheet();
+        JScrollPane propertiesPane = new JScrollPane(sheet);
+        panel.add(propertiesPane, BorderLayout.CENTER);
+        Dimension size = sheet.getPreferredSize();
+        sheet.getTable().setBackground(getBackground());   // init uncoloured
+        panel.setMinimumSize(new Dimension((int) size.getWidth() + 20,
+                (int) size.getHeight() + 50));
+        return panel;
+    }
+
+
+    public YPropertySheet getPropertySheet() { return sheet; }
+
+    private void processPreferences() {
+        setSize(UserSettings.getFrameWidth(), UserSettings.getFrameHeight());
+        Point pos = UserSettings.getFrameLocation();
+        if (pos.x == -1 || pos.y == -1) {
+            JUtilities.centerWindow(this);
+        }
+        else {
+            this.setLocation(pos.x, pos.y);
+        }
+
+        // initialise analysis 'off'
+        UserSettings.setAnalyseOnSave(false);
+        initResetNetAnalysisPreferences();
+        initWofYAWLAnalysisPreferences();
+    }
+
+    private void initResetNetAnalysisPreferences() {
+        UserSettings.setWeakSoundnessAnalysis(false);
+        UserSettings.setCancellationAnalysis(false);
+        UserSettings.setOrJoinAnalysis(false);
+        UserSettings.setShowObservations(false);
+    }
+
+    private void initWofYAWLAnalysisPreferences() {
+        UserSettings.setWofyawlAnalysis(false);
+        UserSettings.setStructuralAnalysis(false);
+        UserSettings.setBehaviouralAnalysis(false);
+        UserSettings.setExtendedCoverability(false);
+    }
+
+
+    public static void hideBottomOfSplitPane() {
+        splitPane.setDividerLocation((double)1);
+    }
+
+
+    public void specificationFileStateChange(FileState state) {
+        switch(state) {
+            case Open: {
+                String title = SpecificationModel.getInstance().getFileName();
+                if (title != null) setTitle(title);
+                break;
+            }
+            case Closed: {
+                setTitle("");
+                splitPane.setDividerLocation((double)1);
+                break;
+            }
+        }
+    }
 
 
     private void establishConnections() {
@@ -444,23 +403,5 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         YConnector.setResourcePassword(UserSettings.getResourcePassword());
         YConnector.setResourceURL(UserSettings.getResourceUri());
     }
-
-
-  public static void pause(long milliseconds) {
-    Object lock = new Object();
-    long now = System.currentTimeMillis();
-    long finishTime = now + milliseconds;
-    while (now < finishTime) {
-      long timeToWait = finishTime - now;
-      synchronized (lock) {
-         try {
-           lock.wait(timeToWait);
-         }
-         catch (InterruptedException ex) {
-         }
-      }
-      now = System.currentTimeMillis();
-    }
-  }
 
 }

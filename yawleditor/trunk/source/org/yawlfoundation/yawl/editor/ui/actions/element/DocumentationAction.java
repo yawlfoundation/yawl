@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.data.TextAreaDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.TextAreaDialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

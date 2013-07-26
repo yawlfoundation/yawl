@@ -26,7 +26,7 @@ public class AnalysisResultsParser {
 
 
     public List<String> getAnalysisResults(SpecificationModel editorSpec) {
-        String specXML = EngineSpecificationExporter.getEngineSpecificationXML(editorSpec);
+        String specXML = SpecificationExporter.getEngineSpecificationXML(editorSpec);
         return getAnalysisResults(specXML);
     }
 

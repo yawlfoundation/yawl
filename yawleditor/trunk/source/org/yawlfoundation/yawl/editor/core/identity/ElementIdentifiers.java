@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.editor.core.identity;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.elements.*;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class ElementIdentifiers {
      * @return an EngineIdentifier containing the name and a unique suffix
      */
     public EngineIdentifier getIdentifier(String label) {
-        if (label == null) label = DEFAULT_ELEMENT_NAME;
+        if (label == null || label.equals("null")) label = DEFAULT_ELEMENT_NAME;
         return new EngineIdentifier(label, getSuffixStore(label).getNextSuffix());
     }
 
@@ -93,6 +94,27 @@ public class ElementIdentifiers {
             }
         }
     }
+
+
+    public void rationalise(YSpecification spec) {
+        uniqueIdentifiers.clear();
+        for (YDecomposition decomposition : spec.getDecompositions()) {
+            if (decomposition instanceof YNet) {
+                for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
+                    rationalise(element);
+                }
+            }
+        }
+    }
+
+
+    private void rationalise(YNetElement element) {
+        String original = element.getID();
+        EngineIdentifier id = rationalise(EngineIdentifier.parse(original));
+        if (! id.toString().equals(original)) {
+            element.setID(id.toString());
+        }
+    }
     
 
     /**
@@ -101,9 +123,13 @@ public class ElementIdentifiers {
      * @param vertex the vertex to rationalise
      */
     private void rationalise(YAWLVertex vertex) {
-        String name = vertex.getEngineIdentifier().getName();
-        if (name.equals("null")) name = DEFAULT_ELEMENT_NAME;
-        vertex.setEngineID(getIdentifier(name), false);
+//        EngineIdentifier id = rationalise(vertex.getEngineIdentifier());
+//        vertex.setID(id, false);
+    }
+
+
+    private EngineIdentifier rationalise(EngineIdentifier identifier) {
+        return getIdentifier(identifier.getName());
     }
 
 

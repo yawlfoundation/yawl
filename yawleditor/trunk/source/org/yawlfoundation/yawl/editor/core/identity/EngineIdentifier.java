@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.editor.core.identity;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 /**
  * @author Michael Adams
  * @date 1/03/12
@@ -24,6 +26,19 @@ public class EngineIdentifier {
     public int getSuffix() { return _suffix; }
 
     public void setSuffix(int suffix) { _suffix = suffix; }
+
+
+    public static EngineIdentifier parse(String id) {
+        int pos = id.lastIndexOf("_");
+        if (pos > -1) {
+            String suffixStr = id.substring(pos + 1);
+            if (StringUtil.isIntegerString(suffixStr)) {
+                return new EngineIdentifier(id.substring(0, pos),
+                        StringUtil.strToInt(suffixStr, 0));
+            }
+        }
+        return new EngineIdentifier(id);
+    }
 
 
     public String toString() {

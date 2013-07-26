@@ -24,9 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
+import org.yawlfoundation.yawl.elements.YDecomposition;
+
 import javax.swing.undo.AbstractUndoableEdit;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
   /**
@@ -34,12 +34,12 @@ public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
    */
   private static final long serialVersionUID = 1L;
 
-  private Decomposition decomposition;
+  private YDecomposition decomposition;
     
   private String oldLabel;
   private String newLabel;
     
-  public UndoableDecompositionLabelChange(Decomposition decomposition, 
+  public UndoableDecompositionLabelChange(YDecomposition decomposition,
                                           String oldName, 
                                           String newName) {
     this.decomposition = decomposition;
@@ -48,12 +48,10 @@ public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
   }
   
   public void redo() {
-    decomposition.setLabel(newLabel);
-    SpecificationModel.getInstance().changeDecompositionInQueries(oldLabel, newLabel);
+    decomposition.setName(newLabel);
   }
   
   public void undo() {
-    decomposition.setLabel(oldLabel);
-    SpecificationModel.getInstance().changeDecompositionInQueries(newLabel, oldLabel);
+    decomposition.setName(oldLabel);
   }
 }

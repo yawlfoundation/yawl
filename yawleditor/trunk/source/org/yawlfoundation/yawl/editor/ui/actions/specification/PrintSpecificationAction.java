@@ -56,8 +56,8 @@ public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Print this specification ");
-    putValue(Action.NAME, "Print Specification...");
-    putValue(Action.LONG_DESCRIPTION, "Prints this specification");
+    putValue(Action.NAME, "Print...");
+    putValue(Action.LONG_DESCRIPTION, "Print this specification");
     putValue(Action.SMALL_ICON, getPNGIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("P"));

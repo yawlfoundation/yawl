@@ -49,7 +49,7 @@ public class DefaultConfigurationExporter {
                 XNode flowNode = portNode.addChild(flowLabel);
                 YAWLVertex vertex = (dir == Direction.input) ? flow.getSourceVertex() :
                         flow.getTargetVertex();
-                flowNode.addAttribute("id", vertex.getEngineId());
+                flowNode.addAttribute("id", vertex.getID());
             }    
         }
         return portNode;

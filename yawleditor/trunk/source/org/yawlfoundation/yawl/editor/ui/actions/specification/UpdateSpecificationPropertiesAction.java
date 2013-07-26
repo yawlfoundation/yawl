@@ -56,7 +56,7 @@ public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAc
   
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Update Specification Properties");
+    putValue(Action.NAME, "Properties...");
     putValue(Action.LONG_DESCRIPTION, "Update Specification Properties");
     putValue(Action.SMALL_ICON, getPNGIcon("page_white_gear"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
@@ -110,15 +110,15 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     getDoneButton().addActionListener( 
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
-          SpecificationModel.getSpec().setTitle(specificationNameField.getText());
-          SpecificationModel.getSpec().setDescription(specificationDescriptionField.getText());
-          SpecificationModel.getSpec().getSpecification().getSpecificationID().setUri(
+          SpecificationModel.getHandler().setTitle(specificationNameField.getText());
+          SpecificationModel.getHandler().setDescription(specificationDescriptionField.getText());
+          SpecificationModel.getHandler().getSpecification().getSpecificationID().setUri(
                   specificationIDField.getText());
-          SpecificationModel.getSpec().setAuthors(StringUtil.splitToList(
+          SpecificationModel.getHandler().setAuthors(StringUtil.splitToList(
                   specificationAuthorField.getText(), ","));
           SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(versionNumberField.getText()));
-          SpecificationModel.getSpec().setValidFrom(validFromPanel.getDate());
-          SpecificationModel.getSpec().setValidUntil(validUntilPanel.getDate());
+          SpecificationModel.getHandler().setValidFrom(validFromPanel.getDate());
+          SpecificationModel.getHandler().setValidUntil(validUntilPanel.getDate());
           SpecificationUndoManager.getInstance().setDirty(true);
         }
       }
@@ -259,16 +259,16 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
   public void setVisible(boolean state) {
     if (state) {
       specificationNameField.setText(
-        SpecificationModel.getSpec().getTitle()
+        SpecificationModel.getHandler().getTitle()
       );
       specificationDescriptionField.setText(
-          SpecificationModel.getSpec().getDescription()
+          SpecificationModel.getHandler().getDescription()
       );
       specificationIDField.setText(
-          SpecificationModel.getSpec().getSpecification().getSpecificationID().getUri()
+          SpecificationModel.getHandler().getSpecification().getSpecificationID().getUri()
       );
       specificationAuthorField.setText(StringUtil.join(
-          SpecificationModel.getSpec().getAuthors(), ',')
+          SpecificationModel.getHandler().getAuthors(), ',')
       );
       versionNumberField.setText(
           SpecificationModel.getInstance().getVersionNumber().toString()
@@ -277,8 +277,8 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
               (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
       svv.setStartingVersion(SpecificationModel.getInstance().getVersionNumber());
 
-      validFromPanel.setDate(SpecificationModel.getSpec().getValidFrom());
-      validUntilPanel.setDate(SpecificationModel.getSpec().getValidUntil());
+      validFromPanel.setDate(SpecificationModel.getHandler().getValidFrom());
+      validUntilPanel.setDate(SpecificationModel.getHandler().getValidUntil());
     } 
     super.setVisible(state);
   }

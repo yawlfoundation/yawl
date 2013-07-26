@@ -24,46 +24,21 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.jgraph.graph.GraphConstants;
+import org.yawlfoundation.yawl.elements.YOutputCondition;
 
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-
-public class OutputCondition extends YAWLCondition {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing an
-     * output condition from saved state. Ports will not be created with this
-     * constructor, as they are already part of the JGraph state-space.
-     */
-
-    public OutputCondition() {
-        super();
-    }
 
 
-    /**
-     * This constructor is to be invoked whenever we are creating a new
-     * output condition from scratch. It also creates the correct ports needed
-     * for the vertex as an intended side-effect.
-     */
+public class OutputCondition extends Condition {
 
     public OutputCondition(Point2D startPoint) {
         super(startPoint);
     }
 
-    protected void buildElement() {
-        HashMap map = new HashMap();
-        GraphConstants.setEditable(map, false);
-        getAttributes().applyMap(map);
-
-        addDefaultPorts();
+    public OutputCondition(Point2D startPoint, YOutputCondition shadow) {
+        super(startPoint, shadow);
     }
+
 
     public boolean isRemovable() {
         return false;
@@ -81,7 +56,4 @@ public class OutputCondition extends YAWLCondition {
         return "Output Condition";
     }
 
-    public String getEngineLabel() {
-        return "OutputCondition";
-    }
 }

@@ -1,18 +1,14 @@
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 
-import javax.swing.JEditorPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import java.awt.*;
 
 public class DesignNotesPanel extends JPanel {
 
@@ -40,8 +36,6 @@ class DesignNotesEditor extends JEditorPane {
   
   private static final int MAX_ROW_HEIGHT = 5;
 
-  private static final long serialVersionUID = 1L;
-  
   private YAWLVertex vertex;
 
   public DesignNotesEditor() {

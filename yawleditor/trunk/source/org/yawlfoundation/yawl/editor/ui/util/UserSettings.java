@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.util;
 
+import org.yawlfoundation.yawl.editor.core.util.FileSaveOptions;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +171,11 @@ public class UserSettings {
 
     public static boolean getFileVersioningOnSave() {
         return getBoolean(FILE_VERSIONING_ON_SAVE);
+    }
+
+    public static FileSaveOptions getFileSaveOptions() {
+        return new FileSaveOptions(getAutoIncrementVersionOnSave(), getFileBackupOnSave(),
+                getFileVersioningOnSave(), getVerifyOnSave());
     }
 
     public static void setResetNetAnalysis(boolean resetNet) {
@@ -468,7 +475,7 @@ public class UserSettings {
         return recentFileList;
     }
 
-    public static  void pushRecentFile(String fullFileName) {
+    public static void pushRecentFile(String fullFileName) {
       List<String> recentList = loadRecentFileList();
       int duplicatePos = recentList.indexOf(fullFileName);
       int start = (duplicatePos > -1) ? duplicatePos - 1 : MAX_RECENT_FILES - 2;

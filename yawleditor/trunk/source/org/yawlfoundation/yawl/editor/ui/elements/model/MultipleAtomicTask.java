@@ -24,39 +24,29 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.awt.geom.Point2D;
 
 public class MultipleAtomicTask extends YAWLTask
         implements YAWLMultipleInstanceTask, YAWLAtomicTask {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
     private MultipleInstanceTaskConfigSet configureSet;
+    private YMultiInstanceAttributes _miAttributes;
 
     private long _minimumInstances;
     private long _maximumInstances;
     private long _continuationThreshold;
     private int _instanceCreationType;
-    private DataVariable _multipleInstanceVariable;
+    private YVariable _multipleInstanceVariable;
     private String _splitterQuery;
     private String _aggregateQuery;
-    private DataVariable _resultNetVariable;
+    private YVariable _resultNetVariable;
 
 
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing an
-     * atomic multiple task from saved state. Ports will not be created with this
-     * constructor, as they are already part of the JGraph state-space.
-     */
-
-    public MultipleAtomicTask() {
-        this(null, null);
-    }
 
     /**
      * This constructor is to be invoked whenever we are creating a new
@@ -65,8 +55,14 @@ public class MultipleAtomicTask extends YAWLTask
      */
 
     public MultipleAtomicTask(Point2D startPoint) {
-        this(startPoint, null);
+        this(startPoint, (String) null);
     }
+
+    public MultipleAtomicTask(Point2D startPoint, YTask yTask) {
+        this(startPoint, (String) null);
+        setShadowTask(yTask);
+    }
+
 
     /**
      * This constructor is to be invoked whenever we are creating a new
@@ -79,6 +75,12 @@ public class MultipleAtomicTask extends YAWLTask
         initialise();
     }
 
+    public void setShadowTask(YTask shadow) {
+        super.setShadowTask(shadow);
+        _miAttributes = shadow.getMultiInstanceAttributes();
+    }
+
+
     public void iniConfigure() {
         configureSet = new MultipleInstanceTaskConfigSet(this);
     }
@@ -88,17 +90,13 @@ public class MultipleAtomicTask extends YAWLTask
         setMaximumInstances(2);
         setContinuationThreshold(1);
         setInstanceCreationType(STATIC_INSTANCE_CREATION);
-        setMultipleInstanceVariable(null);
-        setResultNetVariable(null);
-        setSplitterQuery("true()");
-        setAggregateQuery("true()");
     }
 
 
-    public long getMinimumInstances() { return _minimumInstances; }
+    public long getMinimumInstances() { return _miAttributes.getMinInstances(); }
 
     public void setMinimumInstances(long instanceBound) {
-        _minimumInstances = instanceBound;
+//        _minimumInstances = instanceBound;
     }
 
 
@@ -129,17 +127,17 @@ public class MultipleAtomicTask extends YAWLTask
     }
 
 
-    public DataVariable getMultipleInstanceVariable() {
+    public YVariable getMultipleInstanceVariable() {
         return _multipleInstanceVariable;
     }
 
-    public void setMultipleInstanceVariable(DataVariable variable) {
+    public void setMultipleInstanceVariable(YVariable variable) {
 
         if (! ((_multipleInstanceVariable == null) ||
                _multipleInstanceVariable.equals(variable))) {
 
             // destroy now defunct accessor query for multiple instance variable */
-            getParameterLists().getInputParameters().remove(_multipleInstanceVariable);
+//            getParameterLists().getInputParameters().remove(_multipleInstanceVariable);
         }
 
         _multipleInstanceVariable = variable;
@@ -147,16 +145,17 @@ public class MultipleAtomicTask extends YAWLTask
 
 
     public String getAccessorQuery() {
-        return getParameterLists().getInputParameters().getQueryFor(
-                getMultipleInstanceVariable()
-        );
+//        return getParameterLists().getInputParameters().getQueryFor(
+//                getMultipleInstanceVariable()
+//        );
+        return "";
     }
 
     public void setAccessorQuery(String query) {
         if (getMultipleInstanceVariable() != null) {
-            getParameterLists().getInputParameters().setQueryFor(
-                    getMultipleInstanceVariable(), query
-            );
+//            getParameterLists().getInputParameters().setQueryFor(
+//                    getMultipleInstanceVariable(), query
+//            );
         }
     }
 
@@ -171,16 +170,17 @@ public class MultipleAtomicTask extends YAWLTask
 
 
     public String getInstanceQuery() {
-        return getParameterLists().getOutputParameters().getQueryFor(
-                getResultNetVariable()
-        );
+//        return getParameterLists().getOutputParameters().getQueryFor(
+//                getResultNetVariable()
+//        );
+        return null;
     }
 
     public void setInstanceQuery(String query) {
         if (getResultNetVariable() != null) {
-            getParameterLists().getOutputParameters().setQueryFor(
-                    getResultNetVariable(), query
-            );
+//            getParameterLists().getOutputParameters().setQueryFor(
+//                    getResultNetVariable(), query
+//            );
         }
     }
 
@@ -194,28 +194,28 @@ public class MultipleAtomicTask extends YAWLTask
     }
 
 
-    public DataVariable getResultNetVariable() {
+    public YVariable getResultNetVariable() {
         return _resultNetVariable;
     }
 
-    public void setResultNetVariable(DataVariable variable) {
+    public void setResultNetVariable(YVariable variable) {
         if (! ((_resultNetVariable == null) ||
                _resultNetVariable.equals(variable))) {
 
             // destroy now defunct instance query for result net variable */
-            getParameterLists().getOutputParameters().remove(_resultNetVariable);
+   //         getParameterLists().getOutputParameters().remove(_resultNetVariable);
         }
 
         _resultNetVariable = variable;
     }
 
 
-    public void setWSDecomposition(WebServiceDecomposition decomposition) {
+    public void setDecomposition(YDecomposition decomposition) {
         super.setDecomposition(decomposition);
     }
 
-    public WebServiceDecomposition getWSDecomposition() {
-        return (WebServiceDecomposition) super.getDecomposition();
+    public YDecomposition getDecomposition() {
+        return super.getDecomposition();
     }
 
     public String getType() {

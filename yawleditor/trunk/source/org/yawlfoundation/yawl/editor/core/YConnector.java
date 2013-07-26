@@ -222,6 +222,10 @@ public class YConnector {
         return _resConn.getFilters();
     }
 
+    public static List<AbstractSelector> getConstraints() throws IOException {
+        return _resConn.getConstraints();
+    }
+
 
     public static List<YParameter> getCodeletParameters(String codeletName)
             throws IOException {

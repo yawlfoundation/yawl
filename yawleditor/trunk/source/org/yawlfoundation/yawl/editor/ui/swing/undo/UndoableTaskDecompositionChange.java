@@ -24,23 +24,20 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+
+import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableTaskDecompositionChange extends AbstractUndoableEdit {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private Decomposition oldDecomposition;
-  private Decomposition newDecomposition;
-    
+
+  private YDecomposition oldDecomposition;
+  private YDecomposition newDecomposition;
   private YAWLTask task;
     
   public UndoableTaskDecompositionChange(YAWLTask      task,
-                                         Decomposition oldDecomposition, 
-                                         Decomposition newDecomposition) {
+                                         YDecomposition oldDecomposition,
+                                         YDecomposition newDecomposition) {
     this.task = task;
     
     this.oldDecomposition = oldDecomposition;

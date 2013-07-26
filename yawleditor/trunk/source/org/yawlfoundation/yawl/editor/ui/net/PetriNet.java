@@ -32,7 +32,7 @@ public class PetriNet {
     private int initialMarking;
     private int finalCondition;
 
-    private HashMap<YAWLCondition, Integer> conditionToPlace = new HashMap<YAWLCondition, Integer>();
+    private HashMap<Condition, Integer> conditionToPlace = new HashMap<Condition, Integer>();
     private HashMap<YAWLFlowRelation, Integer> flowToSourcePlace = new HashMap<YAWLFlowRelation, Integer>();
     private HashMap<YAWLFlowRelation, Integer> flowToTargetPlace = new HashMap<YAWLFlowRelation, Integer>();
 
@@ -95,11 +95,11 @@ public class PetriNet {
 
     private void InitializeFlowToPlaceMap() {
         for (YAWLFlowRelation flow : flows) {
-            if (flow.getSourceVertex() instanceof YAWLCondition) {
+            if (flow.getSourceVertex() instanceof Condition) {
                 flowToSourcePlace.put(flow, conditionToPlace.get(flow.getSourceVertex()));
                 flowToTargetPlace.put(flow, null);
             }
-            else if (flow.getTargetVertex() instanceof YAWLCondition){
+            else if (flow.getTargetVertex() instanceof Condition) {
                 flowToTargetPlace.put(flow, conditionToPlace.get(flow.getTargetVertex()));
                 flowToSourcePlace.put(flow, null);
             }
@@ -133,10 +133,10 @@ public class PetriNet {
                 for (CPort port : task.getInputCPorts()) {
                     Transition t = new Transition();
                     if (task.getDecomposition() == null) {
-                        t.role = task.getEngineId() + "INPUT" + port.getID();
+                        t.role = task.getID() + "INPUT" + port.getID();
                     }
                     else {
-                        t.role = task.getDecomposition().getLabel() + "INPUT" + port.getID();
+                        t.role = task.getDecomposition().getID() + "INPUT" + port.getID();
                     }
                     t.producePlaces.add(placeID);
                     for (YAWLFlowRelation flow : port.getFlows()) {
@@ -149,10 +149,10 @@ public class PetriNet {
                 for (CPort port : task.getOutputCPorts()) {
                     Transition t = new Transition();
                     if (task.getDecomposition() == null) {
-                        t.role = task.getEngineId() + "OUTPUT" + port.getID();
+                        t.role = task.getID() + "OUTPUT" + port.getID();
                     }
                     else {
-                        t.role = task.getDecomposition().getLabel() + "OUTPUT" + port.getID();
+                        t.role = task.getDecomposition().getID() + "OUTPUT" + port.getID();
                     }
                     t.consumePlaces.add(placeID);
                     for (YAWLFlowRelation flow : port.getFlows()) {

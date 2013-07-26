@@ -25,8 +25,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -43,7 +42,7 @@ public class SaveSpecificationAction extends YAWLOpenSpecificationAction impleme
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Save Specification");
+    putValue(Action.NAME, "Save");
     putValue(Action.LONG_DESCRIPTION, "Save this specification");
     putValue(Action.SMALL_ICON, getPNGIcon("disk"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
@@ -59,9 +58,7 @@ public class SaveSpecificationAction extends YAWLOpenSpecificationAction impleme
       dialog.showOrHideSpecIDField();
       dialog.setVisible(true);
     } else {
-      ArchivingThread.getInstance().engineFileExport(
-          SpecificationModel.getInstance()
-      );
+        FileOperations.save();
     }
   }
   

@@ -23,8 +23,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -48,9 +48,8 @@ public class DataTypeComboBox extends JComboBox {
   }
   
   private void addBaseDataTypes() {
-    int i;
-    for(i = 0; i < DataVariable.getBaseDataTypes().length; i++) {
-      addItem(DataVariable.getBaseDataTypes()[i]);
+    for(String type : XSDType.getInstance().getBuiltInTypeList()) {
+      addItem(type);
     }
   }
   

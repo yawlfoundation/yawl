@@ -22,10 +22,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 public class SetEngineDetailAction extends YAWLBaseAction {
   /**
@@ -102,12 +101,12 @@ class EngineDetailDialog extends AbstractDoneDialog {
          String dataSchema = SpecificationModel.getInstance().getSchemaValidator().getDataTypeSchema();
            YConnector.disconnectEngine();
 
-         String password = Arrays.toString(enginePasswordField.getPassword());
+         String password = new String(enginePasswordField.getPassword());
          UserSettings.setEngineUri(engineURIField.getText());
          UserSettings.setEngineUserid(engineUserField.getText());
          UserSettings.setEnginePassword(password);
 
-           YConnector.setEngineUserID(engineURIField.getText());
+           YConnector.setEngineUserID(engineUserField.getText());
            YConnector.setEnginePassword(password);
            YConnector.setEngineURL(engineURIField.getText());
            if (dataSchema != null) {

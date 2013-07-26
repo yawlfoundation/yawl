@@ -28,239 +28,246 @@ import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.GraphConstants;
 
 import java.util.HashMap;
-import java.util.Map;
 
-public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparable, Cloneable { 
-  
-  /* ALL attributes of this object are to be stored in 
-   * serializationProofAttributeMap, meaning we won't get problems
-   * with incompatible XML serializations as we add new attributes
-   * in the future. 
-   */
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class YAWLFlowRelation extends DefaultEdge
+        implements YAWLCell, Comparable<YAWLFlowRelation>, Cloneable {
 
-  private boolean available = true;
+    private boolean available = true;
 
-  private HashMap serializationProofAttributeMap = new HashMap();
-  
-  public YAWLFlowRelation() {
-    super();
-    buildContent(); 
-  }
+    private int priority;
+    private String predicate;
 
-  private void buildContent() {
-    HashMap map = new HashMap();
-
-    GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
-    GraphConstants.setEndFill(map, true);
-    GraphConstants.setLineStyle(map, GraphConstants.STYLE_ORTHOGONAL);
-    GraphConstants.setBendable(map, false);
-    GraphConstants.setEditable(map, true);
-    GraphConstants.setDisconnectable(map, true);
-    GraphConstants.setConnectable(map, true);
-    
-    getAttributes().applyMap(map);
-
-    setPredicate("true()");
-    setPriority(0);
-  }
-  
-  public boolean connectsTwoTasks() {
-      return isTaskPort(this.getSource()) &&
-             isTaskPort(this.getTarget());
-  }
-  
-  private boolean isTaskPort(Object port) {
-      YAWLPort yawlPort = (YAWLPort) port;
-      return (port != null) &&
-             (yawlPort.getParent() instanceof YAWLTask ||
-              yawlPort.getParent() instanceof Decorator);
-  }
-  
-  public boolean isRemovable() {
-    return true;
-  }
-  
-  public boolean isCopyable() {
-      YAWLPort sourcePort = (YAWLPort) this.getSource();
-      YAWLPort targetPort = (YAWLPort) this.getTarget();
-
-      return (! isBroken()) &&
-             ((YAWLCell) sourcePort.getParent()).isCopyable() &&
-             ((YAWLCell) targetPort.getParent()).isCopyable();
-  }
-  
-  public boolean isBroken() {
-      YAWLPort sourcePort = (YAWLPort) this.getSource();
-      YAWLPort targetPort = (YAWLPort) this.getTarget();
-      return sourcePort == null || targetPort == null;
-  }
-  
-  public boolean generatesOutgoingFlows() {
-    return false;
-  }
-  
-  public boolean acceptsIncomingFlows() {
-    return false;
-  }
-
-  public void setSerializationProofAttributeMap(HashMap map) {
-    this.serializationProofAttributeMap = map;
-  }
-  
-  public HashMap getSerializationProofAttributeMap() {
-    return this.serializationProofAttributeMap;
-  }
-  
-  public void setPriority(int priority) {
-    serializationProofAttributeMap.put("priority",new Integer(priority));
-  }
-  
-  public int getPriority() {
-    return (Integer) serializationProofAttributeMap.get("priority");
-  }
-
-  public String getPredicate() {
-    return (String) serializationProofAttributeMap.get("predicate");
-  }
-
-  public void setPredicate(String predicate) {
-    serializationProofAttributeMap.put("predicate", predicate);
-  }
-  
-  public void incrementPriority() {
-    setPriority(getPriority()+1);
-  }
-  
-  public void decrementPriority() {
-    setPriority(getPriority()-1);
-  }
-  
-  public int compareTo(Object object) throws ClassCastException {
-      YAWLFlowRelation otherFlow = (YAWLFlowRelation) object;
-      return getPriority() - otherFlow.getPriority();
-  }
-  
-  public String getTargetLabel() {
-    if (getTarget() == null) {
-      return "";
+    public YAWLFlowRelation() {
+        super();
+        buildContent();
     }
-    Object target = ((YAWLPort)getTarget()).getParent();
-    if (target instanceof YAWLVertex) {
-      return ((YAWLVertex)target).getLabel();
+
+    private void buildContent() {
+        HashMap map = new HashMap();
+
+        GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
+        GraphConstants.setEndFill(map, true);
+        GraphConstants.setLineStyle(map, GraphConstants.STYLE_ORTHOGONAL);
+        GraphConstants.setBendable(map, false);
+        GraphConstants.setEditable(map, true);
+        GraphConstants.setDisconnectable(map, true);
+        GraphConstants.setConnectable(map, true);
+
+        getAttributes().applyMap(map);
+
+        setPredicate("true()");
+        setPriority(0);
     }
-    if (target instanceof JoinDecorator) {
-      return ((JoinDecorator)target).getTask().getLabel();
+
+    public boolean connectsTwoTasks() {
+        return isTaskPort(this.getSource()) &&
+                isTaskPort(this.getTarget());
     }
-    return "";
-  }
-  
-  public boolean isDefaultFlow() {
-    if (hasOrSplitAsSource() || hasXorSplitAsSource()) {
-      SplitDecorator decorator = (SplitDecorator) ((YAWLPort)getSource()).getParent();
-      if (decorator.getFlowsInPriorityOrder().last().equals(this)) {
+
+    private boolean isTaskPort(Object port) {
+        YAWLPort yawlPort = (YAWLPort) port;
+        return (port != null) &&
+                (yawlPort.getParent() instanceof YAWLTask ||
+                        yawlPort.getParent() instanceof Decorator);
+    }
+
+    public boolean isRemovable() {
         return true;
-      }
     }
-    return false;
-  }
-  
-  public boolean hasOrSplitAsSource() {
-    return hasSplitAsSource(Decorator.OR_TYPE);    
-  }
-  
-  public boolean hasXorSplitAsSource() {
-    return hasSplitAsSource(Decorator.XOR_TYPE);    
-  }
-  
-  public boolean requiresPredicate() {
-    return (hasOrSplitAsSource() || hasXorSplitAsSource());
-  }
-  
-  public boolean hasSplitAsSource(int type) {
-    if (getSource() == null) {
-      return false;
-    }
-    
-    Object source = ((YAWLPort)getSource()).getParent();
-    if (source instanceof SplitDecorator) {
-      SplitDecorator decorator = (SplitDecorator) source;
-      if (decorator.getType() == type) {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  public boolean connectsTaskToItself() {
-      return !(getSourceTask() == null || getTargetTask() == null) &&
-              getSourceTask().equals(getTargetTask());
-  }
-  
-  public YAWLTask getSourceTask() {
-    if (getSourceVertex() instanceof YAWLTask) {
-      return (YAWLTask) getSourceVertex();
-    }
-    return null;
-  }
-  
-  public YAWLTask getTargetTask() {
-    if (getTargetVertex() instanceof YAWLTask) {
-      return (YAWLTask) getTargetVertex();
-    }
-    return null;
-  }
-  
-  public boolean connectsElements() {
-      return getSource() != null && getTarget() != null;
-  }
-  
-  public YAWLVertex getSourceVertex() {
-    if (getSource() == null) {
-      return null;
-    }
-    return getVertexFrom(
-        ((YAWLPort)getSource()).getParent()
-    );
-  }
-  
-  public YAWLVertex getTargetVertex() {
-    if (getTarget() == null) {
-      return null;
-    }
-    return getVertexFrom(
-        ((YAWLPort)getTarget()).getParent()
-    );
-  }
-  
-  private YAWLVertex getVertexFrom(Object cell) {
-    assert cell != null : "null YAWLCell passed to getVertexFrom()";
-    
-    if (cell instanceof Decorator) {
-      Decorator cellAsDecorator = (Decorator) cell;
-      return cellAsDecorator.getTask();
-    }
-    if (cell instanceof YAWLVertex) {
-      return (YAWLVertex) cell;
-    }
-    return null;
-  }
-  
-  public Object clone() {
-    YAWLFlowRelation clone = (YAWLFlowRelation) super.clone();
 
-    Map map = new HashMap();
-    getAttributes().applyMap(map);    
-    clone.setSerializationProofAttributeMap(
-      (HashMap) getSerializationProofAttributeMap().clone()    
-    );
-    
-    return clone;
-  }
+    public boolean isCopyable() {
+        YAWLPort sourcePort = (YAWLPort) this.getSource();
+        YAWLPort targetPort = (YAWLPort) this.getTarget();
+
+        return (! isBroken()) &&
+                ((YAWLCell) sourcePort.getParent()).isCopyable() &&
+                ((YAWLCell) targetPort.getParent()).isCopyable();
+    }
+
+    public boolean isBroken() {
+        YAWLPort sourcePort = (YAWLPort) this.getSource();
+        YAWLPort targetPort = (YAWLPort) this.getTarget();
+        return sourcePort == null || targetPort == null;
+    }
+
+    public boolean generatesOutgoingFlows() {
+        return false;
+    }
+
+    public boolean acceptsIncomingFlows() {
+        return false;
+    }
+
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public String getPredicate() {
+        return predicate;
+    }
+
+    public void setPredicate(String predicate) {
+        this.predicate = predicate;
+    }
+
+    public void incrementPriority() {
+        setPriority(getPriority()+1);
+    }
+
+    public void decrementPriority() {
+        setPriority(getPriority()-1);
+    }
+
+    public int compareTo(YAWLFlowRelation other) throws ClassCastException {
+        return getPriority() - other.getPriority();
+    }
+
+
+    public String getSourceLabel() {
+        if (getSource() == null) {
+            return "";
+        }
+        Object source = ((YAWLPort)getSource()).getParent();
+        if (source instanceof YAWLVertex) {
+            return ((YAWLVertex)source).getLabel();
+        }
+        if (source instanceof SplitDecorator) {
+            return ((SplitDecorator)source).getTask().getLabel();
+        }
+        return "";
+    }
+
+
+    public String getSourceID() {
+        YAWLVertex source = getSourceVertex();
+        if (source != null) {
+            return source.getID();
+        }
+        return null;
+    }
+
+
+    public String getTargetID() {
+        YAWLVertex target = getTargetVertex();
+        if (target != null) {
+            return target.getID();
+        }
+        return null;
+    }
+
+    public String getTargetLabel() {
+        if (getTarget() == null) {
+            return "";
+        }
+        Object target = ((YAWLPort)getTarget()).getParent();
+        if (target instanceof YAWLVertex) {
+            return ((YAWLVertex)target).getLabel();
+        }
+        if (target instanceof JoinDecorator) {
+            return ((JoinDecorator)target).getTask().getLabel();
+        }
+        return "";
+    }
+
+    public boolean isDefaultFlow() {
+        if (hasOrSplitAsSource() || hasXorSplitAsSource()) {
+            SplitDecorator decorator = (SplitDecorator) ((YAWLPort)getSource()).getParent();
+            if (decorator.getFlowsInPriorityOrder().last().equals(this)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOrSplitAsSource() {
+        return hasSplitAsSource(Decorator.OR_TYPE);
+    }
+
+    public boolean hasXorSplitAsSource() {
+        return hasSplitAsSource(Decorator.XOR_TYPE);
+    }
+
+    public boolean requiresPredicate() {
+        return (hasOrSplitAsSource() || hasXorSplitAsSource());
+    }
+
+    public boolean hasSplitAsSource(int type) {
+        if (getSource() == null) {
+            return false;
+        }
+
+        Object source = ((YAWLPort)getSource()).getParent();
+        if (source instanceof SplitDecorator) {
+            SplitDecorator decorator = (SplitDecorator) source;
+            if (decorator.getType() == type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean connectsTaskToItself() {
+        return !(getSourceTask() == null || getTargetTask() == null) &&
+                getSourceTask().equals(getTargetTask());
+    }
+
+    public YAWLTask getSourceTask() {
+        if (getSourceVertex() instanceof YAWLTask) {
+            return (YAWLTask) getSourceVertex();
+        }
+        return null;
+    }
+
+    public YAWLTask getTargetTask() {
+        if (getTargetVertex() instanceof YAWLTask) {
+            return (YAWLTask) getTargetVertex();
+        }
+        return null;
+    }
+
+    public boolean connectsElements() {
+        return getSource() != null && getTarget() != null;
+    }
+
+    public YAWLVertex getSourceVertex() {
+        if (getSource() == null) {
+            return null;
+        }
+        return getVertexFrom(
+                ((YAWLPort)getSource()).getParent()
+        );
+    }
+
+    public YAWLVertex getTargetVertex() {
+        if (getTarget() == null) {
+            return null;
+        }
+        return getVertexFrom(
+                ((YAWLPort)getTarget()).getParent()
+        );
+    }
+
+    private YAWLVertex getVertexFrom(Object cell) {
+        assert cell != null : "null YAWLCell passed to getVertexFrom()";
+
+        if (cell instanceof Decorator) {
+            Decorator cellAsDecorator = (Decorator) cell;
+            return cellAsDecorator.getTask();
+        }
+        if (cell instanceof YAWLVertex) {
+            return (YAWLVertex) cell;
+        }
+        return null;
+    }
+
+    public YAWLFlowRelation clone() {
+        return (YAWLFlowRelation) super.clone();
+    }
 
 
     public void detach() {
@@ -270,21 +277,21 @@ public class YAWLFlowRelation extends DefaultEdge implements YAWLCell, Comparabl
         if (target != null) target.detachFlow(this);
     }
 
-/**
- * Created By Jingxin XU
- * @return
- */
-public boolean isAvailable() {
-	return available;
-}
+    /**
+     * Created By Jingxin XU
+     * @return
+     */
+    public boolean isAvailable() {
+        return available;
+    }
 
-/**
- * Created By Jingxin XU
- * @param available
- */
-public void setAvailable(boolean available) {
-	this.available = available;
-}
+    /**
+     * Created By Jingxin XU
+     * @param available
+     */
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
 
 }

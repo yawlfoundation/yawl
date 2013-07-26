@@ -23,11 +23,9 @@
  
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.internal.YDocumentType;
-import org.yawlfoundation.yawl.editor.ui.data.internal.YStringListType;
-import org.yawlfoundation.yawl.editor.ui.data.internal.YTimerType;
+import org.yawlfoundation.yawl.editor.core.data.*;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -81,7 +79,7 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
   }
   
   public String getSchemaInstance() {
-    if (DataVariable.isBaseDataType(variableType) || isYInternalType(variableType)) {
+    if (XSDType.getInstance().isBuiltInType(variableType) || isYInternalType(variableType)) {
       return "<" + this.variableName + ">\n" +
              this.getText().trim() + 
              "\n</" + this.variableName + ">";
@@ -92,9 +90,10 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
     
     
     private boolean isYInternalType(String type) {
-        return type.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE) ||
-               type.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE) ||
-               type.equals(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE);
+        for (YInternalType internalType : YInternalType.values()) {
+             if (internalType.name().equals(type)) return true;
+        }
+        return false;
     }
 }
 
@@ -104,7 +103,7 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private LinkedList problemList = new LinkedList();
+  private List problemList = new LinkedList();
   
   public XMLSchemaInstanceStyledDocument(JXMLSchemaInstanceEditor editor) {
     super(editor);
@@ -117,21 +116,16 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
         setContentValid(AbstractXMLStyledDocument.Validity.VALID);
         return;
       }
-      if (dataType.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
-          validateYTimerTypeInstance();
-      }
-      else if (dataType.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
-          validateYStringListTypeInstance();
-      }
-      else if (dataType.equals(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE)) {
-          validateYDocumentTypeInstance();
-      }
-      else if (DataVariable.isBaseDataType(dataType)) {
-          validateBaseDataTypeInstance();
-      }
-      else {
+
+        for (YInternalType type : YInternalType.values()) {
+            if (type.name().equals(dataType)) {
+                setProblemList(getYInternalTypeInstanceProblems(dataType));
+               setValidity();
+               return;
+            }
+        }
+
         validateUserSuppliedDataTypeInstance();
-      }
     }
   }
   
@@ -140,31 +134,11 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
     setValidity();
   }
 
-    private void validateYTimerTypeInstance() {
-      setProblemList(getYInternalTypeInstanceProblems(DataVariable.YAWL_SCHEMA_TIMER_TYPE));
-      setValidity();
-    }
-
-    private void validateYStringListTypeInstance() {
-      setProblemList(getYInternalTypeInstanceProblems(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE));
-      setValidity();
-    }
-
-    private void validateYDocumentTypeInstance() {
-      setProblemList(getYInternalTypeInstanceProblems(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE));
-      setValidity();
-    }
 
     private void setValidity() {
-        if (getProblemList().size() == 0) {
-          setContentValid(
-              AbstractXMLStyledDocument.Validity.VALID
-          );
-        } else {
-          setContentValid(
-              AbstractXMLStyledDocument.Validity.INVALID
-          );
-        }
+        setContentValid(getProblemList().isEmpty() ?
+              AbstractXMLStyledDocument.Validity.VALID :
+              AbstractXMLStyledDocument.Validity.INVALID);
     }
 
   public List getProblemList() {
@@ -187,19 +161,10 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
     return problemList;
   }
   
-    private LinkedList getYInternalTypeInstanceProblems(String typeName) {
-      LinkedList problemList = new LinkedList();
+    private List getYInternalTypeInstanceProblems(String typeName) {
+      List problemList = new LinkedList();
       String varName = getInstanceEditor().getVariableName();
-      String validationSchema = "" ;
-      if (typeName.equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
-          validationSchema = YTimerType.getValidationSchema(varName);
-      }
-      else if (typeName.equals(DataVariable.YAWL_SCHEMA_STRINGLIST_TYPE)) {
-          validationSchema = YStringListType.getValidationSchema(varName);
-      }
-      else if (typeName.equals(DataVariable.YAWL_SCHEMA_YDOCUMENT_TYPE)) {
-          validationSchema = YDocumentType.getValidationSchema(varName);
-      }
+      String validationSchema = YInternalType.valueOf(typeName).getValidationSchema(varName);
 
       String errors = SpecificationModel.getInstance().getSchemaValidator().
               validateBaseDataTypeInstance(
@@ -213,7 +178,7 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
       return problemList;
     }
 
-  private void setProblemList(LinkedList problemList) {
+  private void setProblemList(List problemList) {
     this.problemList = problemList;
   }
 

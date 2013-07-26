@@ -59,6 +59,7 @@ public class YLayout {
     private YLayout() {
         _nets = new Hashtable<String, YNetLayout>();
         _locale = Locale.getDefault();
+        _nbrFormatter = NumberFormat.getInstance(_locale);
     }
 
 
@@ -128,6 +129,8 @@ public class YLayout {
 
 
     public YSpecification getSpecification() { return _specification; }
+
+    public int getNetCount() { return _nets != null ? _nets.size() : 0; }
 
 
     public Locale getLocale() { return _locale; }

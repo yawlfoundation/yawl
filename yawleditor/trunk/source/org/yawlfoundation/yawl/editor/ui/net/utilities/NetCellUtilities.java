@@ -23,21 +23,19 @@
 package org.yawlfoundation.yawl.editor.ui.net.utilities;
 
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class NetCellUtilities {
 
@@ -329,9 +327,11 @@ public class NetCellUtilities {
   }
   
   public static int getFlowLineStyle(NetGraph net, YAWLFlowRelation flow) {
-    return GraphConstants.getLineStyle(
-        net.getViewFor(flow).getAllAttributes()
-    );
+      CellView view = net.getViewFor(flow);
+      if (view != null) {
+          return GraphConstants.getLineStyle(net.getViewFor(flow).getAllAttributes());
+      }
+      return GraphConstants.STYLE_ORTHOGONAL;
   }
   
   public static void togglePointOnFlow(NetGraph net, YAWLFlowRelation flow, Point point) {
@@ -341,19 +341,19 @@ public class NetCellUtilities {
     List flowPoints = GraphConstants.getPoints(
         net.getViewFor(flow).getAllAttributes()
     );
- 
-    for(int i = 0; i < flowPoints.size(); i++) {
-      // Because we have ports in the list too, focus just on the extra points.
-      if (flowPoints.get(i) instanceof Point2D) {  
-        Point2D thisPoint = (Point2D) flowPoints.get(i);
-        
-        // if it's pretty close (within 8 pixels), we're trying to remove a point.
-        if ((Math.abs(thisPoint.getX() - point.getX()) <= 8) &&
-            (Math.abs(thisPoint.getY() - point.getY()) <= 8)) {
-          pointFoundForDeletion = thisPoint;
-        }
+
+      for (Object flowPoint : flowPoints) {
+          // Because we have ports in the list too, focus just on the extra points.
+          if (flowPoint instanceof Point2D) {
+              Point2D thisPoint = (Point2D) flowPoint;
+
+              // if it's pretty close (within 8 pixels), we're trying to remove a point.
+              if ((Math.abs(thisPoint.getX() - point.getX()) <= 8) &&
+                      (Math.abs(thisPoint.getY() - point.getY()) <= 8)) {
+                  pointFoundForDeletion = thisPoint;
+              }
+          }
       }
-    }
     
     if (pointFoundForDeletion != null) {
       flowPoints.remove(pointFoundForDeletion);
@@ -459,119 +459,7 @@ public class NetCellUtilities {
     return cells;
   }
   
-  
-  /**
-   * Creates a decomposition of the specifiied name for the givem 
-   * task in the specified net.The input and output paramaters of the task 
-   * match type and names of the supplied net variables, and the parameter 
-   * queries default to direct type-compatible data transfer.
-   * @param net
-   * @param task
-   */
-  public static void creatDirectTransferDecompAndParams(
-                            NetGraph net,
-                            YAWLAtomicTask task,
-                            String decompName,
-                            List<DataVariable> inputNetVars,
-                            List<DataVariable> outputNetVars) {
-    
-      List<DataVariable> inputOutputNetVars = new ArrayList<DataVariable>();
-      for (DataVariable netVariable : inputNetVars) {
-          if (outputNetVars.contains(netVariable)) {
-              inputOutputNetVars.add(netVariable);
-          }
-      }
-      for (DataVariable netVariable : inputOutputNetVars) {
-          inputNetVars.remove(netVariable);
-          outputNetVars.remove(netVariable);
-      }
 
-    createTaskDecompParamsToMatchNetParams(
-        createDecompositionForAtomicTask(
-            net, 
-            task, 
-            decompName
-        ),
-        inputNetVars,
-        inputOutputNetVars,
-        outputNetVars
-    );
-
-    inputNetVars.addAll(inputOutputNetVars);
-    for (DataVariable inputNetVar : inputNetVars) {
-      DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(inputNetVar.getName());
-      ((YAWLTask) task).getParameterLists().getInputParameters().addParameterPair(
-          matchingTaskVar, 
-          XMLUtilities.getTagEnclosedVariableContentXQuery(inputNetVar)
-      );
-    }
-
-    outputNetVars.addAll(inputOutputNetVars);  
-    for(DataVariable outputNetVar : outputNetVars) {
-      DataVariable matchingTaskVar = task.getWSDecomposition().getVariableWithName(outputNetVar.getName());
-      ((YAWLTask) task).getParameterLists().getOutputParameters().addParameterPair(
-          outputNetVar, 
-          XMLUtilities.getTagEnclosedVariableContentXQuery(matchingTaskVar)
-      );
-    }
-  }
-  
-  public static WebServiceDecomposition createDecompositionForAtomicTask(NetGraph net, YAWLAtomicTask task, String label) {
-    WebServiceDecomposition taskDecomp = new WebServiceDecomposition();
-    taskDecomp.setLabel(label);
-    SpecificationModel.getInstance().addWebServiceDecomposition(taskDecomp);
-    net.setTaskDecomposition(
-          (YAWLTask) task,
-          taskDecomp
-    );
-    return taskDecomp;
-  }
-  
-  public static void createTaskDecompParamsToMatchNetParams(
-                           WebServiceDecomposition taskDecomp, 
-                           List<DataVariable> inputNetVars,
-                           List<DataVariable> inputOutputNetVars,
-                           List<DataVariable> outputNetVars) {
-
-    for (DataVariable netVariable : inputNetVars) {
-        taskDecomp.addVariable(
-          createMatchingTaskVarForNetVar(
-              netVariable,
-              DataVariable.USAGE_INPUT_ONLY
-          )
-        );
-    }
-    for (DataVariable netVariable : inputOutputNetVars) {
-        taskDecomp.addVariable(
-          createMatchingTaskVarForNetVar(
-              netVariable,
-              DataVariable.USAGE_INPUT_AND_OUTPUT
-          )
-        );
-    }
-
-    for (DataVariable netVariable : outputNetVars) {
-      taskDecomp.addVariable(
-        createMatchingTaskVarForNetVar(
-            netVariable, 
-            DataVariable.USAGE_OUTPUT_ONLY
-        )    
-      );
-    }
-    
-//    taskDecomp.getVariables().consolidateInputAndOutputVariables();
-  }
-
-  public static DataVariable createMatchingTaskVarForNetVar(DataVariable netVar, int taskUsage) {
-    DataVariable taskVariable = new DataVariable();
-    
-    taskVariable.setName(netVar.getName());
-    taskVariable.setDataType(netVar.getDataType());
-    taskVariable.setUsage(taskUsage);
-
-    return taskVariable;
-  }
-  
   public static YAWLVertex getVertexFromCell(Object cell) {
     if (cell instanceof VertexContainer) {
       cell = ((VertexContainer) cell).getVertex();
@@ -585,16 +473,16 @@ public class NetCellUtilities {
     return null;
   }
 
-  public static YAWLCondition getConditionFromCell(Object cell) {
+  public static Condition getConditionFromCell(Object cell) {
     YAWLVertex vertex = getVertexFromCell(cell);
-    if (vertex != null && vertex instanceof YAWLCondition) {
-      return (YAWLCondition) vertex;
+    if (vertex instanceof Condition) {
+      return (Condition) vertex;
     }
     return null;
   }
 
   public static InputCondition getInputConditionFromCell(Object cell) {
-    YAWLCondition condition = getConditionFromCell(cell);
+    Condition condition = getConditionFromCell(cell);
     if (condition != null && condition instanceof InputCondition) {
       return (InputCondition) condition;
     }
@@ -602,8 +490,8 @@ public class NetCellUtilities {
   }
 
   public static OutputCondition getOutputConditionFromCell(Object cell) {
-    YAWLCondition condition = getConditionFromCell(cell);
-    if (condition != null && condition instanceof OutputCondition) {
+    Condition condition = getConditionFromCell(cell);
+    if (condition instanceof OutputCondition) {
       return (OutputCondition) condition;
     }
     return null;

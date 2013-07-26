@@ -23,738 +23,90 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 
-import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette.SelectionState;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 public class Palette extends JPanel implements SpecificationStateListener {
 
-  private static final long serialVersionUID = 1L;
+    private static final ControlFlowPalette CONTROL_FLOW_PALETTE = new ControlFlowPalette();
 
-  private static final ControlFlowPalette CONTROL_FLOW_PALETTE = new ControlFlowPalette();
-  private static final TaskTemplatePalette TASK_TEMPLATE_PALETTE = new TaskTemplatePalette();
-  private static final SingleTaskPalette SINGLE_TASK_PALETTE = new SingleTaskPalette();
-  
-  private static final Palette INSTANCE = new Palette();
+    private static final Palette INSTANCE = new Palette();
 
-  public static Palette getInstance() {
-    return INSTANCE;
-  }  
-    
-  private Palette() {
-    super();
-    buildInterface();
-  }  
-
-  protected void buildInterface() {
-    
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.insets = new Insets(3,5,0,5);
-    
-    add(CONTROL_FLOW_PALETTE, gbc);
-
-    CONTROL_FLOW_PALETTE.setMinimumSize(
-        CONTROL_FLOW_PALETTE.getPreferredSize()    
-    );
-
-    gbc.gridy++;
-
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    add(TASK_TEMPLATE_PALETTE, gbc);
-    
-    TASK_TEMPLATE_PALETTE.setMinimumSize(
-        TASK_TEMPLATE_PALETTE.getPreferredSize()    
-    );
-
-    gbc.fill = GridBagConstraints.NONE;
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.weightx = 0;
-    gbc.gridy++;
-
-    add(SINGLE_TASK_PALETTE, gbc);
-    
-    gbc.gridy++;
-    gbc.weighty = 1;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.BOTH;
-
-    add(Box.createVerticalGlue(),gbc);
-
-    // split panes will go no further than the minimum size of a compoment.
-    // As we want the splitpane to potentially cover the entire edit space,
-    // we ensure that this component has no minimum height.
-    
-    setMinimumSize(
-        new Dimension(
-            (int) getPreferredSize().getWidth(),
-            (int) getPreferredSize().getHeight()
-        )
-    );
-    
-      Publisher.getInstance().subscribe(this);
-    
-    CONTROL_FLOW_PALETTE.subscribeForSelectionStateChanges(
-        TASK_TEMPLATE_PALETTE    
-    );
-  }
-  
-  
-  public void refresh() {
-    repaint();        
-  } 
-  
-  public void refreshSelected() {
-    /*
-     * The NetMarquee Handler overrides certain
-     * GUI behaviour at times. When it is done
-     * it wants to reset to the GUI behaviour 
-     * driven by the control palette. The easiest
-     * way to do that is just re-selecting the current
-     * selected palette item.
-     */
-    
-    CONTROL_FLOW_PALETTE.setSelectedState(
-      CONTROL_FLOW_PALETTE.getSelectedState()    
-    );
-  }
-  
-  public ControlFlowPalette.SelectionState getControlFlowPaletteState() {
-    return CONTROL_FLOW_PALETTE.getSelectedState();
-  }
-  
-  public ControlFlowPalette getControlFlowPalette() {
-    return CONTROL_FLOW_PALETTE;
-  }
-  
-  public String getSelectedAtomicTaskIconPath() {
-    return TASK_TEMPLATE_PALETTE.getAtomicTaskIconPath();
-  }
-
-  public void updatePluginIcons() {
-      TaskIconTreeModel model =
-              (TaskIconTreeModel) TASK_TEMPLATE_PALETTE.getTaskIconTree().getModel();
-      model.updatePluginIconNodes();
-  }
-  
-  public void doPostBuildProcessing() {
-      Publisher.getInstance().subscribe(this);
-  }
-  
-  public void setEnabled(boolean enabled) {
-    CONTROL_FLOW_PALETTE.setEnabled(enabled);
-    TASK_TEMPLATE_PALETTE.setEnabled(enabled);
-    TASK_TEMPLATE_PALETTE.setVisible(enabled);
-    SINGLE_TASK_PALETTE.setVisible(enabled);
-    SINGLE_TASK_PALETTE.setEnabled(enabled);
-    super.setEnabled(enabled);
-  }
-  
-  public void specificationStateChange(SpecificationState state) {
-    switch(state) {
-      case NoNetsExist: {
-        CONTROL_FLOW_PALETTE.setSelectedState(
-            ControlFlowPalette.SelectionState.MARQUEE
-        );
-        setEnabled(false);
-        YAWLEditor.setStatusBarText(
-            "Open or create a specification to begin."
-        );     
-        break;    
-      }
-      case NetsExist: {
-        YAWLEditor.setStatusBarText(
-                "Select a net to continue editing it."
-        );     
-        break;    
-      }
-      case NoNetSelected: {
-        YAWLEditor.setStatusBarText(
-            "Select a net to continue editing it."
-        );     
-        setEnabled(false);
-        break;
-      }
-      case NetSelected: {
-        YAWLEditor.setStatusBarText(
-            "Use the palette toolbar to edit the selected net."
-        );     
-        setEnabled(true);
-        break;
-      }
-      default: {
-        assert false : "Invalid state passed to specificationStateChange()";
-      }    
+    public static Palette getInstance() {
+        return INSTANCE;
     }
-  }
-}
 
-class TaskTemplatePalette extends JPanel implements ControlFlowPaletteListener, GraphStateListener {
-
-  private static final long serialVersionUID = 1L;
-  
-  private TaskIconTree taskTemplateTree;
-  private JScrollPane taskTemplateScroller;
-
-  private boolean atomicTaskSelectedOnControlFlowPalette = false;
-  private boolean nothingSelected = true;
-  private boolean atomicTaskSelected = false;
-  
-  private static final int ROW_HEIGHT = 10;
-  
-  public TaskTemplatePalette() {
-    buildInterface();
-    bindDragAndDropComponents();
-    
-      Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.NoElementSelected,
-                      GraphState.ElementsSelected,
-                      GraphState.OneTaskSelected));
-   setEnabled(false);
-  }
-
-  protected void buildInterface() {
-    
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    setLayout(gbl);
-    
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.weightx = 1;
-    gbc.insets = new Insets(4,0,3,0);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    add(buildTaskTree(),gbc);
-  }
-
-  public void setEnabled(boolean enabled) {
-    super.setEnabled(enabled);
-    taskTemplateScroller.setEnabled(enabled);
-  }
-  
-  public String getAtomicTaskIconPath() {
-    return taskTemplateTree.getSelectedAtomicTaskIconPath();
-  }
-
-  protected TaskIconTree getTaskIconTree() {
-      return taskTemplateTree;
-  }
-  
-  private JScrollPane buildTaskTree() {
-    taskTemplateTree = new TaskIconTree();
-    
-    taskTemplateScroller = new JScrollPane(taskTemplateTree);
-    
-    taskTemplateScroller.setPreferredSize(
-        new Dimension(
-            (int) taskTemplateScroller.getPreferredSize().getWidth(),
-            taskTemplateTree.getFontMetrics(
-              taskTemplateTree.getFont()  
-            ).getHeight() * ROW_HEIGHT
-        )
-    );
-    
-    return taskTemplateScroller;
-  }
-
-  private void bindDragAndDropComponents() {
-    setTransferHandler(new TransferHandler("text"));
-  }
-
-  public void controlFlowPaletteStateChanged(SelectionState selectionState) {
-    switch(selectionState) {
-      case ATOMIC_TASK: case MULTIPLE_ATOMIC_TASK: {
-        atomicTaskSelectedOnControlFlowPalette = true;
-        break;
-      }
-      default: {
-        atomicTaskSelectedOnControlFlowPalette = false;
-        break;
-      }
+    private Palette() {
+        super();
+        buildInterface();
     }
-    setEnabledIfAppropriate();
-  }
-  
- 
-  private void setEnabledIfAppropriate() {
-    if (nothingSelected) {
-      if (atomicTaskSelectedOnControlFlowPalette) {
-        setEnabled(true);
-      } else { // something else selected on palette
-        setEnabled(false);
-      }
-    } else if (atomicTaskSelected) {
-      setEnabled(true);
-    } else {
-      setEnabled(false);
+
+    protected void buildInterface() {
+        setLayout(new GridLayout(1,1));
+        add(CONTROL_FLOW_PALETTE);
+        Publisher.getInstance().subscribe(this);
     }
-  }
-  
-  public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
-    switch(state) {
-      case OneTaskSelected: {
-        nothingSelected = false;
-        Object cell = event.getCell();
-        if (cell instanceof VertexContainer) {
-          cell = ((VertexContainer) cell).getVertex(); 
-        }
-          atomicTaskSelected = cell instanceof YAWLAtomicTask;
-        break;
-      }
-      case NoElementSelected: {
-        nothingSelected = true;
-        atomicTaskSelected = false;
-        break;
-      }
-      default: {
-        nothingSelected = false;
-        atomicTaskSelected = false;
-        break;
-      }
-    }
-    setEnabledIfAppropriate();
-  }
-}
 
 
-class TaskIconTree extends JTree implements GraphStateListener {
-  
-  private static final long serialVersionUID = 1L;
-  
-  public TaskIconTreeModel getTaskIconTreeModel() {
-    return (TaskIconTreeModel) getModel();
-  }
-  
-  public TaskIconTree() {
-    super();
-    setModel(new TaskIconTreeModel());
-    buildInterface();
-    
-    this.selectionModel = this.getSelectionModel();
-    
-      Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.OneTaskSelected));
-    
-    addTreeSelectionListener(
-        new TreeSelectionListener() {
-          public void valueChanged(TreeSelectionEvent e) {
-            if (!(getLastSelectedPathComponent() instanceof TaskIconTreeNode)) {
-              return;  // don't care if it's not a TaskIconTreeNode
+    public void refresh() {
+        repaint();
+    }
+
+
+    // The NetMarquee Handler overrides certain GUI behaviour at times. When it is done
+    // it wants to reset to the GUI behaviour driven by the control palette. The easiest
+    // way to do that is just re-selecting the current selected palette item.
+    public void refreshSelected() {
+        CONTROL_FLOW_PALETTE.setSelectedState(CONTROL_FLOW_PALETTE.getSelectedState());
+    }
+
+    public ControlFlowPalette.SelectionState getControlFlowPaletteState() {
+        return CONTROL_FLOW_PALETTE.getSelectedState();
+    }
+
+    public ControlFlowPalette getControlFlowPalette() {
+        return CONTROL_FLOW_PALETTE;
+    }
+
+
+    public void setEnabled(boolean enabled) {
+        CONTROL_FLOW_PALETTE.setEnabled(enabled);
+        super.setEnabled(enabled);
+    }
+
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NoNetsExist: {
+                CONTROL_FLOW_PALETTE.setSelectedState(
+                        ControlFlowPalette.SelectionState.MARQUEE
+                );
+                setEnabled(false);
+                YAWLEditor.setStatusBarText("Open or create a specification to begin.");
+                break;
             }
-            
-            if (YAWLEditorDesktop.getInstance().getSelectedGraph() == null ||
-                YAWLEditorDesktop.getInstance().getSelectedGraph().getSelectionCell() == null) {
-              return;  // don't care if we don't have a selected cell to change an icon on.
+            case NetsExist: {
+                YAWLEditor.setStatusBarText("Select a net to continue editing it.");
+                break;
             }
-            
-            TaskIconTreeNode iconNode = (TaskIconTreeNode) getLastSelectedPathComponent();
-            
-            Object cell = YAWLEditorDesktop.getInstance().getSelectedGraph().getSelectionCell();
-            if (cell instanceof VertexContainer) {
-              cell = ((VertexContainer) cell).getVertex();
+            case NoNetSelected: {
+                YAWLEditor.setStatusBarText("Select a net to continue editing it.");
+                setEnabled(false);
+                break;
             }
-            if (cell instanceof YAWLAtomicTask) {
-              YAWLVertex vertex= (YAWLVertex) cell;
-              YAWLEditorDesktop.getInstance().getSelectedGraph().setVertexIcon(
-                  vertex, iconNode.getRelativeIconPath()
-              );
+            case NetSelected: {
+                YAWLEditor.setStatusBarText(
+                        "Use the palette toolbar to edit the selected net.");
+                setEnabled(true);
+                break;
             }
-          }
         }
-    );
-    
-    selectDefaultNode();
-  }
-  
-  public TaskIconTreeNode getDefaultNode() {
-    return getTaskIconTreeModel().getDefaultNode();
-  }
-  
-  public void selectDefaultNode() {
-    if (getDefaultNode() == null) {
-      return;
     }
-    setSelectionPath(
-      new TreePath(getDefaultNode().getPath())
-    );
-  }
-  
-  public boolean isTaskPaletteNodeSelected() {
-    if (getLastSelectedPathComponent() != null && 
-        getLastSelectedPathComponent() instanceof TaskIconTreeNode) {
-      return true;
-    }
-    return false;
-  }
-  
-  private TaskIconTreeNode getSelectedTaskPaletteNode() {
-    assert isTaskPaletteNodeSelected() : "Node selected is not of type TaskPaletteTreeNode";
-    return (TaskIconTreeNode) getLastSelectedPathComponent();
-  }
-  
-  public String getSelectedAtomicTaskIconPath() {
-    if (isTaskPaletteNodeSelected()){
-      return getSelectedTaskPaletteNode().getRelativeIconPath();
-    }
-    return null;
-  }
-  
-  private void buildInterface() {
-    setBorder(new EmptyBorder(4,3,3,4));
-
-    getSelectionModel().setSelectionMode(
-        TreeSelectionModel.SINGLE_TREE_SELECTION    
-    );
-
-    setCellRenderer(
-        new TaskIconTreeNodeRenderer()
-    );
-    
-  }
-
-  public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
-    Object cell = event.getCell();
-    if (cell instanceof VertexContainer) {
-      cell = ((VertexContainer) cell).getVertex(); 
-    }
-    if (!(cell instanceof YAWLAtomicTask)) {
-      return;
-    }
-
-    YAWLAtomicTask task = (YAWLAtomicTask) cell;
-
-    switch(state) {
-      case OneTaskSelected: selectNodeWithIconPath(task.getIconPath());
-    }
-  }
-  
-  public void selectNodeWithIconPath(String iconPath) {
-    getSelectionModel().setSelectionPath(
-      new TreePath(
-          getTaskIconTreeModel().getNodeWithIconPath(
-              iconPath
-          ).getPath()
-      )    
-    );
-  }
-
-  class TaskIconTreeNodeRenderer extends DefaultTreeCellRenderer {
-    
-    private static final long serialVersionUID = 1L;
-    
-    public Component getTreeCellRendererComponent(
-                        JTree tree,
-                        Object value,
-                        boolean sel,
-                        boolean expanded,
-                        boolean leaf,
-                        int row,
-                        boolean hasFocus) {
-
-        super.getTreeCellRendererComponent(
-                        tree, value, sel,
-                        expanded, leaf, row,
-                        hasFocus);
-        
-        if (value == null) {
-          return null;
-        }
-        
-        if (value instanceof TaskIconTreeNode) {
-            setIcon(((TaskIconTreeNode) value).getIcon());
-        }
-
-        return this;
-    }
-  }
 }
 
 
-class TaskIconTreeModel extends DefaultTreeModel {
-  
-  private static final long serialVersionUID = 1L;
 
-  private TaskIconTreeNode _pluginNode;
-  
-  /*
-   * Recursing through the tree is failing oddly and non-deterministically.  I've decided
-   * to implement a flat index of nodes and use that for finding the nodes I'm interested in.
-   */
-  
-  private LinkedList<TaskIconTreeNode> iconNodes = new LinkedList<TaskIconTreeNode>();
-    
-  protected static String getInternalIconPathByName(String iconName) {
-    if (iconName == null) {
-      return null;
-    }
-    return "/org/yawlfoundation/yawl/editor/ui/resources/taskicons/" + iconName + ".png";
-  }
-  
-  public TaskIconTreeNode getDefaultNode() {
-    for(TaskIconTreeNode node: iconNodes) {
-      if (node.isDefault()) {
-        return node;
-      }
-    }
-    return null;
-  }
-  
-
-  /**
-   * Attempts to find the tree node with the given icon path. If it fails, it will
-   * sipply the default node instead.
-   * @param iconPath
-   * @return 
-   */
-  
-  public TaskIconTreeNode getNodeWithIconPath(String iconPath) {
-    for(TaskIconTreeNode node : iconNodes) {
-      if (node.getRelativeIconPath() != null && 
-          node.getRelativeIconPath().equals(iconPath)) {
-        return node;
-      }
-    }
-    return getDefaultNode();
-  }
-
-  private DefaultMutableTreeNode buildIconTree() {
-    DefaultMutableTreeNode rootIconNode = new DefaultMutableTreeNode("Task Icon");
-
-    add(rootIconNode,createNoIconNode());
-    add(rootIconNode,createManualIconNodes());
-    add(rootIconNode,createAutomaticIconNode());
-    add(rootIconNode,createRoutingIconNodes());
-    add(rootIconNode,createPluginIconNodes());
-    
-    return rootIconNode;
-  }
-
-  /**
-   * Adds newNode to parentNode, then indexes newNode for searching later.
-   * @param parentNode
-   * @param newNode
-   */
-  
-  public void add(DefaultMutableTreeNode parentNode, TaskIconTreeNode newNode) {
-    parentNode.add(newNode);
-    iconNodes.add(newNode);  
-  }
-
-  private TaskIconTreeNode createInternalIconNode(String title, String fileName) {
-    return createIconNode(title, getInternalIconPathByName(fileName), true);
-  }
-
-  private TaskIconTreeNode createExternalIconNode(String title, String fileName) {
-    return createIconNode(title, fileName, false);
-  }
-  
-  private TaskIconTreeNode createIconNode(String title, String fileName, boolean internal) {
-    TaskIconTreeNode node = 
-      new TaskIconTreeNode(
-          title, 
-          fileName,
-          internal
-      );
-    
-    return node;
-  }
-
-  
-  private TaskIconTreeNode createNoIconNode() {
-    TaskIconTreeNode noIconNode = createInternalIconNode("No Icon", null);
-    noIconNode.setDefault(true);
-    return noIconNode;
-  }
-  
-  private TaskIconTreeNode createManualIconNodes() {
-    TaskIconTreeNode manualNode = createInternalIconNode("Manual", "Manual");
-    
-    add(manualNode, createInternalIconNode("Pair", "Pair"));
-    add(manualNode, createInternalIconNode("Group", "Group"));
-    add(manualNode, createInternalIconNode("Inspect", "Inspect"));
-    add(manualNode, createInternalIconNode("Validate", "Validate"));
-    add(manualNode, createInternalIconNode("Schedule", "Schedule"));
-    add(manualNode, createInternalIconNode("File", "File"));
-    add(manualNode, createInternalIconNode("PDA", "BlackPDA"));
-
-    return manualNode;
-  }
-
-  private TaskIconTreeNode createAutomaticIconNode() {
-    TaskIconTreeNode automaticNode = createInternalIconNode("Automated", "Automatic");
-
-    add(automaticNode, createInternalIconNode("Automatic", "AutomaticOne"));
-    add(automaticNode, createInternalIconNode("Automatic", "AutomaticTwo"));
-    add(automaticNode, createInternalIconNode("Timer", "Timer"));
-    add(automaticNode, createInternalIconNode("Print", "Print"));
-    
-    return automaticNode;
-  }
-  
-  private TaskIconTreeNode createRoutingIconNodes() {
-    TaskIconTreeNode routingNode =  createInternalIconNode("Routing", "RoutingTask");
-
-    add(routingNode, createInternalIconNode("Question", "QuestionOne"));
-    add(routingNode, createInternalIconNode("Question", "QuestionTwo"));
-    add(routingNode, createInternalIconNode("Dangerous", "Dangerous"));
-    add(routingNode, createInternalIconNode("Exception", "Exception"));
-
-    return routingNode;
-  }
-
-  public void updatePluginIconNodes() {
-      _pluginNode.removeAllChildren();
-      recurseNodeForPluginIcons(_pluginNode,
-              new File(FileUtilities.getAbsoluteTaskIconPath())) ;
-      nodeStructureChanged(_pluginNode);
-  }
-  
-  private TaskIconTreeNode createPluginIconNodes() {
-    _pluginNode = createInternalIconNode("Plugin", "Plugin");
-
-    recurseNodeForPluginIcons(
-        _pluginNode,
-        new File(FileUtilities.getAbsoluteTaskIconPath())
-    );
-    
-    return _pluginNode;
-  }
-
-  private void recurseNodeForPluginIcons(TaskIconTreeNode rootNode, File rootDirectory) {
-    
-    if (!rootDirectory.exists() || !rootDirectory.isDirectory() || !rootDirectory.canRead()) {
-      return;
-    }
-     
-     File[] filesInDirectory = rootDirectory.listFiles();
-
-     for(File file: filesInDirectory) {
-       if (file.isDirectory()) {
-         
-         TaskIconTreeNode dirNode = createExternalIconNode(file.getName(), null);
-         
-         add(rootNode, dirNode);
-         
-         recurseNodeForPluginIcons(dirNode, file);
-       } else if(file.getName().toLowerCase().endsWith("png") ) {
-         add(rootNode, 
-             createExternalIconNode(
-                 FileUtilities.stripFileExtension(
-                     file.getName()
-                 ),
-           //      FileUtilities.getRelativeTaskIconPath(
-                     file.getPath()
-           //      )
-             )
-         );
-       }
-     }
-  }
-  
-
-  public TaskIconTreeModel() {
-    super(null);
-    setRoot(
-        buildIconTree()
-    );
-  }
-}
-
-class TaskIconTreeNode extends DefaultMutableTreeNode {
-
-  private static final long serialVersionUID = 1L;
-  
-  private Icon nodeIcon;
-  private String relativeIconPath;
-  
-  private boolean isInternal = true;
-  
-  private boolean isDefault = false;
-  
-  public TaskIconTreeNode(Object userObject) {
-    super(userObject);
-    setInternal(false);
-  }
-  
-  public TaskIconTreeNode(Object userObject, String relativeIconPath, boolean isInternal) {
-    super(userObject);
-    setInternal(isInternal);
-    setIconPath(relativeIconPath);
-  }
-  
-  public void setIconPath(String relativeIconPath) {
-    this.relativeIconPath = relativeIconPath;
-    if (relativeIconPath == null) {
-      return;
-    }
-
-    if (isInternal()) {
-      setIcon(
-          ResourceLoader.getImageAsIcon(
-              relativeIconPath
-          )    
-      );
-    } else {
-      setIcon(
-          ResourceLoader.getExternalImageAsIcon(
-         //     FileUtilities.getAbsoluteTaskIconPath(
-                  relativeIconPath
-        //      )
-          )    
-      );
-    }
-  }
-
-  public String getRelativeIconPath() {
-    return this.relativeIconPath;
-  }
-  
-  public void setInternal(boolean isInternal) {
-    this.isInternal = isInternal;
-  }
-  
-  public boolean isInternal() {
-     return isInternal;
-  }
-
-  private void setIcon(Icon nodeIcon) {
-    this.nodeIcon = nodeIcon;
-  }
-  
-  public Icon getIcon() {
-    return nodeIcon;
-  }
-  
-  public boolean isDefault() {
-    return isDefault;
-  }
-  
-  public void setDefault(boolean theDefault) {
-    this.isDefault = theDefault;
-  }
-}

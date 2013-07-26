@@ -25,16 +25,18 @@
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.data.Parameter;
-import org.yawlfoundation.yawl.editor.ui.data.ParameterLists;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YTask;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class YAWLTask extends YAWLVertex {
 
@@ -45,10 +47,10 @@ public abstract class YAWLTask extends YAWLVertex {
     private boolean _cancellationSetEnable = true;
 
     private CancellationSet _cancellationSet;
-    private ParameterLists _parameterLists;
-    private Decomposition _decomposition;
-    private ResourceMapping _resourceMapping;
-    private String _customFormURL;
+
+    private String _iconPath;
+
+    private YTask _shadowTask;
 
     /**
      * This constructor is ONLY to be invoked when we are reconstructing a task
@@ -71,15 +73,41 @@ public abstract class YAWLTask extends YAWLVertex {
     }
 
     public YAWLTask(Point2D startPoint, String iconPath) {
-        super(startPoint, iconPath);
-        initialize();
+        super(startPoint);
+        initialize(iconPath);
     }
 
-    private void initialize() {
+    public void setShadowTask(YTask task) {_shadowTask = task; }
+
+    public YTask getShadowTask() { return _shadowTask; }
+
+
+    private void initialize(String iconPath) {
         setCancellationSet(new CancellationSet(this));
-        setParameterLists(new ParameterLists());
-        setDecomposition(null);
+        setIconPath(iconPath);
     }
+
+    public void setIconPath(String path) { _iconPath = path; }
+
+    public String getIconPath() { return _iconPath; }
+
+
+    public String getID() { return _shadowTask.getID(); }
+
+    public void setID(String id) { _shadowTask.setID(id); }
+
+
+    public String getName() { return _shadowTask.getName(); }
+
+    public void setName(String name) { _shadowTask.setName(name); }
+
+
+    public String getDocumentation() { return _shadowTask.getDocumentation(); }
+
+    public void setDocumentation(String doco) { _shadowTask.setDocumentation(doco); }
+
+
+
 
     public int getSplitDecoratorPos() {
         if (getSplitDecorator() != null) {
@@ -222,49 +250,26 @@ public abstract class YAWLTask extends YAWLVertex {
         return getCancellationSet().hasMembers();
     }
 
-    public ParameterLists getParameterLists() {
-        return _parameterLists;
+
+    public void setDecomposition(YDecomposition decomposition) {
+        _shadowTask.setDecompositionPrototype(decomposition);
     }
 
-    public void setParameterLists(ParameterLists lists) {
-        if (lists != null) {
-            _parameterLists = lists;
-        }
+    public YDecomposition getDecomposition() {
+        return _shadowTask.getDecompositionPrototype();
     }
 
-    public void resetParameterLists() {
-        setParameterLists(new ParameterLists());
+
+    public void setCustomFormURL(String urlStr) throws MalformedURLException {
+        setCustomFormURL(urlStr != null ? new URL(urlStr) : null);
     }
 
-    public void setDecomposition(Decomposition decomposition) {
-        _decomposition = decomposition;
+    public void setCustomFormURL(URL url) {
+        _shadowTask.setCustomFormURI(url);
     }
 
-    public Decomposition getDecomposition() {
-        return _decomposition;
-    }
-
-    public void setResourceMapping(ResourceMapping mapping) {
-        _resourceMapping = mapping;
-    }
-
-    public ResourceMapping getResourceMapping() {
-        return _resourceMapping;
-    }
-
-    public void setCustomFormURL(String urlStr) {
-        _customFormURL = urlStr;
-    }
-
-    public String getCustomFormURL() {
-        return _customFormURL;
-    }
-
-    public DataVariableSet getVariables() {
-        if (getDecomposition() != null) {
-            return getDecomposition().getVariables();
-        }
-        return null;
+    public URL getCustomFormURL() {
+        return _shadowTask.getCustomFormURL();
     }
 
     public boolean hasBothDecorators() {
@@ -326,39 +331,6 @@ public abstract class YAWLTask extends YAWLVertex {
         }
     }
 
-    public void removeInvalidParameters() {
-        List<Parameter> paramsToDelete = new LinkedList<Parameter>();
-        Decomposition decomp = getDecomposition();
-        for (Object o : getParameterLists().getInputParameters().getParameters()) {
-            Parameter parameter = (Parameter) o;
-            if (!decomp.hasVariableEqualTo(parameter.getVariable())) {
-                paramsToDelete.add(parameter);
-            }
-        }
-        for (Parameter parameter : paramsToDelete) {
-            getParameterLists().getInputParameters().remove(parameter.getVariable());
-        }
-
-        paramsToDelete.clear();
-        for (Object o : getParameterLists().getOutputParameters().getParameters()) {
-            Parameter parameter = (Parameter) o;
-            String query = parameter.getQuery();
-            int startPos = query.indexOf("/" + decomp.getLabel() + "/");
-            if (startPos > -1) {
-                startPos += decomp.getLabel().length() + 2;
-                int endPos = query.indexOf('/', startPos + 1);
-                if (endPos > -1) {
-                    String varName = query.substring(startPos, endPos);
-                    if (decomp.getVariableWithName(varName) == null) {
-                        paramsToDelete.add(parameter);
-                    }
-                }
-            }
-        }
-        for (Parameter parameter : paramsToDelete) {
-            getParameterLists().getOutputParameters().remove(parameter.getVariable());
-        }
-    }
 
     public Object clone() {
         YAWLTask clone = (YAWLTask) super.clone();
@@ -367,10 +339,10 @@ public abstract class YAWLTask extends YAWLVertex {
         clone.setCancellationSet(clonedCancellationSet);
         clonedCancellationSet.setTriggeringTask(clone);
 
-        clone.setParameterLists((ParameterLists) getParameterLists().clone());
-        clone.setDecomposition(_decomposition);
-        clone.setResourceMapping(_resourceMapping);
-        clone.setCustomFormURL(_customFormURL);
+        clone.setShadowTask(_shadowTask);
+        clone.setDecomposition(getDecomposition());
+        clone.setCustomFormURL(getCustomFormURL());
+        clone.setIconPath(_iconPath);
         return clone;
     }
 

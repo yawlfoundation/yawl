@@ -22,36 +22,43 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
-import java.text.SimpleDateFormat;
+import org.yawlfoundation.yawl.editor.core.data.YInternalType;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YNet;
+
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is an abstract class, supplying a base environment for concrete subclasses that must
- * interpret engine objects to editor objects or vica versa.
- * @see EngineSpecificationExporter
+ * interpret engine objects to editor objects or vice versa.
+ * @see SpecificationExporter
  * @see SpecificationImporter
  * @author Lindsay Bradford
  */
 
 public abstract class EngineEditorInterpretor {
 
-  protected static HashMap editorToEngineElementMap;
-  protected static HashMap editorToEngineNetMap;
-  protected static HashMap editorFlowEngineConditionMap;
-  protected static boolean SpecificationParametersIncludeYTimerType ;
-  protected static boolean SpecificationParametersIncludeYStringListType;
-  protected static boolean SpecificationParametersIncludeYDocumentType;
-  protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
-  protected static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd");
-  
-  public static void initialise() {
-    editorToEngineElementMap = new HashMap();
-    editorToEngineNetMap = new HashMap();
-    editorFlowEngineConditionMap = new HashMap();
-    SpecificationParametersIncludeYTimerType = false;
-    SpecificationParametersIncludeYStringListType = false;    
-    SpecificationParametersIncludeYDocumentType = false;
-  }
+    protected static Map<YAWLCell, Object> editorToEngineElementMap;
+    protected static Map<Object, Object> engineToEditorElementMap;
+    protected static Map<NetGraphModel, YNet> editorToEngineNetMap;
+    protected static Map<YNet, NetGraphModel> engineToEditorNetMap;
+    protected static Map<YAWLFlowRelation, YCondition> editorFlowEngineConditionMap;
+    protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
 
-  public static void reset() { initialise(); }
+    public static void initialise() {
+        editorToEngineElementMap = new HashMap<YAWLCell, Object>();
+        editorToEngineNetMap = new HashMap<NetGraphModel, YNet>();
+        engineToEditorNetMap = new HashMap<YNet, NetGraphModel>();
+        engineToEditorElementMap = new HashMap<Object, Object>();
+        editorFlowEngineConditionMap = new HashMap<YAWLFlowRelation, YCondition>();
+        for (YInternalType type : YInternalType.values()) {
+            type.setUsed(false);
+        }
+    }
+
+    public static void reset() { initialise(); }
 }

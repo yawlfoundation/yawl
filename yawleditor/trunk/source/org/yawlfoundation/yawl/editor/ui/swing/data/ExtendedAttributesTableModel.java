@@ -1,9 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
@@ -22,23 +23,23 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     public static final int NUM_COLUMNS = 2;
 
     private Properties props = null;
-    private DataVariable variable = null;
-    private Decomposition decomposition = null;
+    private YVariable variable = null;
+    private YDecomposition decomposition = null;
     private NetGraph graph = null;
 
     private Vector<ExtendedAttribute> rows = new Vector<ExtendedAttribute>();
 
-    public ExtendedAttributesTableModel(DataVariable variable) throws IOException {
+    public ExtendedAttributesTableModel(YVariable variable) throws IOException {
         this.variable = variable;
-        if (variable !=null && variable.getScope() != null) {
-            this.decomposition = variable.getScope().getDecomposition();
+//        if (variable !=null && variable.getScope() != null) {
+//            this.decomposition = variable.getScope().getDecomposition();
             loadDefaultProperties();
             loadUserDefinedProperties();
             variable.setAttributes(removeDefunctAttributes(variable.getAttributes()));
-        }
+//        }
     }
 
-    public ExtendedAttributesTableModel(Decomposition decomposition, NetGraph graph)
+    public ExtendedAttributesTableModel(YDecomposition decomposition, NetGraph graph)
             throws IOException {
         this.decomposition = decomposition;
         this.graph = graph;
@@ -53,11 +54,12 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         String streamPath;
         if (variable != null) {
             streamPath = UserSettings.getVariableAttributesFilePath();
-            if (streamPath == null) streamPath = DataVariable.PROPERTY_LOCATION;
+//            if (streamPath == null) streamPath = DataVariable.PROPERTY_LOCATION;
         }
         else {
             streamPath = UserSettings.getDecompositionAttributesFilePath();
-            if (streamPath == null) streamPath = Decomposition.PROPERTY_LOCATION;
+            if (streamPath == null) streamPath =
+                    FileUtilities.getDecompositionPropertiesExtendeAttributePath();
         }
         if (streamPath != null) {
           props = new Properties();
@@ -140,7 +142,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     }
 
 
-    private Hashtable removeDefunctAttributes(Hashtable attributes) {
+    private Map<String, String> removeDefunctAttributes(Map<String, String> attributes) {
         List<String> toRemove = new ArrayList<String>();
         if (attributes != null) {
             for (Object o : attributes.keySet()) {
@@ -216,7 +218,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
             attribute.setValue(aValue.toString());
 
             if (variable != null) {
-                variable.setAttribute(attribute.getName(), attribute.getValue());
+//                variable.setAttribute(attribute.getName(), attribute.getValue());
                 if (attribute.getGroup() != null) {
                     updateGroup(attribute.getGroup());
                 }
@@ -262,16 +264,8 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
         return columnIndex == 1;
     }
 
-    public void setVariable(DataVariable variable) {
-        this.variable = variable;
-        this.decomposition = variable.getScope().getDecomposition();
-        loadAndParseProperties();
-        if (variable != null) {
-            variable.setAttributes(removeDefunctAttributes(variable.getAttributes()));            
-        }
-    }
 
-    public void setDecomposition(Decomposition decomposition) {
+    public void setDecomposition(YDecomposition decomposition) {
         this.decomposition = decomposition;
         loadAndParseProperties();
         if (decomposition != null) {
@@ -296,7 +290,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     private void updateGroup(ExtendedAttributeGroup group) {
         for (ExtendedAttribute attribute : group) {
             if (variable != null) {
-                variable.setAttribute(attribute.getName(), attribute.getValue());
+//                variable.setAttribute(attribute.getName(), attribute.getValue());
             }
             else {
                 decomposition.setAttribute(attribute.getName(), attribute.getValue());                

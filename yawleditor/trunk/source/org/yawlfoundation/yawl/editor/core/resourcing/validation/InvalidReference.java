@@ -1,37 +1,34 @@
 package org.yawlfoundation.yawl.editor.core.resourcing.validation;
 
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YTask;
-
 /**
  * Author: Michael Adams
  */
 public abstract class InvalidReference {
 
-    YNet _net;
-    YTask _task;
+    private String _id;
+    private String _msgName;
+    private String _netID;
+    private String _taskID;
 
-    protected InvalidReference() { }
 
-    protected InvalidReference(YNet net, YTask task) {
-        _net = net;
-        _task = task;
+    protected InvalidReference(String id, String msgName) {
+        _id = id;
+        _msgName = msgName;
     }
 
+    public String getID() { return _id; }
 
-    protected String getMessage(String name, String type) {
-        StringBuilder msg = new StringBuilder("Task '");
-        msg.append(_task.getID())
-           .append("' in Net '")
-           .append(_net.getName())
-           .append("' references a ")
-           .append(type)
-           .append(" '")
-           .append(name)
-           .append("' that does not exist in the organisational data supplied")
-           .append(" by the resource service. The reference has been removed.");
+    public void setNetID(String id) { _netID = id; }
 
-       return msg.toString();
+    public void setTaskID(String id) { _taskID = id; }
+
+    public String getMessage() {
+        StringBuilder s = new StringBuilder();
+        s.append("Task [").append(_taskID).append("]");
+        s.append(" in net [").append(_netID).append("]");
+        s.append(" contains an invalid ");
+        s.append(_msgName);
+        s.append(" reference [").append(_id).append("].");
+        return s.toString();
     }
-
 }

@@ -32,93 +32,79 @@ import java.awt.*;
 import java.io.File;
 
 public class FileChooserFactory {
-  
-  public static final int SAVING_AND_LOADING = 0;
-  public static final int IMPORTING_AND_EXPORTING = 1;
 
-  public static JFileChooser buildFileChooser(final String fileType, 
-                                              final String description,
-                                              final String titlePrefix,
-                                              final String titleSuffix,
-                                              final int    usage) {
-    
-    JFileChooser fileChooser = new JFileChooser(){
-      /**
-       * 
-       */
-      private static final long serialVersionUID = 1L;
+    public static JFileChooser build(final String fileType, final String description,
+                                     final String titlePrefix, final String titleSuffix) {
 
-      public int showDialog(Component parent, 
-                            String approveButtonText) throws HeadlessException {
+        JFileChooser fileChooser = new JFileChooser() {
 
-        // just before showing the dialog, point the dialog at the
-        // last directory used.
-          String lastPath = UserSettings.getLastSaveOrLoadPath();
-          setCurrentDirectory(
-                  new File(lastPath != null ? lastPath : System.getProperty("user.dir")));
+            public int showDialog(Component parent, String approveButtonText)
+                    throws HeadlessException {
+                setLastPath();
+                return super.showDialog(parent, approveButtonText);
+            }
 
-        return super.showDialog(parent, approveButtonText);
-      }      
+            public File getSelectedFile() {
 
-      public File getSelectedFile() {
-        
-        // When the user retrieves the file, remember 
-        // the directory used for next time.
-        File selectedFile = super.getSelectedFile();
-        if (selectedFile != null) {
-            UserSettings.setLastSaveOrLoadPath(getCurrentDirectory().getAbsolutePath());
-        }
-        return selectedFile;
-      }
-
-  };
+                // remember the last directory used for next time.
+                File selectedFile = super.getSelectedFile();
+                if (selectedFile != null) {
+                    UserSettings.setLastSaveOrLoadPath(selectedFile.getAbsolutePath());
+                }
+                return selectedFile;
+            }
 
 
-      class YAWLFileFilter extends FileFilter {
+            // point the dialog at the last directory used.
+            private void setLastPath() {
+                String lastPath = UserSettings.getLastSaveOrLoadPath();
+                setCurrentDirectory(new File(lastPath != null ? lastPath :
+                        System.getProperty("user.dir")));
+            }
 
-          private String[] makeExtensions() {
-              return fileType.split(",");
-          }
-
-          private boolean isValidExtension(File file) {   
-              String[] extns = makeExtensions();
-              for (String extn : extns) {
-                  if (file.getName().toLowerCase().endsWith("." + extn))
-                      return true;
-              }
-              return false;
-          }
-
-          public String getDescription() {
-              StringBuilder result = new StringBuilder(description);
-              result.append(" (");
-              String[] extns = makeExtensions();
-              for (int i=0; i<extns.length; i++) {
-                  if (i>0) result.append(" and ") ;
-                  result.append(extns[i].toUpperCase());
-              }
-              result.append(" files)");
-              return result.toString();
-          }
-
-          public boolean accept(File file) {
-            return file.isDirectory() || isValidExtension(file);
-          }
-
-      }  // class
+        };
 
 
-    fileChooser.setDialogTitle(
-      titlePrefix + 
-      fileType.toUpperCase().replaceAll(",", " or ") +
-      titleSuffix
-    );
-    
-    fileChooser.setAcceptAllFileFilterUsed(false);      // don't show 'all files' choice
-    fileChooser.setFileFilter(new YAWLFileFilter());
+        class YAWLFileFilter extends FileFilter {
 
-    return fileChooser;
-  }
+            private String[] extensions = fileType.split(",");
+
+            private boolean isValidExtension(File file) {
+                for (String extn : extensions) {
+                    if (file.getName().toLowerCase().endsWith(extn))
+                        return true;
+                }
+                return false;
+            }
+
+            public String getDescription() {
+                StringBuilder result = new StringBuilder(description);
+                result.append(" (");
+                for (int i=0; i < extensions.length; i++) {
+                    if (i > 0) result.append(" and ") ;
+                    result.append(extensions[i].toUpperCase());
+                }
+                result.append(" files)");
+                return result.toString();
+            }
+
+            public boolean accept(File file) {
+                return file.isDirectory() || isValidExtension(file);
+            }
+
+        }  // class
+
+
+        fileChooser.setDialogTitle(titlePrefix +
+                        fileType.toUpperCase().replaceAll(",", " or ") +
+                        titleSuffix
+        );
+
+        fileChooser.setAcceptAllFileFilterUsed(false);   // don't show 'all files' choice
+        fileChooser.setFileFilter(new YAWLFileFilter());
+
+        return fileChooser;
+    }
 
 }
 

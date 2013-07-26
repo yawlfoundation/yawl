@@ -1,71 +1,64 @@
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
+import org.yawlfoundation.yawl.elements.YTimerParameters;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 
-import java.io.Serializable;
+import javax.xml.datatype.Duration;
 import java.util.Date;
-import java.util.HashMap;
 
-public class TaskTimeoutDetail  implements Serializable {
+public class TaskTimeoutDetail {
 
-  /* ALL yawl-specific attributes of this object and its descendants 
-   * are to be stored in serializationProofAttributeMap, meaning we 
-   * won't get problems with incompatible XML serializations as we add 
-   * new attributes in the future. 
-   */
-  
-  private static final long serialVersionUID = 1L;
-  
-  protected HashMap serializationProofAttributeMap = new HashMap();
-  
-  public static final int TRIGGER_ON_ENABLEMENT = 0;
-  public static final int TRIGGER_ON_STARTING = 1;
-  
-  public void setSerializationProofAttributeMap(HashMap map) {
-    this.serializationProofAttributeMap = map;
-  }
-  
-  public HashMap getSerializationProofAttributeMap() {
-    return this.serializationProofAttributeMap;
-  }
+    private YVariable timerVariable;
+    private YAWLAtomicTask task;
 
-  public void setTimeoutVariable(DataVariable variable) {
-    serializationProofAttributeMap.put("timeoutValue", null);
-    serializationProofAttributeMap.put("timeoutDate", null);
-    serializationProofAttributeMap.put("timeoutVariable", variable);
-  }
+    private YTimerParameters timerParameters;
 
-  public DataVariable getTimeoutVariable() {
-    return (DataVariable) serializationProofAttributeMap.get("timeoutVariable");
-  }
-  
-  public void setTimeoutValue(String timeoutValue) {
-    serializationProofAttributeMap.put("timeoutValue", timeoutValue);
-    serializationProofAttributeMap.put("timeoutDate", null);
-    serializationProofAttributeMap.put("timeoutVariable", null);
-    
-  }
-  
-  public String getTimeoutValue() {
-    return (String) serializationProofAttributeMap.get("timeoutValue");
-  }
+    public TaskTimeoutDetail(YAWLAtomicTask task) {
+        this(task, null);
+    }
 
-  public void setTimeoutDate(Date timeoutDate) {
-    serializationProofAttributeMap.put("timeoutDate", timeoutDate);
-    serializationProofAttributeMap.put("timeoutValue", null);
-    serializationProofAttributeMap.put("timeoutVariable", null);
-  }
-  
-  public Date getTimeoutDate() {
-    return (Date) serializationProofAttributeMap.get("timeoutDate");
-  }
-  
-  public void setTrigger(int trigger) {
-    serializationProofAttributeMap.put("trigger", new Integer(trigger));
-  }
-  
-  public int getTrigger() {
-    return (Integer) serializationProofAttributeMap.get("trigger");
-  }
+    public TaskTimeoutDetail(YAWLAtomicTask task, YTimerParameters parameters) {
+        this.task = task;
+        timerParameters = parameters != null ? parameters : new YTimerParameters();
+    }
+
+
+    public YAWLAtomicTask getTask() { return task; }
+
+    public void setTask(YAWLAtomicTask task) { this.task = task; }
+
+
+    public YTimerParameters getTimerParameters() { return timerParameters; }
+
+
+    public void setValue(YVariable variable) {
+        timerVariable = variable;
+        timerParameters.set(timerVariable.getName());
+    }
+
+    public YVariable getTimeoutVariable() { return timerVariable; }
+
+
+    public void setValue(YWorkItemTimer.Trigger trigger, Duration timeoutValue) {
+        timerParameters.set(trigger, timeoutValue);
+    }
+
+    public Duration getDurationValue() { return timerParameters.getDuration(); }
+
+
+    public void setValue(YWorkItemTimer.Trigger trigger, Date timeoutDate) {
+        timerParameters.set(trigger, timeoutDate);
+    }
+
+    public Date getTimeoutDate() { return timerParameters.getDate(); }
+
+
+    public YWorkItemTimer.Trigger getTrigger() { return timerParameters.getTrigger(); }
+
+
+    public String toString() {
+        return timerParameters.toString();
+    }
 
 }

@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -40,7 +40,7 @@ public class OpenSpecificationAction extends YAWLSpecificationAction implements 
 
   {
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
-    putValue(Action.NAME, "Open Specification...");
+    putValue(Action.NAME, "Open...");
     putValue(Action.LONG_DESCRIPTION, "Open an existing specification");
     putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
@@ -48,7 +48,7 @@ public class OpenSpecificationAction extends YAWLSpecificationAction implements 
   }
 
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().open();
+    FileOperations.open();
   }
   
   public String getEnabledTooltipText() {

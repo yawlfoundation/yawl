@@ -130,7 +130,7 @@ public class LayoutImporter {
             vertex.getAttributes().applyMap(getAttributes(layoutNode));
             if (layoutNode instanceof YTaskLayout) {
                 YTaskLayout taskLayout = (YTaskLayout) layoutNode;
-                vertex.setIconPath(taskLayout.getIconPath());
+                ((YAWLTask) vertex).setIconPath(taskLayout.getIconPath());
                 removeImplicitDecorators(netModel, vertex, taskLayout);
             }
             if (layoutNode.getDesignNotes() != null) {
@@ -265,7 +265,7 @@ public class LayoutImporter {
             for (Object o : rootList) {
                 if (o instanceof YAWLVertex) {
                     YAWLVertex vertex = (YAWLVertex) o;
-                    _vertexMap.put(vertex.getEngineId(), vertex);
+                    _vertexMap.put(vertex.getID(), vertex);
                 }
                 else if (o instanceof YAWLFlowRelation) {
                     YAWLFlowRelation flow = (YAWLFlowRelation) o;
@@ -322,7 +322,7 @@ public class LayoutImporter {
             if (container != null) {
                 for (Object o : container.getChildren()) {
                     if (o instanceof YAWLVertex)
-                        return ((YAWLVertex) o).getEngineId();
+                        return ((YAWLVertex) o).getID();
                 }
             }
             return "null";
@@ -335,7 +335,7 @@ public class LayoutImporter {
                 return (getContainerID((VertexContainer) decorator.getParent()));
             }
             else {
-                return ((YAWLVertex) cell).getEngineId();
+                return ((YAWLVertex) cell).getID();
             }
         }
 

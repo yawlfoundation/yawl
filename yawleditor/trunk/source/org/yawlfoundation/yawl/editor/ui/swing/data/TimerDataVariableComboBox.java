@@ -23,9 +23,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
+import org.yawlfoundation.yawl.editor.core.data.YInternalType;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A Data variable combo-box that shows only variables in the given
@@ -36,39 +39,27 @@ import java.util.Iterator;
 
 public class TimerDataVariableComboBox extends DataVariableComboBox {
 
-  private static final long serialVersionUID = 1L;
-  
-  public TimerDataVariableComboBox() {
-    super();
-  }
-  
-  public TimerDataVariableComboBox(int validUsageType) {
-    super();
-    initialise(validUsageType);
-  }
-  
-  public void setEnabled(boolean enabled) {
-    if (enabled && getItemCount() > 0 ) {
-      super.setEnabled(enabled);
-    } else if (!enabled) {
-      super.setEnabled(enabled);
+    public TimerDataVariableComboBox() {
+        super();
     }
-  }
-  
-  protected void addDataVariables() {
-    if (getDecomposition() == null) {
-      return;
+
+    public void setEnabled(boolean enabled) {
+        if ((enabled && getItemCount() > 0) || !enabled) {
+            super.setEnabled(enabled);
+        }
     }
-    
-    Iterator variableIterator = getUsageBasedIterator();
-    
-    while(variableIterator.hasNext()) {
-      DataVariable variable = 
-        (DataVariable) variableIterator.next();
-      if (variable.getDataType().equals(DataVariable.YAWL_SCHEMA_TIMER_TYPE)) {
-        addItem(variable.getName());
-      }
+
+    protected void addDataVariables() {
+        if (getDecomposition() != null) {
+            Set<YVariable> variables = new HashSet<YVariable>(
+                    ((YNet) getDecomposition()).getLocalVariables().values());
+            variables.addAll(getDecomposition().getInputParameters().values());
+
+            for (YVariable variable : variables) {
+                if (YInternalType.YTimerType.name().equals(variable.getDataTypeName())) {
+                    addItem(variable.getName());
+                }
+            }
+        }
     }
-  }
-  
 }

@@ -9,7 +9,7 @@ public class JXMLSchemaDurationEditorPane extends JXMLSchemaInstanceEditorPane {
   public JXMLSchemaDurationEditorPane () {
     super();
     setVariableType(XSDType.getString(XSDType.DURATION));
-    setVariableName("anyOldVariableName");
+    setVariableName("durationPane");
     setText("");
   }
 }

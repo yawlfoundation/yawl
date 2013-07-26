@@ -23,8 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.util;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -80,30 +79,21 @@ public class XMLUtilities {
    * @return true if the string can be used as a valid XML name, false otherwise.
    */
   public static boolean isValidXMLName(String name) {
-    String trimmedName = name.trim();
+      if (name == null) return false;
 
-    boolean currentCharacterValid;
-    
-    if (name == null || trimmedName.length() == 0) {
-      return false;
-    }
+       // ensure that XML standard reserved names are not used
+      String trimmedName = name.trim();
+      if (trimmedName.length() == 0 || trimmedName.toUpperCase().startsWith("XML")) {
+          return false;
+      }
 
-    // ensure that XML standard reserved names are not used
-    
-    if(trimmedName.toUpperCase().startsWith("XML")) {
-      return false;
-    }
-
-    // test that name starts with a valid XML name-starting character
-    
-    if(!Character.isUpperCase(trimmedName.charAt(0)) &&
-       !Character.isLowerCase(trimmedName.charAt(0)) && 
-       trimmedName.charAt(0) != '_') {
-      return false; 
-    }
+     // test that name starts with a valid XML name-starting character
+     char firstChar = trimmedName.charAt(0);
+    if (! (Character.isLetter(firstChar) || firstChar == '_')) return false;
     
     // test that remainder name chars are a valid XML name characters 
-    
+      boolean currentCharacterValid;
+
     if (name.trim().length()>0) {
       for(int i = 1; i < trimmedName.length(); i++) {
         currentCharacterValid = false;
@@ -179,11 +169,11 @@ public class XMLUtilities {
    */
 
   public static boolean isSpecialXMLCharacter(final char character) {
-    for (int i = 0; i < XML_SPECIAL_CHARACTERS.length; i++) {
-      if (character == XML_SPECIAL_CHARACTERS[i]) {
-        return true;
+      for (char XML_SPECIAL_CHARACTER : XML_SPECIAL_CHARACTERS) {
+          if (character == XML_SPECIAL_CHARACTER) {
+              return true;
+          }
       }
-    }
     return false;
   }
   
@@ -249,7 +239,7 @@ public class XMLUtilities {
    * @return XPath/XQuery expression for the variable element.
    */
   
-  public static String getTagEnclosedEntireVariableXQuery(DataVariable variable) {
+  public static String getTagEnclosedEntireVariableXQuery(YVariable variable) {
     return "{" + getEntireVariableXQuery(variable) + "}";
   }
 
@@ -266,11 +256,10 @@ public class XMLUtilities {
    * @return XPath/XQuery expression for the variable element.
    */
   
-  public static String getEntireVariableXQuery(DataVariable variable) {
-    String scopeId = variable.getScope().getDecomposition().getLabelAsElementName();
-    String xQuery = "/" + scopeId + "/" + variable.getName();
-
-    return xQuery;
+  public static String getEntireVariableXQuery(YVariable variable) {
+//      String scopeId = variable.getScope().getDecomposition().getLabelAsElementName();
+//      return "/" + scopeId + "/" + variable.getName();
+      return "";
   }
 
   /**
@@ -289,9 +278,9 @@ public class XMLUtilities {
    */
 
   
-  public static String getTagEnclosedVariableContentXQuery(DataVariable variable) {
-    return "{" + getVariableContentXQuery(variable) + "}";
-  }
+//  public static String getTagEnclosedVariableContentXQuery(YVariable variable) {
+//    return "{" + getVariableContentXQuery(variable) + "}";
+//  }
   
   /**
    * A convenience method that generates an XPath expression for the given variable,
@@ -300,15 +289,15 @@ public class XMLUtilities {
    * @return XPath expression for the variable.
    */
   
-  public static String getXPathPredicateExpression(DataVariable variable) {
-    // TODO: This won't work for user-defined simple type enumerations based on number simple types.
-    //       Can I use the "restriction" tag of simple enumerated types to see if it's a number?
-    
-    if (variable.isNumberType()) {
-      return "number(" + getVariableContentXQuery(variable) + ")";
-    }
-    return getVariableContentXQuery(variable);
-  }
+//  public static String getXPathPredicateExpression(YVariable variable) {
+//    // TODO: This won't work for user-defined simple type enumerations based on number simple types.
+//    //       Can I use the "restriction" tag of simple enumerated types to see if it's a number?
+//
+//    if (variable.isNumberType()) {
+//      return "number(" + getVariableContentXQuery(variable) + ")";
+//    }
+//    return getVariableContentXQuery(variable);
+//  }
   
   /**
    * A convenience method that returns an XQuery expression that
@@ -324,27 +313,7 @@ public class XMLUtilities {
    * @return An XPath/XQuery expression that will retrieve the 
    *        variable's content at engine run-time.
    */
-  
-  public static String getVariableContentXQuery(DataVariable variable) {
-    
-    String variableContent = null;
-    
-    if (variable.isYInternalType()) {
-      variableContent = "*";
-    }
-    else  if (DataVariable.isBaseDataType(variable.getDataType())) {
-      variableContent = "text()";
-    }
-    else {
-      switch(SpecificationModel.getInstance().getSchemaValidator().getDataTypeComplexity(variable.getDataType())) {
-        case Complex: variableContent = "*"; break;
-        case Simple:  variableContent = "text()"; break;
-        case Unknown: variableContent = "text()"; break;
-      }
-    }
-    
-    return getEntireVariableXQuery(variable) + "/" + variableContent;
-  }
+
   
   /**
    * Returns a piece of XML where opening and closing tags using <code>variableName</code>
@@ -356,7 +325,7 @@ public class XMLUtilities {
    */
   
   public static String getTaggedOutputVariableWithContent(String variableName, String content) {
-    StringBuffer taggedQuery = new StringBuffer();
+    StringBuilder taggedQuery = new StringBuilder();
     if (variableName != null) {
       taggedQuery.append("<" + variableName + ">");
     }

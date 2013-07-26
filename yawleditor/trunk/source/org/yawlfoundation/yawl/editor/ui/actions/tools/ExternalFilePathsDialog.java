@@ -1,8 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.actions.tools;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
@@ -44,7 +42,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
                UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
                UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
                UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
-               Palette.getInstance().updatePluginIcons();
+      //         Palette.getInstance().updatePluginIcons();
            }
 
            private String checkPath(String path) {
@@ -136,8 +134,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     }
 
     private String getVariablePath() {
-        String path = UserSettings.getVariableAttributesFilePath();
-        return path != null ? path : DataVariable.PROPERTY_LOCATION;
+        return UserSettings.getVariableAttributesFilePath();
     }
 
     private String getTaskIconsPath() {

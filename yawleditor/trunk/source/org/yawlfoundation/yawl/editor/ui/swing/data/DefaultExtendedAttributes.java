@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.util.Collections;
 import java.util.Vector;
@@ -21,12 +21,12 @@ public class DefaultExtendedAttributes {
 
     public DefaultExtendedAttributes() { }
 
-    public DefaultExtendedAttributes(NetGraph graph, Decomposition decomposition) {
+    public DefaultExtendedAttributes(NetGraph graph, YDecomposition decomposition) {
         buildDecompositionTable(graph, decomposition);
         _tableType = Table.decomposition;
     }
 
-    public DefaultExtendedAttributes(Decomposition decomposition, DataVariable variable) {
+    public DefaultExtendedAttributes(YDecomposition decomposition, YVariable variable) {
         buildVariableTable(decomposition, variable);
         _tableType = Table.variable;
     }
@@ -39,7 +39,7 @@ public class DefaultExtendedAttributes {
     }
 
 
-    private void buildVariableTable(Decomposition decomposition, DataVariable variable) {
+    private void buildVariableTable(YDecomposition decomposition, YVariable variable) {
         _variableList = new Vector<ExtendedAttribute>();
 
         ExtendedAttributeGroup fontGroup = new ExtendedAttributeGroup();
@@ -89,7 +89,7 @@ public class DefaultExtendedAttributes {
         return _variableList;
     }
 
-    private void buildDecompositionTable(NetGraph graph, Decomposition decomposition) {
+    private void buildDecompositionTable(NetGraph graph, YDecomposition decomposition) {
 //        if (decomposition == null) return;
         _decompositionList = new Vector<ExtendedAttribute>();
 
@@ -125,22 +125,22 @@ public class DefaultExtendedAttributes {
 
     /************************************************************************/
 
-    private void addAttribute(Decomposition decomposition, DataVariable variable,
+    private void addAttribute(YDecomposition decomposition, YVariable variable,
                               String name, String type, ExtendedAttributeGroup group) {
         ExtendedAttribute attribute = new ExtendedAttribute(variable, decomposition, name, type,
-                                                variable.getAttribute(name), group);
+                                                variable.getAttributes().get(name), group);
         if (group != null) group.add(attribute);
         attribute.setAttributeType(ExtendedAttribute.DEFAULT_ATTRIBUTE);
         _variableList.add(attribute);
     }
 
-    private void addAttribute(Decomposition decomposition, DataVariable variable,
+    private void addAttribute(YDecomposition decomposition, YVariable variable,
                               String name, String type) {
         addAttribute(decomposition, variable, name, type, null);
     }
 
 
-    private void addAttribute(NetGraph graph, Decomposition decomposition,
+    private void addAttribute(NetGraph graph, YDecomposition decomposition,
                               String name, String type, ExtendedAttributeGroup group) {
         ExtendedAttribute attribute = new ExtendedAttribute(graph, decomposition, name, type,
                                                 decomposition.getAttribute(name), group);
@@ -149,7 +149,7 @@ public class DefaultExtendedAttributes {
         _decompositionList.add(attribute);
     }
 
-    private void addAttribute(NetGraph graph, Decomposition decomposition,
+    private void addAttribute(NetGraph graph, YDecomposition decomposition,
                               String name, String type) {
         addAttribute(graph, decomposition, name, type, null);
     }

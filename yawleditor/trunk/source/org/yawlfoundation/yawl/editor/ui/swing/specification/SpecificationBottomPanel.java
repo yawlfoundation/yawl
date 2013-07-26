@@ -15,8 +15,6 @@ import java.util.Arrays;
 
 public class SpecificationBottomPanel extends JTabbedPane implements GraphStateListener {
 
-    private static final long serialVersionUID = 1L;
-
     private static final int DESIGN_NOTES_PANEL_INDEX = 0;
     private static final int PROBLEM_PANEL_INDEX = 1;
 
@@ -67,7 +65,7 @@ public class SpecificationBottomPanel extends JTabbedPane implements GraphStateL
           setEnabledAt(DESIGN_NOTES_PANEL_INDEX, true);
           setTitleAt(
               DESIGN_NOTES_PANEL_INDEX, 
-              "Notes (" + vertex.getEngineLabel()  + ")"
+              "Notes (" + vertex.getName()  + ")"
           );
 
           designNotesPanel.setVertex(vertex);

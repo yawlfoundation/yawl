@@ -27,7 +27,6 @@ package org.yawlfoundation.yawl.editor.ui.net;
 import org.jgraph.JGraph;
 import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -37,6 +36,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionCha
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskIconChange;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,24 +74,19 @@ public class NetGraph extends JGraph {
 
   public NetGraph() {
     super();
-    initialize(false);
+    initialize();
   }
 
-    public NetGraph(boolean isRootNet) {
-      super();
-      initialize(isRootNet);
-    }
 
-  
-  public NetGraph(Decomposition decomposition) {
+  public NetGraph(YDecomposition decomposition) {
     super();
-    initialize(false);
+    initialize();
     getNetModel().setDecomposition(decomposition);
   }
 
   
-  private void initialize(boolean isRootNet) {
-    buildBasicGraphContent(isRootNet);
+  private void initialize() {
+    buildBasicGraphContent();
     this.configurationSettings = new ConfigurationSettingInfor();
   }
 
@@ -99,7 +94,7 @@ public class NetGraph extends JGraph {
 	  this.serviceAutomaton = new ServiceAutomatonTree(this);
   }
 
-  private void buildBasicGraphContent(boolean isRootNet) {
+  private void buildBasicGraphContent() {
     setGridMode(JGraph.DOT_GRID_MODE);
     setGridVisible(UserSettings.getShowGrid());
     setGridEnabled(true);
@@ -122,7 +117,7 @@ public class NetGraph extends JGraph {
     addMouseListener(new ElementControlClickListener(this));
 
     bindCancellationModel();
-    setModel(new NetGraphModel(this, isRootNet));
+    setModel(new NetGraphModel(this));
     ToolTipManager.sharedInstance().registerComponent(this);
     selectionListener = new NetSelectionListener(this.getSelectionModel());
     addGraphSelectionListener(selectionListener);
@@ -237,14 +232,10 @@ public class NetGraph extends JGraph {
   }
   
   public void addElement(YAWLVertex element) {
-    getModel().insert(new Object[] {element}, 
-                      null, null, null, null);
-    NetCellUtilities.scrollNetToShowCells(
-        this, 
-        new Object[] { element }
-    );
+    getModel().insert(new Object[] {element}, null, null, null, null);
+    NetCellUtilities.scrollNetToShowCells(this, new Object[] { element });
 
-    if(element instanceof YAWLTask){
+      if(element instanceof YAWLTask){
     	YAWLTask task = (YAWLTask)element;
     	if(this.configurationSettings.isNewElementsConfigurable()){
           task.setConfigurable(! task.isConfigurable());
@@ -625,10 +616,15 @@ public class NetGraph extends JGraph {
     this.getGraphLayoutCache().reload();
   }
   
-  public void removeCellsAndTheirEdges(Object[] cells) {
-    getNetModel().remove(cells);
+  public Set<Object> removeCellsAndTheirEdges(Object[] cells) {
+      return getNetModel().removeCells(cells);
   }
-  
+
+
+    public Set<Object> removeSelectedCellsAndTheirEdges() {
+        return getNetModel().removeCells(getSelectionCells());
+    }
+
   public void increaseSelectedVertexSize() {
     changeSelectedVertexSize(getGridSize());
   }
@@ -944,7 +940,7 @@ public class NetGraph extends JGraph {
       }
        
       if(container.getLabel() != null) {
-        getNetModel().remove(new Object[] { container.getLabel() } ); 
+        getNetModel().removeCells(new Object[]{container.getLabel()});
       }
       
       if(labelString == null || labelString.equals("") || labelString.equals("null")) {
@@ -1280,39 +1276,33 @@ public class NetGraph extends JGraph {
    */
   
   public void setVertexIcon(YAWLVertex vertex, String iconPath) {
-    if (vertex.getIconPath() != null && vertex.getIconPath().equals(iconPath)) {
-      return;
-    }
-    getNetModel().beginUpdate();
-    
-    getNetModel().postEdit(
-        new UndoableTaskIconChange(
-              this,
-              vertex,
-              vertex.getIconPath(), 
-              iconPath
-        )
-    );
-    
-    vertex.setIconPath(iconPath);
-    repaint();
-    
-    getNetModel().endUpdate();
+      if (! (vertex instanceof YAWLTask)) return;
+
+      YAWLTask task = (YAWLTask) vertex;
+      if (task.getIconPath() != null && task.getIconPath().equals(iconPath)) {
+          return;
+      }
+
+      getNetModel().beginUpdate();
+      getNetModel().postEdit(
+          new UndoableTaskIconChange(this, vertex, task.getIconPath(), iconPath));
+
+      task.setIconPath(iconPath);
+      repaint();
+      getNetModel().endUpdate();
   }
   
-  public void setTaskDecomposition(YAWLTask task, Decomposition decomposition) {
-    Decomposition oldDecomposition = task.getDecomposition();
+  public void setTaskDecomposition(YAWLTask task, YDecomposition decomposition) {
+      YDecomposition oldDecomposition = task.getDecomposition();
     if ((decomposition != null) && decomposition.equals(oldDecomposition)) {
       return;
     }
-    task.setDecomposition(decomposition);
-    task.getParameterLists().reset();
 
     getNetModel().beginUpdate();
     
     if (decomposition != null) {
         if (task.getLabel() == null) {
-          setElementLabelInsideUpdate(task, decomposition.getLabel());
+          setElementLabelInsideUpdate(task, decomposition.getID());
         }
     }
     else {
@@ -1320,7 +1310,7 @@ public class NetGraph extends JGraph {
         // if decomp is null, its being dropped, so if the decomp's name == the task's label
         // remove the label also
         if ((oldDecomposition != null) &&
-            (oldDecomposition.getLabel().equals(task.getLabel()))) {
+            (oldDecomposition.getID().equals(task.getLabel()))) {
             setElementLabelInsideUpdate(task, null);
         }
     }

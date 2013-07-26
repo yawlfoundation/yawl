@@ -25,27 +25,22 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedAlphaNumericField;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 public class XMLElementField extends JFormattedAlphaNumericField {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private Decomposition decomposition;
+  private YDecomposition decomposition;
   
   public XMLElementField(int columns) {
     super(columns);
     getAlphaNumericFormatter().allowXMLNameCharacters();
   }
   
-  public void setDecomposition(Decomposition decomposition) {
+  public void setDecomposition(YDecomposition decomposition) {
     this.decomposition = decomposition;
-    this.setText(decomposition.getLabel());
+    this.setText(decomposition.getID());
   }
   
-  public Decomposition getDecomposition() {
+  public YDecomposition getDecomposition() {
     return this.decomposition;
   }
 }

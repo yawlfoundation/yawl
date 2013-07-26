@@ -20,35 +20,29 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
- 
+
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 public class JXQueryEditor extends ValidityEditorPane {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    public JXQueryEditor() {
+        super();
+        setDocument(new XQueryStyledDocument(this));
+    }
 
-  public JXQueryEditor() {
-    super();
-    setDocument(new XQueryStyledDocument(this));
-  }
-  
-  public JXQueryEditor(String extraParseText) {
-    super();
-    setDocument(new XQueryStyledDocument(this));
-  }
-  
-  public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
-    getStyledDocument().setPreAndPostEditorText(preEditorText, postEditorText);
-  }
-  
-  public void setValidating(boolean validating) {
-      getStyledDocument().setValidating(validating);
-  }
-  
-  public AbstractXMLStyledDocument getStyledDocument() {
-    return (AbstractXMLStyledDocument) getDocument();
-  }
+    public JXQueryEditor(String extraParseText) {
+        this();
+    }
+
+    public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
+        getStyledDocument().setPreAndPostEditorText(preEditorText, postEditorText);
+    }
+
+    public void setValidating(boolean validating) {
+        getStyledDocument().setValidating(validating);
+    }
+
+    public AbstractXMLStyledDocument getStyledDocument() {
+        return (AbstractXMLStyledDocument) getDocument();
+    }
 }

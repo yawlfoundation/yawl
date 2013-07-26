@@ -26,7 +26,13 @@ public class LayoutExporter {
     public LayoutExporter() {}
 
     public String export(SpecificationModel model) {
-        YSpecification _specification = SpecificationModel.getSpec().getSpecification();
+        YLayout layout = parse(model);
+        return layout != null ? layout.toXML() : null;
+    }
+
+
+    public YLayout parse(SpecificationModel model) {
+        YSpecification _specification = SpecificationModel.getHandler().getSpecification();
         YLayout layout = new YLayout(_specification);
         if (model.getDefaultNetBackgroundColor() != Color.WHITE.getRGB()) {
             layout.setGlobalFillColor(new Color(model.getDefaultNetBackgroundColor()));
@@ -39,7 +45,7 @@ public class LayoutExporter {
             YNetLayout netLayout = layout.newNetLayoutInstance(unspace(net.getName()));
             layout.addNetLayout(getNetLayout(net, netLayout));
         }
-        return layout.toXML();
+        return layout;
     }
 
 
@@ -61,7 +67,7 @@ public class LayoutExporter {
         // if the net currently has a cancellation set showing, remember it
         YAWLTask cancelTask = graph.getCancellationSetModel().getTriggeringTask();
         if (cancelTask != null) {
-            layout.setCancellationTaskID(cancelTask.getEngineId());
+            layout.setCancellationTaskID(cancelTask.getID());
         }
 
         for (Object o : net.getRoots()) {
@@ -74,7 +80,7 @@ public class LayoutExporter {
            else if (o instanceof YAWLVertex) {              // conditions & empty tasks
                YAWLVertex vertex = (YAWLVertex) o;
                YNetElementNode nodeLayout = getLayoutForVertex(vertex, layout,
-                       vertex.getEngineId());
+                       vertex.getID());
                addVertexLayout(vertex, nodeLayout);
                layout.addLayoutNode(nodeLayout);
            }
@@ -143,9 +149,12 @@ public class LayoutExporter {
             layout.setDesignNotes(notes);
         }
 
-        String iconPath = vertex.getIconPath();    // only tasks have icons
-        if (iconPath != null) {
-            ((YTaskLayout) layout).setIconPath(vertex.getIconPath());
+        if (vertex instanceof YAWLTask) {                       // only tasks have icons
+            YAWLTask task = (YAWLTask) vertex;
+            String iconPath = task.getIconPath();
+            if (iconPath != null) {
+                ((YTaskLayout) layout).setIconPath(iconPath);
+            }
         }
     }
 
@@ -163,7 +172,7 @@ public class LayoutExporter {
         if (container != null) {
             for (Object o : container.getChildren()) {
                 if (o instanceof YAWLVertex)
-                    return ((YAWLVertex) o).getEngineId();
+                    return ((YAWLVertex) o).getID();
             }
         }
         return "null";
@@ -177,7 +186,7 @@ public class LayoutExporter {
             return (getContainerID((VertexContainer) decorator.getParent()));
          }
         else {
-            return ((YAWLVertex) cell).getEngineId();
+            return ((YAWLVertex) cell).getID();
         }
     }
 

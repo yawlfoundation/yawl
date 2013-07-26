@@ -26,45 +26,28 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.palette.*;
 
-import javax.swing.JPopupMenu;
+import javax.swing.*;
+import java.awt.*;
 
 public class PalettePopupMenu extends JPopupMenu {
 
-  private static final long serialVersionUID = 1L;
+    public PalettePopupMenu() {
+        super();
+        addMenuItems();
+        for (Component component : getComponents()) {
+            ((JMenuItem) component).setToolTipText(null);
+        }
+        pack();
+    }
 
-  public PalettePopupMenu() {
-    super();
-    addMenuItems();
-  }
-  
-  private void addMenuItems() {
-    add(new AtomicTaskAction(
-            Palette.getInstance().getControlFlowPalette()    
-       )
-    );
-    add(new CompositeTaskAction(
-            Palette.getInstance().getControlFlowPalette()    
-       )
-    );
-    add(new MultipleAtomicTaskAction(
-            Palette.getInstance().getControlFlowPalette()    
-       )
-    );
-    add(new MultipleCompositeTaskAction(
-            Palette.getInstance().getControlFlowPalette()    
-        )
-    );
-    add(new ConditionAction(
-            Palette.getInstance().getControlFlowPalette()    
-        )
-    );
-    add(new MarqueeAction(
-            Palette.getInstance().getControlFlowPalette()    
-        )
-    );
-    add(new NetDragAction(
-            Palette.getInstance().getControlFlowPalette()    
-        )
-    );
-  }
+    private void addMenuItems() {
+        ControlFlowPalette palette = Palette.getInstance().getControlFlowPalette();
+        add(new AtomicTaskAction(palette));
+        add(new CompositeTaskAction(palette));
+        add(new MultipleAtomicTaskAction(palette));
+        add(new MultipleCompositeTaskAction(palette));
+        add(new ConditionAction(palette));
+        add(new MarqueeAction(palette));
+        add(new NetDragAction(palette));
+    }
 }

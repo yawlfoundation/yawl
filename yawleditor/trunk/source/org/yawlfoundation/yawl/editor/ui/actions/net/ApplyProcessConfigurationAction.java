@@ -475,7 +475,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                     String sourceID = sourceNames.get(i).get(0);
                     Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
                     for (YAWLFlowRelation flow : task.getIncomingFlows()) {
-                        if (flow.getSourceVertex().getEngineId().equals(sourceID)) {
+                        if (flow.getSourceVertex().getID().equals(sourceID)) {
                             flows.add(flow);
                             port.setFlows(flows);
                             break;
@@ -500,7 +500,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                     String targetID = targetNames.get(i).get(0);
                     Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
                     for (YAWLFlowRelation flow : task.getOutgoingFlows()) {
-                        if (flow.getTargetVertex().getEngineId().equals(targetID)) {
+                        if (flow.getTargetVertex().getID().equals(targetID)) {
                             flows.add(flow);
                             port.setFlows(flows);
                             break;
@@ -530,7 +530,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         private List<String> getSourceList(Set<YAWLFlowRelation> flows) {
             List<String> sources = new ArrayList<String>();
             for (YAWLFlowRelation flow : flows) {
-                sources.add(flow.getSourceVertex().getEngineId());
+                sources.add(flow.getSourceVertex().getID());
             }
             return sources;
         }
@@ -538,7 +538,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         private List<String> getTargetList(Set<YAWLFlowRelation> flows) {
             List<String> targets = new ArrayList<String>();
             for (YAWLFlowRelation flow : flows) {
-                targets.add(flow.getTargetVertex().getEngineId());
+                targets.add(flow.getTargetVertex().getID());
             }
             return targets;
         }

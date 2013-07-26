@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
@@ -59,7 +59,7 @@ public class OpenRecentSpecificationAction extends YAWLSpecificationAction imple
 
 
   public void actionPerformed(ActionEvent event) {
-      ArchivingThread.getInstance().open(_fullFileName) ;
+      FileOperations.open(_fullFileName) ;
   }
 
   public String getEnabledTooltipText() {

@@ -38,6 +38,7 @@ public class YResourceConnection extends YConnection {
     private List<NonHumanCategory> _nhCategoryCache = new ArrayList<NonHumanCategory>();
     private List<AbstractSelector> _allocatorCache = new ArrayList<AbstractSelector>();
     private List<AbstractSelector> _filterCache = new ArrayList<AbstractSelector>();
+    private List<AbstractSelector> _constraintCache = new ArrayList<AbstractSelector>();
     private List<CodeletInfo> _codeletCache = new ArrayList<CodeletInfo>();
 
     // default URL
@@ -290,6 +291,29 @@ public class YResourceConnection extends YConnection {
         return _filterCache;
     }
 
+    /**
+     * Get the current list of Constraints from the resource service.
+     * @return If there is a current connection to the service, a fresh list is
+     * retrieved from the service, the cache is updated, and the list is returned.
+     * If a connection can't be established, or there is some problem retrieving a fresh
+     * list, then the cached list is returned.
+     * @throws IOException If there is some problem retrieving a fresh list, and the
+     * cache is empty.
+     */
+    public List<AbstractSelector> getConstraints() throws IOException {
+        if (isConnected()) {
+            try {
+                _constraintCache = _adapter.getConstraints(_handle);
+            }
+            catch (ResourceGatewayException rge) {
+                if (_constraintCache.isEmpty()) throw new IOException(rge.getMessage());
+            }
+            catch (IOException ioe) {
+                if (_constraintCache.isEmpty()) throw new IOException(ioe.getMessage());
+            }
+        }
+        return _constraintCache;
+    }
 
     /**
      * Get the current list of Allocators from the resource service.

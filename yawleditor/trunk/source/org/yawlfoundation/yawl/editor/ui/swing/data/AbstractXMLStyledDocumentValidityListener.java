@@ -22,5 +22,6 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 public interface AbstractXMLStyledDocumentValidityListener {
-  public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValidity);
+
+    public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValidity);
 }

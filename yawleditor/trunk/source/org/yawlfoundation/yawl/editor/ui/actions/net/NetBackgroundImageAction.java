@@ -23,14 +23,12 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 
 public class NetBackgroundImageAction extends YAWLSelectedNetAction {
@@ -70,47 +68,5 @@ public class NetBackgroundImageAction extends YAWLSelectedNetAction {
           }
       }
   }
-
-public class ImageFilter extends FileFilter {
-
-    //Accept all directories and all gif, jpg, tiff, or png files.
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        String extension = getExtension(f);
-        if (extension != null) {
-            if (extension.equals("tiff") ||
-                extension.equals("tif") ||
-                extension.equals("gif") ||
-                extension.equals("jpeg") ||
-                extension.equals("jpg") ||
-                extension.equals("png")) {
-                    return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    //The description of this filter
-    public String getDescription() {
-        return "Image Files";
-    }
-
-    private String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
-
-}
 
 }

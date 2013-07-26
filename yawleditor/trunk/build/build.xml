@@ -43,9 +43,9 @@
     <property name="root.class.name" value="YAWLEditor" />
     <property name="root.source.file" value="${root.class.name}.java" />
     <property name="package.base.dir" value="org/yawlfoundation/yawl" />
-    <property name="package.dir" value="${package.base.dir}/editor" />
+    <property name="package.dir" value="${package.base.dir}/usageEditor" />
     <property name="root.classpath"
-              value="org.yawlfoundation.yawl.editor.ui.${root.class.name}" />
+              value="org.yawlfoundation.yawl.usageEditor.ui.${root.class.name}" />
     <property name="source.file" value="${package.dir}/ui/${root.source.file}" />
     <property name="source.release" value="1.5" />
 
@@ -68,11 +68,11 @@
     	Define output file names
     -->
     <property name="source.zip"
-              value="${root.class.name}${editor.release.number}Source.zip" />
+              value="${root.class.name}${usageEditor.release.number}Source.zip" />
     <property name="editor.complete.jar.name"
-              value="${root.class.name}${editor.release.number}.jar" />
+              value="${root.class.name}${usageEditor.release.number}.jar" />
     <property name="editor.lite.jar.name"
-              value="${root.class.name}Lite${editor.release.number}.jar" />
+              value="${root.class.name}Lite${usageEditor.release.number}.jar" />
 
 	<!--
 		Define all Editor code dependencies. Since the Editor makes use of
@@ -88,7 +88,7 @@
 			any YAWL Services dependencies we know we *don't* need;
 			the full set of required packages for the Complete build
 	-->
-    <property name="jcal" value="jcalendar-1.3.2.jar"/>
+    <property name="jcal" value="jcalendar-1.4.jar"/>
     <property name="servlet" value="servlet-api.jar"/>
     <property name="forms" value="forms_rt.jar"/>
     <property name="grouplayout" value="swing-layout-1.0.4.jar"/>
@@ -184,7 +184,7 @@
 
     	<mkdir dir="${distribution.dir.complete}" />
 
-        <jar destfile="${distribution.dir.complete}/${editor.complete.jar.name}" duplicate="fail">
+        <jar destfile="${distribution.dir.complete}/${usageEditor.complete.jar.name}" duplicate="fail">
             <fileset dir="${classes.dir}"
             		 excludes="**/Test*.class" />
             <fileset dir="${enumeratedLibraries.dir}"
@@ -193,9 +193,11 @@
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Main-Class" value="${root.classpath}"/>
+                <attribute name="SplashScreen-Image"
+                          value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />
             </manifest>
         </jar>
-        <checksum file="${distribution.dir.complete}/${editor.complete.jar.name}"/>
+        <checksum file="${distribution.dir.complete}/${usageEditor.complete.jar.name}"/>
     </target>
 
 	<!--
@@ -218,7 +220,7 @@
         <property name="manifestFile" value="${root.class.name}.mf" />
 
     	<manifestclasspath property="manifest_cp"
-    					   jarfile="${distribution.dir.lite}/${editor.lite.jar.name}">
+    					   jarfile="${distribution.dir.lite}/${usageEditor.lite.jar.name}">
     		<classpath>
     			<fileset dir="${distribution.dir.lite}/lib" includes="*.jar" />
     		</classpath>
@@ -227,13 +229,15 @@
         <manifest file="${manifestFile}">
             <attribute name="Main-Class" value="${root.classpath}" />
         	<attribute name="Class-Path" value="${manifest_cp}" />
+            <attribute name="SplashScreen-Image"
+                       value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />
         </manifest>
 
-        <jar jarfile="${distribution.dir.lite}/${editor.lite.jar.name}"
+        <jar jarfile="${distribution.dir.lite}/${usageEditor.lite.jar.name}"
              basedir="${classes.dir}"
              manifest="${manifestFile}"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir.lite}/${editor.lite.jar.name}"/>
+        <checksum file="${distribution.dir.lite}/${usageEditor.lite.jar.name}"/>
         <delete file="${manifestFile}" />
     </target>
 
@@ -400,7 +404,7 @@
 			description="Build and deploy Editor Lite version">
 		<mkdir dir="${deploy.location}/lib" />
 		<copy todir="${deploy.location}">
-			<fileset file="${distribution.dir.lite}/${editor.lite.jar.name}" />
+			<fileset file="${distribution.dir.lite}/${usageEditor.lite.jar.name}" />
 		</copy>
 		<copy todir="${deploy.location}/lib">
 			<fileset dir="${distribution.dir.lite}/lib" includes="*.jar" />
@@ -410,7 +414,7 @@
 	<target name="deployEditorComplete" depends="buildEditorComplete"
 			description="Build and deploy Editor Complete version">
 		<copy todir="${deploy.location}">
-			<fileset file="${distribution.dir.complete}/${editor.complete.jar.name}" />
+			<fileset file="${distribution.dir.complete}/${usageEditor.complete.jar.name}" />
 		</copy>
 	</target>
 

@@ -26,13 +26,10 @@ package org.yawlfoundation.yawl.editor.ui.elements.view;
 
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
 import java.awt.*;
@@ -94,8 +91,8 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     }
 
     protected void drawIcon(Graphics graphics, Dimension size) {
-        if (!(view.getCell() instanceof YAWLVertex) ||
-                ((YAWLVertex) view.getCell()).getIconPath() == null) {
+        if (!(view.getCell() instanceof YAWLTask) ||
+                ((YAWLTask) view.getCell()).getIconPath() == null) {
             return;
         }
 
@@ -108,16 +105,16 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
 
         try {
             icon = ResourceLoader.getImageAsIcon(
-                    ((YAWLVertex) view.getCell()).getIconPath()
+                    ((YAWLTask) view.getCell()).getIconPath()
             );
         } catch (Exception e) {}
 
         if (icon == null) {
             try {
                 icon = ResourceLoader.getExternalImageAsIcon(
-                        FileUtilities.getAbsoluteTaskIconPath(
-                                ((YAWLVertex) view.getCell()).getIconPath()
-                        )
+                    //    FileUtilities.getAbsoluteTaskIconPath(
+                                ((YAWLTask) view.getCell()).getIconPath()
+                     //   )
                 );
             } catch (Exception e) {}
         }
@@ -203,22 +200,13 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     }
 
     private boolean isAutomatedTask(YAWLTask task) {
-      WebServiceDecomposition decomp = getWebServiceDecomposition(task);
-      return (decomp != null) && (! decomp.isManualInteraction());
+        YDecomposition decomp = task.getDecomposition();
+        return (decomp != null) && (! decomp.requiresResourcingDecisions());
     }
 
     private boolean hasCodelet(YAWLTask task) {
-      WebServiceDecomposition decomp = getWebServiceDecomposition(task);
+        YDecomposition decomp = task.getDecomposition();
         return decomp != null && decomp.getCodelet() != null;
-    }
-
-  private WebServiceDecomposition getWebServiceDecomposition(YAWLTask task) {
-      WebServiceDecomposition result = null;
-      Decomposition decomp = task.getDecomposition();
-      if (decomp instanceof WebServiceDecomposition) {
-          result = (WebServiceDecomposition) decomp;
-      }
-      return result;
     }
 
 

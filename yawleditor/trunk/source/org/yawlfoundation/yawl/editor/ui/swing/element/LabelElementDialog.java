@@ -21,7 +21,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.element;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCondition;
+import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -52,7 +52,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
             if (newLabel.length() == 0) newLabel = null;
             graph.setElementLabel(vertex, newLabel);
             if (cbxSynch.isSelected()) {
-                vertex.setEngineLabel(newLabel);
+                vertex.setName(newLabel);
             }
           graph.clearSelection();           
           SpecificationUndoManager.getInstance().setDirty(true);
@@ -130,7 +130,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
   public void setVertex(YAWLVertex vertex, NetGraph graph) {
     super.setVertex(vertex,graph);
     labelField.setText(vertex.getLabel());
-    String vType = (getVertex() instanceof YAWLCondition) ? "condition" : "task" ;
+    String vType = (getVertex() instanceof Condition) ? "condition" : "task" ;
     cbxSynch.setText("Synchronise " + vType + " name with label");
   }
   

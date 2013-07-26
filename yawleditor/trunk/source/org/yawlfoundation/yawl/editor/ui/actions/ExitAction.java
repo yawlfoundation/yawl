@@ -23,7 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
@@ -43,7 +43,7 @@ public class ExitAction extends YAWLOpenSpecificationAction implements TooltipTo
     public ExitAction(JComponent menu) {}
 
     public void actionPerformed(ActionEvent event) {
-        ArchivingThread.getInstance().exit();
+        FileOperations.exit();
     }
 
     public void specificationFileStateChange(FileState state) {

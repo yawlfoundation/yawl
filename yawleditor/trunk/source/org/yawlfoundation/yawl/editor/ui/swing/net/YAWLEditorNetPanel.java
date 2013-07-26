@@ -22,11 +22,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.net;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +37,6 @@ import java.awt.event.MouseWheelListener;
 
 public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
-    private static final long serialVersionUID = 1L;
     private static SpecificationModel model;
     private NetGraph net;
     private JScrollPane scrollPane;
@@ -54,12 +55,14 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
 
     // creates a new net
-    public YAWLEditorNetPanel(Rectangle bounds) {
+    public YAWLEditorNetPanel(Rectangle bounds) throws YControlFlowHandlerException {
         this();
         setBounds(bounds);
-        NetGraph newGraph = new NetGraph();
+        String title = createTitle();
+        YNet yNet = SpecificationModel.getHandler().getControlFlowHandler().addNet(title);
+        NetGraph newGraph = new NetGraph(yNet);
         newGraph.buildNewGraphContent(cropRectangle(bounds, 15));
-        setNet(newGraph, createTitle());
+        setNet(newGraph, title);
     }
 
     
@@ -77,7 +80,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         int counter = 0;
         while (!validNameFound) {
             counter++;
-            newTitle = "New Net " + counter;
+            newTitle = "Net" + counter;
             if (SpecificationUtilities.getNetModelFromName(newTitle) == null) {
                 validNameFound = true;
             }

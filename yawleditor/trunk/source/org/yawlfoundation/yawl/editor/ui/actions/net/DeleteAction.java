@@ -25,9 +25,12 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
@@ -63,13 +66,35 @@ public class DeleteAction extends YAWLSelectedNetAction implements TooltipToggli
   public static DeleteAction getInstance() {
     return INSTANCE; 
   }
-  
-  public void actionPerformed(ActionEvent event) {
-    final NetGraph graph = getGraph();
-    if (graph != null) {
-      graph.removeCellsAndTheirEdges(graph.getSelectionCells());      
+
+    public void actionPerformed(ActionEvent event) {
+        final NetGraph graph = getGraph();
+        if (graph != null) {
+            YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
+            for (Object o : graph.getNetModel().getConnectingFlows(graph.getSelectionCells())) {
+                YAWLFlowRelation flow = (YAWLFlowRelation) o;
+                handler.removeFlow(graph.getName(), flow.getSourceID(), flow.getTargetID());
+            }
+
+            for (Object o : graph.removeSelectedCellsAndTheirEdges()) {
+                if (o instanceof Condition) {
+                    handler.removeCondition(graph.getName(), ((Condition) o).getID());
+                }
+                else if (o instanceof AtomicTask)  {
+                    handler.removeAtomicTask(graph.getName(), ((AtomicTask) o).getID());
+                }
+                else if (o instanceof MultipleAtomicTask) {
+                    handler.removeAtomicTask(graph.getName(), ((MultipleAtomicTask) o).getID());
+                }
+                else if (o instanceof CompositeTask) {
+                    handler.removeCompositeTask(graph.getName(), ((CompositeTask) o).getID());
+                }
+                else if (o instanceof MultipleCompositeTask) {
+                    handler.removeCompositeTask(graph.getName(), ((MultipleCompositeTask) o).getID());
+                }
+            }
+        }
     }
-  }
   
   public String getEnabledTooltipText() {
     return " Delete currently selected net elements ";

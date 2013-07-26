@@ -133,13 +133,13 @@ public class CPort implements Cloneable {
                         if(vertex.getLabel() != null){
                             sum = sum + flow.getSourceVertex().getLabel()+", ";
                         }else{
-                            sum = sum + flow.getSourceVertex().getEngineId()+", ";
+                            sum = sum + flow.getSourceVertex().getID()+", ";
                         }
                     }else{
                         if(vertex.getLabel() != null){
                             sum = sum + flow.getSourceVertex().getLabel();
                         }else{
-                            sum = sum + flow.getSourceVertex().getEngineId();
+                            sum = sum + flow.getSourceVertex().getID();
                         }
                     }
                 }
@@ -168,13 +168,13 @@ public class CPort implements Cloneable {
                         if(vertex.getLabel() != null){
                             sum = sum + flow.getTargetVertex().getLabel()+", ";
                         }else{
-                            sum = sum + flow.getTargetVertex().getEngineId()+", ";
+                            sum = sum + flow.getTargetVertex().getID()+", ";
                         }
                     }else{
                         if(vertex.getLabel() != null){
                             sum = sum + flow.getTargetVertex().getLabel();
                         }else{
-                            sum = sum + flow.getTargetVertex().getEngineId();
+                            sum = sum + flow.getTargetVertex().getID();
                         }
                     }
                 }

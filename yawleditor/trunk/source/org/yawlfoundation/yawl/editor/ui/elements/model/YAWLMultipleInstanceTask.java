@@ -22,7 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 public interface YAWLMultipleInstanceTask {
 
@@ -45,8 +45,8 @@ public interface YAWLMultipleInstanceTask {
   abstract public int  getInstanceCreationType();
   abstract public void setInstanceCreationType(int instanceCreationType);
   
-  abstract public DataVariable getMultipleInstanceVariable();
-  abstract public void setMultipleInstanceVariable(DataVariable parameter);
+  abstract public YVariable getMultipleInstanceVariable();
+  abstract public void setMultipleInstanceVariable(YVariable parameter);
 
   abstract public String getAccessorQuery();
   abstract public void setAccessorQuery(String query);
@@ -60,6 +60,6 @@ public interface YAWLMultipleInstanceTask {
   abstract public String getAggregateQuery();
   abstract public void setAggregateQuery(String query);
   
-  abstract public DataVariable getResultNetVariable();
-  abstract public void setResultNetVariable(DataVariable variable);
+  abstract public YVariable getResultNetVariable();
+  abstract public void setResultNetVariable(YVariable variable);
 }

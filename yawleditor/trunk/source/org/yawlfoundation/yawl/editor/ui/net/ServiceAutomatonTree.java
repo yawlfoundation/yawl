@@ -159,8 +159,8 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
 
 
     private String getTaskLabel(YAWLTask task) {
-        return (task.getDecomposition() != null) ? task.getDecomposition().getLabel() :
-                task.getEngineId();
+        return (task.getDecomposition() != null) ? task.getDecomposition().getID() :
+                task.getID();
     }
 
 
@@ -283,12 +283,12 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
     private YAWLTask getTheTask(String taskID){
         for (YAWLTask task : tasks) {
             if (task.getDecomposition() == null) {
-                if (task.getEngineId().equals(taskID)) {
+                if (task.getID().equals(taskID)) {
                     return task;
                 }
             }
             else {
-                if (task.getDecomposition().getLabel().equals(taskID)){
+                if (task.getDecomposition().getID().equals(taskID)){
                     return task;
                 }
             }

@@ -24,16 +24,7 @@
  
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleAtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleCompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -44,14 +35,13 @@ public class NetElementSummary {
   private InputCondition inputCondition;
   private OutputCondition outputCondition;
 
-  private HashSet flows = new HashSet();
-  private HashSet conditions = new HashSet();
-  private HashSet atomicTasks = new HashSet();
-  private HashSet compositeTasks = new HashSet();
-  private HashSet tasksWithCancellationSets = new HashSet();
+  private Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+  private Set<Condition> conditions = new HashSet<Condition>();
+  private Set<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
+  private Set<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
+  private Set<YAWLTask> tasksWithCancellationSets = new HashSet<YAWLTask>();
   
   public NetElementSummary(NetGraphModel model) {
-    assert model != null : "No NetGraphModel specified in constructor";
     this.model = model;
     parseModel();
   }
@@ -69,24 +59,24 @@ public class NetElementSummary {
         outputCondition = (OutputCondition) cells[i];
       }
       if (cells[i] instanceof Condition) {
-        conditions.add(cells[i]);
+        conditions.add((Condition) cells[i]);
       }
       if (cells[i] instanceof AtomicTask ||
           cells[i] instanceof MultipleAtomicTask ) {
-        atomicTasks.add(cells[i]);
+        atomicTasks.add((YAWLAtomicTask) cells[i]);
         if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
-          tasksWithCancellationSets.add(cells[i]);
+          tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
       }
       if (cells[i] instanceof CompositeTask ||
           cells[i] instanceof MultipleCompositeTask ) {
-        compositeTasks.add(cells[i]);
+        compositeTasks.add((YAWLCompositeTask) cells[i]);
         if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
-          tasksWithCancellationSets.add(cells[i]);
+          tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
       }
       if (cells[i] instanceof YAWLFlowRelation) {
-        flows.add(cells[i]);        
+        flows.add((YAWLFlowRelation) cells[i]);
       }
     }
   }
@@ -103,23 +93,23 @@ public class NetElementSummary {
     return this.outputCondition;
   }
   
-  public Set getConditions() {
+  public Set<Condition> getConditions() {
     return this.conditions;
   }
   
-  public Set getAtomicTasks() {
+  public Set<YAWLAtomicTask> getAtomicTasks() {
     return this.atomicTasks;
   }
 
-  public Set getCompositeTasks() {
+  public Set<YAWLCompositeTask> getCompositeTasks() {
     return this.compositeTasks;
   }
   
-  public Set getFlows() {
+  public Set<YAWLFlowRelation> getFlows() {
     return this.flows;
   }
   
-  public Set getTasksWithCancellationSets() {
+  public Set<YAWLTask> getTasksWithCancellationSets() {
     return this.tasksWithCancellationSets;
   }
 }

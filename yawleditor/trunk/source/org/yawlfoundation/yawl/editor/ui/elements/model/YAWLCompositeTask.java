@@ -22,9 +22,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 public interface YAWLCompositeTask {
-  public String getUnfoldingNetName();
-  public Decomposition getDecomposition();
+
+    public String getUnfoldingNetName();
+    public YDecomposition getDecomposition();
 }
