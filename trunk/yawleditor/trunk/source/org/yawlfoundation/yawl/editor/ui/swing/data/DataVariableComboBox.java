@@ -23,20 +23,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+
+import javax.swing.*;
 import java.util.Iterator;
-
-import javax.swing.JComboBox;
-
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 
 public class DataVariableComboBox extends JComboBox {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private Decomposition decomposition;
+  private YDecomposition decomposition;
   private int validUsageType;
   
   public DataVariableComboBox() {
@@ -61,15 +56,15 @@ public class DataVariableComboBox extends JComboBox {
     return this.validUsageType;
   }
   
-  public void setDecomposition(Decomposition decomposition) {
+  public void setDecomposition(YDecomposition decomposition) {
     this.decomposition = decomposition;
     refresh();
   }
-  
-  public Decomposition getDecomposition() {
+
+  public YDecomposition getDecomposition() {
     return this.decomposition;
   }
-  
+
   protected void refresh() {
     removeAllItems();
     addDataVariables();
@@ -83,21 +78,22 @@ public class DataVariableComboBox extends JComboBox {
     Iterator variableIterator = getUsageBasedIterator();
     
     while(variableIterator.hasNext()) {
-      DataVariable variable = 
-        (DataVariable) variableIterator.next();
+        YVariable variable =
+        (YVariable) variableIterator.next();
       addItem(variable.getName());
     }
   }
   
   protected Iterator getUsageBasedIterator() {
-    return getDecomposition().getVariables().getVariablesWithValidUsage(getValidUsageType()).iterator();
+//    return getDecomposition().getVariables().getVariablesWithValidUsage(getValidUsageType()).iterator();
+    return null;
   }
   
-  public DataVariable getSelectedVariable() {
+  public YVariable getSelectedVariable() {
     String selectedVariableName = (String) getSelectedItem();
-    if (getDecomposition() != null) {
-      return getDecomposition().getVariableWithName(selectedVariableName);
-    }
+//    if (getDecomposition() != null) {
+//      return getDecomposition().getVariableWithName(selectedVariableName);
+//    }
     return null;
   }
 }

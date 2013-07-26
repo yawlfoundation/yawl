@@ -51,7 +51,7 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     add(new YAWLMenuItem(new SetStartingNetAction()));
     YAWLEditor.updateLoadProgress(26);
 
-    add(new YAWLMenuItem(new NetDecompositionDetailAction()));
+//    add(new YAWLMenuItem(new NetDecompositionDetailAction()));
     YAWLEditor.updateLoadProgress(27);
 
     addSeparator();

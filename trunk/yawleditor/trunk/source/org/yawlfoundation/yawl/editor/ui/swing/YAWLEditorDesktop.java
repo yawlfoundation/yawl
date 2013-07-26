@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
+import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -51,9 +52,14 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
 
 
   public YAWLEditorNetPanel newNet() {
+      try {
     YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds());
     bindFrame(frame);
     return frame;
+      }
+      catch (Exception e) {
+          return null;
+      }
   }
 
 
@@ -134,6 +140,10 @@ public class YAWLEditorDesktop extends JTabbedPane implements ChangeListener {
       YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
       return frame != null ? frame.getNet() : null;
   }
+
+    public YNet getSelectedYNet() {
+        return (YNet) getSelectedGraph().getNetModel().getDecomposition();
+    }
 
   public void stateChanged(ChangeEvent e) {
       updateState();

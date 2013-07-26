@@ -35,11 +35,6 @@ import java.awt.*;
 
 public class ToolBarMenu extends YAWLToolBar implements ProcessConfigurationModelListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
   private YAWLToggleToolBarButton previewProcessConfigurationButton;
   private YAWLToggleToolBarButton applyProcessConfigurationButton;
 

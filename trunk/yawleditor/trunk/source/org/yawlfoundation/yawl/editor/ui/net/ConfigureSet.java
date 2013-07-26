@@ -72,7 +72,7 @@ public class ConfigureSet implements Serializable, Cloneable {
 	 		 if (cells[i] instanceof YAWLTask) {
 	 	        tasks.add(cells[i]);        
 	 	      }
-	 		 if((cells[i] instanceof YAWLCondition) && !(cells[i] instanceof InputCondition ) && !(cells[i] instanceof OutputCondition) ){
+	 		 if((cells[i] instanceof Condition) && !(cells[i] instanceof InputCondition ) && !(cells[i] instanceof OutputCondition) ){
 	 			 this.conditions.add(cells[i]);
 	 		 }
 	 	 }
@@ -125,8 +125,8 @@ public class ConfigureSet implements Serializable, Cloneable {
 		flowArray = (YAWLFlowRelation[]) this.flows.toArray(flowArray);
 		YAWLTask[] taskArray = new YAWLTask[this.tasks.size()]; 
 		taskArray = (YAWLTask[]) this.tasks.toArray(taskArray);
-		YAWLCondition[] conditionArray = new YAWLCondition[this.conditions.size()];
-		conditionArray = (YAWLCondition[]) this.conditions.toArray(conditionArray);
+		Condition[] conditionArray = new Condition[this.conditions.size()];
+		conditionArray = (Condition[]) this.conditions.toArray(conditionArray);
 		 
 		
 		
@@ -149,7 +149,7 @@ public class ConfigureSet implements Serializable, Cloneable {
 				count = addRemovalTasks(count, task);
 			}
 			
-			for(YAWLCondition condition : conditionArray){
+			for(Condition condition : conditionArray){
 				count = addRemovalCondition(count, condition);
 			}
 			
@@ -182,7 +182,7 @@ private int addRemovalFlows(int count, YAWLFlowRelation flow) {
 	return count;
 }
 
-private int addRemovalCondition(int count, YAWLCondition condition) {
+private int addRemovalCondition(int count, Condition condition) {
 	if(!this.removalConditions.contains(condition)){
 		int allIncoming = 0;
 		int allOutgoing = 0;
@@ -357,9 +357,9 @@ private int addRemovalTasks(int count, YAWLTask task) {
 //}
 
 private int removeConditionsWithNoPathFromStartOrToEnd(HashSet validVertex, int count) {
-	YAWLCondition[] conditionArray = new YAWLCondition[this.conditions.size()]; 
-	  conditionArray = (YAWLCondition[]) this.conditions.toArray(conditionArray);
-	  for(YAWLCondition condition : conditionArray){
+	Condition[] conditionArray = new Condition[this.conditions.size()];
+	  conditionArray = (Condition[]) this.conditions.toArray(conditionArray);
+	  for(Condition condition : conditionArray){
 		  if((!validVertex.contains(condition))&& (!this.removalConditions.contains(condition))){
 			  count++;
 			  this.removalConditions.add(condition);

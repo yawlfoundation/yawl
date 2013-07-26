@@ -24,21 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import java.awt.geom.Rectangle2D;
-
-import java.util.HashSet;
-import java.util.HashMap;
-
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
-public class VertexContainer extends DefaultGraphCell 
-                           implements YAWLCell {
+import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.HashSet;
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class VertexContainer extends DefaultGraphCell implements YAWLCell {
+
 
   public VertexContainer() {
     initialize();
@@ -55,17 +49,11 @@ public class VertexContainer extends DefaultGraphCell
   }
   
   public boolean isRemovable() {
-    if (getVertex() == null) {
-      return true;
-    }
-    return getVertex().isRemovable();
+      return getVertex() == null || getVertex().isRemovable();
   }
   
   public boolean isCopyable() {
-    if (getVertex() == null) {
-      return true;
-    }
-    return getVertex().isCopyable();
+      return getVertex() == null || getVertex().isCopyable();
   }
   
   public boolean acceptsIncomingFlows() {
@@ -88,7 +76,7 @@ public class VertexContainer extends DefaultGraphCell
         YAWLTask task = (YAWLTask) getVertex();
         if (task.getDecomposition() != null) {
           tooltipText.append("&nbsp;<b>Decomposition: </b>");
-          tooltipText.append(task.getDecomposition().getLabel());
+          tooltipText.append(task.getDecomposition().getID());
           tooltipText.append("&nbsp;<p>");
         }
       }
@@ -135,32 +123,29 @@ public class VertexContainer extends DefaultGraphCell
 
   
   public YAWLVertex getVertex() {
-    Object[] children = this.getChildren().toArray();
-    for(int i = 0; i < children.length; i++) {
-      if (children[i] instanceof YAWLVertex) {
-        return (YAWLVertex) children[i];
+      for (Object o : getChildren()) {
+          if (o instanceof YAWLVertex) {
+              return (YAWLVertex) o;
+          }
       }
-    }
-    return null;
-  }
-  
-  public VertexLabel getLabel() {
-    Object[] children = this.getChildren().toArray();
-    for (int i = 0; i < children.length; i++) {
-      if (children[i] instanceof VertexLabel) {
-        return (VertexLabel) children[i];
-      }
-    }
-    return null;
+      return null;
   }
 
+    public VertexLabel getLabel() {
+        for (Object o : getChildren()) {
+            if (o instanceof VertexLabel) {
+                return (VertexLabel) o;
+            }
+        }
+        return null;
+    }
+
   public JoinDecorator getJoinDecorator() {
-  	Object[] children = this.getChildren().toArray();
-  	for(int i = 0; i < children.length; i++) {
-      if (children[i] instanceof JoinDecorator) {
-      	return (JoinDecorator) children[i];		
+      for (Object o : getChildren()) {
+          if (o instanceof JoinDecorator) {
+              return (JoinDecorator) o;
+          }
       }
-  	}
   	return null;
   }
   
@@ -180,14 +165,15 @@ public class VertexContainer extends DefaultGraphCell
 
   
   public SplitDecorator getSplitDecorator() {
-    Object[] children = this.getChildren().toArray();
-	for(int i = 0; i < children.length; i++) {
-      if (children[i] instanceof SplitDecorator) {
-        return (SplitDecorator) children[i];		
+      for (Object o : getChildren()) {
+          if (o instanceof SplitDecorator) {
+              return (SplitDecorator) o;
+          }
       }
-    }
     return null;
   }
+
+
 
   public void setBounds(Rectangle2D bounds) {
     HashMap map = new HashMap();

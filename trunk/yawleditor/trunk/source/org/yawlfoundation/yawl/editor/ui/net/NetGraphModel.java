@@ -23,32 +23,25 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.core.YEditorSpecification;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import java.util.*;
 
 public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGraphModel> {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-    private boolean isStartingNet = false;
     private NetGraph _graph;
-    private Decomposition _decomposition;
-    private YEditorSpecification _specification = SpecificationModel.getSpec();
+    private YDecomposition _decomposition;        // the YNet
+    private YSpecificationHandler _specificationHandler = SpecificationModel.getHandler();
 
 
-    public NetGraphModel(NetGraph graph, boolean isRootNet) {
+    public NetGraphModel(NetGraph graph) {
         super();
         _graph = graph;
-        _decomposition = new Decomposition(isRootNet);
     }
 
     public NetGraph getGraph() {
@@ -56,63 +49,49 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     }
 
     public void setName(String name) {
-        _decomposition.setLabel(name);
+        _decomposition.setID(name);
     }
 
     public String getName() {
-        return _decomposition.getLabel();
+        return _decomposition.getID();
     }
 
     public void setIsStartingNet(boolean isStartingNet) {
         if (isStartingNet) {
-            _specification.setRootNet((YNet) _decomposition.getNet());
+            _specificationHandler.getControlFlowHandler().setRootNet((YNet) _decomposition);
         }
-        this.isStartingNet = isStartingNet;
         NetUtilities.setNetIconFromModel(this);
     }
 
-    public boolean getIsStartingNet() {
-        return this.isStartingNet;
-    }
-
     public boolean isStartingNet() {
-        return getIsStartingNet();
+        return _specificationHandler.getControlFlowHandler().getRootNet().equals(_decomposition);
     }
 
-    public Decomposition getDecomposition() {
+    public YDecomposition getDecomposition() {
         return _decomposition;
     }
 
-    public void setDecomposition(Decomposition decomposition) {
+    public void setDecomposition(YDecomposition decomposition) {
         _decomposition = decomposition;
     }
 
     public void setExternalDataGateway(String gateway) {
-        _decomposition.setExternalDataGateway(gateway);
+        ((YNet) _decomposition).setExternalDataGateway(gateway);
     }
 
     public String getExternalDataGateway() {
-        return _decomposition.getExternalDataGateway();
-    }
-
-
-    public DataVariableSet getVariableSet() {
-        return _decomposition.getVariables();
-    }
-
-    public void setVariableSet(DataVariableSet variableSet) {
-        if (variableSet == null) {
-            _decomposition.setVariables(new DataVariableSet());
-        } else {
-            _decomposition.setVariables(variableSet);
-        }
+        return ((YNet) _decomposition).getExternalDataGateway();
     }
 
 
     /*****************************************************************************/
 
-    public void remove(Object[] cells) {
-        removeCellsAndEdges(getRemovableCellsOf(cells));
+    public Set getConnectingFlows(Object[] cells) {
+        return getEdges(this, cells);
+    }
+
+    public Set<Object> removeCells(Object[] cells) {
+        return removeCellsAndEdges(getRemovableCellsOf(cells));
     }
 
     private Set<Object> getRemovableCellsOf(Object[] cells) {
@@ -131,8 +110,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         return removableCells;
     }
 
-    private void removeCellsAndEdges(final Set cells) {
-        HashSet cellsAndTheirEdges = new HashSet(cells);
+    private Set<Object> removeCellsAndEdges(final Set<Object> cells) {
+        Set<Object> cellsAndTheirEdges = new HashSet<Object>(cells);
         cellsAndTheirEdges.addAll(
                 getDescendants(this, cells.toArray())
         );
@@ -148,6 +127,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
                         cellsAndTheirEdges
                 )
         );
+        return cellsAndTheirEdges;
     }
 
     private void compressFlowPriorities(Set<YAWLTask> tasksRequiringPredicates) {
@@ -195,12 +175,12 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     
     
     private void freeEngineIdentifiers(Set cells) {
-        for (Object cell : cells) {
-            if (cell instanceof YAWLVertex) {
-                SpecificationModel.getInstance().removeUniqueIdentifier(
-                        ((YAWLVertex) cell).getEngineIdentifier());
-            }
-        }
+//        for (Object cell : cells) {
+//            if (cell instanceof YAWLVertex) {
+//                SpecificationModel.getInstance().removeUniqueIdentifier(
+//                        ((YAWLVertex) cell).getEngineIdentifier());
+//            }
+//        }
     }
 
     public Map cloneCells(Object[] cells) {
@@ -294,8 +274,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         }
 
 
-        if (sourceCell instanceof YAWLCondition &&
-                targetCell instanceof YAWLCondition) {
+        if (sourceCell instanceof Condition && targetCell instanceof Condition) {
             // System.out.println("source and target are both conditions");
             rulesAdheredTo = false;
         }
@@ -654,7 +633,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         if (objectsToDelete.size() > 0 || objectsToInsert.size() > 0 ||
                 flowsToRedirect.size() > 0 || parentMap.size() > 0) {
             this.insert(objectsToInsert.toArray(), null, flowsToRedirect, parentMap, null);
-            this.remove(getDescendants(this, objectsToDelete.toArray()).toArray());
+            this.removeCells(getDescendants(this, objectsToDelete.toArray()).toArray());
         }
     }
 

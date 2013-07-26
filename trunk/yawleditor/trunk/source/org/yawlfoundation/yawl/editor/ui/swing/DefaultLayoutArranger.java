@@ -29,50 +29,45 @@ import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 /**
- * This is a dirty, dirty hack-job at automated graph layout.
- * I'll do something pretty in my spare time.
  * @author Lindsay Bradford
  */
 
 public class DefaultLayoutArranger {
   private static final int X_BUFFER = 32;
   private static final int Y_BUFFER = 32;
-  
-  private static HashSet breadthTraversedNodes;
-  private static LinkedList nodeBreadthsList;
-  private static int largestNumberOfNodesAtSingleBreadth = 0;
-  
-  public static void layoutSpecification() {
+
+  private HashSet breadthTraversedNodes;
+  private LinkedList nodeBreadthsList;
+  private int largestNumberOfNodesAtSingleBreadth = 0;
+
+  public void layoutSpecification() {
     for(NetGraphModel net : SpecificationModel.getInstance().getNets()) {
       layoutNet(net);
     }
   }
 
-  private static void initialise() {
+  private void initialise() {
     breadthTraversedNodes = new HashSet();
     nodeBreadthsList = new LinkedList();
   }
-  
-  private static void layoutNet(NetGraphModel netModel) {
+
+  private void layoutNet(NetGraphModel netModel) {
     initialise();
 
     traverseGraphToDetermineNodeBredth(netModel);
     ensureOutputConditionIsLast(netModel);
     doGraphLayout(netModel);
   }
-  
-  private static void traverseGraphToDetermineNodeBredth(NetGraphModel netModel) {
+
+  private void traverseGraphToDetermineNodeBredth(NetGraphModel netModel) {
     InputCondition inputCondition = NetUtilities.getInputCondition(netModel);
 
     LinkedList startNodeList = new LinkedList();
     startNodeList.add(inputCondition);
-    
+
     nodeBreadthsList.add(startNodeList);
     breadthTraversedNodes.add(inputCondition);
     largestNumberOfNodesAtSingleBreadth = 1;
@@ -85,16 +80,16 @@ public class DefaultLayoutArranger {
       breadthTraversedNodes.addAll((LinkedList) nodeBreadthsList.getLast());
     }
   }
-  
-  private static Set getUntraversedNodesFrom(LinkedList nodesAtCurrentDepth) {
+
+  private Set getUntraversedNodesFrom(LinkedList nodesAtCurrentDepth) {
     HashSet nodeSet = new HashSet();
     Iterator nodeIterator = nodesAtCurrentDepth.iterator();
     while (nodeIterator.hasNext()) {
       YAWLCell cell = (YAWLCell) nodeIterator.next();
-      
+
       for(YAWLFlowRelation flow : NetUtilities.getOutgoingFlowsFrom(cell)) {
         YAWLCell targetCell = NetCellUtilities.getVertexFromCell(flow.getTargetVertex());
-        
+
         if (!breadthTraversedNodes.contains(targetCell)) {
           nodeSet.add(targetCell);
         }
@@ -102,14 +97,14 @@ public class DefaultLayoutArranger {
     }
     return nodeSet;
   }
-  
-  private static void ensureOutputConditionIsLast(NetGraphModel netModel) {
+
+  private void ensureOutputConditionIsLast(NetGraphModel netModel) {
     OutputCondition outputCondition = NetUtilities.getOutputCondition(netModel);
-    
+
     if (!((LinkedList) nodeBreadthsList.getLast()).contains(outputCondition)) {
-      
+
       // It's somewhere earlier in the list. Locate, and remove from there.
-      
+
       LinkedList depthToRemove = null;
       Iterator nodeListIterator = nodeBreadthsList.iterator();
       while(nodeListIterator.hasNext()) {
@@ -124,16 +119,16 @@ public class DefaultLayoutArranger {
       if (depthToRemove != null) {
         nodeBreadthsList.remove(depthToRemove);
       }
-      
+
       // Put output condition last.
-      
+
       LinkedList endNodeList = new LinkedList();
       endNodeList.add(outputCondition);
       nodeBreadthsList.add(endNodeList);
     }
   }
-  
-  private static void doGraphLayout(NetGraphModel netModel) {
+
+  private void doGraphLayout(NetGraphModel netModel) {
     int graphNodeXPosn = X_BUFFER;
     Iterator nodeDepthIterator = nodeBreadthsList.iterator();
     while (nodeDepthIterator.hasNext()) {
@@ -146,18 +141,18 @@ public class DefaultLayoutArranger {
 
       while (nodeIterator.hasNext()) {
         GraphCell cell  = (GraphCell) nodeIterator.next();
-        
+
         if (cell instanceof YAWLVertex  && ((YAWLVertex) cell).getParent() != null) {
           cell = (GraphCell) ((YAWLVertex)cell).getParent();
         }
-        
+
         netModel.getGraph().moveElementTo(
             cell,
             graphNodeXPosn,
             graphNodeYPosn
         );
 
-        
+
         if (netModel.getGraph().getCellBounds(cell).getWidth() > largestXwidth) {
           largestXwidth = netModel.getGraph().getCellBounds(cell).getWidth();
         }
@@ -165,7 +160,7 @@ public class DefaultLayoutArranger {
 
       }
       NetCellUtilities.alignCellsAlongVerticalCentre(netModel.getGraph(),nodesAtCurrentDepth.toArray());
-      
+
       graphNodeXPosn = graphNodeXPosn + (int) largestXwidth + + X_BUFFER;
     }
   }

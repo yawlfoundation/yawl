@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.util.DynamicValue;
 
 import javax.swing.*;
@@ -21,8 +21,8 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
 
     protected static final Font componentFont = new Font("SansSerif", Font.PLAIN, 12);
 
-    private DataVariable variable;
-    private Decomposition decomposition;
+    private YVariable variable;
+    private YDecomposition decomposition;
     private NetGraph graph;
     private String name;
     private String type;
@@ -40,7 +40,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
      * @param value    Passed in separately as ExtendedAttribute is not responsible for
      * keeping the DataVariable consistent.
      */
-    public ExtendedAttribute(DataVariable variable, Decomposition decomposition,
+    public ExtendedAttribute(YVariable variable, YDecomposition decomposition,
                              String name, String type, String value) {
         this.variable = variable;
         this.decomposition = decomposition;
@@ -51,7 +51,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
     }
 
 
-    public ExtendedAttribute(DataVariable variable, Decomposition decomposition,
+    public ExtendedAttribute(YVariable variable, YDecomposition decomposition,
                              String name, String type, String value,
                              ExtendedAttributeGroup group) {
         this(variable, decomposition, name, type, value);
@@ -68,7 +68,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
      * @param value Passed in separately as ExtendedAttribute is not responsible for
      * keeping the Decomposition consistent.
      */
-    public ExtendedAttribute(NetGraph graph, Decomposition decomposition, String name,
+    public ExtendedAttribute(NetGraph graph, YDecomposition decomposition, String name,
                              String type, String value) {
         this.graph = graph;
         this.decomposition = decomposition;
@@ -78,7 +78,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         getComponent();
     }
 
-    public ExtendedAttribute(NetGraph graph, Decomposition decomposition, String name,
+    public ExtendedAttribute(NetGraph graph, YDecomposition decomposition, String name,
                              String type, String value, ExtendedAttributeGroup group) {
         this(graph, decomposition, name, type, value);
         this.group = group;
@@ -116,7 +116,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
             String property = type.substring(type.indexOf("${") + 2, type.indexOf("}"));
             attributeType = SYSTEM_ATTRIBUTE;
             if (variable != null) {
-                variable.setAttribute(name, new DynamicValue(property, variable));
+                variable.addAttribute(name, new DynamicValue(property, variable));
             }
             else {
                 decomposition.setAttribute(name, new DynamicValue(property, decomposition));
@@ -218,7 +218,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         }
     }
 
-    public Decomposition getDecomposition() {
+    public YDecomposition getDecomposition() {
         if (graph != null) {
             return graph.getNetModel().getDecomposition();
         }

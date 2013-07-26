@@ -24,35 +24,36 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableTaskIconChange extends AbstractUndoableEdit {
-  private static final long serialVersionUID = 1L;
 
   private NetGraph net;
-  private YAWLVertex vertex;
+  private YAWLTask task;
   
   private String oldIconPath;
   private String newIconPath;
-    
-  public UndoableTaskIconChange(NetGraph net, YAWLVertex vertex, String oldIconPath, String newIconPath) {
+
+
+  public UndoableTaskIconChange(NetGraph net, YAWLVertex vertex,
+                                String oldIconPath, String newIconPath) {
     this.net = net;
-    this.vertex = vertex;
-    
+    this.task = (YAWLTask) vertex;
     this.oldIconPath = oldIconPath;
     this.newIconPath = newIconPath;
   }
   
   public void redo() {
-    vertex.setIconPath(newIconPath);
+    task.setIconPath(newIconPath);
     net.repaint();
   }
   
   public void undo() {
-    vertex.setIconPath(oldIconPath);
+    task.setIconPath(oldIconPath);
     net.repaint();
   }
 }

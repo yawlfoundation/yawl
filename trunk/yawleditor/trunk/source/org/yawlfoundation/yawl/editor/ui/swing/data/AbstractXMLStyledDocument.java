@@ -90,7 +90,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
   
   public abstract void checkValidity();
   public abstract void setPreAndPostEditorText(String preEditorText, String postEditorText);
-  public abstract List getProblemList();
+  public abstract List<String> getProblemList();
 
   public boolean isContentValidity() {
     return getContentValidity() == Validity.VALID;

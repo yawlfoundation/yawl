@@ -20,95 +20,83 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
- 
+
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.util.List;
 
-public class ValidityEditorPane extends JEditorPane implements AbstractXMLStyledDocumentValidityListener {
+public class ValidityEditorPane extends JEditorPane
+        implements AbstractXMLStyledDocumentValidityListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final Color VALID_COLOR = Color.GREEN.darker().darker();
-  private static final Color INVALID_COLOR = Color.RED.darker();
-  private static final Color UNCERTAIN_COLOR = Color.ORANGE.darker();
-  
-  private static final Font  COURIER             = new Font("Monospaced", Font.PLAIN, 12);
-  private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;  
-  
-  
-  private Color enabledBackground;
- 
-  public ValidityEditorPane() {
-    setBorder(new EtchedBorder());
-    setFont(COURIER);
-    enabledBackground = this.getBackground();
-  }
-  
-  public void setEnabled(boolean enabled) {
-    if (enabled) {
-      this.setBackground(enabledBackground);
-    } else {
-      this.setBackground(DISABLED_BACKGROUND);
+    private static final Color VALID_COLOR = Color.GREEN.darker().darker();
+    private static final Color INVALID_COLOR = Color.RED.darker();
+    private static final Color UNCERTAIN_COLOR = Color.ORANGE.darker();
+
+    private static final Font  COURIER             = new Font("Monospaced", Font.PLAIN, 12);
+    private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;
+
+    private Color enabledBackground;
+
+
+    public ValidityEditorPane() {
+        setFont(COURIER);
+        enabledBackground = this.getBackground();
     }
-    super.setEnabled(enabled);
-  }
-  
-  public void setDocument(AbstractXMLStyledDocument document) {
-    super.setDocument(document);
-    subscribeForValidityEvents();
-  }
-  
-  public boolean isContentValid() {
-    return ((AbstractXMLStyledDocument) getDocument()).isContentValidity();
-  }
-  
-  public void validate() {
-    ((AbstractXMLStyledDocument) getDocument()).publishValidity();
-  }
-  
-  protected void subscribeForValidityEvents() {
-    acceptValiditySubscription(this);
-  }
-  
-  public void acceptValiditySubscription(AbstractXMLStyledDocumentValidityListener subscriber) {
-    ((AbstractXMLStyledDocument) getDocument()).subscribe(subscriber);
-  }
-  
-  public void setText(String text) {
-    super.setText(text);
-    validate();
-  }
-  
-  public List getProblemList() {
-    return ((AbstractXMLStyledDocument) this.getDocument()).getProblemList();
-  }
-  
-  public void setTargetVariableName(String targetVariableName) {
-    ((AbstractXMLStyledDocument) getDocument()).setPreAndPostEditorText(
-      "<" + targetVariableName + ">",
-      "</" + targetVariableName + ">"
-    );
-  }
-  
-  public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
-    switch(documentValid) {
-      case VALID: {
-        setForeground(VALID_COLOR);
-        break;
-      }
-      case INVALID: {
-        setForeground(INVALID_COLOR);
-        break;
-      }
-      default: {
-        setForeground(UNCERTAIN_COLOR);
-      }
+
+    public void setEnabled(boolean enabled) {
+        setBackground(enabled ? enabledBackground : DISABLED_BACKGROUND);
+        super.setEnabled(enabled);
     }
-  }
+
+    public void setDocument(AbstractXMLStyledDocument document) {
+        super.setDocument(document);
+        subscribeForValidityEvents();
+    }
+
+    public boolean isContentValid() {
+        return getXMLStyledDocument().isContentValidity();
+    }
+
+    public void validate() {
+        getXMLStyledDocument().publishValidity();
+    }
+
+    protected AbstractXMLStyledDocument getXMLStyledDocument() {
+        return (AbstractXMLStyledDocument) getDocument();
+    }
+
+    protected void subscribeForValidityEvents() {
+        acceptValiditySubscription(this);
+    }
+
+    public void acceptValiditySubscription(AbstractXMLStyledDocumentValidityListener subscriber) {
+        getXMLStyledDocument().subscribe(subscriber);
+    }
+
+    public void setText(String text) {
+        super.setText(text);
+        setSize(150, 15);
+        validate();
+    }
+
+    public List<String> getProblemList() {
+        return getXMLStyledDocument().getProblemList();
+    }
+
+    public void setTargetVariableName(String targetVariableName) {
+        getXMLStyledDocument().setPreAndPostEditorText(
+                "<" + targetVariableName + ">",
+                "</" + targetVariableName + ">"
+        );
+    }
+
+    public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
+        switch (documentValid) {
+            case VALID: setForeground(VALID_COLOR); break;
+            case INVALID: setForeground(INVALID_COLOR); break;
+            default: setForeground(UNCERTAIN_COLOR);
+        }
+    }
 }

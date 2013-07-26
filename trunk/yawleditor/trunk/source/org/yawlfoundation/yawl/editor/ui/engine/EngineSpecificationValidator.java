@@ -1,19 +1,17 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.validation.Validator;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.schema.XSDType;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class whose sole responsibility is to provide engine validation results of the current specification.
@@ -30,8 +28,8 @@ public class EngineSpecificationValidator {
 
   public static List getValidationResults(SpecificationModel specification) {
     return getValidationResults(
-        EngineSpecificationExporter.getEngineSpecAsEngineObjects(
-            specification
+        SpecificationExporter.populateSpecification(
+                specification
         )
     );
   }
@@ -44,21 +42,30 @@ public class EngineSpecificationValidator {
   /**********************************************************************************/
 
   private static Hashtable<String, Boolean> _checkedDataTypes;
+    private static List<String> _validDataTypeNames;
 
   public static List<String> checkUserDefinedDataTypes(SpecificationModel editorSpec) {
+      _validDataTypeNames = SpecificationModel.getHandler().getDataHandler().getUserDefinedTypeNames();
       _checkedDataTypes = new Hashtable<String, Boolean>();
       List<String> problemList = new ArrayList<String>();
       Set<NetGraphModel> nets = editorSpec.getNets();
       for (NetGraphModel net : nets) {
-          DataVariableSet varSet = net.getVariableSet();
-          problemList.addAll(checkUserDefinedDataTypes(varSet, net.getName(), null));
+          YNet netDecomp = (YNet) net.getDecomposition();
+          Set<YVariable> variables = new HashSet<YVariable>();
+          variables.addAll(netDecomp.getLocalVariables().values());
+          variables.addAll(netDecomp.getInputParameters().values());
+          variables.addAll(netDecomp.getOutputParameters().values());
+          problemList.addAll(checkUserDefinedDataTypes(variables, net.getName(), null));
           NetElementSummary editorNetSummary = new NetElementSummary(net);
           Set tasks = editorNetSummary.getAtomicTasks();
           for (Object o : tasks) {
               YAWLAtomicTask task = (YAWLAtomicTask) o;
-              Decomposition decomp = task.getWSDecomposition();
+              YDecomposition decomp = task.getDecomposition();
               if (decomp != null) {
-                  problemList.addAll(checkUserDefinedDataTypes(decomp.getVariables(),
+                  Set<YVariable> taskVars = new HashSet<YVariable>();
+                  taskVars.addAll(decomp.getInputParameters().values());
+                  taskVars.addAll(decomp.getOutputParameters().values());
+                  problemList.addAll(checkUserDefinedDataTypes(variables,
                                                     net.getName(), task.getLabel()));
               }
           }
@@ -73,10 +80,10 @@ public class EngineSpecificationValidator {
   }
 
 
-  private static List<String> checkUserDefinedDataTypes(DataVariableSet varSet,
+  private static List<String> checkUserDefinedDataTypes(Set<YVariable> varSet,
                                                       String netName, String taskName) {
       List<String> problemList = new ArrayList<String>();
-      for (DataVariable var : varSet.getVariableSet()) {
+      for (YVariable var : varSet) {
           String problem = checkUserDefinedDataType(var, netName, taskName);
           if (problem != null) problemList.add(problem);
       }
@@ -84,20 +91,19 @@ public class EngineSpecificationValidator {
   }
 
     
-  private static String checkUserDefinedDataType(DataVariable var,
+  private static String checkUserDefinedDataType(YVariable var,
                                                  String netName, String taskName) {
       boolean valid;
-      String datatype = var.getDataType();
-      if (! (DataVariable.isBaseDataType(datatype) ||
+      String datatype = var.getDataTypeName();
+      if (! (XSDType.getInstance().isBuiltInType(datatype) ||
              datatype.equals("YTimerType") ||
              datatype.equals("YStringListType") ||
-             datatype.equals("YDocumentType") ||
-             isXSBuiltInSimpleType(datatype))) {
+             datatype.equals("YDocumentType"))) {
           if (_checkedDataTypes.containsKey(datatype)) {
               valid = _checkedDataTypes.get(datatype);
           }
           else {
-              valid = SpecificationModel.getInstance().isDefinedTypeName(datatype);
+              valid = _validDataTypeNames.contains(datatype);
               _checkedDataTypes.put(datatype, valid) ;
           }
 
@@ -109,10 +115,6 @@ public class EngineSpecificationValidator {
           }
      }
      return null;
-  }
-
-  private static boolean isXSBuiltInSimpleType(String datatype) {
-      return datatype.equals("anyType");
   }
 
 }

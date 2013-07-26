@@ -24,40 +24,39 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
-import javax.swing.Action;
-
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+
+import javax.swing.*;
 
 
 public class AtomicTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
 
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Atomic Task");
+        putValue(Action.LONG_DESCRIPTION, "Add a new Atomic Task");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteAtomicTask"));
+    }
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Atomic Task");
-    putValue(Action.LONG_DESCRIPTION, "Add a new Atomic Task");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteAtomicTask"));
-  }
 
-  public AtomicTaskAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Add a new Atomic Task ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
-  
-  public String getButtonStatusText() {
-    return getClickAnywhereText() + "atomic task.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.ATOMIC_TASK;
-  }
+    public AtomicTaskAction(ControlFlowPalette palette) {
+        super(palette);
+    }
+
+    public String getEnabledTooltipText() {
+        return " Add a new Atomic Task ";
+    }
+
+    public String getDisabledTooltipText() {
+        return " You must have an open specification, and selected net to use the palette ";
+    }
+
+    public String getButtonStatusText() {
+        return getClickAnywhereText() + "atomic task.";
+    }
+
+    public ControlFlowPalette.SelectionState getSelectionID() {
+        return ControlFlowPalette.SelectionState.ATOMIC_TASK;
+    }
 }

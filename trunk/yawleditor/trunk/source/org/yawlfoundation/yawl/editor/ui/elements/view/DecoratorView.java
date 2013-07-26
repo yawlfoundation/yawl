@@ -105,7 +105,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics,
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                decorator.getTask().getBackgroundColor() // getFillColor()
             );
             break;
           }
@@ -114,7 +114,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -122,7 +122,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
             drawUpwardTriangle(
                 graphics,
                 size, 
-                getFillColor(),
+                    decorator.getTask().getBackgroundColor(), //getFillColor(),
                 WHITE_FILL
             );
             break;
@@ -137,7 +137,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics,
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -146,7 +146,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -154,7 +154,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
             drawDownwardTriangle(
                 graphics,
                 size, 
-                getFillColor(), 
+                    decorator.getTask().getBackgroundColor(), //getFillColor(),
                 WHITE_FILL
             );
             break;
@@ -169,7 +169,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -178,7 +178,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -186,7 +186,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
             drawLeftwardTriangle(
                 graphics, 
                 size, 
-                getFillColor(), 
+                    decorator.getTask().getBackgroundColor(), //getFillColor(),
                 WHITE_FILL
             );
             break;
@@ -201,7 +201,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -210,7 +210,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
                 graphics, 
                 size, 
                 WHITE_FILL, 
-                getFillColor()
+                    decorator.getTask().getBackgroundColor() //getFillColor()
             );
             break;
           }
@@ -218,7 +218,7 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
             drawRightwardTriangle(
                 graphics, 
                 size, 
-                getFillColor(), 
+                    decorator.getTask().getBackgroundColor(), //getFillColor(),
                 WHITE_FILL
             );
             break;

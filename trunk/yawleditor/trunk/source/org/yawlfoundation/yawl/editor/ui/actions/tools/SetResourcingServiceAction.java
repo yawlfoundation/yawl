@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.core.connection.YResourceConnection;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -110,7 +111,11 @@ class ResourceServiceDialog extends AbstractDoneDialog {
                 YConnector.setResourcePassword(password);
                 YConnector.setResourceURL(uri);
 
-                YAWLEditor.setStatusMode("resource", YConnector.isResourceConnected());
+                boolean isConnected = YConnector.isResourceConnected();
+                YAWLEditor.setStatusMode("resource", isConnected);
+                if (isConnected) {
+                    SpecificationModel.getHandler().getResourceHandler().resetCache();
+                }
                 SpecificationUndoManager.getInstance().setDirty(true);
             }
         });

@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -39,7 +39,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
 
   {
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
-    putValue(Action.NAME, "Close Specification");
+    putValue(Action.NAME, "Close");
     putValue(Action.LONG_DESCRIPTION, "Clise this specification ");
     putValue(Action.SMALL_ICON, getPNGIcon("page_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
@@ -47,7 +47,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().close();  
+      FileOperations.close();
   }
   
   public String getEnabledTooltipText() {

@@ -22,75 +22,70 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JToggleButton;
-
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.palette.ControlFlowPaletteAction;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+
 public class ControlFlowPaletteButton extends JToggleButton {
 
-  private static final long serialVersionUID = 1L;
-  private static final Insets margin = new Insets(0,0,0,0);
+    private static final Insets margin = new Insets(0,0,0,0);
 
-  private ControlFlowPalette palette;
-  
-  public ControlFlowPaletteButton(ControlFlowPalette palette, ControlFlowPaletteAction action, int mnemonic) {
-    super(action);
-    setPalette(palette);
-    setText(null);
-    setMnemonic(mnemonic);   
-    setMargin(margin);
-    setMaximumSize(getPreferredSize());
-  }
-  
-  public void setPalette(ControlFlowPalette palette) {
-    this.palette = palette;
-  }
-  
-  public ControlFlowPalette getPalette() {
-    return this.palette;
-  }
-  
-  public ControlFlowPaletteAction getPaletteAction() {
-    return (ControlFlowPaletteAction) this.getAction();
-  }
-  
-  public Point getToolTipLocation(MouseEvent e) {
-    return new Point(0,getSize().height);
-  }
-  
-  private String getButtonStatusText() {
-    return getPaletteAction().getButtonStatusText();
-  }
+    private ControlFlowPalette palette;
 
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return getPaletteAction().getSelectionID();
-  }
-  
-  public void setEnabled(boolean enabled) {
-    TooltipTogglingWidget action = (TooltipTogglingWidget) this.getAction();
-    if (enabled) {
-      setToolTipText(action.getEnabledTooltipText());
-    } else {
-      setToolTipText(action.getDisabledTooltipText());
+    public ControlFlowPaletteButton(ControlFlowPalette palette,
+                                    ControlFlowPaletteAction action, int mnemonic) {
+        super(action);
+        setPalette(palette);
+        setText(null);
+        setMnemonic(mnemonic);
+        setMargin(margin);
+        setMaximumSize(getPreferredSize());
     }
-    super.setEnabled(enabled);
-  }
-  
-  public void setSelected(boolean selected) {
-    super.setSelected(selected);
-    if (selected) {
-      if (this.isEnabled()) {
-        YAWLEditor.setStatusBarText(
-            getButtonStatusText()
-        );
-      }
+
+    public void setPalette(ControlFlowPalette palette) {
+        this.palette = palette;
     }
-  }
-  
+
+    public ControlFlowPalette getPalette() {
+        return this.palette;
+    }
+
+    public ControlFlowPaletteAction getPaletteAction() {
+        return (ControlFlowPaletteAction) this.getAction();
+    }
+
+    public Point getToolTipLocation(MouseEvent e) {
+        return new Point(0,getSize().height);
+    }
+
+    private String getButtonStatusText() {
+        return getPaletteAction().getButtonStatusText();
+    }
+
+    public ControlFlowPalette.SelectionState getSelectionID() {
+        return getPaletteAction().getSelectionID();
+    }
+
+    public void setEnabled(boolean enabled) {
+        TooltipTogglingWidget action = (TooltipTogglingWidget) this.getAction();
+        if (enabled) {
+            setToolTipText(action.getEnabledTooltipText());
+        }
+        else {
+            setToolTipText(action.getDisabledTooltipText());
+        }
+        super.setEnabled(enabled);
+    }
+
+    public void setSelected(boolean selected) {
+        super.setSelected(selected);
+        if (selected && isEnabled()) {
+            YAWLEditor.setStatusBarText(getButtonStatusText());
+        }
+    }
+
 }

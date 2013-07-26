@@ -131,6 +131,6 @@ public class YAWLPort extends DefaultPort {
   }
   
   public String toString() {
-    return "[parent = " + ((YAWLVertex) getParent()).getEngineId() + " [id = " + this.hashCode() + ", flows = " + getEdges().size() + " ]";
+    return "[parent = " + ((YAWLVertex) getParent()).getID() + " [id = " + this.hashCode() + ", flows = " + getEdges().size() + " ]";
   }
 }

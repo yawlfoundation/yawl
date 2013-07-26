@@ -25,13 +25,13 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -79,10 +79,10 @@ public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
   private Vector<String> getOrphanedDecompositionNames() {
       Set<YAWLAtomicTask> allTasks = getAllAtomicTasks();
       Vector<String> items = new Vector<String>();
-      for (WebServiceDecomposition decomp :
+      for (YDecomposition decomp :
               SpecificationModel.getInstance().getWebServiceDecompositions()) {
           if (isOrphaned(decomp, allTasks)) {
-              items.add(decomp.getLabel());
+              items.add(decomp.getID());
           }
       }
       Collections.sort(items);
@@ -98,10 +98,10 @@ public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
     }
 
 
-    private boolean isOrphaned(WebServiceDecomposition decompToFind,
+    private boolean isOrphaned(YDecomposition decompToFind,
                                Set<YAWLAtomicTask> allTasks) {
         for (YAWLAtomicTask task : allTasks) {
-            WebServiceDecomposition decompOfTask = task.getWSDecomposition();
+            YDecomposition decompOfTask = task.getDecomposition();
             if ((decompOfTask != null) && (decompOfTask == decompToFind)) {
                 return false;
             }

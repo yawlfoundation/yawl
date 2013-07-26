@@ -23,12 +23,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedAlphaNumericField;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
+import org.yawlfoundation.yawl.elements.data.YVariable;
+
+import javax.swing.*;
 
 public class DataVariableField extends JFormattedAlphaNumericField {
   
@@ -37,7 +35,7 @@ public class DataVariableField extends JFormattedAlphaNumericField {
    */
   private static final long serialVersionUID = 1L;
 
-  private DataVariable variable;
+  private YVariable variable;
   
   private final VariableVerifier verifier = new VariableVerifier();
   
@@ -47,19 +45,19 @@ public class DataVariableField extends JFormattedAlphaNumericField {
     setInputVerifier(verifier);
   }
   
-  public void setVariable(DataVariable variable) {
+  public void setVariable(YVariable variable) {
     this.variable = variable;
     this.setText(variable.getName());
   }
   
-  public DataVariable getVariable() {
+  public YVariable getVariable() {
     return this.variable;
   }
   
-  public DataVariableSet getVariableScope() {
-    assert this.variable.getScope() != null : "null scope set for variable";
-    return this.variable.getScope();
-  }
+//  public DataVariableSet getVariableScope() {
+//    assert this.variable.getScope() != null : "null scope set for variable";
+//    return this.variable.getScope();
+//  }
 }
 
 class VariableVerifier extends InputVerifier {
@@ -79,9 +77,9 @@ class VariableVerifier extends InputVerifier {
     if (field.getText().equals(field.getVariable().getName())) {
       return true;
     }
-    if (field.getVariableScope().isValidUserDefinedName(field.getText())) {
-      return true;
-    }
+//    if (field.getVariableScope().isValidUserDefinedName(field.getText())) {
+//      return true;
+//    }
     
     return false;
   }

@@ -26,42 +26,37 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 import javax.swing.text.Document;
 
 public class JXQueryEditorPane extends JProblemReportingEditorPane {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public JXQueryEditorPane() {
-    super(new JXQueryEditor());
-  }
+    public JXQueryEditorPane() {
+        super(new JXQueryEditor());
+    }
 
-  public JXQueryEditorPane(String extraParseText) {
-    super(new JXQueryEditor(extraParseText));
-  }
-  
-  public void setTargetVariableName(String targetVariableName) {
-    getEditor().setTargetVariableName(targetVariableName);
-  }
-  
-  public Document getDocument() {
-    return getEditor().getDocument();
-  }
-  
-  public int getCaretPosition() {
-    return getEditor().getCaretPosition();
-  }
-  
-  public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
-    getXQueryEditor().setPreAndPostEditorText(preEditorText, postEditorText);
-  }
-  
-  public JXQueryEditor getXQueryEditor() {
-    return (JXQueryEditor) getEditor();
-  }
-  
-  public void setValidating(boolean validating) {
-    getXQueryEditor().setValidating(validating);
-  }
+    public JXQueryEditorPane(String extraParseText) {
+        super(new JXQueryEditor(extraParseText));
+    }
+
+    public void setTargetVariableName(String targetVariableName) {
+        getEditor().setTargetVariableName(targetVariableName);
+    }
+
+    public Document getDocument() {
+        return getEditor().getDocument();
+    }
+
+    public int getCaretPosition() {
+        return getEditor().getCaretPosition();
+    }
+
+    public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
+        getXQueryEditor().setPreAndPostEditorText(preEditorText, postEditorText);
+    }
+
+    public JXQueryEditor getXQueryEditor() {
+        return (JXQueryEditor) getEditor();
+    }
+
+    public void setValidating(boolean validating) {
+        getXQueryEditor().setValidating(validating);
+    }
 }
 

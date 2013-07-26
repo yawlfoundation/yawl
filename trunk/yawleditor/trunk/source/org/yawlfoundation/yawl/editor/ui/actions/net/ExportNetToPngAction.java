@@ -35,63 +35,30 @@ import java.io.File;
 
 
 public class ExportNetToPngAction extends YAWLSelectedNetAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private static final String PNG_FILE_TYPE = "png";
-  
-  private static final int IMAGE_BUFFER = 10;
-  
-  private static JFileChooser pngFileChooser;
-  
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Export the currently active net to a PNG image");
-    putValue(Action.NAME, "Export to PNG Image...");
-    putValue(Action.LONG_DESCRIPTION, "Export the currently active net to a PNG image");
-    putValue(Action.SMALL_ICON, getPNGIcon("photo"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("E"));
+    private static final String PNG_FILE_TYPE = "png";
+    private static final int IMAGE_BUFFER = 10;
 
-    if (pngFileChooser == null) {
-      
-      // For reasons that SHOULD NOT BE, the creation of THIS file chooser under the
-      // Windows 2K platform takes several seconds. I have regulated its creation
-      // to a low-priority thread so I don't hold the editor boot sequence up waiting on it.
-      
-      Thread chooserCreationThread = new Thread() {
-        public void run() {
-          pngFileChooser = FileChooserFactory.buildFileChooser(
-              PNG_FILE_TYPE,
-              "Portable Network Graphics Image",
-              "Export net to ",
-              " image",
-              FileChooserFactory.IMPORTING_AND_EXPORTING
-          );
+
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Export the currently active net to a PNG image");
+        putValue(Action.NAME, "Export to PNG Image...");
+        putValue(Action.LONG_DESCRIPTION, "Export the currently active net to a PNG image");
+        putValue(Action.SMALL_ICON, getPNGIcon("photo"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("E"));
+    }
+
+
+    public void actionPerformed(ActionEvent event) {
+        JFileChooser chooser = FileChooserFactory.build(
+                PNG_FILE_TYPE, "Portable Network Graphics Image",
+                "Export net to ", " image");
+
+        chooser.showDialog(YAWLEditor.getInstance(), "Save");
+        File file = chooser.getSelectedFile();
+        if (file != null) {
+            NetPrintUtilities.toPNGfile(getGraph(), IMAGE_BUFFER, file.getAbsolutePath());
         }
-      };
-      chooserCreationThread.setPriority(Thread.MIN_PRIORITY);
-      chooserCreationThread.start();
     }
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-    if (pngFileChooser != null) {
-      pngFileChooser.showSaveDialog(YAWLEditor.getInstance());
-      File file = pngFileChooser.getSelectedFile();
-      if (file != null) {
-        NetPrintUtilities.toPNGfile(
-            getGraph(), 
-            IMAGE_BUFFER, 
-            file.getAbsolutePath()
-        );
-      }
-    } else {
-      JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-          "The export to PNG action is not yet ready to execute.\n\nPlease try again soon.",
-          "Export to PNG action unavailable",
-          JOptionPane.INFORMATION_MESSAGE);
-    }
-  }
 }

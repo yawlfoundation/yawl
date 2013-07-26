@@ -110,7 +110,7 @@ public class ProblemMessagePanel extends JPanel implements FileStateListener,
         else {
           setVisible(true);
         }
-        YAWLEditor.getInstance().indicateProblemsTabActivity();
+        YAWLEditor.getInstance().selectProblemsTab();
     }
   }
 }

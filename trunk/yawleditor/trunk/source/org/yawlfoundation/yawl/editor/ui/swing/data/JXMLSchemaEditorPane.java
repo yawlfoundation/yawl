@@ -35,137 +35,124 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JXMLSchemaEditorPane extends JProblemReportingEditorPane {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public JXMLSchemaEditorPane() {
-    super(new JXMLSchemaEditor());
-    ((JXMLSchemaEditor) getEditor()).setContainingPane(this);
-  }
+
+    public JXMLSchemaEditorPane() {
+        this(false);
+    }
 
     public JXMLSchemaEditorPane(boolean showLineNumbers) {
-      super(new JXMLSchemaEditor(), showLineNumbers);
-      ((JXMLSchemaEditor) getEditor()).setContainingPane(this);
+        super(new JXMLSchemaEditor(), showLineNumbers);
+        ((JXMLSchemaEditor) getEditor()).setContainingPane(this);
     }
 
 }
 
-class JXMLSchemaEditor extends ValidityEditorPane {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private JXMLSchemaEditorPane containingPane;
+/**********************************************************************************/
 
-  public void setContainingPane(JXMLSchemaEditorPane pane) {
-      containingPane = pane;
-  }
+class JXMLSchemaEditor extends ValidityEditorPane {
+
+    private JXMLSchemaEditorPane containingPane;
+
+    public JXMLSchemaEditor() {
+        super();
+        setDocument(new XMLSchemaStyledDocument(this));
+        getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
+        addCaretListener(new SelectionListener());
+    }
+
+    public void setContainingPane(JXMLSchemaEditorPane pane) {
+        containingPane = pane;
+    }
 
     public JXMLSchemaEditorPane getContainingPane() {
         return containingPane;
     }
 
 
+    class XMLSchemaStyledDocument extends AbstractXMLStyledDocument {
 
-  public JXMLSchemaEditor() {
-    super();
-    setDocument(
-        new XMLSchemaStyledDocument(this)
-    );
-    getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
-    addCaretListener(new SelectionListener());
-  }
-    
-
- class XMLSchemaStyledDocument extends AbstractXMLStyledDocument {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    public XMLSchemaStyledDocument(ValidityEditorPane editor) {
-      super(editor);
-    }
-    
-    public List getProblemList() {
-        String content;
-        try {
-            content = new String(getEditor().getText().getBytes(), "UTF-8");
+         public XMLSchemaStyledDocument(ValidityEditorPane editor) {
+            super(editor);
         }
-        catch (UnsupportedEncodingException uee) {
-            content = getEditor().getText();
+
+        public List getProblemList() {
+            String content;
+            try {
+                content = new String(getEditor().getText().getBytes(), "UTF-8");
+            }
+            catch (UnsupportedEncodingException uee) {
+                content = getEditor().getText();
+            }
+            return SpecificationModel.getInstance().getSchemaValidator().
+                    getSchemaValidationResults(content);
         }
-      return SpecificationModel.getInstance().getSchemaValidator().
-              getSchemaValidationResults(content);
+
+        public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
+            // deliberately does nothing.
+        }
+
+        public void checkValidity() {
+            if (getEditor().getText().equals("")) {
+                setContentValid(AbstractXMLStyledDocument.Validity.VALID);
+            }
+            else if (isValidating()) {
+                List validationResults = getProblemList();
+
+                setContentValid(validationResults.isEmpty() ?
+                        AbstractXMLStyledDocument.Validity.VALID:
+                        AbstractXMLStyledDocument.Validity.INVALID
+                );
+            }
+            DataTypeDialogToolBarMenu menu = DataTypeDialogToolBarMenu.getInstance();
+            if (menu != null) {
+                YAWLToolBarButton formatBtn = menu.getButton("format");
+                if (formatBtn != null) formatBtn.setEnabled(isContentValidity());
+            }
+        }
     }
-    
-    public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
-      // deliberately does nothing.
+
+
+    class SelectionListener implements CaretListener {
+
+        public SelectionListener() {
+            super();
+        }
+
+        public void caretUpdate(CaretEvent e) {
+            YAWLToolBarButton btnCut =
+                    DataTypeDialogToolBarMenu.getInstance().getButton("cut");
+            YAWLToolBarButton btnCopy =
+                    DataTypeDialogToolBarMenu.getInstance().getButton("copy");
+            int dot = e.getDot();
+            int mark = e.getMark();
+            boolean selected = (dot != mark);
+            if (btnCut != null) btnCut.setEnabled(selected);
+            if (btnCopy != null) btnCopy.setEnabled(selected);
+
+            JXMLSchemaEditorPane pane = ((JXMLSchemaEditor) e.getSource()).getContainingPane();
+            if (pane.getShowLineNumbers()) {
+                pane.setLineNumbers(e.getDot());
+            }
+
+            if (selected) {
+                List<Highlighter.Highlight> toClear = new ArrayList<Highlighter.Highlight>();
+                int start = Math.min(dot, mark);
+                int end = Math.max(dot, mark);
+                for (Highlighter.Highlight h : pane.getEditor().getHighlighter().getHighlights()) {
+                    if (! ((h.getStartOffset() == start) && (h.getEndOffset() == end))) {
+                        toClear.add(h);
+                    }
+                }
+                for (Highlighter.Highlight h : toClear) {
+                    pane.getEditor().getHighlighter().removeHighlight(h);
+                }
+            }
+            else {
+                pane.getEditor().getHighlighter().removeAllHighlights();
+            }
+        }
     }
-
-    public void checkValidity() {      
-      if (getEditor().getText().equals("")) {
-        setContentValid(AbstractXMLStyledDocument.Validity.VALID);
-      }
-      else if (isValidating()) {
-        List validationResults = getProblemList();
- 
-        setContentValid(validationResults == null ?
-            AbstractXMLStyledDocument.Validity.VALID:
-            AbstractXMLStyledDocument.Validity.INVALID
-        );
-      }
-        DataTypeDialogToolBarMenu menu = DataTypeDialogToolBarMenu.getInstance();
-        if (menu != null) {
-            YAWLToolBarButton formatBtn = menu.getButton("format");
-            if (formatBtn != null) formatBtn.setEnabled(isContentValidity());
-        }    
-    }
-  }
-
-  class SelectionListener implements CaretListener {
-     public SelectionListener() {
-         super();
-     }
-
-      public void caretUpdate(CaretEvent e) {
-          YAWLToolBarButton btnCut =
-                  DataTypeDialogToolBarMenu.getInstance().getButton("cut");
-          YAWLToolBarButton btnCopy =
-                  DataTypeDialogToolBarMenu.getInstance().getButton("copy");
-          int dot = e.getDot();
-          int mark = e.getMark();
-          boolean selected = (dot != mark);
-          if (btnCut != null) btnCut.setEnabled(selected);
-          if (btnCopy != null) btnCopy.setEnabled(selected);
-
-          JXMLSchemaEditorPane pane = ((JXMLSchemaEditor) e.getSource()).getContainingPane();
-          if (pane.getShowLineNumbers()) {
-              pane.setLineNumbers(e.getDot());
-          }
-
-          if (selected) {
-              List<Highlighter.Highlight> toClear = new ArrayList<Highlighter.Highlight>();
-              int start = Math.min(dot, mark);
-              int end = Math.max(dot, mark);
-              for (Highlighter.Highlight h : pane.getEditor().getHighlighter().getHighlights()) {
-                  if (! ((h.getStartOffset() == start) && (h.getEndOffset() == end))) {
-                      toClear.add(h);
-                  }
-              }
-              for (Highlighter.Highlight h : toClear) {
-                  pane.getEditor().getHighlighter().removeHighlight(h);
-              }
-          }
-          else {
-              pane.getEditor().getHighlighter().removeAllHighlights();
-          }
-      }
-  }
 
 }
 

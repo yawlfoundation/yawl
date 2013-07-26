@@ -24,43 +24,40 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class CreateSpecificationAction extends YAWLSpecificationAction
-                                       implements TooltipTogglingWidget {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+        implements TooltipTogglingWidget {
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "New Specification");
-    putValue(Action.LONG_DESCRIPTION, "Create a new specification");
-    putValue(Action.SMALL_ICON, getPNGIcon("page_add"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("N"));
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-    Publisher.getInstance().publishOpenFileEvent();
-    YAWLEditorDesktop.getInstance().newNet();
-    SpecificationUndoManager.getInstance().discardAllEdits();
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Create a new specification ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have no specification" + 
-           " open to in order to create a new one ";
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "New");
+        putValue(Action.LONG_DESCRIPTION, "Create a new specification");
+        putValue(Action.SMALL_ICON, getPNGIcon("page_add"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("N"));
+    }
+
+
+    public void actionPerformed(ActionEvent event) {
+        Publisher.getInstance().publishOpenFileEvent();
+        new SpecificationFactory().build();
+        SpecificationUndoManager.getInstance().discardAllEdits();
+    }
+
+    public String getEnabledTooltipText() {
+        return " Create a new specification ";
+    }
+
+    public String getDisabledTooltipText() {
+        return " You must have no specification" +
+                " open to in order to create a new one ";
+    }
 }

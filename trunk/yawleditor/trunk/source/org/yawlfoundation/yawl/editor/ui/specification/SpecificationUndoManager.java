@@ -44,246 +44,231 @@ import javax.swing.undo.UndoableEdit;
  * The <code>SpecificationUndoManager</code> is also responsible for ensuring the the editor's 
  * undo and redo Actions ({@link UndoAction} and {@link RedoAction} respectively)  are 
  * appropriately enabled for the manager's current state.
- * 
+ *
  * @author Lindsay Bradford
  *
  */
 
 public class SpecificationUndoManager extends GraphUndoManager {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    private static final SpecificationUndoManager INSTANCE = new SpecificationUndoManager();
 
-  private static final SpecificationUndoManager INSTANCE = new SpecificationUndoManager();
-  
-  private CompoundEdit compoundEdit;
+    private CompoundEdit compoundEdit;
+    private int     nonAcceptanceLevel = 0;
+    private boolean compoundingEdits = false;
+    private boolean dirty = false ;
 
-  private int     nonAcceptanceLevel = 0;
-  private boolean compoundingEdits = false;
-  private boolean dirty = false ;
-  
-  public static SpecificationUndoManager getInstance() {
-    return INSTANCE;
-  }  
-  
-  private SpecificationUndoManager() {
-    super();
-    setLimit(500);  
-  }
-
-  /** 
-   * Constructor that allows the caller to specify whether the 
-   * returned <code>SpecificationUndoManager</code> initially accepts edits
-   * or not.
-   * 
-   * @param acceptEdits whether to accept incoming edits
-   * @see #acceptEdits
-   **/
-
-  public SpecificationUndoManager(boolean acceptEdits) {
-    acceptEdits(acceptEdits);
-  }
-
-  /** 
-   * Toggles whether incoming undoable edits should be
-   * accepted by this manager.
-   * 
-   * @param acceptEdits whether to accept incoming edits
-   */
-
-  public void acceptEdits(boolean acceptEdits) {
-  	if (acceptEdits) {
-			if (nonAcceptanceLevel > 0) {
-			 nonAcceptanceLevel --;
-			}
-  	} else {
-			nonAcceptanceLevel++;
-  	}
-  }
-
-  /** 
-   * Adds incoming undoable edit to the list of valid events
-   * managed if we are currently accepting edits.
-   * 
-   * @see #acceptEdits  
-   * @see UndoableEditEvent
-   */
-
-  public void undoableEditHappened(UndoableEditEvent event) {
-
-    if (acceptingEdits()) {
-      if (compoundingEdits) {
-        compoundEdit.addEdit(event.getEdit());
-      } else {
-        addEdit(event.getEdit());
-      }
+    public static SpecificationUndoManager getInstance() {
+        return INSTANCE;
     }
-    setDirty(true);
-    refreshButtons();
 
-    ProcessConfigurationModel.getInstance().setApplyState(
-               ProcessConfigurationModel.ApplyState.OFF
-    );
-  }
-  
-  /** 
-   * Undoes the next undoable edit and 
-   * refreshes the enabled states of the
-   * UndoAction and RedoAction singletons.
-   *
-   * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
-   * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
-   */
-
-	public void undo() {
-    showFrameOfEdit(editToBeUndone());
-    if (canUndo()) { 
-        super.undo();
+    private SpecificationUndoManager() {
+        super();
+        setLimit(500);
     }
-    else {
-        System.out.println("no");
+
+    /**
+     * Constructor that allows the caller to specify whether the
+     * returned <code>SpecificationUndoManager</code> initially accepts edits
+     * or not.
+     *
+     * @param acceptEdits whether to accept incoming edits
+     * @see #acceptEdits
+     **/
+
+    public SpecificationUndoManager(boolean acceptEdits) {
+        acceptEdits(acceptEdits);
+    }
+
+    /**
+     * Toggles whether incoming undoable edits should be
+     * accepted by this manager.
+     *
+     * @param acceptEdits whether to accept incoming edits
+     */
+    public void acceptEdits(boolean acceptEdits) {
+        if (acceptEdits) {
+            if (nonAcceptanceLevel > 0) {
+                nonAcceptanceLevel --;
+            }
         }
-    refreshButtons();  
-  }
+        else {
+            nonAcceptanceLevel++;
+        }
+    }
 
-  /** 
-   * Redoes the next redoable edit and 
-   * resets the enabled states of the
-   * UndoAction and RedoAction singletons.
-   *
-   * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
-   * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
-   */
+    /**
+     * Adds incoming undoable edit to the list of valid events
+     * managed if we are currently accepting edits.
+     *
+     * @see #acceptEdits
+     * @see UndoableEditEvent
+     */
 
-  public void redo() {
-    showFrameOfEdit(editToBeRedone());
-    super.redo();
-    refreshButtons(); 
-  }
+    public void undoableEditHappened(UndoableEditEvent event) {
+        if (acceptingEdits()) {
+            if (compoundingEdits) {
+                compoundEdit.addEdit(event.getEdit());
+            }
+            else {
+                addEdit(event.getEdit());
+            }
+        }
+        setDirty(true);
+        refreshButtons();
 
-	/** 
-	 * Discards all edits and 
-	 * resets the enabled states of the
-	 * UndoAction and RedoAction singletons.
-	 *
-	 * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
-	 * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
-	 */
-  
-  public void discardAllEdits() {
-		super.discardAllEdits();
-    setDirty(false);
-    refreshButtons();
-  }
+        ProcessConfigurationModel.getInstance().setApplyState(
+                ProcessConfigurationModel.ApplyState.OFF
+        );
+    }
 
-  public void refreshButtons() {
-    UndoAction.getInstance().setEnabled(canUndo());
-    RedoAction.getInstance().setEnabled(canRedo());
-  }
+    /**
+     * Undoes the next undoable edit and
+     * refreshes the enabled states of the
+     * UndoAction and RedoAction singletons.
+     *
+     * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
+     * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
+     */
+
+    public void undo() {
+        showFrameOfEdit(editToBeUndone());
+        if (canUndo()) super.undo();
+        refreshButtons();
+    }
+
+    /**
+     * Redoes the next redoable edit and
+     * resets the enabled states of the
+     * UndoAction and RedoAction singletons.
+     *
+     * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
+     * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
+     */
+
+    public void redo() {
+        showFrameOfEdit(editToBeRedone());
+        super.redo();
+        refreshButtons();
+    }
+
+    /**
+     * Discards all edits and
+     * resets the enabled states of the
+     * UndoAction and RedoAction singletons.
+     *
+     * @see org.yawlfoundation.yawl.editor.ui.actions.UndoAction
+     * @see org.yawlfoundation.yawl.editor.ui.actions.RedoAction
+     */
+
+    public void discardAllEdits() {
+        super.discardAllEdits();
+        setDirty(false);
+        refreshButtons();
+    }
+
+    public void refreshButtons() {
+        UndoAction.getInstance().setEnabled(canUndo());
+        RedoAction.getInstance().setEnabled(canRedo());
+    }
 
     public void disableButtons() {
-      UndoAction.getInstance().setEnabled(false);
-      RedoAction.getInstance().setEnabled(false);
+        UndoAction.getInstance().setEnabled(false);
+        RedoAction.getInstance().setEnabled(false);
     }
-        
-  public void startCompoundingEdits() {
-    this.startCompoundingEdits(null);
-  }
-  
-	/** 
-	 * Tells the undo mamager to take all edits received
-	 * until <code>stopCompoundingEdits()</code> is called
-	 * and combine then into a single undoable edit.
-	 *
-	 */
-  
-  public void startCompoundingEdits(NetGraphModel model) {
-    if (!compoundingEdits) {
-      compoundingEdits = true;
-      this.compoundEdit = new SpecificationCompoundEdit(model);
-    }
-  }
 
-	/** 
-	 * Tells the undo mamager to post the currently 
-	 * compounded edits received as a single undoable edit
-	 * and to stop compounding edits from now on.
-	 * 
-	 */
-  
-  public void stopCompoundingEdits() {
-    if (compoundingEdits) {
-      compoundingEdits = false;
-      compoundEdit.end();
-      addEdit(compoundEdit);
-      refreshButtons(); 
-      compoundEdit = null;
+    public void startCompoundingEdits() {
+        this.startCompoundingEdits(null);
     }
-  }
-  
-  private boolean acceptingEdits() {
-  	return nonAcceptanceLevel <= 0;
-  }
-  
-  private void showFrameOfEdit(UndoableEdit edit) {
-    if (edit == null) {
-      return;
+
+    /**
+     * Tells the undo mamager to take all edits received
+     * until <code>stopCompoundingEdits()</code> is called
+     * and combine then into a single undoable edit.
+     *
+     */
+
+    public void startCompoundingEdits(NetGraphModel model) {
+        if (!compoundingEdits) {
+            compoundingEdits = true;
+            this.compoundEdit = new SpecificationCompoundEdit(model);
+        }
     }
-    if (edit instanceof DefaultGraphModel.GraphModelEdit) {
-      DefaultGraphModel.GraphModelEdit gmEdit = (DefaultGraphModel.GraphModelEdit) edit;
-      if (gmEdit.getSource() != null && gmEdit.getSource() instanceof NetGraphModel) {
-        showFrameOfModel((NetGraphModel) gmEdit.getSource());
-      }
+
+    /**
+     * Tells the undo mamager to post the currently
+     * compounded edits received as a single undoable edit
+     * and to stop compounding edits from now on.
+     *
+     */
+
+    public void stopCompoundingEdits() {
+        if (compoundingEdits) {
+            compoundingEdits = false;
+            compoundEdit.end();
+            addEdit(compoundEdit);
+            refreshButtons();
+            compoundEdit = null;
+        }
     }
-    if (edit instanceof SpecificationCompoundEdit) {
-      SpecificationCompoundEdit scEdit = (SpecificationCompoundEdit) edit;
-      if (scEdit.getModel() != null) {
-        showFrameOfModel(scEdit.getModel());
-      }
+
+    private boolean acceptingEdits() {
+        return nonAcceptanceLevel <= 0;
     }
-    
-  }
-  
-  private void showFrameOfModel(NetGraphModel model) {
-    try {
-//      model.getGraph().getFrame().setIcon(false);
-//      model.getGraph().getFrame().toFront();
-//      model.getGraph().getFrame().requestFocus();
-    } catch (Exception e) {}
-  }
+
+    private void showFrameOfEdit(UndoableEdit edit) {
+        if (edit == null) {
+            return;
+        }
+        if (edit instanceof DefaultGraphModel.GraphModelEdit) {
+            DefaultGraphModel.GraphModelEdit gmEdit = (DefaultGraphModel.GraphModelEdit) edit;
+            if (gmEdit.getSource() != null && gmEdit.getSource() instanceof NetGraphModel) {
+                showFrameOfModel((NetGraphModel) gmEdit.getSource());
+            }
+        }
+        if (edit instanceof SpecificationCompoundEdit) {
+            SpecificationCompoundEdit scEdit = (SpecificationCompoundEdit) edit;
+            if (scEdit.getModel() != null) {
+                showFrameOfModel(scEdit.getModel());
+            }
+        }
+
+    }
+
+    private void showFrameOfModel(NetGraphModel model) {
+        try {
+            //      model.getGraph().getFrame().setIcon(false);
+            //      model.getGraph().getFrame().toFront();
+            //      model.getGraph().getFrame().requestFocus();
+        } catch (Exception e) {}
+    }
 
 
-  public boolean isDirty() {
-    return dirty ;
-  }
+    public boolean isDirty() {
+        return dirty ;
+    }
 
-  public void setDirty(boolean newValue) {
-    dirty = newValue;
-  }
+    public void setDirty(boolean newValue) {
+        dirty = newValue;
+    }
 
     public void removeLastUndoableEdit() {
         editToBeUndone().die();
     }
 
 
-  /******************************************************************/
+    /******************************************************************/
 
-  class SpecificationCompoundEdit extends CompoundEdit {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    private NetGraphModel model;
-    
-    public SpecificationCompoundEdit(NetGraphModel model) {
-      super();
-      this.model = model;
+    class SpecificationCompoundEdit extends CompoundEdit {
+        private NetGraphModel model;
+
+        public SpecificationCompoundEdit(NetGraphModel model) {
+            super();
+            this.model = model;
+        }
+
+        public NetGraphModel getModel() {
+            return this.model;
+        }
     }
-    
-    public NetGraphModel getModel() {
-      return this.model;
-    }
-  }
 }

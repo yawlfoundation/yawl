@@ -24,38 +24,34 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.YTimerParameters;
 
 import java.awt.geom.Point2D;
 
 public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
 
     /**
-     * This constructor is ONLY to be invoked when we are reconstructing an
-     * atomic task from saved state. Ports will not be created with this
-     * constructor, as they are already part of the JGraph state-space.
-     */
-
-    public AtomicTask() {
-        super();
-    }
-
-    /**
      * This constructor is to be invoked whenever we are creating a new
      * atomic task from scratch. It also creates the correct ports needed for
      * the task as an intended side-effect.
      */
-
     public AtomicTask(Point2D startPoint) {
         super(startPoint);
     }
+
+    public AtomicTask(Point2D startPoint, YTask yTask) {
+        super(startPoint);
+        setShadowTask(yTask);
+    }
+
 
     /**
      * This constructor is to be invoked whenever we are creating a new
      * atomic task from scratch with an icon. It also creates the correct
      * ports needed for the task as an intended side-effect.
      */
-
     public AtomicTask(Point2D startPoint, String iconPath) {
         super(startPoint, iconPath);
     }
@@ -64,26 +60,25 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
         return "Atomic Task";
     }
 
-    public void setWSDecomposition(WebServiceDecomposition decomposition) {
+    public void setDecomposition(YDecomposition decomposition) {
         super.setDecomposition(decomposition);
     }
 
-    public WebServiceDecomposition getWSDecomposition() {
-        return (WebServiceDecomposition) super.getDecomposition();
+    public YDecomposition getDecomposition() {
+        return super.getDecomposition();
     }
 
-    public void setTimeoutDetail(TaskTimeoutDetail timeoutDetail) {
-        _timeoutDetail = timeoutDetail;
+    public void setTimerParameters(YTimerParameters timerParameters) {
+        getShadowTask().setTimerParameters(timerParameters);
     }
 
-    public TaskTimeoutDetail getTimeoutDetail() {
-        return _timeoutDetail;
+    public YTimerParameters getTimerParameters() {
+        return getShadowTask().getTimerParameters();
     }
 
-    private TaskTimeoutDetail _timeoutDetail;
 
     public boolean hasTimerEnabled() {
-        return getTimeoutDetail() != null;
+        return getTimerParameters() != null;
     }
 
 }

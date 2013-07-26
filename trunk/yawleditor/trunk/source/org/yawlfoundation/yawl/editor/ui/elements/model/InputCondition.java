@@ -24,47 +24,21 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.jgraph.graph.GraphConstants;
+import org.yawlfoundation.yawl.elements.YInputCondition;
 
 import java.awt.geom.Point2D;
-import java.util.HashMap;
 
-public class InputCondition extends YAWLCondition {
+public class InputCondition extends Condition {
 
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing an
-     * input condition from saved state. Ports will not be created with this
-     * constructor, as they are already part of the JGraph state-space.
-     */
-
-    public InputCondition() {
-        super();
-    }
-
-    /**
-     * This constructor is to be invoked whenever we are creating a new
-     * input condition from scratch. It also creates the correct ports needed
-     * for the vertex as an intended side-effect.
-     */
 
     public InputCondition(Point2D startPoint) {
         super(startPoint);
     }
 
-    protected void buildElement() {
-        HashMap map = new HashMap();
-
-        GraphConstants.setEditable(map, false);
-        getAttributes().applyMap(map);
-
-        addPorts();
+    public InputCondition(Point2D startPoint, YInputCondition shadow) {
+        super(startPoint, shadow);
     }
 
-    protected void addPorts() {
-        addDefaultRightPort();
-        addDefaultTopPort();
-        addDefaultBottomPort();
-    }
 
     public boolean isRemovable() {
         return false;
@@ -82,7 +56,4 @@ public class InputCondition extends YAWLCondition {
         return "Input Condition";
     }
 
-    public String getEngineLabel() {
-        return "InputCondition";
-    }
 }

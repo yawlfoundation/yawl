@@ -23,14 +23,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.text.Document;
-
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+
+import javax.swing.*;
+import javax.swing.text.Document;
 
 public class DecompositionLabelField extends XMLElementField {
   
@@ -39,7 +38,7 @@ public class DecompositionLabelField extends XMLElementField {
    */
   private static final long serialVersionUID = 1L;
 
-  private Decomposition decomposition;
+  private YDecomposition decomposition;
   
   private final DecompositionLabelVerifier verifier = new DecompositionLabelVerifier();
   
@@ -49,12 +48,12 @@ public class DecompositionLabelField extends XMLElementField {
     getAlphaNumericFormatter().allowSpaces();
   }
   
-  public void setDecomposition(Decomposition decomposition) {
+  public void setDecomposition(YDecomposition decomposition) {
     this.decomposition = decomposition;
-    this.setText(decomposition.getLabel());
+    this.setText(decomposition.getID());
   }
   
-  public Decomposition getDecomposition() {
+  public YDecomposition getDecomposition() {
     return this.decomposition;
   }
 }
@@ -73,7 +72,7 @@ class DecompositionLabelVerifier extends InputVerifier {
     try {
       Document doc = field.getDocument();
       docContent = doc.getText(0,doc.getLength());
-    } catch (Exception e) {};
+    } catch (Exception e) {}
 
     if (docContent == null || docContent.equals("")) {
       return false;
@@ -87,11 +86,8 @@ class DecompositionLabelVerifier extends InputVerifier {
       return true;
     }
 
-    if (field.getDecomposition() != null && field.getDecomposition().getLabel().equals(docContent)) {
-      return true;
-    }
+      return field.getDecomposition() != null && field.getDecomposition().getID().equals(docContent);
 
-    return false;
   }
 
   public boolean shouldYieldFocus(JComponent component) {

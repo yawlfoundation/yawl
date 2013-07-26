@@ -175,17 +175,17 @@ public abstract class AbstractDoneDialog extends JDialog {
         _buttonPanel.setBorder(new EmptyBorder(17, 12, 11, 11));
         _buttonPanel.setLayout(new BoxLayout(_buttonPanel, BoxLayout.LINE_AXIS));
         _buttonPanel.add(Box.createHorizontalGlue());
-        _buttonPanel.add(_doneButton);
 
         if (_showCancelButton) {
+             _buttonPanel.add(_cancelButton);
             _buttonPanel.add(Box.createHorizontalStrut(10));
-            _buttonPanel.add(_cancelButton);
 
             LinkedList<JButton> buttonList = new LinkedList<JButton>();
             buttonList.add(_doneButton);
             buttonList.add(_cancelButton);
             JUtilities.equalizeComponentSizes(buttonList);
         }
+        _buttonPanel.add(_doneButton);
         _buttonPanel.add(Box.createHorizontalGlue());
 
         return _buttonPanel;

@@ -22,51 +22,49 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * A library of standard utilities that return information on, or manipulate 
  * a selected Specification. 
- * 
+ *
  * @author Lindsay Bradford
  */
 
 public final class SpecificationUtilities {
 
-  public static void refreshNetViews(SpecificationModel specification) {
-    for (NetGraphModel net : specification.getNets()) {
-      net.getGraph().repaint();      
+    public static void refreshNetViews(SpecificationModel specification) {
+        for (NetGraphModel net : specification.getNets()) {
+            net.getGraph().repaint();
+        }
     }
-  }
 
-  public static void showGridOfNets(SpecificationModel specification, boolean gridVisible) {
-    for (NetGraphModel net : specification.getNets()) {
-      net.getGraph().setGridVisible(gridVisible);      
+    public static void showGridOfNets(SpecificationModel specification, boolean gridVisible) {
+        for (NetGraphModel net : specification.getNets()) {
+            net.getGraph().setGridVisible(gridVisible);
+        }
     }
-  }
-  
-  public static void showAntiAliasing(SpecificationModel specification, boolean antiAliased) {
-    for (NetGraphModel net : specification.getNets()) {
-      net.getGraph().setAntiAliased(antiAliased);
-    }
-  }
-  
-  public static void setSpecificationFontSize(SpecificationModel specification, int fontSize) {
-    specification.setFontSize(fontSize);
 
-    for (NetGraphModel net : specification.getNets()) {
-      NetCellUtilities.propogateFontChangeAcrossNet(
-          net.getGraph(), 
-          net.getGraph().getFont().deriveFont(
-              (float) fontSize
-          )
-      );
+    public static void showAntiAliasing(SpecificationModel specification, boolean antiAliased) {
+        for (NetGraphModel net : specification.getNets()) {
+            net.getGraph().setAntiAliased(antiAliased);
+        }
     }
-  }
+
+    public static void setSpecificationFontSize(SpecificationModel specification, int fontSize) {
+        specification.setFontSize(fontSize);
+
+        for (NetGraphModel net : specification.getNets()) {
+            NetCellUtilities.propogateFontChangeAcrossNet(
+                    net.getGraph(),
+                    net.getGraph().getFont().deriveFont((float) fontSize)
+            );
+        }
+    }
 
 
     public static NetGraphModel getNetModelFromName(String name) {
@@ -79,21 +77,21 @@ public final class SpecificationUtilities {
         }
         return null;
     }
-  
-  
-  public static boolean isValidDecompositionLabel(SpecificationModel specification, String label) {
-    for(WebServiceDecomposition decomposition : specification.getWebServiceDecompositions()) {
-      if (decomposition.getLabelAsElementName().equals(XMLUtilities.toValidXMLName(label))) {
-        return false;
-      }
-    }
 
-    for(NetGraphModel net: SpecificationModel.getInstance().getNets()) {
-      if (net.getDecomposition().getLabelAsElementName().equals(XMLUtilities.toValidXMLName(label))) {
-        return false;
-      }
+
+    public static boolean isValidDecompositionLabel(SpecificationModel specification, String label) {
+        for(YDecomposition decomposition : specification.getWebServiceDecompositions()) {
+            if (decomposition.getID().equals(XMLUtilities.toValidXMLName(label))) {
+                return false;
+            }
+        }
+
+        for(NetGraphModel net: SpecificationModel.getInstance().getNets()) {
+            if (net.getDecomposition().getID().equals(XMLUtilities.toValidXMLName(label))) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-  }
 
 }

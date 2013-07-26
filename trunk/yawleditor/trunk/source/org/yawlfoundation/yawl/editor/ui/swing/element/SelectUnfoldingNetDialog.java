@@ -21,7 +21,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.element;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -31,7 +30,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
-import org.yawlfoundation.yawl.editor.ui.swing.data.NetDecompositionUpdateDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
@@ -163,15 +161,15 @@ public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
       public void actionPerformed(ActionEvent e) {
         YAWLEditorNetPanel newFrame = YAWLEditorDesktop.getInstance().newNet();
         
-        NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
-            newFrame.getNet().getNetModel().getDecomposition()
-        );
+//        NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
+//            newFrame.getNet().getNetModel().getDecomposition()
+//        );
 
           dialog.setVisible(false);
 
-        netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
-        netDialog.setModal(true);
-        netDialog.setVisible(true);
+//        netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
+//        netDialog.setModal(true);
+//        netDialog.setVisible(true);
 
         graph.setUnfoldingNet(task, newFrame.getNet());
 

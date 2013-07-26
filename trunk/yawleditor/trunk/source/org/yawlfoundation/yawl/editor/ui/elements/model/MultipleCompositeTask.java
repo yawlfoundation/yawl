@@ -24,39 +24,27 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariable;
-import org.yawlfoundation.yawl.editor.ui.data.Decomposition;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.awt.geom.Point2D;
 
 public class MultipleCompositeTask extends YAWLTask
         implements YAWLMultipleInstanceTask, YAWLCompositeTask {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
     private MultipleInstanceTaskConfigSet configureSet;
 
     private long _minimumInstances;
     private long _maximumInstances;
     private long _continuationThreshold;
     private int _instanceCreationType;
-    private DataVariable _multipleInstanceVariable;
+    private YVariable _multipleInstanceVariable;
     private String _splitterQuery;
     private String _aggregateQuery;
-    private DataVariable _resultNetVariable;
+    private YVariable _resultNetVariable;
 
 
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing an
-     * multiple composite task from saved state. Ports will not be created with this
-     * constructor, as they are already part of the JGraph state-space.
-     */
-
-    public MultipleCompositeTask() {
-        this(null);
-    }
 
     /**
      * This constructor is to be invoked whenever we are creating a new
@@ -68,6 +56,12 @@ public class MultipleCompositeTask extends YAWLTask
         super(startPoint);
         initialise();
     }
+
+    public MultipleCompositeTask(Point2D startPoint, YTask yTask) {
+        super(startPoint);
+        setShadowTask(yTask);
+    }
+
 
     public void iniConfigure() {
         configureSet = new MultipleInstanceTaskConfigSet(this);
@@ -85,17 +79,13 @@ public class MultipleCompositeTask extends YAWLTask
     }
 
     public String getUnfoldingNetName() {
-        if (getDecomposition() != null) {
-            return getDecomposition().getLabel();
-        }
-        return "";
+        return getDecomposition() != null ? getDecomposition().getID() : "";
     }
 
-    public void setDecomposition(Decomposition decomposition) {
+    public void setDecomposition(YDecomposition decomposition) {
         if (getDecomposition() == null ||
                 !getDecomposition().equals(decomposition)) {
             super.setDecomposition(decomposition);
-            resetParameterLists();
         }
     }
 
@@ -133,17 +123,15 @@ public class MultipleCompositeTask extends YAWLTask
     }
 
 
-    public DataVariable getMultipleInstanceVariable() {
+    public YVariable getMultipleInstanceVariable() {
         return _multipleInstanceVariable;
     }
 
-    public void setMultipleInstanceVariable(DataVariable variable) {
+    public void setMultipleInstanceVariable(YVariable variable) {
 
         if (! ((_multipleInstanceVariable == null) ||
                _multipleInstanceVariable.equals(variable))) {
 
-            // destroy now defunct accessor query for multiple instance variable */
-            getParameterLists().getInputParameters().remove(_multipleInstanceVariable);
         }
 
         _multipleInstanceVariable = variable;
@@ -151,16 +139,17 @@ public class MultipleCompositeTask extends YAWLTask
 
 
     public String getAccessorQuery() {
-        return getParameterLists().getInputParameters().getQueryFor(
-                getMultipleInstanceVariable()
-        );
+//        return getParameterLists().getInputParameters().getQueryFor(
+//                getMultipleInstanceVariable()
+//        );
+        return null;
     }
 
     public void setAccessorQuery(String query) {
         if (getMultipleInstanceVariable() != null) {
-            getParameterLists().getInputParameters().setQueryFor(
-                    getMultipleInstanceVariable(), query
-            );
+//            getParameterLists().getInputParameters().setQueryFor(
+//                    getMultipleInstanceVariable(), query
+//            );
         }
     }
 
@@ -175,16 +164,17 @@ public class MultipleCompositeTask extends YAWLTask
 
 
     public String getInstanceQuery() {
-        return getParameterLists().getOutputParameters().getQueryFor(
-                getResultNetVariable()
-        );
+//        return getParameterLists().getOutputParameters().getQueryFor(
+//                getResultNetVariable()
+//        );
+        return null;
     }
 
     public void setInstanceQuery(String query) {
         if (getResultNetVariable() != null) {
-            getParameterLists().getOutputParameters().setQueryFor(
-                    getResultNetVariable(), query
-            );
+//            getParameterLists().getOutputParameters().setQueryFor(
+//                    getResultNetVariable(), query
+//            );
         }
     }
 
@@ -198,16 +188,16 @@ public class MultipleCompositeTask extends YAWLTask
     }
 
 
-    public DataVariable getResultNetVariable() {
+    public YVariable getResultNetVariable() {
         return _resultNetVariable;
     }
 
-    public void setResultNetVariable(DataVariable variable) {
+    public void setResultNetVariable(YVariable variable) {
         if (! ((_resultNetVariable == null) ||
                _resultNetVariable.equals(variable))) {
 
             // destroy now defunct instance query for result net variable */
-            getParameterLists().getOutputParameters().remove(_resultNetVariable);
+//            getParameterLists().getOutputParameters().remove(_resultNetVariable);
         }
 
         _resultNetVariable = variable;

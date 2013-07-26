@@ -25,7 +25,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -44,7 +44,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Save Specification As...");
+    putValue(Action.NAME, "Save As...");
     putValue(Action.LONG_DESCRIPTION, "Save this specification to a different filename ");
     putValue(Action.SMALL_ICON, getPNGIcon("disk_multiple"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
@@ -59,7 +59,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
           dialog.showOrHideSpecIDField();
           dialog.setVisible(true);
       }
-      else ArchivingThread.getInstance().saveAs();
+      else FileOperations.saveAs();
   }
   
   public String getEnabledTooltipText() {

@@ -56,7 +56,7 @@ public class PasteAction extends YAWLBaseAction {
         TransferHandler.getPasteAction().actionPerformed(
                 new ActionEvent(getGraph(), event.getID(), event.getActionCommand()));
 
-        getGraph().getNetModel().remove(NetUtilities.getIllegallyCopiedFlows(
+        getGraph().getNetModel().removeCells(NetUtilities.getIllegallyCopiedFlows(
                 getGraph().getNetModel()).toArray());
 
         SpecificationUndoManager.getInstance().stopCompoundingEdits();

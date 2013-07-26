@@ -27,8 +27,6 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -47,31 +45,17 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     public static final int RIGHT = Decorator.RIGHT;
     public static final int NOWHERE = Decorator.NOWHERE;
 
-    protected transient Point2D _startPoint;
+    protected Point2D _startPoint;
 
     public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
+    public static final int DEFAULT_SIZE = 32;
 
+    private static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
     private Color _backgroundColor =
             SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
 
-    public static final int DEFAULT_SIZE = 32;
-
-    private transient static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
-
-    private EngineIdentifier _actualEngineID;
-    private String _engineLabel;
-    private String _iconPath;
     private String _designNotes;
-    private String _documentation;
 
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing a vertex
-     * from saved state. Ports will not be created with this constructor, as they
-     * are already part of the JGraph state-space.
-     */
-    public YAWLVertex() {
-        this(null, null);
-    }
 
     /**
      * This constructor is to be invoked whenever we are creating a new vertex
@@ -79,83 +63,35 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
      * as an intended side-effect.
      */
     public YAWLVertex(Point2D startPoint) {
-        this(startPoint, null);
-    }
-
-    public YAWLVertex(Point2D startPoint, String iconPath) {
         super();
-        initialize(startPoint, iconPath);
+        initialize(startPoint);
     }
 
-    private void initialize(Point2D startPoint, String iconPath) {
+    private void initialize(Point2D startPoint) {
         _startPoint = (startPoint != null) ? startPoint : new Point(10, 10);
         buildElementDefaults();
-        setIconPath(iconPath);
         if (startPoint != null) addDefaultPorts();
     }
 
-    public String getEngineId() {
-        if (_actualEngineID == null) {
-            _actualEngineID = SpecificationModel.getInstance().getUniqueIdentifier(getEngineLabel());
-        }
-        return XMLUtilities.toValidXMLName(_actualEngineID.toString());
-    }
+    public abstract String getID();
 
-    public EngineIdentifier getEngineIdentifier() {
-        if (_actualEngineID == null) getEngineId();   // initialise
-        return _actualEngineID;
-    }
+    public abstract void setID(String id);
 
-    public void setEngineID(EngineIdentifier id) {
-        setEngineID(id, true);
-    }
-
-    public void setEngineID(EngineIdentifier id, boolean check) {
-        _actualEngineID = check ? SpecificationModel.getInstance().ensureUniqueIdentifier(id) : id;
-        _engineLabel = _actualEngineID.getName();
-    }
-
-    public String getEngineLabel() {
-        if (_engineLabel == null) {
-            _engineLabel = getLabel();
-        }
-        return _engineLabel;
-    }
+    public abstract String getName();
     
-    public void setEngineLabel(String label) {
-        if (label != null) {
-            String[] parts = label.split("_");
-            if (parts.length > 1) {
-                String lastPart = parts[parts.length -1];
-                if (StringUtil.isIntegerString(lastPart)) {
-                    _engineLabel = label.substring(0, label.lastIndexOf('_'));
-                }
-            }
-            else _engineLabel = label;
+    public abstract void setName(String name);
 
-            if (_actualEngineID != null) {
-                SpecificationModel.getInstance().removeUniqueIdentifier(_actualEngineID);
-                _actualEngineID = null;    // reset
-            }
-        }
-    }
+    public abstract void setDocumentation(String doco);
+
+    public abstract String getDocumentation();
+
 
     public Point2D getStartPoint() { return _startPoint; }
-
-
-    public void setIconPath(String path) { _iconPath = path; }
-
-    public String getIconPath() { return _iconPath; }
 
 
     public void setDesignNotes(String notes) { _designNotes = notes; }
 
     public String getDesignNotes() { return _designNotes; }
-
-
-    public void setDocumentation(String doco) { _documentation = doco; }
-
-    public String getDocumentation() { return _documentation; }
 
 
     public void setBackgroundColor(Color color) { _backgroundColor = color; }
@@ -174,7 +110,7 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     public String getEngineIdToolTipText() {
-        String engineID = getEngineId();
+        String engineID = getID();
         if (! StringUtil.isNullOrEmpty(engineID)) {
             return "&nbsp;<b>Engine Id:</b> " + engineID + "&nbsp;<p>";
         }
@@ -300,9 +236,6 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         return (getLabel() != null);
     }
 
-    public boolean hasDocumentation() {
-        return (getDocumentation() != null);
-    }
 
     public void setBounds(Rectangle2D bounds) {
         Map map = new HashMap();
@@ -422,15 +355,14 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         GraphConstants.setBackground(map, _backgroundColor);
         getAttributes().applyMap(map);
 
-        clone.setEngineLabel(getEngineLabel());
-        clone.setIconPath(_iconPath);
+        clone.setName(getName());
         clone.setDesignNotes(_designNotes);
-        clone.setDocumentation(_documentation);
+        clone.setDocumentation(getDocumentation());
         return clone;
     }
 
 
     public String toString() {
-        return "[" + this.hashCode() + "]\nengine id: " + _actualEngineID;
+        return "[" + this.hashCode() + "]\nengine id: " + getID();
     }
 }

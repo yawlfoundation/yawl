@@ -41,8 +41,8 @@ class SpecificationMenu extends JMenu {
     private static final long serialVersionUID = 1L;
 
     public SpecificationMenu() {
-        super("Specification");
-        setMnemonic(KeyEvent.VK_S);
+        super("File");
+        setMnemonic(KeyEvent.VK_F);
         buildInterface();
     }
 
@@ -69,7 +69,7 @@ class SpecificationMenu extends JMenu {
         addSeparator();
 
         addMenuItemAction(new UpdateSpecificationPropertiesAction());
-        addMenuItemAction(new UpdateDataTypeDefinitionsAction());
+        addMenuItemAction(new DataTypeDefinitionsAction());
         addMenuItemAction(new DeleteOrphanDecompositionAction());
         addSeparator();
 

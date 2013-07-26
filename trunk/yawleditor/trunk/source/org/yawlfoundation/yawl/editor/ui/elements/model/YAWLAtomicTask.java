@@ -22,18 +22,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.data.WebServiceDecomposition;
-import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceMapping;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 public interface YAWLAtomicTask {
-  public void setWSDecomposition(WebServiceDecomposition decomposition);
-  public WebServiceDecomposition getWSDecomposition();
-  
-  public void setIconPath(String iconPath);
-  public String getIconPath();
-  
+  public void setDecomposition(YDecomposition decomposition);
+  public YDecomposition getDecomposition();
+
   public String getLabel();
-  
-  public void setResourceMapping(ResourceMapping resourceMapping);
-  public ResourceMapping getResourceMapping();
+
 }

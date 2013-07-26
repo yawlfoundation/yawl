@@ -36,10 +36,6 @@ import java.awt.event.KeyEvent;
 
 public class ViewCancellationSetAction extends YAWLBaseAction 
                                           implements CancellationSetModelListener{
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
   private boolean selected;
   

@@ -24,8 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -41,7 +40,7 @@ public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction
 
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Analyse Specification");
+    putValue(Action.NAME, "Analyse");
     putValue(Action.LONG_DESCRIPTION, "Analyse this specification.");
     putValue(Action.SMALL_ICON, getPNGIcon("bug"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_Y));
@@ -49,9 +48,7 @@ public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction
   }
   
   public void actionPerformed(ActionEvent event) {
-    ArchivingThread.getInstance().analyse(
-      SpecificationModel.getInstance()    
-    );
+      FileOperations.analyse();
   }
   
   public String getEnabledTooltipText() {

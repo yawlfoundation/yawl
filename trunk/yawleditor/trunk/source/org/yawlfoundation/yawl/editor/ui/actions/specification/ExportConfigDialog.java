@@ -1,12 +1,13 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ArchivingThread;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedAlphaNumericField;
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedSelectField;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.elements.YSpecification;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -48,13 +49,11 @@ class ExportConfigDialog extends AbstractDoneDialog {
                                 new YSpecVersion(versionNumberField.getText()));
 
                         if (showSpecIDField()) {
-                            SpecificationModel.getSpec().getSpecification()
+                            SpecificationModel.getHandler().getSpecification()
                                     .getSpecificationID().setUri(specificationIDField.getText());
                         }
 
-                        ArchivingThread.getInstance().engineFileExport(
-                                SpecificationModel.getInstance()
-                        );
+                        FileOperations.save();
                     }
                 }
         );
@@ -220,8 +219,12 @@ class ExportConfigDialog extends AbstractDoneDialog {
 
 
   private boolean showSpecIDField() {
-      String id = SpecificationModel.getSpec().getSpecification().getSpecificationID().getUri();
-      return (id == null) || (id.length() == 0) || (id.equals("unnamed.ywl"));
+      String id = null;
+      YSpecification spec = SpecificationModel.getHandler().getSpecification();
+      if (spec != null) {
+          id = spec.getSpecificationID().getUri();
+      }
+      return (id == null) || (id.length() == 0) || (id.equals("unnamed"));
   }
 
   public void showOrHideSpecIDField() {

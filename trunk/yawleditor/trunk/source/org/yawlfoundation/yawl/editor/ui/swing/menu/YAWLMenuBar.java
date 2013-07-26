@@ -38,9 +38,9 @@ public class YAWLMenuBar extends JMenuBar {
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new SpecificationMenu());
     YAWLEditor.updateLoadProgress(progress+=10);
+      add(new EditMenu());
+      YAWLEditor.updateLoadProgress(progress+=10);
     add(new NetMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
-    add(new EditMenu());
     YAWLEditor.updateLoadProgress(progress+=10);
     add(new ElementsMenu());
     YAWLEditor.updateLoadProgress(progress+=10);

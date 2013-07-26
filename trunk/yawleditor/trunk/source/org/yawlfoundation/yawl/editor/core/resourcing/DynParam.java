@@ -5,7 +5,7 @@ package org.yawlfoundation.yawl.editor.core.resourcing;
  * runtime will contain a value corresponding to a participant or role that the
  * task is to be offered to.
  */
-public class DynParam {
+public class DynParam implements Comparable<DynParam> {
 
     public enum Refers { Participant, Role }  // Dynamic Parameter types
 
@@ -40,6 +40,14 @@ public class DynParam {
     }
 
 /*******************************************************************************/
+
+    public int compareTo(DynParam other) {
+        int compare = getName().compareTo(other.getName());
+        if (compare == 0) {
+            compare = getRefers().compareTo(other.getRefers());
+        }
+        return compare;
+    }
 
     /** this is for the spec file */
     public String toXML() {

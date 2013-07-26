@@ -24,36 +24,46 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
+import org.yawlfoundation.yawl.elements.YCondition;
+
 import java.awt.geom.Point2D;
 
-public class Condition extends YAWLCondition {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+public class Condition extends YAWLVertex {
 
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing a condition
-     * from saved state. Ports will not be created with this constructor, as they
-     * are already part of the JGraph state-space.
-     */
-
-    public Condition() {
-        super();
-    }
-
-    /**
-     * This constructor is to be invoked whenever we are creating a new condition
-     * from scratch. It also creates the correct ports needed for the vertex
-     * as an intended side-effect.
-     */
+    private YCondition _shadowCondition;
 
     public Condition(Point2D startPoint) {
         super(startPoint);
     }
 
+    public Condition(Point2D startPoint, YCondition shadow) {
+        super(startPoint);
+        setShadow(shadow);
+    }
+
+
+    public void setShadow(YCondition shadow) {
+        _shadowCondition = shadow;
+    }
+
+    public YCondition getShadowCondition() { return _shadowCondition; }
+
     public String getType() {
         return "Condition";
     }
+
+    public String getID() { return _shadowCondition.getID(); }
+
+    public void setID(String id) { _shadowCondition.setID(id); }
+
+
+    public String getName() { return _shadowCondition.getName(); }
+
+    public void setName(String name) { _shadowCondition.setName(name); }
+
+
+    public String getDocumentation() { return _shadowCondition.getDocumentation(); }
+
+    public void setDocumentation(String doco) { _shadowCondition.setDocumentation(doco); }
 
 }

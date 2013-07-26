@@ -23,9 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.ui.data.DataVariableSet;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
@@ -155,7 +153,7 @@ public class FlowPredicateUpdateDialog extends AbstractDoneDialog {
   }  
   
   private JComboBox getInputVariableComboBox() {
-    inputVariableComboBox = new DataVariableComboBox(DataVariableSet.VALID_USAGE_ENTIRE_NET);
+    inputVariableComboBox = new DataVariableComboBox(0);
     return inputVariableComboBox;
   }
 
@@ -168,14 +166,15 @@ public class FlowPredicateUpdateDialog extends AbstractDoneDialog {
         try {
           xQueryEditor.getDocument().insertString(
               xQueryEditor.getCaretPosition(),
-              XMLUtilities.getXPathPredicateExpression(inputVariableComboBox.getSelectedVariable()),
+//              XMLUtilities.getXPathPredicateExpression(inputVariableComboBox.getSelectedVariable()),
+                 inputVariableComboBox.getSelectedVariable().getDataTypeName(),
               null
           );        
         } catch (Exception e) {
-          xQueryEditor.setText(
-              xQueryEditor.getText() + 
-              XMLUtilities.getXPathPredicateExpression(inputVariableComboBox.getSelectedVariable())
-          );
+//          xQueryEditor.setText(
+//              xQueryEditor.getText() +
+//              XMLUtilities.getXPathPredicateExpression(inputVariableComboBox.getSelectedVariable())
+//          );
         }
       }
     });

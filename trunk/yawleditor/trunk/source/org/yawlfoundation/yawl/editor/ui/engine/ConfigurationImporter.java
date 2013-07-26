@@ -106,7 +106,7 @@ public class ConfigurationImporter {
 		 inFlows = task.getIncomingFlows().toArray(inFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : inFlows){
-			 flowMap.put(flow.getSourceVertex().getEngineId(), flow);
+			 flowMap.put(flow.getSourceVertex().getID(), flow);
 		 }
 		 Element inputConfig = configuration.getChild("join",configuration.getNamespace());
 		 if(inputConfig != null){
@@ -138,7 +138,7 @@ public class ConfigurationImporter {
 		 inFlows = task.getIncomingFlows().toArray(inFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : inFlows){
-			 flowMap.put(flow.getSourceVertex().getEngineId(), flow);
+			 flowMap.put(flow.getSourceVertex().getID(), flow);
 		 }
 		 Element inputConfig = defaultConfiguration.getChild("join",defaultConfiguration.getNamespace());
 		 if(inputConfig != null){
@@ -170,7 +170,7 @@ public class ConfigurationImporter {
 		 outFlows = task.getOutgoingFlows().toArray(outFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : outFlows){
-			 flowMap.put(flow.getTargetVertex().getEngineId(), flow);
+			 flowMap.put(flow.getTargetVertex().getID(), flow);
 		 }
 		 Element outputConfig = defaultConfiguration.getChild("split",defaultConfiguration.getNamespace());
 		 if(outputConfig != null){
@@ -203,7 +203,7 @@ public class ConfigurationImporter {
 		 outFlows = task.getOutgoingFlows().toArray(outFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : outFlows){
-			 flowMap.put(flow.getTargetVertex().getEngineId(), flow);
+			 flowMap.put(flow.getTargetVertex().getID(), flow);
 		 }
 		 Element outputConfig = configuration.getChild("split",configuration.getNamespace());
 		 if(outputConfig != null){

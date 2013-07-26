@@ -24,7 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.util;
 
+import org.imgscalr.Scalr;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class ResourceLoader {
@@ -32,6 +36,7 @@ public class ResourceLoader {
     public static JLabel getImageAsJLabel(String imageFile) {
         return new JLabel(getImageAsIcon(imageFile));
     }
+
     /**
      *
      * @param imageFile
@@ -50,11 +55,18 @@ public class ResourceLoader {
 
     public static ImageIcon getExternalImageAsIcon(String imageFile) {
         try {
-            FileInputStream in = new FileInputStream(imageFile);
-            final byte[] imageByteBuffer = convertToByteArray(in);
-            in.close();
-            return new ImageIcon(imageByteBuffer);
-        } catch (Exception e) {
+            BufferedImage b = ImageIO.read(new File(imageFile));
+
+            // scale to fit inside tasks
+            if (b != null) {
+                if (b.getHeight() > 24 || b.getWidth() > 24) {
+                    b = Scalr.resize(b, 24);
+                }
+                return new ImageIcon(b);
+            }
+            return null;
+        }
+        catch (Exception e) {
             return null;
         }
     }

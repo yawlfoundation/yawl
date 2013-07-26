@@ -24,83 +24,48 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.SwingUtilities;
-
-import java.util.Hashtable;
-
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCondition;
-
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.FlowPopupMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.PalettePopupMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.VertexPopupMenu;
 
+import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 public class NetPopupListener extends MouseAdapter {
-  private static final PalettePopupMenu palettePopup = new PalettePopupMenu();
-  private final Hashtable vertexPopupHash = new Hashtable();
 
-  private NetGraph graph;
+    private static final PalettePopupMenu palettePopup = new PalettePopupMenu();
+    private NetGraph graph;
 
-  public NetPopupListener(NetGraph graph) {
-    this.graph = graph;
-  }
-  
-  public void mousePressed(MouseEvent event) {
-    if (!SwingUtilities.isRightMouseButton(event)) {
-      return;
-    }
-    
-    YAWLVertex vertex = NetCellUtilities.getVertexFromCell(
-        graph.getFirstCellForLocation(
-            event.getX(), 
-            event.getY()
-        )
-    );
-    
-    if (vertex != null && (vertex instanceof YAWLTask || 
-                           vertex instanceof YAWLCondition))  {
-      getCellPopup(vertex).show(
-          graph,
-          event.getX(), 
-          event.getY()
-      );
-      return;
-    }
-    
-    YAWLFlowRelation flow = NetCellUtilities.getFlowRelationFromCell(
-        graph.getFirstCellForLocation(
-            event.getX(), 
-            event.getY()
-        )
-    );
-    
-    if (flow != null) {
-      FlowPopupMenu flowPopup = new FlowPopupMenu(graph, flow, event.getPoint());
-      flowPopup.show(
-          graph,
-          event.getX(), 
-          event.getY()
-      );
-      
-      return;
+    public NetPopupListener(NetGraph graph) {
+        this.graph = graph;
     }
 
-    palettePopup.show(graph,event.getX(), event.getY());
+    public void mousePressed(MouseEvent event) {
+        if (! SwingUtilities.isRightMouseButton(event)) {
+            return;
+        }
 
-  }
-  
-  private VertexPopupMenu getCellPopup(Object cell) {
-    if(!vertexPopupHash.containsKey(cell)) {
-      vertexPopupHash.put(cell, new VertexPopupMenu((YAWLCell) cell, graph));
+        YAWLVertex vertex = NetCellUtilities.getVertexFromCell(
+                graph.getFirstCellForLocation(event.getX(), event.getY()));
+
+        if (vertex instanceof YAWLTask || vertex instanceof Condition) {
+            new VertexPopupMenu(vertex, graph).show(graph, event.getX(), event.getY());
+            return;
+        }
+
+        YAWLFlowRelation flow = NetCellUtilities.getFlowRelationFromCell(
+                graph.getFirstCellForLocation(event.getX(), event.getY()));
+
+        if (flow != null) {
+            FlowPopupMenu flowPopup = new FlowPopupMenu(graph, flow, event.getPoint());
+            flowPopup.show(graph, event.getX(), event.getY());
+            return;
+        }
+
+        palettePopup.show(graph, event.getX(), event.getY());
     }
-    return (VertexPopupMenu) vertexPopupHash.get(cell);
-  }
+
 }
