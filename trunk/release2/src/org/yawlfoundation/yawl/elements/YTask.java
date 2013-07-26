@@ -1785,7 +1785,10 @@ public abstract class YTask extends YExternalNetElement {
 
     public String getResourcingXML() { return _resourcingXML; }
 
-    public void setResourcingXML(String xml) { _resourcingXML = xml; }
+    public void setResourcingXML(String xml) {
+        _resourcingXML = xml;
+        setResourcingSpecs(JDOMUtil.stringToElement(xml));
+    }
 
 
     public Element getResourcingSpecs() { return _resourcingSpec; }
