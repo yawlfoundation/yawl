@@ -210,9 +210,12 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
 
     private VariableTable getNetTable() { return netTablePanel.getTable(); }
 
-    private VariableTable getTaskInputTable() { return taskInputTablePanel.getTable(); }
+    private VariableTable getTaskInputTable() {
+        return taskInputTablePanel != null ? taskInputTablePanel.getTable() : null;
+    }
 
-    private VariableTable getTaskOutputTable() { return taskOutputTablePanel.getTable(); }
+    private VariableTable getTaskOutputTable() {
+        return taskOutputTablePanel != null ? taskOutputTablePanel.getTable() : null; }
 
 
     private VariableTablePanel getTablePanelFromTableModel(VariableTableModel model) {

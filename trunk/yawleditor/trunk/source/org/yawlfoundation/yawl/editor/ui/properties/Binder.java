@@ -23,7 +23,7 @@ public class Binder implements PropertyChangeListener {
     public Binder(YPropertiesBean bean, YBeanInfo beanInfo) {
         _bean = bean;
         _beanInfo = beanInfo;
-        _sheet = YAWLEditor.getInstance().getPropertySheet();
+        _sheet = bean.getSheet();
         _sheet.getTable().setBackground(Color.WHITE);
         adjustForReadOnly(bean, beanInfo);
         _sheet.setProperties(beanInfo.getPropertyDescriptors());
@@ -131,6 +131,7 @@ public class Binder implements PropertyChangeListener {
         else if (name.equals("Decomposition")) {
             _sheet.setReadOnly("Timer", event.getNewValue().equals("None"));
             _sheet.setReadOnly("CustomForm", event.getNewValue().equals("None"));
+            _sheet.setReadOnly("Resourcing", event.getNewValue().equals("None"));
         }
     }
 

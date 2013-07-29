@@ -3,7 +3,6 @@ package org.yawlfoundation.yawl.editor.ui.properties.editor;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 
-import java.io.IOException;
 import java.util.*;
 
 
@@ -28,26 +27,20 @@ public class ServicesPropertyEditor extends ComboPropertyEditor {
     private void buildServicesMap() {
         services = new Hashtable<String, YAWLServiceReference>();
         String label = "";
-
-        try {
-            for (YAWLServiceReference service : YConnector.getServices()) {
-                if (! service.canBeAssignedToTask()) {
-                    continue;          // ignore services that are not for tasks
-                }
-
-                if (service.getUserName().equals("DefaultWorklist")) {
-                    label = DEFAULT_WORKLIST;
-                }
-                else if (service.getDocumentation() != null) {
-                    label = service.getDocumentation();
-                }
-                else label = service.getUserName();
-
-                services.put(label, service);
+        for (YAWLServiceReference service : YConnector.getServices()) {
+            if (! service.canBeAssignedToTask()) {
+                continue;          // ignore services that are not for tasks
             }
-        }
-        catch (IOException ioe) {
-            // fall through to empty map
+
+            if (service.getUserName().equals("DefaultWorklist")) {
+                label = DEFAULT_WORKLIST;
+            }
+            else if (service.getDocumentation() != null) {
+                label = service.getDocumentation();
+            }
+            else label = service.getUserName();
+
+            services.put(label, service);
         }
     }
 

@@ -17,7 +17,7 @@ public class EventListener implements CancellationSetModelListener {
 
     public void notify(int notification, YAWLTask triggeringTask) {
         if (notification == CancellationSetModel.SET_CHANGED) {
-            YAWLEditor.getInstance().getPropertySheet().firePropertyChange("ViewCancelSet",
+            YAWLEditor.getPropertySheet().firePropertyChange("ViewCancelSet",
                    (triggeringTask != null && triggeringTask == task));
         }
     }

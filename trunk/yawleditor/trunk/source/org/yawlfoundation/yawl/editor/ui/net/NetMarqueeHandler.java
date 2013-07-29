@@ -8,8 +8,8 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.CursorFactory;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.PaletteBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,11 +19,12 @@ import java.awt.geom.Rectangle2D;
 
 
 public class NetMarqueeHandler extends BasicMarqueeHandler {
-    private NetGraph net;
 
     private static final int PORT_BUFFER = 2;
 
     private PortView sourcePort, targetPort = null;
+    private NetGraph net;
+    private PaletteBar paletteBar;
 
     private enum State {
         ABOVE_CANVAS,
@@ -36,8 +37,10 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
 
     private State state = State.ABOVE_CANVAS;
 
+
     public NetMarqueeHandler(NetGraph net) {
         this.net = net;
+        paletteBar = YAWLEditor.getPalette();
     }
 
     /**
@@ -45,28 +48,20 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      * our own response to mouse events are more appropriate. Specifically, we rely on the
      * functionality of {@link BasicMarqueeHandler} in the following scenarios:
      * <ul>
-     *   <li> When the Palette is in Marquee mode
-     *   <li> When the  Palette is not in Marquee mode, but the mouse is hovering above a Vertex,
-     *   <li> When the Palette is not in Marquee mode, but the mouse if hovering above a flow relation.
+     *   <li> When the PaletteBar is in Marquee mode
+     *   <li> When the PaletteBar is not in Marquee mode, but the mouse is hovering above
+     *   a Vertex,
+     *   <li> When the PaletteBar is not in Marquee mode, but the mouse if hovering above
+     *   a flow relation.
      * <li>
-     * For the last two, if the mouse hovers above these elements, we want the default drag behaviour
-     * of {@link BasicMarqueeHandler} to be used on them. What remains in this class is the drawing of flows
-     * between net elements.
+     * For the last two, if the mouse hovers above these elements, we want the default
+     * drag behaviour of {@link BasicMarqueeHandler} to be used on them. What remains in
+     * this class is the drawing of flows between net elements.
      */
     public boolean isForceMarqueeEvent(MouseEvent event) {
-        if (Palette.getInstance().getControlFlowPaletteState() ==
-                ControlFlowPalette.SelectionState.MARQUEE) {
-            return false;
-        }
-        if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE &&
-                state == State.ABOVE_VERTEX) {
-            return false;
-        }
-        if (Palette.getInstance().getControlFlowPaletteState() != ControlFlowPalette.SelectionState.MARQUEE &&
-                state == State.ABOVE_FLOW_RELATION) {
-            return false;
-        }
-        return true;
+        Palette.SelectionState paletteState = paletteBar.getState();
+        return paletteState != Palette.SelectionState.MARQUEE &&
+                ! (state == State.ABOVE_VERTEX || state == State.ABOVE_FLOW_RELATION);
     }
 
     public NetGraph getNet() {
@@ -75,68 +70,48 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
 
 
     /**
-     * Defaults to typical marquee behaviour if the Palette is in Marquee mode,
-     * Otherwise, the state of this marquee is determined through what lies underneat
+     * Defaults to typical marquee behaviour if the PaletteBar is in Marquee mode,
+     * Otherwise, the state of this marquee is determined through what lies underneath
      * the mouse.
-     * @param event
+     * @param event the mouse event
      */
 
     public void mouseMoved(MouseEvent event) {
-        if (Palette.getInstance().getControlFlowPaletteState() ==
-                ControlFlowPalette.SelectionState.MARQUEE ) {
+        if (paletteBar.getState() == Palette.SelectionState.MARQUEE) {
             super.mouseMoved(event);
             return;
         }
 
         State oldState = state;
-
-        determineStateFromPoint(event.getPoint());
-
+        state = determineStateFromPoint(event.getPoint());
         if (state == State.ABOVE_CANVAS) {
             setCursorFromPalette();
         }
-
         doStateTransitionProcessing(event.getPoint(), oldState, state);
-
         event.consume();
     }
 
     private void setCursorFromPalette() {
-        switch (Palette.getInstance().getControlFlowPaletteState()) {
-            case MARQUEE : {
-                matchCursorTo(CursorFactory.SELECTION);
-                break;
-            }
-            case DRAG: {
-                matchCursorTo(CursorFactory.DRAG);
-                break;
-            }
-            case CONDITION: {
-                matchCursorTo(CursorFactory.CONDITION);
-                break;
-            }
-            case ATOMIC_TASK: {
-                matchCursorTo(CursorFactory.ATOMIC_TASK);
-                break;
-            }
-            case COMPOSITE_TASK: {
-                matchCursorTo(CursorFactory.COMPOSITE_TASK);
-                break;
-            }
-            case MULTIPLE_ATOMIC_TASK: {
-                matchCursorTo(CursorFactory.MULTIPLE_ATOMIC_TASK);
-                break;
-            }
-            case MULTIPLE_COMPOSITE_TASK: {
-                matchCursorTo(CursorFactory.MULTIPLE_COMPOSITE_TASK);
-                break;
-            }
-        }
+        matchCursorTo(getCursorFromPaletteState());
     }
+
+    private int getCursorFromPaletteState() {
+        switch (paletteBar.getState()) {
+            case MARQUEE   : return CursorFactory.SELECTION;
+            case DRAG      : return CursorFactory.DRAG;
+            case CONDITION : return CursorFactory.CONDITION;
+            case ATOMIC_TASK : return CursorFactory.ATOMIC_TASK;
+            case COMPOSITE_TASK: return CursorFactory.COMPOSITE_TASK;
+            case MULTIPLE_ATOMIC_TASK: return CursorFactory.MULTIPLE_ATOMIC_TASK;
+            case MULTIPLE_COMPOSITE_TASK: return CursorFactory.MULTIPLE_COMPOSITE_TASK;
+        }
+        return -1;
+    }
+
 
     private void matchCursorTo(int cursorType) {
         getNet().setCursor(CursorFactory.getCustomCursor(cursorType));
-        Palette.getInstance().refreshSelected();
+        paletteBar.refreshSelected();
     }
 
     /**
@@ -145,15 +120,18 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      * @param point
      */
 
-    private void determineStateFromPoint(Point point) {
+    private State determineStateFromPoint(Point point) {
         if (isPointOverOutgoingPort(point)) {
-            state = State.ABOVE_OUTGOING_PORT;
-        } else if (isPointOverVertex(point)) {
-            state = State.ABOVE_VERTEX;
-        } else if (isPointOverFlow(point)){
-            state = State.ABOVE_FLOW_RELATION;
-        } else {
-            state = State.ABOVE_CANVAS;
+            return State.ABOVE_OUTGOING_PORT;
+        }
+        else if (isPointOverVertex(point)) {
+            return State.ABOVE_VERTEX;
+        }
+        else if (isPointOverFlow(point)){
+            return State.ABOVE_FLOW_RELATION;
+        }
+        else {
+            return State.ABOVE_CANVAS;
         }
     }
 
@@ -168,19 +146,13 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     public void mousePressed(MouseEvent event) {
-        if (Palette.getInstance().getControlFlowPaletteState() ==
-                ControlFlowPalette.SelectionState.MARQUEE) {
-            super.mousePressed(event);
-            return;
-        }
-
-        if (SwingUtilities.isRightMouseButton(event)) {
+        if (SwingUtilities.isRightMouseButton(event) ||
+                paletteBar.getState() == Palette.SelectionState.MARQUEE) {
             super.mousePressed(event);
             return;
         }
 
         State oldState = state;
-
         switch(oldState) {
             case ABOVE_VERTEX: {
                 state = State.DRAGGING_VERTEX;
@@ -192,30 +164,26 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
             }
             case ABOVE_CANVAS: {
                 Point2D snapPoint = getNearestSnapPoint(event.getPoint());
-                switch (Palette.getInstance().getControlFlowPaletteState()) {
+                state = State.ABOVE_VERTEX;
+                switch (paletteBar.getState()) {
                     case CONDITION: {
                         NetCellFactory.insertCondition(getNet(), snapPoint);
-                        state = State.ABOVE_VERTEX;
                         break;
                     }
                     case ATOMIC_TASK: {
                         NetCellFactory.insertAtomicTask(getNet(), snapPoint);
-                        state = State.ABOVE_VERTEX;
                         break;
                     }
                     case MULTIPLE_ATOMIC_TASK: {
                         NetCellFactory.insertMultipleAtomicTask(getNet(), snapPoint);
-                        state = State.ABOVE_VERTEX;
                         break;
                     }
                     case COMPOSITE_TASK: {
                         NetCellFactory.insertCompositeTask(getNet(), snapPoint);
-                        state = State.ABOVE_VERTEX;
                         break;
                     }
                     case MULTIPLE_COMPOSITE_TASK: {
                         NetCellFactory.insertMultipleCompositeTask(getNet(), snapPoint);
-                        state = State.ABOVE_VERTEX;
                         break;
                     }
                 }
@@ -234,8 +202,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     public void mouseDragged(MouseEvent event) {
-        if (Palette.getInstance().getControlFlowPaletteState() ==
-                ControlFlowPalette.SelectionState.MARQUEE) {
+        if (paletteBar.getState() == Palette.SelectionState.MARQUEE) {
             super.mouseDragged(event);
             return;
         }
@@ -271,8 +238,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     public void mouseReleased(MouseEvent event) {
-        if (Palette.getInstance().getControlFlowPaletteState() ==
-                ControlFlowPalette.SelectionState.MARQUEE) {
+        if (paletteBar.getState() == Palette.SelectionState.MARQUEE) {
             super.mouseReleased(event);
             return;
         }
@@ -288,39 +254,30 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     /**
      * A convenience method to determine whether
      * the current point is above a flow relation.
-     * @param point
+     * @param point the current point
      * @return Returns true if above a flow relation, false otherwise.
      */
-
     private boolean isPointOverFlow(Point point) {
-        if (getElementAt(point) == null) {
-            return false;
-        }
-        if (getElementAt(point) instanceof YAWLFlowRelation) {
-            return true;
-        }
-        return false;
+        return getElementAt(point) instanceof YAWLFlowRelation;
     }
 
     /**
-     * A convenience method to determine whether the curent
+     * A convenience method to determine whether the current
      * point is above a YAWL vertex (task or condition).
-     * @param point
+     * @param point the current point
      * @return Returns true if above a vertex, false otherwise.
      */
-
     private boolean isPointOverVertex(Point point) {
         return (getElementAt(point) instanceof VertexContainer) ||
                (getElementAt(point) instanceof YAWLVertex);
     }
 
     /**
-     * A concenienve method to determine whether the current
+     * A convenience method to determine whether the current
      * point is above a valid outgoing port of a YAWL Vertex.
-     * @param point
+     * @param point the current point
      * @return true if above a valid outgoing port, false otherwise.
      */
-
     private boolean isPointOverOutgoingPort(Point point) {
         PortView portUnderMouse = getPortViewAt(point);
         if (portUnderMouse == null) {
@@ -330,9 +287,9 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         // Selected flows attached to a port take precedence. We consider the mouse
         // to be over the flow, not the port.
 
-        for(Object flowAsObject : ((YAWLPort) portUnderMouse.getCell()).getEdges()) {
+        for (Object flowAsObject : ((YAWLPort) portUnderMouse.getCell()).getEdges()) {
             YAWLFlowRelation flow = (YAWLFlowRelation) flowAsObject;
-            for(Object selectedCell : getNet().getSelectionCells()) {
+            for (Object selectedCell : getNet().getSelectionCells()) {
                 if (flow == selectedCell) {
                     return false;
                 }
@@ -353,13 +310,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     private void doStateTransitionProcessing(Point point, State oldState, State newState) {
         switch(oldState) {
             case ABOVE_CANVAS: {
-                switch(newState) {
-                    case ABOVE_OUTGOING_PORT:  {
-                        doMouseMovedOverPortProcessing(
-                                getPortViewAt(point)
-                        );
-                        break;
-                    }
+                if (newState == State.ABOVE_OUTGOING_PORT) {
+                    doMouseMovedOverPortProcessing(getPortViewAt(point));
                 }
                 break;
             }  // case OVER_NOTHING
@@ -367,14 +319,13 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                 switch(newState) {
                     case ABOVE_OUTGOING_PORT: {
                         if (getPortViewAt(point) != sourcePort) {
-                            doMouseMovedOverPortProcessing(
-                                    getPortViewAt(point)
-                            );
+                            doMouseMovedOverPortProcessing(getPortViewAt(point));
                         }
                         break;
                     }
                     case DRAWING_FLOW_RELATION: {
-                        // we deliberately do nothing. mouseDragged() event handling takes care of what needs to be done.
+                        // we deliberately do nothing. mouseDragged() event handling
+                        // takes care of what needs to be done.
                         break;
                     }
                     default: {
@@ -403,9 +354,9 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         sourcePort = portView;
         showPort(sourcePort);
         matchCursorTo(CursorFactory.FLOW_RELATION);
-        YAWLEditor.setStatusBarText(
+        YAWLEditor.getStatusBar().setText(
                 "Left-click on this connection point, drag the flow to another " +
-                        "valid connection point and release the mouse button to create a flow."
+                "valid connection point and release the mouse button to create a flow."
         );
     }
 
@@ -423,16 +374,12 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     protected void hidePort(PortView thisPort) {
-        if (thisPort == null) {
-            return;
+        if (thisPort != null) {
+            Graphics graphics = getNet().getGraphics();
+            graphics.setColor(getNet().getBackground());
+            graphics.setXORMode(getNet().getMarqueeColor());
+            showPort(thisPort);
         }
-
-        final Graphics graphics = getNet().getGraphics();
-
-        graphics.setColor(getNet().getBackground());
-        graphics.setXORMode(getNet().getMarqueeColor());
-
-        showPort(thisPort);
     }
 
     /**
@@ -451,12 +398,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                     portBounds.getHeight() + (2 * PORT_BUFFER)
             );
 
-            getNet().getUI().paintCell(
-                    getNet().getGraphics(),
-                    port,
-                    portViewbox,
-                    true
-            );
+            getNet().getUI().paintCell(getNet().getGraphics(), port, portViewbox, true);
         }
     }
 
@@ -472,7 +414,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         YAWLPort yawlPort  = (YAWLPort) portView.getCell();
         YAWLCell vertex = (YAWLCell) parentView.getCell();
         return yawlPort.generatesOutgoingFlows() &&
-                vertex.generatesOutgoingFlows()   &&
+                vertex.generatesOutgoingFlows() &&
                 getNet().generatesOutgoingFlows(vertex);
     }
 
@@ -488,7 +430,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
         YAWLPort yawlPort  = (YAWLPort) portView.getCell();
         YAWLCell vertex = (YAWLCell) parentView.getCell();
         return yawlPort.acceptsIncomingFlows() &&
-                vertex.acceptsIncomingFlows()   &&
+                vertex.acceptsIncomingFlows() &&
                 getNet().acceptsIncomingFlows(vertex);
     }
 
@@ -504,38 +446,25 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      * @param target
      * @return true if a connection between the ports is valid, false otherwise.
      */
-
     private boolean connectionAllowable(PortView source, PortView target) {
         return getNet().connectionAllowable(
-                (Port) source.getCell(),
-                (Port) target.getCell()
-        );
+                (Port) source.getCell(), (Port) target.getCell());
     }
 
     /**
      * Hides a potential flow relation.
      *
      */
-
     private void hidePotentialFlow() {
-        paintPotentialFlow(
-                Color.black,
-                getNet().getBackground(),
-                getNet().getGraphics()
-        );
+        paintPotentialFlow(Color.black, getNet().getBackground(), getNet().getGraphics());
     }
 
     /**
      * Shows a potential flow relation.
      *
      */
-
     private void showPotentialFlow() {
-        paintPotentialFlow(
-                getNet().getBackground(),
-                Color.black,
-                getNet().getGraphics()
-        );
+        paintPotentialFlow(getNet().getBackground(), Color.black, getNet().getGraphics());
     }
 
     /**
@@ -545,7 +474,6 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      * @param bg
      * @param g
      */
-
     protected void paintPotentialFlow(Color fg, Color bg, Graphics g) {
         g.setColor(fg);
         g.setXORMode(bg);
@@ -576,13 +504,9 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
             );
         }
         hidePotentialFlow();
-
         hidePort(sourcePort);
-
         sourcePort = targetPort = null;
-
         setStartPoint(null);
-
         setCurrentPoint(null);
     }
 }

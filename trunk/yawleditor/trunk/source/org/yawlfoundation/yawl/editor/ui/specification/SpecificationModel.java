@@ -30,8 +30,7 @@ import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.editor.core.identity.EngineIdentifier;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
+import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
@@ -63,8 +62,6 @@ public class SpecificationModel {
     "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
   
   private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
-
-    private static boolean _loadInProgress = false;
 
     private static YSpecificationHandler _specificationHandler = new YSpecificationHandler();
 
@@ -142,8 +139,8 @@ public class SpecificationModel {
     setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
 
     setVersionNumber(new YSpecVersion("0.0"));
-    YAWLEditor.setStatusBarText("Open or create a net to begin.");
-      getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
+//    YAWLEditor.getStatusBar().setText("Open or create a net to begin.");
+//      getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
     prevVersionNumber = null;
       setVersionChanged(false);
   }
@@ -165,11 +162,6 @@ public class SpecificationModel {
         UserSettings.getSettings().putInt(
                 "PREFERRED_VERTEX_BACKGROUND_COLOR", color.getRGB());
     }
-
-
-    public void setLoadInProgress(boolean inProgress) { _loadInProgress = inProgress; }
-
-    public boolean isLoadInProgress() { return _loadInProgress; }
 
 
   public Set<NetGraphModel> getNets() {

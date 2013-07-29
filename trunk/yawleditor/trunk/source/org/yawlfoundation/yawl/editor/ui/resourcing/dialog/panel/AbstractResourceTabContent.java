@@ -41,7 +41,7 @@ public abstract class AbstractResourceTabContent extends JPanel {
 
     protected TaskResourceSet getTaskResources() {
         YResourceHandler resHandler = SpecificationModel.getHandler().getResourceHandler();
-        return resHandler.getTaskResources(_net.getID(), _task.getID());
+        return resHandler.getOrCreateTaskResources(_net.getID(), _task.getID());
     }
 
     protected Set<YAtomicTask> getAllPrecedingTasks(YAtomicTask task) {

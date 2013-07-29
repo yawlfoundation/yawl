@@ -185,7 +185,7 @@ public class UserDefinedAttributes {
     }
 
     private String getSelectedKey() {
-        YPropertySheet sheet = YAWLEditor.getInstance().getPropertySheet();
+        YPropertySheet sheet = YAWLEditor.getPropertySheet();
         return sheet.getPropertyBeingRead();
     }
 

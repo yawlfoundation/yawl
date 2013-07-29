@@ -41,13 +41,12 @@ public class PalettePopupMenu extends JPopupMenu {
     }
 
     private void addMenuItems() {
-        ControlFlowPalette palette = Palette.getInstance().getControlFlowPalette();
-        add(new AtomicTaskAction(palette));
-        add(new CompositeTaskAction(palette));
-        add(new MultipleAtomicTaskAction(palette));
-        add(new MultipleCompositeTaskAction(palette));
-        add(new ConditionAction(palette));
-        add(new MarqueeAction(palette));
-        add(new NetDragAction(palette));
+        add(new AtomicTaskAction());
+        add(new CompositeTaskAction());
+        add(new MultipleAtomicTaskAction());
+        add(new MultipleCompositeTaskAction());
+        add(new ConditionAction());
+        add(new MarqueeAction());
+        add(new NetDragAction());
     }
 }

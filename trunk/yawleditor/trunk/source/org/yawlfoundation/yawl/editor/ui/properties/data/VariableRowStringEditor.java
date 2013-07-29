@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YInternalType;
-import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
+import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.TextAreaDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.schema.XSDType;
@@ -32,7 +32,9 @@ public class VariableRowStringEditor extends AbstractCellEditor
     private DataSchemaValidator dataValidator;
 
     private static final String INVALID_CHARS = "<>&'\"";
-
+    private static final String SCHEMA_HEADER =
+            "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\">";
+    private static final String SCHEMA_CLOSER = "</schema>";
 
     public VariableRowStringEditor() {
         nameField = new JTextField();
@@ -164,13 +166,15 @@ public class VariableRowStringEditor extends AbstractCellEditor
         String instance = "<dummy>" + value + "</dummy>";
         String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
         if (XSDType.getInstance().isBuiltInType(dataType)) {
-            String typeDef = "<element name=\"dummy\" type=\"" + dataType + "\"/>";
-            errors = dataValidator.validateBaseDataTypeInstance(typeDef, instance);
+            dataValidator.setDataTypeSchema(makeSchema(
+                    "<element name=\"dummy\" type=\"" + dataType + "\"/>"));
+            errors = dataValidator.validate(instance);
         }
         else if (YInternalType.isName(dataType)) {
             YInternalType internalType = YInternalType.valueOf(dataType);
-            String typeDef = internalType.getValidationSchema("dummy");
-            errors = dataValidator.validateBaseDataTypeInstance(typeDef, instance);
+            dataValidator.setDataTypeSchema(makeSchema(
+                    internalType.getValidationSchema("dummy")));
+            errors = dataValidator.validate(instance);
         }
         else {            // user defined complex type
                  //todo
@@ -179,6 +183,10 @@ public class VariableRowStringEditor extends AbstractCellEditor
             tablePanel.showErrorStatus("Invalid value for data type");
         }
         return (errors.length() == 0);
+    }
+
+    private String makeSchema(String innards) {
+        return SCHEMA_HEADER + innards + SCHEMA_CLOSER;
     }
 
 }

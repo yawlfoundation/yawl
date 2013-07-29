@@ -92,7 +92,7 @@ public class YEngineConnection extends YConnection {
      * @throws IOException If there is some problem retrieving a fresh set, and the
      * cache is empty.
      */
-    public Set<YAWLServiceReference> getRegisteredYAWLServices() throws IOException {
+    public Set<YAWLServiceReference> getRegisteredYAWLServices() {
         if (isConnected()) {
             Set<YAWLServiceReference> services = _client.getRegisteredYAWLServices(_handle);
             if (! services.isEmpty()) {
@@ -110,10 +110,9 @@ public class YEngineConnection extends YConnection {
      * Gets the corresponding service object for the URI passed
      * @param uri the URI of the service to get
      * @return the service object, if found
-     * @throws IOException if the service is not currently cached, and there's a
      * problem connection to the the YAWL engine.
      */
-    public YAWLServiceReference getService(String uri) throws IOException {
+    public YAWLServiceReference getService(String uri) {
         YAWLServiceReference service = _serviceCache.get(uri);
         if (service == null) {
             getRegisteredYAWLServices();                     // update cache from engine

@@ -42,7 +42,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
                UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
                UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
                UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
-      //         Palette.getInstance().updatePluginIcons();
+      //         PaletteBar.getInstance().updatePluginIcons();
            }
 
            private String checkPath(String path) {

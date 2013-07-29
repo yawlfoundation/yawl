@@ -12,11 +12,11 @@ import java.awt.geom.Rectangle2D;
 public class YSplashScreen {
 
     private static final SplashScreen splash = SplashScreen.getSplashScreen();
-    private static Rectangle2D.Double textArea;
-    private static Rectangle2D.Double progressArea;
-    private static Graphics2D graphics;
+    private Rectangle2D.Double textArea;
+    private Rectangle2D.Double progressArea;
+    private Graphics2D graphics;
 
-    public static void init() {
+    public void init() {
         if (splash != null) {
             int height = splash.getSize().height;
             int width = splash.getSize().width;
@@ -30,7 +30,7 @@ public class YSplashScreen {
         }
     }
 
-    public static void showText(String str) {
+    public void showText(String str) {
         if (splash != null && splash.isVisible()) {
 
             // draw the text
@@ -44,7 +44,7 @@ public class YSplashScreen {
     }
 
 
-    public static void updateProgress(int pct) {
+    public void updateProgress(int pct) {
         if (splash != null && splash.isVisible()) {
 
             // Calculate the width corresponding to the correct percentage
@@ -66,7 +66,8 @@ public class YSplashScreen {
     }
 
 
-    public static void close() {
+    public void close() {
         updateProgress(100);
+        if (splash != null && splash.isVisible()) splash.close();
     }
 }

@@ -4,6 +4,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
@@ -11,7 +12,6 @@ import org.yawlfoundation.yawl.editor.ui.net.*;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 
 import javax.swing.*;
 import java.awt.*;
@@ -411,7 +411,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             super.specificationStateChange(state);
         }
         else {
-            NetGraph graph = YAWLEditorDesktop.getInstance().getSelectedGraph();
+            NetGraph graph = YAWLEditor.getNetsPane().getSelectedGraph();
             ServiceAutomatonTree automatonTree = graph.getServiceAutonomous();
             setEnabled((automatonTree == null) || automatonTree.canApplyConfiguration());
         }

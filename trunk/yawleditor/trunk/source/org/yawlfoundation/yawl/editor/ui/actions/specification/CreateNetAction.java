@@ -24,9 +24,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
@@ -48,7 +48,7 @@ public class CreateNetAction extends YAWLOpenSpecificationAction implements Tool
   }
   
   public void actionPerformed(ActionEvent event) {
-    YAWLEditorDesktop.getInstance().newNet();
+      YAWLEditor.getNetsPane().newNet();
     SpecificationUndoManager.getInstance().setDirty(true);      
   }
   

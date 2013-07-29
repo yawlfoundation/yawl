@@ -46,7 +46,7 @@ import java.util.List;
 
 public class SpecificationExporter extends EngineEditorInterpretor {
 
-    private static YSpecificationHandler _spec = SpecificationModel.getHandler();
+    private static YSpecificationHandler _handler = SpecificationModel.getHandler();
 
     // todo - make sure editor saveas matches core saveas
     public static boolean checkAndExportEngineSpecToFile(SpecificationModel model,
@@ -58,9 +58,9 @@ public class SpecificationExporter extends EngineEditorInterpretor {
                 populateSpecification(model);
                 analyseIfNeeded(model);
                 if (fullFileName != null) {
-                    _spec.saveAs(fullFileName, layout, UserSettings.getFileSaveOptions());
+                    _handler.saveAs(fullFileName, layout, UserSettings.getFileSaveOptions());
                 }
-                else _spec.save(layout, UserSettings.getFileSaveOptions());
+                else _handler.save(layout, UserSettings.getFileSaveOptions());
                 success = true;
             }
         }
@@ -95,7 +95,7 @@ public class SpecificationExporter extends EngineEditorInterpretor {
 
         if (UserSettings.getVerifyOnSave()) {
             results.addAll(EngineSpecificationValidator.getValidationResults(
-                    _spec.getSpecification()));
+                    _handler.getSpecification()));
         }
         if (UserSettings.getAnalyseOnSave()) {
             results.addAll(model.analyse());
@@ -120,7 +120,7 @@ public class SpecificationExporter extends EngineEditorInterpretor {
 
 
     public static YSpecification populateSpecification(SpecificationModel model) {
-        YSpecification spec = _spec.getSpecification();
+        YSpecification spec = _handler.getSpecification();
         initialise();
         generateEngineMetaData(model);
 
@@ -142,12 +142,12 @@ public class SpecificationExporter extends EngineEditorInterpretor {
             schema = schema.substring(schema.indexOf('>') + 1);
         }
         try {
-            _spec.setSchema(schema);
+            _handler.setSchema(schema);
         }
         catch (Exception eActual) {
             try {
                 schema = adjustSchemaForInternalTypes(SpecificationModel.DEFAULT_TYPE_DEFINITION);
-                _spec.setSchema(schema);
+                _handler.setSchema(schema);
             }
             catch (Exception eDefault) {}
         }
@@ -163,7 +163,7 @@ public class SpecificationExporter extends EngineEditorInterpretor {
 
 
     private static void generateEngineMetaData(SpecificationModel model) {
-        _spec.setVersion(model.getVersionNumber());
+        _handler.setVersion(model.getVersionNumber());
     }
 
     private static void generateRootNet(SpecificationModel model) {

@@ -3,7 +3,6 @@ package org.yawlfoundation.yawl.editor.core.data;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.yawlfoundation.yawl.editor.ui.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 

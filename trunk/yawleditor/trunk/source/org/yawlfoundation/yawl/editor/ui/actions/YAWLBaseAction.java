@@ -23,9 +23,8 @@
 package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -52,7 +51,7 @@ public abstract class YAWLBaseAction extends AbstractAction {
     }
 
     public NetGraph getGraph() {
-        return YAWLEditorDesktop.getInstance().getSelectedGraph();
+        return YAWLEditor.getNetsPane().getSelectedGraph();
     }
 
     public boolean shouldBeEnabled() {

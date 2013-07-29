@@ -65,8 +65,8 @@ public class YResourceHandler {
         return ResourceDataSet.getOrgGroups();
     }
 
-    public TaskResourceSet getTaskResources(String netID, String taskID) {
-        TaskResourceSet resources = _resourcesCache.get(netID, taskID);
+    public TaskResourceSet getOrCreateTaskResources(String netID, String taskID) {
+        TaskResourceSet resources = getTaskResources(netID, taskID);
         if (resources == null) {
             YAtomicTask task = getAtomicTask(netID, taskID);
             if (task != null) {
@@ -75,6 +75,11 @@ public class YResourceHandler {
             }
         }
         return resources;
+    }
+
+
+    public TaskResourceSet getTaskResources(String netID, String taskID) {
+        return _resourcesCache.get(netID, taskID);
     }
 
 

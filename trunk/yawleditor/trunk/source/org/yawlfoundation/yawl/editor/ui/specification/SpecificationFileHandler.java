@@ -27,11 +27,11 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.ui.engine.SpecificationExporter;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationImporter;
+import org.yawlfoundation.yawl.editor.ui.engine.SpecificationLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -42,6 +42,11 @@ import java.io.File;
 public class SpecificationFileHandler {
 
     private static final String EXTENSION = ".yawl";
+    private YStatusBar statusBar;
+
+    public SpecificationFileHandler() {
+        statusBar = YAWLEditor.getStatusBar();
+    }
 
 
     public void processOpenRequest() {
@@ -91,7 +96,7 @@ public class SpecificationFileHandler {
      *  the specification before closing it.
      */
     public void processCloseRequest() {
-        YAWLEditor.setStatusBarText("Closing Specification...");
+        statusBar.setText("Closing Specification...");
         handleUserResponse();
     }
 
@@ -102,7 +107,7 @@ public class SpecificationFileHandler {
      *  the specification before closing it.
      */
     public void processExitRequest() {
-        YAWLEditor.setStatusBarText("Exiting YAWLEditor...");
+        statusBar.setText("Exiting YAWLEditor...");
         boolean okToExit = true;
         if (Publisher.getInstance().getFileState() != FileState.Closed) {
             okToExit = handleUserResponse();
@@ -112,11 +117,6 @@ public class SpecificationFileHandler {
         }
     }
 
-    public void processNewSpecificationRequest() {
-        SpecificationImporter importer = new SpecificationImporter();
-        importer.newSpecification();
-    }
-
 
     /****************************************************************************/
 
@@ -124,7 +124,7 @@ public class SpecificationFileHandler {
         if (SpecificationUndoManager.getInstance().isDirty()) {
             int response = getSaveOnCloseConfirmation();
             if (response == JOptionPane.CANCEL_OPTION) {
-                YAWLEditor.setStatusBarTextToPrevious();
+                statusBar.setTextToPrevious();
                 return false;
             }
             if (response == JOptionPane.YES_OPTION) {
@@ -232,17 +232,17 @@ public class SpecificationFileHandler {
     }
 
     private void doPreSaveClosingWork() {
-        YAWLEditorDesktop.getInstance().setVisible(false);
+        YAWLEditor.getNetsPane().setVisible(false);
         Publisher.getInstance().publishCloseFileEvent();
         SpecificationModel.getInstance().nothingSelected();
     }
 
     private void doPostSaveClosingWork() {
-        YAWLEditorDesktop.getInstance().closeAllNets();
+        YAWLEditor.getNetsPane().closeAllNets();
         SpecificationModel.getInstance().reset();
         ProcessConfigurationModel.getInstance().reset();
         SpecificationUndoManager.getInstance().discardAllEdits();
-        YAWLEditorDesktop.getInstance().setVisible(true);
+        YAWLEditor.getNetsPane().setVisible(true);
     }
 
     private boolean saveWhilstClosing() {
@@ -287,31 +287,31 @@ public class SpecificationFileHandler {
             return;     // user-cancelled save or no file name selected
         }
 
-        YAWLEditor.setStatusBarText("Saving Specification...");
-        YAWLEditor.progressStatusBarOverSeconds(2);
+        statusBar.setText("Saving Specification...");
+        statusBar.progressOverSeconds(2);
 
         if (SpecificationExporter.checkAndExportEngineSpecToFile(
                 specificationModel, fileName)) {
             SpecificationUndoManager.getInstance().setDirty(false);
-            YAWLEditor.setStatusBarText("Saved to file: " + fileName);
+            statusBar.setText("Saved to file: " + fileName);
         }
-        else YAWLEditor.setStatusBarTextToPrevious();
+        else statusBar.setTextToPrevious();
 
-        YAWLEditor.resetStatusBarProgress();
+        statusBar.resetProgress();
     }
 
 
     private void loadFromFile(String fullFileName) {
         if (fullFileName == null) return;
-        YAWLEditor.setStatusBarText("Opening Specification...");
-        YAWLEditor.progressStatusBarOverSeconds(4);
-        YAWLEditorDesktop.getInstance().setVisible(false);
+        statusBar.setText("Opening Specification...");
+        statusBar.progressOverSeconds(4);
+        YAWLEditor.getNetsPane().setVisible(false);
 
-        SpecificationImporter importer = new SpecificationImporter();
-        importer.importSpecificationFromFile(fullFileName);
+        SpecificationLoader importer = new SpecificationLoader();
+        importer.load(fullFileName);
 
-        YAWLEditorDesktop.getInstance().setVisible(true);
-        YAWLEditor.resetStatusBarProgress();
+        YAWLEditor.getNetsPane().setVisible(true);
+        statusBar.resetProgress();
         OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
     }
 

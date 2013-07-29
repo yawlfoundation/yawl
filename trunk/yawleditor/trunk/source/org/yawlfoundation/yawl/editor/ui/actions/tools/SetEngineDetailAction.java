@@ -112,7 +112,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
            if (dataSchema != null) {
                SpecificationModel.getInstance().getSchemaValidator().setDataTypeSchema(dataSchema);
            }
-           YAWLEditor.setStatusMode("engine", YConnector.isEngineConnected());
+           YAWLEditor.getStatusBar().setConnectionMode("engine", YConnector.isEngineConnected());
 
          SpecificationUndoManager.getInstance().setDirty(true);
        }

@@ -24,39 +24,30 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
-public class MultipleCompositeTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+import javax.swing.*;
 
-  private static final long serialVersionUID = 1L;
+public class MultipleCompositeTaskAction extends PaletteAction implements TooltipTogglingWidget {
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Multiple Composite Task");
-    putValue(Action.LONG_DESCRIPTION, "Add a new Multiple Composite Task");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleCompositeTask"));
-  }
-  
-  public MultipleCompositeTaskAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Add multiple Composite Tasks ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
-  
-  public String getButtonStatusText() {
-    return getClickAnywhereText() + "multiple composite task.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.MULTIPLE_COMPOSITE_TASK;
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Multiple Composite Task");
+        putValue(Action.LONG_DESCRIPTION, "Add a new Multiple Composite Task");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleCompositeTask"));
+    }
+
+    public MultipleCompositeTaskAction() { super(); }
+
+    public String getEnabledTooltipText() { return " Add multiple Composite Tasks "; }
+
+
+    public String getButtonStatusText() {
+        return getClickAnywhereText() + "multiple composite task.";
+    }
+
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.MULTIPLE_COMPOSITE_TASK;
+    }
 }

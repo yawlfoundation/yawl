@@ -1,112 +1,109 @@
-/*
- * Created on 09/10/2003
- * YAWLEditor v1.0 
- *
- * @author Lindsay Bradford
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- */
-
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
+import org.yawlfoundation.yawl.editor.ui.actions.palette.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
-public class Palette extends JPanel implements SpecificationStateListener {
+public class Palette extends JPanel {
 
-    private static final ControlFlowPalette CONTROL_FLOW_PALETTE = new ControlFlowPalette();
+    private java.util.List<PaletteListener> paletteListeners = new ArrayList<PaletteListener>();
 
-    private static final Palette INSTANCE = new Palette();
-
-    public static Palette getInstance() {
-        return INSTANCE;
+    public static enum SelectionState {
+        ATOMIC_TASK,
+        MULTIPLE_ATOMIC_TASK,
+        COMPOSITE_TASK,
+        MULTIPLE_COMPOSITE_TASK,
+        CONDITION,
+        DRAG,
+        MARQUEE
     }
 
-    private Palette() {
-        super();
+    private boolean enabledState = true;
+
+    private PaletteButton[] buttons = {
+        new PaletteButton(this, new AtomicTaskAction(), KeyEvent.VK_1),
+        new PaletteButton(this, new MultipleAtomicTaskAction(), KeyEvent.VK_2),
+        new PaletteButton(this, new ConditionAction(), KeyEvent.VK_3),
+        new PaletteButton(this, new CompositeTaskAction(), KeyEvent.VK_4),
+        new PaletteButton(this, new MultipleCompositeTaskAction(), KeyEvent.VK_5),
+        new PaletteButton(this, new MarqueeAction(), KeyEvent.VK_6),
+        new PaletteButton(this, new NetDragAction(), KeyEvent.VK_7)
+    };
+
+
+    public Palette() {
         buildInterface();
+        setSelectedState(SelectionState.MARQUEE);
+        ButtonGroup paletteButtons = new ButtonGroup();
+        for (PaletteButton button: buttons) {
+            paletteButtons.add(button);
+        }
+    }
+
+    public void subscribeForSelectionStateChanges(PaletteListener listener) {
+        paletteListeners.add(listener);
+        listener.PaletteStateChanged(getSelectedState());
+    }
+
+    private void publishSelectionState() {
+        for(PaletteListener listener: paletteListeners) {
+            listener.PaletteStateChanged(getSelectedState());
+        }
     }
 
     protected void buildInterface() {
-        setLayout(new GridLayout(1,1));
-        add(CONTROL_FLOW_PALETTE);
-        Publisher.getInstance().subscribe(this);
+        add(buildButtons());
+        setBorder(BorderFactory.createTitledBorder("Palette"));
     }
 
-
-    public void refresh() {
-        repaint();
+    private JPanel buildButtons() {
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
+        for (PaletteButton button : buttons) {
+            button.setMargin(new Insets(2,2,2,2));
+            buttonPanel.add(button);
+        }
+        return buttonPanel;
     }
 
-
-    // The NetMarquee Handler overrides certain GUI behaviour at times. When it is done
-    // it wants to reset to the GUI behaviour driven by the control palette. The easiest
-    // way to do that is just re-selecting the current selected palette item.
-    public void refreshSelected() {
-        CONTROL_FLOW_PALETTE.setSelectedState(CONTROL_FLOW_PALETTE.getSelectedState());
+    public void setSelectedState(SelectionState newState) {
+        getButtonWithSelectionState(newState).setSelected(true);
+        publishSelectionState();
     }
 
-    public ControlFlowPalette.SelectionState getControlFlowPaletteState() {
-        return CONTROL_FLOW_PALETTE.getSelectedState();
+    public SelectionState getSelectedState() {
+        return getSelectedButton().getSelectionID();
     }
 
-    public ControlFlowPalette getControlFlowPalette() {
-        return CONTROL_FLOW_PALETTE;
-    }
-
-
-    public void setEnabled(boolean enabled) {
-        CONTROL_FLOW_PALETTE.setEnabled(enabled);
-        super.setEnabled(enabled);
-    }
-
-    public void specificationStateChange(SpecificationState state) {
-        switch(state) {
-            case NoNetsExist: {
-                CONTROL_FLOW_PALETTE.setSelectedState(
-                        ControlFlowPalette.SelectionState.MARQUEE
-                );
-                setEnabled(false);
-                YAWLEditor.setStatusBarText("Open or create a specification to begin.");
-                break;
-            }
-            case NetsExist: {
-                YAWLEditor.setStatusBarText("Select a net to continue editing it.");
-                break;
-            }
-            case NoNetSelected: {
-                YAWLEditor.setStatusBarText("Select a net to continue editing it.");
-                setEnabled(false);
-                break;
-            }
-            case NetSelected: {
-                YAWLEditor.setStatusBarText(
-                        "Use the palette toolbar to edit the selected net.");
-                setEnabled(true);
-                break;
+    private PaletteButton getSelectedButton() {
+        for (PaletteButton button: buttons) {
+            if (button.isSelected()) {
+                return button;
             }
         }
+        return null;
+    }
+
+    private PaletteButton getButtonWithSelectionState(SelectionState state) {
+        for (PaletteButton button: buttons) {
+            if (button.getSelectionID() == state) {
+                return button;
+            }
+        }
+        return null;
+    }
+
+    public void setEnabled(boolean state) {
+        if (enabledState == state) {
+            return;
+        }
+        setVisible(false);
+        for (PaletteButton button: buttons) {
+            button.setEnabled(state);
+        }
+        setVisible(true);
+        enabledState = state;
     }
 }
-
-
-

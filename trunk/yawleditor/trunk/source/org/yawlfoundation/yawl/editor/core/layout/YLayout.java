@@ -132,6 +132,8 @@ public class YLayout {
 
     public int getNetCount() { return _nets != null ? _nets.size() : 0; }
 
+    public boolean hasNets() { return getNetCount() > 0; }
+
 
     public Locale getLocale() { return _locale; }
 

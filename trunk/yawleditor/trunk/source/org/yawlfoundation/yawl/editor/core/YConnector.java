@@ -98,11 +98,11 @@ public class YConnector {
         return _engConn.getExternalDataGateways();
     }
 
-    public static Set<YAWLServiceReference> getServices() throws IOException {
+    public static Set<YAWLServiceReference> getServices() {
         return _engConn.getRegisteredYAWLServices();
     }
     
-    public static YAWLServiceReference getService(String uri) throws IOException {
+    public static YAWLServiceReference getService(String uri) {
         return _engConn.getService(uri);
     }
 
@@ -159,13 +159,8 @@ public class YConnector {
 
     public static Map<String, YAWLServiceReference> getServicesMap() {
         Map<String, YAWLServiceReference> map = new Hashtable<String, YAWLServiceReference>();
-        try {
-            for (YAWLServiceReference service : getServices()) {
-                 map.put(service.getServiceID(), service);
-            }
-        }
-        catch (IOException ioe) {
-            // fall though to empty map
+        for (YAWLServiceReference service : getServices()) {
+            map.put(service.getServiceID(), service);
         }
         return map;
     }

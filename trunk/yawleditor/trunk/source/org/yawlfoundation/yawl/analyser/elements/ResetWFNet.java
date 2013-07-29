@@ -583,7 +583,7 @@ public final class ResetWFNet {
      * Only applicable to YAWL nets without OR-joins
      *
      */
-    public String checkSoundness() throws Exception {
+    public String checkSoundness() {
         if (containsORjoins()) {
             return "This net has OR-joins. Soundness check cannot be performed.";
         }
