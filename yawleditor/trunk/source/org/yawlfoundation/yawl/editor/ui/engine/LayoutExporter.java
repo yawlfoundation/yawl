@@ -3,11 +3,11 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import org.jgraph.graph.AttributeMap;
 import org.jgraph.graph.DefaultGraphCell;
 import org.yawlfoundation.yawl.editor.core.layout.*;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
 import javax.swing.*;
@@ -288,7 +288,7 @@ public class LayoutExporter {
 
 
     private Dimension getDesktopSize() {
-        Dimension size = YAWLEditorDesktop.getInstance().getPreferredSize();
+        Dimension size = YAWLEditor.getNetsPane().getPreferredSize();
         if (size == null) size = new Dimension(800, 600);        // default
         return size;
     }

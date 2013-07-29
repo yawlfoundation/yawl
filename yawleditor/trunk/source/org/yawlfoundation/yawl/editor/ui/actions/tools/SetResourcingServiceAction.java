@@ -112,7 +112,7 @@ class ResourceServiceDialog extends AbstractDoneDialog {
                 YConnector.setResourceURL(uri);
 
                 boolean isConnected = YConnector.isResourceConnected();
-                YAWLEditor.setStatusMode("resource", isConnected);
+                YAWLEditor.getStatusBar().setConnectionMode("resource", isConnected);
                 if (isConnected) {
                     SpecificationModel.getHandler().getResourceHandler().resetCache();
                 }

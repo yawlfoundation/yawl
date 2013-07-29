@@ -7,7 +7,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -42,11 +41,11 @@ public abstract class YPropertiesBean {
     protected NetGraphModel getModel() { return model; }
 
     protected YPropertySheet getSheet() {
-        return YAWLEditor.getInstance().getPropertySheet();
+        return YAWLEditor.getPropertySheet();
     }
 
     protected YNet getSelectedYNet() {
-        return YAWLEditorDesktop.getInstance().getSelectedYNet();
+        return YAWLEditor.getNetsPane().getSelectedYNet();
     }
 
 

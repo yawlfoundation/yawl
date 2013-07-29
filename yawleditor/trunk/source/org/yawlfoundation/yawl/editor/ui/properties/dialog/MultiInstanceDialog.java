@@ -10,6 +10,8 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,13 +24,16 @@ import java.util.Vector;
  * @author Michael Adams
  * @date 31/08/12
  */
-public class MultiInstanceDialog extends JDialog implements ActionListener {
+public class MultiInstanceDialog extends JDialog
+        implements ActionListener, ChangeListener {
 
     private MIAttributePanel minPanel;
     private MIAttributePanel maxPanel;
     private MIAttributePanel thresholdPanel;
     private JCheckBox chkDynamic;
-    private JButton okButton;
+    private JLabel statusLabel;
+
+    private String strValue;
 
     private YNet net;
     private YTask task;
@@ -42,7 +47,7 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         add(createContent());
         initValues();
         setModal(true);
-        setResizable(true);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
         setPreferredSize(new Dimension(630, 210));
@@ -52,19 +57,42 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
 
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("OK")) {
-
+            updateTask();
         }
         setVisible(false);
     }
 
 
+    public void stateChanged(ChangeEvent e) {
+        String statusText = "";
+        JSpinner spinner = (JSpinner) e.getSource();
+        int value = (Integer) spinner.getValue();
+        int min = minPanel.getIntValue();
+        int max = maxPanel.getIntValue();
+        int threshold = thresholdPanel.getIntValue();
+        if (minPanel.isSpinnerOf(spinner)) {
+            if (min > max) {
+                statusText = "Minimum can't exceed maximum";
+                spinner.setValue(--min);
+            }
+            else if (min > threshold) {
+                statusText = "Minimum can't exceed threshold";
+                spinner.setValue(--min);
+            }
+        }
+        statusLabel.setText(statusText);
+    }
+
+
+    public String getCurrentStringValue() { return strValue; }
+
+
     private JPanel createContent() {
         JPanel content = new JPanel();
         content.setBorder(new EmptyBorder(3, 7, 7, 7));
-        minPanel = new MIAttributePanel("Minimum");
-        maxPanel = new MIAttributePanel("Maximum");
-        thresholdPanel = new MIAttributePanel("Threshold");
-        chkDynamic = new JCheckBox("Allow dynamic instance creation");
+        minPanel = new MIAttributePanel(this, "Minimum");
+        maxPanel = new MIAttributePanel(this, "Maximum");
+        thresholdPanel = new MIAttributePanel(this, "Threshold");
         JPanel miPanel = new JPanel();
         miPanel.setBorder(new EmptyBorder(0, 0, 5, 0));
         miPanel.add(minPanel);
@@ -72,18 +100,29 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         miPanel.add(thresholdPanel);
         JPanel subPanel = new JPanel(new BorderLayout());
         subPanel.add(miPanel, BorderLayout.CENTER);
-        subPanel.add(chkDynamic, BorderLayout.SOUTH);
+        subPanel.add(createLowerPanel(), BorderLayout.SOUTH);
         content.add(subPanel);
         content.add(createButtonBar());
         return content;
+    }
+
+
+    private JPanel createLowerPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(0,5,0,5));
+        chkDynamic = new JCheckBox("Allow dynamic instance creation");
+        panel.add(chkDynamic, BorderLayout.WEST);
+        statusLabel = new JLabel("Minimum can't exceed maximum");
+        statusLabel.setForeground(Color.RED);
+        panel.add(statusLabel, BorderLayout.EAST);
+        return panel;
     }
 
     private JPanel createButtonBar() {
         JPanel panel = new JPanel(new GridLayout(0,2,5,5));
         panel.setBorder(new EmptyBorder(10,0,0,0));
         panel.add(createButton("Cancel"));
-        okButton = createButton("OK");
-        panel.add(okButton);
+        panel.add(createButton("OK"));
         return panel;
     }
 
@@ -102,14 +141,15 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         initContent(maxPanel, miAttributes.getMaxInstancesQuery(), 2);
         initContent(thresholdPanel, miAttributes.getThresholdQuery(), 1);
         setCreationMode(miAttributes.getCreationMode());
+        setCurrentValueString();
     }
 
 
     private void initContent(MIAttributePanel panel, String miQuery, int defValue) {
         if (miQuery != null) {
-            int minInstances = StringUtil.strToInt(miQuery, 0);
-            if (minInstances > 0) {
-                panel.setContent(minInstances);
+            int value = StringUtil.strToInt(miQuery, 0);
+            if (value > 0) {
+                panel.setContent(value);
             }
             else panel.setContent(extractVariableFromQuery(miQuery));
         }
@@ -123,22 +163,32 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
     }
 
 
-    private void updateTask(YTask task) {
+    private void updateTask() {
         task.setUpMultipleInstanceAttributes(minPanel.getContent(), maxPanel.getContent(),
                 thresholdPanel.getContent(), getCreationMode());
+        setCurrentValueString();
     }
 
-    public void setCreationMode(String mode) {
+
+    private void setCreationMode(String mode) {
          chkDynamic.setSelected(mode != null &&
-                 mode.equals(YMultiInstanceAttributes._creationModeDynamic));
+                 mode.equals(YMultiInstanceAttributes.CREATION_MODE_DYNAMIC));
     }
 
-    public String getCreationMode() {
+
+    private String getCreationMode() {
         return chkDynamic.isSelected() ?
-                YMultiInstanceAttributes._creationModeDynamic :
-                YMultiInstanceAttributes._creationModeStatic;
+                YMultiInstanceAttributes.CREATION_MODE_DYNAMIC :
+                YMultiInstanceAttributes.CREATION_MODE_STATIC;
     }
 
+
+    private void setCurrentValueString() {
+        strValue = minPanel.getSummaryString() + ',' +
+                maxPanel.getSummaryString() + ',' +
+                thresholdPanel.getSummaryString() + ',' +
+                Character.toUpperCase(getCreationMode().charAt(0));
+    }
 
     /****************************************************************************/
 
@@ -151,11 +201,14 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         private JRadioButton rbVariable;
         private JRadioButton rbNoLimit;
 
-        MIAttributePanel(String label) {
+        private String label;
+
+        MIAttributePanel(ChangeListener listener, String label) {
+            this.label = label;
             setBorder(new TitledBorder(label));
             setLayout(new BorderLayout());
             add(createButtonPanel(), BorderLayout.WEST);
-            add(createRHSPanel(), BorderLayout.CENTER);
+            add(createRHSPanel(listener), BorderLayout.CENTER);
             setPreferredSize(new Dimension(200, 90));
 
             // init
@@ -163,6 +216,13 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
             enableComponents(true, false);
             if (label.equals("Minimum")) rbNoLimit.setVisible(false);
         }
+
+        boolean isSpinnerOf(JSpinner spinner) {
+            return spnExactly == spinner;
+        }
+
+
+        public String getLabel() { return label; }
 
 
         private JPanel createButtonPanel() {
@@ -178,10 +238,11 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         }
 
 
-        private JPanel createRHSPanel() {
+        private JPanel createRHSPanel(ChangeListener listener) {
             spnExactly = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+            spnExactly.addChangeListener(listener);
             cbxVariable = new JComboBox(getNetVars());
-            JPanel rhsPanel = new JPanel(new GridLayout(3,0));
+            JPanel rhsPanel = new JPanel(new GridLayout(3,0,5,5));
             rhsPanel.add(spnExactly);
             rhsPanel.add(cbxVariable);
             rhsPanel.setPreferredSize(new Dimension(150, 20));
@@ -231,10 +292,22 @@ public class MultiInstanceDialog extends JDialog implements ActionListener {
         }
 
 
+        public int getIntValue() {
+            if (rbNoLimit.isSelected()) return Integer.MAX_VALUE;
+            if (rbExactly.isSelected()) return (Integer) spnExactly.getValue();
+            return -1;   // var selected
+        }
+
         public String getContent() {
             if (rbNoLimit.isSelected()) return String.valueOf(Integer.MAX_VALUE);
             if (rbExactly.isSelected()) return String.valueOf(spnExactly.getValue());
             return (String) cbxVariable.getSelectedItem();
+        }
+
+        public String getSummaryString() {
+            if (rbNoLimit.isSelected()) return Character.toString('\u221E');  // infinity
+            if (rbExactly.isSelected()) return String.valueOf(spnExactly.getValue());
+            return "V"; // for variable
         }
 
 

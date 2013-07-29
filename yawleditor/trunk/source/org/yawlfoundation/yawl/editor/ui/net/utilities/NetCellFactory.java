@@ -55,7 +55,8 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static MultipleAtomicTask insertMultipleAtomicTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addAtomicTask(net.getName(), "MultipleAtomicTask");
+        YTask yTask = getHandler().addMultipleInstanceAtomicTask(net.getName(),
+                "MultipleAtomicTask");
         MultipleAtomicTask newTask = new MultipleAtomicTask(point, yTask);
         net.addElement(newTask);
         return newTask;
@@ -84,7 +85,8 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static MultipleCompositeTask insertMultipleCompositeTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addCompositeTask(net.getName(), "MultipleCompositeTask");
+        YTask yTask = getHandler().addMultipleInstanceCompositeTask(net.getName(),
+                "MultipleCompositeTask");
         MultipleCompositeTask newTask = new MultipleCompositeTask(point, yTask);
         net.addElement(newTask);
         return newTask;

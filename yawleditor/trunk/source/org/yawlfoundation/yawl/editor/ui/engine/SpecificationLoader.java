@@ -24,54 +24,50 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
-import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
-public class SpecificationImporter extends EngineEditorInterpretor {
+public class SpecificationLoader {
 
     private static final Point DEFAULT_LOCATION = new Point(100,100);
-    private static final Point DEFAULT_OUTPUT_LOCATION = new Point(400,100);
 
-    private static SpecificationModel _model;
-    private static YSpecificationHandler _handler;
+    private SpecificationModel _model;
+    private YSpecificationHandler _handler;
+    private Map<Object, Object> _engineToEditorElementMap;
 
 
-    public SpecificationImporter() {
+    public SpecificationLoader() {
         _model = SpecificationModel.getInstance();
         _handler = SpecificationModel.getHandler();
+        _engineToEditorElementMap = new Hashtable<Object, Object>();
     }
 
 
-    public void importSpecificationFromFile(String fileName) {
-        if (! loadFile(fileName)) return;
-        _model.setLoadInProgress(true);
-        createEditorObjects();
-        layoutEditorObjects();
-        finaliseLoad();
-        _model.setLoadInProgress(false);
-    }
-
-
-    public void newSpecification() {
-        new SpecificationFactory().build();
+    public boolean load(String fileName) {
+        boolean loaded = loadFile(fileName);
+        if (loaded) {
+            createEditorObjects();
+            layoutEditorObjects();
+            finaliseLoad();
+        }
+        return loaded;
     }
 
 
@@ -83,7 +79,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
             String errorMsg = ioe.getMessage();
             JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
                     "Failed to load specification.\n" +
-                            (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
+                    (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
                     "Specification File Load Error",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -94,31 +90,26 @@ public class SpecificationImporter extends EngineEditorInterpretor {
 
     private boolean layoutEditorObjects() {
         YLayout layout = _handler.getLayout();
-        if (layout.getNetCount() > 0) {
-            try {
-                LayoutImporter.importAndApply(layout);
-                return true;
-            }
-            catch (YLayoutParseException ylpe) {
-                // fall through to below
-            }
+        if (layout.hasNets()) {
+            LayoutImporter.importAndApply(layout);
+            return true;
         }
-        removeUnnecessaryDecorators(_model);
+
+        // layout has no information, revert to default layout
+        removeUnnecessaryDecorators();
         new DefaultLayoutArranger().layoutSpecification();
         return false;
     }
 
+
     private void finaliseLoad() {
         Publisher.getInstance().publishOpenFileEvent();
         SpecificationUndoManager.getInstance().discardAllEdits();
-
         ConfigurationImporter.ApplyConfiguration();
-        reset();
     }
 
 
     private void createEditorObjects() {
-        initialise();
         convertEngineMetaData();
         importNets();
         populateEditorNets();
@@ -150,11 +141,11 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     private NetGraphModel importNet(YNet engineNet) {
         NetGraph editorNet = new NetGraph(engineNet);
         editorNet.setName(engineNet.getID());
-        _model.addNetNotUndoable(editorNet.getNetModel());
+        NetGraphModel graphModel = editorNet.getNetModel();
+        _model.addNetNotUndoable(graphModel);
 
-        YAWLEditorDesktop.getInstance().openNet(editorNet);
-        engineToEditorNetMap.put(engineNet, editorNet.getNetModel());
-        return editorNet.getNetModel();
+        YAWLEditor.getNetsPane().openNet(editorNet);
+        return graphModel;
     }
 
 
@@ -171,12 +162,12 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         InputCondition inputCondition = new InputCondition(DEFAULT_LOCATION,
                 yNet.getInputCondition());
         addElement(editorNet.getGraph(), inputCondition);
-        engineToEditorElementMap.put(yNet.getInputCondition(), inputCondition);
+        _engineToEditorElementMap.put(yNet.getInputCondition(), inputCondition);
 
-        OutputCondition outputCondition = new OutputCondition(DEFAULT_OUTPUT_LOCATION,
+        OutputCondition outputCondition = new OutputCondition(DEFAULT_LOCATION,
                 yNet.getOutputCondition());
         addElement(editorNet.getGraph(), outputCondition);
-        engineToEditorElementMap.put(yNet.getOutputCondition(), outputCondition);
+        _engineToEditorElementMap.put(yNet.getOutputCondition(), outputCondition);
 
         populateElements(engineNetElementSummary, editorNet);
         populateFlows(engineNetElementSummary.getFlows(), editorNet);
@@ -215,7 +206,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
                 ConfigurationImporter.NetTaskMap.put(editorAtomicTask, editorNet);
             }
 
-            engineToEditorElementMap.put(engineAtomicTask, editorAtomicTask);
+            _engineToEditorElementMap.put(engineAtomicTask, editorAtomicTask);
         }
 
     }
@@ -275,7 +266,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
                 ConfigurationImporter.NetTaskMap.put(editorCompositeTask, editorNet);
             }
 
-            engineToEditorElementMap.put(engineCompositeTask, editorCompositeTask);
+            _engineToEditorElementMap.put(engineCompositeTask, editorCompositeTask);
         }
     }
 
@@ -288,7 +279,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         for (YCondition engineCondition : engineConditions) {
             Condition editorCondition = new Condition(DEFAULT_LOCATION, engineCondition);
             addElement(editorNet.getGraph(), editorCondition, engineCondition);
-            engineToEditorElementMap.put(engineCondition, editorCondition);
+            _engineToEditorElementMap.put(engineCondition, editorCondition);
         }
     }
 
@@ -296,9 +287,9 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     private void populateFlows(Set<YFlow> engineFlows, NetGraphModel editorNet) {
 
         for (YFlow engineFlow : engineFlows) {
-            YAWLVertex sourceVertex = (YAWLVertex) engineToEditorElementMap.get(
+            YAWLVertex sourceVertex = (YAWLVertex) _engineToEditorElementMap.get(
                     engineFlow.getPriorElement());
-            YAWLVertex targetVertex = (YAWLVertex) engineToEditorElementMap.get(
+            YAWLVertex targetVertex = (YAWLVertex) _engineToEditorElementMap.get(
                     engineFlow.getNextElement());
             YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceVertex,
                     targetVertex);
@@ -322,17 +313,12 @@ public class SpecificationImporter extends EngineEditorInterpretor {
 
     private void populateCancellationSetDetail(Set<YTask> engineTasksWithCancellationSets) {
         for (YTask engineTask : engineTasksWithCancellationSets) {
-            YAWLTask editorTask = (YAWLTask) engineToEditorElementMap.get(engineTask);
+            YAWLTask editorTask = (YAWLTask) _engineToEditorElementMap.get(engineTask);
 
             CancellationSet editorTaskCancellationSet = new CancellationSet(editorTask);
 
             for (YExternalNetElement engineSetMember : engineTask.getRemoveSet()) {
-                YAWLCell editorSetMember = (YAWLCell) engineToEditorElementMap.get(engineSetMember);
-
-                if (editorFlowEngineConditionMap.get(engineSetMember) != null) {
-                    YAWLFlowRelation replacementEditorFlow = (YAWLFlowRelation) engineToEditorElementMap.get(engineSetMember);
-                    editorSetMember = replacementEditorFlow;
-                }
+                YAWLCell editorSetMember = (YAWLCell) _engineToEditorElementMap.get(engineSetMember);
                 editorTaskCancellationSet.addMember(editorSetMember);
             }
             editorTask.setCancellationSet(editorTaskCancellationSet);
@@ -343,7 +329,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
         for (YCondition engineCondition : engineConditions) {
             if (engineCondition.isImplicit()) {
                 Condition editorCondition = (Condition)
-                        engineToEditorElementMap.get(engineCondition);
+                        _engineToEditorElementMap.get(engineCondition);
 
                 YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
                 YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
@@ -361,7 +347,7 @@ public class SpecificationImporter extends EngineEditorInterpretor {
                         editorFlow.setPredicate(sourceFlow.getPredicate());
                         editorFlow.setPriority(sourceFlow.getPriority());
 
-                        engineToEditorElementMap.put(engineCondition, editorFlow);
+                        _engineToEditorElementMap.put(engineCondition, editorFlow);
                     }
                 }
             }
@@ -369,8 +355,8 @@ public class SpecificationImporter extends EngineEditorInterpretor {
     }
 
 
-    private void removeUnnecessaryDecorators(SpecificationModel editorSpec) {
-        for (NetGraphModel net : editorSpec.getNets())
+    private void removeUnnecessaryDecorators() {
+        for (NetGraphModel net : _model.getNets())
             removeUnnecessaryDecorators(net);
     }
 

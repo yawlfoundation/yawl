@@ -30,15 +30,14 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.swing.JStatusBar;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
+import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.PaletteBar;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
-import org.yawlfoundation.yawl.editor.ui.swing.specification.ProblemMessagePanel;
-import org.yawlfoundation.yawl.editor.ui.swing.specification.SpecificationBottomPanel;
+import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
@@ -54,19 +53,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The core executable class of the YAWL Editor, responsible for  bootstrapping the editor
+ * The core executable class of the YAWL Editor, responsible for bootstrapping the editor
  * This class is a singleton extension of JFrame.
  */
 
 public class YAWLEditor extends JFrame implements FileStateListener {
 
-    private static Palette paletteBar;
-    private static JStatusBar statusBar;
-    private static JSplitPane splitPane;
-    private static YPropertySheet sheet;
-    private static SpecificationBottomPanel specificationBottomPanel;
-    private static YAWLEditor INSTANCE;
+    private BottomPanel bottomPanel;
 
+    private static YPropertySheet sheet;
+    private static PaletteBar paletteBar;
+    private static NetsPane netsPane;
+    private static YStatusBar statusBar;
+    private static JSplitPane splitPane;
+    private static YSplashScreen splashScreen;
+    private static YAWLEditor INSTANCE;
 
 
     private YAWLEditor() {
@@ -86,10 +87,57 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     }
 
 
+    public static YStatusBar getStatusBar() { return statusBar; }
+
+    public static YPropertySheet getPropertySheet() { return sheet; }
+
+    public static NetsPane getNetsPane() { return netsPane; }
+
+    public static PaletteBar getPalette() { return paletteBar; }
+
+
+    public void setTitle(String title) {
+        String titleSeparator = title.equals("") ? "" : " - ";
+        super.setTitle("YAWLEditor" + titleSeparator + title);
+    }
+
+
+    public void showProblemList(String title, List<String> problemList) {
+        try {
+            bottomPanel.setProblemList(title, problemList);
+            splitPane.setDividerLocation(0.8);
+        }
+        catch (Exception e) {
+            List<String> stackMessageList = new LinkedList<String>();
+            stackMessageList.add(e.getMessage());
+            bottomPanel.setProblemList("Program Exception with problem list generation",
+                    stackMessageList);
+        }
+    }
+
+
+    public void specificationFileStateChange(FileState state) {
+        switch(state) {
+            case Open: {
+                String title = SpecificationModel.getInstance().getFileName();
+                if (title != null) setTitle(title);
+                break;
+            }
+            case Closed: {
+                setTitle("");
+                hideBottomOfSplitPane();
+                break;
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
         showGUI(validateParameter(args));
     }
 
+
+    /****************************************************************************/
 
     private static void showGUI(final String fileName) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -99,16 +147,21 @@ public class YAWLEditor extends JFrame implements FileStateListener {
                  getInstance().setVisible(true);
                  finishLoading();
                  hideBottomOfSplitPane();
-                 processParametersAsNecessary(fileName);
+                 if (fileName != null) FileOperations.open(fileName);
              }
         });
+    }
+
+
+    private static void hideBottomOfSplitPane() {
+        splitPane.setDividerLocation((double)1);
     }
 
 
     private static String validateParameter(String[] args) {
         if (args.length > 1) {
             System.err.println("Usage: " + System.getProperty("java.class.path") +
-                    " [<EditorSaveFile>]");
+                    " [yawlFile]");
             System.exit(1);
         }
         return args.length == 1 ? args[0] : null;
@@ -120,68 +173,36 @@ public class YAWLEditor extends JFrame implements FileStateListener {
             UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
         }
         catch (Exception e) {
-            //
+            // accept default LaF
         }
 
-        // move menu to screen top - only affects mac installs
+        // move menu to screen top - only affects OSX installs
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
         System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 
 
-    public static void updateLoadProgress(int completionValue) {
-
-        YSplashScreen.updateProgress(completionValue);
+    private void updateLoadProgress(int completionValue) {
+        splashScreen.updateProgress(completionValue);
     }
 
+
     private static void startLoading() {
-        YSplashScreen.init();
+        splashScreen = new YSplashScreen();
+        splashScreen.init();
         LogWriter.init(FileUtilities.getHomeDir());
     }
 
     private static void finishLoading() {
-        YSplashScreen.close();
-    }
-
-    private static void processParametersAsNecessary(String loadFileName) {
-        if (loadFileName != null) {
-            FileOperations.open(loadFileName);
-        }
-    }
-
-    private static JStatusBar getStatusBar() {
-        return statusBar;
-    }
-
-    public static void setStatusBarText(String statusString) {
-        getStatusBar().setStatusBarText(statusString);
-    }
-
-    public static void setStatusBarTextToPrevious(){
-        getStatusBar().setStatusBarTextToPrevious();
-    }
-
-    public static void resetStatusBarProgress() {
-        getStatusBar().resetStatusBarProgress();
-    }
-
-    public static void finishStatusBarProgress() {
-        getStatusBar().finishStatusBarProgress();
-    }
-
-    public static void progressStatusBarOverSeconds(int seconds) {
-        getStatusBar().progressStatusBarOverSeconds(seconds);
-    }
-
-    public static void setStatusMode(String component, boolean on) {
-        getStatusBar().setStatusMode(component, on);
+        splashScreen.close();
+        splashScreen = null;
     }
 
 
     private void buildInterface() {
-        statusBar = new JStatusBar();
-        paletteBar = Palette.getInstance();
-        setJMenuBar(new YAWLMenuBar());
+        statusBar = new YStatusBar();
+        paletteBar = new PaletteBar();
+        setJMenuBar(new YAWLMenuBar(splashScreen));
         Container pane = getContentPane();
 
         pane.setLayout(new BorderLayout());
@@ -200,12 +221,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         processPreferences();
         installEventListeners();
         updateLoadProgress(95);
-    }
-
-
-    public void setTitle(String title) {
-        String titleSeparator = title.equals("") ? "" : " - ";
-        super.setTitle("YAWLEditor" + titleSeparator + title);
     }
 
 
@@ -252,37 +267,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     }
 
 
-    public void selectNotesTab() {
-        specificationBottomPanel.selectNotesTab();
-    }
-
-
-    public void selectProblemsTab() {
-        specificationBottomPanel.selectProblemsTab();
-    }
-
-
-    public void showProblemList(String title, List problemList) {
-        try {
-            ProblemMessagePanel.getInstance().setProblemList(
-                    title,
-                    problemList
-            );
-            splitPane.setDividerLocation(0.8);
-
-        }
-        catch (Exception e) {
-            List<String> stackMessageList = new LinkedList<String>();
-            stackMessageList.add(e.getMessage());
-
-            ProblemMessagePanel.getInstance().setProblemList(
-                    "Program Exception with problem list generation",
-                    stackMessageList
-            );
-        }
-    }
-
-
     private JSplitPane getTopPanel() {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent(getLeftPane());
@@ -313,16 +297,17 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     }
 
     private JPanel getBottomPanel() {
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        specificationBottomPanel = new SpecificationBottomPanel();
-        bottomPanel.add(specificationBottomPanel, BorderLayout.CENTER);
-        return bottomPanel;
+        JPanel panel = new JPanel(new BorderLayout());
+        bottomPanel = new BottomPanel();
+        panel.add(bottomPanel, BorderLayout.CENTER);
+        return panel;
     }
 
     private JPanel getEditPanel() {
         JPanel editPanel = new JPanel(new BorderLayout());
         editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        editPanel.add(YAWLEditorDesktop.getInstance(), BorderLayout.CENTER);
+        netsPane = new NetsPane();
+        editPanel.add(netsPane, BorderLayout.CENTER);
         return editPanel;
     }
 
@@ -339,8 +324,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         return panel;
     }
 
-
-    public YPropertySheet getPropertySheet() { return sheet; }
 
     private void processPreferences() {
         setSize(UserSettings.getFrameWidth(), UserSettings.getFrameHeight());
@@ -370,27 +353,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         UserSettings.setStructuralAnalysis(false);
         UserSettings.setBehaviouralAnalysis(false);
         UserSettings.setExtendedCoverability(false);
-    }
-
-
-    public static void hideBottomOfSplitPane() {
-        splitPane.setDividerLocation((double)1);
-    }
-
-
-    public void specificationFileStateChange(FileState state) {
-        switch(state) {
-            case Open: {
-                String title = SpecificationModel.getInstance().getFileName();
-                if (title != null) setTitle(title);
-                break;
-            }
-            case Closed: {
-                setTitle("");
-                splitPane.setDividerLocation((double)1);
-                break;
-            }
-        }
     }
 
 

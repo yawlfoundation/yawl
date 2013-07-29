@@ -24,39 +24,30 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
-public class CompositeTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+import javax.swing.*;
 
-  private static final long serialVersionUID = 1L;
+public class CompositeTaskAction extends PaletteAction implements TooltipTogglingWidget {
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Composite Task");
-    putValue(Action.LONG_DESCRIPTION, "Add a new Composite Task");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCompositeTask"));
-  }
-  
-  public CompositeTaskAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Add a new Composite Task ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Composite Task");
+        putValue(Action.LONG_DESCRIPTION, "Add a new Composite Task");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCompositeTask"));
+    }
 
-  public String getButtonStatusText() {
-    return getClickAnywhereText() + "composite task.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.COMPOSITE_TASK;
-  }
+    public CompositeTaskAction() { super(); }
+
+    public String getEnabledTooltipText() { return " Add a new Composite Task "; }
+
+
+    public String getButtonStatusText() {
+        return getClickAnywhereText() + "composite task.";
+    }
+
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.COMPOSITE_TASK;
+    }
 }

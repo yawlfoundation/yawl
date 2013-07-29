@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
@@ -172,7 +172,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
     public void setTitle(String title) {
         this.title = title;
-        YAWLEditorDesktop parent = (YAWLEditorDesktop) this.getParent();
+        NetsPane parent = (NetsPane) this.getParent();
         if (parent != null) {
             int index = parent.indexOfComponent(this);
             if (index > -1) {

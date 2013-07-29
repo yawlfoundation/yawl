@@ -25,39 +25,30 @@
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
 
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
-public class ConditionAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+import javax.swing.*;
 
-  private static final long serialVersionUID = 1L;
+public class ConditionAction extends PaletteAction implements TooltipTogglingWidget {
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Condition");
-    putValue(Action.LONG_DESCRIPTION, "Add a new Condition");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
-  }
-  
-  public ConditionAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Add a Condition ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
-  
-  public String getButtonStatusText() {
-    return getClickAnywhereText() + "condition.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.CONDITION;
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Condition");
+        putValue(Action.LONG_DESCRIPTION, "Add a new Condition");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
+    }
+
+    public ConditionAction() { super(); }
+
+    public String getEnabledTooltipText() { return " Add a Condition "; }
+
+
+    public String getButtonStatusText() {
+        return getClickAnywhereText() + "condition.";
+    }
+
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.CONDITION;
+    }
 }

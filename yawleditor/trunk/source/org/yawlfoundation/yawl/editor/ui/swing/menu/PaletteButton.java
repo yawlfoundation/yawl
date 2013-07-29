@@ -23,21 +23,21 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.palette.ControlFlowPaletteAction;
+import org.yawlfoundation.yawl.editor.ui.actions.palette.PaletteAction;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class ControlFlowPaletteButton extends JToggleButton {
+public class PaletteButton extends JToggleButton {
 
     private static final Insets margin = new Insets(0,0,0,0);
 
-    private ControlFlowPalette palette;
+    private Palette palette;
 
-    public ControlFlowPaletteButton(ControlFlowPalette palette,
-                                    ControlFlowPaletteAction action, int mnemonic) {
+    public PaletteButton(Palette palette,
+                         PaletteAction action, int mnemonic) {
         super(action);
         setPalette(palette);
         setText(null);
@@ -46,16 +46,16 @@ public class ControlFlowPaletteButton extends JToggleButton {
         setMaximumSize(getPreferredSize());
     }
 
-    public void setPalette(ControlFlowPalette palette) {
+    public void setPalette(Palette palette) {
         this.palette = palette;
     }
 
-    public ControlFlowPalette getPalette() {
+    public Palette getPalette() {
         return this.palette;
     }
 
-    public ControlFlowPaletteAction getPaletteAction() {
-        return (ControlFlowPaletteAction) this.getAction();
+    public PaletteAction getPaletteAction() {
+        return (PaletteAction) this.getAction();
     }
 
     public Point getToolTipLocation(MouseEvent e) {
@@ -66,7 +66,7 @@ public class ControlFlowPaletteButton extends JToggleButton {
         return getPaletteAction().getButtonStatusText();
     }
 
-    public ControlFlowPalette.SelectionState getSelectionID() {
+    public Palette.SelectionState getSelectionID() {
         return getPaletteAction().getSelectionID();
     }
 
@@ -84,7 +84,7 @@ public class ControlFlowPaletteButton extends JToggleButton {
     public void setSelected(boolean selected) {
         super.setSelected(selected);
         if (selected && isEnabled()) {
-            YAWLEditor.setStatusBarText(getButtonStatusText());
+            YAWLEditor.getStatusBar().setText(getButtonStatusText());
         }
     }
 

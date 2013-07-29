@@ -24,7 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 
 import javax.swing.*;
 
@@ -32,22 +32,22 @@ public class YAWLMenuBar extends JMenuBar {
   
   private static final long serialVersionUID = 1L;
 
-  public YAWLMenuBar() {
+  public YAWLMenuBar(YSplashScreen splashScreen) {
     super();
     int progress = 0;
-    YAWLEditor.updateLoadProgress(progress+=10);
+
     add(new SpecificationMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
       add(new EditMenu());
-      YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
     add(new NetMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
     add(new ElementsMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
     add(new SettingsMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
     add(new ViewMenu());
-    YAWLEditor.updateLoadProgress(progress+=10);
+      splashScreen.updateProgress(progress+=10);
     add(new HelpMenu());
    }
 }

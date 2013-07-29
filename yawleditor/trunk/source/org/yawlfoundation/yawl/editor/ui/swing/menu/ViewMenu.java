@@ -31,7 +31,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
+import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 
 import javax.swing.*;
@@ -181,7 +181,7 @@ class ViewNetAction extends AbstractAction {
   public void actionPerformed(ActionEvent event) {
       YAWLEditorNetPanel frame = net.getGraph().getFrame();
       if (frame != null) {
-          ((YAWLEditorDesktop) frame.getParent()).setSelectedComponent(frame);
+          ((NetsPane) frame.getParent()).setSelectedComponent(frame);
       }
   }
 }

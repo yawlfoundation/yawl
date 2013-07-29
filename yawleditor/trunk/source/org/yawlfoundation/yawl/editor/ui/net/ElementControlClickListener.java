@@ -24,10 +24,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.element.SelectUnfoldingNetDialog;
 
 import java.awt.event.InputEvent;
@@ -73,7 +73,7 @@ public class ElementControlClickListener extends MouseAdapter {
         dialog.setTask(net, compositeTask);
         dialog.setVisible(true);
       } else {
-          YAWLEditorDesktop.getInstance().setSelectedComponent(
+          YAWLEditor.getNetsPane().setSelectedComponent(
                   unfoldingNet.getGraph().getFrame());
 //        try {
 //          unfoldingNet.getGraph().getFrame().setIcon(true);  // this tricks the frame into taking focus.

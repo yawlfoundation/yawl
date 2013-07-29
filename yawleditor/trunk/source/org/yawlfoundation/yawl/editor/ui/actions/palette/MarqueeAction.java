@@ -25,38 +25,29 @@
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
 import javax.swing.Action;
 
-public class MarqueeAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+public class MarqueeAction extends PaletteAction implements TooltipTogglingWidget {
 
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Marquee");
+        putValue(Action.LONG_DESCRIPTION, "Net Element Selection Mode");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMarquee"));
+    }
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Marquee");
-    putValue(Action.LONG_DESCRIPTION, "Net Element Selection Mode");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMarquee"));
-  }
-  
-  public MarqueeAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Net Element Selection Mode ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
+    public MarqueeAction() { super(); }
 
-  public String getButtonStatusText() {
-    return "Select a number of net elements to manipulate.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.MARQUEE;
-  }
+    public String getEnabledTooltipText() { return " Net Element Selection Mode "; }
+
+
+    public String getButtonStatusText() {
+        return "Select a number of net elements to manipulate.";
+    }
+
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.MARQUEE;
+    }
 }

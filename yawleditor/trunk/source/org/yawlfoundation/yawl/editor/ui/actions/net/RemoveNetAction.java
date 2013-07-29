@@ -24,11 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
@@ -50,7 +50,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   }
 
   public void actionPerformed(ActionEvent event) {
-    YAWLEditorDesktop.getInstance().removeActiveNet();
+      YAWLEditor.getNetsPane().removeActiveNet();
     SpecificationUndoManager.getInstance().setDirty(true);
   }
   
@@ -58,7 +58,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction implements TooltipTog
   	if (!(state == SpecificationState.NetSelected)){
   	  super.specificationStateChange(state);
   	} else {
-      NetGraph graph = YAWLEditorDesktop.getInstance().getSelectedGraph();
+      NetGraph graph = YAWLEditor.getNetsPane().getSelectedGraph();
         setEnabled((graph != null) && (!graph.getNetModel().isStartingNet()));
     }
   }

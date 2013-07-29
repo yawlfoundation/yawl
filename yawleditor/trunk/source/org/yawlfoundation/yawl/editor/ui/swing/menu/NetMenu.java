@@ -24,7 +24,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.CreateNetAction;
 
@@ -42,21 +41,22 @@ class NetMenu extends YAWLOpenSpecificationMenu {
   }   
   
   protected void buildInterface() {
+//      YAWLEditor editor = YAWLEditor.getInstance();
     add(new YAWLMenuItem(new CreateNetAction()));
-    YAWLEditor.updateLoadProgress(22);
+//      editor.updateLoadProgress(22);
 
     add(new YAWLMenuItem(new RemoveNetAction()));
-    YAWLEditor.updateLoadProgress(24);
+ //     editor.updateLoadProgress(24);
 
     add(new YAWLMenuItem(new SetStartingNetAction()));
-    YAWLEditor.updateLoadProgress(26);
+ //     editor.updateLoadProgress(26);
 
 //    add(new YAWLMenuItem(new NetDecompositionDetailAction()));
-    YAWLEditor.updateLoadProgress(27);
+//      editor.updateLoadProgress(27);
 
     addSeparator();
     add(new YAWLMenuItem(new ExportNetToPngAction()));   
-    YAWLEditor.updateLoadProgress(28);
+ //     editor.updateLoadProgress(28);
 
     addSeparator();
 
@@ -66,7 +66,7 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     addSeparator();
     
     add(new YAWLMenuItem(new PrintNetAction()));
-    YAWLEditor.updateLoadProgress(29);
+ //     editor.updateLoadProgress(29);
 
     addSeparator();
 

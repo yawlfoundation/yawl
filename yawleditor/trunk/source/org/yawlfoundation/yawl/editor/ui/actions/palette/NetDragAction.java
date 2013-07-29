@@ -25,38 +25,29 @@
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
 import javax.swing.Action;
 
-public class NetDragAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+public class NetDragAction extends PaletteAction implements TooltipTogglingWidget {
 
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Drag Net Window");
+        putValue(Action.LONG_DESCRIPTION, "Net Window Drag Mode");
+        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteDrag"));
+    }
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Drag Net Window");
-    putValue(Action.LONG_DESCRIPTION, "Net Window Drag Mode");
-    putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteDrag"));
-  }
-  
-  public NetDragAction(ControlFlowPalette palette) {
-    super(palette);
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Net Drag Mode ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification, and selected net to use the palette ";
-  }
-  
-  public String getButtonStatusText() {
-    return "Drag the visible window to another area of this net.";
-  }
-  
-  public ControlFlowPalette.SelectionState getSelectionID() {
-    return ControlFlowPalette.SelectionState.DRAG;
-  }
+    public NetDragAction() { super(); }
+
+    public String getEnabledTooltipText() { return " Net Drag Mode "; }
+
+
+    public String getButtonStatusText() {
+        return "Drag the visible window to another area of this net.";
+    }
+
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.DRAG;
+    }
 }

@@ -25,12 +25,12 @@
 package org.yawlfoundation.yawl.editor.ui.actions.palette;
 
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ControlFlowPalette;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.Palette;
 
 import javax.swing.*;
 
 
-public class AtomicTaskAction extends ControlFlowPaletteAction implements TooltipTogglingWidget {
+public class AtomicTaskAction extends PaletteAction implements TooltipTogglingWidget {
 
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
@@ -40,23 +40,16 @@ public class AtomicTaskAction extends ControlFlowPaletteAction implements Toolti
     }
 
 
-    public AtomicTaskAction(ControlFlowPalette palette) {
-        super(palette);
-    }
+    public AtomicTaskAction() { super(); }
 
-    public String getEnabledTooltipText() {
-        return " Add a new Atomic Task ";
-    }
+    public String getEnabledTooltipText() { return " Add a new Atomic Task "; }
 
-    public String getDisabledTooltipText() {
-        return " You must have an open specification, and selected net to use the palette ";
-    }
 
     public String getButtonStatusText() {
         return getClickAnywhereText() + "atomic task.";
     }
 
-    public ControlFlowPalette.SelectionState getSelectionID() {
-        return ControlFlowPalette.SelectionState.ATOMIC_TASK;
+    public Palette.SelectionState getSelectionID() {
+        return Palette.SelectionState.ATOMIC_TASK;
     }
 }

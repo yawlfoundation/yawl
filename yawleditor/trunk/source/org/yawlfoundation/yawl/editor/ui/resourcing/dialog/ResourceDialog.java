@@ -148,7 +148,7 @@ public class ResourceDialog extends JDialog
 
     protected void finaliseUpdate() {
         YResourceHandler resHandler = SpecificationModel.getHandler().getResourceHandler();
-        resHandler.getTaskResources(net.getID(), task.getID()).finaliseUpdate();
+        resHandler.getOrCreateTaskResources(net.getID(), task.getID()).finaliseUpdate();
     }
 
 }

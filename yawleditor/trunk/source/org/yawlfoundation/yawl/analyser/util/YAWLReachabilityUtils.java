@@ -250,7 +250,7 @@ public class YAWLReachabilityUtils{
      * returns messages.
      * note: this method also generates endMarkings, orJoins and orJoinsMarkingsMap
      */
-    public String checkSoundness() throws Exception {
+    public String checkSoundness() {
         String msg = "";
 
         List<YNetElement> iLocation = new ArrayList<YNetElement>();

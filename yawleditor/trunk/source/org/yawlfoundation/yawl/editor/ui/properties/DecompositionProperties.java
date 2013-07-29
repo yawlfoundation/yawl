@@ -112,6 +112,8 @@ public class DecompositionProperties extends CellProperties {
         boolean auto = _decomposition != null &&
                 ! _decomposition.requiresResourcingDecisions();
         setReadOnly("Codelet", ! auto);
+        setReadOnly("Resourcing", auto);
+        setReadOnly("CustomForm", auto);
         return auto;
     }
 
@@ -119,6 +121,8 @@ public class DecompositionProperties extends CellProperties {
         if (_decomposition != null) {
             _decomposition.setExternalInteraction(!auto);
             setReadOnly("Codelet", ! auto);
+            setReadOnly("Resourcing", auto);
+            setReadOnly("CustomForm", auto);
             setDirty();
             if (! auto) firePropertyChange("Codelet", null);
         }

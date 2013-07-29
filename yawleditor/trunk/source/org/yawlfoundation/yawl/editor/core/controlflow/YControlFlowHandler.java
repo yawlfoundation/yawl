@@ -154,15 +154,29 @@ public class YControlFlowHandler {
     }
 
 
+    public YAtomicTask addMultipleInstanceAtomicTask(String netID, String id) {
+        YAtomicTask task = addAtomicTask(netID, id);
+        setMultiInstance(task);
+        return task;
+    }
+
+
     public YCompositeTask addCompositeTask(String netID, String id) {
         YNet net = getNet(netID);
         if (net != null) {
-            YCompositeTask task =
-                    new YCompositeTask(checkID(id), YTask._AND, YTask._XOR, net);
+            YCompositeTask task = new YCompositeTask(
+                    checkID(id), YTask._AND, YTask._XOR, net);
             net.addNetElement(task);
             return task;
         }
         return null;
+    }
+
+
+    public YCompositeTask addMultipleInstanceCompositeTask(String netID, String id) {
+        YCompositeTask task = addCompositeTask(netID, id);
+        setMultiInstance(task);
+        return task;
     }
 
 
@@ -294,6 +308,13 @@ public class YControlFlowHandler {
 
     public void rationaliseIdentifiers() { _identifiers.rationalise(_specification); }
 
+
+    private void setMultiInstance(YTask task) {
+        if (task != null) {
+            task.setUpMultipleInstanceAttributes("1", "2", "1",
+                    YMultiInstanceAttributes.CREATION_MODE_STATIC);
+        }
+    }
 
 
     private String checkID(String id) {

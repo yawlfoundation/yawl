@@ -2,11 +2,11 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jgraph.graph.AttributeMap;
 import org.yawlfoundation.yawl.editor.core.layout.*;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.swing.YAWLEditorDesktop;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -25,7 +25,7 @@ public class LayoutImporter {
 
     private LayoutImporter() {}
 
-    public static void importAndApply(YLayout layout) throws YLayoutParseException {
+    public static void importAndApply(YLayout layout) {
         SpecificationModel model = SpecificationModel.getInstance();
         for (YNetLayout netLayout : layout.getNetLayouts().values()) {
             NetGraphModel netModel = model.getNet(netLayout.getID());
@@ -42,7 +42,7 @@ public class LayoutImporter {
         }
         Dimension size = layout.getSize();
         if (size != null) {
-            YAWLEditorDesktop.getInstance().setPreferredSize(size);
+            YAWLEditor.getNetsPane().setPreferredSize(size);
         }
     }
 

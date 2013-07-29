@@ -3,11 +3,12 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskResourceSet;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTimerParameters;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
@@ -146,18 +147,19 @@ public class CellProperties extends NetProperties {
     public void setTimer(NetTaskPair pair) {
         YTimerParameters parameters = ((AtomicTask) vertex).getTimerParameters();
         pair.setSimpleText(parameters != null ? parameters.toString(): "None");
-
+        setDirty();
         // nothing else to do - updates handled by dialog
     }
 
     public NetTaskPair getResourcing() {
-        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (AtomicTask) vertex);
+        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (YAWLTask) vertex);
         setResourcingString(pair);
         return pair;
     }
 
     public void setResourcing(NetTaskPair pair) {
         setResourcingString(pair);
+        setDirty();
     }
 
 
@@ -196,8 +198,10 @@ public class CellProperties extends NetProperties {
     public String getDecomposition() {
         YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
         String label = decomposition != null ? decomposition.getID() : "None";
-        setReadOnly("Timer", label.equals("None"));
-        setReadOnly("CustomForm", label.equals("None"));
+        boolean isReadOnly = ! requiresResourcing(decomposition);
+        setReadOnly("Timer", isReadOnly);
+        setReadOnly("CustomForm", isReadOnly);
+        setReadOnly("Resourcing", isReadOnly);
         return label;
     }
 
@@ -219,7 +223,8 @@ public class CellProperties extends NetProperties {
         else return;                        // no change (name = existing) so get out
 
         // update
-        graph.setTaskDecomposition((YAWLTask) vertex, decomposition);
+        ((YAWLTask) vertex).setDecomposition(decomposition);
+        graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
         setDirty();
         Publisher.getInstance().publishState(GraphState.ElementsSelected,
                 new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
@@ -227,8 +232,7 @@ public class CellProperties extends NetProperties {
 
 
     private YDecomposition createDecomposition(YDecomposition current) {
-        String newName = JOptionPane.showInputDialog(
-                YAWLEditor.getInstance().getPropertySheet(),
+        String newName = JOptionPane.showInputDialog(getSheet(),
                 "Please enter a name for the new Decomposition");
 
         return ! StringUtil.isNullOrEmpty(newName) ?
@@ -357,7 +361,7 @@ public class CellProperties extends NetProperties {
     private void setResourcingString(NetTaskPair pair) {
         YResourceHandler handler = specificationHandler.getResourceHandler();
         TaskResourceSet resources = handler.getTaskResources(
-                getSelectedYNet().getID(), vertex.getID());
+                pair.getNet().getID(), pair.getTask().getID());
         if (resources != null) {
             StringBuilder s = new StringBuilder(3);
             s.append(getInitiatorChar(resources.getOffer().getInitiator()));
@@ -365,11 +369,17 @@ public class CellProperties extends NetProperties {
             s.append(getInitiatorChar(resources.getStart().getInitiator()));
             pair.setSimpleText(s.toString());
         }
-        else pair.setSimpleText("UUU");
+        else pair.setSimpleText("None");
     }
 
     private char getInitiatorChar(int initiator) {
         return initiator == AbstractInteraction.USER_INITIATED ? 'U' : 'S';
+    }
+
+    private boolean requiresResourcing(YDecomposition decomposition) {
+        if (! (decomposition instanceof YAWLServiceGateway)) return false;
+        YAWLServiceReference service = ((YAWLServiceGateway) decomposition).getYawlService();
+        return service == null && decomposition.requiresResourcingDecisions();
     }
 
 

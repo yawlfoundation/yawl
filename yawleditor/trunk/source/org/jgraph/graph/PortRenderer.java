@@ -6,17 +6,11 @@
  */
 package org.jgraph.graph;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.io.Serializable;
-
-import javax.swing.JComponent;
-import javax.swing.UIManager;
-
 import org.jgraph.JGraph;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serializable;
 
 /**
  * This renderer displays entries that implement the CellView interface and
@@ -94,7 +88,9 @@ public class PortRenderer extends JComponent implements CellViewRenderer,
 		}
 		super.paint(g);
 		if (preview) {
-			g.fill3DRect(0, 0, d.width, d.height, true);
+	//		g.fill3DRect(0, 0, d.width, d.height, true);
+            g.drawLine(1,1,d.width-3,d.height-3);
+           g.drawLine(1,d.height-3, d.width-3, 1);
 		} else {
 			g.fillRect(0, 0, d.width, d.height);
 		}

@@ -23,9 +23,11 @@
  
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.core.data.*;
+import org.yawlfoundation.yawl.editor.core.data.YInternalType;
+import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +40,11 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
   private static final long serialVersionUID = 1L;
   private String variableName;
   private String variableType;
+
+    private static final String SCHEMA_HEADER =
+            "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\">";
+    private static final String SCHEMA_CLOSER = "</schema>";
+
   
   public JXMLSchemaInstanceEditor() {
     super();
@@ -71,11 +78,11 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
   }
   
   public String getTypeDefinition() {
-    return "<element name=\"" + 
+    return makeSchema("<element name=\"" +
       this.variableName + 
       "\" type=\"" +
       this.variableType + 
-      "\"/>";
+      "\"/>");
   }
   
   public String getSchemaInstance() {
@@ -95,6 +102,11 @@ public class JXMLSchemaInstanceEditor extends ValidityEditorPane {
         }
         return false;
     }
+
+    private String makeSchema(String innards) {
+        return SCHEMA_HEADER + innards + SCHEMA_CLOSER;
+    }
+
 }
 
 class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
@@ -147,12 +159,10 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   
   private LinkedList getBaseDataTypeInstanceProblems() {  
     LinkedList problemList = new LinkedList();
-   
-    String errors = SpecificationModel.getInstance().getSchemaValidator().
-            validateBaseDataTypeInstance(
-        getInstanceEditor().getTypeDefinition(), 
-        getInstanceEditor().getSchemaInstance()
-    );
+
+      DataSchemaValidator validator = SpecificationModel.getInstance().getSchemaValidator();
+      validator.setDataTypeSchema(getInstanceEditor().getTypeDefinition());
+      String errors = validator.validate(getInstanceEditor().getSchemaInstance());
     
     if (errors != null && errors.trim().length() > 0) {
       problemList.add(errors);
@@ -166,10 +176,10 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
       String varName = getInstanceEditor().getVariableName();
       String validationSchema = YInternalType.valueOf(typeName).getValidationSchema(varName);
 
-      String errors = SpecificationModel.getInstance().getSchemaValidator().
-              validateBaseDataTypeInstance(
-          validationSchema,  getInstanceEditor().getSchemaInstance()
-      );
+        DataSchemaValidator validator = SpecificationModel.getInstance().getSchemaValidator();
+        validator.setDataTypeSchema(validationSchema);
+        String errors = validator.validate(getInstanceEditor().getSchemaInstance());
+
 
       if (errors != null && errors.trim().length() > 0) {
         problemList.add(errors);
@@ -189,14 +199,12 @@ class XMLSchemaInstanceStyledDocument extends  AbstractXMLStyledDocument {
   
   private LinkedList getUserSuppliedDataTypeInstanceProblems() {
     LinkedList problemList = new LinkedList();
-    
-    String errors = SpecificationModel.getInstance().getSchemaValidator().
-            validateUserSuppliedDataTypeInstance(
-        getInstanceEditor().getVariableName(), 
-        getInstanceEditor().getVariableType(), 
-        getInstanceEditor().getSchemaInstance()
-    );
-    
+
+      DataSchemaValidator validator = SpecificationModel.getInstance().getSchemaValidator();
+      validator.setDataTypeSchema(StringUtil.wrap(
+              getInstanceEditor().getVariableType(), getInstanceEditor().getVariableName()));
+      String errors = validator.validate(getInstanceEditor().getSchemaInstance());
+
     if (errors != null && errors.trim().length() > 0) {
       problemList.add(errors);
     }

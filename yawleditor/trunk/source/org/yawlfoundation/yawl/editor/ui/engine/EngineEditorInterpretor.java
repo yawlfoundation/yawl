@@ -36,24 +36,20 @@ import java.util.Map;
  * This is an abstract class, supplying a base environment for concrete subclasses that must
  * interpret engine objects to editor objects or vice versa.
  * @see SpecificationExporter
- * @see SpecificationImporter
+ * @see SpecificationLoader
  * @author Lindsay Bradford
  */
 
 public abstract class EngineEditorInterpretor {
 
     protected static Map<YAWLCell, Object> editorToEngineElementMap;
-    protected static Map<Object, Object> engineToEditorElementMap;
     protected static Map<NetGraphModel, YNet> editorToEngineNetMap;
-    protected static Map<YNet, NetGraphModel> engineToEditorNetMap;
     protected static Map<YAWLFlowRelation, YCondition> editorFlowEngineConditionMap;
     protected static final String XML_SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
 
     public static void initialise() {
         editorToEngineElementMap = new HashMap<YAWLCell, Object>();
         editorToEngineNetMap = new HashMap<NetGraphModel, YNet>();
-        engineToEditorNetMap = new HashMap<YNet, NetGraphModel>();
-        engineToEditorElementMap = new HashMap<Object, Object>();
         editorFlowEngineConditionMap = new HashMap<YAWLFlowRelation, YCondition>();
         for (YInternalType type : YInternalType.values()) {
             type.setUsed(false);

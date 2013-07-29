@@ -24,7 +24,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.ExitAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
@@ -47,6 +46,7 @@ class SpecificationMenu extends JMenu {
     }
 
     protected void buildInterface() {
+  //      YAWLEditor editor = YAWLEditor.getInstance();
         addMenuItemAction(new CreateSpecificationAction());
         addMenuItemAction(new OpenSpecificationAction());
         add(OpenRecentSubMenu.getInstance());
@@ -56,13 +56,13 @@ class SpecificationMenu extends JMenu {
         addMenuItemAction(new SaveSpecificationAction());
         addMenuItemAction(new SaveSpecificationAsAction());
 
-        YAWLEditor.updateLoadProgress(12);
+    //    editor.updateLoadProgress(12);
 
         addSeparator();
         addMenuItemAction(new ValidateSpecificationAction());
         addMenuItemAction(new AnalyseSpecificationAction());
 
-        YAWLEditor.updateLoadProgress(16);
+    //    editor.updateLoadProgress(16);
 
         addSeparator();
         addMenuItemAction(new PrintSpecificationAction());
@@ -78,7 +78,7 @@ class SpecificationMenu extends JMenu {
         addMenuItemAction(new CloseSpecificationAction());
         addMenuItemAction(new ExitAction(this));
 
-        YAWLEditor.updateLoadProgress(18);
+    //    editor.updateLoadProgress(18);
     }
 
 

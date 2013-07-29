@@ -24,12 +24,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class JStatusBar extends JPanel {
+public class YStatusBar extends JPanel implements SpecificationStateListener {
 
     private static JLabel statusLabel = new JLabel();
     private static JConnectionStatus modeIndicator = new JConnectionStatus();
@@ -38,7 +41,7 @@ public class JStatusBar extends JPanel {
     private String previousStatusText;
 
 
-    public JStatusBar() {
+    public YStatusBar() {
         super();
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
@@ -53,22 +56,27 @@ public class JStatusBar extends JPanel {
         add(modeIndicator, BorderLayout.WEST);
         add(statusLabel, BorderLayout.CENTER);
         add(getProgressBar(), BorderLayout.EAST);
+        Publisher.getInstance().subscribe(this);
     }
 
-    public String getStatusText() {
+
+    public String getText() {
         return statusLabel.getText();
     }
 
-    public void setStatusBarText(String message) {
-        previousStatusText = getStatusText();
+
+    public void setText(String message) {
+        previousStatusText = getText();
         statusLabel.setText(" " + message);
     }
 
-    public void setStatusBarTextToPrevious() {
-        setStatusBarText(previousStatusText);
+
+    public void setTextToPrevious() {
+        setText(previousStatusText);
     }
 
-    public void setStatusMode(String component, boolean online) {
+
+    public void setConnectionMode(String component, boolean online) {
         modeIndicator.setStatusMode(component, online);
     }
 
@@ -87,7 +95,8 @@ public class JStatusBar extends JPanel {
         return progressBar;
     }
 
-    public void updateStatusBarProgress(int completionValue) {
+
+    public void updateProgress(int completionValue) {
         if (completionValue < 0 || completionValue > 100) {
             return;
         }
@@ -95,24 +104,50 @@ public class JStatusBar extends JPanel {
         progressBar.setValue(completionValue);
     }
 
-    public void finishStatusBarProgress() {
+
+    public void finishProgress() {
         progressBar.setVisible(false);
     }
 
-    public void progressStatusBarOverSeconds(final int pauseSeconds) {
+
+    public void progressOverSeconds(final int pauseSeconds) {
         secondUpdateThread = new SecondUpdateThread();
         try {
             secondUpdateThread.setPauseSeconds(pauseSeconds);
             secondUpdateThread.start();
         }
         catch (Exception e) {
-            LogWriter.error("Error initialising statusbar", e);
+            LogWriter.error("Error initialising status bar", e);
         }
     }
 
-    public void resetStatusBarProgress() {
+
+    public void resetProgress() {
         secondUpdateThread.reset();
     }
+
+
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NoNetsExist: {
+                setText("Open or create a specification to begin.");
+                break;
+            }
+            case NetsExist: {
+                setText("Select a net to continue editing it.");
+                break;
+            }
+            case NoNetSelected: {
+                setText("Select a net to continue editing it.");
+                break;
+            }
+            case NetSelected: {
+                setText("Use the palette toolbar to edit the selected net.");
+                break;
+            }
+        }
+    }
+
 
 
     /******************************************************************************/
@@ -130,7 +165,7 @@ public class JStatusBar extends JPanel {
                 if (shouldReset) {
                     return;
                 }
-                updateStatusBarProgress((i * 100) / (pausePasses));
+                updateProgress((i * 100) / (pausePasses));
                 pause(APPARENTLY_INSTANT_MILLISECONDS);
             }
         }
@@ -141,7 +176,7 @@ public class JStatusBar extends JPanel {
 
         public void reset() {
             this.shouldReset = true;
-            finishStatusBarProgress();
+            finishProgress();
         }
 
         private void pause(long milliseconds) {
@@ -160,6 +195,5 @@ public class JStatusBar extends JPanel {
                 now = System.currentTimeMillis();
             }
         }
-
     }
 }
