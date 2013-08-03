@@ -35,73 +35,69 @@ import java.awt.event.ActionListener;
 
 public class LabelElementDialog extends AbstractVertexDoneDialog {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  protected JFormattedSafeXMLCharacterField labelField;
-  protected JCheckBox cbxSynch;
-  
-  public LabelElementDialog() {
-    super(null, true, true);
-    setContentPanel(getLabelPanel());
-    getDoneButton().addActionListener(new ActionListener(){
-        public void actionPerformed(ActionEvent e) {
-            YAWLVertex vertex = getVertex();
-            String newLabel = labelField.getText();
-            if (newLabel.length() == 0) newLabel = null;
-            graph.setElementLabel(vertex, newLabel);
-            if (cbxSynch.isSelected()) {
-                vertex.setName(newLabel);
+    protected JFormattedSafeXMLCharacterField labelField;
+    protected JCheckBox cbxSynch;
+
+    public LabelElementDialog() {
+        super(null, true, true);
+        setContentPanel(getLabelPanel());
+        getDoneButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                YAWLVertex vertex = getVertex();
+                String newLabel = labelField.getText();
+                if (newLabel.length() == 0) newLabel = null;
+                graph.setElementLabel(vertex, newLabel);
+                if (cbxSynch.isSelected()) {
+                    vertex.setName(newLabel);
+                }
+                graph.clearSelection();
+                SpecificationUndoManager.getInstance().setDirty(true);
             }
-          graph.clearSelection();           
-          SpecificationUndoManager.getInstance().setDirty(true);
         }
-      }
-    );
-    getRootPane().setDefaultButton(getDoneButton());
-    labelField.requestFocus();
-  }
+        );
+        getRootPane().setDefaultButton(getDoneButton());
+        labelField.requestFocus();
+    }
 
-  private JPanel getLabelPanel() {
+    private JPanel getLabelPanel() {
 
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
+        GridBagLayout gbl = new GridBagLayout();
+        GridBagConstraints gbc = new GridBagConstraints();
 
-    JPanel panel = new JPanel(gbl);
-    panel.setBorder(new EmptyBorder(12,12,0,11));
+        JPanel panel = new JPanel(gbl);
+        panel.setBorder(new EmptyBorder(12,12,0,11));
 
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.insets = new Insets(0,0,0,5);
-    gbc.anchor = GridBagConstraints.EAST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0,0,0,5);
+        gbc.anchor = GridBagConstraints.EAST;
 
-    JLabel label = new JLabel("Set label to:");
-    label.setDisplayedMnemonic('S');
-    panel.add(label, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
+        JLabel label = new JLabel("Set label to:");
+        label.setDisplayedMnemonic('S');
+        panel.add(label, gbc);
 
-    labelField = getLabelField();
-    
-    label.setLabelFor(labelField);
-    
-    panel.add(labelField, gbc);
+        gbc.gridx++;
+        gbc.anchor = GridBagConstraints.WEST;
 
-      gbc.gridx--;
-      gbc.gridy++;
-      gbc.gridwidth = 2 ;
-      gbc.insets = new Insets(10,0,0,0);
+        labelField = getLabelField();
 
-      cbxSynch = new JCheckBox("Synchronise task name with label");
-      cbxSynch.setSelected(true);                                  // always by default
-      panel.add(cbxSynch, gbc);
-      pack();
-    return panel;
-  }
-  
-  private JFormattedSafeXMLCharacterField getLabelField() {
+        label.setLabelFor(labelField);
+
+        panel.add(labelField, gbc);
+
+        gbc.gridx--;
+        gbc.gridy++;
+        gbc.gridwidth = 2 ;
+        gbc.insets = new Insets(10,0,0,0);
+
+        cbxSynch = new JCheckBox("Synchronise task name with label");
+        cbxSynch.setSelected(true);                                  // always by default
+        panel.add(cbxSynch, gbc);
+        pack();
+        return panel;
+    }
+
+    private JFormattedSafeXMLCharacterField getLabelField() {
 
     /* 
        Note that using a JFormattedSafeXMLCharacterField here is a workaround
@@ -111,30 +107,30 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
        export time.  For the time being, I'll just limit users to inputing
        "safe" (non-special) characters that this text field enforces.  
     */
-    
-    labelField = new JFormattedSafeXMLCharacterField(15);
 
-    labelField.setToolTipText(" Enter a label to go under this net element. ");
-    labelField.addActionListener(
-      new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          getDoneButton().doClick();
-        }
-      }
-    );
-    
-    return labelField;
-  }
+        labelField = new JFormattedSafeXMLCharacterField(15);
 
-  
-  public void setVertex(YAWLVertex vertex, NetGraph graph) {
-    super.setVertex(vertex,graph);
-    labelField.setText(vertex.getLabel());
-    String vType = (getVertex() instanceof Condition) ? "condition" : "task" ;
-    cbxSynch.setText("Synchronise " + vType + " name with label");
-  }
-  
-  public String getTitlePrefix() {
-    return "Label ";
-  }
+        labelField.setToolTipText(" Enter a label to go under this net element. ");
+        labelField.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        getDoneButton().doClick();
+                    }
+                }
+        );
+
+        return labelField;
+    }
+
+
+    public void setVertex(YAWLVertex vertex, NetGraph graph) {
+        super.setVertex(vertex,graph);
+        labelField.setText(vertex.getLabel());
+        String vType = (getVertex() instanceof Condition) ? "condition" : "task" ;
+        cbxSynch.setText("Synchronise " + vType + " name with label");
+    }
+
+    public String getTitlePrefix() {
+        return "Label ";
+    }
 }

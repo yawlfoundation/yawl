@@ -30,7 +30,6 @@ import java.awt.geom.Point2D;
 
 public class Condition extends YAWLVertex {
 
-    private YCondition _shadowCondition;
 
     public Condition(Point2D startPoint) {
         super(startPoint);
@@ -38,32 +37,33 @@ public class Condition extends YAWLVertex {
 
     public Condition(Point2D startPoint, YCondition shadow) {
         super(startPoint);
-        setShadow(shadow);
+        setYCondition(shadow);
     }
 
 
-    public void setShadow(YCondition shadow) {
-        _shadowCondition = shadow;
+    public void setYCondition(YCondition condition) {
+        _yawlElement = condition;
     }
 
-    public YCondition getShadowCondition() { return _shadowCondition; }
+    public YCondition getYCondition() { return (YCondition) _yawlElement; }
+
 
     public String getType() {
         return "Condition";
     }
 
-    public String getID() { return _shadowCondition.getID(); }
+    public String getID() { return getYCondition().getID(); }
 
-    public void setID(String id) { _shadowCondition.setID(id); }
-
-
-    public String getName() { return _shadowCondition.getName(); }
-
-    public void setName(String name) { _shadowCondition.setName(name); }
+    public void setID(String id) { getYCondition().setID(id); }
 
 
-    public String getDocumentation() { return _shadowCondition.getDocumentation(); }
+    public String getName() { return getYCondition().getName(); }
 
-    public void setDocumentation(String doco) { _shadowCondition.setDocumentation(doco); }
+    public void setName(String name) { getYCondition().setName(name); }
+
+
+    public String getDocumentation() { return getYCondition().getDocumentation(); }
+
+    public void setDocumentation(String doco) { getYCondition().setDocumentation(doco); }
 
 }

@@ -23,8 +23,8 @@
 package org.yawlfoundation.yawl.editor.ui.actions.view;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
@@ -51,7 +51,10 @@ public class ShowGridToggleAction extends YAWLBaseAction {
         JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
         menuItem.setSelected(selected);
         UserSettings.setShowGrid(selected);
-        SpecificationUtilities.showGridOfNets(SpecificationModel.getInstance(), selected);
+        for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+            net.getGraph().setGridVisible(selected);
+        }
+
     }
 
     public boolean isSelected() {

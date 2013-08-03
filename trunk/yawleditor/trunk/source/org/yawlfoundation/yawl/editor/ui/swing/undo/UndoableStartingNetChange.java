@@ -42,12 +42,12 @@ public class UndoableStartingNetChange extends AbstractUndoableEdit {
   }
   
   public void redo() {
-    oldStartingNet.setIsStartingNet(false);
-    newStartingNet.setIsStartingNet(true);
+    oldStartingNet.setIsRootNet(false);
+    newStartingNet.setIsRootNet(true);
   }
   
   public void undo() {
-    oldStartingNet.setIsStartingNet(true);
-    newStartingNet.setIsStartingNet(false);
+    oldStartingNet.setIsRootNet(true);
+    newStartingNet.setIsRootNet(false);
   }
 }

@@ -26,6 +26,8 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -66,7 +68,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     public void removeActiveNet() {
         YAWLEditorNetPanel frame = (YAWLEditorNetPanel) getSelectedComponent();
-        if ((frame != null) && (! frame.getNet().getNetModel().isStartingNet())) {
+        if ((frame != null) && (! frame.getNet().getNetModel().isRootNet())) {
             if (removeNetConfirmed()) {
                 frame.removeFromSpecification();
                 remove(frame);
@@ -107,11 +109,14 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     private void updateState() {
         YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
+        Publisher publisher = Publisher.getInstance();
         if ((frame == null) || (frame.getNet() == null)) {
-            model.nothingSelected();
+            if (publisher.getSpecificationState() != SpecificationState.NoNetsExist) {
+                publisher.publishState(SpecificationState.NoNetSelected);
+            }
             return;
         }
-        model.somethingSelected();
+        publisher.publishState(SpecificationState.NetSelected);
         try {
             getSelectedGraph().getSelectionListener().forceActionUpdate();
             getSelectedGraph().getCancellationSetModel().refresh();

@@ -26,10 +26,11 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationExporter;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationLoader;
+import org.yawlfoundation.yawl.editor.ui.engine.SpecificationReader;
+import org.yawlfoundation.yawl.editor.ui.engine.SpecificationWriter;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
@@ -172,9 +173,8 @@ public class SpecificationFileHandler {
                 return false;
             }
         }
-        SpecificationModel.getInstance().setFileName(getFullFileName(file));
+        SpecificationModel.getHandler().setFileName(getFullFileName(file));
         SpecificationModel.getHandler().setUniqueID();
-        SpecificationModel.getInstance().rationaliseUniqueIdentifiers();
         return true;
     }
 
@@ -233,8 +233,11 @@ public class SpecificationFileHandler {
 
     private void doPreSaveClosingWork() {
         YAWLEditor.getNetsPane().setVisible(false);
-        Publisher.getInstance().publishCloseFileEvent();
-        SpecificationModel.getInstance().nothingSelected();
+        Publisher publisher = Publisher.getInstance();
+        publisher.publishCloseFileEvent();
+        if (publisher.getSpecificationState() != SpecificationState.NoNetsExist) {
+            publisher.publishState(SpecificationState.NoNetSelected);
+        }
     }
 
     private void doPostSaveClosingWork() {
@@ -290,7 +293,7 @@ public class SpecificationFileHandler {
         statusBar.setText("Saving Specification...");
         statusBar.progressOverSeconds(2);
 
-        if (SpecificationExporter.checkAndExportEngineSpecToFile(
+        if (SpecificationWriter.checkAndExportEngineSpecToFile(
                 specificationModel, fileName)) {
             SpecificationUndoManager.getInstance().setDirty(false);
             statusBar.setText("Saved to file: " + fileName);
@@ -307,7 +310,7 @@ public class SpecificationFileHandler {
         statusBar.progressOverSeconds(4);
         YAWLEditor.getNetsPane().setVisible(false);
 
-        SpecificationLoader importer = new SpecificationLoader();
+        SpecificationReader importer = new SpecificationReader();
         importer.load(fullFileName);
 
         YAWLEditor.getNetsPane().setVisible(true);

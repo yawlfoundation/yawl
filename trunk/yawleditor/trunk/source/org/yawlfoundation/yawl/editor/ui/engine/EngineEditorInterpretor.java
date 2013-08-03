@@ -35,8 +35,8 @@ import java.util.Map;
 /**
  * This is an abstract class, supplying a base environment for concrete subclasses that must
  * interpret engine objects to editor objects or vice versa.
- * @see SpecificationExporter
- * @see SpecificationLoader
+ * @see SpecificationWriter
+ * @see SpecificationReader
  * @author Lindsay Bradford
  */
 

@@ -43,7 +43,7 @@ public class CompositeTask extends YAWLTask implements YAWLCompositeTask {
 
     public CompositeTask(Point2D startPoint, YTask yTask) {
         super(startPoint);
-        setShadowTask(yTask);
+        setTask(yTask);
     }
 
 

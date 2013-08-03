@@ -147,15 +147,15 @@ public class DecompositionProperties extends CellProperties {
 
 
     public NetTaskPair getTaskDataVariables() {
-        return new NetTaskPair(specificationHandler.getControlFlowHandler().getRootNet(),
-                _decomposition, (YAWLTask) vertex);
+        return new NetTaskPair(flowHandler.getRootNet(), _decomposition, (YAWLTask) vertex);
     }
 
     public void setTaskDataVariables(NetTaskPair value) {
-        // nothing to do - updates handled by dialog
+
+        // need to update net-level data property changed via the task data dialog
+        NetTaskPair netPair = new NetTaskPair(flowHandler.getNet(getName()), null, null);
+        firePropertyChange("DataVariables", netPair);
     }
-
-
 
     /**************************************************************************/
 

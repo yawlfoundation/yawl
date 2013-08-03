@@ -44,7 +44,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-public class SpecificationLoader {
+public class SpecificationReader {
 
     private static final Point DEFAULT_LOCATION = new Point(100,100);
 
@@ -53,7 +53,7 @@ public class SpecificationLoader {
     private Map<Object, Object> _engineToEditorElementMap;
 
 
-    public SpecificationLoader() {
+    public SpecificationReader() {
         _model = SpecificationModel.getInstance();
         _handler = SpecificationModel.getHandler();
         _engineToEditorElementMap = new Hashtable<Object, Object>();
@@ -142,7 +142,7 @@ public class SpecificationLoader {
         NetGraph editorNet = new NetGraph(engineNet);
         editorNet.setName(engineNet.getID());
         NetGraphModel graphModel = editorNet.getNetModel();
-        _model.addNetNotUndoable(graphModel);
+        _model.getNets().addNoUndo(graphModel);
 
         YAWLEditor.getNetsPane().openNet(editorNet);
         return graphModel;
@@ -171,7 +171,7 @@ public class SpecificationLoader {
 
         populateElements(engineNetElementSummary, editorNet);
         populateFlows(engineNetElementSummary.getFlows(), editorNet);
-        removeImplicitConditions(engineNetElementSummary.getConditions(), editorNet);
+//        removeImplicitConditions(engineNetElementSummary.getConditions(), editorNet);
         populateCancellationSetDetail(engineNetElementSummary.getTasksWithCancellationSets());
     }
 
@@ -277,6 +277,7 @@ public class SpecificationLoader {
     private void populateConditions(Set<YCondition> engineConditions,
                                     NetGraphModel editorNet) {
         for (YCondition engineCondition : engineConditions) {
+
             Condition editorCondition = new Condition(DEFAULT_LOCATION, engineCondition);
             addElement(editorNet.getGraph(), editorCondition, engineCondition);
             _engineToEditorElementMap.put(engineCondition, editorCondition);
@@ -291,22 +292,17 @@ public class SpecificationLoader {
                     engineFlow.getPriorElement());
             YAWLVertex targetVertex = (YAWLVertex) _engineToEditorElementMap.get(
                     engineFlow.getNextElement());
-            YAWLFlowRelation editorFlow = editorNet.getGraph().connect(sourceVertex,
+            YAWLFlowRelation flow = editorNet.getGraph().connect(sourceVertex,
                     targetVertex);
-
-            editorFlow.setPredicate(engineFlow.getXpathPredicate());
-            if (engineFlow.getEvalOrdering() != null) {
-                editorFlow.setPriority(engineFlow.getEvalOrdering());
-            }
 
             // when a default flow is exported, it has no predicate or ordering recorded
             // (because it is the _default_ flow) - so when importing from that xml,
             // a default predicate and ordering need to be reinstated.
             if (engineFlow.isDefaultFlow()) {
-                if (editorFlow.getPredicate() == null) {
-                    editorFlow.setPredicate("true()");
+                if (flow.getPredicate() == null) {
+                    flow.setPredicate("true()");
                 }
-                editorFlow.setPriority(10000);        // ensure it's ordered last
+                flow.setPriority(10000);        // ensure it's ordered last
             }
         }
     }
@@ -325,35 +321,44 @@ public class SpecificationLoader {
         }
     }
 
-    private void removeImplicitConditions(Set<YCondition> engineConditions, NetGraphModel editorNet) {
+    private void removeImplicitConditions(Set<YCondition> engineConditions,
+                                          NetGraphModel netModel) {
         for (YCondition engineCondition : engineConditions) {
             if (engineCondition.isImplicit()) {
                 Condition editorCondition = (Condition)
                         _engineToEditorElementMap.get(engineCondition);
 
-                YAWLFlowRelation sourceFlow = editorCondition.getOnlyIncomingFlow();
-                YAWLFlowRelation targetFlow = editorCondition.getOnlyOutgoingFlow();
-                if(sourceFlow != null && targetFlow != null) {
-                    YAWLTask sourceTask = ((YAWLPort) sourceFlow.getSource()).getTask();
-                    YAWLTask targetTask = ((YAWLPort) targetFlow.getTarget()).getTask();
+                YAWLFlowRelation incomingFlow = editorCondition.getOnlyIncomingFlow();
+                YAWLFlowRelation outgoingFlow = editorCondition.getOnlyOutgoingFlow();
+                if (incomingFlow != null && outgoingFlow != null) {
+                    YAWLTask sourceTask = incomingFlow.getSourceTask();
+                    YAWLTask targetTask = outgoingFlow.getTargetTask();
                     if (sourceTask != null && targetTask != null) {
-                        editorNet.getGraph().removeCellsAndTheirEdges(
-                                new Object[] { editorCondition });
+                        String sourcePredicate = incomingFlow.getPredicate();
+                        int sourcePriority = incomingFlow.getPriority();
+                        netModel.removeCells(new Object[]{editorCondition});
+                        removeEngineFlow(netModel, incomingFlow);
+                        removeEngineFlow(netModel, outgoingFlow);
 
-                        YAWLFlowRelation editorFlow =
-                                editorNet.getGraph().connect(sourceTask, targetTask);
+                        YAWLFlowRelation replacementFlow =
+                                netModel.getGraph().connect(sourceTask, targetTask);
 
                         // map predicate & priority from removed condition to new flow
-                        editorFlow.setPredicate(sourceFlow.getPredicate());
-                        editorFlow.setPriority(sourceFlow.getPriority());
-
-                        _engineToEditorElementMap.put(engineCondition, editorFlow);
+                        replacementFlow.setPredicate(sourcePredicate);
+                        replacementFlow.setPriority(sourcePriority);
+                        _engineToEditorElementMap.put(engineCondition, replacementFlow);
                     }
                 }
             }
         }
     }
 
+
+    private void removeEngineFlow(NetGraphModel netModel, YAWLFlowRelation flow) {
+        _handler.getControlFlowHandler().removeFlow( netModel.getName(),
+                flow.getSourceID(), flow.getTargetID());
+
+    }
 
     private void removeUnnecessaryDecorators() {
         for (NetGraphModel net : _model.getNets())

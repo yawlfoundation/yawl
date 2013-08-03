@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.ImageFilter;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -21,18 +22,20 @@ import java.io.IOException;
  */
 public abstract class YPropertiesBean {
 
-    protected YSpecificationHandler specificationHandler;
+    protected YSpecificationHandler specHandler;
+    protected YControlFlowHandler flowHandler;
     protected NetGraph graph;
     protected NetGraphModel model;
 
     public YPropertiesBean() {
-        specificationHandler = SpecificationModel.getHandler();
+        specHandler = SpecificationModel.getHandler();
+        flowHandler = specHandler.getControlFlowHandler();
     }
 
 
     protected void setGraph(NetGraph g) {
         graph = g;
-        model = SpecificationModel.getInstance().getNet(graph.getName());
+        model = SpecificationModel.getInstance().getNets().get(graph.getName());
     }
 
 

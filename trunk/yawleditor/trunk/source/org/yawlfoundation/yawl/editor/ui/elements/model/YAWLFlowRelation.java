@@ -26,6 +26,8 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.GraphConstants;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import java.util.HashMap;
 
@@ -33,18 +35,24 @@ public class YAWLFlowRelation extends DefaultEdge
         implements YAWLCell, Comparable<YAWLFlowRelation>, Cloneable {
 
     private boolean available = true;
+    private YCompoundFlow shadow;
 
-    private int priority;
-    private String predicate;
-
-    public YAWLFlowRelation() {
+    public YAWLFlowRelation(YCompoundFlow flow) {
         super();
+        setYFlow(flow);
         buildContent();
+    }
+
+    public void setYFlow(YCompoundFlow flow) {
+        shadow = flow;
+    }
+
+    public YCompoundFlow getYFlow() {
+        return shadow;
     }
 
     private void buildContent() {
         HashMap map = new HashMap();
-
         GraphConstants.setLineEnd(map, GraphConstants.ARROW_TECHNICAL);
         GraphConstants.setEndFill(map, true);
         GraphConstants.setLineStyle(map, GraphConstants.STYLE_ORTHOGONAL);
@@ -52,23 +60,14 @@ public class YAWLFlowRelation extends DefaultEdge
         GraphConstants.setEditable(map, true);
         GraphConstants.setDisconnectable(map, true);
         GraphConstants.setConnectable(map, true);
-
         getAttributes().applyMap(map);
 
-        setPredicate("true()");
-        setPriority(0);
+//        setPredicate("true()");
+//        setPriority(0);
     }
 
     public boolean connectsTwoTasks() {
-        return isTaskPort(this.getSource()) &&
-                isTaskPort(this.getTarget());
-    }
-
-    private boolean isTaskPort(Object port) {
-        YAWLPort yawlPort = (YAWLPort) port;
-        return (port != null) &&
-                (yawlPort.getParent() instanceof YAWLTask ||
-                        yawlPort.getParent() instanceof Decorator);
+        return shadow.isCompound();
     }
 
     public boolean isRemovable() {
@@ -79,7 +78,7 @@ public class YAWLFlowRelation extends DefaultEdge
         YAWLPort sourcePort = (YAWLPort) this.getSource();
         YAWLPort targetPort = (YAWLPort) this.getTarget();
 
-        return (! isBroken()) &&
+        return sourcePort != null && targetPort != null &&
                 ((YAWLCell) sourcePort.getParent()).isCopyable() &&
                 ((YAWLCell) targetPort.getParent()).isCopyable();
     }
@@ -100,19 +99,19 @@ public class YAWLFlowRelation extends DefaultEdge
 
 
     public void setPriority(int priority) {
-        this.priority = priority;
+        shadow.setOrdering(priority);
     }
 
     public int getPriority() {
-        return priority;
+        return shadow.getOrdering();
     }
 
     public String getPredicate() {
-        return predicate;
+        return shadow.getPredicate();
     }
 
     public void setPredicate(String predicate) {
-        this.predicate = predicate;
+        shadow.setPredicate(predicate);
     }
 
     public void incrementPriority() {
@@ -123,41 +122,17 @@ public class YAWLFlowRelation extends DefaultEdge
         setPriority(getPriority()-1);
     }
 
-    public int compareTo(YAWLFlowRelation other) throws ClassCastException {
+    public int compareTo(YAWLFlowRelation other) {
         return getPriority() - other.getPriority();
     }
 
 
-    public String getSourceLabel() {
-        if (getSource() == null) {
-            return "";
-        }
-        Object source = ((YAWLPort)getSource()).getParent();
-        if (source instanceof YAWLVertex) {
-            return ((YAWLVertex)source).getLabel();
-        }
-        if (source instanceof SplitDecorator) {
-            return ((SplitDecorator)source).getTask().getLabel();
-        }
-        return "";
-    }
-
-
     public String getSourceID() {
-        YAWLVertex source = getSourceVertex();
-        if (source != null) {
-            return source.getID();
-        }
-        return null;
+        return getElementID(shadow.getSource());
     }
 
-
-    public String getTargetID() {
-        YAWLVertex target = getTargetVertex();
-        if (target != null) {
-            return target.getID();
-        }
-        return null;
+     public String getTargetID() {
+         return getElementID(shadow.getTarget());
     }
 
     public String getTargetLabel() {
@@ -212,8 +187,9 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
     public boolean connectsTaskToItself() {
-        return !(getSourceTask() == null || getTargetTask() == null) &&
-                getSourceTask().equals(getTargetTask());
+        YExternalNetElement source = shadow.getSource();
+        YExternalNetElement target = shadow.getTarget();
+        return source != null && target != null && source == target;
     }
 
     public YAWLTask getSourceTask() {
@@ -238,18 +214,14 @@ public class YAWLFlowRelation extends DefaultEdge
         if (getSource() == null) {
             return null;
         }
-        return getVertexFrom(
-                ((YAWLPort)getSource()).getParent()
-        );
+        return getVertexFrom(((YAWLPort) getSource()).getParent());
     }
 
     public YAWLVertex getTargetVertex() {
         if (getTarget() == null) {
             return null;
         }
-        return getVertexFrom(
-                ((YAWLPort)getTarget()).getParent()
-        );
+        return getVertexFrom(((YAWLPort) getTarget()).getParent());
     }
 
     private YAWLVertex getVertexFrom(Object cell) {
@@ -276,6 +248,12 @@ public class YAWLFlowRelation extends DefaultEdge
         YAWLTask target = getTargetTask();
         if (target != null) target.detachFlow(this);
     }
+
+
+    private String getElementID(YExternalNetElement element) {
+         return element != null ? element.getID() : null;
+     }
+
 
     /**
      * Created By Jingxin XU

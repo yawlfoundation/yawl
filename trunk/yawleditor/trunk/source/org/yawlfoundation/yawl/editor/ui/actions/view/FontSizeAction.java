@@ -132,7 +132,7 @@ class FontSizeDialog extends AbstractDoneDialog {
     }
 
     private void setFontSize(int oldSize, int newSize) {
-        SpecificationModel.getInstance().undoableSetFontSize(oldSize, newSize);
+        SpecificationModel.getInstance().setFontSize(oldSize, newSize);
     }
 }
 

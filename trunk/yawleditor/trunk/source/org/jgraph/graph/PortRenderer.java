@@ -88,9 +88,7 @@ public class PortRenderer extends JComponent implements CellViewRenderer,
 		}
 		super.paint(g);
 		if (preview) {
-	//		g.fill3DRect(0, 0, d.width, d.height, true);
-            g.drawLine(1,1,d.width-3,d.height-3);
-           g.drawLine(1,d.height-3, d.width-3, 1);
+			g.fill3DRect(0, 0, d.width, d.height, true);
 		} else {
 			g.fillRect(0, 0, d.width, d.height);
 		}

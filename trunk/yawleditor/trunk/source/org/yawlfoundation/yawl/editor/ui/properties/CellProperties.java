@@ -1,10 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskResourceSet;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
@@ -64,8 +64,8 @@ public class CellProperties extends NetProperties {
         vertex.setName(value);
         if (idLabelSynch && value != null) {
             vertex.setID(value);
+            firePropertyChange("id", getId());
         }
-        firePropertyChange("id", getId());
         setDirty();
     }
 
@@ -84,6 +84,7 @@ public class CellProperties extends NetProperties {
         idLabelSynch = value;
         if (idLabelSynch && getLabel() != null) {
             vertex.setID(getLabel());
+            firePropertyChange("id", getId());
             setDirty();
         }
     }
@@ -214,11 +215,17 @@ public class CellProperties extends NetProperties {
         }
         else if (name.equals("New...")) {                  // create
             decomposition = createDecomposition(decomposition);
+            if (decomposition == null) {
+                firePropertyChange("Decomposition", "None");  // cancelled so reset
+            }
+        }
+        else if (name.equals("Rename...")) {
+            renameDecomposition(decomposition);
         }
 
         // change current to another pre-existing
         else if (decomposition == null || ! decomposition.getID().equals(name)) {
-            decomposition = SpecificationModel.getInstance().getDecompositionFromLabel(name);
+            decomposition = getDecomposition(name);
         }
         else return;                        // no change (name = existing) so get out
 
@@ -228,16 +235,44 @@ public class CellProperties extends NetProperties {
         setDirty();
         Publisher.getInstance().publishState(GraphState.ElementsSelected,
                 new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
+
+        // update id if not tied to label
+        String label = getLabel();
+        if (decomposition != null && (label == null || ! label.equals(getId()))) {
+            firePropertyChange("id", decomposition.getID());
+            if (label == null) firePropertyChange("Label", decomposition.getID());
+        }
     }
 
 
     private YDecomposition createDecomposition(YDecomposition current) {
         String newName = JOptionPane.showInputDialog(getSheet(),
-                "Please enter a name for the new Decomposition");
+                "Please enter a name for the new Decomposition", getLabel());
 
         return ! StringUtil.isNullOrEmpty(newName) ?
-                specificationHandler.getControlFlowHandler().addTaskDecomposition(newName) :
-                current;
+                flowHandler.addTaskDecomposition(newName) : current;
+    }
+
+
+    private void renameDecomposition(YDecomposition current) {
+        String oldID = current.getID();
+        String newID = JOptionPane.showInputDialog(getSheet(),
+                "Please enter a new name for the Decomposition", getLabel());
+        if (! (newID == null || oldID.equals(newID))) {
+            try {
+                specHandler.getDataHandler().renameDecomposition(oldID, newID);
+                firePropertyChange("Decomposition", newID);
+            }
+            catch (YDataHandlerException ydhe) {
+                current.setID(oldID);
+            }
+        }
+    }
+
+
+
+    private YDecomposition getDecomposition(String name) {
+        return flowHandler.getTaskDecomposition(name);
     }
 
 
@@ -359,7 +394,7 @@ public class CellProperties extends NetProperties {
 
 
     private void setResourcingString(NetTaskPair pair) {
-        YResourceHandler handler = specificationHandler.getResourceHandler();
+        YResourceHandler handler = specHandler.getResourceHandler();
         TaskResourceSet resources = handler.getTaskResources(
                 pair.getNet().getID(), pair.getTask().getID());
         if (resources != null) {

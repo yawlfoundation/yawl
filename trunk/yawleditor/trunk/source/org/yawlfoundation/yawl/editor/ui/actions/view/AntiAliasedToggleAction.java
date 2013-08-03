@@ -23,8 +23,8 @@
 package org.yawlfoundation.yawl.editor.ui.actions.view;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
@@ -32,29 +32,31 @@ import java.awt.event.ActionEvent;
 
 public class AntiAliasedToggleAction extends YAWLBaseAction {
 
-  private boolean selected;
+    private boolean selected;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Toggle anti-aliasing of drawn graph elements. ");
-    putValue(Action.NAME, "Anti-alias Diagrams");
-    putValue(Action.LONG_DESCRIPTION, "Toggle anti-aliasing of drawn graph elements.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Toggle anti-aliasing of drawn graph elements. ");
+        putValue(Action.NAME, "Anti-alias Diagrams");
+        putValue(Action.LONG_DESCRIPTION, "Toggle anti-aliasing of drawn graph elements.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+    }
 
-  public AntiAliasedToggleAction() {
-    selected = UserSettings.getShowAntiAliasing();
-  }
- 
-  public void actionPerformed(ActionEvent event) {
-    selected = !selected;
-    
-    JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
-    menuItem.setSelected(selected);
-    UserSettings.setShowAntiAliasing(selected);
-    SpecificationUtilities.showAntiAliasing(SpecificationModel.getInstance(), selected);
-  }
-  
-  public boolean isSelected() {
-    return selected; 
-  }
+    public AntiAliasedToggleAction() {
+        selected = UserSettings.getShowAntiAliasing();
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        selected = !selected;
+
+        JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
+        menuItem.setSelected(selected);
+        UserSettings.setShowAntiAliasing(selected);
+        for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+            net.getGraph().setAntiAliased(selected);
+        }
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
 }

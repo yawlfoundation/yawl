@@ -71,8 +71,29 @@ public class EngineNetElementSummary {
             }
             flows.addAll(engineNetElement.getPostsetFlows());
         }
+        rationaliseFlows();
     }
 
+
+    private void rationaliseFlows() {
+        Set<YCondition> implicitConditions = new HashSet<YCondition>();
+        for (YCondition condition : conditions) {
+            if (condition.isImplicit()) {
+                YFlow incoming = condition.getPresetFlows().iterator().next();
+                YFlow outgoing = condition.getPostsetFlows().iterator().next();
+                YTask source = (YTask) incoming.getPriorElement();
+                YTask target = (YTask) outgoing.getNextElement();
+                YFlow replacement = new YFlow(source, target);
+                replacement.setXpathPredicate(incoming.getXpathPredicate());
+                replacement.setEvalOrdering(incoming.getEvalOrdering());
+                flows.remove(incoming);
+                flows.remove(outgoing);
+                flows.add(replacement);
+                implicitConditions.add(condition);
+            }
+        }
+        conditions.removeAll(implicitConditions);
+    }
 
     private void addCancellations(YTask engineTask) {
         if (engineTask.getRemoveSet().size() > 0) {

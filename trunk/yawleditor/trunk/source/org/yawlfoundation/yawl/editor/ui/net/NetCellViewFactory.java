@@ -24,75 +24,46 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.jgraph.graph.CellView;
-import org.jgraph.graph.DefaultCellViewFactory;
-import org.jgraph.graph.EdgeView;
-import org.jgraph.graph.GraphModel;
-import org.jgraph.graph.PortView;
-import org.jgraph.graph.VertexView;
-
-import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.CompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
-import org.yawlfoundation.yawl.editor.ui.elements.model.InputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleAtomicTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.MultipleCompositeTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-
-import org.yawlfoundation.yawl.editor.ui.elements.view.AtomicTaskView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.CompositeTaskView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.ConditionView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.DecoratorView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.InputConditionView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.MultipleAtomicTaskView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.MultipleCompositeTaskView;
-import org.yawlfoundation.yawl.editor.ui.elements.view.OutputConditionView;
+import org.jgraph.graph.*;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.elements.view.*;
 
 public class NetCellViewFactory extends DefaultCellViewFactory {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public CellView createView(GraphModel model, Object cell) {
-    if (cell instanceof AtomicTask) {
-      return new AtomicTaskView(cell);
+    public CellView createView(GraphModel model, Object cell) {
+        if (cell instanceof AtomicTask) {
+            return new AtomicTaskView(cell);
+        }
+        if (cell instanceof MultipleAtomicTask) {
+            return new MultipleAtomicTaskView(cell);
+        }
+        if (cell instanceof CompositeTask) {
+            return new CompositeTaskView(cell);
+        }
+        if (cell instanceof MultipleCompositeTask) {
+            return new MultipleCompositeTaskView(cell);
+        }
+        if (cell instanceof InputCondition) {
+            return new InputConditionView(cell);
+        }
+        if (cell instanceof OutputCondition) {
+            return new OutputConditionView(cell);
+        }
+        if (cell instanceof Condition) {
+            return new ConditionView(cell);
+        }
+        if (cell instanceof Decorator) {
+            return new DecoratorView((Decorator) cell);
+        }
+        if (cell instanceof VertexContainer) {
+            return new VertexView(cell);
+        }
+        if (cell instanceof YAWLPort) {
+            return new YPortView(cell);
+        }
+        if (cell instanceof YAWLFlowRelation) {
+            return new EdgeView(cell);
+        }
+        return createVertexView(cell);
     }
-    if (cell instanceof MultipleAtomicTask) {
-      return new MultipleAtomicTaskView(cell);
-    }
-    if (cell instanceof CompositeTask) {
-      return new CompositeTaskView(cell);
-    }
-    if (cell instanceof MultipleCompositeTask) {
-      return new MultipleCompositeTaskView(cell);
-    }
-    if (cell instanceof InputCondition) {
-      return new InputConditionView(cell);
-    }
-    if (cell instanceof OutputCondition) {
-      return new OutputConditionView(cell);
-    }
-    if (cell instanceof Condition) {
-      return new ConditionView(cell);
-    }
-    if (cell instanceof Decorator) {
-      return new DecoratorView((Decorator) cell);
-    }
-    if (cell instanceof VertexContainer) {
-      return new VertexView(cell);
-    }
-    if (cell instanceof YAWLPort) {
-      return new PortView(cell); 
-    }
-    if (cell instanceof YAWLFlowRelation) {
-      return new EdgeView(cell);
-    }
-    return createVertexView(cell);
-  }
 }

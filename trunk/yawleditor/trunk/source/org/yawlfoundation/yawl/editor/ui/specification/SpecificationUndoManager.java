@@ -222,7 +222,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
         }
         if (edit instanceof DefaultGraphModel.GraphModelEdit) {
             DefaultGraphModel.GraphModelEdit gmEdit = (DefaultGraphModel.GraphModelEdit) edit;
-            if (gmEdit.getSource() != null && gmEdit.getSource() instanceof NetGraphModel) {
+            if (gmEdit.getSource() instanceof NetGraphModel) {
                 showFrameOfModel((NetGraphModel) gmEdit.getSource());
             }
         }

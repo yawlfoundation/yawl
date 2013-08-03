@@ -58,6 +58,25 @@ public class YDataHandler {
 
 
     /**
+     * Updates the id of a net or task decomposition
+     * @param currentID the old net or task decomposition id
+     * @param newID the new net or task decomposition id
+     * @throws YDataHandlerException if there is no specification associated with this
+     * handler, or it has no decomposition with the specified id
+     */
+    public YDecomposition renameDecomposition(String currentID, String newID)
+            throws YDataHandlerException {
+        checkSpecificationExists();
+        YDecomposition current = getDecomposition(currentID);   // guaranteed not null
+        _specification.removeDecomposition(currentID);
+        current.setID(newID);
+        _specification.addDecomposition(current);
+        updateDecompositionReferences(currentID, newID);
+        return current;
+    }
+
+
+    /**
      * Updates all references to a net or task decomposition in task mappings, when
      * the net or decomposition has had a name change
      * @param oldID the old net or task decomposition id

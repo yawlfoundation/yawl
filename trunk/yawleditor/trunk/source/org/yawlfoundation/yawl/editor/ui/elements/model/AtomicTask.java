@@ -43,7 +43,7 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
 
     public AtomicTask(Point2D startPoint, YTask yTask) {
         super(startPoint);
-        setShadowTask(yTask);
+        setTask(yTask);
     }
 
 
@@ -69,11 +69,11 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
     }
 
     public void setTimerParameters(YTimerParameters timerParameters) {
-        getShadowTask().setTimerParameters(timerParameters);
+        getTask().setTimerParameters(timerParameters);
     }
 
     public YTimerParameters getTimerParameters() {
-        return getShadowTask().getTimerParameters();
+        return getTask().getTimerParameters();
     }
 
 

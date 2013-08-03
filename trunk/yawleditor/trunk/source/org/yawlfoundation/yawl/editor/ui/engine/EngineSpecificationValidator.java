@@ -14,7 +14,8 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import java.util.*;
 
 /**
- * A class whose sole responsibility is to provide engine validation results of the current specification.
+ * A class whose sole responsibility is to provide engine validation results of the
+ * current specification.
  * This class should have no user-interface effects.
  * @author Lindsay Bradford
  *
@@ -22,99 +23,100 @@ import java.util.*;
 
 public class EngineSpecificationValidator {
 
-  public static List getValidationResults() {
-    return getValidationResults(SpecificationModel.getInstance());
-  }
-
-  public static List getValidationResults(SpecificationModel specification) {
-    return getValidationResults(
-        SpecificationExporter.populateSpecification(
-                specification
-        )
-    );
-  }
-  
-  public static List<String> getValidationResults(YSpecification specification) {
-      return new Validator().validate(specification);
-  }
-  
-
-  /**********************************************************************************/
-
-  private static Hashtable<String, Boolean> _checkedDataTypes;
+    private static Hashtable<String, Boolean> _checkedDataTypes;
     private static List<String> _validDataTypeNames;
 
-  public static List<String> checkUserDefinedDataTypes(SpecificationModel editorSpec) {
-      _validDataTypeNames = SpecificationModel.getHandler().getDataHandler().getUserDefinedTypeNames();
-      _checkedDataTypes = new Hashtable<String, Boolean>();
-      List<String> problemList = new ArrayList<String>();
-      Set<NetGraphModel> nets = editorSpec.getNets();
-      for (NetGraphModel net : nets) {
-          YNet netDecomp = (YNet) net.getDecomposition();
-          Set<YVariable> variables = new HashSet<YVariable>();
-          variables.addAll(netDecomp.getLocalVariables().values());
-          variables.addAll(netDecomp.getInputParameters().values());
-          variables.addAll(netDecomp.getOutputParameters().values());
-          problemList.addAll(checkUserDefinedDataTypes(variables, net.getName(), null));
-          NetElementSummary editorNetSummary = new NetElementSummary(net);
-          Set tasks = editorNetSummary.getAtomicTasks();
-          for (Object o : tasks) {
-              YAWLAtomicTask task = (YAWLAtomicTask) o;
-              YDecomposition decomp = task.getDecomposition();
-              if (decomp != null) {
-                  Set<YVariable> taskVars = new HashSet<YVariable>();
-                  taskVars.addAll(decomp.getInputParameters().values());
-                  taskVars.addAll(decomp.getOutputParameters().values());
-                  problemList.addAll(checkUserDefinedDataTypes(variables,
-                                                    net.getName(), task.getLabel()));
-              }
-          }
-          // todo : check flow predicates
-//          Set flows = editorNetSummary.getFlows();
-//          for (Object o : flows) {
-//              String result = checkUserDefinedDataType((YAWLFlowRelation) o);
-//              if (result != null) problemList.add(result);
-//          }
-      }
-      return problemList;
-  }
+
+    public List<String> getValidationResults() {
+        return getValidationResults(SpecificationModel.getInstance());
+    }
+
+    public List<String> getValidationResults(SpecificationModel specification) {
+        return getValidationResults(
+                SpecificationWriter.populateSpecification(
+                        specification
+                )
+        );
+    }
+
+    public List<String> getValidationResults(YSpecification specification) {
+        return new Validator().validate(specification);
+    }
 
 
-  private static List<String> checkUserDefinedDataTypes(Set<YVariable> varSet,
-                                                      String netName, String taskName) {
-      List<String> problemList = new ArrayList<String>();
-      for (YVariable var : varSet) {
-          String problem = checkUserDefinedDataType(var, netName, taskName);
-          if (problem != null) problemList.add(problem);
-      }
-      return problemList;
-  }
+    /**********************************************************************************/
 
-    
-  private static String checkUserDefinedDataType(YVariable var,
-                                                 String netName, String taskName) {
-      boolean valid;
-      String datatype = var.getDataTypeName();
-      if (! (XSDType.getInstance().isBuiltInType(datatype) ||
-             datatype.equals("YTimerType") ||
-             datatype.equals("YStringListType") ||
-             datatype.equals("YDocumentType"))) {
-          if (_checkedDataTypes.containsKey(datatype)) {
-              valid = _checkedDataTypes.get(datatype);
-          }
-          else {
-              valid = _validDataTypeNames.contains(datatype);
-              _checkedDataTypes.put(datatype, valid) ;
-          }
+    public List<String> checkUserDefinedDataTypes(SpecificationModel editorSpec) {
+        _validDataTypeNames = SpecificationModel.getHandler().getDataHandler().getUserDefinedTypeNames();
+        _checkedDataTypes = new Hashtable<String, Boolean>();
+        List<String> problemList = new ArrayList<String>();
+        Set<NetGraphModel> nets = editorSpec.getNets();
+        for (NetGraphModel net : nets) {
+            YNet netDecomp = (YNet) net.getDecomposition();
+            Set<YVariable> variables = new HashSet<YVariable>();
+            variables.addAll(netDecomp.getLocalVariables().values());
+            variables.addAll(netDecomp.getInputParameters().values());
+            variables.addAll(netDecomp.getOutputParameters().values());
+            problemList.addAll(checkUserDefinedDataTypes(variables, net.getName(), null));
+            NetElementSummary editorNetSummary = new NetElementSummary(net);
+            Set tasks = editorNetSummary.getAtomicTasks();
+            for (Object o : tasks) {
+                YAWLAtomicTask task = (YAWLAtomicTask) o;
+                YDecomposition decomp = task.getDecomposition();
+                if (decomp != null) {
+                    Set<YVariable> taskVars = new HashSet<YVariable>();
+                    taskVars.addAll(decomp.getInputParameters().values());
+                    taskVars.addAll(decomp.getOutputParameters().values());
+                    problemList.addAll(checkUserDefinedDataTypes(variables,
+                            net.getName(), task.getLabel()));
+                }
+            }
+            // todo : check flow predicates
+            //          Set flows = editorNetSummary.getFlows();
+            //          for (Object o : flows) {
+            //              String result = checkUserDefinedDataType((YAWLFlowRelation) o);
+            //              if (result != null) problemList.add(result);
+            //          }
+        }
+        return problemList;
+    }
 
-          if (! valid) {
-              String taskDef = taskName == null ? "" : String.format("Task '%s', ", taskName);
-              return String.format(
-                 "Invalid or missing datatype definition '%s' in Net '%s', %s Variable '%s'.",
-                                     datatype, netName, taskDef, var.getName());
-          }
-     }
-     return null;
-  }
+
+    private List<String> checkUserDefinedDataTypes(Set<YVariable> varSet,
+                                                          String netName, String taskName) {
+        List<String> problemList = new ArrayList<String>();
+        for (YVariable var : varSet) {
+            String problem = checkUserDefinedDataType(var, netName, taskName);
+            if (problem != null) problemList.add(problem);
+        }
+        return problemList;
+    }
+
+
+    private String checkUserDefinedDataType(YVariable var,
+                                                   String netName, String taskName) {
+        boolean valid;
+        String datatype = var.getDataTypeName();
+        if (! (XSDType.getInstance().isBuiltInType(datatype) ||
+                datatype.equals("YTimerType") ||
+                datatype.equals("YStringListType") ||
+                datatype.equals("YDocumentType"))) {
+            if (_checkedDataTypes.containsKey(datatype)) {
+                valid = _checkedDataTypes.get(datatype);
+            }
+            else {
+                valid = _validDataTypeNames.contains(datatype);
+                _checkedDataTypes.put(datatype, valid) ;
+            }
+
+            if (! valid) {
+                String taskDef = taskName == null ? "" : String.format("Task '%s', ", taskName);
+                return String.format(
+                        "Invalid or missing datatype definition '%s' in Net '%s', %s Variable '%s'.",
+                        datatype, netName, taskDef, var.getName());
+            }
+        }
+        return null;
+    }
 
 }

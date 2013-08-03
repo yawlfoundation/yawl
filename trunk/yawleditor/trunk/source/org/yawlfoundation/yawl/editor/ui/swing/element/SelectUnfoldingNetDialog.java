@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
@@ -42,140 +41,136 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class SelectUnfoldingNetDialog extends AbstractDoneDialog {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  protected NetGraph graph;
-  protected YAWLCompositeTask task;
-  
-  protected JComboBox netComboBox;
-  
-  public SelectUnfoldingNetDialog() {
-    super("Composite Task Unfolding", true);
-    setContentPanel(getUnfoldingNetPanel());
 
-    getDoneButton().addActionListener(new ActionListener(){
-       public void actionPerformed(ActionEvent e) {
-         NetGraphModel netModel = 
-           SpecificationUtilities.getNetModelFromName(
-                   (String) netComboBox.getSelectedItem()
-           );
-         
-         if (netModel != null) {
-           graph.setUnfoldingNet(task, netModel.getGraph());
-         } else {
-           graph.setUnfoldingNet(task, null);
-         }
-       }
-    });
-  }
+    protected NetGraph graph;
+    protected YAWLCompositeTask task;
+    protected JComboBox netComboBox;
 
-  protected void makeLastAdjustments() {
-    pack();
-    setResizable(false);
-  }
+    public SelectUnfoldingNetDialog() {
+        super("Composite Task Unfolding", true);
+        setContentPanel(getUnfoldingNetPanel());
 
-  public void setVisible(boolean state) {
-    if (state == true) {
-      JUtilities.centreWindowUnderVertex(graph, this, (YAWLVertex) task, 10);
-    }
-    super.setVisible(state);
-  }
-  
-  private JPanel getUnfoldingNetPanel() {
+        getDoneButton().addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                NetGraphModel netModel =
+                        SpecificationModel.getInstance().getNets().getNetModelFromName(
+                                (String) netComboBox.getSelectedItem()
+                        );
 
-    GridBagLayout gbl = new GridBagLayout();
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    JPanel panel = new JPanel(gbl);
-    panel.setBorder(new EmptyBorder(12,12,0,11));
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.insets = new Insets(0,0,0,5);
-    gbc.anchor = GridBagConstraints.EAST;
-
-    JLabel label = new JLabel("This task unfolds to the net:");
-    label.setDisplayedMnemonic('u');
-    panel.add(label, gbc);
-    
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.WEST;
-
-    netComboBox = new JComboBox();
-    label.setLabelFor(netComboBox);
-    
-    panel.add(netComboBox, gbc);
-
-    gbc.gridx++;
-    gbc.anchor = GridBagConstraints.CENTER;
-    
-    panel.add(getCreateButton(), gbc);
-
-    return panel;
-  }
-  
-  public void setTask(NetGraph graph, YAWLCompositeTask task) {
-    this.graph = graph;
-    this.task = task;
-    populateComboBox();
-  }
-  
-  private void populateComboBox() {
-    netComboBox.setEnabled(false);
-    netComboBox.removeAllItems();
-    netComboBox.addItem(null);
-
-    Set netSet = SpecificationModel.getInstance().getNets();
-    
-    Object[] netSetArray = netSet.toArray();
-    String[] netSetNames = new String[netSet.size()];
-    for(int i = 0; i < netSet.size(); i++) {
-      netSetNames[i] = ((NetGraphModel) netSetArray[i]).getName();
+                if (netModel != null) {
+                    graph.setUnfoldingNet(task, netModel.getGraph());
+                } else {
+                    graph.setUnfoldingNet(task, null);
+                }
+            }
+        });
     }
 
-    try {
-      Arrays.sort(netSetNames);
-    } catch (Exception e) {};
-    
-    for(int i = 0; i < netSetNames.length; i++) {
-      netComboBox.addItem(netSetNames[i]);
-      
-      if (task.getUnfoldingNetName() != null && 
-          task.getUnfoldingNetName().equals(netSetNames[i])) {
-        netComboBox.setSelectedItem(netSetNames[i]);
-      }
+    protected void makeLastAdjustments() {
+        pack();
+        setResizable(false);
     }
-    netComboBox.setEnabled(true);
-    pack();
-  }
-  
-  private JButton getCreateButton() {
-    JButton button = new JButton("Create...");
-    button.setMnemonic(KeyEvent.VK_C);
-    
-    final AbstractDoneDialog dialog = this;
-    
-    button.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        YAWLEditorNetPanel newFrame = YAWLEditor.getNetsPane().newNet();
-        
-//        NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
-//            newFrame.getNet().getNetModel().getDecomposition()
-//        );
 
-          dialog.setVisible(false);
+    public void setVisible(boolean state) {
+        if (state) {
+            JUtilities.centreWindowUnderVertex(graph, this, (YAWLVertex) task, 10);
+        }
+        super.setVisible(state);
+    }
 
-//        netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
-//        netDialog.setModal(true);
-//        netDialog.setVisible(true);
+    private JPanel getUnfoldingNetPanel() {
 
-        graph.setUnfoldingNet(task, newFrame.getNet());
+        GridBagLayout gbl = new GridBagLayout();
+        GridBagConstraints gbc = new GridBagConstraints();
 
-      }
-    });
-    
-    return button;
-  }
+        JPanel panel = new JPanel(gbl);
+        panel.setBorder(new EmptyBorder(12,12,0,11));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0,0,0,5);
+        gbc.anchor = GridBagConstraints.EAST;
+
+        JLabel label = new JLabel("This task unfolds to the net:");
+        label.setDisplayedMnemonic('u');
+        panel.add(label, gbc);
+
+        gbc.gridx++;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        netComboBox = new JComboBox();
+        label.setLabelFor(netComboBox);
+
+        panel.add(netComboBox, gbc);
+
+        gbc.gridx++;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        panel.add(getCreateButton(), gbc);
+
+        return panel;
+    }
+
+    public void setTask(NetGraph graph, YAWLCompositeTask task) {
+        this.graph = graph;
+        this.task = task;
+        populateComboBox();
+    }
+
+    private void populateComboBox() {
+        netComboBox.setEnabled(false);
+        netComboBox.removeAllItems();
+        netComboBox.addItem(null);
+
+        Set netSet = SpecificationModel.getInstance().getNets();
+
+        Object[] netSetArray = netSet.toArray();
+        String[] netSetNames = new String[netSet.size()];
+        for(int i = 0; i < netSet.size(); i++) {
+            netSetNames[i] = ((NetGraphModel) netSetArray[i]).getName();
+        }
+
+        try {
+            Arrays.sort(netSetNames);
+        } catch (Exception e) {};
+
+        for(int i = 0; i < netSetNames.length; i++) {
+            netComboBox.addItem(netSetNames[i]);
+
+            if (task.getUnfoldingNetName() != null &&
+                    task.getUnfoldingNetName().equals(netSetNames[i])) {
+                netComboBox.setSelectedItem(netSetNames[i]);
+            }
+        }
+        netComboBox.setEnabled(true);
+        pack();
+    }
+
+    private JButton getCreateButton() {
+        JButton button = new JButton("Create...");
+        button.setMnemonic(KeyEvent.VK_C);
+
+        final AbstractDoneDialog dialog = this;
+
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                YAWLEditorNetPanel newFrame = YAWLEditor.getNetsPane().newNet();
+
+                //        NetDecompositionUpdateDialog netDialog = new NetDecompositionUpdateDialog(
+                //            newFrame.getNet().getNetModel().getDecomposition()
+                //        );
+
+                dialog.setVisible(false);
+
+                //        netDialog.setLocationRelativeTo(YAWLEditor.getInstance());
+                //        netDialog.setModal(true);
+                //        netDialog.setVisible(true);
+
+                graph.setUnfoldingNet(task, newFrame.getNet());
+
+            }
+        });
+
+        return button;
+    }
 }

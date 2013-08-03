@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.net.utilities;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -26,7 +27,7 @@ public class NetCellFactory {
      */
 
     public static Condition insertCondition(NetGraph net, Point2D point) {
-        YCondition yCondition = getHandler().addCondition(net.getName(), "Condition");
+        YCondition yCondition = getHandler().addCondition(net.getName(), "C");
         Condition newCondition = new Condition(point, yCondition);
         net.addElement(newCondition);
         return newCondition;
@@ -40,7 +41,7 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static AtomicTask insertAtomicTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addAtomicTask(net.getName(), "AtomicTask");
+        YTask yTask = getHandler().addAtomicTask(net.getName(), "T");
         AtomicTask newTask = new AtomicTask(point, yTask);
         net.addElement(newTask);
         return newTask;
@@ -55,8 +56,7 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static MultipleAtomicTask insertMultipleAtomicTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addMultipleInstanceAtomicTask(net.getName(),
-                "MultipleAtomicTask");
+        YTask yTask = getHandler().addMultipleInstanceAtomicTask(net.getName(), "T");
         MultipleAtomicTask newTask = new MultipleAtomicTask(point, yTask);
         net.addElement(newTask);
         return newTask;
@@ -71,7 +71,7 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static CompositeTask insertCompositeTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addCompositeTask(net.getName(), "CompositeTask");
+        YTask yTask = getHandler().addCompositeTask(net.getName(), "T");
         CompositeTask newTask = new CompositeTask(point, yTask);
         net.addElement(newTask);
         return newTask;
@@ -85,11 +85,17 @@ public class NetCellFactory {
      * @return a reference to the newly created task.
      */
     public static MultipleCompositeTask insertMultipleCompositeTask(NetGraph net, Point2D point) {
-        YTask yTask = getHandler().addMultipleInstanceCompositeTask(net.getName(),
-                "MultipleCompositeTask");
+        YTask yTask = getHandler().addMultipleInstanceCompositeTask(net.getName(), "T");
         MultipleCompositeTask newTask = new MultipleCompositeTask(point, yTask);
         net.addElement(newTask);
         return newTask;
+    }
+
+
+    public static YAWLFlowRelation insertFlow(NetGraph net, String sourceID,
+                                              String targetID) {
+        YCompoundFlow yFlow = getHandler().addFlow(net.getName(), sourceID, targetID);
+        return new YAWLFlowRelation(yFlow);
     }
 
 

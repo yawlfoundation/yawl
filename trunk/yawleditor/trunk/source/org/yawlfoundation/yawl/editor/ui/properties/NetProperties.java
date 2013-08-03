@@ -28,27 +28,27 @@ public class NetProperties extends YPropertiesBean {
 
     /*** SPEC PROPERTIES ***/
 
-    public String getUri() { return specificationHandler.getID().getUri(); }
+    public String getUri() { return specHandler.getID().getUri(); }
 
-    public void setUri(String uri) { specificationHandler.getID().setUri(uri); }
-
-
-    public String getTitle() { return specificationHandler.getTitle(); }
-
-    public void setTitle(String title) { specificationHandler.setTitle(title); }
+    public void setUri(String uri) { specHandler.getID().setUri(uri); }
 
 
-    public String getDescription() { return specificationHandler.getDescription(); }
+    public String getTitle() { return specHandler.getTitle(); }
 
-    public void setDescription(String desc) { specificationHandler.setDescription(desc); }
+    public void setTitle(String title) { specHandler.setTitle(title); }
+
+
+    public String getDescription() { return specHandler.getDescription(); }
+
+    public void setDescription(String desc) { specHandler.setDescription(desc); }
 
 
     public String getAuthors() {
-        return StringUtil.join(specificationHandler.getAuthors(), ',');
+        return StringUtil.join(specHandler.getAuthors(), ',');
     }
 
     public void setAuthors(String authors) {
-        specificationHandler.setAuthors(StringUtil.splitToList(authors, ","));
+        specHandler.setAuthors(StringUtil.splitToList(authors, ","));
     }
 
 
@@ -69,12 +69,12 @@ public class NetProperties extends YPropertiesBean {
 
 
     public String getDataSchema() {
-        return specificationHandler.getSchema();
+        return specHandler.getSchema();
     }
 
     public void setDataSchema(String schema) {
         try {
-            specificationHandler.setSchema(schema);
+            specHandler.setSchema(schema);
         }
         catch (YSyntaxException yse) {
             // invalid schema
@@ -89,7 +89,7 @@ public class NetProperties extends YPropertiesBean {
     public void setName(String value) {
         String oldValue = getName();
         graph.setName(value);
-        SpecificationModel.getInstance().propogateDecompositionLabelChange(
+        SpecificationModel.getInstance().getNets().propagateDecompositionNameChange(
                 model.getDecomposition(), oldValue);
         setDirty();
     }
@@ -98,10 +98,10 @@ public class NetProperties extends YPropertiesBean {
     public boolean isRootNet() {
 
         // model is null when a new spec is first created
-        return model == null || model.isStartingNet();
+        return model == null || model.isRootNet();
     }
 
-    public void setRootNet(boolean value) { model.setIsStartingNet(value); }
+    public void setRootNet(boolean value) { model.setIsRootNet(value); }
 
 
     public Color getNetFillColor() { return graph.getBackground(); }
@@ -124,7 +124,7 @@ public class NetProperties extends YPropertiesBean {
 
 
     public NetTaskPair getDataVariables() {
-        return new NetTaskPair(specificationHandler.getControlFlowHandler().getRootNet(), null, null);
+        return new NetTaskPair(specHandler.getControlFlowHandler().getRootNet(), null, null);
     }
 
     public void setDataVariables(NetTaskPair value) {

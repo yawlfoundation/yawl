@@ -36,7 +36,7 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             tasks = petri.getTasks();
             if (petri.checkValidate()) {
                 petri.saveOWFNfile();
-                msgDialog = new AnalysisDialog("Net");
+                msgDialog = new AnalysisDialog("Net", YAWLEditor.getInstance());
                 msgDialog.setTitle("Check Configuration Correctness");
                 runner = new WendyRunner();
                 runner.addPropertyChangeListener(this);

@@ -28,13 +28,13 @@ public class LayoutImporter {
     public static void importAndApply(YLayout layout) {
         SpecificationModel model = SpecificationModel.getInstance();
         for (YNetLayout netLayout : layout.getNetLayouts().values()) {
-            NetGraphModel netModel = model.getNet(netLayout.getID());
+            NetGraphModel netModel = model.getNets().get(netLayout.getID());
             setNetLayout(netModel, netLayout);
             netModel.getGraph().getGraphLayoutCache().reload();
         }
         int defaultFontSize = layout.getGlobalFontSize();
         if (defaultFontSize != YLayout.DEFAULT_FONT_SIZE) {
-            model.undoableSetFontSize(YLayout.DEFAULT_FONT_SIZE, defaultFontSize);
+            model.setFontSize(YLayout.DEFAULT_FONT_SIZE, defaultFontSize);
         }
         Color defaultBgColor = layout.getGlobalFillColor();
         if (defaultBgColor != null) {

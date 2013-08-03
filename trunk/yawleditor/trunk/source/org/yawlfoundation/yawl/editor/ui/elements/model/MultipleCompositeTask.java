@@ -59,7 +59,7 @@ public class MultipleCompositeTask extends YAWLTask
 
     public MultipleCompositeTask(Point2D startPoint, YTask yTask) {
         super(startPoint);
-        setShadowTask(yTask);
+        setTask(yTask);
     }
 
 

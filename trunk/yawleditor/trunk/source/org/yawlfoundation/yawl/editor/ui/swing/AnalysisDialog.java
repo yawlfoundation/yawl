@@ -26,13 +26,13 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
     private AnalysisResultsParser _owner;
     private String header;
 
-    public AnalysisDialog(String title) {
+    public AnalysisDialog(String title, JFrame owner) {
+        super(owner);
         setContentPane(contentPane);
         header = "Analysing " + title + ": ";
         lblHeader.setText(header);
         cancelled = false;
         setModal(false);
-        setAlwaysOnTop(true);
         getRootPane().setDefaultButton(btnClose);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setKeepOpenCheckbox();
@@ -90,6 +90,7 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
         else {
             btnCancel.setEnabled(false);
             btnClose.setEnabled(true);
+            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         }
     }
 

@@ -59,7 +59,7 @@ public class TestSpecificationEngineHandler extends TestCase {
 //    rootNetGraph.setName("StartingNet");
 //    rootNetGraph.buildNewGraphContent();
 //    rootNet = rootNetGraph.getNetModel();
-//    rootNet.setIsStartingNet(true);
+//    rootNet.setIsRootNet(true);
 //
 //    SpecificationModel.getInstance().addNet(rootNet);
 //

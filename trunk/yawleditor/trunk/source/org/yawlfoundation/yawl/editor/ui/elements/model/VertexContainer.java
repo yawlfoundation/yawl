@@ -34,102 +34,89 @@ import java.util.HashSet;
 public class VertexContainer extends DefaultGraphCell implements YAWLCell {
 
 
-  public VertexContainer() {
-    initialize();
-  }
-
-  private void initialize() {
-    HashMap map = new HashMap();
-    
-    GraphConstants.setOpaque(map, false);
-    GraphConstants.setSizeable(map, true);
-    GraphConstants.setChildrenSelectable(map, true);
-    
-    getAttributes().applyMap(map);
-  }
-  
-  public boolean isRemovable() {
-      return getVertex() == null || getVertex().isRemovable();
-  }
-  
-  public boolean isCopyable() {
-      return getVertex() == null || getVertex().isCopyable();
-  }
-  
-  public boolean acceptsIncomingFlows() {
-   return true; 
-  }
-
-  public boolean generatesOutgoingFlows() {
-    return true;
-  }
-  
-  public String getToolTipText() {
-    StringBuffer tooltipText = null;
-    boolean joinTextAdded = false;
-    
-    if (getVertex() != null ) {
-      tooltipText = new StringBuffer();
-      tooltipText.append("<html><body>");
-      
-      if (getVertex() instanceof YAWLTask) {
-        YAWLTask task = (YAWLTask) getVertex();
-        if (task.getDecomposition() != null) {
-          tooltipText.append("&nbsp;<b>Decomposition: </b>");
-          tooltipText.append(task.getDecomposition().getID());
-          tooltipText.append("&nbsp;<p>");
-        }
-      }
-      
-      if (getVertex().getEngineIdToolTipText() != null) {
-        tooltipText.append(getVertex().getEngineIdToolTipText());
-      }
-      if (getJoinDecorator() != null || getSplitDecorator() != null) {
-        tooltipText.append("&nbsp;<b>Decorator(s):</b> ");
-      }
-      
-      if (getJoinDecorator() != null) {
-        if (getJoinDecorator().toString() != null) {
-          if (getVertex().getEngineIdToolTipText() == null) {
-            tooltipText.append(" " + getJoinDecorator().toString());
-          } else {
-            tooltipText.replace(tooltipText.length() - 1, tooltipText.length()-1, ": ");
-            tooltipText.append(getJoinDecorator().toString());
-          }
-          joinTextAdded = true;
-        }
-      }
-      if (getSplitDecorator() != null) {
-        if (getSplitDecorator().toString() != null) {
-          if (!joinTextAdded) {
-            if (getVertex().getEngineIdToolTipText() == null) {
-              tooltipText.append(" " + getSplitDecorator().toString());
-            } else {
-              tooltipText.replace(tooltipText.length() - 1, tooltipText.length()-1, ": ");
-              tooltipText.append(getSplitDecorator().toString());
-            }
-          } else {
-            tooltipText.append(", " + getSplitDecorator().toString());
-          }
-        }
-      }
-      if (getJoinDecorator() != null || getSplitDecorator() != null) {
-        tooltipText.append("&nbsp;<p>");
-      }
-      tooltipText.append("</body></html>");
+    public VertexContainer() {
+        initialize();
     }
-    return tooltipText.toString();
-  }
 
-  
-  public YAWLVertex getVertex() {
-      for (Object o : getChildren()) {
-          if (o instanceof YAWLVertex) {
-              return (YAWLVertex) o;
-          }
-      }
-      return null;
-  }
+    private void initialize() {
+        HashMap map = new HashMap();
+        GraphConstants.setOpaque(map, false);
+        GraphConstants.setSizeable(map, true);
+        GraphConstants.setChildrenSelectable(map, true);
+        getAttributes().applyMap(map);
+    }
+
+    public boolean isRemovable() {
+        return getVertex() == null || getVertex().isRemovable();
+    }
+
+    public boolean isCopyable() {
+        return getVertex() == null || getVertex().isCopyable();
+    }
+
+    public boolean acceptsIncomingFlows() {
+        return true;
+    }
+
+    public boolean generatesOutgoingFlows() {
+        return true;
+    }
+
+    public String getToolTipText() {
+        StringBuilder tooltipText = null;
+        boolean joinTextAdded = false;
+
+        if (getVertex() != null) {
+            tooltipText = new StringBuilder();
+            tooltipText.append("<html><body>");
+            tooltipText.append(getVertex().getInnerToolTipText());
+
+            if (getVertex() instanceof YAWLTask) {
+                YAWLTask task = (YAWLTask) getVertex();
+                if (task.getDecomposition() != null) {
+                    tooltipText.append("&nbsp;<b>Decomposition: </b>");
+                    tooltipText.append(task.getDecomposition().getID());
+                    tooltipText.append("&nbsp;<p>");
+                }
+            }
+
+            if (getJoinDecorator() != null || getSplitDecorator() != null) {
+                tooltipText.append("&nbsp;<b>Decorator(s):</b> ");
+
+                if (getJoinDecorator() != null) {
+                    if (getJoinDecorator().toString() != null) {
+                        tooltipText.replace(tooltipText.length() - 1, tooltipText.length()-1, ": ");
+                        tooltipText.append(getJoinDecorator().toString());
+                    }
+                    joinTextAdded = true;
+                }
+
+                if (getSplitDecorator() != null) {
+                    if (getSplitDecorator().toString() != null) {
+                        if (!joinTextAdded) {
+                            tooltipText.replace(tooltipText.length() - 1, tooltipText.length()-1, ": ");
+                            tooltipText.append(getSplitDecorator().toString());
+                        } else {
+                            tooltipText.append(", ").append(getSplitDecorator().toString());
+                        }
+                    }
+                }
+                tooltipText.append("&nbsp;<p>");
+            }
+            tooltipText.append("</body></html>");
+        }
+        return tooltipText != null ? tooltipText.toString() : null;
+    }
+
+
+    public YAWLVertex getVertex() {
+        for (Object o : getChildren()) {
+            if (o instanceof YAWLVertex) {
+                return (YAWLVertex) o;
+            }
+        }
+        return null;
+    }
 
     public VertexLabel getLabel() {
         for (Object o : getChildren()) {
@@ -140,50 +127,48 @@ public class VertexContainer extends DefaultGraphCell implements YAWLCell {
         return null;
     }
 
-  public JoinDecorator getJoinDecorator() {
-      for (Object o : getChildren()) {
-          if (o instanceof JoinDecorator) {
-              return (JoinDecorator) o;
-          }
-      }
-  	return null;
-  }
-  
-  public HashSet getOutgoingFlows() {
-    if (getSplitDecorator() != null) {
-      return getSplitDecorator().getFlows();
-    } 
-    return getVertex().getOutgoingFlows();
-  }
+    public JoinDecorator getJoinDecorator() {
+        for (Object o : getChildren()) {
+            if (o instanceof JoinDecorator) {
+                return (JoinDecorator) o;
+            }
+        }
+        return null;
+    }
 
-  public HashSet getIncomingFlows() {
-    if (getJoinDecorator() != null) {
-      return getJoinDecorator().getFlows();
-    } 
-    return getVertex().getIncomingFlows();
-  }
+    public HashSet getOutgoingFlows() {
+        if (getSplitDecorator() != null) {
+            return getSplitDecorator().getFlows();
+        }
+        return getVertex().getOutgoingFlows();
+    }
 
-  
-  public SplitDecorator getSplitDecorator() {
-      for (Object o : getChildren()) {
-          if (o instanceof SplitDecorator) {
-              return (SplitDecorator) o;
-          }
-      }
-    return null;
-  }
+    public HashSet getIncomingFlows() {
+        if (getJoinDecorator() != null) {
+            return getJoinDecorator().getFlows();
+        }
+        return getVertex().getIncomingFlows();
+    }
 
 
+    public SplitDecorator getSplitDecorator() {
+        for (Object o : getChildren()) {
+            if (o instanceof SplitDecorator) {
+                return (SplitDecorator) o;
+            }
+        }
+        return null;
+    }
 
-  public void setBounds(Rectangle2D bounds) {
-    HashMap map = new HashMap();
-	
-    GraphConstants.setBounds(map, bounds);
 
-    getAttributes().applyMap(map);
-  }
+    public void setBounds(Rectangle2D bounds) {
+        HashMap map = new HashMap();
+        GraphConstants.setBounds(map, bounds);
+         getAttributes().applyMap(map);
+    }
 
-  public Rectangle2D getBounds() {
-    return GraphConstants.getBounds(getAttributes());
-  }
+
+    public Rectangle2D getBounds() {
+        return GraphConstants.getBounds(getAttributes());
+    }
 }

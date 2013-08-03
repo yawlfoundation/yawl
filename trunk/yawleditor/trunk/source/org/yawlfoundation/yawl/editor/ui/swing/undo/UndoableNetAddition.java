@@ -30,24 +30,20 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableNetAddition extends AbstractUndoableEdit {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private NetGraphModel addedNet;
-    
-  public UndoableNetAddition(NetGraphModel addedNet) {
-    this.addedNet = addedNet;
-  }
 
-  public void redo() {
-    SpecificationModel.getInstance().addNetNotUndoable(addedNet);
-    addedNet.getGraph().getFrame().setVisible(true);
-  }
+    private NetGraphModel addedNet;
 
-  public void undo() {
-    addedNet.getGraph().getFrame().setVisible(false);
-    SpecificationModel.getInstance().removeNetNotUndoable(addedNet);
-  }
+    public UndoableNetAddition(NetGraphModel addedNet) {
+        this.addedNet = addedNet;
+    }
+
+    public void redo() {
+        SpecificationModel.getInstance().getNets().addNoUndo(addedNet);
+        addedNet.getGraph().getFrame().setVisible(true);
+    }
+
+    public void undo() {
+        addedNet.getGraph().getFrame().setVisible(false);
+        SpecificationModel.getInstance().getNets().removeNoUndo(addedNet);
+    }
 }
