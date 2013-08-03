@@ -24,6 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
@@ -37,62 +38,60 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.*;
 
-public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
+public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
+        implements TooltipTogglingWidget {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
+        putValue(Action.NAME, "Delete Orphaned Decompositions...");
+        putValue(Action.LONG_DESCRIPTION, "Delete Orphaned Decompositions");
+        putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation_delete"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("O"));
+    }
 
-  {
-    putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
-    putValue(Action.NAME, "Delete Orphaned Decompositions...");
-    putValue(Action.LONG_DESCRIPTION, "Delete Orphaned Decompositions");
-    putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation_delete"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("O"));
-  }
 
-  public void actionPerformed(ActionEvent event) {
-      DeleteOrphanDecompositionDialog dialog = new DeleteOrphanDecompositionDialog();
-      dialog.setItems(getOrphanedDecompositionNames());
-      dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-      dialog.setVisible(true);
+    public void actionPerformed(ActionEvent event) {
+        DeleteOrphanDecompositionDialog dialog = new DeleteOrphanDecompositionDialog();
+        dialog.setItems(getOrphanedDecompositionNames());
+        dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+        dialog.setVisible(true);
 
-      List<String> selectedItems = dialog.getSelectedItems();
-      if (selectedItems != null) {                   // will be null if dialog cancelled
-          for (String name : selectedItems) {
-              SpecificationModel.getInstance().removeWebServiceDecomposition(name);
-          }
-      }
-  }
+        List<String> selectedItems = dialog.getSelectedItems();
+        if (selectedItems != null) {                   // will be null if dialog cancelled
+            for (String name : selectedItems) {
+                SpecificationModel.getHandler().getControlFlowHandler()
+                        .removeTaskDecomposition(name);
+            }
+        }
+    }
 
-  public String getEnabledTooltipText() {
-    return " Delete decompositions that have no associated tasks ";
-  }
+    public String getEnabledTooltipText() {
+        return " Delete decompositions that have no associated tasks ";
+    }
 
-  public String getDisabledTooltipText() {
-    return " You must have a specification" +
-           " open to in order to delete its orphaned decompositions ";
-  }
+    public String getDisabledTooltipText() {
+        return " You must have a specification" +
+                " open to in order to delete its orphaned decompositions ";
+    }
 
-  private Vector<String> getOrphanedDecompositionNames() {
-      Set<YAWLAtomicTask> allTasks = getAllAtomicTasks();
-      Vector<String> items = new Vector<String>();
-      for (YDecomposition decomp :
-              SpecificationModel.getInstance().getWebServiceDecompositions()) {
-          if (isOrphaned(decomp, allTasks)) {
-              items.add(decomp.getID());
-          }
-      }
-      Collections.sort(items);
-      return items;
-  }
+    private Vector<String> getOrphanedDecompositionNames() {
+        Set<YAWLAtomicTask> allTasks = getAllAtomicTasks();
+        Vector<String> items = new Vector<String>();
+        YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
+        for (YDecomposition decomp : handler.getTaskDecompositions()) {
+            if (isOrphaned(decomp, allTasks)) {
+                items.add(decomp.getID());
+            }
+        }
+        Collections.sort(items);
+        return items;
+    }
 
     private Set<YAWLAtomicTask> getAllAtomicTasks() {
         Set<YAWLAtomicTask> tasks = new HashSet<YAWLAtomicTask>();
         for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
-             tasks.addAll(NetUtilities.getAtomicTasks(net));
+            tasks.addAll(NetUtilities.getAtomicTasks(net));
         }
         return tasks;
     }

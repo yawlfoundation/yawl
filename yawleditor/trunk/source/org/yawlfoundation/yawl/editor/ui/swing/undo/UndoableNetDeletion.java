@@ -24,55 +24,50 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
-import java.util.HashSet;
-import java.util.Iterator;
-
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.specification.NetModelSet;
 
 import javax.swing.undo.AbstractUndoableEdit;
+import java.util.Set;
 
 public class UndoableNetDeletion extends AbstractUndoableEdit {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private NetGraphModel deletedNet;
-  private boolean       wasStartingNet;
-  private NetGraphModel newStartingNet;
-  private HashSet       changedTasks;
-    
-  public UndoableNetDeletion(NetGraphModel netModel, 
-                             boolean       wasStartingNet,
-                             NetGraphModel newStartingNet, 
-                             HashSet changedTasks) {
-    this.deletedNet = netModel;
-    this.wasStartingNet = wasStartingNet;
-    this.newStartingNet = newStartingNet;
-    this.changedTasks = changedTasks;
-  }
 
-  public void redo() {
-    deletedNet.getGraph().getFrame().setVisible(false);
-    SpecificationModel.getInstance().removeNetNotUndoable(deletedNet);
-    if (newStartingNet != null) {
-      SpecificationModel.getInstance().setStartingNet(newStartingNet);
-    }
-    SpecificationModel.getInstance().resetUnfoldingCompositeTasks(deletedNet);
-  }
+    private NetGraphModel deletedNet;
+    private boolean wasRootNet;
+    private NetGraphModel newRootNet;
+    private Set<YAWLCompositeTask> changedTasks;
+    private NetModelSet nets;
 
-  public void undo() {
-    SpecificationModel.getInstance().addNetNotUndoable(deletedNet);
-    if (wasStartingNet) {
-      SpecificationModel.getInstance().setStartingNet(deletedNet);
+    public UndoableNetDeletion(NetModelSet nets, NetGraphModel deletedNet,
+                               NetGraphModel newRootNet,
+                               Set<YAWLCompositeTask> changedTasks) {
+        this.nets = nets;
+        this.deletedNet = deletedNet;
+        this.wasRootNet = deletedNet.isRootNet();
+        this.newRootNet = newRootNet;
+        this.changedTasks = changedTasks;
+   }
+
+    public void redo() {
+        deletedNet.getGraph().getFrame().setVisible(false);
+        nets.removeNoUndo(deletedNet);
+        if (newRootNet != null) {
+            nets.setRootNet(newRootNet);
+        }
+        nets.resetUnfoldingCompositeTasks(deletedNet);
     }
-    Iterator taskIterator = changedTasks.iterator();
-    while(taskIterator.hasNext()) {
-      YAWLTask task = (YAWLTask) taskIterator.next();
-      task.setDecomposition(deletedNet.getDecomposition());
+
+    public void undo() {
+        nets.addNoUndo(deletedNet);
+        if (wasRootNet) {
+            nets.setRootNet(deletedNet);
+        }
+        for (YAWLCompositeTask changedTask : changedTasks) {
+            YAWLTask task = (YAWLTask) changedTask;
+            task.setDecomposition(deletedNet.getDecomposition());
+        }
+        deletedNet.getGraph().getFrame().setVisible(true);
     }
-    deletedNet.getGraph().getFrame().setVisible(true);
-  }
 }

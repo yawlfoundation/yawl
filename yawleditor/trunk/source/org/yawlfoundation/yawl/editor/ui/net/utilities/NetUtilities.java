@@ -41,29 +41,6 @@ import java.util.Set;
  */
 
 public final class NetUtilities {
-  
-  /**
-   * Scans the current net looking for the largest Engine ID number registered
-   * against the vertex entries of that net.
-   * @param net
-   * @return largest Engine Id Number used in the net.
-   */
-  
-  public static long getLargestEngineIdNumberWithin(NetGraphModel net) {
-    long largestIDSoFar = 0;
-//    for (Object netRoot : NetGraphModel.getRoots(net)) {
-//      if (netRoot instanceof VertexContainer) {
-//        netRoot = ((VertexContainer) netRoot).getVertex();
-//      }
-//      if (netRoot instanceof YAWLVertex) {
-//        long vertexId = Long.parseLong(((YAWLVertex) netRoot).getEngineIdNumber());
-//        if (vertexId > largestIDSoFar) {
-//          largestIDSoFar = vertexId;
-//        }
-//      }
-//    }
-    return largestIDSoFar;
-  }
 
   
   /**
@@ -122,28 +99,7 @@ public final class NetUtilities {
     return atomicTasks;
   }
 
-  
-  
-  /**
-   * Returns a boolean indicating whether given net 
-   * contains an atomic task with the given label. 
-   * @param net   The net to search within.
-   * @param label The label to searh for.
-   * @return <code>true</code> when a net has a task with the given label, <code>false</code> otherwise.
-   * @see org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask
-   */
-  public static boolean hasAtomicTaskWithLabel(NetGraphModel net, String label) {
-    for (Object netRoot : NetGraphModel.getRoots(net)) {
-      YAWLAtomicTask task = NetCellUtilities.getAtomicTaskFromCell(netRoot);
-      if (task != null) {
-        if (label.equals(task.getLabel())) {
-          return true;
-        }
-      }
-    }
-    return false; 
-  }
-  
+
   /**
    * Returns all composite tasks in the selected net. Specifically, 
    * all those verticies in the net that conform to the <code>YAWLCompositeTask</code> interface.
@@ -180,23 +136,6 @@ public final class NetUtilities {
   }
   
   /**
-   * Returns those tasks in the selected net with split decorators.
-   * @param net The net to search within.
-   * @return The set of tasks with split decorators.
-   * @see org.yawlfoundation.yawl.editor.ui.elements.model.SplitDecorator
-   */
-  public static Set<YAWLTask> getTasksWitSplitDecorators(NetGraphModel net) {
-    HashSet<YAWLTask> tasks = new HashSet<YAWLTask>();
-    for (Object netRoot :  NetGraphModel.getRoots(net)) {
-      YAWLTask task = NetCellUtilities.getTaskFromCell(netRoot);
-      if (task != null && task.hasSplitDecorator() ) {
-        tasks.add(task);
-      }
-    }
-    return tasks;
-  }
-  
-  /**
    * Returns all the tasks that have flows requiring predicates from the set of net elements supplied
    * @param cells
    * @return
@@ -214,23 +153,6 @@ public final class NetUtilities {
     return tasks;
   }
 
-  /**
-   * Returns all flows in the selected net.
-   * @param net The net to search within.
-   * @return The set of flows within that net.
-   * @see org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation
-   */
-
-  public static Set<YAWLFlowRelation> getAllFlows(NetGraphModel net) {
-    HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-    for(Object netRoot : NetGraphModel.getRoots(net)) {
-      if (netRoot instanceof YAWLFlowRelation) {
-        flows.add((YAWLFlowRelation) netRoot);
-      }
-    }
-    return flows;
-  }
-  
   /**
    * This should only be called by the PasteAction class as a cleanup. Trying to 
    * pre-emptively stop invalid flows from being copied/cut/deleted is simply too hard to implement
@@ -348,102 +270,6 @@ public final class NetUtilities {
     return null;
   }
   
-  /**
-   * Retuns all possible atomic tasks that could have occurred before the
-   * task specified, that also could have been allocated to a user
-   * via a worklist.
-   * @param task
-   * @return
-   */
-  
-  public static Set<YAWLAtomicTask> getPreceedingResourcingRequiredTasksOf(YAWLVertex task) {
-    HashSet<YAWLAtomicTask> returnTasks = new HashSet<YAWLAtomicTask>();
-    for(YAWLAtomicTask thisTask: getPreceedingAtomicTasksOf((YAWLVertex) task)) {
-      if (thisTask.getDecomposition() != null &&
-          thisTask.getDecomposition().requiresResourcingDecisions()) {
-        returnTasks.add(thisTask);
-      }
-    }
-
-    // if this task is a subnet member, find its parent task and recurse
-
-
-
-    return returnTasks;
-  }
-  
-  /**
-   * Returns all atomic tasks that possibly could have occured before the vertex
-   * specified.
-   * @param thisVertex
-   * @return
-   */
-  
-  public static Set<YAWLAtomicTask> getPreceedingAtomicTasksOf(YAWLVertex thisVertex) {
-    return getPreceedingAtomicTasksOf(thisVertex, null);
-  }
-  
-  private static Set<YAWLAtomicTask> getPreceedingAtomicTasksOf(
-                                         YAWLVertex thisVertex,
-                                         HashSet<YAWLVertex> checkedVertexSet) {
-    
-    HashSet<YAWLAtomicTask> preceedingTasks = new HashSet<YAWLAtomicTask>();
-
-    if (checkedVertexSet == null) {
-      checkedVertexSet = new HashSet<YAWLVertex>();
-    }
-    
-    checkedVertexSet.add(thisVertex);
-    
-    for(YAWLVertex vertex: getPreceedingVertexSetOf(thisVertex)) {
-      if (checkedVertexSet.contains(vertex)) {
-        continue;
-      }
-      
-      if (vertex instanceof YAWLAtomicTask) {
-        preceedingTasks.add((YAWLAtomicTask) vertex);
-      } else if (vertex instanceof CompositeTask) {
-        CompositeTask task = (CompositeTask) vertex;
-        if (task.getDecomposition() != null ) {
-          NetGraphModel netOfTask = getNetOfCompositeTask(task);
-          preceedingTasks.addAll(
-              getAtomicTasks(netOfTask)
-          );
-          checkedVertexSet.addAll(
-              getVertexes(netOfTask)
-          );
-        }
-      }
-
-      preceedingTasks.addAll(
-          getPreceedingAtomicTasksOf(vertex, checkedVertexSet)    
-      );
-    }
-    
-    return preceedingTasks;
-  }
-  
-  /**
-   * Returns the vertex set that all immediately preceed the specified
-   * vertex.
-   * @param thisVertex
-   * @return
-   */
-  
-  public static Set<YAWLVertex> getPreceedingVertexSetOf(YAWLVertex thisVertex) {
-    HashSet<YAWLVertex> preceedingVertexSet = new HashSet<YAWLVertex>();
-    
-    if (getIncomingFlowsTo(thisVertex) != null) {
-      for(YAWLFlowRelation flow : getIncomingFlowsTo(thisVertex)) {
-        preceedingVertexSet.add(
-            flow.getSourceVertex()
-        );
-      }
-    }
-    
-    return preceedingVertexSet;
-  }
-  
   public static String getStartingNetIconPath() {
     return "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/StartingNetInternalFrame.gif";
   }
@@ -459,7 +285,7 @@ public final class NetUtilities {
   }
 
   public static ImageIcon getIconForNetModel(NetGraphModel model) {
-    if (model.isStartingNet()) {
+    if (model.isRootNet()) {
       return getStartingNetIcon();
     }
     return getSubNetIcon();
@@ -467,7 +293,7 @@ public final class NetUtilities {
   
   public static void setNetIconFromModel(NetGraphModel model) {
     if (model.getGraph().getFrame() != null) {
-      if (model.isStartingNet()) {
+      if (model.isRootNet()) {
         model.getGraph().getFrame().setClosable(false);
         model.getGraph().getFrame().setFrameIcon(
             NetUtilities.getStartingNetIcon()

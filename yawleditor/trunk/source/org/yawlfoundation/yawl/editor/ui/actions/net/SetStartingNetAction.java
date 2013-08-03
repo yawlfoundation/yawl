@@ -24,12 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -83,18 +82,17 @@ class StartingNetDialog extends AbstractDoneDialog {
         setContentPanel(getStartingNetPanel());
         getDoneButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    SpecificationModel specModel = SpecificationModel.getInstance();
                     if (netComboBox.isEnabled()) {
-                        SpecificationModel.getInstance().setStartingNet(
-                                SpecificationUtilities.getNetModelFromName(
-                                        (String) netComboBox.getSelectedItem()
-                                )
-                        );
+                        specModel.getNets().setRootNet(
+                                (String) netComboBox.getSelectedItem());
                     }
+
                     String gateway = null;
                     if (dbGatewayComboBox.isEnabled() && (dbGatewayComboBox.getSelectedIndex() > 0)) {
                         gateway = (String) dbGatewayComboBox.getSelectedItem();
                     }
-                    SpecificationModel.getInstance().getStartingNet().setExternalDataGateway(gateway);
+                    specModel.getNets().getRootNet().setExternalDataGateway(gateway);
                     SpecificationUndoManager.getInstance().setDirty(true);
                 }
             }
@@ -163,7 +161,7 @@ class StartingNetDialog extends AbstractDoneDialog {
         java.util.List<String> netNames = new ArrayList<String>();
         for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
             netNames.add(net.getName());
-            if (net.isStartingNet()) rootNetName = net.getName();
+            if (net.isRootNet()) rootNetName = net.getName();
         }
         Collections.sort(netNames);
 

@@ -197,7 +197,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      * Defaults to typical marquee behaviour unless a flow relation is being drawn.
      * In that case, each drag event will redraw a line from the mouse cursor to the
      * source port. If there is a valid incoming port under the mouse, this will also
-     * be hilighted to identify that a valid flow may be drawn upon a mouse
+     * be highlighted to identify that a valid flow may be drawn upon a mouse
      * release event.
      */
 
@@ -330,7 +330,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                     }
                     default: {
                         hidePort(sourcePort);
-                        sourcePort = null;
+//                        sourcePort = null;
                         setCursorFromPalette();
                         break;
                     }
@@ -348,7 +348,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     private void doMouseMovedOverPortProcessing(PortView portView) {
-        if (sourcePort == null || sourcePort != portView) {
+        if (sourcePort != null && sourcePort != portView) {
             hidePort(sourcePort);
         }
         sourcePort = portView;
@@ -376,9 +376,12 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     protected void hidePort(PortView thisPort) {
         if (thisPort != null) {
             Graphics graphics = getNet().getGraphics();
-            graphics.setColor(getNet().getBackground());
-            graphics.setXORMode(getNet().getMarqueeColor());
+ //           graphics.setColor(getNet().getBackground());
+//            graphics.setXORMode(getNet().getMarqueeColor());
+            getNet().setXorEnabled(true);
             showPort(thisPort);
+            getNet().setXorEnabled(false);
+            graphics.setColor(getNet().getForeground());
         }
     }
 

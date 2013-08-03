@@ -51,6 +51,9 @@ public class ProblemPanel extends JPanel
 
     public void setProblemList(String title, List<String> problemList) {
         this.title = title;
+        if (problemList.isEmpty()) {
+            problemList.add("No problems reported.");
+        }
         populateProblemTable(problemList);
     }
 

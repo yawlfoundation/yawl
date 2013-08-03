@@ -52,10 +52,6 @@ public class DataVariableComboBox extends JComboBox {
     this.validUsageType = validUsageType;
   }
    
-  public int getValidUsageType() {
-    return this.validUsageType;
-  }
-  
   public void setDecomposition(YDecomposition decomposition) {
     this.decomposition = decomposition;
     refresh();

@@ -1,13 +1,12 @@
 package org.yawlfoundation.yawl.editor.core.identity;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YNetElement;
+import org.yawlfoundation.yawl.elements.YSpecification;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Keeps tracks of all net element identifiers for a specification to ensure they
@@ -75,26 +74,9 @@ public class ElementIdentifiers {
     }
 
 
-    /**
-     * Rationalises the set of EngineIdentifiers for the current specification; only
-     * applies suffixes where necessary to ensure uniqueness, and renumbers suffixes
-     * to the lowest contiguous set.
-     * @param nets the set of nets in the current specification
-     */
-    public void rationalise(Set<NetGraphModel> nets) {
-        uniqueIdentifiers.clear();
-        for (NetGraphModel net : nets) {
-            for (Object o : net.getRoots()) {
-               if (o instanceof VertexContainer) {
-                   rationalise(((VertexContainer) o).getVertex());
-               }
-               else if (o instanceof YAWLVertex) {                       // empty tasks
-                   rationalise((YAWLVertex) o);
-               }
-            }
-        }
+    public void load(YSpecification spec) {
+        rationalise(spec);
     }
-
 
     public void rationalise(YSpecification spec) {
         uniqueIdentifiers.clear();
@@ -114,17 +96,6 @@ public class ElementIdentifiers {
         if (! id.toString().equals(original)) {
             element.setID(id.toString());
         }
-    }
-    
-
-    /**
-     * Rationalises the EngineIdentifier of a vertex; only applies a suffix if the name
-     * itself is not unique, and then to the lowest one not already taken.
-     * @param vertex the vertex to rationalise
-     */
-    private void rationalise(YAWLVertex vertex) {
-//        EngineIdentifier id = rationalise(vertex.getEngineIdentifier());
-//        vertex.setID(id, false);
     }
 
 

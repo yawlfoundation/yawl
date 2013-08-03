@@ -60,7 +60,7 @@ public class MultipleAtomicTask extends YAWLTask
 
     public MultipleAtomicTask(Point2D startPoint, YTask yTask) {
         this(startPoint, (String) null);
-        setShadowTask(yTask);
+        setYAWLElement(yTask);
     }
 
 
@@ -75,8 +75,8 @@ public class MultipleAtomicTask extends YAWLTask
         initialise();
     }
 
-    public void setShadowTask(YTask shadow) {
-        super.setShadowTask(shadow);
+    public void setYAWLElement(YTask shadow) {
+        super.setTask(shadow);
         _miAttributes = shadow.getMultiInstanceAttributes();
     }
 

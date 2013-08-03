@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 
 import com.l2fprod.common.propertysheet.*;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ColorPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.DecompositionNameEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.FontPropertyEditor;
 
 import javax.swing.*;
@@ -131,9 +132,14 @@ public class YPropertySheet extends PropertySheetPanel {
             Property property = item.getProperty();
             propertyBeingRead = property.getDisplayName();
             PropertyEditor editor = getEditorFactory().createPropertyEditor(property);
-            if (editor != null)
+            if (editor != null) {
                 result = new CellEditorAdapter(editor);
 
+                // Remove 'Rename' item from decomposition name combo if name is 'None'
+                if (editor instanceof DecompositionNameEditor) {
+                    ((DecompositionNameEditor) editor).rationaliseItems(property);
+                }
+            }
             return result;
         }
 

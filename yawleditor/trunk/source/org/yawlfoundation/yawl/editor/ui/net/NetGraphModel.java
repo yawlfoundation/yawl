@@ -24,6 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -56,14 +57,14 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         return _decomposition.getID();
     }
 
-    public void setIsStartingNet(boolean isStartingNet) {
-        if (isStartingNet) {
+    public void setIsRootNet(boolean isRootNet) {
+        if (isRootNet) {
             _specificationHandler.getControlFlowHandler().setRootNet((YNet) _decomposition);
         }
         NetUtilities.setNetIconFromModel(this);
     }
 
-    public boolean isStartingNet() {
+    public boolean isRootNet() {
         return _specificationHandler.getControlFlowHandler().getRootNet().equals(_decomposition);
     }
 
@@ -209,6 +210,35 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
 
     public boolean acceptsSource(Object edge, Object port) {
         return connectionAllowable((Port) port, (Port) ((Edge) edge).getTarget(), (Edge) edge);
+    }
+
+    /**
+     * Connects or disconnects the edge and port in this model. Overridden so we can
+     * update the YFLows on moves and deletes
+     */
+    protected void connect(Object edge, Object port, boolean isSource, boolean insert) {
+        super.connect(edge, port, isSource, insert);
+        if (! insert) return;     // only interested in inserts
+
+        YAWLFlowRelation flow = (YAWLFlowRelation) edge;
+
+         // an insert with a null port denotes a flow removal
+        if (port == null) {
+            flow.getYFlow().detach();
+        }
+        else {
+            YAWLPort yPort = (YAWLPort) port;
+            YAWLVertex vertex = (YAWLVertex) yPort.getParent();
+            YCompoundFlow yFlow = flow.getYFlow();
+
+            // if the source or target has changed, update the YFlow
+            if (isSource && ! flow.getSourceID().equals(vertex.getID())) {
+                flow.setYFlow(yFlow.moveSourceTo(vertex.getYAWLElement()));
+            }
+            else if (! (isSource || flow.getTargetID().equals(vertex.getID()))) {
+                flow.setYFlow(yFlow.moveTargetTo(vertex.getYAWLElement()));
+            }
+        }
     }
 
     /**
@@ -366,11 +396,11 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     }
 
     public YAWLCell getTargetOf(Edge edge) {
-        return ElementUtilities.getTargetOf(this, edge);
+        return (YAWLCell) getTargetVertex(this, edge);
     }
 
     public YAWLCell getSourceOf(Edge edge) {
-        return ElementUtilities.getSourceOf(this, edge);
+        return (YAWLCell) getSourceVertex(this, edge);
     }
 
     public boolean acceptsIncomingFlows(YAWLCell vertex) {

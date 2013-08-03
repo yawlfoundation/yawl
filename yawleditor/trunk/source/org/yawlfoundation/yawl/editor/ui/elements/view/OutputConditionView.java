@@ -31,34 +31,30 @@ import java.awt.*;
 
 public class OutputConditionView extends VertexView {
 
-  private static final OutputConditionRenderer renderer = new OutputConditionRenderer();
+    private static final OutputConditionRenderer renderer = new OutputConditionRenderer();
 
-  public OutputConditionView(Object vertex) {
-    super(vertex);
-  }
+    public OutputConditionView(Object vertex) {
+        super(vertex);
+    }
 
-  public CellViewRenderer getRenderer() {
-    return renderer;
-  }
+    public CellViewRenderer getRenderer() {
+        return renderer;
+    }
 }
 
 class OutputConditionRenderer extends ConditionView.ConditionRenderer {
 
-  private static final Color fillColor = new Color(255,240,240);
-
-  protected void drawVertex(Graphics graphics, Dimension size) {
-    graphics.setColor(fillColor);
-    super.fillVertex(graphics, size);
-    graphics.setColor(Color.RED);
-    graphics.fillRect(Math.round(size.width/4),
-                      Math.round(size.height/4),
-                      Math.round(size.width/2),
-                      Math.round(size.height/2));
-    graphics.setColor(Color.black);
-    graphics.drawRect(Math.round(size.width/4),
-                      Math.round(size.height/4),
-                      Math.round(size.width/2 - 1),
-                      Math.round(size.height/2 - 1));
-    super.drawVertex(graphics, size);
-  }
+    protected void drawVertex(Graphics graphics, Dimension size) {
+        graphics.setColor(Color.RED);
+        graphics.fillRect(Math.round(size.width/4),
+                Math.round(size.height/4),
+                Math.round(size.width/2),
+                Math.round(size.height/2));
+        graphics.setColor(Color.black);
+        graphics.drawRect(Math.round(size.width/4),
+                Math.round(size.height/4),
+                Math.round(size.width/2 - 1),
+                Math.round(size.height/2 - 1));
+        super.drawVertex(graphics, size);
+    }
 }

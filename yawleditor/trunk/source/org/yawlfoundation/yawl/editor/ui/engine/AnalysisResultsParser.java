@@ -26,7 +26,7 @@ public class AnalysisResultsParser {
 
 
     public List<String> getAnalysisResults(SpecificationModel editorSpec) {
-        String specXML = SpecificationExporter.getEngineSpecificationXML(editorSpec);
+        String specXML = SpecificationWriter.getEngineSpecificationXML(editorSpec);
         return getAnalysisResults(specXML);
     }
 
@@ -42,13 +42,15 @@ public class AnalysisResultsParser {
 
 
     protected String getRawAnalysisResults(String engineSpecXML) {
-        AnalysisDialog messageDlg = createDialog();
+        AnalysisDialog messageDlg = createDialog(YAWLEditor.getInstance());
         _analyser.addEventListener(messageDlg);
 
         try {
             return _analyser.analyse(engineSpecXML, getAnalyserOptions());
         }
         catch (YSyntaxException yse) {
+            messageDlg.setVisible(false);
+            messageDlg.dispose();
             String msg = yse.getMessage().trim();
             msg = msg.substring(0, msg.indexOf(":")) + ".";
             JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
@@ -59,6 +61,8 @@ public class AnalysisResultsParser {
             return "";
         }
         catch (Exception e) {
+            messageDlg.setVisible(false);
+            messageDlg.dispose();
             LogWriter.error("Error analysing specification.", e);
             return "<error>"+ XMLUtilities.quoteSpecialCharacters(e.getMessage()) +"</error>";
         }
@@ -89,8 +93,8 @@ public class AnalysisResultsParser {
     }
 
 
-    private AnalysisDialog createDialog() {
-        AnalysisDialog messageDlg = new AnalysisDialog("Specification");
+    private AnalysisDialog createDialog(JFrame owner) {
+        AnalysisDialog messageDlg = new AnalysisDialog("Specification", owner);
         messageDlg.setTitle("Analyse Specification");
         messageDlg.setOwner(this);
         return messageDlg;

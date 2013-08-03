@@ -50,8 +50,6 @@ public abstract class YAWLTask extends YAWLVertex {
 
     private String _iconPath;
 
-    private YTask _shadowTask;
-
     /**
      * This constructor is ONLY to be invoked when we are reconstructing a task
      * from saved state. Ports will not be created with this constructor, as they
@@ -77,9 +75,10 @@ public abstract class YAWLTask extends YAWLVertex {
         initialize(iconPath);
     }
 
-    public void setShadowTask(YTask task) {_shadowTask = task; }
 
-    public YTask getShadowTask() { return _shadowTask; }
+    public void setTask(YTask task) { setYAWLElement(task); }
+
+    public YTask getTask() { return (YTask) getYAWLElement(); }
 
 
     private void initialize(String iconPath) {
@@ -92,19 +91,19 @@ public abstract class YAWLTask extends YAWLVertex {
     public String getIconPath() { return _iconPath; }
 
 
-    public String getID() { return _shadowTask.getID(); }
+    public String getID() { return _yawlElement.getID(); }
 
-    public void setID(String id) { _shadowTask.setID(id); }
-
-
-    public String getName() { return _shadowTask.getName(); }
-
-    public void setName(String name) { _shadowTask.setName(name); }
+    public void setID(String id) { _yawlElement.setID(id); }
 
 
-    public String getDocumentation() { return _shadowTask.getDocumentation(); }
+    public String getName() { return _yawlElement.getName(); }
 
-    public void setDocumentation(String doco) { _shadowTask.setDocumentation(doco); }
+    public void setName(String name) { _yawlElement.setName(name); }
+
+
+    public String getDocumentation() { return _yawlElement.getDocumentation(); }
+
+    public void setDocumentation(String doco) { _yawlElement.setDocumentation(doco); }
 
 
 
@@ -252,11 +251,11 @@ public abstract class YAWLTask extends YAWLVertex {
 
 
     public void setDecomposition(YDecomposition decomposition) {
-        _shadowTask.setDecompositionPrototype(decomposition);
+        ((YTask) _yawlElement).setDecompositionPrototype(decomposition);
     }
 
     public YDecomposition getDecomposition() {
-        return _shadowTask.getDecompositionPrototype();
+        return ((YTask) _yawlElement).getDecompositionPrototype();
     }
 
 
@@ -265,11 +264,11 @@ public abstract class YAWLTask extends YAWLVertex {
     }
 
     public void setCustomFormURL(URL url) {
-        _shadowTask.setCustomFormURI(url);
+        ((YTask) _yawlElement).setCustomFormURI(url);
     }
 
     public URL getCustomFormURL() {
-        return _shadowTask.getCustomFormURL();
+        return ((YTask) _yawlElement).getCustomFormURL();
     }
 
     public boolean hasBothDecorators() {
@@ -339,7 +338,7 @@ public abstract class YAWLTask extends YAWLVertex {
         clone.setCancellationSet(clonedCancellationSet);
         clonedCancellationSet.setTriggeringTask(clone);
 
-        clone.setShadowTask(_shadowTask);
+        clone.setTask(((YTask) _yawlElement));
         clone.setDecomposition(getDecomposition());
         clone.setCustomFormURL(getCustomFormURL());
         clone.setIconPath(_iconPath);

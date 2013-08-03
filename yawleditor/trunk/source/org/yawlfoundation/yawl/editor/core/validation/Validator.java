@@ -13,8 +13,7 @@ import java.util.List;
  */
 public class Validator {
 
-    private static final String NO_PROBLEMS_MESSAGE =
-            "No design-time engine validation problems were found in this specification.";
+    private static final String NO_PROBLEMS_MESSAGE = "No problems reported.";
 
 
     public List<String> validate(YSpecification specification) {

@@ -28,50 +28,46 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 
 public class JFormattedAlphaNumericField extends JFormattedSelectField {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public JFormattedAlphaNumericField(int columns) {
-    super();
-    setFormatterFactory(new AlphaNumericFormatterFactory());
-    setColumns(columns);
-  }
-  
-  public void allowSpaces() {
-    getAlphaNumericFormatter().allowSpaces();
-  }
-  
-  public boolean spacesAllowed() {
-    return getAlphaNumericFormatter().spacesAllowed();
-  }
-  
-  public boolean xmlNameCharactersAllowed() {
-    return getAlphaNumericFormatter().xmlNameCharactersAllowed();
-  }
-  
-  /**
-   * After invocation, this method will allow extra characters
-   * that can go into valid XML names to be input by this 
-   * widget.  Note that if {@link allowSpaces()} has also
-   * been called, spaces will also be allowed, which is not
-   * valid XML name convention. 
-   */
-  public void allowXMLNames() {
-    getAlphaNumericFormatter().allowXMLNameCharacters();
-  }
-  
-  public AlphaNumericFormatter getAlphaNumericFormatter() {
-    return (AlphaNumericFormatter) getFormatter();
-  }
+    public JFormattedAlphaNumericField(int columns) {
+        super();
+        setFormatterFactory(new AlphaNumericFormatterFactory());
+        setColumns(columns);
+    }
+
+    public void allowSpaces() {
+        getAlphaNumericFormatter().allowSpaces();
+    }
+
+    public boolean spacesAllowed() {
+        return getAlphaNumericFormatter().spacesAllowed();
+    }
+
+    public boolean xmlNameCharactersAllowed() {
+        return getAlphaNumericFormatter().xmlNameCharactersAllowed();
+    }
+
+    /**
+     * After invocation, this method will allow extra characters
+     * that can go into valid XML names to be input by this
+     * widget.  Note that if allowSpaces has also
+     * been called, spaces will also be allowed, which is not
+     * valid XML name convention.
+     */
+    public void allowXMLNames() {
+        getAlphaNumericFormatter().allowXMLNameCharacters();
+    }
+
+    public AlphaNumericFormatter getAlphaNumericFormatter() {
+        return (AlphaNumericFormatter) getFormatter();
+    }
 }
 
 class AlphaNumericFormatterFactory extends JFormattedTextField.AbstractFormatterFactory {
-  private final AlphaNumericFormatter FORMATTER = new AlphaNumericFormatter();
-  public AbstractFormatter getFormatter(JFormattedTextField field) {
-    assert field instanceof JFormattedAlphaNumericField;
-    return FORMATTER;
-  }
+    private final AlphaNumericFormatter FORMATTER = new AlphaNumericFormatter();
+
+    public AbstractFormatter getFormatter(JFormattedTextField field) {
+        assert field instanceof JFormattedAlphaNumericField;
+        return FORMATTER;
+    }
 }

@@ -30,107 +30,97 @@ import org.jgraph.graph.DefaultPort;
 
 
 public class YAWLPort extends DefaultPort {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private int position = YAWLTask.NOWHERE;
 
-  public boolean acceptsIncomingFlows() {
-    if (hasConditionAsParent()) {
-      return true;
-    }
-    if (hasDecoratorAtThisPosition()) {
-      return false;
-    }
-    if (hasJoinDecorator()) {
-      return false;
-    }
-    return getEdges().size() == 0 ? 
-      true : 
-      isThisTheTargetOfFirstEdge((Edge) getEdges().iterator().next());
-  }
+    private int position = YAWLTask.NOWHERE;
 
-  public boolean generatesOutgoingFlows() {
-    if (hasConditionAsParent()) {
-      return true;
+    public boolean acceptsIncomingFlows() {
+        return hasConditionAsParent() || ! hasDecoratorAtThisPosition() &&
+                ! hasJoinDecorator() &&
+                (getEdges().size() == 0 || isTargetThis(getFirstEdge()));
     }
-    if (hasDecoratorAtThisPosition()) {
-      return false;
-    }
-    if (hasSplitDecorator()) {
-      return false;
-    }
-    return getEdges().size() == 0 ? 
-      true : 
-      isThisTheSourceOfFirstEdge((Edge) getEdges().iterator().next());
-  }
-  
-  private boolean isThisTheSourceOfFirstEdge(Edge edge) {
-    return edge.getSource() == this ? true : false;
-  }
-  
-  private boolean isThisTheTargetOfFirstEdge(Edge edge) {
-    return edge.getTarget() == this ? true : false;
-  }
-  
-  public void setPosition(int position) {
-    this.position = position;
-  }
-  
-  public int getPosition() {
-    return position;
-  }
-  
-  private boolean hasDecoratorAtThisPosition() {
-    if (getParent() instanceof YAWLTask ) {
-      YAWLTask task = (YAWLTask) getParent();
-      if (task.hasDecoratorAtPosition(position)) {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  private boolean hasSplitDecorator() {
-    if (getParent() instanceof YAWLTask ) {
-      YAWLTask task = (YAWLTask) getParent();
-      if (task.hasSplitDecorator()) {
-        return true;
-      }
-    }
-    return false;
-  }
 
-  private boolean hasJoinDecorator() {
-    if (getParent() instanceof YAWLTask ) {
-      YAWLTask task = (YAWLTask) getParent();
-      if (task.hasJoinDecorator()) {
-        return true;
-      }
+    public boolean generatesOutgoingFlows() {
+        return hasConditionAsParent() || !hasDecoratorAtThisPosition() &&
+                !hasSplitDecorator()
+                && (getEdges().size() == 0 || isSourceThis(getFirstEdge()));
     }
-    return false;
-  }
-  
-  private boolean hasConditionAsParent() {
-    if (getParent() instanceof Condition) {
-      return true;
+
+    private boolean isSourceThis(Edge edge) {
+        return edge.getSource() == this;
     }
-    return false;
-  }
-  
-  public YAWLTask getTask() {
-    if (getParent() instanceof Decorator) {
-      Decorator decorator = (Decorator) getParent();
-        return decorator.getTask();
-    } else if (getParent() instanceof YAWLTask) {
-      return (YAWLTask) getParent();
+
+    private boolean isTargetThis(Edge edge) {
+        return edge.getTarget() == this;
     }
-    return null;
-  }
-  
-  public String toString() {
-    return "[parent = " + ((YAWLVertex) getParent()).getID() + " [id = " + this.hashCode() + ", flows = " + getEdges().size() + " ]";
-  }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    private Edge getFirstEdge() {
+        return (Edge) getEdges().iterator().next();
+    }
+
+    private boolean hasDecoratorAtThisPosition() {
+        if (getParent() instanceof YAWLTask) {
+            YAWLTask task = (YAWLTask) getParent();
+            if (task.hasDecoratorAtPosition(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasSplitDecorator() {
+        if (getParent() instanceof YAWLTask) {
+            YAWLTask task = (YAWLTask) getParent();
+            if (task.hasSplitDecorator()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasJoinDecorator() {
+        if (getParent() instanceof YAWLTask ) {
+            YAWLTask task = (YAWLTask) getParent();
+            if (task.hasJoinDecorator()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasConditionAsParent() {
+        return getParent() instanceof Condition;
+    }
+
+    public YAWLTask getTask() {
+        if (getParent() instanceof Decorator) {
+            Decorator decorator = (Decorator) getParent();
+            return decorator.getTask();
+        } else if (getParent() instanceof YAWLTask) {
+            return (YAWLTask) getParent();
+        }
+        return null;
+    }
+
+    public YAWLVertex getVertex() {
+        if (getParent() instanceof Decorator) {
+            Decorator decorator = (Decorator) getParent();
+            return decorator.getTask();
+        }
+        return (YAWLVertex) getParent();
+    }
+
+    public String getVertexID() { return getVertex().getID(); }
+
+    public String toString() {
+        return "[parent = " + ((YAWLVertex) getParent()).getID() +
+                " [id = " + this.hashCode() + ", flows = " + getEdges().size() + " ]";
+    }
 }

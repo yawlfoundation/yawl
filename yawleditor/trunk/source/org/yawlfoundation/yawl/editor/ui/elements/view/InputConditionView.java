@@ -45,12 +45,7 @@ public class InputConditionView extends VertexView {
 
 class InputConditionRenderer extends ConditionView.ConditionRenderer {
 
-  private static final Color fillColor = new Color(240,255,240);
-
   protected void drawVertex(Graphics graphics, Dimension size) {
-    graphics.setColor(fillColor);
-    super.fillVertex(graphics, size);
-
     Polygon startArrow = new Polygon();
     startArrow.addPoint(Math.round(size.width/3),
                         Math.round(size.height/4));

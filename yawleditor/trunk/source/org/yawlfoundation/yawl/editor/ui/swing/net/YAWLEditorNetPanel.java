@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerExcept
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -81,7 +80,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         while (!validNameFound) {
             counter++;
             newTitle = "Net" + counter;
-            if (SpecificationUtilities.getNetModelFromName(newTitle) == null) {
+            if (model.getNets().getNetModelFromName(newTitle) == null) {
                 validNameFound = true;
             }
         }
@@ -122,7 +121,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
 
     public void removeFromSpecification() {
-        model.removeNet(getNet().getNetModel());
+        model.getNets().remove(getNet().getNetModel());
     }
 
 
@@ -138,12 +137,12 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
             setTitle(title);
             setNetName(title);
         }
-        model.addNet(getNet().getNetModel());
+        model.getNets().add(getNet().getNetModel());
         icon = NetUtilities.getIconForNetModel(net.getNetModel());
     }
 
     public boolean containsRootNet() {
-        return getNet().getNetModel().isStartingNet();
+        return getNet().getNetModel().isRootNet();
     }
 
     public NetGraph getNet() {
@@ -184,18 +183,24 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     public void showRenameDialog() {
         String oldName = getNet().getNetModel().getName();
         String newName = null;
-        while(SpecificationUtilities.getNetModelFromName(newName) != getNet().getNetModel()) {
+        while(model.getNets().getNetModelFromName(newName) != getNet().getNetModel()) {
             newName = JOptionPane.showInputDialog(this,
                     "Change Net Name to:",
                     oldName);
             if (newName == null) {
                 newName = oldName;
             }
-            if (SpecificationModel.getInstance().isValidNewDecompositionName(newName)) {
+            if (isValidNewDecompositionName(newName)) {
                 setNetName(newName);
             }
         }
     }
+
+    public boolean isValidNewDecompositionName(String name) {
+        return ! (name == null || SpecificationModel.getHandler().getControlFlowHandler()
+                .getDecompositionIds().contains(name));
+    }
+
 
 
     public JScrollPane getScrollPane() {

@@ -28,6 +28,7 @@ import org.jgraph.JGraph;
 import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -301,21 +302,21 @@ public class NetGraph extends JGraph {
   }
   
   public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
-    ConnectionSet cs = new ConnectionSet();
-    YAWLFlowRelation flow = new YAWLFlowRelation();
-    
-    cs.connect(flow, source, target);
+      YAWLFlowRelation flow = NetCellFactory.insertFlow(this,
+              source.getVertexID(), target.getVertexID());
+      ConnectionSet cs = new ConnectionSet();
+      cs.connect(flow, source, target);
 
-    getNetModel().beginUpdate();
+      getNetModel().beginUpdate();
 
-    getModel().insert(new Object[] {flow},
-                      null, cs, null, null);
+      getModel().insert(new Object[] {flow},
+              null, cs, null, null);
 
-    setFlowPriorityIfNecessary(flow);
-    makeSameTaskFlowPrettyIfNecessary(flow);
-    updateCPorts(source, target);
-    getNetModel().endUpdate();
-    return flow;
+      setFlowPriorityIfNecessary(flow);
+      makeSameTaskFlowPrettyIfNecessary(flow);
+      updateCPorts(source, target);
+      getNetModel().endUpdate();
+      return flow;
   }
   
   private void setFlowPriorityIfNecessary(YAWLFlowRelation flow) {
@@ -1363,7 +1364,7 @@ class NetFocusListener implements FocusListener {
 
   public void focusLost(FocusEvent event) {
     try {
-      net.getNetMarqueeHandler().connectElementsOrIgnoreFlow();
+//      net.getNetMarqueeHandler().connectElementsOrIgnoreFlow();
     } catch (Exception e) {}
   }
 }

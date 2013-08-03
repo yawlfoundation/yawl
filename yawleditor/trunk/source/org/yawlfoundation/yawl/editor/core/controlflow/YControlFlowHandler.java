@@ -28,7 +28,7 @@ public class YControlFlowHandler {
 
     public void setSpecification(YSpecification specification) {
         _specification = specification;
-        _identifiers.clear();
+        _identifiers.load(specification);
     }
 
     public YSpecification getSpecification() { return _specification; }
@@ -38,6 +38,16 @@ public class YControlFlowHandler {
 
     public int getNetCount() {
         return getNets().size();
+    }
+
+    public Set<String> getDecompositionIds() {
+        Set<String> ids = new HashSet<String>();
+        if (_specification != null) {
+            for (YDecomposition decomposition : _specification.getDecompositions()) {
+                ids.add(decomposition.getID());
+            }
+        }
+        return ids;
     }
 
 
@@ -180,18 +190,11 @@ public class YControlFlowHandler {
     }
 
 
-    public YFlow addFlow(String netID, String sourceID, String targetID) {
+    public YCompoundFlow addFlow(String netID, String sourceID, String targetID) {
         YNet net = getNet(netID);
-        if (net != null) {
-            YExternalNetElement source = getNetElement(netID, sourceID);
-            YExternalNetElement target = getNetElement(netID, targetID);
-            YFlow flow = new YFlow(source, target);
-            if (source != null) source.addPostset(flow);
-            if (target != null) target.addPreset(flow);
-            return flow;
-        }
-        return null;
-    }
+        return net == null ? null : new YCompoundFlow(getNetElement(netID, sourceID),
+                       getNetElement(netID, targetID));
+     }
 
 
     public YExternalNetElement getNetElement(String netID, String id) {
@@ -245,16 +248,27 @@ public class YControlFlowHandler {
     }
 
 
-    public YFlow getFlow(String netID, String sourceID, String targetID) {
+    public YCompoundFlow getFlow(String netID, String sourceID, String targetID) {
+        YCompoundFlow flow = null;
         YNet net = getNet(netID);
         if (net != null) {
             YExternalNetElement source = getNetElement(netID, sourceID);
             YExternalNetElement target = getNetElement(netID, targetID);
-            if (! (source == null || target == null)) {
-                return source.getPostsetFlow(target);
+            if (source == null || target == null) {
+                return null;
             }
+
+            // if flow connects two tasks, get the implicit condition between them too
+            if ((source instanceof YTask) && (target instanceof YTask)) {
+                String implicitID = "c{" + source.getID() + "_" + target.getID() + "}";
+                YCondition implicit = getCondition(netID, implicitID);
+                YFlow incoming = getFlow(source, implicit);
+                YFlow outgoing = getFlow(implicit, target);
+                flow = new YCompoundFlow(incoming, implicit, outgoing);
+            }
+            else flow = new YCompoundFlow(getFlow(source, target));
         }
-        return null;
+        return flow;
     }
 
 
@@ -292,13 +306,10 @@ public class YControlFlowHandler {
     }
 
 
-    public YFlow removeFlow(String netID, String sourceID, String targetID) {
-        YFlow flow = getFlow(netID, sourceID, targetID);
+    public YCompoundFlow removeFlow(String netID, String sourceID, String targetID) {
+        YCompoundFlow flow = getFlow(netID, sourceID, targetID);
         if (flow != null) {
-            YExternalNetElement source = getNetElement(netID, sourceID);
-            YExternalNetElement target = getNetElement(netID, targetID);
-            if (source != null) source.removePostsetFlow(flow);
-            if (target != null) target.removePresetFlow(flow);
+            flow.detach();
         }
         return flow;
     }
@@ -317,9 +328,18 @@ public class YControlFlowHandler {
     }
 
 
+    private YFlow getFlow(YExternalNetElement source, YExternalNetElement target) {
+        if (! (source == null || target == null)) {
+            return source.getPostsetFlow(target);
+        }
+        return null;
+    }
+
+
     private String checkID(String id) {
         return _identifiers.getIdentifier(id).toString();
     }
+
 
     private void raise(String msg) throws YControlFlowHandlerException {
         throw new YControlFlowHandlerException(msg);

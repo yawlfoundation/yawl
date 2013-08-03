@@ -27,7 +27,7 @@ package org.yawlfoundation.yawl.editor.ui.net;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUtilities;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.element.SelectUnfoldingNetDialog;
 
 import java.awt.event.InputEvent;
@@ -63,11 +63,10 @@ public class ElementControlClickListener extends MouseAdapter {
   }
 
     private void doCompositeTaskCtrlClickProcessing(YAWLCompositeTask compositeTask) {
-      NetGraphModel unfoldingNet = SpecificationUtilities.getNetModelFromName(
-              compositeTask.getUnfoldingNetName()
-      );
-      
-      if (unfoldingNet == null) {
+      NetGraphModel unfoldingNet = SpecificationModel.getInstance().getNets()
+              .getNetModelFromName(compositeTask.getUnfoldingNetName());
+
+        if (unfoldingNet == null) {
         SelectUnfoldingNetDialog dialog = new SelectUnfoldingNetDialog();
 
         dialog.setTask(net, compositeTask);

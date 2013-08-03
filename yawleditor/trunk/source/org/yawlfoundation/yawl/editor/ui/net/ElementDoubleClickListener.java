@@ -24,42 +24,38 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
+import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.swing.element.LabelElementDialog;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-
-import org.yawlfoundation.yawl.editor.ui.swing.element.LabelElementDialog;
-
 public class ElementDoubleClickListener extends MouseAdapter {
-  private NetGraph net;
 
-  public ElementDoubleClickListener(NetGraph net) {
-    this.net = net;
-  }
-  
-  public void mouseClicked(MouseEvent e) {
-    if (e.getClickCount() != 2) {
-      return;
-    }
-    if (net.getSelectionCount() != 1) {
-      return;
-    }
-    Object selectedCell = net.getSelectionCell();
+    private NetGraph net;
 
-    if (selectedCell instanceof VertexContainer) {
-      selectedCell = ((VertexContainer) selectedCell).getVertex();
+    public ElementDoubleClickListener(NetGraph net) {
+        this.net = net;
     }
-    
-    if (selectedCell instanceof YAWLVertex) {
-      showLabelElementDialog((YAWLVertex) selectedCell);
-    }
-  }
 
-  private void showLabelElementDialog(YAWLVertex vertex) {
-    LabelElementDialog labelConditionDialog = new LabelElementDialog();    
-    labelConditionDialog.setVertex(vertex, net);
-    labelConditionDialog.setVisible(true);
-  }
+    public void mouseClicked(MouseEvent e) {
+        if (! (e.getClickCount() == 2 && net.getSelectionCount() == 1)) {
+            return;
+        }
+        Object selectedCell = net.getSelectionCell();
+
+        if (selectedCell instanceof VertexContainer) {
+            selectedCell = ((VertexContainer) selectedCell).getVertex();
+        }
+        if (selectedCell instanceof YAWLVertex) {
+            showLabelElementDialog((YAWLVertex) selectedCell);
+        }
+    }
+
+    private void showLabelElementDialog(YAWLVertex vertex) {
+        LabelElementDialog labelConditionDialog = new LabelElementDialog();
+        labelConditionDialog.setVertex(vertex, net);
+        labelConditionDialog.setVisible(true);
+    }
 }

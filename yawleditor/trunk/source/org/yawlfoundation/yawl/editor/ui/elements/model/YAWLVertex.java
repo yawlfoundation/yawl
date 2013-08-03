@@ -28,7 +28,7 @@ import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -55,6 +55,8 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
             SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
 
     private String _designNotes;
+
+    protected YExternalNetElement _yawlElement;
 
 
     /**
@@ -89,6 +91,13 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     public Point2D getStartPoint() { return _startPoint; }
 
 
+    public void setYAWLElement(YExternalNetElement element) {
+        _yawlElement = element;
+    }
+
+    public YExternalNetElement getYAWLElement() { return _yawlElement; }
+
+
     public void setDesignNotes(String notes) { _designNotes = notes; }
 
     public String getDesignNotes() { return _designNotes; }
@@ -103,18 +112,17 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
 
     public String getToolTipText() {
-        if (getEngineIdToolTipText() != null) {
-            return "<html><body>" + getEngineIdToolTipText() + "</body></html>";
-        }
-        return null;
+        return "<html><body>" + getInnerToolTipText() + "</body></html>";
     }
 
-    public String getEngineIdToolTipText() {
-        String engineID = getID();
-        if (! StringUtil.isNullOrEmpty(engineID)) {
-            return "&nbsp;<b>Engine Id:</b> " + engineID + "&nbsp;<p>";
-        }
-        return null;
+    public String getInnerToolTipText() {
+        StringBuilder s = new StringBuilder();
+        s.append("&nbsp;<b>");
+        s.append(getType());
+        s.append(":</b> ");
+        s.append(getID());
+        s.append("&nbsp;<p>");
+        return s.toString();
     }
 
 
@@ -166,9 +174,9 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
     private void addPort(int x, int y, int position) {
         YAWLPort port = new YAWLPort();
+        port.setPosition(position);
         HashMap map = new HashMap();
         GraphConstants.setBounds(map, new Rectangle2D.Double(x - 1, y - 1, x + 1, y + 1));
-        port.setPosition(position);
         GraphConstants.setOffset(map, new Point2D.Double(x, y));
         port.getAttributes().applyMap(map);
         add(port);

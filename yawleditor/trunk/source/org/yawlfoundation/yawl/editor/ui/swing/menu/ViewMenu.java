@@ -132,7 +132,7 @@ class ViewMenu extends JMenu implements SpecificationStateListener {
   private void rebuildNetList() {
     removeNetList();
 
-    Set<NetGraphModel> nets = specificationModel.getSortedNets();
+    Set<NetGraphModel> nets = specificationModel.getNets().getSortedNets();
     if (nets == null) {
       return;
     }
@@ -145,14 +145,14 @@ class ViewMenu extends JMenu implements SpecificationStateListener {
     netListMenuItems.add(separator);
 
     for (NetGraphModel net : nets) {          // do root net first
-        if (net.isStartingNet()) {
+        if (net.isRootNet()) {
             addNetListMenuItem(net, position++);
             break;
         }
     }
       
     for (NetGraphModel net : nets) {
-        if (! net.isStartingNet()) addNetListMenuItem(net, position++);
+        if (! net.isRootNet()) addNetListMenuItem(net, position++);
     }
   }
 
