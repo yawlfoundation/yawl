@@ -23,25 +23,28 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
+import org.bounce.text.xml.XMLEditorKit;
+import org.bounce.text.xml.XMLStyleConstants;
+
 import javax.swing.*;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.util.List;
 
 public class ValidityEditorPane extends JEditorPane
-        implements AbstractXMLStyledDocumentValidityListener {
+        implements XMLStyledDocumentValidityListener {
 
-    private static final Color VALID_COLOR = Color.GREEN.darker().darker();
-    private static final Color INVALID_COLOR = Color.RED.darker();
-    private static final Color UNCERTAIN_COLOR = Color.ORANGE.darker();
+    public static final Color VALID_COLOR = Color.GREEN.darker().darker();
+    public static final Color INVALID_COLOR = Color.RED.darker();
+    public static final Color UNCERTAIN_COLOR = Color.ORANGE.darker();
 
-    private static final Font  COURIER             = new Font("Monospaced", Font.PLAIN, 12);
     private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;
 
     private Color enabledBackground;
 
 
     public ValidityEditorPane() {
-        setFont(COURIER);
+        configure();
         enabledBackground = this.getBackground();
     }
 
@@ -53,10 +56,13 @@ public class ValidityEditorPane extends JEditorPane
     public void setDocument(AbstractXMLStyledDocument document) {
         super.setDocument(document);
         subscribeForValidityEvents();
+
+        // Set the tab size
+        getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
     }
 
     public boolean isContentValid() {
-        return getXMLStyledDocument().isContentValidity();
+        return getXMLStyledDocument().isContentValid();
     }
 
     public void validate() {
@@ -71,7 +77,7 @@ public class ValidityEditorPane extends JEditorPane
         acceptValiditySubscription(this);
     }
 
-    public void acceptValiditySubscription(AbstractXMLStyledDocumentValidityListener subscriber) {
+    public void acceptValiditySubscription(XMLStyledDocumentValidityListener subscriber) {
         getXMLStyledDocument().subscribe(subscriber);
     }
 
@@ -92,11 +98,50 @@ public class ValidityEditorPane extends JEditorPane
         );
     }
 
-    public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
+    public void documentValidityChanged(Validity documentValid) {
         switch (documentValid) {
             case VALID: setForeground(VALID_COLOR); break;
             case INVALID: setForeground(INVALID_COLOR); break;
             default: setForeground(UNCERTAIN_COLOR);
         }
+    }
+
+    public void configure() {
+        Color element = new Color(9, 9, 155);
+        Color attribute = new Color(23, 23, 240);
+        Color value = new Color(0, 143, 41);
+        Color comment = new Color(160, 160, 160);
+
+        XMLEditorKit kit = new XMLEditorKit();
+        kit.setAutoIndentation(true);
+        kit.setTagCompletion(true);
+        kit.setStyle(XMLStyleConstants.ELEMENT_PREFIX, element, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.ELEMENT_NAME, element, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.ELEMENT_VALUE, value, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.ATTRIBUTE_PREFIX, attribute, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.ATTRIBUTE_NAME, attribute, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.ATTRIBUTE_VALUE, value, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.NAMESPACE_PREFIX, attribute, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.NAMESPACE_NAME, attribute, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.NAMESPACE_VALUE, value, Font.PLAIN);
+        kit.setStyle(XMLStyleConstants.COMMENT, comment, Font.ITALIC);
+        setEditorKit(kit);
+
+        // Set the tab size & error highlighting
+        getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
+        getDocument().putProperty(XMLEditorKit.ERROR_HIGHLIGHTING_ATTRIBUTE, true);
+
+        setBackground(new Color(252,252,252));
+    }
+
+
+    // override to add anti-aliasing to text
+    public void paint(Graphics g) {
+        Graphics2D g2 = (Graphics2D)g;
+        RenderingHints rh = new RenderingHints(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+        g2.setRenderingHints(rh);
+        super.paint(g);
     }
 }

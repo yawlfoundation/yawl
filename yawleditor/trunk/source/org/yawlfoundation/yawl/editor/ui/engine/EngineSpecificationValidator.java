@@ -67,7 +67,7 @@ public class EngineSpecificationValidator {
                     Set<YVariable> taskVars = new HashSet<YVariable>();
                     taskVars.addAll(decomp.getInputParameters().values());
                     taskVars.addAll(decomp.getOutputParameters().values());
-                    problemList.addAll(checkUserDefinedDataTypes(variables,
+                    problemList.addAll(checkUserDefinedDataTypes(taskVars,
                             net.getName(), task.getLabel()));
                 }
             }

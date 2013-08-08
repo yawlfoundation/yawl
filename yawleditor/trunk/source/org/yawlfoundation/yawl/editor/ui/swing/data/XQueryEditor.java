@@ -23,14 +23,14 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-public class JXQueryEditor extends ValidityEditorPane {
+public class XQueryEditor extends ValidityEditorPane {
 
-    public JXQueryEditor() {
+    public XQueryEditor() {
         super();
         setDocument(new XQueryStyledDocument(this));
     }
 
-    public JXQueryEditor(String extraParseText) {
+    public XQueryEditor(String extraParseText) {
         this();
     }
 

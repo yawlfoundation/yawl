@@ -48,7 +48,7 @@ public class FlowPredicateUpdateDialog extends AbstractDoneDialog {
   private YAWLFlowRelation flow;
   private NetGraph net;
   
-  private JXQueryEditorPane xQueryEditor;
+  private XQueryEditorPane xQueryEditor;
   
   private JButton inputVariableQueryButton;
   protected DataVariableComboBox inputVariableComboBox;
@@ -182,8 +182,8 @@ public class FlowPredicateUpdateDialog extends AbstractDoneDialog {
     return inputVariableQueryButton; 
   }
   
-  private JXQueryEditorPane getXQueryEditor() {
-    xQueryEditor = new JXQueryEditorPane(" = 'true'");
+  private XQueryEditorPane getXQueryEditor() {
+    xQueryEditor = new XQueryEditorPane(" = 'true'");
     xQueryEditor.setMinimumSize(new Dimension(400,400));
     return xQueryEditor;
   }

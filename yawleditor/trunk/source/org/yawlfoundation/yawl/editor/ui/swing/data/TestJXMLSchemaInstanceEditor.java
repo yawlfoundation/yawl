@@ -24,12 +24,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import junit.framework.*;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class TestJXMLSchemaInstanceEditor extends TestCase {
-  JXMLSchemaInstanceEditor testSimpleInstancePane;
-  JXMLSchemaInstanceEditor testComplexInstancePane;
+  XMLSchemaInstanceEditor testSimpleInstancePane;
+  XMLSchemaInstanceEditor testComplexInstancePane;
   
   private String validComplexTypeName;
   
@@ -68,15 +69,15 @@ public class TestJXMLSchemaInstanceEditor extends TestCase {
       "  </complexType>\n" +
       "</schema>";
     
-    SpecificationModel.getInstance().setDataTypeDefinition(validSchema);
+  //  SpecificationModel.getInstance().setDataTypeDefinition(validSchema);
   }
   
   private void setupSimpleInstancePane() {
-    testSimpleInstancePane = new JXMLSchemaInstanceEditor();
+    testSimpleInstancePane = new XMLSchemaInstanceEditor();
   }
 
   private void setupComplexInstancePane() {
-    testComplexInstancePane = new JXMLSchemaInstanceEditor();
+    testComplexInstancePane = new XMLSchemaInstanceEditor();
     validComplexTypeName = "Nerd";
   }
 

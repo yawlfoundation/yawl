@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
@@ -54,7 +55,7 @@ public class TestDataSchemaValidator extends TestCase {
   protected void setUp() {
       SpecificationModel.getInstance().reset();
       validator = SpecificationModel.getInstance().getSchemaValidator();
-      validator.setDataTypeSchema(SpecificationModel.DEFAULT_TYPE_DEFINITION);
+      validator.setDataTypeSchema(YSpecificationHandler.DEFAULT_TYPE_DEFINITION);
   }
 
     protected void setSchema(String innards) {
@@ -107,17 +108,17 @@ public class TestDataSchemaValidator extends TestCase {
   }
 
   public void testValidateSimpleSchemaForEnumeratedStringVariable() {
-    SpecificationModel.getInstance().setDataTypeDefinition(
-      "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">" +
-      "  <xs:simpleType name=\"TestEnumeration\">"  +
-      "    <xs:restriction base=\"xs:string\">" +
-      "      <xs:enumeration value=\"OK\"/>" +
-      "      <xs:enumeration value=\"NOK\"/>" +
-      "    </xs:restriction>" +   
-      "  </xs:simpleType>" +
-      "  <xs:element name=\"testElement\" type=\"TestEnumeration\"/>" +
-      "</xs:schema>"         
-    );
+//    SpecificationModel.getInstance().setDataTypeDefinition(
+//      "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">" +
+//      "  <xs:simpleType name=\"TestEnumeration\">"  +
+//      "    <xs:restriction base=\"xs:string\">" +
+//      "      <xs:enumeration value=\"OK\"/>" +
+//      "      <xs:enumeration value=\"NOK\"/>" +
+//      "    </xs:restriction>" +
+//      "  </xs:simpleType>" +
+//      "  <xs:element name=\"testElement\" type=\"TestEnumeration\"/>" +
+//      "</xs:schema>"
+//    );
     
     assertEquals(
         "",
@@ -128,16 +129,16 @@ public class TestDataSchemaValidator extends TestCase {
   }
   
   public void testValidateComplexSchema() {
-    SpecificationModel.getInstance().setDataTypeDefinition(
-        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">" +
-        "  <xs:complexType name='PersonList'>" +
-        "    <xs:sequence>" +
-        "      <xs:element name='PersonName' type='xs:string' maxOccurs='unbounded'/>" +
-        "    </xs:sequence>" +
-        "  </xs:complexType>" +
-        "  <xs:element name=\"testList\" type=\"PersonList\"/>" +
-        "</xs:schema>"
-    );
+//    SpecificationModel.getInstance().setDataTypeDefinition(
+//        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">" +
+//        "  <xs:complexType name='PersonList'>" +
+//        "    <xs:sequence>" +
+//        "      <xs:element name='PersonName' type='xs:string' maxOccurs='unbounded'/>" +
+//        "    </xs:sequence>" +
+//        "  </xs:complexType>" +
+//        "  <xs:element name=\"testList\" type=\"PersonList\"/>" +
+//        "</xs:schema>"
+//    );
 
     assertEquals(
         "",

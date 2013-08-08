@@ -24,52 +24,37 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
+import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.CreateNetAction;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
 
 import java.awt.event.KeyEvent;
 
 class NetMenu extends YAWLOpenSpecificationMenu {
-    
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public NetMenu() {
-    super("Net", KeyEvent.VK_N);
-  }   
-  
-  protected void buildInterface() {
-//      YAWLEditor editor = YAWLEditor.getInstance();
-    add(new YAWLMenuItem(new CreateNetAction()));
-//      editor.updateLoadProgress(22);
+    public NetMenu() {
+        super("Net", KeyEvent.VK_N);
+    }
 
-    add(new YAWLMenuItem(new RemoveNetAction()));
- //     editor.updateLoadProgress(24);
-
-    add(new YAWLMenuItem(new SetStartingNetAction()));
- //     editor.updateLoadProgress(26);
-
-//    add(new YAWLMenuItem(new NetDecompositionDetailAction()));
-//      editor.updateLoadProgress(27);
-
-    addSeparator();
-    add(new YAWLMenuItem(new ExportNetToPngAction()));   
- //     editor.updateLoadProgress(28);
-
-    addSeparator();
-
-    add(new YAWLMenuItem(new NetBackgroundColourAction()));
-    add(new YAWLMenuItem(new NetBackgroundImageAction()));  
-    
-    addSeparator();
-    
-    add(new YAWLMenuItem(new PrintNetAction()));
- //     editor.updateLoadProgress(29);
-
-    addSeparator();
-
-    add(new ProcessConfigurationMenu());
-  }
+    protected void buildInterface() {
+        add(new YAWLMenuItem(new CreateNetAction()));
+        add(new YAWLMenuItem(new RemoveNetAction()));
+        add(new YAWLMenuItem(new SetRootNetAction()));
+        addSeparator();
+        add(new YAWLMenuItem(new ExportNetToPngAction()));
+        addSeparator();
+        add(new YAWLMenuItem(new NetBackgroundColourAction()));
+        add(new YAWLMenuItem(new NetBackgroundImageAction()));
+        addSeparator();
+        add(new YAWLMenuItem(new PrintNetAction()));
+        addSeparator();
+        add(new YAWLMenuItem(new RepositoryAddAction(null, Repo.NetDecomposition, null)));
+        add(new YAWLMenuItem(new RepositoryGetAction(null, Repo.NetDecomposition, null)));
+        add(new YAWLMenuItem(new RepositoryRemoveAction(null, Repo.NetDecomposition, null)));
+        addSeparator();
+        add(new ProcessConfigurationMenu());
+    }
 }

@@ -22,39 +22,17 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-public class JXMLSchemaInstanceEditorPane extends JProblemReportingEditorPane {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+public class XMLSchemaEditorPane extends ProblemReportingEditorPane {
 
-  public JXMLSchemaInstanceEditorPane() {
-    super(new JXMLSchemaInstanceEditor());
-  }
-  
-  public void setVariableType(String variableType) {
-    ((JXMLSchemaInstanceEditor) getEditor()).setVariableType(variableType);
-  }
 
-  public void setVariableName(String variableName) {
-    ((JXMLSchemaInstanceEditor) getEditor()).setVariableName(variableName);
-  }
-  
-  public void setEnabled(boolean enabled) {
-    getEditor().setEnabled(enabled);
-    super.setEnabled(enabled);
-  }
-  
-  public String getText() {
-    return getEditor().getText();
-  }
-  
-  public void setText(String text) {
-    getEditor().setText(text);
-  }
-  
-  public void setToolTipText(String tooltipText) {
-    getEditor().setToolTipText(tooltipText);
-  }
+    public XMLSchemaEditorPane() {
+        this(false);
+    }
+
+    public XMLSchemaEditorPane(boolean showLineNumbers) {
+        super(new XMLSchemaEditor(), showLineNumbers);
+        ((XMLSchemaEditor) getEditor()).setContainingPane(this);
+    }
+
 }
 

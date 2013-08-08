@@ -22,35 +22,41 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.DataDefinitionDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class DataTypeDefinitionsAction extends YAWLOpenSpecificationAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private static final DataTypeDefinitionDialog dialog = new DataTypeDefinitionDialog();
 
-  private boolean invokedAtLeastOnce = false;
-
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Update Data Type Definitions. ");
-    putValue(Action.NAME, "Data Types...");
-    putValue(Action.LONG_DESCRIPTION, "Update Data Type Definitions.");
-    putValue(Action.SMALL_ICON, getPNGIcon("page_white_code"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("D"));
-  }
-
-  public void actionPerformed(ActionEvent event) {
-    if (!invokedAtLeastOnce) {
-      dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-      invokedAtLeastOnce = true;       
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Update Data Type Definitions. ");
+        putValue(Action.NAME, "Data Types...");
+        putValue(Action.LONG_DESCRIPTION, "Update Data Type Definitions.");
+        putValue(Action.SMALL_ICON, getPNGIcon("page_white_code"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("D"));
     }
-    dialog.setVisible(true);
-  }
+
+    public void actionPerformed(ActionEvent event) {
+        String currentSchema = SpecificationModel.getHandler().getSchema();
+        DataDefinitionDialog dialog = new DataDefinitionDialog();
+        dialog.setContent(currentSchema);
+        dialog.setVisible(true);
+        String newContent = dialog.getContent();
+        if (! (newContent == null || newContent.equals(currentSchema))) {
+            try {
+                SpecificationModel.getHandler().setSchema(newContent);
+            }
+            catch (YSyntaxException yse) {
+                YAWLEditor.getStatusBar().setText(
+                        "Failed to update Data Definition: Invalid syntax");
+            }
+        }
+
+    }
 }

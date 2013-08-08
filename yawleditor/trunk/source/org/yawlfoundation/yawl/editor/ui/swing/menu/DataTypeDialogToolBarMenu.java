@@ -25,8 +25,12 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
+import org.yawlfoundation.yawl.editor.core.repository.Repo;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
+import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
 import org.yawlfoundation.yawl.editor.ui.swing.data.AbstractXMLStyledDocument;
-import org.yawlfoundation.yawl.editor.ui.swing.data.JXMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.data.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;
 
 import javax.swing.*;
@@ -35,17 +39,20 @@ import java.awt.*;
 public class DataTypeDialogToolBarMenu extends YAWLToolBar {
 
     private static DataTypeDialogToolBarMenu _me;
-    private static JXMLSchemaEditorPane editorPane;
+    private static XMLSchemaEditorPane editorPane;
+    private JDialog _owner;
 
     private YAWLToolBarButton cutButton;
     private YAWLToolBarButton copyButton;
     private YAWLToolBarButton pasteButton;
     private YAWLToolBarButton formatButton;
+    private YAWLToolBarButton repoAddButton;
     private JTextField findText;
 
 
-    public DataTypeDialogToolBarMenu(JXMLSchemaEditorPane pane) {
+    public DataTypeDialogToolBarMenu(JDialog owner, XMLSchemaEditorPane pane) {
         super("DataType Dialog ToolBar");
+        _owner = owner;
         setEditorPane(pane);
         _me = this;
     }
@@ -54,11 +61,20 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
         return _me;
     }
 
-    public static JXMLSchemaEditorPane getEditorPane() {
+    public static XMLSchemaEditorPane getEditorPane() {
         return editorPane;
     }
 
-    public static void setEditorPane(JXMLSchemaEditorPane pane) {
+    public String getSelectedText() {
+        return getEditorPane().getEditor().getSelectedText();
+    }
+
+    public void insertText(String text) {
+        getEditorPane().getEditor().replaceSelection(text);
+    }
+
+
+    public static void setEditorPane(XMLSchemaEditorPane pane) {
         editorPane = pane;
         AbstractXMLStyledDocument doc =
                 (AbstractXMLStyledDocument) editorPane.getEditor().getDocument();
@@ -83,6 +99,15 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
         add(formatButton);
         addSeparator();
 
+        repoAddButton = new YAWLToolBarButton(
+                new RepositoryAddAction(_owner, Repo.DataDefinition, this));
+        add(repoAddButton);
+        add(new YAWLToolBarButton(
+                new RepositoryGetAction(_owner, Repo.DataDefinition, this)));
+        add(new YAWLToolBarButton(
+                new RepositoryRemoveAction(_owner, Repo.DataDefinition, this)));
+        addSeparator();
+
         FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
         layout.setHgap(0);
         JPanel innerPanel = new JPanel(layout);
@@ -90,7 +115,6 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
         innerPanel.add(findText);
         innerPanel.add(new YAWLToolBarButton(new FindTextDataTypeDialogAction(this)));
         add(innerPanel);
-
     }
 
     public YAWLToolBarButton getButton(String btype) {
@@ -99,6 +123,12 @@ public class DataTypeDialogToolBarMenu extends YAWLToolBar {
         if (btype.equals("paste")) return pasteButton;
         if (btype.equals("format")) return formatButton;
         return null;
+    }
+
+    public void setOnSelectionEnabled(boolean selected) {
+        cutButton.setEnabled(selected);
+        copyButton.setEnabled(selected);
+        repoAddButton.setEnabled(selected);
     }
 
     public String getFindText() {

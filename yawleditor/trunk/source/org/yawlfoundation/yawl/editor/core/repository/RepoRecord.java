@@ -11,11 +11,9 @@ import org.yawlfoundation.yawl.util.XNodeParser;
  */
 public class RepoRecord {
 
-    private String name;
-    private String description;
+    private RepoDescriptor descriptor;
     private String value;
 
-    protected RepoRecord() {  }
 
     /**
      * Constructs a new RepoRecord
@@ -24,8 +22,7 @@ public class RepoRecord {
      * @param value the record's value
      */
     protected RepoRecord(String name, String description, String value) {
-        this.name = name;
-        this.description = description;
+        descriptor = new RepoDescriptor(name, description);
         this.value = value;
     }
 
@@ -39,20 +36,24 @@ public class RepoRecord {
     }
 
 
+    protected RepoDescriptor getDescriptor() {
+        return descriptor;
+    }
+
     protected String getName() {
-        return name;
+        return descriptor.getName();
     }
 
     protected void setName(String name) {
-        this.name = name;
+        descriptor.setName(name);
     }
 
     protected String getDescription() {
-        return description;
+        return descriptor.getDescription();
     }
 
     protected void setDescription(String description) {
-        this.description = description;
+        descriptor.setDescription(description);
     }
 
     protected String getValue() {
@@ -70,8 +71,8 @@ public class RepoRecord {
      */
     protected XNode toXNode() {
         XNode node = new XNode("record");
-        node.addChild("name", name);
-        node.addChild("description", description);
+        node.addChild("name", getName());
+        node.addChild("description", getDescription());
         XNode valueNode = node.addChild("value");
         valueNode.addContent(value);
         return node;
@@ -92,8 +93,8 @@ public class RepoRecord {
      * @param node the populated XNode
      */
     protected void fromXNode(XNode node) {
-        setName(node.getChildText("name"));
-        setDescription(node.getChildText("description"));
+        descriptor = new RepoDescriptor(node.getChildText("name"),
+                node.getChildText("description"));
         setValue(StringUtil.unwrap(node.getChild("value").toString()));
     }
 

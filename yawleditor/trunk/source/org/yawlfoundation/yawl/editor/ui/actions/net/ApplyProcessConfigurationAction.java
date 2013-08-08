@@ -315,10 +315,10 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                         net.clearSelection();
                         net.setElementLabel(task, "_tau");
                         if (task.getIncomingFlowCount() == 0) { //when it links to the start or end condition, something need to be handled
-                            net.connect(start, task);
+                            net.connect(start.getDefaultSourcePort(), task.getDefaultTargetPort());
                         }
                         else if(task.getOutgoingFlowCount()==0){
-                            net.connect(task, end);
+                            net.connect(task.getDefaultSourcePort(), end.getDefaultTargetPort());
                         }
                     }
                 }

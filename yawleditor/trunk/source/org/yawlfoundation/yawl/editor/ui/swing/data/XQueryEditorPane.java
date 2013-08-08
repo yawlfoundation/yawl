@@ -25,14 +25,14 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 import javax.swing.text.Document;
 
-public class JXQueryEditorPane extends JProblemReportingEditorPane {
+public class XQueryEditorPane extends ProblemReportingEditorPane {
 
-    public JXQueryEditorPane() {
-        super(new JXQueryEditor());
+    public XQueryEditorPane() {
+        super(new XQueryEditor());
     }
 
-    public JXQueryEditorPane(String extraParseText) {
-        super(new JXQueryEditor(extraParseText));
+    public XQueryEditorPane(String extraParseText) {
+        super(new XQueryEditor(extraParseText));
     }
 
     public void setTargetVariableName(String targetVariableName) {
@@ -51,8 +51,8 @@ public class JXQueryEditorPane extends JProblemReportingEditorPane {
         getXQueryEditor().setPreAndPostEditorText(preEditorText, postEditorText);
     }
 
-    public JXQueryEditor getXQueryEditor() {
-        return (JXQueryEditor) getEditor();
+    public XQueryEditor getXQueryEditor() {
+        return (XQueryEditor) getEditor();
     }
 
     public void setValidating(boolean validating) {

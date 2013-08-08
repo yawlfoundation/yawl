@@ -23,6 +23,7 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
@@ -285,15 +286,15 @@ public class SpecificationReader {
     }
 
 
-    private void populateFlows(Set<YFlow> engineFlows, NetGraphModel editorNet) {
+    private void populateFlows(Set<YCompoundFlow> engineFlows, NetGraphModel editorNet) {
 
-        for (YFlow engineFlow : engineFlows) {
+        for (YCompoundFlow engineFlow : engineFlows) {
             YAWLVertex sourceVertex = (YAWLVertex) _engineToEditorElementMap.get(
-                    engineFlow.getPriorElement());
+                    engineFlow.getSource());
             YAWLVertex targetVertex = (YAWLVertex) _engineToEditorElementMap.get(
-                    engineFlow.getNextElement());
-            YAWLFlowRelation flow = editorNet.getGraph().connect(sourceVertex,
-                    targetVertex);
+                    engineFlow.getTarget());
+            YAWLFlowRelation flow = new YAWLFlowRelation(engineFlow);
+            editorNet.getGraph().connect(flow, sourceVertex, targetVertex);
 
             // when a default flow is exported, it has no predicate or ordering recorded
             // (because it is the _default_ flow) - so when importing from that xml,
@@ -318,38 +319,6 @@ public class SpecificationReader {
                 editorTaskCancellationSet.addMember(editorSetMember);
             }
             editorTask.setCancellationSet(editorTaskCancellationSet);
-        }
-    }
-
-    private void removeImplicitConditions(Set<YCondition> engineConditions,
-                                          NetGraphModel netModel) {
-        for (YCondition engineCondition : engineConditions) {
-            if (engineCondition.isImplicit()) {
-                Condition editorCondition = (Condition)
-                        _engineToEditorElementMap.get(engineCondition);
-
-                YAWLFlowRelation incomingFlow = editorCondition.getOnlyIncomingFlow();
-                YAWLFlowRelation outgoingFlow = editorCondition.getOnlyOutgoingFlow();
-                if (incomingFlow != null && outgoingFlow != null) {
-                    YAWLTask sourceTask = incomingFlow.getSourceTask();
-                    YAWLTask targetTask = outgoingFlow.getTargetTask();
-                    if (sourceTask != null && targetTask != null) {
-                        String sourcePredicate = incomingFlow.getPredicate();
-                        int sourcePriority = incomingFlow.getPriority();
-                        netModel.removeCells(new Object[]{editorCondition});
-                        removeEngineFlow(netModel, incomingFlow);
-                        removeEngineFlow(netModel, outgoingFlow);
-
-                        YAWLFlowRelation replacementFlow =
-                                netModel.getGraph().connect(sourceTask, targetTask);
-
-                        // map predicate & priority from removed condition to new flow
-                        replacementFlow.setPredicate(sourcePredicate);
-                        replacementFlow.setPriority(sourcePriority);
-                        _engineToEditorElementMap.put(engineCondition, replacementFlow);
-                    }
-                }
-            }
         }
     }
 

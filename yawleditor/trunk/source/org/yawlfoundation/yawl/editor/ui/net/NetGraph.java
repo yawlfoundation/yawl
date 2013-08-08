@@ -49,26 +49,20 @@ import java.util.Set;
 
 public class NetGraph extends JGraph {
 
-  private static final int FLOW_SPACER = 20;
-  
   public static final int DEFAULT_MARGIN  = 50;
   
-  /**
-   * Default margin size of whitespace to appear around elements
-   * being added to a net.
-   */
+  // Default margin size of whitespace to appear around elements being added to a net
   public static final int WHITESPACE_MARGIN  = 20;
 
   private YAWLEditorNetPanel frame;
-  
   private NetSelectionListener selectionListener;
   private CancellationSetModel cancellationSetModel;
 
   /**
    * The following fields are added by Jingxin XU
    */
-  private ConfigurationSettingInfor configurationSettings; //This variable stores all editor settings of a net tp steer configuration opportunities
-
+  //stores all editor settings of a net tp steer configuration opportunities
+  private ConfigurationSettingInfo configurationSettings;
   private ServiceAutomatonTree serviceAutomaton = null;
 
   /**********/  
@@ -88,7 +82,7 @@ public class NetGraph extends JGraph {
   
   private void initialize() {
     buildBasicGraphContent();
-    this.configurationSettings = new ConfigurationSettingInfor();
+    this.configurationSettings = new ConfigurationSettingInfo();
   }
 
   public void createServiceAutonomous() {
@@ -132,8 +126,8 @@ public class NetGraph extends JGraph {
     startUndoableEdits();
   }
   
-  public ConfigurationSettingInfor getConfigurationSettings(){
-	  return this.configurationSettings;
+  public ConfigurationSettingInfo getConfigurationSettings(){
+        return this.configurationSettings;
   }
 
   public void buildNewGraphContent(){
@@ -294,30 +288,34 @@ public class NetGraph extends JGraph {
 
   protected ImageIcon getIconByName(String iconName) {
     return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/ui/resources/yawlElements/"
-           + iconName + ".gif");
-  }
-  
-  public YAWLFlowRelation connect(YAWLVertex sourceVertex, YAWLVertex targetVertex) {
-    return connect(sourceVertex.getDefaultSourcePort(), targetVertex.getDefaultTargetPort());
+            + iconName + ".gif");
   }
   
   public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
       YAWLFlowRelation flow = NetCellFactory.insertFlow(this,
               source.getVertexID(), target.getVertexID());
+      connect(flow, source, target);
+      return flow;
+  }
+
+    public void connect(YAWLFlowRelation flow, YAWLVertex source, YAWLVertex target) {
+        connect(flow, source.getDefaultSourcePort(), target.getDefaultTargetPort());
+    }
+
+  public void connect(YAWLFlowRelation flow, YAWLPort source, YAWLPort target) {
       ConnectionSet cs = new ConnectionSet();
       cs.connect(flow, source, target);
 
       getNetModel().beginUpdate();
-
-      getModel().insert(new Object[] {flow},
-              null, cs, null, null);
-
+      getModel().insert(new Object[] {flow}, null, cs, null, null);
       setFlowPriorityIfNecessary(flow);
-      makeSameTaskFlowPrettyIfNecessary(flow);
+      if (flow.connectsTaskToItself()) {
+          NetCellUtilities.prettifyLoopingFlow(this, flow,
+                  (EdgeView) getViewFor(flow), getViewFor(flow.getSourceTask()));
+      }
       updateCPorts(source, target);
       getNetModel().endUpdate();
-      return flow;
-  }
+   }
   
   private void setFlowPriorityIfNecessary(YAWLFlowRelation flow) {
     YAWLCell sourceCell = getSourceOf(flow);
@@ -339,184 +337,6 @@ public class NetGraph extends JGraph {
         }
     }
 
-  private void makeSameTaskFlowPrettyIfNecessary(YAWLFlowRelation flow) {
-     
-    if (flow.connectsTaskToItself()) {
-
-      /* We can make some assumptions here for fast-tracking the calculation of
-         where to put points.  A flow that connects a task to itself MUST have both a 
-         join and split decorator. We build the extra points around the decorators.
-      */
-      
-      EdgeView flowView = (EdgeView) getViewFor(flow);
-      Point2D.Double awaySourcePoint = 
-        new Point2D.Double(flowView.getPoint(0).getX(),
-                           flowView.getPoint(0).getY() 
-        );
-
-      Point2D.Double awayTargetPoint = 
-        new Point2D.Double(flowView.getPoint(1).getX(),
-                           flowView.getPoint(1).getY()
-        );
-      
-      switch(flow.getSourceTask().getSplitDecorator().getCardinalPosition()) {
-        case Decorator.TOP: {
-          awaySourcePoint.setLocation(
-              awaySourcePoint.getX(),
-              awaySourcePoint.getY() - FLOW_SPACER
-          );
-          break;
-        }
-        case Decorator.BOTTOM: {
-          awaySourcePoint.setLocation(
-              awaySourcePoint.getX(),
-              awaySourcePoint.getY() + FLOW_SPACER
-          );
-          break;
-        }
-        case Decorator.LEFT: {
-          awaySourcePoint.setLocation(
-              awaySourcePoint.getX() - FLOW_SPACER,
-              awaySourcePoint.getY()
-          );
-          break;
-        }
-        case Decorator.RIGHT: {
-          awaySourcePoint.setLocation(
-              awaySourcePoint.getX() + FLOW_SPACER,
-              awaySourcePoint.getY()
-          );
-          break;
-        }
-      }
-
-      switch(flow.getTargetTask().getJoinDecorator().getCardinalPosition()) {
-        case Decorator.TOP: {
-          awayTargetPoint.setLocation(
-              awayTargetPoint.getX(),
-              awayTargetPoint.getY() - FLOW_SPACER
-          );
-          break;
-        }
-        case Decorator.BOTTOM: {
-          awayTargetPoint.setLocation(
-              awayTargetPoint.getX(),
-              awayTargetPoint.getY() + FLOW_SPACER
-          );
-          break;
-        }
-        case Decorator.LEFT: {
-          awayTargetPoint.setLocation(
-              awayTargetPoint.getX() - FLOW_SPACER,
-              awayTargetPoint.getY()
-          );
-          break;
-        }
-        case Decorator.RIGHT: {
-          awayTargetPoint.setLocation(
-              awayTargetPoint.getX() + FLOW_SPACER,
-              awayTargetPoint.getY()
-          );
-          break;
-        }
-      }
-      
-      flowView.addPoint(1, awaySourcePoint);
-      flowView.addPoint(2, awayTargetPoint);
-      
-      if (flow.getSourceTask().hasTopLeftAdjacentDecorators()) {
-        Point2D.Double cornerPoint = new Point2D.Double(
-          Math.min(awaySourcePoint.x, awayTargetPoint.x),
-          Math.min(awaySourcePoint.y, awayTargetPoint.y)
-        );
-        flowView.addPoint(2, cornerPoint);
-      }
-
-      if (flow.getSourceTask().hasTopRightAdjacentDecorators()) {
-        Point2D.Double cornerPoint = new Point2D.Double(
-          Math.max(awaySourcePoint.x, awayTargetPoint.x),
-          Math.min(awaySourcePoint.y, awayTargetPoint.y)
-        );
-        flowView.addPoint(2, cornerPoint);
-      }
-
-      if (flow.getSourceTask().hasBottomRightAdjacentDecorators()) {
-        Point2D.Double cornerPoint = new Point2D.Double(
-          Math.max(awaySourcePoint.x, awayTargetPoint.x),
-          Math.max(awaySourcePoint.y, awayTargetPoint.y)
-        );
-        flowView.addPoint(2, cornerPoint);
-      }
-
-      if (flow.getSourceTask().hasBottomLeftAdjacentDecorators()) {
-        Point2D.Double cornerPoint = new Point2D.Double(
-          Math.min(awaySourcePoint.x, awayTargetPoint.x),
-          Math.max(awaySourcePoint.y, awayTargetPoint.y)
-        );
-        flowView.addPoint(2, cornerPoint);
-      }
-      
-      if (flow.getSourceTask().hasHorizontallyAlignedDecorators()) {
-        if (awaySourcePoint.x < awayTargetPoint.x) {
-          Point2D.Double sourceCornerPoint = new Point2D.Double(
-              awaySourcePoint.getX(),
-              getViewFor(flow.getSourceTask()).getBounds().getY() - FLOW_SPACER
-          );
-          
-          Point2D.Double targetCornerPoint = new Point2D.Double(
-              awayTargetPoint.getX(),
-              getViewFor(flow.getSourceTask()).getBounds().getY() - FLOW_SPACER
-          );
-
-          flowView.addPoint(2, sourceCornerPoint);
-          flowView.addPoint(3, targetCornerPoint);
-        } else {
-          Point2D.Double sourceCornerPoint = new Point2D.Double(
-              awaySourcePoint.getX(),
-              getViewFor(flow.getSourceTask()).getBounds().getY() - FLOW_SPACER
-          );
-          
-          Point2D.Double targetCornerPoint = new Point2D.Double(
-              awayTargetPoint.getX(),
-              getViewFor(flow.getSourceTask()).getBounds().getY() - FLOW_SPACER
-          );
-
-          flowView.addPoint(2, sourceCornerPoint);
-          flowView.addPoint(3, targetCornerPoint);
-        }
-      }
-      if (flow.getSourceTask().hasVerticallyAlignedDecorators()) {
-        if (awaySourcePoint.y < awayTargetPoint.y) {
-          Point2D.Double sourceCornerPoint = new Point2D.Double(
-              getViewFor(flow.getSourceTask()).getBounds().getX() - FLOW_SPACER,
-              awaySourcePoint.getY()
-          );
-          
-          Point2D.Double targetCornerPoint = new Point2D.Double(
-              getViewFor(flow.getSourceTask()).getBounds().getX() - FLOW_SPACER,
-              awayTargetPoint.getY()
-          );
-
-          flowView.addPoint(2, sourceCornerPoint);
-          flowView.addPoint(3, targetCornerPoint);
-        } else {
-          Point2D.Double sourceCornerPoint = new Point2D.Double(
-              getViewFor(flow.getSourceTask()).getBounds().getX() - FLOW_SPACER,
-              awaySourcePoint.getY()
-          );
-          
-          Point2D.Double targetCornerPoint = new Point2D.Double(
-              getViewFor(flow.getSourceTask()).getBounds().getX() - FLOW_SPACER,
-              awayTargetPoint.getY()
-          );
-
-          flowView.addPoint(2, sourceCornerPoint);
-          flowView.addPoint(3, targetCornerPoint);
-        }
-      }
-      NetCellUtilities.applyViewChange(this, flowView);
-    }
-  }
 
   /**
    * Returns true if <code>object</code> is a vertex, that is, if it
@@ -526,9 +346,7 @@ public class NetGraph extends JGraph {
   public boolean isGroup(Object cell) {
     // Map the Cell to its View
     CellView view = getGraphLayoutCache().getMapping(cell, false);
-    if (view != null)
-      return !view.isLeaf();
-    return false;
+      return view != null && !view.isLeaf();
   }
 
   public boolean connectionAllowable(Port source, Port target) {
@@ -566,284 +384,206 @@ public class NetGraph extends JGraph {
   public boolean hasOutgoingFlow(YAWLCell cell) {
     return getNetModel().hasOutgoingFlow(cell);
   }
-  
-  public void setJoinDecorator(YAWLTask task, int type, int position) {
-    if(task.getJoinDecorator() == null && 
-        (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
-      return;
-    }
-    
-    getNetModel().beginUpdate();
-    
-    String label = this.getElementLabel(task);
-    this.setElementLabelInsideUpdate(task, null);
-    
-    getNetModel().setJoinDecorator(task, type, position);
 
-    this.setElementLabelInsideUpdate(task, label);
-    
-    getNetModel().endUpdate();
-    
-    NetCellUtilities.scrollNetToShowCells(
-        this, 
-        new Object[] { task }
-    );
-    
-    getGraphLayoutCache().reload();
-  }
+    public void setJoinDecorator(YAWLTask task, int type, int position) {
+        if (task.getJoinDecorator() == null &&
+                (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
+            return;
+        }
 
-  public void setSplitDecorator(YAWLTask task, int type, int position) {
-    if(task.getSplitDecorator() == null && 
-        (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
-      return;
+        getNetModel().beginUpdate();
+        String label = getElementLabel(task);
+        setElementLabelInsideUpdate(task, null);
+        getNetModel().setJoinDecorator(task, type, position);
+        setElementLabelInsideUpdate(task, label);
+        getNetModel().endUpdate();
+        NetCellUtilities.scrollNetToShowCells(this, new Object[] { task });
+        getGraphLayoutCache().reload();
     }
 
-    getNetModel().beginUpdate();
-    
-    String label = this.getElementLabel(task);
-    this.setElementLabelInsideUpdate(task, null);
+    public void setSplitDecorator(YAWLTask task, int type, int position) {
+        if(task.getSplitDecorator() == null &&
+                (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
+            return;
+        }
 
-    getNetModel().setSplitDecorator(task, type, position);
+        getNetModel().beginUpdate();
+        String label = getElementLabel(task);
+        setElementLabelInsideUpdate(task, null);
+        getNetModel().setSplitDecorator(task, type, position);
+        setElementLabelInsideUpdate(task, label);
+        getNetModel().endUpdate();
+        NetCellUtilities.scrollNetToShowCells(this, new Object[]{task });
+        getGraphLayoutCache().reload();
+    }
 
-    this.setElementLabelInsideUpdate(task, label);
-    
-    getNetModel().endUpdate();
-    
-    NetCellUtilities.scrollNetToShowCells(
-        this, 
-        new Object[] { task }
-    );
-
-    this.getGraphLayoutCache().reload();
-  }
-  
-  public Set<Object> removeCellsAndTheirEdges(Object[] cells) {
-      return getNetModel().removeCells(cells);
-  }
+    public Set<Object> removeCellsAndTheirEdges(Object[] cells) {
+        return getNetModel().removeCells(cells);
+    }
 
 
     public Set<Object> removeSelectedCellsAndTheirEdges() {
         return getNetModel().removeCells(getSelectionCells());
     }
 
-  public void increaseSelectedVertexSize() {
-    changeSelectedVertexSize(getGridSize());
-  }
+    public void increaseSelectedVertexSize() {
+        changeSelectedVertexSize(getGridSize());
+    }
 
-  public void decreaseSelectedVertexSize() {
-    changeSelectedVertexSize(-getGridSize());
-  }
-  
-  private void changeSelectedVertexSize(double baseSize) {
-    getNetModel().beginUpdate();
-    Object[] cells = getSelectionCells();
-    for(int i = 0; i < cells.length; i++) {
-      try {
-        VertexView view = 
-          getVertexViewFor((GraphCell) cells[i]);
-        if (view.getCell() instanceof VertexContainer) {
-          changeDecoratedVertexViewSize(view, baseSize);
-          translateLabelIfNecessary((VertexContainer) cells[i], baseSize/2, baseSize);
-        } else { 
-          NetCellUtilities.resizeView(this, view, baseSize, baseSize);
-        }
-      } catch (Exception e) {}
+    public void decreaseSelectedVertexSize() {
+        changeSelectedVertexSize(-getGridSize());
     }
-    getNetModel().endUpdate();
-  }
-  
-  private void translateLabelIfNecessary(VertexContainer container, double x, double y) {
-    if (container.getLabel() != null) {
-      NetCellUtilities.translateView(this, getVertexViewFor(container.getLabel()),x, y);
-    }
-  }
-  
-  private void changeDecoratedVertexViewSize(VertexView view, double baseSize) {
-    VertexContainer vertexContainer = (VertexContainer) view.getCell();
-    
-    YAWLVertex vertex = vertexContainer.getVertex();
-    if (vertex instanceof YAWLTask) {
-      changeDecoratedTaskViewSize(view, baseSize);
-    } else {
-      NetCellUtilities.resizeView(this, getVertexViewFor(vertex), baseSize, baseSize);
-    }
-  }
 
-  private void changeDecoratedTaskViewSize(VertexView view, double baseSize) {
-    VertexContainer decoratedTask = (VertexContainer) view.getCell();
-    
-    YAWLTask task        = (YAWLTask) decoratedTask.getVertex();
-    VertexView taskView  = getVertexViewFor(task);
-    
-    JoinDecorator join   = task.getJoinDecorator();
-    VertexView joinView  = null;
-    if (join != null) {
-      joinView = getVertexViewFor(join);
+    private void changeSelectedVertexSize(double baseSize) {
+        getNetModel().beginUpdate();
+        for (Object cell : getSelectionCells()) {
+            try {
+                VertexView view = getVertexViewFor((GraphCell) cell);
+                if (view.getCell() instanceof VertexContainer) {
+                    changeDecoratedVertexViewSize(view, baseSize);
+                    translateLabelIfNecessary((VertexContainer) cell, baseSize / 2, baseSize);
+                }
+                else {
+                    NetCellUtilities.resizeView(this, view, baseSize, baseSize);
+                }
+            }
+            catch (Exception e) {
+                //
+            }
+        }
+        getNetModel().endUpdate();
     }
-    
-    SplitDecorator split  = task.getSplitDecorator();
-    VertexView splitView = null;
-    if (split != null) {
-      splitView = getVertexViewFor(split);
+
+    private void translateLabelIfNecessary(VertexContainer container, double x, double y) {
+        if (container.getLabel() != null) {
+            NetCellUtilities.translateView(this,
+                    getVertexViewFor(container.getLabel()),x, y);
+        }
     }
-    
-    HashSet verticalViews = new HashSet();
-    HashSet horizontalViews = new HashSet();
-    if (join != null) {
-      if (join.getCardinalPosition() == YAWLTask.LEFT ||
-          join.getCardinalPosition() == YAWLTask.RIGHT) {
-       verticalViews.add(joinView);
-      }
-      if (join.getCardinalPosition() == YAWLTask.TOP ||
-          join.getCardinalPosition() == YAWLTask.BOTTOM) {
-       horizontalViews.add(joinView);
-      }
+
+    private void changeDecoratedVertexViewSize(VertexView view, double baseSize) {
+        VertexContainer vertexContainer = (VertexContainer) view.getCell();
+        YAWLVertex vertex = vertexContainer.getVertex();
+        if (vertex instanceof YAWLTask) {
+            changeDecoratedTaskViewSize(view, baseSize);
+        }
+        else {
+            NetCellUtilities.resizeView(this, getVertexViewFor(vertex), baseSize, baseSize);
+        }
     }
-    if (split != null) {
-      if (split.getCardinalPosition() == YAWLTask.LEFT ||
-          split.getCardinalPosition() == YAWLTask.RIGHT) {
-       verticalViews.add(splitView);
-      }
-      if (split.getCardinalPosition() == YAWLTask.TOP ||
-          split.getCardinalPosition() == YAWLTask.BOTTOM) {
-       horizontalViews.add(splitView);
-      }
+
+    private void changeDecoratedTaskViewSize(VertexView view, double baseSize) {
+        VertexContainer decoratedTask = (VertexContainer) view.getCell();
+        YAWLTask task = (YAWLTask) decoratedTask.getVertex();
+        VertexView taskView = getVertexViewFor(task);
+        HashSet verticalViews = new HashSet();
+        HashSet horizontalViews = new HashSet();
+
+        JoinDecorator join = task.getJoinDecorator();
+        VertexView joinView = null;
+        if (join != null) {
+            joinView = getVertexViewFor(join);
+            if (join.getCardinalPosition() == YAWLTask.LEFT ||
+                    join.getCardinalPosition() == YAWLTask.RIGHT) {
+                verticalViews.add(joinView);
+            }
+            if (join.getCardinalPosition() == YAWLTask.TOP ||
+                    join.getCardinalPosition() == YAWLTask.BOTTOM) {
+                horizontalViews.add(joinView);
+            }
+        }
+
+        SplitDecorator split  = task.getSplitDecorator();
+        VertexView splitView = null;
+        if (split != null) {
+            splitView = getVertexViewFor(split);
+            if (split.getCardinalPosition() == YAWLTask.LEFT ||
+                    split.getCardinalPosition() == YAWLTask.RIGHT) {
+                verticalViews.add(splitView);
+            }
+            if (split.getCardinalPosition() == YAWLTask.TOP ||
+                    split.getCardinalPosition() == YAWLTask.BOTTOM) {
+                horizontalViews.add(splitView);
+            }
+        }
+
+        if (task.hasDecoratorAtPosition(YAWLTask.LEFT)) {
+            NetCellUtilities.translateView(this, taskView, baseSize / 4, 0);
+
+            if (join != null) {
+                if(join.getCardinalPosition() == YAWLTask.TOP ||
+                        join.getCardinalPosition() == YAWLTask.BOTTOM) {
+                    NetCellUtilities.translateView(this, joinView, baseSize / 4, 0);
+                }
+                if (join.getCardinalPosition() == YAWLTask.RIGHT) {
+                    NetCellUtilities.translateView(this, joinView, baseSize + baseSize / 4, 0);
+                }
+            }
+            if (split != null) {
+                if (split.getCardinalPosition() == YAWLTask.TOP ||
+                        split.getCardinalPosition() == YAWLTask.BOTTOM) {
+                    NetCellUtilities.translateView(this, splitView, baseSize / 4, 0); }
+                if(split.getCardinalPosition() == YAWLTask.RIGHT) {
+                    NetCellUtilities.translateView(this, splitView, baseSize + baseSize / 4, 0); }
+            }
+        }
+        else { // no decorator on left
+            if (join != null && join.getCardinalPosition() == YAWLTask.RIGHT) {
+                NetCellUtilities.translateView(this, joinView, baseSize, 0);
+            }
+            if (split != null && split.getCardinalPosition() == YAWLTask.RIGHT) {
+                NetCellUtilities.translateView(this, splitView, baseSize, 0);
+            }
+        }
+        if (task.hasDecoratorAtPosition(YAWLTask.TOP)) {
+            NetCellUtilities.translateView(this, taskView, 0, baseSize / 4);
+
+            if (join != null) {
+                if(join.getCardinalPosition() == YAWLTask.LEFT ||
+                        join.getCardinalPosition() == YAWLTask.RIGHT) {
+                    NetCellUtilities.translateView(this, joinView, 0, baseSize / 4);
+                }
+                if (join.getCardinalPosition() == YAWLTask.BOTTOM) {
+                    NetCellUtilities.translateView(this, joinView, 0, baseSize + baseSize / 4);
+                }
+            }
+            if (split != null) {
+                if (split.getCardinalPosition() == YAWLTask.LEFT ||
+                        split.getCardinalPosition() == YAWLTask.RIGHT) {
+                    NetCellUtilities.translateView(this, splitView, 0, baseSize / 4);
+                }
+                if (split.getCardinalPosition() == YAWLTask.BOTTOM) {
+                    NetCellUtilities.translateView(this, splitView, 0, baseSize + baseSize / 4);
+                }
+            }
+        }
+        else { // no decorator on top
+            if (join != null && join.getCardinalPosition() == YAWLTask.BOTTOM) {
+                NetCellUtilities.translateView(this, joinView, 0, baseSize);
+            }
+            if(split != null && split.getCardinalPosition() == YAWLTask.BOTTOM) {
+                NetCellUtilities.translateView(this, splitView, 0, baseSize);
+            }
+        }
+
+        NetCellUtilities.resizeView(this, taskView, baseSize, baseSize);
+        if (join != null) {
+            if (join.getCardinalPosition() == YAWLTask.BOTTOM ||
+                    join.getCardinalPosition() == YAWLTask.TOP) {
+                NetCellUtilities.resizeView(this, joinView, baseSize, baseSize/4);
+            } else {
+                NetCellUtilities.resizeView(this, joinView, baseSize/4, baseSize);
+            }
+        }
+        if (split != null) {
+            if (split.getCardinalPosition() == YAWLTask.BOTTOM ||
+                    split.getCardinalPosition() == YAWLTask.TOP) {
+                NetCellUtilities.resizeView(this, splitView, baseSize, baseSize/4);
+            } else {
+                NetCellUtilities.resizeView(this, splitView, baseSize/4, baseSize);
+            }
+        }
     }
-    
-    if (task.hasDecoratorAtPosition(YAWLTask.LEFT)) {
-      NetCellUtilities.translateView(
-          this,
-          taskView,
-          baseSize/4,
-          0
-      );
-      
-      if (join != null) {
-        if(join.getCardinalPosition() == YAWLTask.TOP ||
-           join.getCardinalPosition() == YAWLTask.BOTTOM) {
-          NetCellUtilities.translateView(
-              this, 
-              joinView,
-              baseSize/4,
-              0);  
-        }
-        if(join.getCardinalPosition() == YAWLTask.RIGHT) {
-          NetCellUtilities.translateView(
-              this,
-              joinView,
-              baseSize + baseSize/4,
-              0);  
-        }
-      }
-      if (split != null) {
-        if(split.getCardinalPosition() == YAWLTask.TOP ||
-           split.getCardinalPosition() == YAWLTask.BOTTOM) {
-          NetCellUtilities.translateView(
-              this,
-              splitView,
-              baseSize/4,
-              0);  
-        }
-        if(split.getCardinalPosition() == YAWLTask.RIGHT) {
-          NetCellUtilities.translateView(
-              this,
-              splitView,
-              baseSize + baseSize/4,
-              0);  
-        }
-      }
-    } else { // no decorator on left
-      if (join != null && join.getCardinalPosition() == YAWLTask.RIGHT) {
-          NetCellUtilities.translateView(
-              this,
-              joinView,
-              baseSize,
-              0);  
-        }
-      if(split != null && split.getCardinalPosition() == YAWLTask.RIGHT) {
-        NetCellUtilities.translateView(
-            this,
-            splitView,
-            baseSize,
-            0);  
-      }
-    }
-    if(task.hasDecoratorAtPosition(YAWLTask.TOP)) {
-      NetCellUtilities.translateView(
-          this,
-          taskView,
-          0,
-          baseSize/4);
-      
-      if (join != null) {
-        if(join.getCardinalPosition() == YAWLTask.LEFT ||
-           join.getCardinalPosition() == YAWLTask.RIGHT) {
-          NetCellUtilities.translateView(
-              this,
-              joinView,
-              0,
-              baseSize/4);  
-        }
-        if(join.getCardinalPosition() == YAWLTask.BOTTOM) {
-          NetCellUtilities.translateView(
-              this,
-              joinView,
-              0,
-              baseSize + baseSize/4);  
-        }
-      }
-      if (split != null) {
-        if(split.getCardinalPosition() == YAWLTask.LEFT ||
-           split.getCardinalPosition() == YAWLTask.RIGHT) {
-          NetCellUtilities.translateView(
-              this,
-              splitView,
-              0,
-              baseSize/4);  
-        }
-        if(split.getCardinalPosition() == YAWLTask.BOTTOM) {
-          NetCellUtilities.translateView(
-              this,
-              splitView,
-              0,
-              baseSize + baseSize/4);  
-        } 
-      }
-    } else { // no decorator on top
-        if(join != null && join.getCardinalPosition() == YAWLTask.BOTTOM) {
-          NetCellUtilities.translateView(
-              this,
-              joinView,
-              0,
-              baseSize);  
-        }
-      if(split != null && split.getCardinalPosition() == YAWLTask.BOTTOM) {
-        NetCellUtilities.translateView(
-            this,
-            splitView,
-            0,
-            baseSize);  
-      } 
-    }
-    
-    NetCellUtilities.resizeView(this, taskView, baseSize, baseSize);
-    if (join != null) {
-      if (join.getCardinalPosition() == YAWLTask.BOTTOM ||
-          join.getCardinalPosition() == YAWLTask.TOP) {
-        NetCellUtilities.resizeView(this, joinView, baseSize, baseSize/4);
-      } else {
-        NetCellUtilities.resizeView(this, joinView, baseSize/4, baseSize);
-      }
-    }
-    if (split != null) {
-      if (split.getCardinalPosition() == YAWLTask.BOTTOM ||
-          split.getCardinalPosition() == YAWLTask.TOP) {
-        NetCellUtilities.resizeView(this, splitView, baseSize, baseSize/4);
-      } else {
-        NetCellUtilities.resizeView(this, splitView, baseSize/4, baseSize);
-      }
-    }
-  }
   
   public void moveSelectedElementsLeft() {
     moveSelectedElementsBy(-getGridSize(), 0);
@@ -988,73 +728,6 @@ public class NetGraph extends JGraph {
     } catch (Exception e) {}
   }
 
-  /**
-   * Created by Jingxin XU for testing purpose only
-   * @param vertex
-   * @param configureInfor
-   */
-  public void setConfigureInforUpdate(GraphCell vertex, String configureInfor) {
-	    HashSet objectsToInsert = new HashSet();
-	    ParentMap parentMap = new ParentMap();
-	    YAWLVertex element = null;
-
-	    try {
-	      VertexContainer container = null;
-	      if (vertex instanceof VertexContainer) {
-	        container = (VertexContainer) vertex;
-	        element = container.getVertex();
-	      } else {
-	        element = (YAWLVertex) vertex;
-	        container = getNetModel().getVertexContainer(element, objectsToInsert, parentMap);
-	      }
-
-
-
-	      if(configureInfor == null || configureInfor.equals("")) {
-	        return;
-	      }
-
-	      ConfigureInformation config = new ConfigureInformation(element, configureInfor);
-
-	      getNetModel().insert(objectsToInsert.toArray(),null, null, parentMap, null);
-
-	      getGraphLayoutCache().insert(config);
-
-	      // The ordering of the following code is very important for getting the label
-	      // to align correctly with the element (JGraph 5.7.3.1 exhibits this behaviour).
-
-	      // Moving after the insert causes the label to resize to its maximum bounding box.
-
-	      NetCellUtilities.moveViewToLocation(
-	          this,
-	          getVertexViewFor(config),
-	          getVertexViewFor(container).getBounds().getCenterX(),
-	          getVertexViewFor(container).getBounds().getMaxY()
-	      );
-
-	      // Adding the label as a child to the container adds a couple pixels to the
-	      // label width, so we remember the correct label width now.
-
-	      double configWidth = getVertexViewFor(config).getBounds().getWidth();
-
-	      parentMap.addEntry(config, container);
-
-	      getNetModel().edit(null,null, parentMap, null);
-
-	      // Center the label under the element. Rounding was necessary to get
-	      // good placement of the label.
-
-	      NetCellUtilities.translateView(
-	          this,
-	          getVertexViewFor(config),
-	          Math.round(-1.0*(configWidth/2.0)),
-	          0
-	      );
-
-	    } catch (Exception e) {}
-	  }
-
-
   public NetGraphModel getNetModel() {
    return (NetGraphModel) getModel();
   }
@@ -1134,9 +807,9 @@ public class NetGraph extends JGraph {
     }
 
     getNetModel().beginUpdate();
-    for(int i = 0; i < validSelectedCells.length; i++) {
-      removeCellFromCancellationSetInsideUpdate((YAWLCell) validSelectedCells[i]);
-    }
+      for (Object validSelectedCell : validSelectedCells) {
+          removeCellFromCancellationSetInsideUpdate((YAWLCell) validSelectedCell);
+      }
     getCancellationSetModel().refresh();
     getNetModel().endUpdate();
   }

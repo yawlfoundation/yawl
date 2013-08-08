@@ -127,32 +127,36 @@ public class SpecificationWriter extends EngineEditorInterpretor {
         initialise();
         generateEngineMetaData(model);
 
-        //important:  Engine API expects nets to be pre-generated before composite tasks reference them.
+        // Important:  Engine API expects nets to be pre-generated before composite tasks reference them.
         //            We need to build the nets first, and THEN populate the nets with elements.
         generateRootNet(model);
         generateSubNets(model);
         populateEngineNets(spec);
-        generateEngineDataTypeDefinition(model);
+        generateEngineDataTypeDefinition();
 
         return spec;
     }
 
-    private static void generateEngineDataTypeDefinition(SpecificationModel model) {
-        String schema = adjustSchemaForInternalTypes(model.getDataTypeDefinition());
+    private static void generateEngineDataTypeDefinition() {
+        String originalSchema = _handler.getSchema();
+        String updatedSchema = adjustSchemaForInternalTypes(originalSchema);
 
         // remove any header inadvertently inserted by user
-        if (schema.startsWith("<?xml")) {
-            schema = schema.substring(schema.indexOf('>') + 1);
+        if (updatedSchema.startsWith("<?xml")) {
+            updatedSchema = updatedSchema.substring(updatedSchema.indexOf('>') + 1);
         }
-        try {
-            _handler.setSchema(schema);
-        }
-        catch (Exception eActual) {
+        if (! updatedSchema.equals(originalSchema)) {
             try {
-                schema = adjustSchemaForInternalTypes(SpecificationModel.DEFAULT_TYPE_DEFINITION);
-                _handler.setSchema(schema);
+                _handler.setSchema(updatedSchema);
             }
-            catch (Exception eDefault) {}
+            catch (Exception eActual) {
+                try {
+                    originalSchema = adjustSchemaForInternalTypes(
+                            YSpecificationHandler.DEFAULT_TYPE_DEFINITION);
+                    _handler.setSchema(originalSchema);
+                }
+                catch (Exception eDefault) {}
+            }
         }
     }
 
@@ -262,15 +266,8 @@ public class SpecificationWriter extends EngineEditorInterpretor {
             YCompoundFlow engineFlow = editorFlow.getYFlow();
             if (engineFlow.hasSourceSplitType(YTask._XOR)) {
                 if (engineFlow.isOnlySourceFlow()) {
-                    engineFlow.getIncomingFlow().setIsDefaultFlow(true);
+                    engineFlow.setIsDefaultFlow(true);
                 }
-//                else {
-//                    engineFlow.getIncomingFlow().setEvalOrdering(0);
-//                    engineFlow.getIncomingFlow().setXpathPredicate("true()");
-//                }
-//            }
-//            else if (editorFlow.hasOrSplitAsSource()) {
-//               engineFlow.getIncomingFlow().setXpathPredicate(editorFlow.getPredicate());
             }
 
             editorToEngineElementMap.put(editorFlow, engineFlow);
@@ -290,6 +287,7 @@ public class SpecificationWriter extends EngineEditorInterpretor {
                     );
                 }
             }
+
 
             YTask engineTriggerTask = (YTask) editorToEngineElementMap.get(editorTriggerTask);
             engineTriggerTask.addRemovesTokensFrom(cancellationSet);

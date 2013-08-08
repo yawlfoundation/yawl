@@ -30,14 +30,14 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument {
         if (isValidating()) {
             if (getEditor().getText().equals("")) {
                 errorList.add("Query required");
-                setContentValid(Validity.INVALID);
+                setContentValidity(Validity.INVALID);
                 return;
             }
 
             // external data gateway
             if (getEditor().getText().matches(
                     "^\\s*#external:\\w+\\s*:\\w+\\s*")) {
-                setContentValid(Validity.VALID);
+                setContentValidity(Validity.VALID);
                 return;
             }
 
@@ -45,17 +45,17 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument {
             // timer expression
             if (getEditor().getText().matches(
                     "^\\s*timer\\(\\w+\\)\\s*!?=\\s*'(dormant|active|closed|expired)'\\s*$")) {
-                setContentValid(Validity.VALID);
+                setContentValidity(Validity.VALID);
                 return;
             }
 
             try {
                 SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
-                setContentValid(Validity.VALID);
+                setContentValidity(Validity.VALID);
             }
             catch (SaxonApiException e) {
                 errorList.add(e.getMessage().split("\n")[1].trim());
-                setContentValid(Validity.INVALID);
+                setContentValidity(Validity.INVALID);
             }
         }
     }

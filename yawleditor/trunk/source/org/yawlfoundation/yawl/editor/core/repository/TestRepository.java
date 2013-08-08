@@ -1,6 +1,10 @@
 package org.yawlfoundation.yawl.editor.core.repository;
 
+import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -16,57 +20,58 @@ import java.util.List;
 public class TestRepository {
 
     public static void main(String args[]) {
-        Repository repo = new Repository();
+        YRepository repo = YRepository.getInstance();
         String xml = StringUtil.fileToString(
                 "/Users/adamsmj/Documents/Subversion/distributions/orderfulfilment20.yawl");
-        String xml1 = StringUtil.fileToString("/Users/adamsmj/Documents/temp/_eaExample.yawl");
+//        String xml = StringUtil.fileToString("/Users/adamsmj/Documents/temp/_eaExample.yawl");
 
         try {
             YSpecification spec = YMarshal.unmarshalSpecifications(xml).get(0);
-//
-//            // test task decomposition store
-//            for (YDecomposition gateway : spec.getDecompositions()) {
-//                if (gateway instanceof YAWLServiceGateway) {
-//                    repo.addTaskDecomposition(gateway.getID(), "some description",
-//                            gateway);
-//                }
-//            }
-//
-//            for (RepoDescriptor rd : repo.getTaskDecompositionDescriptors()) {
-//                System.out.println("Name: " + rd.getName() + ", desc: " + rd.getDescription());
-//            }
-//
-//            YAWLServiceGateway gateway = repo.getTaskDecomposition("Carrier_Timeout");
-//            String newxml = gateway.toXML();
-//            System.out.println(newxml);
-//
-//            // test external attributes store
-//            YSpecification spec1 = YMarshal.unmarshalSpecifications(xml1).get(0);
-//            YDecomposition dec = spec1.getDecomposition("Answer");
-//            YParameter par = dec.getInputParameters().get("Answer");
-//            YAttributeMap map = par.getAttributes();
-//            repo.addExtendedVariableMap("Answer", "a desc", map);
-//
-//            map = repo.getExtendedVariableMap("Answer");
-//            System.out.println(map.toXMLElements());
+
+            // test task decomposition store
+            TaskDecompositionRepository repoMap = repo.getTaskDecompositionRepository();
+            for (YDecomposition gateway : spec.getDecompositions()) {
+                if (gateway instanceof YAWLServiceGateway) {
+                    repoMap.add(gateway.getID(), "some description", gateway);
+                }
+            }
+
+            for (RepoDescriptor rd : repoMap.getDescriptors()) {
+                System.out.println("Name: " + rd.getName() + ", desc: " + rd.getDescription());
+            }
+
+            YAWLServiceGateway gateway = repoMap.get("Carrier_TImeout");
+            String newxml = gateway.toXML();
+            System.out.println(newxml);
+
+            // test external attributes store
+            YSpecification spec1 = YMarshal.unmarshalSpecifications(xml).get(0);
+            YDecomposition dec = spec1.getDecomposition("Answer");
+            YParameter par = dec.getInputParameters().get("Answer");
+            YAttributeMap map = par.getAttributes();
+            ExtendedAttributesRepository repository = repo.getExtendedAttributesRepository();
+            repository.add("Answer", "a desc", map);
+
+            map = repository.get("Answer");
+            System.out.println(map.toXMLElements());
 
             // test data type store
             String schema = spec.getDataSchema();
             XNode schemaNode = new XNodeParser().parse(schema);
             List<XNode> children = schemaNode.getChildren("xs:complexType");
             schemaNode.removeChildren();
+            DataDefinitionRepository ddr = repo.getDataDefinitionRepository();
             for (XNode subnode : children) {
                 schemaNode.addChild(subnode);
-                repo.addDataDefinition(subnode.getAttributeValue("name"), "X",
-                        schemaNode.toString());
+                ddr.add(subnode.getAttributeValue("name"), "X", schemaNode.toString());
                 schemaNode.removeChild(subnode);
             }
 
-            for (RepoDescriptor rd : repo.getDataDefinitionDescriptors()) {
+            for (RepoDescriptor rd : ddr.getDescriptors()) {
                 System.out.println("Name: " + rd.getName() + ", desc: " + rd.getDescription());
             }
 
-            String def = repo.getDataDefinition("YTimerType");
+            String def = ddr.get("YTimerType");
             System.out.println(def);
         }
         catch (YSyntaxException ioe) {

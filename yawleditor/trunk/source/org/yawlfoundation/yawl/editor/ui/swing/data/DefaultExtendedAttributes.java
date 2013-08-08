@@ -4,7 +4,9 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -42,7 +44,7 @@ public class DefaultExtendedAttributes {
     private void buildVariableTable(YDecomposition decomposition, YVariable variable) {
         _variableList = new Vector<ExtendedAttribute>();
 
-        ExtendedAttributeGroup fontGroup = new ExtendedAttributeGroup();
+        List<ExtendedAttribute> fontGroup = new ArrayList<ExtendedAttribute>();
 
         addAttribute(decomposition, variable, "readOnly", "boolean");
         addAttribute(decomposition, variable, "background-color", "color");
@@ -93,8 +95,8 @@ public class DefaultExtendedAttributes {
 //        if (decomposition == null) return;
         _decompositionList = new Vector<ExtendedAttribute>();
 
-        ExtendedAttributeGroup fontGroup = new ExtendedAttributeGroup();
-        ExtendedAttributeGroup headerFontGroup = new ExtendedAttributeGroup();
+        List<ExtendedAttribute> fontGroup = new ArrayList<ExtendedAttribute>();
+        List<ExtendedAttribute> headerFontGroup = new ArrayList<ExtendedAttribute>();
 
         addAttribute(graph, decomposition, "page-background-color", "color");
         addAttribute(graph, decomposition, "page-background-image", "text");
@@ -126,7 +128,7 @@ public class DefaultExtendedAttributes {
     /************************************************************************/
 
     private void addAttribute(YDecomposition decomposition, YVariable variable,
-                              String name, String type, ExtendedAttributeGroup group) {
+                              String name, String type, List<ExtendedAttribute> group) {
         ExtendedAttribute attribute = new ExtendedAttribute(variable, decomposition, name, type,
                                                 variable.getAttributes().get(name), group);
         if (group != null) group.add(attribute);
@@ -141,7 +143,7 @@ public class DefaultExtendedAttributes {
 
 
     private void addAttribute(NetGraph graph, YDecomposition decomposition,
-                              String name, String type, ExtendedAttributeGroup group) {
+                              String name, String type, List<ExtendedAttribute> group) {
         ExtendedAttribute attribute = new ExtendedAttribute(graph, decomposition, name, type,
                                                 decomposition.getAttribute(name), group);
         if (group != null) group.add(attribute);
