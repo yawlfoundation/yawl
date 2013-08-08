@@ -80,6 +80,10 @@ public class YControlFlowHandler {
         return net;
     }
 
+    public void addNet(YNet net) {
+        _specification.addDecomposition(net);
+    }
+
     public YNet getNet(String netName) {
         YDecomposition decomposition = _specification.getDecomposition(netName);
         return (decomposition instanceof YNet) ? (YNet) decomposition : null;
@@ -113,6 +117,11 @@ public class YControlFlowHandler {
         YAWLServiceGateway gateway = new YAWLServiceGateway(checkID(name), _specification);
         _specification.addDecomposition(gateway);
         return gateway;
+    }
+
+
+    public void addTaskDecomposition(YAWLServiceGateway decomposition) {
+        _specification.addDecomposition(decomposition);
     }
 
 

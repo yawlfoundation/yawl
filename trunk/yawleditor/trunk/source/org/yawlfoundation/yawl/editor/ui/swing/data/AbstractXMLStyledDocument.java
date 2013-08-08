@@ -25,92 +25,83 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument  {
-  
-  public static enum Validity {
-    VALID,
-    INVALID,
-    UNCERTAIN
-  }
-  
-  private LinkedList<AbstractXMLStyledDocumentValidityListener> subscribers 
-       = new LinkedList<AbstractXMLStyledDocumentValidityListener>();
-  
-  private ValidityEditorPane editor;
-  
-  private Validity contentValid = Validity.UNCERTAIN;
+public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
 
-  private boolean validating = true;
-  
-  public AbstractXMLStyledDocument(ValidityEditorPane editor) {
-    this.editor = editor;
-  }
+    private List<XMLStyledDocumentValidityListener> subscribers;
+    private ValidityEditorPane editor;
+    private Validity contentValid;
+    private boolean validating;
 
-  public void insertString(int offset,
-                           String text, AttributeSet style)
-                           throws BadLocationException { 
-    super.insertString(offset, text, style);
-    publishValidity();
-  } 
-  
-  public void remove(int offset, int length)
-        throws BadLocationException {
-    super.remove(offset, length);
-    publishValidity();
-  } 
-  
-  public void replace(int offset, int length, String text, AttributeSet attrs) 
-         throws BadLocationException  {
-    
-    super.replace(offset, length, text, attrs);
-    publishValidity();
-  }
-  
-  public void publishValidity() {
-    checkValidity();
-    publishValidityToSubscribers();
-  }
-  
-  private void publishValidityToSubscribers() {
-    Iterator subscriberIterator = subscribers.iterator();
-    while(subscriberIterator.hasNext()) {
-      AbstractXMLStyledDocumentValidityListener subscriber = (AbstractXMLStyledDocumentValidityListener) 
-          subscriberIterator.next();
-      subscriber.documentValidityChanged(contentValid);
+
+    public AbstractXMLStyledDocument(ValidityEditorPane editorPane) {
+        editor = editorPane;
+        subscribers = new ArrayList<XMLStyledDocumentValidityListener>();
+        contentValid = Validity.UNCERTAIN;
+        validating = true;
     }
-  }
-  
-  public void subscribe(AbstractXMLStyledDocumentValidityListener subscriber) {
-    subscribers.add(subscriber);
-  }
-  
-  public abstract void checkValidity();
-  public abstract void setPreAndPostEditorText(String preEditorText, String postEditorText);
-  public abstract List<String> getProblemList();
 
-  public boolean isContentValidity() {
-    return getContentValidity() == Validity.VALID;
-  }
-  
-  public Validity getContentValidity() {
-    return contentValid;
-  }
-  
-  public ValidityEditorPane getEditor() {
-    return this.editor;
-  }
-  
-  public void setContentValid(Validity validity) {
-    this.contentValid = validity;
-  }
 
-  public void setValidating(boolean validating) {
-    this.validating = validating;
-  }
+    public ValidityEditorPane getEditor() {
+        return editor;
+    }
 
-  public boolean isValidating() { return validating; }
+    public void insertString(int offset, String text, AttributeSet style)
+            throws BadLocationException {
+        super.insertString(offset, text, style);
+        publishValidity();
+    }
+
+    public void remove(int offset, int length) throws BadLocationException {
+        super.remove(offset, length);
+        publishValidity();
+    }
+
+    public void replace(int offset, int length, String text, AttributeSet attrs)
+            throws BadLocationException {
+        super.replace(offset, length, text, attrs);
+        publishValidity();
+    }
+
+    public void publishValidity() {
+        checkValidity();
+        for (XMLStyledDocumentValidityListener subscriber : subscribers) {
+            subscriber.documentValidityChanged(contentValid);
+        }
+    }
+
+
+    public void subscribe(XMLStyledDocumentValidityListener subscriber) {
+        subscribers.add(subscriber);
+    }
+
+    public boolean isContentValid() {
+        return getContentValidity() == Validity.VALID;
+    }
+
+    public Validity getContentValidity() {
+        return contentValid;
+    }
+
+    public void setContentValidity(Validity validity) {
+        contentValid = validity;
+    }
+
+    public void setValidating(boolean validating) {
+        this.validating = validating;
+    }
+
+    public boolean isValidating() { return validating; }
+
+
+    /******************************************************************/
+
+    public abstract void checkValidity();
+
+    public abstract void setPreAndPostEditorText(String preText, String postText);
+
+    public abstract List<String> getProblemList();
+
 }

@@ -337,7 +337,7 @@ public class CellProperties extends NetProperties {
 
     public void setSplitPosition(String value) throws PropertyVetoException {
         if (! value.equals(getSplitPosition())) {
-            validateDecoratorPosition(getSplit(), "splitPos", getSplitPosition(), value);
+            validateDecoratorPosition("splitPos", getSplitPosition(), value);
             int type = getDecoratorIndex(getSplit());
             int pos = getDecoratorPosIndex(value);
             graph.setSplitDecorator((YAWLTask) vertex, type, pos);
@@ -347,7 +347,7 @@ public class CellProperties extends NetProperties {
 
     public void setJoinPosition(String value) throws PropertyVetoException {
         if (! value.equals(getJoinPosition())) {
-            validateDecoratorPosition(getJoin(), "joinPos", getJoinPosition(), value);
+            validateDecoratorPosition("joinPos", getJoinPosition(), value);
             int type = getDecoratorIndex(getJoin());
             int pos = getDecoratorPosIndex(value);
             graph.setJoinDecorator((YAWLTask) vertex, type, pos);
@@ -383,11 +383,22 @@ public class CellProperties extends NetProperties {
     }
 
 
-    private void validateDecoratorPosition(String type, String property,
+    private void validateDecoratorPosition(String property,
                                            String oldPos, String newPos)
             throws PropertyVetoException {
-        if (type.equals("None") || newPos.equals("None")) {
-            throw new PropertyVetoException("Invalid selection",
+        String msg = null;
+        if (newPos.equals("None")) {
+            msg = "A " + property.substring(0, property.indexOf('P')) +
+                    " cannot have a position value of 'None'.";
+        }
+
+        // can't have the same position for both decorators (other than 'None')
+        else if ((property.equals("splitPos") && newPos.equals(getJoinPosition())) ||
+                (property.equals("joinPos") && newPos.equals(getSplitPosition()))) {
+            msg = "The '" + newPos + "' position is already occupied.";
+        }
+        if (msg != null) {
+            throw new PropertyVetoException("Invalid position selection: " + msg,
                 new PropertyChangeEvent(this, property, oldPos, newPos));
         }
     }

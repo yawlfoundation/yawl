@@ -26,6 +26,7 @@ import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -99,9 +100,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         Set<Object> removableCells = new HashSet<Object>();
         for (Object o : cells) {
             if (o instanceof YAWLCell) {
-                YAWLCell cell = (YAWLCell) o;
-                if (cell.isRemovable()) {
-                    removableCells.add(cell);
+                if (((YAWLCell) o).isRemovable()) {
+                    removableCells.add(o);
                 }
             }
             else {
@@ -228,7 +228,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         }
         else {
             YAWLPort yPort = (YAWLPort) port;
-            YAWLVertex vertex = (YAWLVertex) yPort.getParent();
+            YAWLVertex vertex = NetCellUtilities.getVertexFromCell(yPort.getParent());
             YCompoundFlow yFlow = flow.getYFlow();
 
             // if the source or target has changed, update the YFlow
@@ -272,59 +272,26 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
      */
 
     private boolean connectionAllowable(Port source, Port target, Edge edgeToIgnore) {
-        boolean rulesAdheredTo = true;
+        if (source == null || target == null) return false;
 
         YAWLCell sourceCell = (YAWLCell) getParent(source);
         YAWLCell targetCell = (YAWLCell) getParent(target);
 
-        if (sourceCell == targetCell) {
-            // System.out.println("source and target are the same cell");
-            rulesAdheredTo = false;
-        }
-
-        if (source == null || target == null) {
-            // System.out.println("disconnected flows are not allowed.");
+        if (sourceCell == targetCell) return false;
+        if (taskPortIsAlreadyOccupied(source, edgeToIgnore)) return false;
+        if (taskPortIsAlreadyOccupied(target, edgeToIgnore)) return false;
+        if (taskHasSplitDecorator(source)) return false;
+        if (taskHasJoinDecorator(target)) return false;
+        if (sourceCell instanceof Condition && targetCell instanceof Condition) {
             return false;
         }
-
-        if (taskPortIsAlreadyOccupied(source, edgeToIgnore)) {
-            rulesAdheredTo = false;
-        }
-
-        if (taskPortIsAlreadyOccupied(target, edgeToIgnore)) {
-            rulesAdheredTo = false;
-        }
-
-        if (taskHasSplitDecorator(source)) {
-            rulesAdheredTo = false;
-        }
-
-        if (taskHasJoinDecorator(target)) {
-            rulesAdheredTo = false;
-        }
-
-
-        if (sourceCell instanceof Condition && targetCell instanceof Condition) {
-            // System.out.println("source and target are both conditions");
-            rulesAdheredTo = false;
-        }
         if (areConnectedAsSourceAndTarget(sourceCell, targetCell, edgeToIgnore)) {
-            // System.out.println("source and target are already connected");
-            rulesAdheredTo = false;
+            return false;
         }
-        if (!generatesOutgoingFlows(sourceCell, edgeToIgnore)) {
-            // System.out.println("source cannot generate outgoing flows");
-            rulesAdheredTo = false;
-        }
-        if (!acceptsIncomingFlows(targetCell, edgeToIgnore)) {
-            // System.out.println("target cannot accept incoming flows");
-            rulesAdheredTo = false;
-        }
-        if (selfReferencingTaskNotUsingLongeEdgePorts(source, target)) {
-            // System.out.println("self-referencing task cannot use its long edge ports");
-            rulesAdheredTo = false;
-        }
-        return rulesAdheredTo;
+        if (!generatesOutgoingFlows(sourceCell, edgeToIgnore)) return false;
+        if (!acceptsIncomingFlows(targetCell, edgeToIgnore)) return false;
+        if (selfReferencingTaskNotUsingLongeEdgePorts(source, target)) return false;
+        return true;
     }
 
     private boolean taskHasSplitDecorator(Port port) {
@@ -341,7 +308,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     private boolean taskPortIsAlreadyOccupied(Port port, Edge edgeToIgnore) {
         YAWLCell parentCell = (YAWLCell) getParent(port);
 
-        if (!(parentCell instanceof YAWLTask)) {
+        if (! (parentCell instanceof YAWLTask)) {
             return false;
         }
 
@@ -384,10 +351,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     private boolean areConnectedAsSourceAndTarget(YAWLCell sourceCell,
                                                   YAWLCell targetCell,
                                                   Edge edgeToIgnore) {
-        Iterator setIterator =
-                getEdges(this, new Object[]{sourceCell}).iterator();
-        while (setIterator.hasNext()) {
-            Edge edge = (Edge) setIterator.next();
+        for (Object o : getEdges(this, new Object[]{sourceCell})) {
+            Edge edge = (Edge) o;
             if ((getTargetOf(edge) == targetCell && !edge.equals(edgeToIgnore))) {
                 return true;
             }
@@ -417,10 +382,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     }
 
     public boolean hasIncomingFlow(YAWLCell cell, Edge edgeToIgnore) {
-        Iterator setIterator =
-                getEdges(this, new Object[]{cell}).iterator();
-        while (setIterator.hasNext()) {
-            Edge edge = (Edge) setIterator.next();
+        for (Object o : getEdges(this, new Object[]{cell})) {
+            Edge edge = (Edge) o;
             if (getTargetOf(edge) == cell && !edge.equals(edgeToIgnore)) {
                 return true;
             }
@@ -442,10 +405,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     }
 
     public boolean hasOutgoingFlow(YAWLCell cell, Edge edgeToIgnore) {
-        Iterator setIterator =
-                getEdges(this, new Object[]{cell}).iterator();
-        while (setIterator.hasNext()) {
-            Edge edge = (Edge) setIterator.next();
+        for (Object o : getEdges(this, new Object[]{cell})) {
+            Edge edge = (Edge) o;
             if (getSourceOf(edge) == cell && !edge.equals(edgeToIgnore)) {
                 return true;
             }
@@ -544,9 +505,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
                                                   ConnectionSet flowsToRedirect) {
         for (int i = 0; i < JoinDecorator.PORT_NUMBER; i++) {
             Set flows = oldJoinDecorator.getPortAtIndex(i).getEdges();
-            Iterator flowIterator = flows.iterator();
-            while (flowIterator.hasNext()) {
-                YAWLFlowRelation flow = (YAWLFlowRelation) flowIterator.next();
+            for (Object flow1 : flows) {
+                YAWLFlowRelation flow = (YAWLFlowRelation) flow1;
                 flowsToRedirect.connect(flow,
                         flow.getSource(),
                         newJoinDecorator.getPortAtIndex(i));
@@ -646,9 +606,8 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
 
         for (int i = 0; i < SplitDecorator.PORT_NUMBER; i++) {
             Set flows = oldSplitDecorator.getPortAtIndex(i).getEdges();
-            Iterator flowIterator = flows.iterator();
-            while (flowIterator.hasNext()) {
-                YAWLFlowRelation flow = (YAWLFlowRelation) flowIterator.next();
+            for (Object o : flows) {
+                YAWLFlowRelation flow = (YAWLFlowRelation) o;
                 flowsToRedirect.connect(flow,
                         newSplitDecorator.getPortAtIndex(i),
                         flow.getTarget());
@@ -680,7 +639,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         return vertexContainer;
     }
 
-    public int compareTo(NetGraphModel otherModel) throws ClassCastException {
-        return this.getName().compareTo(otherModel.getName());
+    public int compareTo(NetGraphModel otherModel) {
+        return getName().compareTo(otherModel.getName());
     }
 }

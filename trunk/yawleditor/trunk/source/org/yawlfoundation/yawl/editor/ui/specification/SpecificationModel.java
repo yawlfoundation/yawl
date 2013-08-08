@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
-import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -38,6 +37,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import java.awt.*;
 import java.io.IOException;
@@ -47,15 +47,11 @@ public class SpecificationModel {
 
     public static final int   DEFAULT_FONT_SIZE = 15;
     public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
-    public static final String DEFAULT_TYPE_DEFINITION =
-            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
 
     private static final YSpecificationHandler _specificationHandler = new YSpecificationHandler();
     private static final SpecificationModel INSTANCE = new SpecificationModel();
 
     private NetModelSet nets;
-    private String dataTypeDefinition = DEFAULT_TYPE_DEFINITION;
-    private ElementIdentifiers uniqueIdentifiers;
     private int     fontSize;
     private int     defaultNetBackgroundColor;
     private Color   defaultVertexBackground;
@@ -69,7 +65,6 @@ public class SpecificationModel {
     private SpecificationModel() {
         _propertiesLoader = new PropertiesLoader(this);
         nets = new NetModelSet(_propertiesLoader);
-        uniqueIdentifiers = _specificationHandler.getControlFlowHandler().getIdentifiers();
         reset();
     }
 
@@ -88,7 +83,10 @@ public class SpecificationModel {
             return graph;
         }
         catch (YControlFlowHandlerException ycfhe) {
-            // only occurs if we forgot to call handler.newSpecification first
+            // would only occur if we forgot to call handler.newSpecification first
+        }
+        catch (YSyntaxException yse) {
+            // only thrown on bad data schema - which won't be the case here
         }
         return null;
     }
@@ -106,7 +104,6 @@ public class SpecificationModel {
         fontSize = DEFAULT_FONT_SIZE;
         defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
         defaultVertexBackground = getPreferredVertexBackground();
-        setDataTypeDefinition(DEFAULT_TYPE_DEFINITION);
         setVersionNumber(new YSpecVersion("0.0"));
         YAWLEditor.getStatusBar().setText("Open or create a net to begin.");
         getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
@@ -124,17 +121,6 @@ public class SpecificationModel {
 
     public String getFileName() {
         return _specificationHandler.getFileName();
-    }
-
-
-    public String getDataTypeDefinition() {
-        return (dataTypeDefinition.contains("\n")) ? dataTypeDefinition :
-                DEFAULT_TYPE_DEFINITION ;
-    }
-
-    public void setDataTypeDefinition(String dataTypeDefinition) {
-        this.dataTypeDefinition = dataTypeDefinition;
-        _schemaValidator.setDataTypeSchema(dataTypeDefinition);
     }
 
 

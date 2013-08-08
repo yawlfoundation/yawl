@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.core.repository;
 
+import org.yawlfoundation.yawl.editor.core.util.FileUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -18,13 +19,20 @@ public class RepoMap {
     private Map<String, RepoRecord> _map;
     private File _backingStore;
 
+    // the absolute path to the base repository dir
+    private static final String BACKINGSTORE_DIR =
+            FileUtil.getHomeDir() + File.separatorChar + "repository";
+
+
+    RepoMap() { }
+
     /**
      * Constructs a new RepoMap and loads it content from the file at 'path'
      * @param path the absolute path to the file to load into the map
      */
     protected RepoMap(String path) {
         _map = new Hashtable<String, RepoRecord>();
-        load(path);
+        load(getFilePath(path));
     }
 
 
@@ -33,13 +41,13 @@ public class RepoMap {
      * @param record the record to add
      * @return whether the add was successful
      */
-    protected boolean add(RepoRecord record) {
+    protected RepoRecord addRecord(RepoRecord record) {
         if (record != null) {
             record.setName(getUniqueName(record.getName())); // adjust name for uniqueness
             _map.put(record.getName(), record);
             save();
         }
-        return (record != null);
+        return record;
     }
 
 
@@ -48,8 +56,8 @@ public class RepoMap {
      * @param name the name of the record
      * @return the named record, or null if not found
      */
-    protected RepoRecord get(String name) {
-        return _map.get(name);
+    protected RepoRecord getRecord(String name) {
+        return name == null ? null : _map.get(name);
     }
 
 
@@ -58,7 +66,8 @@ public class RepoMap {
      * @param name the name of the record
      * @return the removed record, or null if not found
      */
-    protected RepoRecord remove(String name) {
+    public RepoRecord removeRecord(String name) {
+        if (name == null) return null;
         RepoRecord record = _map.remove(name);
         if (record != null) save();
         return record;
@@ -69,17 +78,29 @@ public class RepoMap {
      * Gets a sorted list of name-description pairs for all records in the map
      * @return a sorted list of RepoDescriptor objects
      */
-    protected List<RepoDescriptor> getDescriptors() {
+    public List<RepoDescriptor> getDescriptors() {
         List<RepoDescriptor> descriptors = new ArrayList<RepoDescriptor>(_map.size());
         for (RepoRecord record : _map.values()) {
-            descriptors.add(new RepoDescriptor(record.getName(), record.getDescription()));
+            descriptors.add(record.getDescriptor());
         }
         Collections.sort(descriptors);
         return descriptors;
     }
 
 
+    protected boolean anyAreNull(Object... values) {
+        for (Object o : values) {
+            if (o == null) return true;
+        }
+        return false;
+    }
+
     /************************************************************************/
+
+    // gets the absolute file path for the named file
+    private String getFilePath(String fileName) {
+        return BACKINGSTORE_DIR + File.separatorChar + fileName + ".xml";
+    }
 
     // makes a name unique by appending and underscore and digit, if it already exists
     private String getUniqueName(String name) {

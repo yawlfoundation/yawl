@@ -3,7 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.swing.data.JXQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.data.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
@@ -25,8 +25,8 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private VariableRow _row;                    // the task input or output row
     private VariableTablePanel _netTablePanel;
-    private JXQueryEditorPane _xQueryEditor;
-    private JXQueryEditorPane _miQueryEditor;
+    private XQueryEditorPane _xQueryEditor;
+    private XQueryEditorPane _miQueryEditor;
 
     private JRadioButton netVarsButton;
     private JRadioButton gatewayButton;
@@ -206,7 +206,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         return miQueryPanel;
     }
 
-    private JPanel createAutoFormatPanel(final JXQueryEditorPane editorPane) {
+    private JPanel createAutoFormatPanel(final XQueryEditorPane editorPane) {
         String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/";
         JPanel content = new JPanel(new BorderLayout());
         JButton btnFormat = new JButton(ResourceLoader.getImageAsIcon(
@@ -253,16 +253,16 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private JXQueryEditorPane getXQueryEditor() {
-        _xQueryEditor = new JXQueryEditorPane();
+    private XQueryEditorPane getXQueryEditor() {
+        _xQueryEditor = new XQueryEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setValidating(true);
         _xQueryEditor.setText(formatQuery(_row.getMapping(), true));
         return _xQueryEditor;
     }
 
-    private JXQueryEditorPane getMiQueryEditor() {
-        _miQueryEditor = new JXQueryEditorPane();
+    private XQueryEditorPane getMiQueryEditor() {
+        _miQueryEditor = new XQueryEditorPane();
         _miQueryEditor.setPreferredSize(new Dimension(400, 90));
         _miQueryEditor.setValidating(true);
         _miQueryEditor.setText(formatQuery(_row.getMIQuery(), true));

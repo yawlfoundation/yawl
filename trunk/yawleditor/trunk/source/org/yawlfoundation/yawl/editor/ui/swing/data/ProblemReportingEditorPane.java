@@ -21,50 +21,48 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
+import org.bounce.text.LineNumberMargin;
+import org.bounce.text.xml.XMLFoldingMargin;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 
-public class JProblemReportingEditorPane extends JPanel
-        implements AbstractXMLStyledDocumentValidityListener{
+public class ProblemReportingEditorPane extends JPanel
+        implements XMLStyledDocumentValidityListener {
 
     private ValidityEditorPane editor;
     private JScrollPane editorScrollPane;
-    private JTextArea lineNumberArea;
     private JTextArea errorBar;
-    protected boolean showLineNumbers = false;
-
-    private static final Color errorForeground = Color.RED.darker();
-    private static final Color okForeground = Color.GREEN.darker();
+    private JPanel rowHeader;
+    private boolean showLineNumbers = true;
 
 
-    public JProblemReportingEditorPane(ValidityEditorPane editor) {
+    public ProblemReportingEditorPane(ValidityEditorPane editor) {
         super();
         setEditor(editor);
         setLayout(new BorderLayout());
-        add(buildEditorPanel(), BorderLayout.CENTER);
+        editorScrollPane = new JScrollPane(editor);
+        add(editorScrollPane, BorderLayout.CENTER);
         add(buildProblemPanel(), BorderLayout.SOUTH);
+        createRowHeader();
     }
 
-    public JProblemReportingEditorPane(ValidityEditorPane editor, boolean showLineNumbers) {
+    public ProblemReportingEditorPane(ValidityEditorPane editor, boolean showNumbers) {
         this(editor);
-        setShowLineNumbers(showLineNumbers);
-        if (showLineNumbers) editorScrollPane.setRowHeaderView(buildLineNumberArea());
+        showLineNumbers = showNumbers;
+        if (showNumbers) editorScrollPane.setRowHeaderView(rowHeader);
     }
-
 
     public void requestFocus() {
         editor.requestFocus();
     }
 
-
-    public JScrollPane getEditorScrollPane() { return editorScrollPane; }
 
     public ValidityEditorPane getEditor() { return editor; }
 
@@ -74,45 +72,10 @@ public class JProblemReportingEditorPane extends JPanel
     public void setText(String text) { editor.setText(text); }
 
 
-    protected void setLineNumbers() { setLineNumbers(editor.getText()); }
-
-    protected void setLineNumbers(int caretPos) {
-        String text = editor.getText();
-        setLineNumbers(text);
-        int lineCount = 0;
-        if (caretPos > -1) {                           // what line are we on?
-            for (int i=0; i < caretPos; i++) {
-                if (text.charAt(i) == '\n') {
-                    lineCount++;
-                }
-            }
-        }
-        String numberText = lineNumberArea.getText();     // move to same line 
-        int numberCaret = 0;
-        while (lineCount > 0) {
-            if (numberText.charAt(numberCaret++) == '\n') {
-                lineCount--;
-            }
-        }
-        lineNumberArea.setCaretPosition(numberCaret);
-    }
-
-
-    public void setShowLineNumbers(boolean show) {
-        showLineNumbers = show;
-        if (lineNumberArea != null) {
-            if (show) {
-                setLineNumbers(getEditor().getCaretPosition());
-                editorScrollPane.setRowHeaderView(lineNumberArea);
-            }
-            else editorScrollPane.setRowHeaderView(null);
-        }
-    }
-
-    public boolean getShowLineNumbers() { return showLineNumbers; }
-
     public void toggleShowLineNumbers() {
-        setShowLineNumbers(! showLineNumbers);
+        showLineNumbers = !showLineNumbers;
+        editorScrollPane.setRowHeaderView(showLineNumbers ? rowHeader : null);
+        editor.updateUI();
     }
 
     public void findText(String textToFind) {
@@ -140,6 +103,11 @@ public class JProblemReportingEditorPane extends JPanel
         return editor.isContentValid();
     }
 
+    public void documentValidityChanged(Validity documentValid) {
+        showProblems(editor.getProblemList());
+    }
+
+
     protected void showProblems(List<String> problemList) {
         if (problemList != null && problemList.size() > 0) {
             errorBar.setText(problemList.get(0));
@@ -151,25 +119,6 @@ public class JProblemReportingEditorPane extends JPanel
         }
     }
 
-
-    public void documentValidityChanged(AbstractXMLStyledDocument.Validity documentValid) {
-        showProblems(editor.getProblemList());
-    }
-
-
-    private JScrollPane buildEditorPanel() {
-        editorScrollPane = new JScrollPane(editor);
-        return editorScrollPane;
-    }
-
-    private JTextArea buildLineNumberArea() {
-        lineNumberArea = new JTextArea("   1 ");
-        lineNumberArea.setFont(editor.getFont());
-        lineNumberArea.setBackground(new Color(230,230,230));
-        lineNumberArea.setBorder(new EmptyBorder(3,0,0,0));
-        lineNumberArea.setEditable(false);
-        return lineNumberArea;
-    }
 
     private JScrollPane buildProblemPanel() {
         errorBar = new JTextArea();
@@ -187,25 +136,27 @@ public class JProblemReportingEditorPane extends JPanel
         return problemScrollPane;
     }
 
+
+    private void createRowHeader() {
+        rowHeader = new JPanel(new BorderLayout());
+        rowHeader.add(new LineNumberMargin(editor), BorderLayout.WEST);
+        try {
+            rowHeader.add(new XMLFoldingMargin(editor), BorderLayout.EAST);
+        }
+        catch (IOException ioe) {
+            // we can live without folding
+        }
+    }
+
+
     private void setProblemPanelForeground(boolean error) {
-        errorBar.setForeground(error ? errorForeground : okForeground);
+        errorBar.setForeground(error ? ValidityEditorPane.INVALID_COLOR
+                : ValidityEditorPane.VALID_COLOR);
     }
 
     private void setEditor(ValidityEditorPane editor) {
         this.editor = editor;
         this.editor.acceptValiditySubscription(this);
-    }
-
-    private void setLineNumbers(String text) {
-        String lineNumbers = "   1 \n";
-        int nextNum = 2;
-        for (char c : text.toCharArray()) {
-            if (c == '\n') {
-                lineNumbers += String.format("%4d \n", nextNum++);
-            }
-        }
-        lineNumbers += String.format("%4d \n", nextNum);
-        lineNumberArea.setText(lineNumbers);
     }
 
 }

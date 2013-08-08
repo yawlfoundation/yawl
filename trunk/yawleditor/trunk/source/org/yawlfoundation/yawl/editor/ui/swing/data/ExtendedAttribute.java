@@ -28,7 +28,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
     private String type;
     private String value;
     private JComponent component;
-    private ExtendedAttributeGroup group;
+    private java.util.List<ExtendedAttribute> group;
     private int attributeType;
 
     /**
@@ -53,7 +53,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
 
     public ExtendedAttribute(YVariable variable, YDecomposition decomposition,
                              String name, String type, String value,
-                             ExtendedAttributeGroup group) {
+                             java.util.List<ExtendedAttribute> group) {
         this(variable, decomposition, name, type, value);
         this.group = group;
     }
@@ -79,7 +79,7 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
     }
 
     public ExtendedAttribute(NetGraph graph, YDecomposition decomposition, String name,
-                             String type, String value, ExtendedAttributeGroup group) {
+                             String type, String value, java.util.List<ExtendedAttribute> group) {
         this(graph, decomposition, name, type, value);
         this.group = group;
     }
@@ -173,11 +173,11 @@ public class ExtendedAttribute implements Comparable<ExtendedAttribute> {
         }
     }
 
-    public ExtendedAttributeGroup getGroup() {
+    public java.util.List<ExtendedAttribute> getGroup() {
         return group;
     }
 
-    public void setGroup(ExtendedAttributeGroup group) {
+    public void setGroup(java.util.List<ExtendedAttribute> group) {
         this.group = group;
     }
 

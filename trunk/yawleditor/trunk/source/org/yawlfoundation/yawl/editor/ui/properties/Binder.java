@@ -48,6 +48,7 @@ public class Binder implements PropertyChangeListener {
             // handle PropertyVetoException and restore previous value
             if (e.getCause() instanceof PropertyVetoException) {
                 UIManager.getLookAndFeel().provideErrorFeedback(_sheet);
+                YAWLEditor.getStatusBar().setText(e.getCause().getMessage());
                 property.setValue(event.getOldValue());
             }
         }

@@ -287,7 +287,7 @@ public class ExtendedAttributesTableModel extends AbstractTableModel
     }
 
 
-    private void updateGroup(ExtendedAttributeGroup group) {
+    private void updateGroup(java.util.List<ExtendedAttribute> group) {
         for (ExtendedAttribute attribute : group) {
             if (variable != null) {
 //                variable.setAttribute(attribute.getName(), attribute.getValue());

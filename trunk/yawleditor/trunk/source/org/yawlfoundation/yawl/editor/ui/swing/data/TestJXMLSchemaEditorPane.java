@@ -27,7 +27,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.data;
 import junit.framework.*;
 
 public class TestJXMLSchemaEditorPane extends TestCase {
-  JXMLSchemaEditorPane testDefinitionPane;
+  XMLSchemaEditorPane testDefinitionPane;
   
   public TestJXMLSchemaEditorPane(String name) {
     super(name);
@@ -42,7 +42,7 @@ public class TestJXMLSchemaEditorPane extends TestCase {
   }
   
   protected void setUp() {
-    testDefinitionPane = new JXMLSchemaEditorPane();
+    testDefinitionPane = new XMLSchemaEditorPane();
   }
 
 	public void testEmptyPane() {

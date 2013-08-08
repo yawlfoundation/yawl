@@ -24,6 +24,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.elements.*;
 
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class EngineNetElementSummary {
     private YInputCondition inputCondition;
     private YOutputCondition outputCondition;
     private Set<YFlow> flows = new HashSet<YFlow>();
+    private Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
     private Set<YCondition> conditions = new HashSet<YCondition>();
     private Set<YAtomicTask> atomicTasks = new HashSet<YAtomicTask>();
     private Set<YCompositeTask> compositeTasks = new HashSet<YCompositeTask>();
@@ -79,20 +81,19 @@ public class EngineNetElementSummary {
         Set<YCondition> implicitConditions = new HashSet<YCondition>();
         for (YCondition condition : conditions) {
             if (condition.isImplicit()) {
-                YFlow incoming = condition.getPresetFlows().iterator().next();
-                YFlow outgoing = condition.getPostsetFlows().iterator().next();
-                YTask source = (YTask) incoming.getPriorElement();
-                YTask target = (YTask) outgoing.getNextElement();
-                YFlow replacement = new YFlow(source, target);
-                replacement.setXpathPredicate(incoming.getXpathPredicate());
-                replacement.setEvalOrdering(incoming.getEvalOrdering());
-                flows.remove(incoming);
-                flows.remove(outgoing);
-                flows.add(replacement);
+                YFlow flowFromSource = condition.getPresetFlows().iterator().next();
+                YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();
+                compoundFlows.add(
+                        new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
+                flows.remove(flowFromSource);
+                flows.remove(flowIntoTarget);
                 implicitConditions.add(condition);
             }
         }
         conditions.removeAll(implicitConditions);
+        for (YFlow flow : flows) {
+            compoundFlows.add(new YCompoundFlow(flow));
+        }
     }
 
     private void addCancellations(YTask engineTask) {
@@ -125,8 +126,8 @@ public class EngineNetElementSummary {
         return compositeTasks;
     }
 
-    public Set<YFlow> getFlows() {
-        return flows;
+    public Set<YCompoundFlow> getFlows() {
+        return compoundFlows;
     }
 
     public Set<YTask> getTasksWithCancellationSets() {

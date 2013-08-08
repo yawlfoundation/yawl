@@ -34,6 +34,9 @@ public class YSpecificationHandler {
     private YDataHandler _dataHandler;
     private YResourceHandler _resourceHandler;
 
+    public static final String DEFAULT_TYPE_DEFINITION =
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
+
 
     public YSpecificationHandler() {
         _fileOps = new FileOperations();
@@ -43,9 +46,11 @@ public class YSpecificationHandler {
     }
 
 
-    public YSpecification newSpecification() throws YControlFlowHandlerException {
+    public YSpecification newSpecification()
+            throws YControlFlowHandlerException, YSyntaxException {
         _specification = _fileOps.newSpecification();
         _dataHandler.setSpecification(_specification);
+        setSchema(DEFAULT_TYPE_DEFINITION);
         _controlFlowHandler.setSpecification(_specification);
         _controlFlowHandler.createRootNet("Net");
         _resourceHandler.setSpecification(_specification);

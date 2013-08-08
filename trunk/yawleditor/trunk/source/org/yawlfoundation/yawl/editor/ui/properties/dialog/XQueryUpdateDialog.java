@@ -5,7 +5,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DataVariableComboBox;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DialogMode;
 import org.yawlfoundation.yawl.editor.ui.swing.data.ExtendedAttribute;
-import org.yawlfoundation.yawl.editor.ui.swing.data.JXQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.data.XQueryEditorPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -28,7 +28,7 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
     private ExtendedAttribute attribute;
     private DialogMode mode;
 
-    private JXQueryEditorPane xQueryEditor;
+    private XQueryEditorPane xQueryEditor;
 
     private JCheckBox useXQuery;
     private JButton inputVariableQueryButton;
@@ -208,8 +208,8 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
         return inputVariableQueryButton;
     }
 
-    private JXQueryEditorPane getXQueryEditor() {
-        xQueryEditor = new JXQueryEditorPane(" = 'true'");
+    private XQueryEditorPane getXQueryEditor() {
+        xQueryEditor = new XQueryEditorPane(" = 'true'");
         xQueryEditor.setMinimumSize(new Dimension(400,400));
         return xQueryEditor;
     }

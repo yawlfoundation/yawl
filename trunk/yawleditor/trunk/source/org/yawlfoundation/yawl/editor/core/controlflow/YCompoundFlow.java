@@ -8,9 +8,9 @@ import org.yawlfoundation.yawl.elements.*;
  */
 public class YCompoundFlow {
 
-    YFlow _incoming;
-    YCondition _implicit;
-    YFlow _outgoing;
+    YFlow _flowFromSource;
+    YCondition _implicitCondition;
+    YFlow _flowIntoTarget;
 
     public YCompoundFlow() { }
 
@@ -18,21 +18,21 @@ public class YCompoundFlow {
         this(only, null, null);
     }
 
-    public YCompoundFlow(YFlow incoming, YCondition implicit, YFlow outgoing) {
-        _incoming = incoming;
-        _implicit = implicit;
-        _outgoing = outgoing;
+    public YCompoundFlow(YFlow fromSource, YCondition implicit, YFlow intoTarget) {
+        _flowFromSource = fromSource;
+        _implicitCondition = implicit;
+        _flowIntoTarget = intoTarget;
     }
 
     public YCompoundFlow(YExternalNetElement source, YExternalNetElement target) {
 
         // if flow connects two tasks, insert an implicit condition between them
         if ((source instanceof YTask) && (target instanceof YTask)) {
-            _implicit = makeImplicitCondition(source, target);
-            _incoming = makeFlow(source, _implicit);
-            _outgoing = makeFlow(_implicit, target);
+            _implicitCondition = makeImplicitCondition(source, target);
+            _flowFromSource = makeFlow(source, _implicitCondition);
+            _flowIntoTarget = makeFlow(_implicitCondition, target);
         }
-        else _incoming = makeFlow(source, target);
+        else _flowFromSource = makeFlow(source, target);
     }
 
     public YCompoundFlow moveTo(YExternalNetElement source, YExternalNetElement target) {
@@ -53,67 +53,62 @@ public class YCompoundFlow {
         return moveTo(getSource(), newTarget);
     }
 
-    public YFlow getIncomingFlow() {
-        return getSourceFlow();
-    }
 
     public YFlow getSourceFlow() {
-        return _incoming;
+        return _flowFromSource;
     }
 
     public YFlow getTargetFlow() {
-        return isCompound() ? _outgoing : _incoming;
+        return isCompound() ? _flowIntoTarget : _flowFromSource;
     }
 
     public YCondition getImplicitCondition() {
-        return _implicit;
+        return _implicitCondition;
     }
 
-    public YFlow getOutgoingFlow() {
-        return _outgoing;
-    }
 
     public YFlow getSimpleFlow() {
-        return isCompound() ? null : _incoming;
+        return isCompound() ? null : _flowFromSource;
     }
 
     public YExternalNetElement getSource() {
-        return _incoming.getPriorElement();
+        return _flowFromSource.getPriorElement();
     }
 
     public YExternalNetElement getTarget() {
-        return isCompound() ? _outgoing.getNextElement() : _incoming.getNextElement();
+        return isCompound() ? _flowIntoTarget.getNextElement() :
+                _flowFromSource.getNextElement();
     }
 
     public void setOrdering(Integer order) {
-        _incoming.setEvalOrdering(order);
+        _flowFromSource.setEvalOrdering(order);
     }
 
     public Integer getOrdering() {
-        return _incoming.getEvalOrdering();
+        return _flowFromSource.getEvalOrdering();
     }
 
     public void setPredicate(String predicate) {
-        _incoming.setXpathPredicate(predicate);
-        if (isCompound()) _outgoing.setXpathPredicate(predicate);
+        _flowFromSource.setXpathPredicate(predicate);
+        if (isCompound()) _flowIntoTarget.setXpathPredicate(predicate);
     }
 
     public String getPredicate() {
-        return _incoming.getXpathPredicate();
+        return _flowFromSource.getXpathPredicate();
     }
 
-    public void setIsDefaultFlow(boolean def) { _incoming.setIsDefaultFlow(def); }
+    public void setIsDefaultFlow(boolean def) { _flowFromSource.setIsDefaultFlow(def); }
 
-    public boolean isDefaultFlow() { return _incoming.isDefaultFlow(); }
+    public boolean isDefaultFlow() { return _flowFromSource.isDefaultFlow(); }
 
     public void setDocumentation(String doco) {
-        _incoming.setDocumentation(doco);
+        _flowFromSource.setDocumentation(doco);
     }
 
-    public String getDocumentation() { return _incoming.getDocumentation(); }
+    public String getDocumentation() { return _flowFromSource.getDocumentation(); }
 
     public boolean isCompound() {
-        return _implicit != null;
+        return _implicitCondition != null;
     }
 
 
@@ -146,41 +141,25 @@ public class YCompoundFlow {
     }
 
 
-    public void detachSource() {
-        YExternalNetElement source = getSource();
-        if (source != null) source.removePostsetFlow(getSourceFlow());
-        if (isCompound() && getTarget() == null) {
-            removeImplicitCondition();
-        }
-    }
-
-    public void detachTarget() {
-        YExternalNetElement target = getTarget();
-        if (target != null) target.removePresetFlow(getTargetFlow());
-        if (isCompound() && getSource() == null) {
-            removeImplicitCondition();
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         YCompoundFlow other = (YCompoundFlow) o;
-        if (! _incoming.equals(other._incoming)) return false;
+        if (! _flowFromSource.equals(other._flowFromSource)) return false;
         if (isCompound()) {
-            if (!_implicit.equals(other._implicit)) return false;
-            if (!_outgoing.equals(other._outgoing)) return false;
+            if (!_implicitCondition.equals(other._implicitCondition)) return false;
+            if (!_flowIntoTarget.equals(other._flowIntoTarget)) return false;
         }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = 31 * _incoming.hashCode();
+        int result = 31 * _flowFromSource.hashCode();
         if (isCompound()) {
-            result +=  _implicit.hashCode() + _outgoing.hashCode();
+            result +=  _implicitCondition.hashCode() + _flowIntoTarget.hashCode();
         }
         return result;
     }
@@ -195,9 +174,9 @@ public class YCompoundFlow {
 
 
     private void removeImplicitCondition() {
-        if (_implicit != null) {
-            _implicit.getNet().removeNetElement(_implicit);
-            _implicit = null;
+        if (_implicitCondition != null) {
+            _implicitCondition.getNet().removeNetElement(_implicitCondition);
+            _implicitCondition = null;
         }
     }
 
@@ -219,6 +198,5 @@ public class YCompoundFlow {
         net.addNetElement(implicit);
         return implicit;
     }
-
 
 }

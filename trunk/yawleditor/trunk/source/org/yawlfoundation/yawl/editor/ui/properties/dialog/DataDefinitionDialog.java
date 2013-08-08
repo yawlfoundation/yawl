@@ -2,16 +2,18 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.ui.swing.data.JXMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.data.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
 
-public class DataDefinitionDialog extends AbstractDoneDialog {
+public class DataDefinitionDialog extends AbstractDoneDialog implements CaretListener {
 
-    protected JXMLSchemaEditorPane editorPane;
+    protected XMLSchemaEditorPane editorPane;
 
     public DataDefinitionDialog() {
         super("Update Data Type Definitions", true);
@@ -29,6 +31,13 @@ public class DataDefinitionDialog extends AbstractDoneDialog {
     public void setContent(String content) {
         editorPane.setText(content);
         editorPane.getEditor().setCaretPosition(1);
+        editorPane.getEditor().addCaretListener(this);
+    }
+
+
+    public void caretUpdate(CaretEvent caretEvent) {
+        editorPane.getEditor().validate();
+        getDoneButton().setEnabled(editorPane.isContentValid());
     }
 
     protected void makeLastAdjustments() {
@@ -38,7 +47,7 @@ public class DataDefinitionDialog extends AbstractDoneDialog {
     private JPanel getVariablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(12,12,0,11));
-        editorPane = new JXMLSchemaEditorPane(true);
+        editorPane = new XMLSchemaEditorPane(true);
         panel.add(editorPane, BorderLayout.CENTER);
         return panel;
     }
@@ -47,7 +56,7 @@ public class DataDefinitionDialog extends AbstractDoneDialog {
     private JPanel getToolbarMenuPanel() {
         JPanel toolbarMenuPanel = new JPanel();
         toolbarMenuPanel.setLayout(new BoxLayout(toolbarMenuPanel, BoxLayout.X_AXIS));
-        toolbarMenuPanel.add(new DataTypeDialogToolBarMenu(editorPane));
+        toolbarMenuPanel.add(new DataTypeDialogToolBarMenu(this, editorPane));
         toolbarMenuPanel.add(Box.createVerticalGlue());
         return toolbarMenuPanel;
     }

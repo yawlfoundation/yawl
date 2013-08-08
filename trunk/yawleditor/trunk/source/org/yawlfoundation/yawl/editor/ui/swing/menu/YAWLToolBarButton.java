@@ -31,33 +31,30 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class YAWLToolBarButton extends JButton {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final Insets margin = new Insets(4,4,4,4);
 
-  public YAWLToolBarButton(Action a) {
-    super(a);    
-    setText(null);
-    setMnemonic(0);   
-    setMargin(margin);
-    setMaximumSize(getPreferredSize());
-  }
+    private static final Insets margin = new Insets(4,4,4,4);
 
-  public Point getToolTipLocation(MouseEvent e) {
-    return new Point(0,getSize().height);
-  }
-  
-  public void setEnabled(boolean enabled) {
-    if (getAction() instanceof TooltipTogglingWidget) {
-      TooltipTogglingWidget action = (TooltipTogglingWidget) this.getAction();
-      if (enabled) {
-        setToolTipText(action.getEnabledTooltipText());
-      } else {
-        setToolTipText(action.getDisabledTooltipText());
-      }
+    public YAWLToolBarButton(Action a) {
+        super(a);
+        setText(null);
+        setMnemonic(0);
+        setMargin(margin);
+        setMaximumSize(getPreferredSize());
     }
-    super.setEnabled(enabled);
-  }
+
+    public Point getToolTipLocation(MouseEvent e) {
+        return new Point(0,getSize().height);
+    }
+
+    public void setEnabled(boolean enabled) {
+        if (getAction() instanceof TooltipTogglingWidget) {
+            TooltipTogglingWidget action = (TooltipTogglingWidget) this.getAction();
+            if (enabled) {
+                setToolTipText(action.getEnabledTooltipText());
+            } else {
+                setToolTipText(action.getDisabledTooltipText());
+            }
+        }
+        super.setEnabled(enabled);
+    }
 }

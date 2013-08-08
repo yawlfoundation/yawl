@@ -527,5 +527,91 @@ public class NetCellUtilities {
     }
     return null;
   }
+
+
+    private static final int FLOW_SPACER = 20;
+
+    public static void prettifyLoopingFlow(NetGraph graph, YAWLFlowRelation flow,
+                                     EdgeView flowView, CellView sourceView) {
+        if (! flow.connectsTaskToItself()) return;
+
+        YAWLTask sourceTask = flow.getSourceTask();
+        Point2D.Double sourcePoint = new Point2D.Double(flowView.getPoint(0).getX(),
+                        flowView.getPoint(0).getY());
+        Point2D.Double targetPoint = new Point2D.Double(flowView.getPoint(1).getX(),
+                        flowView.getPoint(1).getY());
+
+        adjustPortLocation(sourcePoint,
+                sourceTask.getSplitDecorator().getCardinalPosition());
+        adjustPortLocation(targetPoint,
+                sourceTask.getJoinDecorator().getCardinalPosition());
+
+        flowView.addPoint(1, sourcePoint);
+        flowView.addPoint(2, targetPoint);
+
+        Point2D.Double cornerPoint = adjustForAdjacentDecorators(
+                sourceTask, sourcePoint, targetPoint);
+        if (cornerPoint != null) {
+            flowView.addPoint(2, cornerPoint);
+        }
+
+        if (sourceTask.hasHorizontallyAlignedDecorators()) {
+            double adjustedY = sourceView.getBounds().getY() - FLOW_SPACER;
+            Point2D.Double sourceCornerPoint = new Point2D.Double(
+                    sourcePoint.getX(), adjustedY);
+            Point2D.Double targetCornerPoint = new Point2D.Double(
+                    targetPoint.getX(), adjustedY);
+            flowView.addPoint(2, sourceCornerPoint);
+            flowView.addPoint(3, targetCornerPoint);
+        }
+
+        if (sourceTask.hasVerticallyAlignedDecorators()) {
+            double adjustedX = sourceView.getBounds().getX() - FLOW_SPACER;
+            Point2D.Double sourceCornerPoint = new Point2D.Double(
+                    adjustedX, sourcePoint.getY());
+            Point2D.Double targetCornerPoint = new Point2D.Double(
+                    adjustedX, targetPoint.getY());
+            flowView.addPoint(2, sourceCornerPoint);
+            flowView.addPoint(3, targetCornerPoint);
+        }
+        NetCellUtilities.applyViewChange(graph, flowView);
+    }
+
+
+
+    private static void adjustPortLocation(Point2D.Double portPoint, int splitPosition) {
+        double x = portPoint.getX();
+        double y = portPoint.getY();
+        switch(splitPosition) {
+            case Decorator.TOP    : y -= FLOW_SPACER; break;
+            case Decorator.BOTTOM : y += FLOW_SPACER; break;
+            case Decorator.LEFT   : x -= FLOW_SPACER; break;
+            case Decorator.RIGHT  : x += FLOW_SPACER; break;
+        }
+        portPoint.setLocation(x, y);
+    }
+
+
+    private static Point2D.Double adjustForAdjacentDecorators(YAWLTask sourceTask,
+                               Point2D.Double sourcePoint, Point2D.Double targetPoint) {
+        double minX = Math.min(sourcePoint.x, targetPoint.x);
+        double minY = Math.min(sourcePoint.y, targetPoint.y);
+        double maxX = Math.max(sourcePoint.x, targetPoint.x);
+        double maxY = Math.max(sourcePoint.y, targetPoint.y);
+
+        if (sourceTask.hasTopLeftAdjacentDecorators()) {
+            return new Point2D.Double(minX, minY);
+        }
+        if (sourceTask.hasTopRightAdjacentDecorators()) {
+            return new Point2D.Double(maxX, minY);
+        }
+        if (sourceTask.hasBottomRightAdjacentDecorators()) {
+            return new Point2D.Double(maxX, maxY);
+        }
+        if (sourceTask.hasBottomLeftAdjacentDecorators()) {
+            return new Point2D.Double(minX, maxY);
+        }
+        return null;
+    }
   
 }

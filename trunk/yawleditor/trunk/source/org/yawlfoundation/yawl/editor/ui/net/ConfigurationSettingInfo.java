@@ -8,14 +8,14 @@ package org.yawlfoundation.yawl.editor.ui.net;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
-public class ConfigurationSettingInfor {
+public class ConfigurationSettingInfo {
 
 	private boolean newElementsConfigurable;
 	private boolean applyAutoGreyOut;
 	private boolean allowBlockingInputPorts;
 	private boolean allowChangingDefaultConfiguration;
 	
-	public ConfigurationSettingInfor() {
+	public ConfigurationSettingInfo() {
 		newElementsConfigurable = UserSettings.getConfigurableNewElements();
 		applyAutoGreyOut = UserSettings.getConfigurableAutoGreyout();
 		allowBlockingInputPorts = UserSettings.getConfigurableBlockingInputPorts();
