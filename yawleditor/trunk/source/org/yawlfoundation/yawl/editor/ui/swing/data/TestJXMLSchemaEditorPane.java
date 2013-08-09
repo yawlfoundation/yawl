@@ -25,6 +25,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
 import junit.framework.*;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 
 public class TestJXMLSchemaEditorPane extends TestCase {
   XMLSchemaEditorPane testDefinitionPane;

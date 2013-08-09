@@ -1,6 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -28,6 +30,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
     private JToggleButton btnEdit;
     private JButton btnMapping;
     private JButton btnMIVar;
+    private JButton btnExAttributes;
     private JLabel status;
 
     private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
@@ -45,6 +48,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         if (tableType == TableType.Net) {
             btnMapping.setVisible(false);
             btnMIVar.setVisible(false);
+            btnExAttributes.setVisible(false);
         }
         table.getSelectionModel().addListSelectionListener(this);
         enableButtons(true);
@@ -112,6 +116,13 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
                 showErrorStatus("Invalid MI data type");
             }
         }
+        else if (action.equals("ExAt")) {
+            VariableRow row = table.getSelectedVariable();
+            YParameter parameter = parent.getParameter(row.getName(), row.getUsage());
+            if (parameter != null) {
+                new ExtendedAttributesDialog(parent, parameter).setVisible(true);
+            }
+        }
     }
 
 
@@ -166,6 +177,8 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         toolbar.add(btnMapping);
         btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
         toolbar.add(btnMIVar);
+        btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
+        toolbar.add(btnExAttributes);
         status = new JLabel();
         toolbar.add(status);
         return toolbar;

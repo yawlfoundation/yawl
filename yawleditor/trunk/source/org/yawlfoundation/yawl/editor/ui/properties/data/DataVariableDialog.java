@@ -113,6 +113,16 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     }
 
 
+    protected YParameter getParameter(String name, int usage) {
+        if (usage == YDataHandler.INPUT || usage == YDataHandler.INPUT_OUTPUT) {
+            return decomposition.getInputParameters().get(name);
+        }
+        else {
+            return decomposition.getOutputParameters().get(name);
+        }
+    }
+
+
     private YTask getTask(String name) {
         return (YTask) net.getNetElement(name);
     }

@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * Keeps tracks of all net element identifiers for a specification to ensure they
+ * Keeps track of all net element identifiers for a specification to ensure they
  * are unique.
  *
  * @author Michael Adams
@@ -17,41 +17,59 @@ import java.util.Map;
  */
 public class ElementIdentifiers {
     
-    public static String DEFAULT_ELEMENT_NAME = "unnamed";
+    public static String DEFAULT_ELEMENT_NAME = "element";
 
-    // a map of element names to used and available suffix integers for each name
-    private Map<String, SuffixStore> uniqueIdentifiers;
+    // a map of element names to used and available or used suffix integers for each name
+    private Map<String, SuffixStore> _identifiers;
 
 
     public ElementIdentifiers() {
-        uniqueIdentifiers = new Hashtable<String, SuffixStore>();
+        _identifiers = new Hashtable<String, SuffixStore>();
     }
 
-    public void clear() { uniqueIdentifiers.clear(); }
+    public void clear() { _identifiers.clear(); }
+
+    /**
+     * Loads the element identifiers for a specification, without any rationalisation
+     * of suffixes.
+     * @param spec the spec to load
+     */
+    public void load(YSpecification spec) {
+        if (spec == null) return;
+        clear();
+        for (YDecomposition decomposition : spec.getDecompositions()) {
+            if (decomposition instanceof YNet) {
+                for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
+                    ElementIdentifier id = new ElementIdentifier(element.getID(), true);
+                    getSuffixStore(id.getName()).use(id.getSuffix());
+                }
+            }
+        }
+    }
 
 
     /**
      * Checks a name for uniqueness, and appends a suffix if necessary.
      * @param label the label name to check
-     * @return an EngineIdentifier containing the name and a unique suffix
+     * @return an ElementIdentifier containing the name and a unique suffix
      */
-    public EngineIdentifier getIdentifier(String label) {
+    public ElementIdentifier getIdentifier(String label) {
         if (label == null || label.equals("null")) label = DEFAULT_ELEMENT_NAME;
-        return new EngineIdentifier(label, getSuffixStore(label).getNextSuffix());
+        return new ElementIdentifier(label, getSuffixStore(label).getNext());
     }
 
 
     /**
-     * Checks an EngineIdentifier to ensure it is unique within its specification
-     * @param id the EngineIdentifier to check
-     * @return the same EngineIdentifier if it is unique, or else one with the same
+     * Checks an ElementIdentifier to ensure it is unique within its specification
+     * @param id the ElementIdentifier to check
+     * @return the same ElementIdentifier if it is unique, or else one with the same
      * name but a new unique suffix
      */
-    public EngineIdentifier ensureUniqueness(EngineIdentifier id) {
+    public ElementIdentifier ensureUniqueness(ElementIdentifier id) {
         if (id != null) {
             SuffixStore suffixes = getSuffixStore(id.getName());
             if (suffixes.isUsed(id.getSuffix())) {                // if suffix is taken
-                id.setSuffix(suffixes.getNextSuffix());           // assign a free one
+                id.setSuffix(suffixes.getNext());           // assign a free one
             }
             else suffixes.use(id.getSuffix());                    // or mark it as taken
 
@@ -61,25 +79,38 @@ public class ElementIdentifiers {
 
 
     /**
-     * Removes an EngineIdentifier from the set
-     * @param engineID the EngineIdentifier to remove
+     * Removes an ElementIdentifier from the set
+     * @param id the ElementIdentifier to remove
      */
-    public void removeIdentifier(EngineIdentifier engineID) {
-        if (engineID != null) {
-            SuffixStore suffixes = uniqueIdentifiers.get(engineID.getName());
+    public void removeIdentifier(ElementIdentifier id) {
+        if (id != null) {
+            SuffixStore suffixes = _identifiers.get(id.getName());
             if (suffixes != null) {
-                suffixes.freeSuffix(engineID.getSuffix());
+                suffixes.free(id.getSuffix());
             }
         }
     }
 
 
-    public void load(YSpecification spec) {
-        rationalise(spec);
+
+    /**
+     * Rationalises the identifiers in a specification if any of the suffix stores
+     * contains gaps in used suffixes
+     */
+    public void rationaliseIfRequired(YSpecification specification) {
+        if (specification != null) {
+            for (SuffixStore store : _identifiers.values()) {
+                if (store.isDirty()) {
+                    rationalise(specification);
+                    break;
+                }
+            }
+        }
     }
 
-    public void rationalise(YSpecification spec) {
-        uniqueIdentifiers.clear();
+
+    private void rationalise(YSpecification spec) {
+        clear();
         for (YDecomposition decomposition : spec.getDecompositions()) {
             if (decomposition instanceof YNet) {
                 for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
@@ -92,14 +123,14 @@ public class ElementIdentifiers {
 
     private void rationalise(YNetElement element) {
         String original = element.getID();
-        EngineIdentifier id = rationalise(EngineIdentifier.parse(original));
+        ElementIdentifier id = rationalise(new ElementIdentifier(original, true));
         if (! id.toString().equals(original)) {
             element.setID(id.toString());
         }
     }
 
 
-    private EngineIdentifier rationalise(EngineIdentifier identifier) {
+    private ElementIdentifier rationalise(ElementIdentifier identifier) {
         return getIdentifier(identifier.getName());
     }
 
@@ -107,55 +138,15 @@ public class ElementIdentifiers {
     /**
      * Gets the stored suffixes for a name.
      * @param label the label name to get the suffix store for
-     * @return
+     * @return the suffix store corresponding to the label
      */
     private SuffixStore getSuffixStore(String label) {
-        SuffixStore suffixes = uniqueIdentifiers.get(label);
+        SuffixStore suffixes = _identifiers.get(label);
         if (suffixes == null) {                                // no matching label
             suffixes = new SuffixStore();
-            uniqueIdentifiers.put(label, suffixes);            // init store
+            _identifiers.put(label, suffixes);            // init store
         }
         return suffixes;
-    }
-
-    /***************************************************************************/
-
-    /**
-     * Stores the used and available suffixes for a particular name. Uses boolean[]
-     * rather than BitSet since size will be typically small (i.e. in all but the
-     * most complex specifications).
-     */
-    private class SuffixStore {
-        int size = 4;                                 // initial size
-        boolean[] used = new boolean[size];
-
-        int getNextSuffix() {
-            int i = 0;
-            while (used[i] && ++i < size);            // find a free suffix
-            if (i == size) growArray(size * 2);       // all spots taken, double size
-            used[i] = true;                           // mark as used
-            return i;
-        }
-
-        void use(int suffix) {
-            if (suffix > size - 1) growArray(suffix + 1);
-            used[suffix] = true;                       // mark as used
-        }
-
-        void freeSuffix(int suffix) {
-            if (suffix > -1 && suffix < size) used[suffix] = false;   // mark as free
-        }
-
-        boolean isUsed(int suffix) {
-            return suffix < size && used[suffix];
-        }
-
-        void growArray(int newSize) {
-            boolean[] temp = new boolean[newSize];
-            System.arraycopy(used, 0, temp, 0, size);
-            used = temp;
-            size = newSize;
-        }
     }
 
 }

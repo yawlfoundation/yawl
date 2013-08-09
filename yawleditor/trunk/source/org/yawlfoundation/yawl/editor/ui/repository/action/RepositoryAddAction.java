@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.AddDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -58,9 +59,14 @@ public class RepositoryAddAction extends YAWLBaseAction {
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt T"));
     }
 
-    public RepositoryAddAction(JDialog owner, Repo repo, Component component) {
+    public RepositoryAddAction(JDialog owner, Repo repo) {
         this.owner = owner;
         selectedRepo = repo;
+    }
+
+
+    public RepositoryAddAction(JDialog owner, Repo repo, Component component) {
+        this(owner, repo);
         caller = component;
     }
 
@@ -82,7 +88,10 @@ public class RepositoryAddAction extends YAWLBaseAction {
                 case NetDecomposition:
                     addCurrentNet(name, description);
                     break;
-                case ExtendedAttributes: break;
+                case ExtendedAttributes:
+                    repo.getExtendedAttributesRepository().add(name, description,
+                            ((ExtendedAttributesDialog) owner).getAttributes());
+                    break;
                 case DataDefinition: {
                     String content = ((DataTypeDialogToolBarMenu) caller).getSelectedText();
                     repo.getDataDefinitionRepository().add(name, description, content);

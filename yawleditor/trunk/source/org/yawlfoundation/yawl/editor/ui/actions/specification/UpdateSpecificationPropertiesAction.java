@@ -116,7 +116,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
                   specificationIDField.getText());
           SpecificationModel.getHandler().setAuthors(StringUtil.splitToList(
                   specificationAuthorField.getText(), ","));
-          SpecificationModel.getInstance().setVersionNumber(new YSpecVersion(versionNumberField.getText()));
+          SpecificationModel.getHandler().setVersion(new YSpecVersion(versionNumberField.getText()));
           SpecificationModel.getHandler().setValidFrom(validFromPanel.getDate());
           SpecificationModel.getHandler().setValidUntil(validUntilPanel.getDate());
           SpecificationUndoManager.getInstance().setDirty(true);
@@ -271,11 +271,11 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
           SpecificationModel.getHandler().getAuthors(), ',')
       );
       versionNumberField.setText(
-          SpecificationModel.getInstance().getVersionNumber().toString()
+          SpecificationModel.getHandler().getVersion().toString()
       );
       SpecificationVersionVerifier svv =
               (SpecificationVersionVerifier) versionNumberField.getInputVerifier();
-      svv.setStartingVersion(SpecificationModel.getInstance().getVersionNumber());
+      svv.setStartingVersion(SpecificationModel.getHandler().getVersion());
 
       validFromPanel.setDate(SpecificationModel.getHandler().getValidFrom());
       validUntilPanel.setDate(SpecificationModel.getHandler().getValidUntil());
@@ -317,7 +317,7 @@ class UpdateSpecificationPropertiesDialog extends AbstractDoneDialog {
     versionNumberField = new JFormattedSelectField(10);
     versionNumberField.setInputVerifier(
             new SpecificationVersionVerifier(
-                    SpecificationModel.getInstance().getVersionNumber()));
+                    SpecificationModel.getHandler().getVersion()));
     versionNumberField.addKeyListener(new SpecificationVersionFieldDocumentListener());
     versionNumberField.setToolTipText(" Enter a version number for this specification ");
     return versionNumberField;

@@ -29,14 +29,14 @@ import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
-import org.yawlfoundation.yawl.editor.ui.swing.data.AbstractXMLStyledDocument;
-import org.yawlfoundation.yawl.editor.ui.swing.data.XMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class DataTypeDialogToolBarMenu extends YAWLToolBar {
+public class DataTypeDialogToolBarMenu extends YToolBar {
 
     private static DataTypeDialogToolBarMenu _me;
     private static XMLSchemaEditorPane editorPane;

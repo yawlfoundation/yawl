@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.ui.swing.data;
+package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;

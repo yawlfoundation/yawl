@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.view;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,10 +45,10 @@ public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
         Color newColor = JColorChooser.showDialog(
                 YAWLEditor.getInstance(),
                 "Select Default Net Background Color",
-                new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor())
+                UserSettings.getNetBackgroundColour()
         );
         if (newColor != null) {
-            SpecificationModel.getInstance().setDefaultNetBackgroundColor(newColor.getRGB());
+            UserSettings.setNetBackgroundColour(newColor);
         }
     }
 }

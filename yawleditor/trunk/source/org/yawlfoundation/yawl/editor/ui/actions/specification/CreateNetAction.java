@@ -33,31 +33,27 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class CreateNetAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Add Net");
-    putValue(Action.LONG_DESCRIPTION, "Add a new net");
-    putValue(Action.SMALL_ICON, getPNGIcon("application_add"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("A"));
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-      YAWLEditor.getNetsPane().newNet();
-    SpecificationUndoManager.getInstance().setDirty(true);      
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Create a new net ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification" + 
-           " to create a new net within ";
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Add Net");
+        putValue(Action.LONG_DESCRIPTION, "Add a new net");
+        putValue(Action.SMALL_ICON, getPNGIcon("application_add"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("A"));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        YAWLEditor.getNetsPane().newNet();
+        SpecificationUndoManager.getInstance().setDirty(true);
+    }
+
+    public String getEnabledTooltipText() {
+        return " Create a new net ";
+    }
+
+    public String getDisabledTooltipText() {
+        return " You must have an open specification" +
+                " to create a new net within ";
+    }
 }

@@ -70,13 +70,17 @@ public class UserSettings {
     // last file dialog path setting
     private static final String LAST_SAVE_OR_LOAD_PATH = "lastUsedSaveLoadDirectory";
 
-
     // canvas view settings
     private static final String SHOW_ANTI_ALIASING = "showAntiAliasing";
     private static final String SHOW_GRID = "showNetGrid";
     private static final String SHOW_TOOL_TIPS = "showToolTips";
     private static final String JOIN_FILL_COLOUR = "joinFillColor";
     private static final String SPLIT_FILL_COLOUR = "splitFillColor";
+    private static final String NET_BACKGROUND_COLOR = "netBackgroundColor";
+    private static final String VERTEX_BACKGROUND_COLOR = "vertexBackgroundColor";
+    private static final String FONT_SIZE = "fontSize";
+    private static final int DEFAULT_FONT_SIZE = 15;
+
 
     // process configuration settings
     private static final String CONFIGURABLE_NEW_ELEMENTS =
@@ -417,6 +421,30 @@ public class UserSettings {
 
     public static Color getSplitFillColour() {
         return getColour(SPLIT_FILL_COLOUR);
+    }
+
+    public static void setNetBackgroundColour(Color colour) {
+        setColour(NET_BACKGROUND_COLOR, colour);
+    }
+
+    public static Color getNetBackgroundColour() {
+        return getColour(NET_BACKGROUND_COLOR);
+    }
+
+    public static void setFontSize(int size) {
+        _prefs.putInt(FONT_SIZE, size);
+    }
+
+    public static int getFontSize() {
+        return _prefs.getInt(FONT_SIZE, DEFAULT_FONT_SIZE);
+    }
+
+    public static Color getVertexBackgroundColour() {
+        return getColour(VERTEX_BACKGROUND_COLOR);
+    }
+
+    public static void setVertexBackgroundColour(Color colour) {
+        setColour(VERTEX_BACKGROUND_COLOR, colour);
     }
 
     public static void setLastSaveOrLoadPath(String path) {

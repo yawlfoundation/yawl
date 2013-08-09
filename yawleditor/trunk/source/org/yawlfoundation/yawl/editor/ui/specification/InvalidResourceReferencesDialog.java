@@ -126,7 +126,7 @@ public class InvalidResourceReferencesDialog extends JDialog implements ActionLi
         btnDetails.setHorizontalAlignment(SwingConstants.LEFT);
         btnDetails.setBorderPainted(false);
         btnDetails.setOpaque(false);
-        btnDetails.setFocusPainted( false );
+        btnDetails.setFocusPainted(false);
         btnDetails.setActionCommand("details");
         btnDetails.addActionListener(this);
         panel.add(btnDetails, BorderLayout.SOUTH);

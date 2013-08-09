@@ -125,7 +125,6 @@ public class SpecificationWriter extends EngineEditorInterpretor {
     public static YSpecification populateSpecification(SpecificationModel model) {
         YSpecification spec = _handler.getSpecification();
         initialise();
-        generateEngineMetaData(model);
 
         // Important:  Engine API expects nets to be pre-generated before composite tasks reference them.
         //            We need to build the nets first, and THEN populate the nets with elements.
@@ -168,10 +167,6 @@ public class SpecificationWriter extends EngineEditorInterpretor {
         return specDataSchema;
     }
 
-
-    private static void generateEngineMetaData(SpecificationModel model) {
-        _handler.setVersion(model.getVersionNumber());
-    }
 
     private static void generateRootNet(SpecificationModel model) {
         YNet rootEngineNet = generateEngineNet(model.getNets().getRootNet());

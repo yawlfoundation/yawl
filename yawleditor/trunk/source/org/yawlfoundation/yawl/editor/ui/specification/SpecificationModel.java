@@ -36,28 +36,18 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 
 public class SpecificationModel {
 
-    public static final int   DEFAULT_FONT_SIZE = 15;
-    public static final int   DEFAULT_NET_BACKGROUND_COLOR = Color.WHITE.getRGB();
 
     private static final YSpecificationHandler _specificationHandler = new YSpecificationHandler();
     private static final SpecificationModel INSTANCE = new SpecificationModel();
 
     private NetModelSet nets;
-    private int     fontSize;
-    private int     defaultNetBackgroundColor;
-    private Color   defaultVertexBackground;
-    private YSpecVersion versionNumber;
-    private YSpecVersion prevVersionNumber;
-    private boolean _versionChanged;
     private DataSchemaValidator _schemaValidator;
     private PropertiesLoader _propertiesLoader;
 
@@ -92,6 +82,10 @@ public class SpecificationModel {
     }
 
 
+    public PropertiesLoader getPropertiesLoader() {
+        return _propertiesLoader;
+    }
+
     public void loadFromFile(String fileName) throws IOException {
         _specificationHandler.load(fileName);
         warnOnInvalidResources();
@@ -101,14 +95,8 @@ public class SpecificationModel {
     public void reset() {
         nets.clear();
         _schemaValidator = new DataSchemaValidator();
-        fontSize = DEFAULT_FONT_SIZE;
-        defaultNetBackgroundColor = DEFAULT_NET_BACKGROUND_COLOR;
-        defaultVertexBackground = getPreferredVertexBackground();
-        setVersionNumber(new YSpecVersion("0.0"));
         YAWLEditor.getStatusBar().setText("Open or create a net to begin.");
-        getPublisher().setSpecificationState(SpecificationState.NoNetsExist);
-        prevVersionNumber = null;
-        setVersionChanged(false);
+        Publisher.getInstance().setSpecificationState(SpecificationState.NoNetsExist);
     }
 
 
@@ -119,67 +107,14 @@ public class SpecificationModel {
     public DataSchemaValidator getSchemaValidator() { return _schemaValidator; }
 
 
-    public String getFileName() {
-        return _specificationHandler.getFileName();
-    }
-
-
     public void setFontSize(int oldSize, int newSize) {
         if (oldSize == newSize) {
             return;
         }
-        setFontSize(newSize);
+        UserSettings.setFontSize(newSize);
         nets.propagateSpecificationFontSize(oldSize, newSize);
     }
 
-    public void setFontSize(int size) {
-        this.fontSize = size;
-    }
-
-    public int getFontSize() {
-        return this.fontSize;
-    }
-
-
-    public void setDefaultNetBackgroundColor(int color) {
-        defaultNetBackgroundColor = color;
-    }
-
-    public int getDefaultNetBackgroundColor() {
-        return this.defaultNetBackgroundColor;
-    }
-
-    public void setDefaultVertexBackgroundColor(Color color) {
-        defaultVertexBackground = color;
-        setPreferredVertexBackground(color);
-    }
-
-    public Color getDefaultVertexBackgroundColor() {
-        return this.defaultVertexBackground;
-    }
-
-
-    public void setVersionNumber(YSpecVersion version) {
-        if (versionNumber != null) {
-            _versionChanged = (! versionNumber.equals(version));
-            if (_versionChanged) {
-                prevVersionNumber = versionNumber;
-            }
-        }
-        versionNumber = version;
-    }
-
-    public YSpecVersion getVersionNumber() {
-        return this.versionNumber;
-    }
-
-    public void setVersionChanged(boolean b) {
-        _versionChanged = b;
-        if (! _versionChanged) prevVersionNumber = null;
-    }
-
-
-    private Publisher getPublisher() { return Publisher.getInstance(); }
 
     private void warnOnInvalidResources() {
         YResourceHandler resHandler = getHandler().getResourceHandler();
@@ -190,18 +125,5 @@ public class SpecificationModel {
             }
         }
     }
-
-
-    private Color getPreferredVertexBackground() {
-        return new Color(UserSettings.getSettings().getInt(
-                "PREFERRED_VERTEX_BACKGROUND_COLOR", Color.WHITE.getRGB()));
-    }
-
-    private void setPreferredVertexBackground(Color color) {
-        UserSettings.getSettings().putInt(
-                "PREFERRED_VERTEX_BACKGROUND_COLOR", color.getRGB());
-    }
-
-
 
 }

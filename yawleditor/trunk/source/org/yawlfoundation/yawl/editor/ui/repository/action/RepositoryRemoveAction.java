@@ -46,9 +46,13 @@ public class RepositoryRemoveAction extends YAWLBaseAction {
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt R"));
     }
 
-    public RepositoryRemoveAction(JDialog owner, Repo repo, Component component) {
+    public RepositoryRemoveAction(JDialog owner, Repo repo) {
         this.owner = owner;
         selectedRepo = repo;
+    }
+
+    public RepositoryRemoveAction(JDialog owner, Repo repo, Component component) {
+        this(owner, repo);
         caller = component;
     }
 

@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.data.ValidityEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;

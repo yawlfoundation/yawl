@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -128,7 +129,7 @@ class FontSizeDialog extends AbstractDoneDialog {
     }
 
     private int getFontSize() {
-        return SpecificationModel.getInstance().getFontSize();
+        return UserSettings.getFontSize();
     }
 
     private void setFontSize(int oldSize, int newSize) {

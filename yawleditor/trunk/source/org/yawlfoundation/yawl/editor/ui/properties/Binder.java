@@ -104,7 +104,7 @@ public class Binder implements PropertyChangeListener {
 
 
     private void adjustForReadOnly(YPropertiesBean bean, YBeanInfo beanInfo) {
-        if (((NetProperties) bean).isRootNet()) {
+        if ((bean instanceof NetProperties) && ((NetProperties) bean).isRootNet()) {
             for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
                 if (descriptor.getName().equals("RootNet")) {
                     try {
@@ -133,6 +133,7 @@ public class Binder implements PropertyChangeListener {
             _sheet.setReadOnly("Timer", event.getNewValue().equals("None"));
             _sheet.setReadOnly("CustomForm", event.getNewValue().equals("None"));
             _sheet.setReadOnly("Resourcing", event.getNewValue().equals("None"));
+            _sheet.setReadOnly("miAttributes", event.getNewValue().equals("None"));
         }
     }
 

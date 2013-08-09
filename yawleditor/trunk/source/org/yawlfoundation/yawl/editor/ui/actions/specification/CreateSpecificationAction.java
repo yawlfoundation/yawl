@@ -48,7 +48,7 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
 
     public void actionPerformed(ActionEvent event) {
         Publisher.getInstance().publishOpenFileEvent();
-        new SpecificationFactory().build();
+        new SpecificationFactory().newSpecification();
         SpecificationUndoManager.getInstance().discardAllEdits();
     }
 

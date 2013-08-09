@@ -38,8 +38,6 @@ import java.awt.*;
 
 public class NetsPane extends JTabbedPane implements ChangeListener {
 
-    private static final SpecificationModel model = SpecificationModel.getInstance();
-
 
     public NetsPane() {
         super();
@@ -51,6 +49,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         try {
             YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds());
             bindFrame(frame);
+            NetGraph graph = frame.getNet();
+            graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
+
             return frame;
         }
         catch (Exception e) {
@@ -100,8 +101,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
     private void bindFrame(final YAWLEditorNetPanel frame) {
-        insertTab(frame.getTitle(), frame.getFrameIcon(), frame, null,
-                getInsertionIndex(frame));
+        int tabIndex = getInsertionIndex(frame);
+        insertTab(frame.getTitle(), frame.getFrameIcon(), frame, null, tabIndex);
+        setSelectedIndex(tabIndex);
         updateState();
     }
 
@@ -117,6 +119,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             return;
         }
         publisher.publishState(SpecificationState.NetSelected);
+        SpecificationModel.getInstance().getPropertiesLoader().setGraph(frame.getNet());
         try {
             getSelectedGraph().getSelectionListener().forceActionUpdate();
             getSelectedGraph().getCancellationSetModel().refresh();

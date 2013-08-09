@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -34,6 +35,7 @@ public class MultiInstanceDialog extends JDialog
     private JLabel statusLabel;
 
     private String strValue;
+    private Vector<String> integralVars;
 
     private YNet net;
     private YTask task;
@@ -50,7 +52,7 @@ public class MultiInstanceDialog extends JDialog
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
-        setPreferredSize(new Dimension(630, 210));
+        setPreferredSize(new Dimension(630, 230));
         pack();
     }
 
@@ -64,23 +66,7 @@ public class MultiInstanceDialog extends JDialog
 
 
     public void stateChanged(ChangeEvent e) {
-        String statusText = "";
-        JSpinner spinner = (JSpinner) e.getSource();
-        int value = (Integer) spinner.getValue();
-        int min = minPanel.getIntValue();
-        int max = maxPanel.getIntValue();
-        int threshold = thresholdPanel.getIntValue();
-        if (minPanel.isSpinnerOf(spinner)) {
-            if (min > max) {
-                statusText = "Minimum can't exceed maximum";
-                spinner.setValue(--min);
-            }
-            else if (min > threshold) {
-                statusText = "Minimum can't exceed threshold";
-                spinner.setValue(--min);
-            }
-        }
-        statusLabel.setText(statusText);
+        statusLabel.setText(validateState((JSpinner) e.getSource()));
     }
 
 
@@ -151,15 +137,9 @@ public class MultiInstanceDialog extends JDialog
             if (value > 0) {
                 panel.setContent(value);
             }
-            else panel.setContent(extractVariableFromQuery(miQuery));
+            else panel.setContent(miQuery);
         }
         else panel.setContent(defValue);
-    }
-
-
-    private String extractVariableFromQuery(String query) {
-        String variable = query.substring(0, query.lastIndexOf('/'));  // cut '/text()'
-        return variable.substring(variable.lastIndexOf('/'));          // cut .../
     }
 
 
@@ -184,11 +164,51 @@ public class MultiInstanceDialog extends JDialog
 
 
     private void setCurrentValueString() {
-        strValue = minPanel.getSummaryString() + ',' +
-                maxPanel.getSummaryString() + ',' +
-                thresholdPanel.getSummaryString() + ',' +
+        strValue = minPanel.getSummaryString() + ", " +
+                maxPanel.getSummaryString() + ", " +
+                thresholdPanel.getSummaryString() + ", " +
                 Character.toUpperCase(getCreationMode().charAt(0));
     }
+
+
+    private String validateState(JSpinner spinner) {
+        String statusText = "";
+        int min = minPanel.getIntValue();
+        int max = maxPanel.getIntValue();
+        int threshold = thresholdPanel.getIntValue();
+        if (minPanel.isSpinnerOf(spinner)) {
+            if (max < min && max > 0) {
+                statusText = "Minimum can't exceed maximum";
+                spinner.setValue(--min);
+            }
+            else if (threshold < min && threshold > 0) {
+                statusText = "Minimum can't exceed threshold";
+                spinner.setValue(--min);
+            }
+        }
+        else if (maxPanel.isSpinnerOf(spinner)) {
+            if (max < min && min > 0) {
+                statusText = "Maximum can't be less than minimum";
+                spinner.setValue(++max);
+            }
+            else if (max < threshold && threshold > 0) {
+                statusText = "Maximum can't be less than threshold";
+                spinner.setValue(++max);
+            }
+        }
+        else if (thresholdPanel.isSpinnerOf(spinner)) {
+            if (threshold < min && min > 0) {
+                statusText = "Threshold can't be less than minimum";
+                spinner.setValue(++threshold);
+            }
+            else if (max < threshold && max > 0) {
+                statusText = "Threshold can't exceed maximum";
+                spinner.setValue(--threshold);
+            }
+        }
+        return statusText;
+    }
+
 
     /****************************************************************************/
 
@@ -205,11 +225,12 @@ public class MultiInstanceDialog extends JDialog
 
         MIAttributePanel(ChangeListener listener, String label) {
             this.label = label;
-            setBorder(new TitledBorder(label));
+            setBorder(new CompoundBorder(new TitledBorder(label),
+                    new EmptyBorder(5,5,5,5)));
             setLayout(new BorderLayout());
             add(createButtonPanel(), BorderLayout.WEST);
             add(createRHSPanel(listener), BorderLayout.CENTER);
-            setPreferredSize(new Dimension(200, 90));
+            setPreferredSize(new Dimension(200, 110));
 
             // init
             rbExactly.setSelected(true);
@@ -241,7 +262,7 @@ public class MultiInstanceDialog extends JDialog
         private JPanel createRHSPanel(ChangeListener listener) {
             spnExactly = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
             spnExactly.addChangeListener(listener);
-            cbxVariable = new JComboBox(getNetVars());
+            cbxVariable = new JComboBox(getIntegralNetVars());
             JPanel rhsPanel = new JPanel(new GridLayout(3,0,5,5));
             rhsPanel.add(spnExactly);
             rhsPanel.add(cbxVariable);
@@ -270,6 +291,7 @@ public class MultiInstanceDialog extends JDialog
             else if (action.equals("No limit")) {
                 enableComponents(false, false);
             }
+            statusLabel.setText("");
         }
 
 
@@ -295,7 +317,7 @@ public class MultiInstanceDialog extends JDialog
         public int getIntValue() {
             if (rbNoLimit.isSelected()) return Integer.MAX_VALUE;
             if (rbExactly.isSelected()) return (Integer) spnExactly.getValue();
-            return -1;   // var selected
+            return 0;   // var selected
         }
 
         public String getContent() {
@@ -316,17 +338,20 @@ public class MultiInstanceDialog extends JDialog
             cbxVariable.setEnabled(enableCombo);
         }
 
-        private Vector<String> getNetVars() {
-            Vector<String> numericVars = new Vector<String>();
-            Set<YVariable> variables = new HashSet<YVariable>(net.getLocalVariables().values());
-            variables.addAll(net.getInputParameters().values());
-            for (YVariable variable : variables) {
-                if (XSDType.getInstance().isIntegralType(variable.getDataTypeName())) {
-                   numericVars.add(variable.getPreferredName());
+        private Vector<String> getIntegralNetVars() {
+            if (integralVars == null) {
+                integralVars = new Vector<String>();
+                Set<YVariable> netVars = new HashSet<YVariable>(net.getLocalVariables().values());
+                netVars.addAll(net.getInputParameters().values());
+                for (YVariable var : netVars) {
+                    if (XSDType.getInstance().isIntegralType(var.getDataTypeName())) {
+                        integralVars.add(var.getPreferredName());
+                    }
                 }
+                Collections.sort(integralVars);
             }
-            Collections.sort(numericVars);
-            return numericVars;
+            rbVariable.setEnabled(! integralVars.isEmpty());
+            return integralVars;
         }
 
     }

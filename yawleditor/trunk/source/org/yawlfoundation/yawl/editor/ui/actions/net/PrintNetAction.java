@@ -86,7 +86,7 @@ public class PrintNetAction extends YAWLSelectedNetAction {
     // it does not suppord RenderableImages anyway.
     
     jobName = new JobName(
-        SpecificationModel.getInstance().getFileName() + " - " + getGraph().getName(),
+        SpecificationModel.getHandler().getFileName() + " - " + getGraph().getName(),
         Locale.ENGLISH);
     
     printAttribs.add(jobName);

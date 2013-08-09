@@ -342,16 +342,13 @@ public abstract class Decorator extends DefaultGraphCell
     }
 
     public DecoratorPort getPortAtIndex(int index) {
-        return getPorts()[index];
+        return index < getPorts().length ? getPorts()[index] : null;
     }
 
     public boolean isLongEdgePort(DecoratorPort port) {
         for (int i = 0; i <= 4; i++) {
             if (getPorts()[i].equals(port)) {
-                if (i == 0 || i == 4) {
-                    return false;
-                }
-                return true;
+                return !(i == 0 || i == 4);
             }
         }
         return false;

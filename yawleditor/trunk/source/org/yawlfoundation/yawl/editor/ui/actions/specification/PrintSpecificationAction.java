@@ -126,7 +126,7 @@ public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
         NetGraphModel graphModel = (NetGraphModel) netIterator.next();
 
         jobName = new JobName(
-            SpecificationModel.getInstance().getFileName() + " - " + graphModel.getName(),
+            SpecificationModel.getHandler().getFileName() + " - " + graphModel.getName(),
             Locale.ENGLISH);
         
         printAttribs.add(jobName);

@@ -27,7 +27,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.Edge;
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import java.awt.*;
@@ -51,8 +51,7 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     public static final int DEFAULT_SIZE = 32;
 
     private static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
-    private Color _backgroundColor =
-            SpecificationModel.getInstance().getDefaultVertexBackgroundColor();
+    private Color _backgroundColor = UserSettings.getVertexBackgroundColour();
 
     private String _designNotes;
 
