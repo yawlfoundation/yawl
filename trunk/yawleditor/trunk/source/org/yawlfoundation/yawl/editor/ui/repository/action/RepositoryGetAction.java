@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
@@ -52,9 +53,13 @@ public class RepositoryGetAction extends YAWLBaseAction {
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt L"));
     }
 
-    public RepositoryGetAction(JDialog owner, Repo repo, Component component) {
+    public RepositoryGetAction(JDialog owner, Repo repo) {
         this.owner = owner;
         selectedRepo = repo;
+    }
+
+    public RepositoryGetAction(JDialog owner, Repo repo, Component component) {
+        this(owner, repo);
         caller = component;
     }
 
@@ -65,14 +70,18 @@ public class RepositoryGetAction extends YAWLBaseAction {
         RepoDescriptor descriptor = dialog.getSelection();
         if (descriptor != null) {
             YRepository repo = YRepository.getInstance();
+            String name = descriptor.getName();
             switch (selectedRepo) {
                 case TaskDecomposition:
-                    loadTaskDecomposition(descriptor.getName());
+                    loadTaskDecomposition(name);
                     break;
-                case NetDecomposition:
-                case ExtendedAttributes: break;
+                case NetDecomposition: break;
+                case ExtendedAttributes:
+                    ((ExtendedAttributesDialog) owner).loadAttributes(
+                            repo.getExtendedAttributesRepository().get(name));
+                    break;
                 case DataDefinition: {
-                    String text = repo.getDataDefinitionRepository().get(descriptor.getName());
+                    String text = repo.getDataDefinitionRepository().get(name);
                     ((DataTypeDialogToolBarMenu) caller).insertText(text);
                     break;
                 }

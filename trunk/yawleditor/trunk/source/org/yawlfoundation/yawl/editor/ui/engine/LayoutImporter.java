@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -38,7 +39,7 @@ public class LayoutImporter {
         }
         Color defaultBgColor = layout.getGlobalFillColor();
         if (defaultBgColor != null) {
-            model.setDefaultNetBackgroundColor(defaultBgColor.getRGB());
+            UserSettings.setNetBackgroundColour(defaultBgColor);
         }
         Dimension size = layout.getSize();
         if (size != null) {
@@ -244,6 +245,7 @@ public class LayoutImporter {
                                                  YAWLVertex vertex,
                                                  YTaskLayout layout) {
         YAWLTask task = (YAWLTask) vertex;
+        if (task == null) return;
         if ((task.hasJoinDecorator() && (! layout.hasJoinLayout()))) {
             netModel.setJoinDecorator(task, JoinDecorator.NO_TYPE, JoinDecorator.NOWHERE);
         }

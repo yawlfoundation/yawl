@@ -26,8 +26,10 @@ public abstract class YPropertiesBean {
     protected YControlFlowHandler flowHandler;
     protected NetGraph graph;
     protected NetGraphModel model;
+    protected YPropertySheet propertySheet;
 
-    public YPropertiesBean() {
+    public YPropertiesBean(YPropertySheet sheet) {
+        propertySheet = sheet;
         specHandler = SpecificationModel.getHandler();
         flowHandler = specHandler.getControlFlowHandler();
     }
@@ -43,9 +45,8 @@ public abstract class YPropertiesBean {
 
     protected NetGraphModel getModel() { return model; }
 
-    protected YPropertySheet getSheet() {
-        return YAWLEditor.getPropertySheet();
-    }
+    public YPropertySheet getSheet() { return propertySheet; }
+
 
     protected YNet getSelectedYNet() {
         return YAWLEditor.getNetsPane().getSelectedYNet();

@@ -18,7 +18,7 @@ public class Publisher {
     private Set<ProblemListStateListener> _problemListListeners;
     private Map<GraphState, Set<GraphStateListener>> _graphListeners;
 
-    private static Publisher _instance;
+    private static Publisher INSTANCE;
 
 
     private Publisher() {
@@ -32,8 +32,8 @@ public class Publisher {
 
 
     public static Publisher getInstance() {
-        if (_instance == null) _instance = new Publisher();
-        return _instance;
+        if (INSTANCE == null) INSTANCE = new Publisher();
+        return INSTANCE;
     }
 
 

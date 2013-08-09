@@ -24,34 +24,30 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableFontSizeChange extends AbstractUndoableEdit {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private int oldSize;
-  private int newSize;
-    
-  public UndoableFontSizeChange(int oldSize, int newSize) {
-    this.oldSize = oldSize;
-    this.newSize = newSize;
-  }
-  
-  public void redo() {
-    setFontSize(newSize);
-  }
-  
-  public void undo() {
-    setFontSize(oldSize);
-  }
-  
-  private void setFontSize(int size) {
-    SpecificationModel.getInstance().setFontSize(size);
-  }
+
+    private int oldSize;
+    private int newSize;
+
+    public UndoableFontSizeChange(int oldSize, int newSize) {
+        this.oldSize = oldSize;
+        this.newSize = newSize;
+    }
+
+    public void redo() {
+        setFontSize(newSize);
+    }
+
+    public void undo() {
+        setFontSize(oldSize);
+    }
+
+    private void setFontSize(int size) {
+        UserSettings.setFontSize(size);
+    }
 
 }

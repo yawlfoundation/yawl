@@ -20,7 +20,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.yawlfoundation.yawl.editor.ui.swing.data;
+package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;

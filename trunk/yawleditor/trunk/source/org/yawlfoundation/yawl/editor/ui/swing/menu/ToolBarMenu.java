@@ -33,7 +33,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel
 
 import java.awt.*;
 
-public class ToolBarMenu extends YAWLToolBar implements ProcessConfigurationModelListener {
+public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelListener {
 
   private YAWLToggleToolBarButton previewProcessConfigurationButton;
   private YAWLToggleToolBarButton applyProcessConfigurationButton;

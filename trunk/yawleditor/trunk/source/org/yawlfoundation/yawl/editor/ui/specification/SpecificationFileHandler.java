@@ -160,7 +160,7 @@ public class SpecificationFileHandler {
             file = new File(file.getName() + ".yawl");
         }
 
-        String fileName = SpecificationModel.getInstance().getFileName();
+        String fileName = SpecificationModel.getHandler().getFileName();
         if (file.exists() &&  (! StringUtil.isNullOrEmpty(fileName)) &&
                 ! getFullFileName(file).equals(fileName)) {
             if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(YAWLEditor.getInstance(),
@@ -193,7 +193,7 @@ public class SpecificationFileHandler {
             PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
         }
 
-        String fullFileName = specification.getFileName();
+        String fullFileName = SpecificationModel.getHandler().getFileName();
         if (StringUtil.isNullOrEmpty(fullFileName)) {
             return;
         }
@@ -249,8 +249,8 @@ public class SpecificationFileHandler {
     }
 
     private boolean saveWhilstClosing() {
-        if (StringUtil.isNullOrEmpty(SpecificationModel.getInstance().getFileName()) ||
-                ! SpecificationModel.getInstance().getFileName().endsWith(".yawl")) {
+        String fileName = SpecificationModel.getHandler().getFileName();
+        if (StringUtil.isNullOrEmpty(fileName) || ! fileName.endsWith(".yawl")) {
             if (! promptForAndSetSaveFileName()) {
                 return false;
             }
@@ -280,12 +280,12 @@ public class SpecificationFileHandler {
 
 
     private void saveToFile(SpecificationModel specificationModel) {
-        String fileName = specificationModel.getFileName();
+        String fileName = SpecificationModel.getHandler().getFileName();
         if (StringUtil.isNullOrEmpty(fileName)) {
 
             // rollback version number if auto-incrementing
             if (UserSettings.getAutoIncrementVersionOnSave()) {
-                specificationModel.getVersionNumber().minorRollback();
+                SpecificationModel.getHandler().getVersion().minorRollback();
             }
             return;     // user-cancelled save or no file name selected
         }

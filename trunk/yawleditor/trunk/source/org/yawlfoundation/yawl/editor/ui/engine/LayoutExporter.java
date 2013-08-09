@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
 import javax.swing.*;
@@ -34,11 +35,11 @@ public class LayoutExporter {
     public YLayout parse(SpecificationModel model) {
         YSpecification _specification = SpecificationModel.getHandler().getSpecification();
         YLayout layout = new YLayout(_specification);
-        if (model.getDefaultNetBackgroundColor() != Color.WHITE.getRGB()) {
-            layout.setGlobalFillColor(new Color(model.getDefaultNetBackgroundColor()));
+        if (UserSettings.getNetBackgroundColour() != Color.WHITE) {
+            layout.setGlobalFillColor(UserSettings.getNetBackgroundColour());
         }
-        defaultFont = getDefaultFont(model.getFontSize());
-        layout.setGlobalFontSize(model.getFontSize());
+        defaultFont = getDefaultFont(UserSettings.getFontSize());
+        layout.setGlobalFontSize(UserSettings.getFontSize());
         layout.setSize(getDesktopSize());
 
         for (NetGraphModel net : model.getNets()) {

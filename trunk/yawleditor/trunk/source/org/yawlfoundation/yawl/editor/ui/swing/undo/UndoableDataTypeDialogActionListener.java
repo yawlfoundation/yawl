@@ -3,7 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.swing.data.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;

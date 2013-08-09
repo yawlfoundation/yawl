@@ -29,25 +29,23 @@ import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 import javax.swing.*;
 
 public class YAWLMenuBar extends JMenuBar {
-  
-  private static final long serialVersionUID = 1L;
 
-  public YAWLMenuBar(YSplashScreen splashScreen) {
-    super();
-    int progress = 0;
+    public YAWLMenuBar(YSplashScreen splashScreen) {
+        super();
+        int progress = 0;
 
-    add(new SpecificationMenu());
-      splashScreen.updateProgress(progress+=10);
-      add(new EditMenu());
-      splashScreen.updateProgress(progress+=10);
-    add(new NetMenu());
-      splashScreen.updateProgress(progress+=10);
-    add(new ElementsMenu());
-      splashScreen.updateProgress(progress+=10);
-    add(new SettingsMenu());
-      splashScreen.updateProgress(progress+=10);
-    add(new ViewMenu());
-      splashScreen.updateProgress(progress+=10);
-    add(new HelpMenu());
-   }
+        add(new SpecificationMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new EditMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new NetMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new ElementsMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new SettingsMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new ViewMenu());
+        splashScreen.updateProgress(progress+=10);
+        add(new HelpMenu());
+    }
 }

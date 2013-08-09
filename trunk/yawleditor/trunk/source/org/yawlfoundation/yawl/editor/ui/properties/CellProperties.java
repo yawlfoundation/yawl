@@ -7,10 +7,7 @@ import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YTimerParameters;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -62,10 +59,7 @@ public class CellProperties extends NetProperties {
     public void setLabel(String value) {
         graph.setElementLabel(vertex, value);
         vertex.setName(value);
-        if (idLabelSynch && value != null) {
-            vertex.setID(value);
-            firePropertyChange("id", getId());
-        }
+        if (idLabelSynch) updateVertexID(value);
         setDirty();
     }
 
@@ -82,11 +76,7 @@ public class CellProperties extends NetProperties {
 
     public void setIdLabelSynch(boolean value) {
         idLabelSynch = value;
-        if (idLabelSynch && getLabel() != null) {
-            vertex.setID(getLabel());
-            firePropertyChange("id", getId());
-            setDirty();
-        }
+        if (idLabelSynch) updateVertexID(getLabel());
     }
 
 
@@ -186,7 +176,9 @@ public class CellProperties extends NetProperties {
 
 
     public NetTaskPair getMiAttributes() {
-        return new NetTaskPair(getSelectedYNet(), null, (YAWLTask) vertex);
+        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (YAWLTask) vertex);
+        pair.setSimpleText(getMIShortString(((YAWLTask) vertex).getTask()));
+        return pair;
     }
 
     public void setMiAttributes(NetTaskPair value) {
@@ -203,6 +195,7 @@ public class CellProperties extends NetProperties {
         setReadOnly("Timer", isReadOnly);
         setReadOnly("CustomForm", isReadOnly);
         setReadOnly("Resourcing", isReadOnly);
+        setReadOnly("miAttributes", label.equals("None"));
         return label;
     }
 
@@ -429,4 +422,25 @@ public class CellProperties extends NetProperties {
     }
 
 
+    private String getMIShortString(YTask task) {
+        YMultiInstanceAttributes attributes = task.getMultiInstanceAttributes();
+        if (attributes != null) {
+            StringBuilder shortString = new StringBuilder(10);
+            shortString.append(attributes.getMinInstances()).append(", ");
+            shortString.append(attributes.getMaxInstances()).append(", ");
+            shortString.append(attributes.getThreshold()).append(", ");
+            shortString.append(Character.toUpperCase(
+                    attributes.getCreationMode().charAt(0)));
+            return shortString.toString();
+        }
+        return "None";
+    }
+
+    private void updateVertexID(String id) {
+        if (id != null) {
+            vertex.setID(flowHandler.checkID(id));
+            firePropertyChange("id", getId());
+            setDirty();
+        }
+    }
 }

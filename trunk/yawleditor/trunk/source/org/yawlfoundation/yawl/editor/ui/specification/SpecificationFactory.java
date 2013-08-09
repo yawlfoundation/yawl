@@ -20,7 +20,7 @@ public class SpecificationFactory {
     private static final int MARGIN = 50;
 
 
-    public void build() {
+    public void newSpecification() {
         NetGraph graph = SpecificationModel.getInstance().newSpecification();
         YNet net = (YNet) graph.getNetModel().getDecomposition();
         populateGraph(net, graph);
@@ -29,7 +29,7 @@ public class SpecificationFactory {
     }
 
 
-    private void populateGraph(YNet net, NetGraph graph) {
+    public void populateGraph(YNet net, NetGraph graph) {
         Rectangle bounds = getCanvasBounds();
         InputCondition inputCondition = new InputCondition(
                 getInputConditionPoint(bounds, graph), net.getInputCondition());

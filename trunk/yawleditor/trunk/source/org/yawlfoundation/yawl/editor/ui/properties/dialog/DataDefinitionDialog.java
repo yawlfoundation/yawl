@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.ui.swing.data.XMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;

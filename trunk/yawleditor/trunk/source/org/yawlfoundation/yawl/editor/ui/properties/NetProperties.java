@@ -22,7 +22,7 @@ import java.io.IOException;
 public class NetProperties extends YPropertiesBean {
 
     public NetProperties() {
-        super();
+        super(YAWLEditor.getPropertySheet());
     }
 
 
@@ -53,18 +53,20 @@ public class NetProperties extends YPropertiesBean {
 
 
     public double getVersion() {
-        return SpecificationModel.getInstance().getVersionNumber().toDouble();
+//        return SpecificationModel.getInstance().getVersionNumber().toDouble();
+        return specHandler.getVersion().toDouble();
     }
 
     public void setVersion(double version) {
-        YSpecVersion specVersion;
-        try {
-            specVersion = new YSpecVersion(String.valueOf(version));
-        }
-        catch (NumberFormatException nfe) {
-            specVersion = SpecificationModel.getInstance().getVersionNumber(); // rollback
-        }
-        SpecificationModel.getInstance().setVersionNumber(specVersion);
+        specHandler.setVersion(new YSpecVersion(String.valueOf(version)));
+//        YSpecVersion specVersion;
+//        try {
+//            specVersion = new YSpecVersion(String.valueOf(version));
+//        }
+//        catch (NumberFormatException nfe) {
+//            specVersion = SpecificationModel.getInstance().getVersionNumber(); // rollback
+//        }
+//        SpecificationModel.getInstance().setVersionNumber(specVersion);
     }
 
 

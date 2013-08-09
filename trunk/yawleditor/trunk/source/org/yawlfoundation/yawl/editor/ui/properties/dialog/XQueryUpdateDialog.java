@@ -5,7 +5,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DataVariableComboBox;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DialogMode;
 import org.yawlfoundation.yawl.editor.ui.swing.data.ExtendedAttribute;
-import org.yawlfoundation.yawl.editor.ui.swing.data.XQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -20,7 +20,7 @@
  */
 
 
-package org.yawlfoundation.yawl.editor.ui.swing.data;
+package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 public class XMLSchemaEditorPane extends ProblemReportingEditorPane {
 

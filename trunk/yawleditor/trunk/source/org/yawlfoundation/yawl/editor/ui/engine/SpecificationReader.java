@@ -36,7 +36,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.unmarshal.YMetaData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -104,25 +103,17 @@ public class SpecificationReader {
 
 
     private void finaliseLoad() {
+        _handler.getControlFlowHandler().rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
+        YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
         SpecificationUndoManager.getInstance().discardAllEdits();
         ConfigurationImporter.ApplyConfiguration();
     }
 
 
     private void createEditorObjects() {
-        convertEngineMetaData();
         importNets();
         populateEditorNets();
-    }
-
-    private void convertEngineMetaData() {
-        YMetaData metaData = _handler.getSpecification().getMetaData();
-
-        _model.setVersionNumber(metaData.getVersion());
-
-        // reset version change for file open
-        _model.setVersionChanged(false);
     }
 
 

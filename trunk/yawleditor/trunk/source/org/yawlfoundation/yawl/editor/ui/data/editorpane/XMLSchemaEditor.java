@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.ui.swing.data;
+package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
@@ -9,9 +9,7 @@ import javax.swing.text.PlainDocument;
 import java.util.ArrayList;
 import java.util.List;
 
-/**********************************************************************************/
-
-class XMLSchemaEditor extends ValidityEditorPane {
+public class XMLSchemaEditor extends ValidityEditorPane {
 
     private XMLSchemaEditorPane containingPane;
 

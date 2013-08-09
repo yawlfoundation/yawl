@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public class VertexLabel extends DefaultGraphCell {
   private void setFontSizeOffSpecification() {
     HashMap map = new HashMap();
 
-    int size = SpecificationModel.getInstance().getFontSize();
+    int size = UserSettings.getFontSize();
     GraphConstants.setFont(map, GraphConstants.getFont(map).deriveFont((float) size));
 
     getAttributes().applyMap(map);

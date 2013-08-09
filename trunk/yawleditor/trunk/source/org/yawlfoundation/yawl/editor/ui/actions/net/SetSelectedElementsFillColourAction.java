@@ -29,12 +29,12 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -69,7 +69,7 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
         Color newColor = JColorChooser.showDialog(
                 YAWLEditor.getInstance(),
                 "Set Selected Element Background Color",
-                SpecificationModel.getInstance().getDefaultVertexBackgroundColor()
+                UserSettings.getVertexBackgroundColour()
         );
         if (newColor != null) {
             final NetGraph graph = getGraph();

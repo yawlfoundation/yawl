@@ -25,7 +25,9 @@ package org.yawlfoundation.yawl.editor.ui.swing.net;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -60,7 +62,8 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         String title = createTitle();
         YNet yNet = SpecificationModel.getHandler().getControlFlowHandler().addNet(title);
         NetGraph newGraph = new NetGraph(yNet);
-        newGraph.buildNewGraphContent(cropRectangle(bounds, 15));
+//        newGraph.buildNewGraphContent(cropRectangle(bounds, 15));
+        new SpecificationFactory().populateGraph(yNet, newGraph);
         setNet(newGraph, title);
     }
 
@@ -139,6 +142,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         }
         model.getNets().add(getNet().getNetModel());
         icon = NetUtilities.getIconForNetModel(net.getNetModel());
+        Publisher.getInstance().publishAddNetEvent();
     }
 
     public boolean containsRootNet() {

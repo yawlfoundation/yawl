@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.editor.ui.swing.data;
+package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import net.sf.saxon.s9api.SaxonApiException;
 import org.yawlfoundation.yawl.util.SaxonUtil;

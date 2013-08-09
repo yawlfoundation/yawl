@@ -30,7 +30,6 @@ import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionChange;
@@ -96,7 +95,7 @@ public class NetGraph extends JGraph {
     setDoubleBuffered(true);
     setGridSize(4);
     setMinimumMove(4);
-    setBackground(new Color(SpecificationModel.getInstance().getDefaultNetBackgroundColor()));
+    setBackground(UserSettings.getNetBackgroundColour());
     setAntiAliased(UserSettings.getShowAntiAliasing());
     setPortsVisible(false);
     setCloneable(false);

@@ -53,7 +53,6 @@ public class TestYAWLEditor extends TestCase {
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.specification.TestSpecificationModel.suite());
 
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.swing.data.TestJXMLSchemaEditorPane.suite());
-    parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.swing.data.TestJXMLSchemaInstanceEditor.suite());
   }
 
   private static void addMacroSuite(TestSuite parentSuite) {

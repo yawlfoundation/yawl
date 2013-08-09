@@ -34,6 +34,7 @@ public class MultiInstancePropertyEditor extends DialogPropertyEditor {
         dialog.setVisible(true);
         NetTaskPair oldPair = netTaskPair;
         netTaskPair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
+        netTaskPair.setSimpleText(dialog.getCurrentStringValue());
         firePropertyChange(oldPair, netTaskPair);
     }
 

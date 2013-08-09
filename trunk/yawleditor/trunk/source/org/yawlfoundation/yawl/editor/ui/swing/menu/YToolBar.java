@@ -27,28 +27,26 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 import javax.swing.*;
 import java.awt.*;
 
-abstract class YAWLToolBar extends JToolBar {
-  
-  private static final Dimension spacer = new Dimension(11,16);
-    
-  public YAWLToolBar(String title) {
-    super(title);
-    setRollover(true);  
-    buildInterface();
-    //setMaximumSize(getPreferredSize());
-    doPostBuildProcessing();
-  }
+abstract class YToolBar extends JToolBar {
 
-  protected abstract void buildInterface();
-  
-  public void addSeparator() {
-    super.addSeparator(spacer);
-  }
-  
-  public void refresh() {
-    //setMaximumSize(getPreferredSize());
-    super.repaint();        
-  } 
-  
-  public void doPostBuildProcessing() {}
+    private static final Dimension spacer = new Dimension(11,16);
+
+    public YToolBar(String title) {
+        super(title);
+        setRollover(true);
+        buildInterface();
+        doPostBuildProcessing();
+    }
+
+    protected abstract void buildInterface();
+
+    public void addSeparator() {
+        super.addSeparator(spacer);
+    }
+
+    public void refresh() {
+        super.repaint();
+    }
+
+    public void doPostBuildProcessing() {}
 } 

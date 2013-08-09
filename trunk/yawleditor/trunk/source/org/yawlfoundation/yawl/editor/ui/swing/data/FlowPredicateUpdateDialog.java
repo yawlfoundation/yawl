@@ -23,6 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;

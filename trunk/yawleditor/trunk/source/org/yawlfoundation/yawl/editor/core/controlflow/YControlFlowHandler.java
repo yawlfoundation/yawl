@@ -75,7 +75,7 @@ public class YControlFlowHandler {
 
     public YNet addNet(String netName) throws YControlFlowHandlerException {
         if (_specification == null) raise("No specification is loaded");
-        YNet net = createNet(checkID(netName));
+        YNet net = createNet(netName);
         _specification.addDecomposition(net);
         return net;
     }
@@ -326,7 +326,13 @@ public class YControlFlowHandler {
 
     public ElementIdentifiers getIdentifiers() { return _identifiers; }
 
-    public void rationaliseIdentifiers() { _identifiers.rationalise(_specification); }
+    public void rationaliseIdentifiers() {
+        _identifiers.rationaliseIfRequired(_specification);
+    }
+
+    public String checkID(String id) {
+        return _identifiers.getIdentifier(id).toString();
+    }
 
 
     private void setMultiInstance(YTask task) {
@@ -342,11 +348,6 @@ public class YControlFlowHandler {
             return source.getPostsetFlow(target);
         }
         return null;
-    }
-
-
-    private String checkID(String id) {
-        return _identifiers.getIdentifier(id).toString();
     }
 
 

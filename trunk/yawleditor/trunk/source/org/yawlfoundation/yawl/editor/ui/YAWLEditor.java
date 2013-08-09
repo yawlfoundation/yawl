@@ -119,7 +119,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     public void specificationFileStateChange(FileState state) {
         switch(state) {
             case Open: {
-                String title = SpecificationModel.getInstance().getFileName();
+                String title = SpecificationModel.getHandler().getFileName();
                 if (title != null) setTitle(title);
                 break;
             }
@@ -202,6 +202,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private void buildInterface() {
         statusBar = new YStatusBar();
         paletteBar = new PaletteBar();
+        sheet = new YPropertySheet();
         setJMenuBar(new YAWLMenuBar(splashScreen));
         Container pane = getContentPane();
 
@@ -314,7 +315,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private JPanel getPropertiesPane() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Properties"));
-        sheet = new YPropertySheet();
         JScrollPane propertiesPane = new JScrollPane(sheet);
         panel.add(propertiesPane, BorderLayout.CENTER);
         Dimension size = sheet.getPreferredSize();

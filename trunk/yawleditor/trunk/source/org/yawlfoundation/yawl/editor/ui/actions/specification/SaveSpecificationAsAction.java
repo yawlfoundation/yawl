@@ -52,7 +52,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
   }
   
   public void actionPerformed(ActionEvent event) {
-      String fileName = SpecificationModel.getInstance().getFileName();
+      String fileName = SpecificationModel.getHandler().getFileName();
       if (StringUtil.isNullOrEmpty(fileName)) {                   // never been saved
           ExportConfigDialog dialog = new ExportConfigDialog();
           dialog.setLocationRelativeTo(YAWLEditor.getInstance());
