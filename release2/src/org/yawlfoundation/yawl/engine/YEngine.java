@@ -78,7 +78,7 @@ public class YEngine implements InterfaceADesign,
     // Constants
     private static final YPersistenceManager _pmgr = new YPersistenceManager();
     private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
-    private static final String CURRENT_YAWL_VERSION = "2.3" ;
+    private static final String CURRENT_YAWL_VERSION = "3.0" ;
 
     private static YEngine _thisInstance;                         // reference to self
     private static YEventLogger _yawllog;
@@ -1617,7 +1617,7 @@ public class YEngine implements InterfaceADesign,
                 }
                 else {
                     String typeName = outParam.getDataTypeName();
-                    if (!XSDType.getInstance().isBuiltInType(typeName)) {
+                    if (!XSDType.isBuiltInType(typeName)) {
                         throw new YStateException(String.format(
                                 "Could not skip work item [%s]: Output-Only parameter [%s]" +
                                 " requires a default value.", workItem.getIDString(), name));

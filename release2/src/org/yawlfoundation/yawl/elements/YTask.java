@@ -366,7 +366,7 @@ public abstract class YTask extends YExternalNetElement {
     public synchronized YIdentifier t_add(YPersistenceManager pmgr,
                                           YIdentifier siblingWithPermission, Element newInstanceData)
             throws YDataStateException, YStateException, YQueryException, YPersistenceException {
-        if (!YMultiInstanceAttributes._creationModeDynamic.equals(_multiInstAttr.getCreationMode())) {
+        if (!YMultiInstanceAttributes.CREATION_MODE_DYNAMIC.equals(_multiInstAttr.getCreationMode())) {
             throw new RuntimeException(this + " does not allow dynamic instance creation.");
         }
         if (t_addEnabled(siblingWithPermission)) {
@@ -384,7 +384,7 @@ public abstract class YTask extends YExternalNetElement {
     public boolean t_addEnabled(YIdentifier identifier) {
         return t_isBusy() &&
                 isMultiInstance() &&
-                YMultiInstanceAttributes._creationModeDynamic.equals(_multiInstAttr.getCreationMode()) &&
+                YMultiInstanceAttributes.CREATION_MODE_DYNAMIC.equals(_multiInstAttr.getCreationMode()) &&
                 _mi_executing.contains(identifier) &&
                 _mi_active.getIdentifiers().size() < _multiInstAttr.getMaxInstances();
     }
@@ -977,7 +977,7 @@ public abstract class YTask extends YExternalNetElement {
 
         if (this.isMultiInstance()) {
             copy._multiInstAttr = (YMultiInstanceAttributes) _multiInstAttr.clone();
-            copy._multiInstAttr._myTask = copy;
+            copy._multiInstAttr.setTask(copy);
         }
         return copy;
     }

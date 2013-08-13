@@ -226,6 +226,10 @@ public final class YSpecification implements Cloneable, YVerifiable {
         return new HashSet<YDecomposition>(_decompositions.values());
     }
 
+    public YDecomposition removeDecomposition(String decompositionID) {
+        return _decompositions.remove(decompositionID);
+    }
+
     public String getURI() {
         return _specURI;
     }

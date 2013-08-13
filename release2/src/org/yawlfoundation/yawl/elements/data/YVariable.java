@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.exceptions.YDataValidationException;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -354,10 +355,12 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     /**
      * Determine whether this variable requires a value to be mapped to it
      *
-     * @return true if the variable will validate with an empty data value
+     * @return true if the variable won't validate with an empty data value
      */
     public boolean requiresInputValue() {
-        if (XSDType.getInstance().isBuiltInType(_dataTypeName)) return true;
+        if (XSDType.isBuiltInType(_dataTypeName) || YInternalType.isType(_dataTypeName)) {
+            return true;
+        }
 
         // build an empty data element and try to validate it
         Element emptyValue = new Element("data");
@@ -462,7 +465,9 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
 
     private boolean isValidTypeNameForSchema(String dataTypeName) {
-        if (XSDType.getInstance().isBuiltInType(dataTypeName)) return true;
+        if (XSDType.isBuiltInType(_dataTypeName) || YInternalType.isType(_dataTypeName)) {
+            return true;
+        }
         for (String name : _parentDecomposition.getSpecification().getDataValidator().getPrimaryTypeNames()) {
             if (dataTypeName.equals(name)) return true;
         }

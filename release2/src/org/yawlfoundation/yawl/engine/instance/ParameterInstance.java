@@ -57,7 +57,7 @@ public class ParameterInstance implements YInstance {
         if (hasOutputUsage()) setOutputPredicate(task.getDataBindingForOutputParam(name));
         defaultValue = param.getDefaultValue();
         if (data != null) {
-            originalValue = (XSDType.getInstance().isBuiltInType(dataType)) ?
+            originalValue = (XSDType.isBuiltInType(dataType)) ?
                              data.getText() : JDOMUtil.elementToString(data) ;
             value = originalValue;
         }

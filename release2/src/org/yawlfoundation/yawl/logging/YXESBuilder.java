@@ -335,13 +335,13 @@ public class YXESBuilder {
         if (typeDef.contains(":")) {
             typeDef = typeDef.substring(typeDef.indexOf(':') + 1);
         }
-        if (XSDType.getInstance().isBooleanType(typeDef)) {
+        if (XSDType.isBooleanType(typeDef)) {
             return "boolean";
-        } else if (XSDType.getInstance().isDateType(typeDef)) {
+        } else if (XSDType.isDateType(typeDef)) {
             return "date";
-        } else if (XSDType.getInstance().isFloatType(typeDef)) {
+        } else if (XSDType.isFloatType(typeDef)) {
             return "float";
-        } else if (XSDType.getInstance().isIntegralType(typeDef)) {
+        } else if (XSDType.isIntegralType(typeDef)) {
             return "int";
         } else return "string";
     }

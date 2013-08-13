@@ -146,7 +146,7 @@ public class JDOMUtil {
         if (dataType == null) return "null";
         else if (dataType.equalsIgnoreCase("boolean")) return "false" ;
         else if (dataType.equalsIgnoreCase("string") ||
-                (! XSDType.getInstance().isBuiltInType(dataType))) return "" ;
+                (! XSDType.isBuiltInType(dataType))) return "" ;
         else return "0";
     }
 

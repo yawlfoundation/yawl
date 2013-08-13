@@ -642,7 +642,7 @@ public class YDecompositionParser {
             for (YExternalNetElement currentNetElement : decomposition.getNetElements().values()) {
                 List<FlowStruct> postsetIDs = _postsetIDs.getQPostset(currentNetElement.getID());
                 if (postsetIDs != null) {
-                    for (FlowStruct flowStruct : _postsetIDs.getQPostset(currentNetElement.getID())) {
+                    for (FlowStruct flowStruct : postsetIDs) {
                         YExternalNetElement nextElement = decomposition.getNetElement(flowStruct._flowInto);
                         YFlow flow = new YFlow(currentNetElement, nextElement);
                         flow.setEvalOrdering(flowStruct._predicateOrdering);

@@ -78,7 +78,6 @@ public class DOMUtil
     public static Document getDocumentFromString(String xml) throws ParserConfigurationException, SAXException,
                                                                     IOException
     {
-
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
