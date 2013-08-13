@@ -91,21 +91,7 @@ public class XSDType {
             totalDigits, fractionDigits, whiteSpace, pattern, enumeration }
 
 
-    private static XSDType _me;
-    private static String[] _simpleYAWLTypes;
-    private static List<String> _typeList;
-
-
-    private XSDType() {
-        _simpleYAWLTypes = makeYAWLTypeArray();
-        _typeList = makeList();
-    }
-
-
-    public static XSDType getInstance() {
-        if (_me == null) _me = new XSDType();
-        return _me;
-    }
+    private static final List<String> _typeList = makeList();
 
 
     public static String getString(int type) {
@@ -160,28 +146,7 @@ public class XSDType {
     }
 
 
-    private String[] makeYAWLTypeArray() {
-        String[] simpleYAWLTypes = {"NCName", "anyURI", "boolean", "date", "double",
-                                    "duration", "long", "string", "time" } ;
-        return simpleYAWLTypes;
-    }
-
-
-    private List<String> makeList() {
-        _typeList = new ArrayList<String>();
-        for (int i = ANY_TYPE; i<= ANY_URI; i++) {
-            _typeList.add(getString(i));
-        }
-        return _typeList;
-    }
-
-
-    public boolean isSimpleYAWLType(String type) {
-        return Arrays.binarySearch(_simpleYAWLTypes, type) >= 0 ;
-    }
-
-
-    public boolean isBuiltInType(String type) {
+    public static boolean isBuiltInType(String type) {
         return _typeList.contains(type);
     }
 
@@ -190,43 +155,43 @@ public class XSDType {
         return _typeList.indexOf(type);
     }
 
-    public boolean isNumericType(String type) {
+    public static boolean isNumericType(String type) {
         int ordinal = getOrdinal(type);
         return (ordinal >= INTEGER) && (ordinal <= DECIMAL);
     }
 
-    public boolean isIntegralType(String type) {
+    public static boolean isIntegralType(String type) {
         int ordinal = getOrdinal(type);
         return (ordinal >= INTEGER) && (ordinal <= UNSIGNED_BYTE);
     }
 
-    public boolean isFloatType(String type) {
+    public static boolean isFloatType(String type) {
         int ordinal = getOrdinal(type);
         return (ordinal >= DOUBLE) && (ordinal <= DECIMAL);        
     }
 
-    public boolean isBooleanType(String type) {
+    public static boolean isBooleanType(String type) {
         return getOrdinal(type) == BOOLEAN;
     }
 
-    public boolean isDateType(String type) {
+    public static boolean isDateType(String type) {
         int ordinal = getOrdinal(type);
         return (ordinal >= DATE) && (ordinal <= DATETIME);
     }
 
-    public boolean isStringForType(String s, int type) {
+    public static boolean isStringForType(String s, int type) {
         return getString(type).equals(s);
     }
 
-    public List<String> getBuiltInTypeList() {
+    public static List<String> getBuiltInTypeList() {
         return new ArrayList<String>(_typeList);                        // send a copy  
     }
 
-    public String[] getBuiltInTypeArray() {
+    public static String[] getBuiltInTypeArray() {
         return _typeList.toArray(new String[_typeList.size()]);
     }
 
-    public char[] getConstrainingFacetMap(String type) {
+    public static char[] getConstrainingFacetMap(String type) {
         String vMap;
         switch (getOrdinal(type)) {
             case INTEGER:
@@ -280,7 +245,7 @@ public class XSDType {
     }
 
 
-    public boolean isValidFacet(String facetName, String type) {
+    public static boolean isValidFacet(String facetName, String type) {
         char[] validationMap = getConstrainingFacetMap(type);
         try {
             RestrictionFacet facet = RestrictionFacet.valueOf(facetName);
@@ -292,5 +257,20 @@ public class XSDType {
         }
     }
 
+
+    private static String[] makeYAWLTypeArray() {
+        String[] simpleYAWLTypes = {"NCName", "anyURI", "boolean", "date", "double",
+                                    "duration", "long", "string", "time" } ;
+        return simpleYAWLTypes;
+    }
+
+
+    private static List<String> makeList() {
+        List<String> typeList = new ArrayList<String>();
+        for (int i = ANY_TYPE; i<= ANY_URI; i++) {
+            typeList.add(getString(i));
+        }
+        return typeList;
+    }
 
 }

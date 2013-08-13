@@ -579,9 +579,8 @@ public class DynFormField implements Cloneable {
     }
 
     public void setRestrictionAttributes() {
-        XSDType xsdType = XSDType.getInstance();
-        if (xsdType.isBuiltInType(getDataTypeUnprefixed())) {    // base types only
-            char[] validFacetMap = xsdType.getConstrainingFacetMap(getDataTypeUnprefixed());
+        if (XSDType.isBuiltInType(getDataTypeUnprefixed())) {    // base types only
+            char[] validFacetMap = XSDType.getConstrainingFacetMap(getDataTypeUnprefixed());
             for (XSDType.RestrictionFacet facet : XSDType.RestrictionFacet.values()) {
                 if (validFacetMap[facet.ordinal()] == '1') {
                     String value = _attributes.getValue(facet.name());

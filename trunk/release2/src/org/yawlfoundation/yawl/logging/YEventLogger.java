@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 
 import java.util.List;
 
@@ -111,8 +112,16 @@ public class YEventLogger {
 
 
     public String getDataSchema(YSpecificationID specID, String dataTypeName) {
-        return XSDType.getInstance().isBuiltInType(dataTypeName) ? dataTypeName :
-                _keyCache.dataSchema.getSchemaTypeAsString(specID, dataTypeName);
+        if (XSDType.isBuiltInType(dataTypeName)) {
+            return dataTypeName;                        // most likely scenario
+        }
+        else if (YInternalType.isType(dataTypeName)) {
+            return YInternalType.valueOf(dataTypeName).getSchemaString();
+        }
+
+        // user-defined type
+        String schema = _keyCache.dataSchema.getSchemaTypeAsString(specID, dataTypeName);
+        return schema != null ? schema : dataTypeName;
     }
 
     public void removeSpecificationFromCache(YSpecificationID specID) {

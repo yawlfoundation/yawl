@@ -33,9 +33,11 @@ import org.yawlfoundation.yawl.util.YVerificationHandler;
  * 
  */
 public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
-    public final static String _creationModeDynamic = "dynamic";
-    public final static String _creationModeStatic = "static";
 
+    public final static String CREATION_MODE_DYNAMIC = "dynamic";
+    public final static String CREATION_MODE_STATIC = "static";
+
+    private YTask _task;
     private Integer _minInstances;
     private Integer _maxInstances;
     private Integer _threshold;
@@ -43,16 +45,21 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     private String _maxInstancesQuery;
     private String _thresholdQuery;
     private String _creationMode;
-    YTask _myTask;
     private String _inputVarName;
     private String _inputSplittingQuery;
     private String _remoteOutputQuery;
     private String _outputProcessingQuery;
 
 
+    public YMultiInstanceAttributes(YTask container) {
+        this(container, "1", "2", "1", CREATION_MODE_STATIC);
+    }
+
+
     protected YMultiInstanceAttributes(YTask container, String minInstancesQuery,
-                                       String maxInstancesQuery, String thresholdQuery, String creationMode) {
-        _myTask = container;
+                                       String maxInstancesQuery, String thresholdQuery,
+                                       String creationMode) {
+        _task = container;
         try {
             _minInstances = new Integer(minInstancesQuery);
         } catch (NumberFormatException e) {
@@ -71,6 +78,10 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         _creationMode = creationMode;
     }
 
+    protected YTask getTask() { return _task; }
+
+    protected void setTask(YTask task) { _task = task; }
+
 
     public int getMinInstances() {
         if (_minInstances != null) return _minInstances;
@@ -79,7 +90,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_minInstancesQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The minInstances query at " + _myTask
+            Logger.getLogger(this.getClass()).warn("The minInstances query at " + _task
                     + " didn't produce numerical output as expected. Returning default 1.");
             return 1;
         }
@@ -98,7 +109,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_maxInstancesQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The maxInstances query at " + _myTask
+            Logger.getLogger(this.getClass()).warn("The maxInstances query at " + _task
                     + " didn't produce numerical output as expected. Returning default 2.");
             return 2;
         }
@@ -117,7 +128,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_thresholdQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The threshold query at " + _myTask
+            Logger.getLogger(this.getClass()).warn("The threshold query at " + _task
                     + " didn't produce numerical output as expected. Returning default 1.");
             return 1;
         }
@@ -135,26 +146,26 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
 
     public boolean isDynamicCreationMode() {
-        return _creationMode.equalsIgnoreCase(_creationModeDynamic);
+        return _creationMode.equalsIgnoreCase(CREATION_MODE_DYNAMIC);
     }
 
 
     public void verify(YVerificationHandler handler) {
         if (_minInstances != null && _minInstances < 1) {
-            handler.error(_myTask, _myTask + " _minInstances < 1");
+            handler.error(_task, _task + " minInstances < 1");
         }
         if (_minInstances != null && _maxInstances != null && _minInstances > _maxInstances) {
-            handler.error(_myTask, _myTask + "._minInstances > _maxInstances");
+            handler.error(_task, _task + ".minInstances > _maxInstances");
         }
         if (_maxInstances != null && _maxInstances < 1) {
-            handler.error(_myTask, _myTask + "._maxInstances < 1");
+            handler.error(_task, _task + ".maxInstances < 1");
         }
         if (_threshold != null && _threshold < 1) {
-            handler.error(_myTask, _myTask + "._threshold < 1");
+            handler.error(_task, _task + ".threshold < 1");
         }
         if (!(_creationMode.equalsIgnoreCase("static") || _creationMode.equalsIgnoreCase("dynamic"))) {
-            handler.error(_myTask, _myTask
-                    + "._creationMode does not equal 'static' or 'dynamic'");
+            handler.error(_task, _task
+                    + ".creationMode does not equal 'static' or 'dynamic'");
         }
     }
 
@@ -197,7 +208,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMinInstancesQuery()), "threshold"));
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
-        xml.append("<expression query=\"" + JDOMUtil.encodeEscapes(_myTask.getPreSplittingMIQuery()) + "\"/>");
+        xml.append("<expression query=\"" + JDOMUtil.encodeEscapes(_task.getPreSplittingMIQuery()) + "\"/>");
         xml.append("<splittingExpression query=\"" + JDOMUtil.encodeEscapes(_inputSplittingQuery) + "\"/>");
         xml.append(StringUtil.wrap(_inputVarName, "formalInputParam"));
         xml.append("</miDataInput>");
@@ -206,7 +217,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             xml.append("<formalOutputExpression query=\"" + JDOMUtil.encodeEscapes(_remoteOutputQuery) + "\"/>");
             xml.append("<outputJoiningExpression query=\"" + JDOMUtil.encodeEscapes(_outputProcessingQuery) + "\"/>");
             xml.append("<resultAppliedToLocalVariable>" +
-                    _myTask.getMIOutputAssignmentVar(_remoteOutputQuery) +
+                    _task.getMIOutputAssignmentVar(_remoteOutputQuery) +
                     "</resultAppliedToLocalVariable>"
             );
             xml.append("</miDataOutput>");
@@ -230,7 +241,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
     }
 
     private int getQueryValue(String query) throws IllegalArgumentException {
-        Element element = JDOMUtil.selectElement(_myTask._net.getInternalDataDocument(), query);
+        Element element = JDOMUtil.selectElement(_task._net.getInternalDataDocument(), query);
         if (element == null) throw new IllegalArgumentException();
         return new Integer(element.getText());
     }

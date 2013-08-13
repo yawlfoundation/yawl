@@ -38,16 +38,17 @@ public enum YSchemaVersion {
     Beta7 ("Beta 7.1", 0.7),
     TwoPointZero ("2.0", 2.0),
     TwoPointOne  ("2.1", 2.1),
-    TwoPointTwo  ("2.2", 2.2);
+    TwoPointTwo  ("2.2", 2.2),
+    ThreePointZero ("3.0", 3.0);
 
 
-    public static YSchemaVersion DEFAULT_VERSION = TwoPointTwo;
+    public static YSchemaVersion DEFAULT_VERSION = ThreePointZero;
 
     private final String betaNS = "http://www.citi.qut.edu.au/yawl";
     private final String betaSchemaLocation = betaNS +
             " d:/yawl/schema/YAWL_SchemaBeta7.1.xsd";
 
-    private final String twoNS = "http://www.yawlfoundation.org/yawlschema";
+    private final String releaseNS = "http://www.yawlfoundation.org/yawlschema";
 
     private final String headerTemplate =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
@@ -91,10 +92,10 @@ public enum YSchemaVersion {
 
     public String betaSchemaLocation() { return betaSchemaLocation; }
 
-    public String twoNS() { return twoNS; }
+    public String releaseNS() { return releaseNS; }
 
-    public String twoSchemaLocation() {
-        return String.format("%s %s/%s", twoNS, twoNS, getSchemaFileName());
+    public String releaseSchemaLocation() {
+        return String.format("%s %s/%s", releaseNS, releaseNS, getSchemaFileName());
     }
 
 
@@ -134,7 +135,7 @@ public enum YSchemaVersion {
 
 
     public String getNameSpace() {
-        return (isBetaVersion() ? betaNS : twoNS);
+        return (isBetaVersion() ? betaNS : releaseNS);
     }
 
 
@@ -142,12 +143,13 @@ public enum YSchemaVersion {
     public String getHeader() {
         return isBetaVersion() ?
                 String.format(headerTemplate, Beta7, betaNS, betaSchemaLocation) :
-                String.format(headerTemplate, _name, twoNS, twoSchemaLocation());
+                String.format(headerTemplate, _name, releaseNS, releaseSchemaLocation());
     }
 
 
     public boolean isBetaVersion() {
         switch(this) {
+            case ThreePointZero:
             case TwoPointTwo:
             case TwoPointOne:
             case TwoPointZero: return false;

@@ -72,6 +72,7 @@ public class DynFormFieldAssembler {
             fieldList = createChoice(schema, data, ns, level);
         }
         else {
+            ns = schema.getNamespace();
             Element complex = schema.getChild("complexType", ns);
             if (complex == null) {
                 throw new DynFormException("Malformed data schema, at element: " +

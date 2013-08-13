@@ -55,7 +55,7 @@ public class TestYAtomicTask extends TestCase{
         _atomicTask1 = new YAtomicTask("AT1", YAtomicTask._AND, YAtomicTask._AND, deadNet);
         _atomicTask1.setDecompositionPrototype(new YAWLServiceGateway(_activityID, spec));
         _atomicTask1.setUpMultipleInstanceAttributes(
-                "3", "5", "3", YMultiInstanceAttributes._creationModeStatic);
+                "3", "5", "3", YMultiInstanceAttributes.CREATION_MODE_STATIC);
         Map map = new HashMap();
         map.put("stub","/data/stubList");
         _atomicTask1.setMultiInstanceInputDataMappings("stub", "for $d in /stubList/* return $d");

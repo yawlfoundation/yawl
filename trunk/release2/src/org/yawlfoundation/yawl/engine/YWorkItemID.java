@@ -26,9 +26,7 @@ import java.util.Arrays;
 /**
  * 
  * @author Lachlan Aldred
- * Date: 23/05/2003
- * Time: 14:32:32
- * 
+ * @date 23/05/2003
  */
 public class YWorkItemID {
     private static final char[] _uniqifier = UniqueIDGenerator.newAlphas();

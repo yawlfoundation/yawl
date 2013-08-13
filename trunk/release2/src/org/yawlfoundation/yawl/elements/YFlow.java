@@ -29,7 +29,7 @@ import org.yawlfoundation.yawl.util.YVerificationHandler;
  * Time: 18:29:10
  * 
  */
-public class YFlow implements Comparable {
+public class YFlow implements Comparable<YFlow> {
 
     private YExternalNetElement _priorElement;
     private YExternalNetElement _nextElement;
@@ -240,8 +240,7 @@ public class YFlow implements Comparable {
     }
 
 
-    public int compareTo(Object o) {
-        YFlow other = (YFlow) o;
+    public int compareTo(YFlow other) {
         if (this.getEvalOrdering() != null && other.getEvalOrdering() != null) {
             return this.getEvalOrdering().compareTo(other.getEvalOrdering());
         }

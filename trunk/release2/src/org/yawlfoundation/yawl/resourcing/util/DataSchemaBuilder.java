@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import javax.xml.XMLConstants;
@@ -172,6 +173,9 @@ public class DataSchemaBuilder {
         String dataType = param.getDataTypeNameUnprefixed();
         if (isXSDType(dataType)) {
             element.setAttribute("type", prefix(dataType, defNS));
+        }
+        else if (YInternalType.isType(dataType)) {
+            element = YInternalType.getSchemaFor(dataType, param.getName());
         }
         else {
             element = createComplexType(param, element, defNS);
@@ -338,7 +342,7 @@ public class DataSchemaBuilder {
      * @return true if it is one of the base XSD type names
      */
     private boolean isXSDType(String type) {
-        return XSDType.getInstance().isBuiltInType(type);
+        return XSDType.isBuiltInType(type);
     }
 
 
