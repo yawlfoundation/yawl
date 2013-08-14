@@ -1,10 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
-import org.yawlfoundation.yawl.editor.core.data.YInternalType;
-import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.TextAreaDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.schema.XSDType;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
@@ -29,20 +26,15 @@ public class VariableRowStringEditor extends AbstractCellEditor
     private VariableTablePanel tablePanel;
     private String editingColumnName;
     private int editingRow;
-    private DataSchemaValidator dataValidator;
 
     private static final String INVALID_CHARS = "<>&'\"";
-    private static final String SCHEMA_HEADER =
-            "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\">";
-    private static final String SCHEMA_CLOSER = "</schema>";
+
 
     public VariableRowStringEditor() {
         nameField = new JTextField();
         dataTypeCombo = new JComboBox(new Vector<String>(
                 SpecificationModel.getHandler().getDataHandler().getDataTypeNames()));
         valuePanel = createValueField();
-        dataValidator = new DataSchemaValidator();
-
     }
 
     public VariableRowStringEditor(VariableTablePanel table) {
@@ -161,32 +153,14 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
 
     private boolean validateValue(String value) {
-        if (value.length() == 0) return true;
-        String errors = "";
-        String instance = "<dummy>" + value + "</dummy>";
         String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
-        if (XSDType.getInstance().isBuiltInType(dataType)) {
-            dataValidator.setDataTypeSchema(makeSchema(
-                    "<element name=\"dummy\" type=\"" + dataType + "\"/>"));
-            errors = dataValidator.validate(instance);
-        }
-        else if (YInternalType.isName(dataType)) {
-            YInternalType internalType = YInternalType.valueOf(dataType);
-            dataValidator.setDataTypeSchema(makeSchema(
-                    internalType.getValidationSchema("dummy")));
-            errors = dataValidator.validate(instance);
-        }
-        else {            // user defined complex type
-                 //todo
-        }
-        if (errors.length() > 0) {
+        java.util.List<String> errors = SpecificationModel.getHandler().getDataHandler()
+                    .validate(dataType, value);
+        if (! errors.isEmpty()) {
             tablePanel.showErrorStatus("Invalid value for data type");
         }
-        return (errors.length() == 0);
+        return (errors.isEmpty());
     }
 
-    private String makeSchema(String innards) {
-        return SCHEMA_HEADER + innards + SCHEMA_CLOSER;
-    }
 
 }

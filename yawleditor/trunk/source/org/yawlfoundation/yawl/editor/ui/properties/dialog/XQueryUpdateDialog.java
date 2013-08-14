@@ -1,11 +1,10 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DataVariableComboBox;
 import org.yawlfoundation.yawl.editor.ui.swing.data.DialogMode;
-import org.yawlfoundation.yawl.editor.ui.swing.data.ExtendedAttribute;
-import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,7 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.URLDecoder;
 
 public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionListener {
     /**
@@ -25,7 +23,7 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
 
     private boolean firstAppearance = true;
 
-    private ExtendedAttribute attribute;
+ //   private ExtendedAttribute attribute;
     private DialogMode mode;
 
     private XQueryEditorPane xQueryEditor;
@@ -63,27 +61,27 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
         return _text;
     }
 
-    public void setExtendedAttribute(ExtendedAttribute attribute) {
-        this.attribute = attribute;
-        populateInputVariableComboBox();
-
-        String value = URLDecoder.decode(attribute.getValue());
-        if(value.startsWith("${"))
-        {
-            value = value.substring(2);
-            value = value.substring(0, value.length() - 1);
-            useXQuery.setSelected(true);
-            xQueryEditor.setValidating(true);
-        }
-        else
-        {
-            useXQuery.setSelected(false);
-            xQueryEditor.setValidating(false);
-        }
-
-        _text = value;
-        xQueryEditor.setText(value);
-    }
+//    public void setExtendedAttribute(ExtendedAttribute attribute) {
+//        this.attribute = attribute;
+//        populateInputVariableComboBox();
+//
+//        String value = URLDecoder.decode(attribute.getValue());
+//        if(value.startsWith("${"))
+//        {
+//            value = value.substring(2);
+//            value = value.substring(0, value.length() - 1);
+//            useXQuery.setSelected(true);
+//            xQueryEditor.setValidating(true);
+//        }
+//        else
+//        {
+//            useXQuery.setSelected(false);
+//            xQueryEditor.setValidating(false);
+//        }
+//
+//        _text = value;
+//        xQueryEditor.setText(value);
+//    }
 
     protected void makeLastAdjustments() {
         pack();

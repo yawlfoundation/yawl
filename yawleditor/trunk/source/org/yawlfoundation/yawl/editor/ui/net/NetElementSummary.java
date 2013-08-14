@@ -39,6 +39,7 @@ public class NetElementSummary {
   private Set<Condition> conditions = new HashSet<Condition>();
   private Set<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
   private Set<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
+    private Set<YAWLTask> tasks = new HashSet<YAWLTask>();
   private Set<YAWLTask> tasksWithCancellationSets = new HashSet<YAWLTask>();
   
   public NetElementSummary(NetGraphModel model) {
@@ -64,6 +65,7 @@ public class NetElementSummary {
       if (cells[i] instanceof AtomicTask ||
           cells[i] instanceof MultipleAtomicTask ) {
         atomicTasks.add((YAWLAtomicTask) cells[i]);
+          tasks.add((YAWLTask) cells[i]);
         if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
           tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
@@ -71,6 +73,7 @@ public class NetElementSummary {
       if (cells[i] instanceof CompositeTask ||
           cells[i] instanceof MultipleCompositeTask ) {
         compositeTasks.add((YAWLCompositeTask) cells[i]);
+          tasks.add((YAWLTask) cells[i]);
         if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
           tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
@@ -104,7 +107,9 @@ public class NetElementSummary {
   public Set<YAWLCompositeTask> getCompositeTasks() {
     return this.compositeTasks;
   }
-  
+
+    public Set<YAWLTask> getTasks() { return tasks; }
+
   public Set<YAWLFlowRelation> getFlows() {
     return this.flows;
   }

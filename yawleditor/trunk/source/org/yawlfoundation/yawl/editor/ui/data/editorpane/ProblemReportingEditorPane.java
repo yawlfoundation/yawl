@@ -29,6 +29,7 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
@@ -139,9 +140,9 @@ public class ProblemReportingEditorPane extends JPanel
 
     private void createRowHeader() {
         rowHeader = new JPanel(new BorderLayout());
-        rowHeader.add(new LineNumberMargin(editor), BorderLayout.WEST);
+        rowHeader.add(new ImprovedLineNumberMargin(editor), BorderLayout.WEST);
         try {
-            rowHeader.add(new XMLFoldingMargin(editor), BorderLayout.EAST);
+            rowHeader.add(new ImprovedXMLFoldingMargin(editor), BorderLayout.EAST);
         }
         catch (IOException ioe) {
             // we can live without folding
@@ -157,6 +158,40 @@ public class ProblemReportingEditorPane extends JPanel
     private void setEditor(ValidityEditorPane editor) {
         this.editor = editor;
         this.editor.acceptValiditySubscription(this);
+    }
+
+
+    class ImprovedLineNumberMargin extends LineNumberMargin {
+
+        ImprovedLineNumberMargin(JTextComponent textComponent) { super(textComponent); }
+
+        // override to add anti-aliasing to numbers
+        public void paint(Graphics g) {
+            Graphics2D g2 = (Graphics2D)g;
+            RenderingHints rh = new RenderingHints(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+            g2.setRenderingHints(rh);
+            super.paint(g);
+        }
+    }
+
+
+    class ImprovedXMLFoldingMargin extends XMLFoldingMargin {
+
+        ImprovedXMLFoldingMargin(JTextComponent textComponent) throws IOException {
+            super(textComponent);
+        }
+
+        // override to add anti-aliasing
+        public void paint(Graphics g) {
+            Graphics2D g2 = (Graphics2D)g;
+            RenderingHints rh = new RenderingHints(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+            g2.setRenderingHints(rh);
+            super.paint(g);
+        }
     }
 
 }

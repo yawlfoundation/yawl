@@ -23,9 +23,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
-import org.yawlfoundation.yawl.editor.core.data.YInternalType;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 
 import java.util.HashSet;
 import java.util.Set;

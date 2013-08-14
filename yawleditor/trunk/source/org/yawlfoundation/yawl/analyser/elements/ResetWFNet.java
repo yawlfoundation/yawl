@@ -464,7 +464,7 @@ public final class ResetWFNet {
         iMap.put(_inputPlace.getID(), 1);
         pMap.put(_outputPlace.getID(), 1);
         RMarking Mi = new RMarking(iMap);
-        String msg= "";
+        StringBuilder s = new StringBuilder();
 
         // code using one mapping
         // changed to use all Places to fix the discriminator problem
@@ -473,12 +473,12 @@ public final class ResetWFNet {
                 pMap.put(p.getID(), 1);
                 RMarking Mp = new RMarking(pMap);
                 if (isCoverable(Mi, Mp)) {
-                    msg += convertToYawlMappings(p).toString();
+                    s.append(convertToYawlMappings(p).toString());
                 }
                 pMap.remove(p.getID());
             }
         }
-        return msg;
+        return s.toString();
     }
 
 
@@ -534,9 +534,11 @@ public final class ResetWFNet {
             msg = formatXMLMessage(msg, true);
         }
         else {
+            StringBuilder s = new StringBuilder();
             for (String rawmessage : msgList) {
-                msg += formatXMLMessage(rawmessage, false);
+                s.append(formatXMLMessage(rawmessage, false));
             }
+            msg = s.toString();
         }
         return msg;
     }
@@ -616,35 +618,35 @@ public final class ResetWFNet {
                 optionMsg = " The final marking Mo is not reachable.";
             }
             optionMsg = _baseMsg + " does not have an option to complete." + optionMsg;
-            String deadlockMsg = "";
+            StringBuilder deadlockMsg = new StringBuilder();
             for (RMarking currentM : endMarkings.getMarkings()) {
                 if (! currentM.isBiggerThanOrEqual(Mo)) {
-                    deadlockMsg += printMarking(currentM) + " ";
+                    deadlockMsg.append(printMarking(currentM)).append(" ");
                 }
             }
             if (deadlockMsg.length() > 0) {
-                optionMsg = optionMsg + " Potential deadlocks: " + deadlockMsg;
+                optionMsg = optionMsg + " Potential deadlocks: " + deadlockMsg.toString();
             }
         }
         msg += formatXMLMessage(optionMsg, optionToComplete);
         //Note: Error messages could contain reset markings and not yawl markings
 
-        String properMsg = "";
+        StringBuilder properMsg = new StringBuilder();
         for (RMarking currentM : reachableMarkings.getMarkings()) {
             if (currentM.isBiggerThan(Mo)) {
-                properMsg += printMarking(currentM)+ " ";
+                properMsg.append(printMarking(currentM)).append(" ");
                 properCompletion = false;
             }
         }
 
-        if (properMsg.equals("")) {
-            properMsg = _baseMsg +" has proper completion.";
+        if (properMsg.length() == 0) {
+            properMsg.append(_baseMsg).append(" has proper completion.");
         }
         else {
-            properMsg = _baseMsg + " does not have proper completion. " +
-                    "Markings larger than Mo can be found: " + properMsg;
+            properMsg.append(_baseMsg).append(" does not have proper completion. ")
+                    .append("Markings larger than Mo can be found: ").append(properMsg);
         }
-        msg += formatXMLMessage(properMsg, properCompletion);
+        msg += formatXMLMessage(properMsg.toString(), properCompletion);
 
         //To check if there are dead tasks
         //Changes made to make this work with reduction rules

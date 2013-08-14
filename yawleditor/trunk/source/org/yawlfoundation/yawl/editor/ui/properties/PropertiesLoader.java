@@ -6,7 +6,6 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 
 import java.util.Arrays;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 public class PropertiesLoader
         implements GraphStateListener, SpecificationStateListener, FileStateListener {
 
-    private SpecificationModel _model;
     private NetGraph _graph;
     private Binder _binder;
     private NetProperties _netProperties;
@@ -28,8 +26,7 @@ public class PropertiesLoader
     private EventListener _eventListener;
 
 
-    public PropertiesLoader(SpecificationModel model) {
-        _model = model;
+    public PropertiesLoader() {
         _netProperties = new NetProperties();
         _cellProperties = new CellProperties();
         _flowProperties = new FlowProperties();

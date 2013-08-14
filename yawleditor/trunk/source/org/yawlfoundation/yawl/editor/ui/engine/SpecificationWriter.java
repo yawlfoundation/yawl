@@ -24,24 +24,29 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
-import org.yawlfoundation.yawl.editor.core.data.YInternalType;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpecificationWriter extends EngineEditorInterpretor {
+public class SpecificationWriter {
 
     private static YSpecificationHandler _handler = SpecificationModel.getHandler();
 
@@ -53,7 +58,7 @@ public class SpecificationWriter extends EngineEditorInterpretor {
             if (checkUserDefinedDataTypes(model)) {
                 YLayout layout = new LayoutExporter().parse(model);
                 populateSpecification(model);
-                analyseIfNeeded(model);
+                analyseIfNeeded();
                 if (fullFileName != null) {
                     _handler.saveAs(fullFileName, layout, UserSettings.getFileSaveOptions());
                 }
@@ -68,14 +73,13 @@ public class SpecificationWriter extends EngineEditorInterpretor {
                     JOptionPane.ERROR_MESSAGE);
             LogWriter.error("Error saving specification to file.", e);
         }
-        reset();
         return success;
     }
 
 
-    private static boolean checkUserDefinedDataTypes(SpecificationModel editorSpec) {
+    private static boolean checkUserDefinedDataTypes(SpecificationModel model) {
         List<String> results = new ArrayList<String>();
-        results.addAll(new EngineSpecificationValidator().checkUserDefinedDataTypes(editorSpec));
+        results.addAll(new EngineSpecificationValidator().checkUserDefinedDataTypes(model));
         if (! results.isEmpty()) {
             YAWLEditor.getInstance().showProblemList("Export Errors", results);
             JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
@@ -87,7 +91,7 @@ public class SpecificationWriter extends EngineEditorInterpretor {
     }
 
 
-    private static void analyseIfNeeded(SpecificationModel model) {
+    private static void analyseIfNeeded() {
         List<String> results = new ArrayList<String>();
 
         if (UserSettings.getVerifyOnSave()) {
@@ -107,8 +111,8 @@ public class SpecificationWriter extends EngineEditorInterpretor {
     }
 
 
-    public static String getEngineSpecificationXML(SpecificationModel editorSpec) {
-        return getEngineSpecificationXML(populateSpecification(editorSpec));
+    public static String getEngineSpecificationXML(SpecificationModel model) {
+        return getEngineSpecificationXML(populateSpecification(model));
     }
 
 
@@ -124,137 +128,34 @@ public class SpecificationWriter extends EngineEditorInterpretor {
 
     public static YSpecification populateSpecification(SpecificationModel model) {
         YSpecification spec = _handler.getSpecification();
-        initialise();
-
-        // Important:  Engine API expects nets to be pre-generated before composite tasks reference them.
-        //            We need to build the nets first, and THEN populate the nets with elements.
-        generateRootNet(model);
-        generateSubNets(model);
-        populateEngineNets(spec);
-        generateEngineDataTypeDefinition();
-
+        finaliseEngineNets(model);
         return spec;
     }
 
-    private static void generateEngineDataTypeDefinition() {
-        String originalSchema = _handler.getSchema();
-        String updatedSchema = adjustSchemaForInternalTypes(originalSchema);
 
-        // remove any header inadvertently inserted by user
-        if (updatedSchema.startsWith("<?xml")) {
-            updatedSchema = updatedSchema.substring(updatedSchema.indexOf('>') + 1);
+     private static void finaliseEngineNets(SpecificationModel model) {
+        for (NetGraphModel netModel : model.getNets()) {
+            checkNetIdIsValidXML((YNet) netModel.getDecomposition());
+            NetElementSummary editorNetSummary = new NetElementSummary(netModel);
+            configureTasks(editorNetSummary);
+            setFlows(editorNetSummary);
+            setCancellationSetDetail(editorNetSummary);
         }
-        if (! updatedSchema.equals(originalSchema)) {
-            try {
-                _handler.setSchema(updatedSchema);
-            }
-            catch (Exception eActual) {
-                try {
-                    originalSchema = adjustSchemaForInternalTypes(
-                            YSpecificationHandler.DEFAULT_TYPE_DEFINITION);
-                    _handler.setSchema(originalSchema);
-                }
-                catch (Exception eDefault) {}
-            }
+    }
+
+    private static void checkNetIdIsValidXML(YNet net) {
+        String checkedID = XMLUtilities.toValidXMLName(net.getID());
+        if (! net.getID().equals(checkedID)) {
+            net.setID(checkedID);
         }
     }
 
 
-    private static String adjustSchemaForInternalTypes(String specDataSchema) {
-        for (YInternalType type : YInternalType.values()) {
-            specDataSchema = type.adjustSchema(specDataSchema);
-        }
-        return specDataSchema;
-    }
-
-
-    private static void generateRootNet(SpecificationModel model) {
-        YNet rootEngineNet = generateEngineNet(model.getNets().getRootNet());
-        editorToEngineNetMap.put(model.getNets().getRootNet(), rootEngineNet);
-    }
-
-
-    private static void generateSubNets(SpecificationModel model) {
-        for (NetGraphModel editorNet : model.getNets().getSubNets()) {
-            YNet engineSubNet = generateEngineNet(editorNet);
-            editorToEngineNetMap.put(editorNet, engineSubNet);
+    private static void configureTasks(NetElementSummary editorNetSummary) {
+        for (YAWLTask task : editorNetSummary.getTasks()) {
+            configureTask(task);
         }
     }
-
-
-    private static YNet generateEngineNet(NetGraphModel editorNet) {
-        YNet engineNet = (YNet) editorNet.getDecomposition();
-        engineNet.setID(XMLUtilities.toValidXMLName(engineNet.getID()));
-        return engineNet;
-    }
-
-
-     private static void populateEngineNets(YSpecification spec) {
-        for (NetGraphModel netModel : editorToEngineNetMap.keySet()) {
-            populateEngineNetFrom(spec, netModel);
-        }
-    }
-
-
-    private static void populateEngineNetFrom(YSpecification spec,
-                                              NetGraphModel netModel)  {
-        NetElementSummary editorNetSummary = new NetElementSummary(netModel);
-        setElements(editorNetSummary);
-        setFlows(editorNetSummary);
-        setCancellationSetDetail(editorNetSummary);
-    }
-
-
-
-    private static void setElements(NetElementSummary editorNetSummary) {
-
-        // temp
-        editorToEngineElementMap.put(editorNetSummary.getInputCondition(),
-                editorNetSummary.getInputCondition().getYCondition());
-        editorToEngineElementMap.put(editorNetSummary.getOutputCondition(),
-                editorNetSummary.getOutputCondition().getYCondition());
-
-        setAtomicTasks(editorNetSummary);
-        setCompositeTasks(editorNetSummary);
-    }
-
-
-    private static void setAtomicTasks(NetElementSummary editorNetSummary) {
-
-        for (YAWLAtomicTask yawlAtomicTask : editorNetSummary.getAtomicTasks()) {
-            YAWLTask editorTask = (YAWLTask) yawlAtomicTask;
-
-            YTask engineAtomicTask = editorTask.getTask();
-
-            if (editorTask.isConfigurable()) {
-                DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
-                ConfigurationExporter config = new ConfigurationExporter();
-                engineAtomicTask.setConfiguration(config.getTaskConfiguration(editorTask));
-                engineAtomicTask.setDefaultConfiguration(defaultConfig.getTaskDefaultConfiguration(editorTask));
-            }
-
-            editorToEngineElementMap.put(editorTask, engineAtomicTask);
-        }
-    }
-
-
-    private static void setCompositeTasks(NetElementSummary editorNetSummary) {
-
-        for (YAWLCompositeTask yawlCompositeTask : editorNetSummary.getCompositeTasks()) {
-            YAWLTask editorTask = (YAWLTask) yawlCompositeTask;
-
-            YTask engineCompositeTask = editorTask.getTask();
-
-            if (editorTask.isConfigurable()) {
-                DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
-                ConfigurationExporter config = new ConfigurationExporter();
-                engineCompositeTask.setConfiguration(config.getTaskConfiguration(editorTask));
-                engineCompositeTask.setDefaultConfiguration(defaultConfig.getTaskDefaultConfiguration(editorTask));
-            }
-            editorToEngineElementMap.put(editorTask, engineCompositeTask);
-        }
-    }
-
 
     private static void setFlows(NetElementSummary editorNetSummary) {
         for (YAWLFlowRelation editorFlow : editorNetSummary.getFlows()) {
@@ -264,8 +165,6 @@ public class SpecificationWriter extends EngineEditorInterpretor {
                     engineFlow.setIsDefaultFlow(true);
                 }
             }
-
-            editorToEngineElementMap.put(editorFlow, engineFlow);
         }
     }
 
@@ -274,24 +173,29 @@ public class SpecificationWriter extends EngineEditorInterpretor {
            List<YExternalNetElement> cancellationSet = new ArrayList<YExternalNetElement>();
             for (YAWLCell element : editorTriggerTask.getCancellationSet().getSetMembers()) {
                 if (element instanceof YAWLFlowRelation) {
-                    cancellationSet.add(getConditionForFlow((YAWLFlowRelation) element));
+                    cancellationSet.add(((YAWLFlowRelation)
+                            element).getYFlow().getImplicitCondition());
                 }
                 else {
-                    cancellationSet.add((YExternalNetElement)
-                            editorToEngineElementMap.get(element)
-                    );
+                    cancellationSet.add(((YAWLVertex) element).getYAWLElement());
                 }
             }
 
-
-            YTask engineTriggerTask = (YTask) editorToEngineElementMap.get(editorTriggerTask);
+            YTask engineTriggerTask = (YTask) editorTriggerTask.getYAWLElement();
             engineTriggerTask.addRemovesTokensFrom(cancellationSet);
         }
     }
 
 
-    private static YCondition getConditionForFlow(YAWLFlowRelation editorFlow) {
-        return editorFlow.getYFlow().getImplicitCondition();
+    private static void configureTask(YAWLTask task) {
+        if (task.isConfigurable()) {
+            YTask yTask = (YTask) task.getYAWLElement();
+            DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
+            ConfigurationExporter config = new ConfigurationExporter();
+            yTask.setConfiguration(config.getTaskConfiguration(task));
+            yTask.setDefaultConfiguration(
+                    defaultConfig.getTaskDefaultConfiguration(task));
+        }
     }
 
 

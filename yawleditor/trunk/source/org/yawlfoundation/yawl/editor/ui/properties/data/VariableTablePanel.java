@@ -222,6 +222,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
     private void setEditMode(boolean editing) {
         table.setEditable(editing);
         enableButtons(!editing);
+        parent.setEditMode(tableType, editing);
     }
 
 }

@@ -25,7 +25,6 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -34,40 +33,28 @@ import java.awt.event.ActionEvent;
 
 public class SaveSpecificationAction extends YAWLOpenSpecificationAction implements TooltipTogglingWidget {
 
-  boolean shouldShowExportDialog = true;
-  private boolean isDialogShownPreviously = false;
-
-  ExportConfigDialog dialog = new ExportConfigDialog();
-  private static final long serialVersionUID = 1L;
-
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Save");
-    putValue(Action.LONG_DESCRIPTION, "Save this specification");
-    putValue(Action.SMALL_ICON, getPNGIcon("disk"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("S"));
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-    if (shouldShowExportDialog) {
-      if (!isDialogShownPreviously) {
-        dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-        isDialogShownPreviously = true;
-      }
-      dialog.showOrHideSpecIDField();
-      dialog.setVisible(true);
-    } else {
-        FileOperations.save();
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Save");
+        putValue(Action.LONG_DESCRIPTION, "Save this specification");
+        putValue(Action.SMALL_ICON, getPNGIcon("disk"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("S"));
     }
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Save this specification ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification" + 
-           " to save it ";
-  }
+
+    public void actionPerformed(ActionEvent event) {
+        SaveOptionsDialog dialog = new SaveOptionsDialog();
+        dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+        dialog.showOrHideSpecIDField();
+        dialog.setVisible(true);
+    }
+
+    public String getEnabledTooltipText() {
+        return " Save this specification ";
+    }
+
+    public String getDisabledTooltipText() {
+        return " You must have an open specification" +
+                " to save it ";
+    }
 }

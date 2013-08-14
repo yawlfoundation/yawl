@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
 import org.yawlfoundation.yawl.schema.SchemaHandler;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -78,18 +79,18 @@ public class DataSchemaValidator {
     }
 
     // pre: valid data schema already set
-    public String validate(String data) {
+    public List<String> validate(String data) {
         if (! hasValidDataTypeDefinition()) {
-            return "Error: Schema is malformed or null";
+            return Arrays.asList("Error: Schema is malformed or null");
         }
         if (! schemaHandler.validate(data)) {
-            return schemaHandler.getConcatenatedMessage();
+            return schemaHandler.getErrorMessages();
         }
-        return "";
+        return Collections.emptyList();
     }
 
     // pre: valid data schema already set
-    public String validate(String variableName, String complexTypeData) {
+    public List<String> validate(String variableName, String complexTypeData) {
         return validate(StringUtil.wrap(complexTypeData, variableName));
     }
 }

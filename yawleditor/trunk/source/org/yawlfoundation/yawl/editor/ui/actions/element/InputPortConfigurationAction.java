@@ -1,7 +1,5 @@
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
-import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.LayoutStyle;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
@@ -213,37 +211,37 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        GroupLayout layout = new GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
 	                .addContainerGap()
-	                .add(layout.createParallelGroup(GroupLayout.LEADING)
-	                    .add(layout.createSequentialGroup()
-	                        .add(AllowButton)
-	                        .addPreferredGap(LayoutStyle.RELATED)
-	                        .add(BlockButton)
-	                        .addPreferredGap(LayoutStyle.RELATED)
-	                        .add(HideButton)
-	                        .addPreferredGap(LayoutStyle.RELATED)
-	                        .add(DefaultButton)
-	                        .addPreferredGap(LayoutStyle.RELATED, 12, Short.MAX_VALUE)
-	                        .add(SetDefaultButton))
-	                    .add(GroupLayout.TRAILING, jScrollPane1, GroupLayout.DEFAULT_SIZE,
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	                    .addGroup(layout.createSequentialGroup()
+	                        .addComponent(AllowButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+	                        .addComponent(BlockButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+	                        .addComponent(HideButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+	                        .addComponent(DefaultButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+	                        .addComponent(SetDefaultButton))
+	                    .addComponent(jScrollPane1, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
                           395, Short.MAX_VALUE))
 	                .addContainerGap())
 	        );
 	        layout.setVerticalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(GroupLayout.TRAILING, layout.createSequentialGroup()
-	                .add(33, 33, 33)
-	                .add(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
-	                .addPreferredGap(LayoutStyle.RELATED, 48, Short.MAX_VALUE)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(SetDefaultButton)
-	                    .add(AllowButton)
-	                    .add(BlockButton)
-	                    .add(HideButton)
-	                    .add(DefaultButton))
-	                .add(20, 20, 20))
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+	                .addGap(33, 33, 33)
+	                .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
+	                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(SetDefaultButton)
+	                    .addComponent(AllowButton)
+	                    .addComponent(BlockButton)
+	                    .addComponent(HideButton)
+	                    .addComponent(DefaultButton))
+	                .addGap(20, 20, 20))
 	        );
 	        
 	        if(this.net.getConfigurationSettings().isAllowBlockingInputPorts()){
@@ -549,34 +547,34 @@ public class InputPortConfigurationAction extends YAWLBaseAction implements Tool
 	        GroupLayout layout = new GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
 	                .addContainerGap()
-	                .add(layout.createParallelGroup(GroupLayout.LEADING)
-	                    .add(GroupLayout.TRAILING, layout.createSequentialGroup()
-	                        .add(AllowButton)
-	                        .add(18, 18, 18)
-	                        .add(BlockButton)
-	                        .add(18, 18, 18)
-	                        .add(HideButton)
-	                        .addPreferredGap(LayoutStyle.RELATED, 67, Short.MAX_VALUE)
-	                        .add(EmptyButton))
-	                    .add(GroupLayout.TRAILING, jScrollPane1, GroupLayout.DEFAULT_SIZE,
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+	                        .addComponent(AllowButton)
+	                        .addGap(18, 18, 18)
+	                        .addComponent(BlockButton)
+	                        .addGap(18, 18, 18)
+	                        .addComponent(HideButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
+	                        .addComponent(EmptyButton))
+	                    .addComponent(jScrollPane1, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
                           395, Short.MAX_VALUE))
 	                .addContainerGap())
 	        );
 	        layout.setVerticalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(GroupLayout.TRAILING, layout.createSequentialGroup()
-	                .add(33, 33, 33)
-	                .add(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
-	                .addPreferredGap(LayoutStyle.RELATED, 48, Short.MAX_VALUE)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(EmptyButton)
-	                    .add(AllowButton)
-	                    .add(BlockButton)
-	                    .add(HideButton))
-	                .add(20, 20, 20))
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+	                .addGap(33, 33, 33)
+	                .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
+	                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(EmptyButton)
+	                    .addComponent(AllowButton)
+	                    .addComponent(BlockButton)
+	                    .addComponent(HideButton))
+	                .addGap(20, 20, 20))
 	        );
 	        this.jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	        pack();

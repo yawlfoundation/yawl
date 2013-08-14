@@ -344,7 +344,7 @@ public class MultiInstanceDialog extends JDialog
                 Set<YVariable> netVars = new HashSet<YVariable>(net.getLocalVariables().values());
                 netVars.addAll(net.getInputParameters().values());
                 for (YVariable var : netVars) {
-                    if (XSDType.getInstance().isIntegralType(var.getDataTypeName())) {
+                    if (XSDType.isIntegralType(var.getDataTypeName())) {
                         integralVars.add(var.getPreferredName());
                     }
                 }

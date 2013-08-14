@@ -37,11 +37,6 @@ import java.awt.event.ActionEvent;
 public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
         implements TooltipTogglingWidget {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Save As...");
@@ -54,7 +49,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
   public void actionPerformed(ActionEvent event) {
       String fileName = SpecificationModel.getHandler().getFileName();
       if (StringUtil.isNullOrEmpty(fileName)) {                   // never been saved
-          ExportConfigDialog dialog = new ExportConfigDialog();
+          SaveOptionsDialog dialog = new SaveOptionsDialog();
           dialog.setLocationRelativeTo(YAWLEditor.getInstance());
           dialog.showOrHideSpecIDField();
           dialog.setVisible(true);

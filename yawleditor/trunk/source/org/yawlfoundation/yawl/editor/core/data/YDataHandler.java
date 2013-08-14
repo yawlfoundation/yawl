@@ -1295,10 +1295,11 @@ public class YDataHandler {
     private YNet getNet(String netID) throws YDataHandlerException {
         checkSpecificationExists();
         YDecomposition net = getSpecification().getDecomposition(netID);
-        if (! (net instanceof YNet)) {                 // null or not a net
-            raise("No net found with id: " + netID);
+        if (net instanceof YNet) {
+            return (YNet) net;
         }
-        return (YNet) net;
+        raise("No net found with id: " + netID);   // throws exception
+        return null;                               // keep compiler happy
     }
 
 
@@ -1353,7 +1354,11 @@ public class YDataHandler {
 
     // DataUtil passthroughs
 
-    public void setSchema(String schema) { _utils.setSchema(schema); }
+    public List<String> validate(String dataType, String value) {
+        return _utils.getInstanceValidator().validate(dataType, value);
+    }
+
+    public void setSchema(String schema) { _utils.setSpecificationSchema(schema); }
 
     public List<String> getDataTypeNames() { return _utils.getDataTypeNames(); }
 

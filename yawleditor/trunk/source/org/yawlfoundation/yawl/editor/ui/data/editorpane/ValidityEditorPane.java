@@ -129,7 +129,6 @@ public class ValidityEditorPane extends JEditorPane
 
         // Set the tab size & error highlighting
         getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
-        getDocument().putProperty(XMLEditorKit.ERROR_HIGHLIGHTING_ATTRIBUTE, true);
 
         setBackground(new Color(252,252,252));
     }
