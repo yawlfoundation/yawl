@@ -1,7 +1,5 @@
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
-import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.LayoutStyle;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
@@ -140,49 +138,49 @@ public class MultipleInstanceConfigurationAction extends YAWLBaseAction implemen
 	        GroupLayout layout = new GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
 	                .addContainerGap()
-	                .add(layout.createParallelGroup(GroupLayout.LEADING)
-	                    .add(ForbidDynamiccheckbox, GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
-	                    .add(donejButton)
-	                    .add(layout.createSequentialGroup()
-	                        .add(layout.createParallelGroup(GroupLayout.TRAILING)
-	                            .add(GroupLayout.LEADING, IncreaseThresholdjLabel, 
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	                    .addComponent(ForbidDynamiccheckbox, GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
+	                    .addComponent(donejButton)
+	                    .addGroup(layout.createSequentialGroup()
+	                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+	                            .addComponent(IncreaseThresholdjLabel, GroupLayout.Alignment.LEADING,
                                       GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
-	                            .add(GroupLayout.LEADING,
-                                  layout.createParallelGroup(GroupLayout.TRAILING, false)
-	                                .add(GroupLayout.LEADING, increaseMinjLabel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-	                                .add(GroupLayout.LEADING, reduceMaxLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-	                        .add(10, 10, 10)
-	                        .add(layout.createParallelGroup(GroupLayout.TRAILING)
-	                            .add(layout.createParallelGroup(GroupLayout.TRAILING)
-	                                .add(IncreaseMinjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)
-	                                .add(GroupLayout.LEADING, layout.createSequentialGroup()
-	                                    .addPreferredGap(LayoutStyle.UNRELATED)
-	                                    .add(reduceMaxjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)))
-	                            .add(threshholdjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE))))
+	                            .addGroup(GroupLayout.Alignment.LEADING,
+                                  layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+	                                .addComponent(increaseMinjLabel1, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	                                .addComponent(reduceMaxLabel, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+	                        .addGap(10, 10, 10)
+	                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+	                            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+	                                .addComponent(IncreaseMinjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)
+	                                .addGroup(GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+	                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+	                                    .addComponent(reduceMaxjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)))
+	                            .addComponent(threshholdjTextField, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE))))
 	                .addContainerGap())
 	        );
 	        layout.setVerticalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
-	                .add(37, 37, 37)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(reduceMaxLabel, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-	                    .add(reduceMaxjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
-	                .add(22, 22, 22)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(increaseMinjLabel1, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-	                    .add(IncreaseMinjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
-	                .add(18, 18, 18)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(IncreaseThresholdjLabel, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-	                    .add(threshholdjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
-	                .add(33, 33, 33)
-	                .add(ForbidDynamiccheckbox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-	                .add(37, 37, 37)
-	                .add(donejButton)
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
+	                .addGap(37, 37, 37)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(reduceMaxLabel, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(reduceMaxjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+	                .addGap(22, 22, 22)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(increaseMinjLabel1, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(IncreaseMinjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+	                .addGap(18, 18, 18)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(IncreaseThresholdjLabel, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+	                    .addComponent(threshholdjTextField, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+	                .addGap(33, 33, 33)
+	                .addComponent(ForbidDynamiccheckbox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+	                .addGap(37, 37, 37)
+	                .addComponent(donejButton)
 	                .addContainerGap(25, Short.MAX_VALUE))
 	        );
 

@@ -18,7 +18,7 @@ import java.awt.event.*;
  * Author: Michael Adams
  * Creation Date: 15/10/2008
  */
-class ExportConfigDialog extends AbstractDoneDialog {
+class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JFormattedAlphaNumericField specificationIDField;
     private JFormattedSelectField versionNumberField;
@@ -30,7 +30,7 @@ class ExportConfigDialog extends AbstractDoneDialog {
     private JLabel idLabel;
     private boolean initialising;
 
-    public ExportConfigDialog() {
+    public SaveOptionsDialog() {
         super("File Save Options", true);
 
         setContentPanel(getContent());

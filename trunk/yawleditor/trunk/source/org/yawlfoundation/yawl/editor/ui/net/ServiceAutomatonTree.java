@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.jdesktop.swingworker.SwingWorker;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;

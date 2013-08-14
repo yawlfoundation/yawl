@@ -82,7 +82,7 @@ public class RepositoryGetAction extends YAWLBaseAction {
                     break;
                 case DataDefinition: {
                     String text = repo.getDataDefinitionRepository().get(name);
-                    ((DataTypeDialogToolBarMenu) caller).insertText(text);
+                    ((DataTypeDialogToolBarMenu) caller).insertText(text, true);
                     break;
                 }
             }

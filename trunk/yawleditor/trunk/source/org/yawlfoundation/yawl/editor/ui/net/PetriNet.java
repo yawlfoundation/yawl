@@ -184,25 +184,25 @@ public class PetriNet {
             FileWriter out = new FileWriter(file);
             out.write("PLACE\n\n");
 
-            String roles = "ROLES ";
+            StringBuilder roles = new StringBuilder("ROLES ");
             if (getRoles().isEmpty()) {
-                roles = roles + " ;";
+                roles.append(" ;");
             }
             else {
                 for (int i=0; i < getRoles().size()-1 ; i++) {
-                    roles += getRoles().get(i) + ",";
+                    roles.append(getRoles().get(i)).append(",");
                 }
-                roles += getRoles().get(getRoles().size() -1) + ";";
+                roles.append(getRoles().get(getRoles().size() -1)).append(";");
             }
-            out.write(roles);
+            out.write(roles.toString());
             out.append("\n\n");
 
-            String place = "INTERNAL ";
+            StringBuilder place = new StringBuilder("INTERNAL ");
             for (int i= 0; i < places.size() -1; i++) {
-                place += "p" + places.get(i) + ",";
+                place.append("p").append(places.get(i)).append(",");
             }
-            place += "p" + places.get(places.size() -1) + ";";
-            out.write(place);
+            place.append("p").append(places.get(places.size() -1)).append(";");
+            out.write(place.toString());
             out.append("\n\n");
 
             String initialMarking = "INITIALMARKING ";

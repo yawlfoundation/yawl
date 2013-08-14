@@ -10,6 +10,7 @@ import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 
 import java.util.*;
 
@@ -46,11 +47,11 @@ public class EngineSpecificationValidator {
 
     /**********************************************************************************/
 
-    public List<String> checkUserDefinedDataTypes(SpecificationModel editorSpec) {
+    public List<String> checkUserDefinedDataTypes(SpecificationModel model) {
         _validDataTypeNames = SpecificationModel.getHandler().getDataHandler().getUserDefinedTypeNames();
         _checkedDataTypes = new Hashtable<String, Boolean>();
         List<String> problemList = new ArrayList<String>();
-        Set<NetGraphModel> nets = editorSpec.getNets();
+        Set<NetGraphModel> nets = model.getNets();
         for (NetGraphModel net : nets) {
             YNet netDecomp = (YNet) net.getDecomposition();
             Set<YVariable> variables = new HashSet<YVariable>();
@@ -97,10 +98,7 @@ public class EngineSpecificationValidator {
                                                    String netName, String taskName) {
         boolean valid;
         String datatype = var.getDataTypeName();
-        if (! (XSDType.getInstance().isBuiltInType(datatype) ||
-                datatype.equals("YTimerType") ||
-                datatype.equals("YStringListType") ||
-                datatype.equals("YDocumentType"))) {
+        if (! (XSDType.isBuiltInType(datatype) || YInternalType.isType(datatype))) {
             if (_checkedDataTypes.containsKey(datatype)) {
                 valid = _checkedDataTypes.get(datatype);
             }

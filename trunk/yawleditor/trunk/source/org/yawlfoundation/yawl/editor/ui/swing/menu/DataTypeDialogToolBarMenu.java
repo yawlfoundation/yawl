@@ -26,12 +26,14 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,7 +72,17 @@ public class DataTypeDialogToolBarMenu extends YToolBar {
     }
 
     public void insertText(String text) {
-        getEditorPane().getEditor().replaceSelection(text);
+        insertText(text, false);
+    }
+
+    public void insertText(String text, boolean reformat) {
+        ValidityEditorPane pane = getEditorPane().getEditor();
+        pane.replaceSelection(text);
+        if (reformat) {
+            int caretPos = pane.getCaretPosition();
+            pane.setText(XMLUtilities.formatXML(pane.getText(), true, false));
+            pane.setCaretPosition(caretPos);
+        }
     }
 
 

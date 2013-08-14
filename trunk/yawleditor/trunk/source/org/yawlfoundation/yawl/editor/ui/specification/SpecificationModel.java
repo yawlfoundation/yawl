@@ -53,7 +53,7 @@ public class SpecificationModel {
 
 
     private SpecificationModel() {
-        _propertiesLoader = new PropertiesLoader(this);
+        _propertiesLoader = new PropertiesLoader();
         nets = new NetModelSet(_propertiesLoader);
         reset();
     }

@@ -43,17 +43,6 @@ import java.util.Date;
 
 public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAction 
                                                  implements TooltipTogglingWidget {
-
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  private static final UpdateSpecificationPropertiesDialog dialog = 
-    new UpdateSpecificationPropertiesDialog();
-
-  private boolean invokedAtLeastOnce = false;
-  
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Properties...");
@@ -64,11 +53,10 @@ public class UpdateSpecificationPropertiesAction extends YAWLOpenSpecificationAc
   }
   
   public void actionPerformed(ActionEvent event) {
-    if (!invokedAtLeastOnce) {
+      UpdateSpecificationPropertiesDialog dialog =
+          new UpdateSpecificationPropertiesDialog();
       dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-      invokedAtLeastOnce = true;       
-    }
-    dialog.setVisible(true);
+      dialog.setVisible(true);
   }
   
   public String getEnabledTooltipText() {

@@ -35,7 +35,9 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     private YTask task;
     private YDataHandler dataHandler;
     private Map<String, String> outputVariableMap;
+    private JButton btnOK;
     private JButton btnApply;
+    private Map<TableType, Boolean> editModeMap;
 
 
     public DataVariableDialog(YNet net) {
@@ -81,6 +83,12 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
         if (! (model instanceof NetVarTableModel)) enableDefaultValueEditing();
     }
 
+    protected void setEditMode(TableType tableType, boolean mode) {
+        editModeMap.put(tableType, mode);
+        boolean notEditing = isEditingComplete();
+        btnApply.setEnabled(notEditing);
+        btnOK.setEnabled(notEditing);
+    }
 
     protected void enableApplyButton() { btnApply.setEnabled(true); }
 
@@ -131,12 +139,26 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     private void initialise(YNet net) {
         this.net = net;
         dataHandler = SpecificationModel.getHandler().getDataHandler();
+        initEditModeMap();
         setModal(true);
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
     }
 
+    private void initEditModeMap() {
+        editModeMap = new Hashtable<TableType, Boolean>();
+        for (TableType tableType : TableType.values()) {
+            editModeMap.put(tableType, false);
+        }
+    }
+
+    private boolean isEditingComplete() {
+        for (TableType tableType : TableType.values()) {
+            if (editModeMap.get(tableType)) return false;
+        }
+        return true;
+    }
 
     private JPanel getContentForNetLevel() {
         createNetTablePanel();
@@ -204,7 +226,8 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
         btnApply = createButton("Apply");
         btnApply.setEnabled(false);
         panel.add(btnApply);
-        panel.add(createButton("OK"));
+        btnOK = createButton("OK");
+        panel.add(btnOK);
         return panel;
     }
 

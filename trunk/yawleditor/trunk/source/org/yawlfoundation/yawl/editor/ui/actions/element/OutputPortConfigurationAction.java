@@ -1,7 +1,5 @@
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
-import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.LayoutStyle;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
@@ -204,36 +202,36 @@ private static final long serialVersionUID = 1L;
 	        GroupLayout layout = new GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
 	                .addContainerGap()
-	                .add(layout.createParallelGroup(GroupLayout.LEADING)
-	                    .add(layout.createSequentialGroup()
-	                        .add(jScrollPane1, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	                    .addGroup(layout.createSequentialGroup()
+	                        .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
 	                        .addContainerGap())
-	                    .add(layout.createSequentialGroup()
-	                        .add(4, 4, 4)
-	                        .add(ActivateButton)
-	                        .addPreferredGap(LayoutStyle.RELATED)
-	                        .add(BlockButton)
-	                        .addPreferredGap(LayoutStyle.RELATED)
-	                        .add(DefaultButton)
-	                        .addPreferredGap(LayoutStyle.RELATED, 61, Short.MAX_VALUE)
-	                        .add(SetDefaultButton)
-	                        .add(21, 21, 21))))
+	                    .addGroup(layout.createSequentialGroup()
+	                        .addGap(4, 4, 4)
+	                        .addComponent(ActivateButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+	                        .addComponent(BlockButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+	                        .addComponent(DefaultButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
+	                        .addComponent(SetDefaultButton)
+	                        .addGap(21, 21, 21))))
 	        );
 	        layout.setVerticalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
-	                .add(19, 19, 19)
-	                .add(jScrollPane1, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
-	                .addPreferredGap(LayoutStyle.RELATED, 41, Short.MAX_VALUE)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(SetDefaultButton)
-	                    .add(DefaultButton)
-	                    .add(BlockButton)
-	                    .add(ActivateButton))
-	                .add(34, 34, 34))
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
+	                .addGap(19, 19, 19)
+	                .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
+	                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(SetDefaultButton)
+	                    .addComponent(DefaultButton)
+	                    .addComponent(BlockButton)
+	                    .addComponent(ActivateButton))
+	                .addGap(34, 34, 34))
 	        );
 
 	       // bindingGroup.bind();
@@ -504,31 +502,31 @@ private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDial
 	        GroupLayout layout = new GroupLayout(getContentPane());
 	        getContentPane().setLayout(layout);
 	        layout.setHorizontalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(layout.createSequentialGroup()
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(layout.createSequentialGroup()
 	                .addContainerGap()
-	                .add(layout.createParallelGroup(GroupLayout.LEADING)
-	                    .add(layout.createSequentialGroup()
-	                        .add(AllowButton)
-	                        .add(88, 88, 88)
-	                        .add(BlockButton)
-	                        .addPreferredGap(LayoutStyle.RELATED, 88, Short.MAX_VALUE)
-	                        .add(EmptyButton))
-	                    .add(GroupLayout.TRAILING, jScrollPane1, 
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	                    .addGroup(layout.createSequentialGroup()
+	                        .addComponent(AllowButton)
+	                        .addGap(88, 88, 88)
+	                        .addComponent(BlockButton)
+	                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
+	                        .addComponent(EmptyButton))
+	                    .addComponent(jScrollPane1, GroupLayout.Alignment.TRAILING,
                           GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))
 	                .addContainerGap())
 	        );
 	        layout.setVerticalGroup(
-	            layout.createParallelGroup(GroupLayout.LEADING)
-	            .add(GroupLayout.TRAILING, layout.createSequentialGroup()
-	                .add(33, 33, 33)
-	                .add(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
-	                .addPreferredGap(LayoutStyle.RELATED, 48, Short.MAX_VALUE)
-	                .add(layout.createParallelGroup(GroupLayout.BASELINE)
-	                    .add(EmptyButton)
-	                    .add(AllowButton)
-	                    .add(BlockButton))
-	                .add(20, 20, 20))
+	            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+	                .addGap(33, 33, 33)
+	                .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 176, GroupLayout.PREFERRED_SIZE)
+	                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+	                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	                    .addComponent(EmptyButton)
+	                    .addComponent(AllowButton)
+	                    .addComponent(BlockButton))
+	                .addGap(20, 20, 20))
 	        );
 	     
 	        this.jScrollPane1.setAutoscrolls(true);

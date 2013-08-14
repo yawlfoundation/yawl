@@ -4,10 +4,12 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -16,29 +18,35 @@ import java.util.List;
  */
 public class DataUtil {
 
-    private String _schema;
-    private Document _schemaDoc;
-    private DataSchemaValidator _validator;
+    private String _specificationSchema;
+    private final DataSchemaValidator _schemaValidator;
+    private final InstanceValidator _instanceValidator;
 
-    private static final String DEFAULT_SCHEMA =
-       "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";
+    protected static final String DEFAULT_NAMESPACE_PREFIX = "xs";
+    protected static final String DEFAULT_NAMESPACE_URL = "http://www.w3.org/2001/XMLSchema";
+    protected static final String DEFAULT_SCHEMA = "<xs:schema xmlns:" +
+            DEFAULT_NAMESPACE_PREFIX + "=\"" + DEFAULT_NAMESPACE_URL + ">\n\n</xs:schema>";
 
 
     public DataUtil(String schema) {
-        _validator = new DataSchemaValidator();
-        setSchema(schema);
+        _schemaValidator = new DataSchemaValidator();
+        _instanceValidator = new InstanceValidator();
+        setSpecificationSchema(schema);
     }
 
 
-    public void setSchema(String schema) {
-        _schema = schema != null ? schema : DEFAULT_SCHEMA;
-        _schemaDoc = JDOMUtil.stringToDocument(schema);
-        _validator.setDataTypeSchema(_schema);
+    public void setSpecificationSchema(String schema) {
+        _specificationSchema = schema != null ? schema : DEFAULT_SCHEMA;
+        _schemaValidator.setDataTypeSchema(_specificationSchema);
+        _instanceValidator.setSpecificationSchema(schema);
     }
+
+
+    protected InstanceValidator getInstanceValidator() { return _instanceValidator; }
 
 
     public List<String> getBuiltInTypeNames() {
-        return XSDType.getInstance().getBuiltInTypeList();
+        return XSDType.getBuiltInTypeList();
     }
 
 
@@ -51,25 +59,15 @@ public class DataUtil {
     }
 
 
-    // todo: replace this with a more complete data validation solution
     public List<String> getUserDefinedTypeNames() {
-        List<String> typeList = new ArrayList<String>();
-            if (_schema != null) {
-                Element dataSchema = JDOMUtil.stringToElement(_schema);
-                for (Element child : dataSchema.getChildren()) {
-                    String name = child.getAttributeValue("name");
-                    if (name != null) {
-                        typeList.add(name);
-                    }
-                }
-            }
-        return typeList;
+        return new ArrayList<String>(_schemaValidator.getPrimarySchemaTypeNames());
     }
 
 
     public String getMultiInstanceItemType(String dataType) {
-        if (_schemaDoc != null) {
-            Element root = _schemaDoc.getRootElement();
+        if (_specificationSchema != null) {
+            Document doc = JDOMUtil.stringToDocument(_specificationSchema);
+            Element root = doc.getRootElement();
             Namespace ns = root.getNamespace();
             for (Element child : root.getChildren()) {
                 String name = child.getAttributeValue("name");
@@ -96,20 +94,26 @@ public class DataUtil {
         List<String> typeList = getBuiltInTypeNames();
         typeList.addAll(getInternalTypeNames());
         typeList.addAll(getUserDefinedTypeNames());
-        Collections.sort(typeList);
+
+        Collections.sort(typeList, new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
+            }
+        });
+
         return typeList;
     }
 
 
     public String getXQuerySuffix(String dataType) {
-        if (XSDType.getInstance().isBuiltInType(dataType)) {
+        if (XSDType.isBuiltInType(dataType)) {
             return "text()";
         }
-        if (YInternalType.isName(dataType)) {
+        if (YInternalType.isType(dataType)) {
             return "*";
         }
 
-        switch(_validator.getDataTypeComplexity(dataType)) {
+        switch(_schemaValidator.getDataTypeComplexity(dataType)) {
             case Complex: return "*";
             case Simple:
             case Unknown:

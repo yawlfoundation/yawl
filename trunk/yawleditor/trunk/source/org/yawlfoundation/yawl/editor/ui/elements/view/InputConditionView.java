@@ -31,35 +31,35 @@ import java.awt.*;
 
 public class InputConditionView extends VertexView {
 
-  private static final InputConditionRenderer renderer = new InputConditionRenderer();
+    private static final InputConditionRenderer renderer = new InputConditionRenderer();
 
-  public InputConditionView(Object vertex) {
-    super(vertex);
-  }
+    public InputConditionView(Object vertex) {
+        super(vertex);
+    }
 
-  public CellViewRenderer getRenderer() {
-    return renderer;
-  }
+    public CellViewRenderer getRenderer() {
+        return renderer;
+    }
 }
 
 
 class InputConditionRenderer extends ConditionView.ConditionRenderer {
 
-  protected void drawVertex(Graphics graphics, Dimension size) {
-    Polygon startArrow = new Polygon();
-    startArrow.addPoint(Math.round(size.width/3),
-                        Math.round(size.height/4));
+    protected void drawVertex(Graphics graphics, Dimension size) {
+        Polygon startArrow = new Polygon();
+        startArrow.addPoint(Math.round(size.width/3),
+                Math.round(size.height/4));
 
-    startArrow.addPoint(Math.round(size.width/3),
-                        Math.round((size.height/4)*3));
+        startArrow.addPoint(Math.round(size.width/3),
+                Math.round((size.height/4)*3));
 
-    startArrow.addPoint(Math.round((size.width/4)*3),
-                        Math.round(size.height/2));
-    graphics.setColor(Color.GREEN.darker());
-    graphics.fillPolygon(startArrow);
+        startArrow.addPoint(Math.round((size.width/4)*3),
+                Math.round(size.height/2));
+        graphics.setColor(Color.GREEN.darker());
+        graphics.fillPolygon(startArrow);
 
-    graphics.setColor(Color.black);
-    graphics.drawPolygon(startArrow);
-    super.drawVertex(graphics, size);
-  }
+        graphics.setColor(Color.black);
+        graphics.drawPolygon(startArrow);
+        super.drawVertex(graphics, size);
+    }
 }
