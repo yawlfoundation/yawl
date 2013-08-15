@@ -113,22 +113,12 @@ public class Participant extends AbstractResource implements Cloneable {
         }
     }
 
-    public Participant clone() throws CloneNotSupportedException {
-
-        // create a new Participant with persistence OFF
-        Participant cloned = (Participant) super.clone();
-        cloned.setPersisting(false);
-        cloned.setID("_CLONE_" + _resourceID);                  // different id to this
-        if (_privileges != null)
-            cloned.setUserPrivileges(_privileges.clone());
-        else
-            cloned.setUserPrivileges(new UserPrivileges(_resourceID));
-
-        for (Role r : _roles) cloned.addRole(r);
-        for (Position p : _positions) cloned.addPosition(p);
-        for (Capability c : _capabilities) cloned.addCapability(c);
-        return cloned;
+    public Participant clone() {
+        Participant clone = new Participant("_CLONE_" + _resourceID);
+        clone.merge(this);
+        return clone;
     }
+
 
     // copies values from p to this (does NOT change id)
     public void merge(Participant p) {
