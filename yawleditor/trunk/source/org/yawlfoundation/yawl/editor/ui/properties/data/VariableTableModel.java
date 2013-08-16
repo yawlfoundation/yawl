@@ -29,6 +29,9 @@ abstract class VariableTableModel extends AbstractTableModel {
     }
 
     public VariableRow getVariableAtRow(int row) {
+        if (getRowCount() == 0 || row >= getRowCount()) {
+            return null;
+        }
         return variables.get(row);
     }
 
@@ -59,6 +62,15 @@ abstract class VariableTableModel extends AbstractTableModel {
 
     public void setEditable(boolean canEdit) {
         editable = canEdit;
+    }
+
+    public boolean allRowsValid() {
+        if (variables != null) {
+            for (VariableRow row : variables) {
+                if (! row.isValid()) return false;
+            }
+        }
+        return true;
     }
 
 

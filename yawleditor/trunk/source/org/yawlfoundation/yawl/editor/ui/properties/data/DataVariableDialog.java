@@ -37,7 +37,7 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     private Map<String, String> outputVariableMap;
     private JButton btnOK;
     private JButton btnApply;
-    private Map<TableType, Boolean> editModeMap;
+    private boolean dirty;
 
 
     public DataVariableDialog(YNet net) {
@@ -65,7 +65,7 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
         if (! action.equals("Cancel")) {
-            updateVariables();
+            if (dirty) updateVariables();
             btnApply.setEnabled(false);
         }
 
@@ -76,21 +76,31 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
 
 
     public void tableChanged(TableModelEvent e) {
-        enableApplyButton();
+        dirty = true;
+        enableButtonsIfValid();
         VariableTableModel model = (VariableTableModel) e.getSource();
         model.setTableChanged(true);
         getTablePanelFromTableModel(model).enableButtons(true);
         if (! (model instanceof NetVarTableModel)) enableDefaultValueEditing();
     }
 
-    protected void setEditMode(TableType tableType, boolean mode) {
-        editModeMap.put(tableType, mode);
-        boolean notEditing = isEditingComplete();
-        btnApply.setEnabled(notEditing);
-        btnOK.setEnabled(notEditing);
+    protected void enableButtonsIfValid() {
+        boolean allRowsValid = getNetTable().allRowsValid();
+        if (allRowsValid && getTaskInputTable() != null) {
+            allRowsValid = getTaskInputTable().allRowsValid();
+            if (allRowsValid) {
+                allRowsValid = getTaskOutputTable().allRowsValid();
+            }
+        }
+        btnApply.setEnabled(allRowsValid && dirty);
+        btnOK.setEnabled(allRowsValid);
     }
 
-    protected void enableApplyButton() { btnApply.setEnabled(true); }
+
+
+    protected void enableApplyButton() {
+        dirty = true;
+    }
 
     protected VariableTablePanel getNetTablePanel() { return netTablePanel; }
 
@@ -131,6 +141,44 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     }
 
 
+    protected void updateMappingsOnVarNameChange(VariableRow row, String newName) {
+        if (taskInputTablePanel == null) return;   // only net table is showing
+
+        String oldName = row.getName();
+        if (oldName.isEmpty() || oldName.equals(newName)) return;
+
+        String id = row.getDecompositionID();
+        if (id.equals(net.getID())) {
+            for (VariableRow taskRow : getTaskInputTable().getVariables()) {
+                if (taskRow.getMapping().contains(id + "/" + oldName + "/")) {
+                    taskRow.setMapping(createMapping(
+                            id, newName, taskRow.getDataType()));
+                }
+            }
+            for (VariableRow taskRow : getTaskOutputTable().getVariables()) {
+                if (taskRow.getNetVarForOutputMapping().equals(oldName)) {
+                    taskRow.setNetVarForOutputMapping(newName);
+                }
+            }
+        }
+        else if (row.isOutput()) {                 // task output var name change
+            row.setMapping(createMapping(
+                        row.getDecompositionID(), newName, row.getDataType()));
+        }
+    }
+
+
+    private String createMapping(String netID, String varName, String dataType) {
+        StringBuilder s = new StringBuilder("/");
+        s.append(netID)
+         .append("/")
+         .append(varName)
+         .append("/")
+         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                 dataType));
+        return s.toString();
+    }
+
     private YTask getTask(String name) {
         return (YTask) net.getNetElement(name);
     }
@@ -139,26 +187,12 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     private void initialise(YNet net) {
         this.net = net;
         dataHandler = SpecificationModel.getHandler().getDataHandler();
-        initEditModeMap();
         setModal(true);
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
     }
 
-    private void initEditModeMap() {
-        editModeMap = new Hashtable<TableType, Boolean>();
-        for (TableType tableType : TableType.values()) {
-            editModeMap.put(tableType, false);
-        }
-    }
-
-    private boolean isEditingComplete() {
-        for (TableType tableType : TableType.values()) {
-            if (editModeMap.get(tableType)) return false;
-        }
-        return true;
-    }
 
     private JPanel getContentForNetLevel() {
         createNetTablePanel();
@@ -418,6 +452,7 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
             updateVariables(getNetTable(), net);
             updateVariables(getTaskInputTable(), decomposition);
             updateVariables(getTaskOutputTable(), decomposition);
+            dirty = false;
         }
         catch (YDataHandlerException ydhe) {
             JOptionPane.showMessageDialog(this, ydhe.getMessage(),

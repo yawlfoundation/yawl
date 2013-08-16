@@ -13,17 +13,15 @@ public class TextAreaDialog extends JDialog implements ActionListener {
 
     private JTextArea _textArea;
     private String _text;
-    private Component _parent;
-    private boolean _shownBefore;
 
-    public TextAreaDialog(Component parent, String title, String text) {
-        super();
+    public TextAreaDialog(Window parent, String title, String text) {
+        super(parent);
         setModal(true);
         setTitle(title);
         setResizable(false);
+        setLocationRelativeTo(parent);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         _text = text;
-        _parent = parent;
         add(getContent());
         this.setPreferredSize(new Dimension(420, 270));
         pack();
@@ -51,10 +49,6 @@ public class TextAreaDialog extends JDialog implements ActionListener {
     }
 
     public String showDialog() {
-        if (! _shownBefore) {
-            setLocationRelativeTo(_parent);
-            _shownBefore = true;
-        }
         setVisible(true);
         return _text;
     }
