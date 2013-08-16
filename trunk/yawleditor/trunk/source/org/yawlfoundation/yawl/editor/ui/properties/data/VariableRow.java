@@ -16,6 +16,8 @@ class VariableRow {
 
     private String decompositionID;
     private boolean outputOnlyTask;                        // used only for tasks
+    private boolean hasValidName;
+    private Boolean hasValidValue;
 
     private boolean multiInstance;
 
@@ -26,6 +28,7 @@ class VariableRow {
         endValues.dataType = "string";
         endValues.scope = scope;
         endValues.value = "";
+        initialiseValidity();
     }
 
     public VariableRow(YVariable variable, String decompositionID) {
@@ -55,6 +58,16 @@ class VariableRow {
 
     public boolean isOutputOnlyTask() { return outputOnlyTask; }
 
+    public boolean isValid() { return hasValidName && hasValidValue; }
+
+    public boolean isValidName() { return hasValidName; }
+
+    public boolean isValidValue() { return hasValidValue; }
+
+
+    public void setValidValue(boolean valid) { hasValidValue = valid; }
+
+    public void setValidName(boolean valid) { hasValidName = valid; }
 
     public void setMultiInstance(boolean isMultiInstance) {
         multiInstance = isMultiInstance;
@@ -219,8 +232,14 @@ class VariableRow {
 
         endValues = startValues.copy();
         setDecompositionID(netElement);
+        initialiseValidity();
     }
 
+
+    private void initialiseValidity() {
+        hasValidName = true;
+        hasValidValue = true;
+    }
 
     private String getWrappedMapping(String tagName, String mapping) {
         if (StringUtil.isNullOrEmpty(mapping)) return null;

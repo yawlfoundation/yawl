@@ -23,9 +23,9 @@
 package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -40,7 +40,7 @@ public class ReformatDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
     }
 
-    public ReformatDataTypeDialogAction(DataTypeDialogToolBarMenu bar) { }
+    public ReformatDataTypeDialogAction(DataTypeDialogToolBarMenu bar) {}
 
     public void actionPerformed(ActionEvent event) {
         ValidityEditorPane pane = DataTypeDialogToolBarMenu.getEditorPane().getEditor();

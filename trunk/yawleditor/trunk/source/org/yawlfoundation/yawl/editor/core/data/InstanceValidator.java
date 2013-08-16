@@ -7,10 +7,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -42,6 +39,9 @@ public class InstanceValidator {
         String cleansedType = cleanse(dataType);
         String schema;
         if (XSDType.isBuiltInType(cleansedType)) {
+            if (XSDType.getString(XSDType.STRING).equals(cleansedType)) {
+                return Collections.emptyList();                 // strings are always OK
+            }
             schema = getXSDTypeSchema(cleansedType);
         }
         else if (YInternalType.isType(cleansedType)) {

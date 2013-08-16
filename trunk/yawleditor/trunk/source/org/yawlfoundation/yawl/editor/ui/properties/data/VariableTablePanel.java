@@ -27,11 +27,10 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
     private JButton btnDown;
     private JButton btnAdd;
     private JButton btnDel;
-    private JToggleButton btnEdit;
     private JButton btnMapping;
     private JButton btnMIVar;
     private JButton btnExAttributes;
-    private JLabel status;
+    private StatusPanel status;
 
     private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
 
@@ -56,6 +55,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
 
 
     public void valueChanged(ListSelectionEvent event) {
+        enableButtons(true);
         clearStatus();
     }
 
@@ -63,24 +63,19 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
     public VariableTable getTable() { return table; }
 
 
-    public void showErrorStatus(String msg) {
-        status.setForeground(Color.RED);
-        status.setText("    " + msg);
-        if (table.isEditing()) btnEdit.setEnabled(false);
+    public void showErrorStatus(String msg, java.util.List<String> more) {
+        status.set("    " + msg, StatusPanel.ERROR, more);
     }
 
 
-    public void showOKStatus(String msg) {
-        status.setForeground(Color.GRAY);
-        status.setText("    " + msg);
-        btnEdit.setEnabled(true);
+    public void showOKStatus(String msg, java.util.List<String> more) {
+        status.set("    " + msg, StatusPanel.OK, more);
     }
 
 
     public void clearStatus() {
-        status.setText(null);
-        btnEdit.setEnabled(true);
-    }
+        status.clear();
+     }
 
 
     public void showMIButton(boolean show) { btnMIVar.setVisible(show); }
@@ -89,12 +84,8 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
     public void actionPerformed(ActionEvent event) {
         clearStatus();
         String action = event.getActionCommand();
-        if (action.equals("Edit")) {
-            setEditMode(btnEdit.isSelected());
-        }
-        else if (action.equals("Add")) {
+        if (action.equals("Add")) {
             table.addRow();
-            btnEdit.setSelected(true);
             setEditMode(true);
         }
         else if (action.equals("Del")) {
@@ -113,7 +104,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         }
         else if (action.equals("MarkMI")) {
             if (! parent.setMultiInstanceRow(table.getSelectedVariable())) {
-                showErrorStatus("Invalid MI data type");
+                showErrorStatus("Invalid MI data type", null);
             }
         }
         else if (action.equals("ExAt")) {
@@ -172,14 +163,13 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         toolbar.add(btnUp);
         btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
         toolbar.add(btnDown);
-        toolbar.add(createEditButton("pencil", "Edit", " Edit "));
         btnMapping = createToolBarButton("mapping", "Map", " Map ");
         toolbar.add(btnMapping);
         btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
         toolbar.add(btnMIVar);
         btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
         toolbar.add(btnExAttributes);
-        status = new JLabel();
+        status = new StatusPanel(parent);
         toolbar.add(status);
         return toolbar;
     }
@@ -193,15 +183,6 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         return button;
     }
 
-    private JToggleButton createEditButton(String iconName, String action, String tip) {
-        btnEdit = new JToggleButton(getIcon(iconName));
-        btnEdit.setActionCommand(action);
-        btnEdit.setToolTipText(tip);
-        btnEdit.addActionListener(this);
-        btnEdit.setSelectedIcon(getIcon("editPressed"));
-        return btnEdit;
-    }
-
 
     private ImageIcon getIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
@@ -209,20 +190,19 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
 
 
     protected void enableButtons(boolean enable) {
-        boolean hasRows = table.getRowCount() > 0;
+        boolean hasRowSelected = table.getSelectedRow() > -1;
         btnAdd.setEnabled(enable);
-        btnDel.setEnabled(enable && hasRows);
-        btnUp.setEnabled(enable && hasRows);
-        btnDown.setEnabled(enable && hasRows);
-        btnEdit.setEnabled(hasRows);
-        btnMapping.setEnabled(enable && hasRows);
-        btnMIVar.setEnabled(enable && hasRows);
+        btnDel.setEnabled(enable && hasRowSelected);
+        btnUp.setEnabled(enable && hasRowSelected);
+        btnDown.setEnabled(enable && hasRowSelected);
+        btnMapping.setEnabled(enable && hasRowSelected);
+        btnMIVar.setEnabled(enable && hasRowSelected);
+        btnExAttributes.setEnabled(enable && hasRowSelected);
     }
 
-    private void setEditMode(boolean editing) {
-        table.setEditable(editing);
+
+    protected void setEditMode(boolean editing) {
         enableButtons(!editing);
-        parent.setEditMode(tableType, editing);
     }
 
 }

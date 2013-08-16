@@ -17,26 +17,34 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         reset();
         VariableRow varRow = ((VariableTable) table).getTableModel().getVariableAtRow(row);
+        if (isTaskTable(table)) {
+            if (varRow.getMapping() == null) {
+                setFont(getFont().deriveFont(Font.ITALIC));
+            }
+
+            if (varRow.isMultiInstance()) {
+                setForeground(Color.BLUE);
+            }
+        }
         if (table.getColumnName(column).equals("Value")) {
             if (! (varRow.isOutputOnlyTask() || varRow.isLocal())) {
                 setValue("###");
                 setHorizontalAlignment(CENTER);
-                setForeground(Color.GRAY);
+                if (! varRow.isMultiInstance()) setForeground(Color.GRAY);
             }
             else if (varRow.getDataType().equals("boolean")) {
                 JCheckBox checkBox = new JCheckBox();
                 checkBox.setSelected(Boolean.valueOf((String) value));
                 return checkBox;
             }
-        }
-        if (isTaskTable(table)) {
-            if (varRow.getMapping() == null) {
-                setFont(getFont().deriveFont(Font.ITALIC));
-            }
-            if (varRow.isMultiInstance()) {
-                setForeground(Color.BLUE);
+            if (! varRow.isValidValue()) {
+                setForeground(Color.RED);
             }
         }
+        else if (table.getColumnName(column).equals("Name") && ! varRow.isValidName()) {
+            setForeground(Color.RED);
+        }
+
         return this;
     }
 

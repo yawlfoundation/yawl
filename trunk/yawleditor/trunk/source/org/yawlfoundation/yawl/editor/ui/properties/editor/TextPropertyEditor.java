@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.TextAreaDialog;
 
 /**
@@ -25,7 +26,8 @@ public class TextPropertyEditor extends DialogPropertyEditor {
     }
 
     protected void showDialog() {
-        String newText = new TextAreaDialog(editor, "Update text", currentText).showDialog();
+        String newText = new TextAreaDialog(YAWLEditor.getInstance(),
+                "Update text", currentText).showDialog();
         if (! (newText == null || newText.equals(currentText))) {
             String oldText = currentText;
             setValue(newText);

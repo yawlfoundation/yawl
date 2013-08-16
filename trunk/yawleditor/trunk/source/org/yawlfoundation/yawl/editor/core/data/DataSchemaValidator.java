@@ -3,12 +3,10 @@ package org.yawlfoundation.yawl.editor.core.data;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
 import org.yawlfoundation.yawl.schema.SchemaHandler;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -27,9 +25,12 @@ public class DataSchemaValidator {
 
 
     public List<String> getSchemaValidationResults(String schema) {
+        if (StringUtil.isNullOrEmpty(schema)) return Collections.emptyList();
         SchemaHandler validator = new SchemaHandler(schema);
         validator.compileSchema();
-        return validator.getMessages();
+        List<String> messages = validator.getMessages();
+        if (messages.isEmpty()) messages.addAll(checkReservedTypeNames(validator));
+        return messages;
     }
 
     public void setDataTypeSchema(String schema) {
@@ -93,4 +94,37 @@ public class DataSchemaValidator {
     public List<String> validate(String variableName, String complexTypeData) {
         return validate(StringUtil.wrap(complexTypeData, variableName));
     }
+
+
+    private List<String> checkReservedTypeNames(SchemaHandler validator) {
+        List<String> messages = new ArrayList<String>();
+        for (String typeName : validator.getPrimaryTypeNames()) {
+            if (YInternalType.isType(typeName)) {
+                StringBuilder s = new StringBuilder();
+                s.append("Error ")
+                 .append(getNamePosition(typeName, validator.getSchema()))
+                 .append(": [").append(typeName).append("] is a reserved type name.");
+                messages.add(s.toString());
+            }
+        }
+        return messages;
+    }
+
+
+    private String getNamePosition(String typeName, String schema) {
+        int pos = schema.indexOf(typeName);
+        if (pos < 0) return "";
+
+        // count lines
+        int lines=1;
+        int lastLineAt = 0;
+        for (int i=0; i<pos; i++) {
+           if (schema.charAt(i) == '\n') {
+               lines++;
+               lastLineAt = i;
+           }
+        }
+        return lines + ":" + (pos - lastLineAt - 1);
+    }
+
 }

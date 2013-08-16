@@ -20,6 +20,7 @@ class VariableTable extends JSingleSelectTable {
         consumeEnterKeyWraps();
         setModel(model);
         setRowHeight(getRowHeight() + 5);
+        setEditable(true);
         setRowSelectionAllowed(true);
         setFillsViewportHeight(true);            // to allow drops on empty table
     }
@@ -55,11 +56,17 @@ class VariableTable extends JSingleSelectTable {
         return getTableModel().getVariableAtRow(getSelectedRow());
     }
 
+    public boolean allRowsValid() {
+        return getTableModel().allRowsValid();
+    }
+
 
     public void addRow() {
         getTableModel().addRow();
         int row = getRowCount() - 1;
         selectRow(row);
+        editCellAt(row, 0);
+        requestFocusInWindow();
         getTableModel().getVariableAtRow(row).setDecompositionID(netElementName);
         orderChanged = true;
     }
@@ -128,7 +135,7 @@ class VariableTable extends JSingleSelectTable {
 
     /**
      * This method adds a custom action to prevent wrapping to the first table row
-     * when the enter key is pressed while on the last table row - that is , it
+     * when the enter key is pressed while on the last table row - that is, it
      * overrides default enter key behaviour and stays on the last row.
      *
      * Based on code sourced from stackoverflow.com

@@ -42,7 +42,8 @@ public class VariableRowTransferHandler extends TransferHandler {
 
     public boolean canImport(TransferSupport support) {
         boolean ok = isTaskTable(support.getComponent()) && support.isDrop() &&
-                support.isDataFlavorSupported(_variableRowFlavor);
+                support.isDataFlavorSupported(_variableRowFlavor) &&
+                isValidTransferringRow(support);
         _table.setCursor(ok ? DragSource.DefaultCopyDrop : DragSource.DefaultCopyNoDrop);
         return ok;
     }
@@ -58,12 +59,16 @@ public class VariableRowTransferHandler extends TransferHandler {
         // fetch the data and bail if this fails
         VariableRow data;
         try {
-            data = (VariableRow) support.getTransferable().getTransferData(_variableRowFlavor);
+            data = getTransferringRow(support);
         }
         catch (UnsupportedFlavorException e) {
             return false;
         }
         catch (IOException e) {
+            return false;
+        }
+
+        if (! data.isValid()) {
             return false;
         }
 
@@ -82,11 +87,8 @@ public class VariableRowTransferHandler extends TransferHandler {
         _table.insertRow(row, newVariableRow);
 
         Rectangle rect = _table.getCellRect(row, 0, false);
-        if (rect != null) {
-            _table.scrollRectToVisible(rect);
-        }
+        _table.scrollRectToVisible(rect);
         _table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
         return true;
     }
 
@@ -96,12 +98,33 @@ public class VariableRowTransferHandler extends TransferHandler {
     }
 
 
+    private VariableRow getTransferringRow(TransferSupport support)
+            throws UnsupportedFlavorException, IOException {
+        return (VariableRow) support.getTransferable().getTransferData(_variableRowFlavor);
+    }
+
+
+    private boolean isValidTransferringRow(TransferSupport support) {
+        try {
+            VariableRow row = getTransferringRow(support);
+            return (row != null && row.isValid());
+        }
+        catch (UnsupportedFlavorException e) {
+            return false;
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+
     private boolean isUniqueRowName(String name) {
         for (VariableRow row : _table.getVariables()) {
             if (row.getName().equals(name)) {
                 JOptionPane.showMessageDialog(null,
                         "A variable with the same name already exists in this table.",
                         "Transfer Error", JOptionPane.ERROR_MESSAGE);
+                _table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 return false;
             }
         }
