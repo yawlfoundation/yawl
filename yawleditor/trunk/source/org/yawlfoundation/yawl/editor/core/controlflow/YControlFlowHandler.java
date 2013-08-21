@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.editor.core.controlflow;
 
+import org.apache.xerces.util.XMLChar;
+import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.elements.*;
 
@@ -62,7 +64,8 @@ public class YControlFlowHandler {
     }
 
 
-    public YNet createRootNet(String netName) throws YControlFlowHandlerException {
+    public YNet createRootNet(String netName)
+            throws YControlFlowHandlerException, IllegalIdentifierException {
         if (_specification == null) raise("No specification is loaded");
         YNet root = addNet(netName);
         setRootNet(root);
@@ -73,7 +76,8 @@ public class YControlFlowHandler {
 
     public void setRootNet(YNet net) { _specification.setRootNet(net); }
 
-    public YNet addNet(String netName) throws YControlFlowHandlerException {
+    public YNet addNet(String netName)
+            throws YControlFlowHandlerException, IllegalIdentifierException {
         if (_specification == null) raise("No specification is loaded");
         YNet net = createNet(netName);
         _specification.addDecomposition(net);
@@ -102,7 +106,7 @@ public class YControlFlowHandler {
         return null;
     }
 
-    private YNet createNet(String netName) {
+    private YNet createNet(String netName) throws IllegalIdentifierException {
         if (netName == null) netName = "Net";
         YNet net = new YNet(checkID(netName), _specification);
         net.setInputCondition(new YInputCondition(checkID("InputCondition"), net));
@@ -113,7 +117,8 @@ public class YControlFlowHandler {
 
     /*** task decomposition CRUD ***/
 
-    public YAWLServiceGateway addTaskDecomposition(String name) {
+    public YAWLServiceGateway addTaskDecomposition(String name)
+            throws IllegalIdentifierException {
         YAWLServiceGateway gateway = new YAWLServiceGateway(checkID(name), _specification);
         _specification.addDecomposition(gateway);
         return gateway;
@@ -152,7 +157,8 @@ public class YControlFlowHandler {
 
     /*** net elements CRUD ***/
 
-    public YCondition addCondition(String netID, String id) {
+    public YCondition addCondition(String netID, String id)
+            throws IllegalIdentifierException {
         YNet net = getNet(netID);
         if (net != null) {
             YCondition condition = new YCondition(checkID(id), net);
@@ -162,7 +168,8 @@ public class YControlFlowHandler {
         return null;
     }
 
-    public YAtomicTask addAtomicTask(String netID, String id) {
+    public YAtomicTask addAtomicTask(String netID, String id)
+            throws IllegalIdentifierException {
         YNet net = getNet(netID);
         if (net != null) {
             YAtomicTask task = new YAtomicTask(checkID(id), YTask._AND, YTask._XOR, net);
@@ -173,14 +180,16 @@ public class YControlFlowHandler {
     }
 
 
-    public YAtomicTask addMultipleInstanceAtomicTask(String netID, String id) {
+    public YAtomicTask addMultipleInstanceAtomicTask(String netID, String id)
+            throws IllegalIdentifierException {
         YAtomicTask task = addAtomicTask(netID, id);
         setMultiInstance(task);
         return task;
     }
 
 
-    public YCompositeTask addCompositeTask(String netID, String id) {
+    public YCompositeTask addCompositeTask(String netID, String id)
+            throws IllegalIdentifierException {
         YNet net = getNet(netID);
         if (net != null) {
             YCompositeTask task = new YCompositeTask(
@@ -192,7 +201,8 @@ public class YControlFlowHandler {
     }
 
 
-    public YCompositeTask addMultipleInstanceCompositeTask(String netID, String id) {
+    public YCompositeTask addMultipleInstanceCompositeTask(String netID, String id)
+            throws IllegalIdentifierException {
         YCompositeTask task = addCompositeTask(netID, id);
         setMultiInstance(task);
         return task;
@@ -330,8 +340,17 @@ public class YControlFlowHandler {
         _identifiers.rationaliseIfRequired(_specification);
     }
 
-    public String checkID(String id) {
+    public String checkID(String id) throws IllegalIdentifierException {
+        if (! isValidXMLIdentifier(id)) {
+            throw new IllegalIdentifierException("Illegal XML identifier: '" + id + "'");
+        }
         return _identifiers.getIdentifier(id).toString();
+    }
+
+
+    public boolean isValidXMLIdentifier(String id) {
+        return ! (id == null || id.toLowerCase().startsWith("xml")
+                || ! XMLChar.isValidName(id));
     }
 
 

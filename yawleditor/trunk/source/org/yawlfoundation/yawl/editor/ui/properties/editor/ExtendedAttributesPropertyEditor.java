@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.NetTaskPair;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
-import org.yawlfoundation.yawl.elements.YDecomposition;
 
 /**
  * @author Michael Adams
@@ -10,26 +10,30 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
  */
 public class ExtendedAttributesPropertyEditor extends DialogPropertyEditor {
 
-    private YDecomposition decomposition;
+    private NetTaskPair pair;
 
     public ExtendedAttributesPropertyEditor() {
         super(new DefaultCellRenderer());
     }
 
     public Object getValue() {
-        return decomposition;
+        return pair;
     }
 
     public void setValue(Object value) {
-        decomposition = (YDecomposition) value;
-        ((DefaultCellRenderer) label).setValue(
-                decomposition.getAttributes().size() + " defined");
+        pair = (NetTaskPair) value;
+        ((DefaultCellRenderer) label).setValue(pair.getSimpleText());
     }
 
 
     protected void showDialog() {
-        ExtendedAttributesDialog dialog = new ExtendedAttributesDialog(decomposition);
+        ExtendedAttributesDialog dialog =
+                new ExtendedAttributesDialog(pair.getDecomposition());
         dialog.setVisible(true);
+        NetTaskPair oldPair = pair;
+        pair = new NetTaskPair(null, oldPair.getDecomposition(), null);
+        pair.setSimpleText(pair.getDecomposition().getAttributes().size() + " defined");
+        firePropertyChange(oldPair, pair);
     }
 
 }

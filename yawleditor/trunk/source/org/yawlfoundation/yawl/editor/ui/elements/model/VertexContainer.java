@@ -30,6 +30,7 @@ import org.jgraph.graph.GraphConstants;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 public class VertexContainer extends DefaultGraphCell implements YAWLCell {
 
@@ -136,7 +137,7 @@ public class VertexContainer extends DefaultGraphCell implements YAWLCell {
         return null;
     }
 
-    public HashSet getOutgoingFlows() {
+    public Set<YAWLFlowRelation> getOutgoingFlows() {
         if (getSplitDecorator() != null) {
             return getSplitDecorator().getFlows();
         }

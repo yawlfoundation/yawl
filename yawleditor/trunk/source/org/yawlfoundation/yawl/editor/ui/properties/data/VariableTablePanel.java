@@ -15,12 +15,14 @@ import java.awt.event.ActionListener;
  * @author Michael Adams
  * @date 9/08/12
  */
-public class VariableTablePanel extends JPanel implements ActionListener, ListSelectionListener {
+public class VariableTablePanel extends JPanel
+        implements ActionListener, ListSelectionListener {
 
     private VariableTable table;
     private DataVariableDialog parent;
     private JToolBar toolbar;
     private TableType tableType;
+    private boolean isEditing;
 
     // toolbar buttons
     private JButton btnUp;
@@ -55,8 +57,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
 
 
     public void valueChanged(ListSelectionEvent event) {
-        enableButtons(true);
-        clearStatus();
+        enableButtons(! isEditing());
     }
 
 
@@ -121,6 +122,7 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
         return table.getVariables().get(row);
     }
 
+    public boolean isEditing() {return isEditing; }
 
     public void showToolBar(boolean show) { toolbar.setVisible(show); }
 
@@ -202,6 +204,8 @@ public class VariableTablePanel extends JPanel implements ActionListener, ListSe
 
 
     protected void setEditMode(boolean editing) {
+        isEditing = editing;
+        parent.setEditing(editing);
         enableButtons(!editing);
     }
 

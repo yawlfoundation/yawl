@@ -25,7 +25,8 @@ import java.util.*;
  * @author Michael Adams
  * @date 2/08/12
  */
-public class DataVariableDialog extends JDialog implements ActionListener, TableModelListener {
+public class DataVariableDialog extends JDialog
+        implements ActionListener, TableModelListener {
 
     private VariableTablePanel netTablePanel;
     private VariableTablePanel taskInputTablePanel;
@@ -37,7 +38,9 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     private Map<String, String> outputVariableMap;
     private JButton btnOK;
     private JButton btnApply;
+
     private boolean dirty;
+    private boolean isEditing;
 
 
     public DataVariableDialog(YNet net) {
@@ -64,8 +67,9 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
 
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
-        if (! action.equals("Cancel")) {
-            if (dirty) updateVariables();
+        if (! action.equals("Cancel") && dirty && allRowsValid()) {
+            updateVariables();
+            dirty = false;
             btnApply.setEnabled(false);
         }
 
@@ -77,6 +81,9 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
 
     public void tableChanged(TableModelEvent e) {
         dirty = true;
+        if (e.getType() == TableModelEvent.INSERT) {
+            isEditing = true;
+        }
         enableButtonsIfValid();
         VariableTableModel model = (VariableTableModel) e.getSource();
         model.setTableChanged(true);
@@ -85,21 +92,25 @@ public class DataVariableDialog extends JDialog implements ActionListener, Table
     }
 
     protected void enableButtonsIfValid() {
-        boolean allRowsValid = getNetTable().allRowsValid();
-        if (allRowsValid && getTaskInputTable() != null) {
-            allRowsValid = getTaskInputTable().allRowsValid();
-            if (allRowsValid) {
-                allRowsValid = getTaskOutputTable().allRowsValid();
-            }
-        }
+        boolean allRowsValid = ! isEditing && allRowsValid();
         btnApply.setEnabled(allRowsValid && dirty);
         btnOK.setEnabled(allRowsValid);
     }
 
+    protected void setEditing(boolean editing) {
+        isEditing = editing;
+    }
+
+    protected boolean allRowsValid() {
+        return getNetTable().allRowsValid() &&
+                (getTaskInputTable() == null || getTaskInputTable().allRowsValid()) &&
+                (getTaskOutputTable() == null || getTaskOutputTable().allRowsValid());
+    }
 
 
     protected void enableApplyButton() {
         dirty = true;
+        enableButtonsIfValid();
     }
 
     protected VariableTablePanel getNetTablePanel() { return netTablePanel; }

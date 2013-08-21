@@ -14,10 +14,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionListener {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     private AbstractDoneDialog parent;
 

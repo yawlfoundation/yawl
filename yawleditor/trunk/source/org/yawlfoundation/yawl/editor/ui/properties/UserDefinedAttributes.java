@@ -7,11 +7,12 @@ import com.l2fprod.common.beans.editor.StringPropertyEditor;
 import com.l2fprod.common.swing.renderer.BooleanCellRenderer;
 import com.l2fprod.common.swing.renderer.ColorCellRenderer;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.awt.*;
@@ -27,50 +28,75 @@ import java.util.Set;
 public class UserDefinedAttributes {
 
     private Map<String, String> _typeMap;     // name, type
-    private YDecomposition _decomposition;
-    private static UserDefinedAttributes INSTANCE;
+    private YAttributeMap _attributeMap;
+    private UserDefinedAttributesPropertySheet _sheet;
+
+    private OwnerType _ownerClass;
+
+    public enum OwnerType { Decomposition, Parameter }
 
 
-    private UserDefinedAttributes() {
+    private UserDefinedAttributes(UserDefinedAttributesPropertySheet sheet) {
+        _sheet = sheet;
+        _sheet.setUserDefinedAttributes(this);
         _typeMap = new Hashtable<String, String>();
+    }
+
+    public UserDefinedAttributes(UserDefinedAttributesPropertySheet sheet,
+                                 YDecomposition decomposition) {
+        this(sheet);
+        _attributeMap = decomposition.getAttributes();
+        _ownerClass = OwnerType.Decomposition;
         loadAttributes();
     }
 
-    public static UserDefinedAttributes getInstance() {
-        if (INSTANCE == null) INSTANCE = new UserDefinedAttributes();
-        return INSTANCE;
+
+    public UserDefinedAttributes(UserDefinedAttributesPropertySheet sheet,
+                                 YParameter parameter) {
+        this(sheet);
+        _attributeMap = parameter.getAttributes();
+        _ownerClass = OwnerType.Parameter;
+        loadAttributes();
     }
 
 
-    public void setDecomposition(YDecomposition decomposition) {
-        _decomposition = decomposition;
+    public OwnerType getOwnerClass() {
+        return _ownerClass;
     }
-
 
     public Object getValue() {
         String key = getSelectedKey();
-        return (key != null) ? strToObject(key, _decomposition.getAttribute(key)) : null;
+        return (key != null) ? strToObject(key, _attributeMap.get(key)) : null;
     }
+
 
     public void setValue(Object value) {
         String key = getSelectedKey();
         if (key != null) {
-            _decomposition.setAttribute(key, objToString(key, value));
+            String valueStr = objToString(key, value);
+            if (StringUtil.isNullOrEmpty(valueStr)) {    // no value supplied, so del
+                _attributeMap.remove(key);
+            }
+            else {
+                _attributeMap.put(key, valueStr);       // add attr value
+            }
         }
     }
+
 
     public String getType() {
         String key = getSelectedKey();
         return key != null ? _typeMap.get(key) : null;
     }
 
-    public Map<String, String> getMap() { return _typeMap; }
 
-    public Set<String> getNames() { return _typeMap.keySet(); }
+    public Map<String, String> getTypeMap() { return _typeMap; }
+
+    public Set<String> getTypeNames() { return _typeMap.keySet(); }
 
 
-    public Class getEditorClass(String name) {
-        String type = _typeMap.get(name);
+    public Class getEditorClass(String typeName) {
+        String type = _typeMap.get(typeName);
         if (type != null) {
             if (type.equalsIgnoreCase("boolean")) {
                 return BooleanAsCheckBoxPropertyEditor.class;
@@ -154,11 +180,11 @@ public class UserDefinedAttributes {
             return StringUtil.strToDouble(value, 0);
         }
         if (type.equalsIgnoreCase("color")) {
-            if (value == null) return value;
+            if (value == null) return null;
             return hexToColor(value);
         }
         if (type.equalsIgnoreCase("font")) {
-            if (value == null) return value;
+            if (value == null) return null;
             String[] args = value.split(",");
             return new Font(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
         }
@@ -166,16 +192,16 @@ public class UserDefinedAttributes {
     }
 
 
-    public String[] getSelectedListValues() {
-        String type = getType();
-        if (type == null || ! isEnumeration(type)) {
-            return new String[0];
-        }
+    public String[] getListItems(String key) {
+        String type = _typeMap.get(key);
+        if (type == null) return new String[0];
+
         String[] rawItems = type.split("\\{|\\}|,");
 
         // remove 'enumeration'
         String[] items = new String[rawItems.length -1];
         System.arraycopy(rawItems, 1, items,  0, rawItems.length -1);
+
         return items;
     }
 
@@ -185,8 +211,7 @@ public class UserDefinedAttributes {
     }
 
     private String getSelectedKey() {
-        YPropertySheet sheet = YAWLEditor.getPropertySheet();
-        return sheet.getPropertyBeingRead();
+        return _sheet.getPropertyBeingRead();
     }
 
 
@@ -222,9 +247,24 @@ public class UserDefinedAttributes {
         return hex;
     }
 
+
     private void loadAttributes() {
-        String path = UserSettings.getDecompositionAttributesFilePath();
-        if (path == null) path = FileUtilities.getDecompositionPropertiesExtendeAttributePath();
+        String path = null;
+        switch (_ownerClass) {
+            case Decomposition: {
+                path = UserSettings.getDecompositionAttributesFilePath();
+                if (path == null) {
+                    path = FileUtilities.getDecompositionExtendeAttributePath();
+                }
+                break;
+            }
+            case Parameter:
+                path = UserSettings.getVariableAttributesFilePath();
+                if (path == null) {
+                    path = FileUtilities.getVariableExtendedAttributePath();
+                }
+                break;
+        }
         load(path);
     }
 

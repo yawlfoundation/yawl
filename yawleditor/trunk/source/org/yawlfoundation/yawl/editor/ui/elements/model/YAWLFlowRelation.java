@@ -62,8 +62,8 @@ public class YAWLFlowRelation extends DefaultEdge
         GraphConstants.setConnectable(map, true);
         getAttributes().applyMap(map);
 
-//        setPredicate("true()");
-//        setPriority(0);
+        setPredicate("true()");
+        setPriority(shadow.getSource().getPostsetFlows().size() -1);
     }
 
     public boolean connectsTwoTasks() {

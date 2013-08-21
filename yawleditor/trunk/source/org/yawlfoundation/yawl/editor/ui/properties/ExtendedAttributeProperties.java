@@ -16,25 +16,28 @@ import java.io.File;
  */
 public class ExtendedAttributeProperties extends YPropertiesBean {
 
-    private YDecomposition _decomposition;
-    private YParameter _parameter;
     private UserDefinedAttributes _udAttributes;
     private YAttributeMap _attributes;
 
-    private ExtendedAttributeProperties(YPropertySheet sheet) {
+    private ExtendedAttributeProperties(YPropertySheet sheet,
+                                        UserDefinedAttributes udAttributes) {
         super(sheet);
-        _udAttributes = UserDefinedAttributes.getInstance();
+        _udAttributes = udAttributes;
     }
 
-    public ExtendedAttributeProperties(YPropertySheet sheet, YDecomposition decomposition) {
-        this(sheet);
-        _decomposition = decomposition;
+
+    public ExtendedAttributeProperties(YPropertySheet sheet,
+                                       UserDefinedAttributes udAttributes,
+                                       YDecomposition decomposition) {
+        this(sheet, udAttributes);
         _attributes = decomposition.getAttributes();
     }
 
-    public ExtendedAttributeProperties(YPropertySheet sheet, YParameter parameter) {
-        this(sheet);
-        _parameter = parameter;
+
+    public ExtendedAttributeProperties(YPropertySheet sheet,
+                                       UserDefinedAttributes udAttributes,
+                                       YParameter parameter) {
+        this(sheet, udAttributes);
         _attributes = parameter.getAttributes();
     }
 
