@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.schema;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 

@@ -48,7 +48,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public YAttributeMap(Map<String, String> attributes) {
         this();
-        if (attributes != null) this.putAll(attributes);
+        if (attributes != null) putAll(attributes);
     }
 
 
@@ -58,9 +58,9 @@ public class YAttributeMap extends Hashtable<String, String> {
      * any previous contents.
      */
     public void set(Map<String, String> attributes) {
-        this.clear();
+        clear();
         _dynamics.clear();
-        this.putAll(attributes);
+        putAll(attributes);
     }
 
 
@@ -105,7 +105,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      * @return
      */
     public void remove(String key) {
-        if (this.contains(key)) this.remove(key);
+        if (containsKey(key)) super.remove(key);
         else _dynamics.remove(key);
     }
 
@@ -116,7 +116,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public Set<Attribute> toJDOM() {
         Set<Attribute> result = new HashSet<Attribute>();
-        for (String key : this.keySet()) {
+        for (String key : keySet()) {
             result.add(new Attribute(key, this.get(key)));
         }
         for (String key : _dynamics.keySet()) {
@@ -133,9 +133,9 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public void fromJDOM(List<Attribute> jdomAttributes) {
         if (jdomAttributes != null) {
-            this.clear();
+            clear();
             for (Attribute attribute : jdomAttributes) {
-                this.put(attribute.getName(), attribute.getValue());
+                put(attribute.getName(), attribute.getValue());
             }
         }
     }
@@ -175,7 +175,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public String toXML() {
         String xml = "";
-        for (String key : this.keySet()) {
+        for (String key : keySet()) {
              xml += " " + toXML(key);
         }
         return xml;
@@ -189,7 +189,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      */
     public String toXMLElements() {
         String xml = "";
-        for (String key : this.keySet()) {
+        for (String key : keySet()) {
              xml += " " + toXMLElement(key);
         }
         return xml;

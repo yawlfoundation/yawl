@@ -40,6 +40,10 @@ public class SaxonUtil {
     private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
     private static final DOMOutputter _domOutputter = new DOMOutputter();
 
+    static {
+        _compiler.setErrorListener(new SaxonErrorListener());
+    }
+
 
     /**
      * Evaluates an XQuery against a data document
@@ -105,7 +109,12 @@ public class SaxonUtil {
      */
     public static XQueryExecutable compileXQuery(String query)
             throws SaxonApiException {
+        ((SaxonErrorListener) _compiler.getErrorListener()).reset();
         return _compiler.compile(query);
+    }
+
+    public static List<String> getCompilerMessages() {
+        return ((SaxonErrorListener) _compiler.getErrorListener()).getAllMessages();
     }
 
 

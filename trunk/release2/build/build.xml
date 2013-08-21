@@ -182,7 +182,7 @@
     <!-- dbd -->
     <property name="javaAssist" value="javassist-3.17.1-GA.jar"/>
     <!-- hbn -->
-    <property name="jaxen" value="jaxen-1.1.3.jar"/>
+    <property name="jaxen" value="jaxen-1.1.6.jar"/>
     <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>
     <!-- wsi -->
@@ -191,7 +191,7 @@
     <property name="jboss-transaction"
               value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
     <!-- hbn -->
-    <property name="jdom" value="jdom-2.0.1.jar"/>
+    <property name="jdom" value="jdom-2.0.5.jar"/>
     <!-- mul -->
     <property name="jgraph" value="jgraphx.jar"/>
     <!-- mul -->

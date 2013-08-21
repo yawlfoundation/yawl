@@ -211,15 +211,31 @@ public class XNode implements Comparable<XNode> {
     }
 
     public void addContent(String content) {
+        addContent(content, null, null);
+    }
+
+    public void addContent(String content, String nsPrefix, String nsURI) {
         if (content.trim().startsWith(_header)) {
             content = content.substring(_header.length() + 1);
         }
-        XNode tempNode = new XNodeParser(true).parse("<temp>" + content + "</temp>");
+        String wrappedContent = wrapContent(content, nsPrefix, nsURI);
+        XNode tempNode = new XNodeParser(true).parse(wrappedContent);
         if (tempNode != null) {
             for (XNode child : tempNode.getChildren()) {
                 addChild(child);
             }
         }
+    }
+
+    private String wrapContent(String content, String nsPrefix, String nsURI) {
+        StringBuilder s = new StringBuilder("<temp");
+        if (! (nsPrefix == null || nsURI == null)) {
+            s.append(" xmlns:").append(nsPrefix).append("=\"").append(nsURI).append('\"');
+        }
+        s.append('>');
+        s.append(content);
+        s.append("</temp>");
+        return s.toString();
     }
 
 
