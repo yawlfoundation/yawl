@@ -6,7 +6,7 @@ import org.yawlfoundation.yawl.elements.*;
  * @author Michael Adams
  * @date 31/07/13
  */
-public class YCompoundFlow {
+public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
     YFlow _flowFromSource;
     YCondition _implicitCondition;
@@ -162,6 +162,10 @@ public class YCompoundFlow {
             result +=  _implicitCondition.hashCode() + _flowIntoTarget.hashCode();
         }
         return result;
+    }
+
+    public int compareTo(YCompoundFlow other) {
+        return getOrdering() - other.getOrdering();
     }
 
     private void detach(YFlow sourceFlow, YFlow targetFlow) {

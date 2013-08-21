@@ -2,14 +2,15 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
+import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskResourceSet;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,8 +28,8 @@ public class CellProperties extends NetProperties {
 
     protected YAWLVertex vertex;
 
-    protected static String[] DECORATOR = new String[] {"AND", "OR", "XOR", "None"};
-    protected static String[] DECORATOR_POS =
+    protected static final String[] DECORATOR = new String[] {"AND", "OR", "XOR", "None"};
+    protected static final String[] DECORATOR_POS =
             new String[] {"North", "South", "West", "East", "None"};
     protected static final int DECORATOR_POS_OFFSET = 10;
     protected static final int DEFAULT_JOIN_POS = 12;
@@ -239,11 +240,20 @@ public class CellProperties extends NetProperties {
 
 
     private YDecomposition createDecomposition(YDecomposition current) {
-        String newName = JOptionPane.showInputDialog(getSheet(),
-                "Please enter a name for the new Decomposition", getLabel());
-
-        return ! StringUtil.isNullOrEmpty(newName) ?
-                flowHandler.addTaskDecomposition(newName) : current;
+        while (true) {
+            String newName = JOptionPane.showInputDialog(YAWLEditor.getInstance(),
+                    "Please enter a name for the new Decomposition", getLabel());
+            if (newName == null) {
+                break;                 // Cancelled
+            }
+            try {
+                return flowHandler.addTaskDecomposition(newName);
+            }
+            catch (IllegalIdentifierException iie) {
+                showIdentifierWarning("Identifier Name Error", iie.getMessage());
+            }
+        }
+        return current;
     }
 
 
@@ -253,11 +263,15 @@ public class CellProperties extends NetProperties {
                 "Please enter a new name for the Decomposition", getLabel());
         if (! (newID == null || oldID.equals(newID))) {
             try {
+                newID = specHandler.checkID(newID);
                 specHandler.getDataHandler().renameDecomposition(oldID, newID);
                 firePropertyChange("Decomposition", newID);
             }
             catch (YDataHandlerException ydhe) {
                 current.setID(oldID);
+            }
+            catch (IllegalIdentifierException iie) {
+                showIdentifierWarning("Identifier Rename Error", iie.getMessage());
             }
         }
     }
@@ -274,8 +288,7 @@ public class CellProperties extends NetProperties {
     public String getSplit() {
         Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
         setReadOnly("splitPosition", decorator == null);
-        setReadOnly("SplitPredicates",
-                decorator == null || decorator.getType() == SplitDecorator.AND_TYPE);
+        setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
         currentSplitType = decorator != null ? DECORATOR[decorator.getType()] : "None";
         return currentSplitType;
     }
@@ -302,6 +315,20 @@ public class CellProperties extends NetProperties {
                 "None";
     }
 
+    public NetTaskPair getSplitConditions() {
+        NetTaskPair pair = new NetTaskPair((YAWLTask) vertex, graph);
+        if (((YAWLTask) vertex).getOutgoingFlowCount() == 0) {
+            pair.setSimpleText("None");
+        }
+        else {
+            pair.setSimpleText(((YAWLTask) vertex).getOutgoingFlowCount() + " flows");
+        }
+        return pair;
+    }
+
+    public void setSplitConditions(NetTaskPair pair) {}    // handled by dialog
+
+
     public void setSplit(String value) {
         if (! value.equals(currentSplitType)) {
             currentSplitType = value;
@@ -310,8 +337,7 @@ public class CellProperties extends NetProperties {
             if (pos == 14 && type > -1) pos = DEFAULT_SPLIT_POS;
             graph.setSplitDecorator((YAWLTask) vertex, type, pos);
             setDirty();
-            setReadOnly("SplitPredicates", type == -1 ||
-                    ((YAWLTask) vertex).getSplitDecorator().getType() == SplitDecorator.AND_TYPE);
+            setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
             fireDecoratorPositionChange("split", type > -1 ? pos : 14);
         }
     }
@@ -438,9 +464,27 @@ public class CellProperties extends NetProperties {
 
     private void updateVertexID(String id) {
         if (id != null) {
-            vertex.setID(flowHandler.checkID(id));
-            firePropertyChange("id", getId());
-            setDirty();
+            try {
+                vertex.setID(flowHandler.checkID(id));
+                firePropertyChange("id", getId());
+                setDirty();
+            }
+            catch (IllegalIdentifierException iie) {
+                showIdentifierWarning("Identifier Update Error", iie.getMessage());
+            }
         }
+    }
+
+    private void showIdentifierWarning(String title, String message) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+    private boolean shouldEnableSplitConditions() {
+        Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
+        return ! (decorator == null || decorator.getType() == SplitDecorator.AND_TYPE);
+//                ||
+//                decorator.getFlowCount() < 2);  // can't trigger after adding new flow
+
     }
 }

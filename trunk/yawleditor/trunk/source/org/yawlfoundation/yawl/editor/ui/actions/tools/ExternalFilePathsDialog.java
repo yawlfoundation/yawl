@@ -26,7 +26,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
     private JTextField _fldWendy;
 
     public static final String PROPERTY_LOCATION =
-            FileUtilities.getDecompositionPropertiesExtendeAttributePath();
+            FileUtilities.getDecompositionExtendeAttributePath();
 
 
     public ExternalFilePathsDialog() {

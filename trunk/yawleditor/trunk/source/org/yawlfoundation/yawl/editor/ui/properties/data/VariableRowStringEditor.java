@@ -176,7 +176,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     private boolean validateValue(String value) {
         String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
-        return validate(dataType, value);
+        return value.isEmpty() || validate(dataType, value);
     }
 
     private boolean validateType(String dataType) {

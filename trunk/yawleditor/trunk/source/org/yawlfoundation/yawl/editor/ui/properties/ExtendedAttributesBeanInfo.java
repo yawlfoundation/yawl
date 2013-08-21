@@ -5,8 +5,6 @@ import org.yawlfoundation.yawl.editor.ui.properties.editor.ImageFilePropertyEdit
 import org.yawlfoundation.yawl.editor.ui.properties.editor.JustifyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.TextPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.XQueryPropertyEditor;
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 
 /**
  * @author Michael Adams
@@ -14,22 +12,17 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
  */
 public class ExtendedAttributesBeanInfo extends YBeanInfo {
 
-    private YDecomposition _decomposition;
-    private YParameter _parameter;
-
     private static final String CATEGORY = "Ext. Attributes";
 
-    public ExtendedAttributesBeanInfo(YDecomposition decomposition) {
-        super(ExtendedAttributeProperties.class);
-        _decomposition = decomposition;
-        addDecompositionProperties();
-    }
 
-
-    public ExtendedAttributesBeanInfo(YParameter parameter) {
+    public ExtendedAttributesBeanInfo(UserDefinedAttributes udAttributes) {
         super(ExtendedAttributeProperties.class);
-        _parameter = parameter;
-        addParameterProperties();
+        switch (udAttributes.getOwnerClass()) {
+            case Decomposition: addDecompositionProperties(); break;
+            case Parameter: addVariableProperties(); break;
+
+        }
+        addUserDefinedAttributes(udAttributes);
     }
 
 
@@ -64,11 +57,9 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
         addProperty("Title", CATEGORY, null,
                 "Set the Title for the top of the dynamically generated form")
                 .setPropertyEditorClass(TextPropertyEditor.class);
-
-        addUserDefinedAttributes();
     }
 
-    private void addParameterProperties() {
+    private void addVariableProperties() {
         addCommonProperties("field");
         addProperty("Alert", CATEGORY, null,
                 "Set a tailored validation error message for the field");
@@ -126,9 +117,8 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     }
 
 
-    private void addUserDefinedAttributes() {
-        UserDefinedAttributes udAttributes = UserDefinedAttributes.getInstance();
-        for (String name : udAttributes.getNames()) {
+    private void addUserDefinedAttributes(UserDefinedAttributes udAttributes) {
+        for (String name : udAttributes.getTypeNames()) {
             ExtendedPropertyDescriptor property =
                     addProperty("UdAttributeValue", CATEGORY, name, null);
             property.setPropertyEditorClass(udAttributes.getEditorClass(name));

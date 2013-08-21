@@ -36,6 +36,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
@@ -304,8 +305,8 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         }
     }
 
-    public HashSet<YAWLFlowRelation> getOutgoingFlows() {
-        HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+    public Set<YAWLFlowRelation> getOutgoingFlows() {
+        Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
         for (YAWLPort port : getPorts()) {
             if (port != null) {
                 for (Object o : port.getEdges()) {
@@ -345,7 +346,7 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     public YAWLFlowRelation getOnlyOutgoingFlow() {
-        HashSet flows = getOutgoingFlows();
+        Set flows = getOutgoingFlows();
         if (flows.size() == 1) {
             return (YAWLFlowRelation) flows.iterator().next();
         }

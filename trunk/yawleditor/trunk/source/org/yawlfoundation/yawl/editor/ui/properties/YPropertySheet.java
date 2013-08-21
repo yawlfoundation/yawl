@@ -22,7 +22,6 @@ import java.util.Set;
 public class YPropertySheet extends PropertySheetPanel {
 
     private Set<String> _readOnlyProperties;
-    private String propertyBeingRead;
 
     public YPropertySheet() {
         setTable(new YPropertySheetTable());
@@ -70,21 +69,6 @@ public class YPropertySheet extends PropertySheetPanel {
     }
 
 
-    public void readFromObject(Object data) {
-        // cancel pending edits
-        getTable().cancelEditing();
-
-        for (Property property : ((PropertySheetTableModel) getTable().getModel()).getProperties()) {
-            propertyBeingRead = property.getDisplayName();
-            property.readFromObject(data);
-        }
-        repaint();
-    }
-
-
-    public String getPropertyBeingRead() { return propertyBeingRead; }
-
-
     private void registerGlobalEditors() {
         PropertyEditorRegistry editorFactory = (PropertyEditorRegistry) getEditorFactory();
         editorFactory.registerEditor(Color.class, new ColorPropertyEditor());
@@ -99,7 +83,7 @@ public class YPropertySheet extends PropertySheetPanel {
      * Override of table class to allow provision to disable for read-only properties
      * on the fly
      */
-    private class YPropertySheetTable extends PropertySheetTable {
+    protected class YPropertySheetTable extends PropertySheetTable {
 
         public YPropertySheetTable() {
             super();
@@ -130,7 +114,6 @@ public class YPropertySheet extends PropertySheetPanel {
 
             TableCellEditor result = null;
             Property property = item.getProperty();
-            propertyBeingRead = property.getDisplayName();
             PropertyEditor editor = getEditorFactory().createPropertyEditor(property);
             if (editor != null) {
                 result = new CellEditorAdapter(editor);

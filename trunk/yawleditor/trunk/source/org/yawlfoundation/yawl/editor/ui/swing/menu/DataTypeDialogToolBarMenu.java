@@ -24,19 +24,22 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
+import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
-import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
-import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableDataTypeDialogActionListener;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 
 public class DataTypeDialogToolBarMenu extends YToolBar {
 
@@ -100,7 +103,7 @@ public class DataTypeDialogToolBarMenu extends YToolBar {
         copyButton = new YAWLToolBarButton(new CopyDataTypeDialogAction());
         add(copyButton);
         pasteButton = new YAWLToolBarButton(new PasteDataTypeDialogAction());
-        pasteButton.setEnabled(false);
+        pasteButton.setEnabled(shouldEnablePaste());
         add(pasteButton);
         addSeparator();
         add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getUndoAction()));
@@ -145,6 +148,19 @@ public class DataTypeDialogToolBarMenu extends YToolBar {
 
     public String getFindText() {
         return findText.getText();
+    }
+
+
+    private boolean shouldEnablePaste() {
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable contents = clipboard.getContents(null);
+            return contents != null &&
+                contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
 

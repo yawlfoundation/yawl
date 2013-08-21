@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.editor.core;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.util.FileOperations;
@@ -84,6 +85,9 @@ public class YSpecificationHandler {
 
     public YResourceHandler getResourceHandler() { return _resourceHandler; }
 
+    public String checkID(String id) throws IllegalIdentifierException {
+        return _controlFlowHandler.checkID(id);
+    }
 
     /******************************************************************************/
     // MetaData Settings //

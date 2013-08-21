@@ -3,10 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.Binder;
-import org.yawlfoundation.yawl.editor.ui.properties.ExtendedAttributeProperties;
-import org.yawlfoundation.yawl.editor.ui.properties.ExtendedAttributesBeanInfo;
-import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
+import org.yawlfoundation.yawl.editor.ui.properties.*;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
@@ -29,7 +26,7 @@ import java.awt.event.ActionListener;
 public class ExtendedAttributesDialog extends JDialog implements ActionListener {
 
     private JButton btnDel;
-    private YPropertySheet propertySheet;
+    private UserDefinedAttributesPropertySheet propertySheet;
     private YAttributeMap attributes;
 
     private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
@@ -65,6 +62,7 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
         if (action.equals("OK")) {
+            propertySheet.getTable().commitEditing();
             setVisible(false);
         }
         else if (action.equals("Add")) {
@@ -78,7 +76,7 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
 
     private void initialise() {
-        propertySheet = new YPropertySheet();      // must be created first up
+        propertySheet = new UserDefinedAttributesPropertySheet();  // must be created first up
         setModal(true);
         setResizable(true);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -87,20 +85,29 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
     private void setUp(YDecomposition decomposition) {
         attributes = decomposition.getAttributes();
+        UserDefinedAttributes udAttributes =
+                new UserDefinedAttributes(propertySheet, decomposition);
         ExtendedAttributeProperties properties =
-                new ExtendedAttributeProperties(propertySheet, decomposition);
-        new Binder(properties, new ExtendedAttributesBeanInfo(decomposition));
+                new ExtendedAttributeProperties(propertySheet, udAttributes, decomposition);
+        bind(properties, udAttributes);
         setTitle("Attributes for Decomposition: " + decomposition.getID());
     }
 
     private void setUp(YParameter parameter) {
         attributes = parameter.getAttributes();
+        UserDefinedAttributes udAttributes =
+                new UserDefinedAttributes(propertySheet, parameter);
         ExtendedAttributeProperties properties =
-                new ExtendedAttributeProperties(propertySheet, parameter);
-        new Binder(properties, new ExtendedAttributesBeanInfo(parameter));
+                new ExtendedAttributeProperties(propertySheet, udAttributes, parameter);
+        bind(properties, udAttributes);
         setTitle("Attributes for Variable: " + parameter.getPreferredName());
     }
 
+
+    private void bind(ExtendedAttributeProperties properties,
+                      UserDefinedAttributes udAttributes) {
+        new Binder(properties, new ExtendedAttributesBeanInfo(udAttributes));
+    }
 
 
     private void completeInitialisation() {

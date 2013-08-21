@@ -81,10 +81,10 @@ public class CellBeanInfo extends NetBeanInfo {
             addProperty("splitPosition", _category, "Split Position",
                     "Where the split is located on the selected task")
                     .setPropertyEditorClass(DecoratorPosEditor.class);
-            addProperty("SplitPredicates", _category, "Split Predicates",
+            addProperty("SplitConditions", _category, "Split Conditions",
                     "Specify expressions for each outgoing flow to prioritise runtime" +
                             " control-flow")
-                    .setPropertyEditorClass(SplitPredicatePropertyEditor.class);
+                    .setPropertyEditorClass(SplitConditionPropertyEditor.class);
             addProperty("ViewCancelSet", _category, "View Cancel Set",
                     "Display this task's cancellation set");
 

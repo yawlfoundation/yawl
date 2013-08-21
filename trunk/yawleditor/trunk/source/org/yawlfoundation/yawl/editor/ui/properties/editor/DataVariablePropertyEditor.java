@@ -11,7 +11,6 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
  */
 public class DataVariablePropertyEditor extends DialogPropertyEditor {
 
-    private String currentText;
     private NetTaskPair netTaskPair;
 
     public DataVariablePropertyEditor() {
@@ -24,8 +23,7 @@ public class DataVariablePropertyEditor extends DialogPropertyEditor {
 
     public void setValue(Object value) {
         netTaskPair = (NetTaskPair) value;
-        currentText = netTaskPair.getSimpleText();
-        ((DefaultCellRenderer) label).setValue(currentText);
+        ((DefaultCellRenderer) label).setValue(netTaskPair.getSimpleText());
     }
 
     protected void showDialog() {

@@ -16,17 +16,14 @@ import org.yawlfoundation.yawl.logging.YLogPredicate;
 public class DecompositionProperties extends CellProperties {
 
     private YDecomposition _decomposition;
-    private UserDefinedAttributes _udAttributes;
 
     public DecompositionProperties() {
         super();
-        _udAttributes = UserDefinedAttributes.getInstance();
     }
 
     protected void setVertex(YAWLVertex vertex) {
         super.setVertex(vertex);
         _decomposition = ((YAWLTask) vertex).getDecomposition();
-        _udAttributes.setDecomposition(_decomposition);
         setReadOnly("CustomService", _decomposition instanceof YNet);
     }
 
@@ -152,11 +149,15 @@ public class DecompositionProperties extends CellProperties {
     }
 
 
-    public YDecomposition getExtAttributes() {
-        return _decomposition;
+    public NetTaskPair getExtAttributes() {
+        NetTaskPair pair = new NetTaskPair(null, _decomposition, null);
+        pair.setSimpleText(_decomposition.getAttributes().size() + " defined");
+        return pair;
     }
 
-    public void setExtAttributes(YDecomposition value) { }
+    public void setExtAttributes(NetTaskPair pair) {
+        // all handled by dialog
+    }
 
 
     /****************************************************************************/

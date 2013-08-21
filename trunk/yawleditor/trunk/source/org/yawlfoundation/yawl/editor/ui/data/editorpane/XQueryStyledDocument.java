@@ -41,7 +41,6 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument {
                 return;
             }
 
-
             // timer expression
             if (getEditor().getText().matches(
                     "^\\s*timer\\(\\w+\\)\\s*!?=\\s*'(dormant|active|closed|expired)'\\s*$")) {
@@ -51,7 +50,8 @@ class XQueryStyledDocument extends AbstractXMLStyledDocument {
 
             try {
                 SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
-                setContentValidity(Validity.VALID);
+                errorList = SaxonUtil.getCompilerMessages();
+                setContentValidity(errorList.isEmpty() ? Validity.VALID : Validity.INVALID);
             }
             catch (SaxonApiException e) {
                 errorList.add(e.getMessage().split("\n")[1].trim());

@@ -81,40 +81,35 @@ public class XMLUtilities {
   public static boolean isValidXMLName(String name) {
       if (name == null) return false;
 
-       // ensure that XML standard reserved names are not used
+      // ensure that XML standard reserved names are not used
       String trimmedName = name.trim();
       if (trimmedName.length() == 0 || trimmedName.toUpperCase().startsWith("XML")) {
           return false;
       }
 
-     // test that name starts with a valid XML name-starting character
-     char firstChar = trimmedName.charAt(0);
-    if (! (Character.isLetter(firstChar) || firstChar == '_')) return false;
-    
-    // test that remainder name chars are a valid XML name characters 
+      // test that name starts with a valid XML name-starting character
+      char firstChar = trimmedName.charAt(0);
+      if (! (Character.isLetter(firstChar) || firstChar == '_')) return false;
+
+      // test that remainder name chars are a valid XML name characters
       boolean currentCharacterValid;
 
-    if (name.trim().length()>0) {
-      for(int i = 1; i < trimmedName.length(); i++) {
-        currentCharacterValid = false;
-        
-        if (Character.isUpperCase(trimmedName.charAt(i)) ||
-            Character.isLowerCase(trimmedName.charAt(i)) || 
-            Character.isDigit(trimmedName.charAt(i))) {
-          currentCharacterValid = true;
-        }
+      if (name.trim().length()>0) {
+          for(int i = 1; i < trimmedName.length(); i++) {
+              char c = trimmedName.charAt(i);
+              currentCharacterValid = Character.isLetter(c) ||
+                      Character.isDigit(c);
 
-        if (trimmedName.charAt(i) == '_' || trimmedName.charAt(i) == '-' ||
-            trimmedName.charAt(i) == '.') {
-          currentCharacterValid = true;
-        }
+              if (c == '_' || c == '-' || c == '.') {
+                  currentCharacterValid = true;
+              }
 
-        if (!currentCharacterValid) {
-          return false;
-        }
+              if (!currentCharacterValid) {
+                  return false;
+              }
+          }
       }
-    }
-    return true;
+      return true;
   }
   
   /**

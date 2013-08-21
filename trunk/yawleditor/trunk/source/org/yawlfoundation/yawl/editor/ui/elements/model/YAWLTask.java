@@ -224,7 +224,7 @@ public abstract class YAWLTask extends YAWLVertex {
                 getJoinDecorator().getFlowCount() : super.getIncomingFlows().size();
     }
 
-    public HashSet<YAWLFlowRelation> getOutgoingFlows() {
+    public Set<YAWLFlowRelation> getOutgoingFlows() {
         if (hasSplitDecorator()) {
             return getSplitDecorator().getFlows();
         }
