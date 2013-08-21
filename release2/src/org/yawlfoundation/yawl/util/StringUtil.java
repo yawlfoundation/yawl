@@ -636,7 +636,8 @@ public class StringUtil {
                 position < 0 || position > base.length() - 1) {
             return base;
         }
-        StringBuilder sb = new StringBuilder(base);
+        StringBuilder sb = new StringBuilder(base.length() + addition.length());
+        sb.append(base);
         sb.insert(position, addition);
         return sb.toString();
     }
