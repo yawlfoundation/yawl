@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
+import com.l2fprod.common.beans.ExtendedPropertyDescriptor;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -11,7 +12,6 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToolBarButton;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,6 +27,9 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
     private JButton btnDel;
     private UserDefinedAttributesPropertySheet propertySheet;
+    private UserDefinedAttributesBinder udAttributes;
+    private ExtendedAttributesBeanInfo attributesBeanInfo;
+    private ExtendedAttributeProperties properties;
     private YAttributeMap attributes;
 
     private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
@@ -39,10 +42,11 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
         completeInitialisation();
     }
 
-    public ExtendedAttributesDialog(JDialog owner, YParameter parameter) {
+    public ExtendedAttributesDialog(JDialog owner, YAttributeMap attributes,
+                                    String varName) {
         super(owner);
         initialise();
-        setUp(parameter);
+        setUp(attributes, varName);
         completeInitialisation();
     }
 
@@ -66,10 +70,18 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
             setVisible(false);
         }
         else if (action.equals("Add")) {
-            // add
+            addUdAttribute();
         }
         else if (action.equals("Del")) {
-            // del
+            String name = propertySheet.getPropertyBeingRead();
+            if (name != null) {
+                if (propertySheet.removeProperty(name)) {
+                    udAttributes.remove(name);
+                }
+                else {
+                    // not a user-defined attribute
+                }
+            }
         }
     }
 
@@ -85,28 +97,27 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
     private void setUp(YDecomposition decomposition) {
         attributes = decomposition.getAttributes();
-        UserDefinedAttributes udAttributes =
-                new UserDefinedAttributes(propertySheet, decomposition);
-        ExtendedAttributeProperties properties =
-                new ExtendedAttributeProperties(propertySheet, udAttributes, decomposition);
+        udAttributes = new UserDefinedAttributesBinder(propertySheet, decomposition);
+        properties = new ExtendedAttributeProperties(propertySheet, udAttributes,
+                decomposition);
         bind(properties, udAttributes);
         setTitle("Attributes for Decomposition: " + decomposition.getID());
     }
 
-    private void setUp(YParameter parameter) {
-        attributes = parameter.getAttributes();
-        UserDefinedAttributes udAttributes =
-                new UserDefinedAttributes(propertySheet, parameter);
-        ExtendedAttributeProperties properties =
-                new ExtendedAttributeProperties(propertySheet, udAttributes, parameter);
+    private void setUp(YAttributeMap attributes, String varName) {
+        this.attributes = attributes;
+        udAttributes = new UserDefinedAttributesBinder(propertySheet, attributes);
+        properties = new ExtendedAttributeProperties(propertySheet, udAttributes,
+                attributes);
         bind(properties, udAttributes);
-        setTitle("Attributes for Variable: " + parameter.getPreferredName());
+        setTitle("Attributes for Variable: " + varName);
     }
 
 
     private void bind(ExtendedAttributeProperties properties,
-                      UserDefinedAttributes udAttributes) {
-        new Binder(properties, new ExtendedAttributesBeanInfo(udAttributes));
+                      UserDefinedAttributesBinder udAttributes) {
+        attributesBeanInfo = new ExtendedAttributesBeanInfo(udAttributes);
+        new Binder(properties, attributesBeanInfo);
     }
 
 
@@ -184,6 +195,27 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
         button.setPreferredSize(new Dimension(70,25));
         button.addActionListener(this);
         return button;
+    }
+
+
+    private void addUdAttribute() {
+        AddUserDefinedAttributeDialog dialog = new AddUserDefinedAttributeDialog(this);
+        dialog.setVisible(true);
+        if (! dialog.isCancelled()) {
+            String name = dialog.getName();
+            String type = dialog.getType();
+            if (propertySheet.uniquePropertyName(name)) {
+                udAttributes.add(name, type);
+                ExtendedPropertyDescriptor property =
+                    attributesBeanInfo.addProperty("UdAttributeValue");
+                property.setCategory("Ext. Attributes");
+                property.setDisplayName(name);
+                property.setPropertyEditorClass(udAttributes.getEditorClass(name));
+                property.setPropertyTableRendererClass(udAttributes.getRendererClass(name));
+                propertySheet.setProperties(attributesBeanInfo.getPropertyDescriptors());
+                propertySheet.readFromObject(properties);
+            }
+        }
     }
 
 

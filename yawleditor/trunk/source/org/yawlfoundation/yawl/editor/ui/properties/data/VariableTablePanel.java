@@ -2,7 +2,6 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -110,9 +109,11 @@ public class VariableTablePanel extends JPanel
         }
         else if (action.equals("ExAt")) {
             VariableRow row = table.getSelectedVariable();
-            YParameter parameter = parent.getParameter(row.getName(), row.getUsage());
-            if (parameter != null) {
-                new ExtendedAttributesDialog(parent, parameter).setVisible(true);
+            if (row != null) {
+                new ExtendedAttributesDialog(parent, row.getAttributes(), row.getName())
+                        .setVisible(true);
+                table.getTableModel().setTableChanged(true);     // to flag update
+                parent.enableApplyButton();
             }
         }
     }

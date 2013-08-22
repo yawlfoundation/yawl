@@ -500,6 +500,9 @@ public class DataVariableDialog extends JDialog
                 if (isTaskTable(table) && row.isMultiInstance() && row.isMIQueryChange()) {
                     handleMIQueryChange(row);         // only task tables have mappings
                 }
+                if (isTaskTable(table) && row.isAttributeChange()) {
+                    handleAttributeChange(row, host);
+                }
             }
             else if (row.isNew()) {
                 handleNewRow(row, host);
@@ -583,11 +586,17 @@ public class DataVariableDialog extends JDialog
     }
 
 
+    private void handleAttributeChange(VariableRow row, YDecomposition host)
+            throws YDataHandlerException {
+        dataHandler.setVariableAttributes(host.getID(), row.getName(),
+                row.getAttributes(), row.getUsage());
+    }
+
     private void handleNewRow(VariableRow row, YDecomposition host)
             throws YDataHandlerException {
         String ns = "http://www.w3.org/2001/XMLSchema";
         dataHandler.addVariable(host.getID(), row.getName(), row.getDataType(),
-                    ns, row.getUsage(), row.getValue());
+                    ns, row.getUsage(), row.getValue(), row.getAttributes());
     }
 
 

@@ -121,40 +121,20 @@ public class XMLUtilities {
    */
   
   public static String toValidXMLName(String name) {
-    
-    char[] nameAsCharArray = name.toCharArray();
-    char[] newNameAsCharArray = new char[nameAsCharArray.length];
-    
-    boolean currentCharacterValid = false;
-    int j = 0;
+      if (name == null) return null;
 
-    for(int i = 0; i < nameAsCharArray.length; i++) {
-      currentCharacterValid = false;
-      
-      if (nameAsCharArray[i] == ' ') {
-        nameAsCharArray[i] = '_';
+      StringBuilder s = new StringBuilder(name.length());
+      for (char c : name.toCharArray()) {
+          if (c == ' ') {
+              s.append('_');
+          }
+          else if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.') {
+              s.append(c);
+          }
       }
-
-      if (Character.isLetterOrDigit(nameAsCharArray[i])) {
-        currentCharacterValid = true;
-      }
-      
-      if (nameAsCharArray[i] == '_' || nameAsCharArray[i] == '-' ||
-          nameAsCharArray[i] == '.') {
-        currentCharacterValid = true;
-      }
-
-      if (currentCharacterValid) {
-        newNameAsCharArray[j] = nameAsCharArray[i];
-        j++;
-      }
-    }
-
-    String validElementName = new String(newNameAsCharArray);
-    validElementName = validElementName.trim();
-    
-    return validElementName;
+      return s.toString();
   }
+
 
   /**
    * Tests the supplied character to determine whether it is a 

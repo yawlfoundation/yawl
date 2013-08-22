@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 
@@ -465,7 +466,7 @@ public class CellProperties extends NetProperties {
     private void updateVertexID(String id) {
         if (id != null) {
             try {
-                vertex.setID(flowHandler.checkID(id));
+                vertex.setID(flowHandler.checkID(XMLUtilities.toValidXMLName(id)));
                 firePropertyChange("id", getId());
                 setDirty();
             }

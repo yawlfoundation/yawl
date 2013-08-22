@@ -157,7 +157,7 @@ public class FileUtilities {
    * Returns the absolute path of the decomposition extended attribute properties plugin file
    * @return
    */
-  public static String getDecompositionExtendeAttributePath() {
+  public static String getDecompositionAttributePath() {
     return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
            System.getProperty("file.separator") + 
            DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES;
@@ -167,7 +167,7 @@ public class FileUtilities {
    * Returns the absolute path of the variable extended attribute properties plugin file
    * @return
    */
-  public static String getVariableExtendedAttributePath() {
+  public static String getVariableAttributePath() {
     return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
            System.getProperty("file.separator") + 
            VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;

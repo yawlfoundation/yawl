@@ -240,13 +240,15 @@ public class YDataHandler {
      * @param value the initial (if LOCAL) or default (if OUTPUT only) value to assign
      *              to the variable. The value is ignored if the scope is not LOCAL or
      *              OUTPUT only. May be null.
+     * @param attributes the extended attributes for the variable. May be null.
      * @throws YDataHandlerException if there is no specification associated with this
      * handler, or it has no net or task decomposition with the specified id, or the
      * 'scope' parameter is invalid, or the net or task decomposition already has a
      * variable of that name
      */
     public void addVariable(String decompositionID, String name, String dataType,
-                            String namespace, int scope, String value)
+                            String namespace, int scope, String value,
+                            YAttributeMap attributes)
             throws YDataHandlerException {
         checkParameterType(scope);
         YDecomposition decomposition = getDecomposition(decompositionID);
@@ -260,11 +262,13 @@ public class YDataHandler {
         if (scope == INPUT || scope == INPUT_OUTPUT) {
             YParameter parameter = new YParameter(decomposition, INPUT);
             parameter.setDataTypeAndName(dataType, name, namespace);
+            if (attributes != null) parameter.setAttributes(attributes);
             decomposition.addInputParameter(parameter);
         }
         if (scope == OUTPUT || scope == INPUT_OUTPUT) {
             YParameter parameter = new YParameter(decomposition, OUTPUT);
             parameter.setDataTypeAndName(dataType, name, namespace);
+            if (attributes != null) parameter.setAttributes(attributes);
             decomposition.addOutputParameter(parameter);
             if (! isInputOutput(decomposition, name, dataType)) {
                 parameter.setDefaultValue(value);
@@ -322,7 +326,7 @@ public class YDataHandler {
                         String dataType, int scope) throws YDataHandlerException {
         checkParameterType(scope);
         YDecomposition decomposition = getDecomposition(decompositionID);
-        boolean success = false;
+        boolean success = true;
         if (scope == LOCAL) {
             if (decomposition instanceof YNet) {
                 return setVariableDataType(((YNet) decomposition).getLocalVariables()
@@ -340,6 +344,34 @@ public class YDataHandler {
                 success = success && setVariableDataType(
                         decomposition.getOutputParameters().get(variableName), dataType);
             }
+        }
+        return success;
+    }
+
+
+    /**
+      * Sets or updates the extended attributes of a task-level variable.
+      * @param decompositionID the id of the net or task decomposition
+      * @param variableName the name of the variable to change
+      * @param attributes the attributes to set for the variable
+      * @param scope one of INPUT, OUTPUT or INPUT_OUTPUT
+      * @return true if successful, false if a task-level variable of that name doesn't exist
+      * @throws YDataHandlerException if there is no specification associated with this
+      * handler, or it has no net or task decomposition with the specified id, or the
+      * 'scope' parameter is invalid
+      */
+    public boolean setVariableAttributes(String decompositionID, String variableName,
+                      YAttributeMap attributes, int scope) throws YDataHandlerException {
+        checkParameterType(scope);
+        YDecomposition decomposition = getDecomposition(decompositionID);
+        boolean success = true;
+        if (scope == INPUT || scope == INPUT_OUTPUT) {
+            success = setVariableAttributes(
+                    decomposition.getInputParameters().get(variableName), attributes);
+        }
+        if (scope == OUTPUT || scope == INPUT_OUTPUT) {
+            success = success && setVariableAttributes(
+                    decomposition.getOutputParameters().get(variableName), attributes);
         }
         return success;
     }
@@ -1205,6 +1237,20 @@ public class YDataHandler {
         }
         return variable != null;
     }
+
+
+    /**
+     * Modifies a variable's extended attribute map
+     * @param variable the variable to modify
+     * @param attributes the attributes to assign
+     * @return true if successful, false if the variable is null
+     */
+    private boolean setVariableAttributes(YVariable variable, YAttributeMap attributes) {
+         if (variable != null) {
+             variable.setAttributes(attributes);
+         }
+         return variable != null;
+     }
 
 
     /**
