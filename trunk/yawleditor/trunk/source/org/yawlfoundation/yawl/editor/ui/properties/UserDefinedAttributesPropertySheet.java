@@ -14,7 +14,7 @@ import java.beans.PropertyEditor;
  */
 public class UserDefinedAttributesPropertySheet extends YPropertySheet {
 
-    private UserDefinedAttributes udAttributes;
+    private UserDefinedAttributesBinder udAttributes;
     private String propertyBeingRead;
 
     public UserDefinedAttributesPropertySheet() {
@@ -24,19 +24,41 @@ public class UserDefinedAttributesPropertySheet extends YPropertySheet {
         setPropertySortingComparator(new PropertySorter());
     }
 
-    public void setUserDefinedAttributes(UserDefinedAttributes attributes) {
+    public void setUserDefinedAttributes(UserDefinedAttributesBinder attributes) {
         udAttributes = attributes;
     }
 
     public void readFromObject(Object data) {
-        // cancel pending edits
-        getTable().cancelEditing();
+        getTable().cancelEditing();    // cancel pending edits
 
         for (Property property : ((PropertySheetTableModel) getTable().getModel()).getProperties()) {
             propertyBeingRead = property.getDisplayName();
             property.readFromObject(data);
         }
         repaint();
+    }
+
+    public boolean removeProperty(String name) {
+        for (Property property : getProperties()) {
+            if (property.getName().equals("UdAttributeValue") &&
+                    property.getDisplayName().equals(name)) {
+                removeProperty(property);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public boolean uniquePropertyName(String name) {
+        for (Property property : getProperties()) {
+            if (property.getName().equals(name) ||
+                    (property.getName().equals("UdAttributeValue") &&
+                    property.getDisplayName().equals(name))) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -66,7 +88,6 @@ public class UserDefinedAttributesPropertySheet extends YPropertySheet {
             if (editor != null) {
                 result = new CellEditorAdapter(editor);
 
-                // Remove 'Rename' item from decomposition name combo if name is 'None'
                 if (editor instanceof UserDefinedListPropertyEditor) {
                     ((UserDefinedListPropertyEditor) editor).setAvailableValues(
                             udAttributes.getListItems(propertyBeingRead));

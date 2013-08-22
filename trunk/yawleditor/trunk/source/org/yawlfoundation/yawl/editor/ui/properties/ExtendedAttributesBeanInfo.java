@@ -15,7 +15,7 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     private static final String CATEGORY = "Ext. Attributes";
 
 
-    public ExtendedAttributesBeanInfo(UserDefinedAttributes udAttributes) {
+    public ExtendedAttributesBeanInfo(UserDefinedAttributesBinder udAttributes) {
         super(ExtendedAttributeProperties.class);
         switch (udAttributes.getOwnerClass()) {
             case Decomposition: addDecompositionProperties(); break;
@@ -117,8 +117,8 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     }
 
 
-    private void addUserDefinedAttributes(UserDefinedAttributes udAttributes) {
-        for (String name : udAttributes.getTypeNames()) {
+    private void addUserDefinedAttributes(UserDefinedAttributesBinder udAttributes) {
+        for (String name : udAttributes.getNames()) {
             ExtendedPropertyDescriptor property =
                     addProperty("UdAttributeValue", CATEGORY, name, null);
             property.setPropertyEditorClass(udAttributes.getEditorClass(name));

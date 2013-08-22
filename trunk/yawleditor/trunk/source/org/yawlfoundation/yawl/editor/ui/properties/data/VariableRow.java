@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -28,6 +29,7 @@ class VariableRow {
         endValues.dataType = "string";
         endValues.scope = scope;
         endValues.value = "";
+        endValues.attributes = new YAttributeMap();
         initialiseValidity();
     }
 
@@ -116,6 +118,17 @@ class VariableRow {
     public void setUsage(int scope) { endValues.scope = scope; }
 
     public boolean isUsageChange() { return startValues.scope != endValues.scope; }
+
+
+    public YAttributeMap getAttributes() { return endValues.attributes; }
+
+    public void setAttributes(YAttributeMap attributes) {
+        endValues.attributes = attributes;
+    }
+
+    public boolean isAttributeChange() {
+        return ! startValues.attributes.equals(endValues.attributes);
+    }
 
 
     public String getMapping() { return endValues.mapping; }
@@ -212,6 +225,7 @@ class VariableRow {
         startValues = new Values();
         startValues.name = variable.getName();
         startValues.dataType = variable.getDataTypeName();
+        startValues.attributes = variable.getAttributes();
         startValues.value = null;
         if (isInputOutput) {
             startValues.scope = YDataHandler.INPUT_OUTPUT;
@@ -259,7 +273,8 @@ class VariableRow {
         String value;
         String mapping;
         String netVarThisMapsTo;       // output params only
-        String miQuery;               // mi params only
+        String miQuery;                // mi params only
+        YAttributeMap attributes;
 
         public Values copy() {
             Values copy = new Values();
@@ -270,6 +285,7 @@ class VariableRow {
             copy.mapping = mapping;
             copy.netVarThisMapsTo = netVarThisMapsTo;
             copy.miQuery = miQuery;
+            copy.attributes = new YAttributeMap(attributes);
             return copy;
         }
 
@@ -280,7 +296,8 @@ class VariableRow {
                     equals(dataType, other.dataType) && equals(value, other.value) &&
                     equals(mapping, other.mapping) &&
                     equals(netVarThisMapsTo, other.netVarThisMapsTo) &&
-                    equals(miQuery, other.miQuery);
+                    equals(miQuery, other.miQuery) &&
+                    attributes.equals(other.attributes);
         }
 
         public int hashCode() {

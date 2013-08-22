@@ -3,7 +3,6 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -16,18 +15,18 @@ import java.io.File;
  */
 public class ExtendedAttributeProperties extends YPropertiesBean {
 
-    private UserDefinedAttributes _udAttributes;
+    private UserDefinedAttributesBinder _udAttributes;
     private YAttributeMap _attributes;
 
     private ExtendedAttributeProperties(YPropertySheet sheet,
-                                        UserDefinedAttributes udAttributes) {
+                                        UserDefinedAttributesBinder udAttributes) {
         super(sheet);
         _udAttributes = udAttributes;
     }
 
 
     public ExtendedAttributeProperties(YPropertySheet sheet,
-                                       UserDefinedAttributes udAttributes,
+                                       UserDefinedAttributesBinder udAttributes,
                                        YDecomposition decomposition) {
         this(sheet, udAttributes);
         _attributes = decomposition.getAttributes();
@@ -35,10 +34,10 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
 
     public ExtendedAttributeProperties(YPropertySheet sheet,
-                                       UserDefinedAttributes udAttributes,
-                                       YParameter parameter) {
+                                       UserDefinedAttributesBinder udAttributes,
+                                       YAttributeMap attributes) {
         this(sheet, udAttributes);
-        _attributes = parameter.getAttributes();
+        _attributes = attributes;
     }
 
 
