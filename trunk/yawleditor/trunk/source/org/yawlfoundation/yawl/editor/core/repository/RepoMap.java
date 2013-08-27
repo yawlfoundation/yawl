@@ -102,12 +102,12 @@ public class RepoMap {
         return BACKINGSTORE_DIR + File.separatorChar + fileName + ".xml";
     }
 
-    // makes a name unique by appending and underscore and digit, if it already exists
+    // makes a name unique by appending and underscore and digit(s), if it already exists
     private String getUniqueName(String name) {
         if (! _map.containsKey(name)) return name;
 
         String uniqueName = name;
-        int i = 0;
+        int i = 1;
         while (_map.containsKey(uniqueName)) {
             uniqueName = name + "_" + i++;
         }
@@ -132,7 +132,7 @@ public class RepoMap {
 
 
     // saves all the records in this map to file
-    private void save() {
+    protected void save() {
         XNode repository = new XNode("repository");
         for (RepoRecord record : _map.values()) {
             repository.addChild(record.toXNode());

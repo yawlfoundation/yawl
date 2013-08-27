@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.FontColor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FontDialog;
 
@@ -37,7 +38,7 @@ public class FontPropertyEditor extends DialogPropertyEditor {
 
 
     protected void showDialog() {
-        FontDialog dialog = new FontDialog(editor, currentFont);
+        FontDialog dialog = new FontDialog(YAWLEditor.getInstance(), currentFont);
         if (colour != null) dialog.setColour(colour);
         Font newFont = dialog.showDialog();
 

@@ -95,6 +95,7 @@ public class VariableRowTransferHandler extends TransferHandler {
 
     protected void exportDone(JComponent c, Transferable t, int act) {
         _table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        _table.getTableModel().fireTableDataChanged();
     }
 
 

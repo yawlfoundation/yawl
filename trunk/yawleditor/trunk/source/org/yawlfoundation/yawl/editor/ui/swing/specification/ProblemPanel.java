@@ -83,6 +83,8 @@ public class ProblemPanel extends JPanel
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(4,5,5,5));
         JScrollPane problemScrollPane = new JScrollPane(problemTable);
+//        problemScrollPane.setPreferredSize(getPreferredSize());
+        problemScrollPane.setBackground(Color.WHITE);
         add(problemScrollPane, BorderLayout.CENTER);
     }
 
@@ -93,7 +95,7 @@ public class ProblemPanel extends JPanel
             for (String problem : problemList) {
                 if (problem != null) problemTable.addMessage(problem.trim());
             }
-            problemTable.setWidth();
+//            problemTable.setWidth();
         }
     }
 

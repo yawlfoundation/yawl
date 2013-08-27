@@ -18,7 +18,7 @@ import java.util.Vector;
  * Author: Michael Adams
  * Creation Date: 8/04/2010
  */
-public class FlowPredicateDialog extends JDialog implements ActionListener {
+public class FlowPredicateDialog extends PropertyDialog implements ActionListener {
 
     private XQueryEditorPane _xQueryEditor;
     private YAWLFlowRelation _flow;
@@ -26,26 +26,22 @@ public class FlowPredicateDialog extends JDialog implements ActionListener {
     public FlowPredicateDialog(Window parent, YAWLFlowRelation flow) {
         super(parent);
         _flow = flow;
-        setModal(true);
         setTitle(makeTitle());
-        setResizable(false);
-        setLocationRelativeTo(parent);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         add(getContent());
-        this.setPreferredSize(new Dimension(420, 290));
+        setPreferredSize(new Dimension(420, 290));
         pack();
     }
 
 
-    private JPanel getContent() {
+    protected JPanel getContent() {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(7,7,7,7));
         content.add(createHeadPanel(), BorderLayout.NORTH);
         content.add(createXQueryPane(), BorderLayout.CENTER);
-        content.add(createButtonBar(), BorderLayout.SOUTH);
-
+        content.add(getButtonBar(this), BorderLayout.SOUTH);
         return content;
     }
+
 
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("OK")) {
@@ -78,21 +74,6 @@ public class FlowPredicateDialog extends JDialog implements ActionListener {
 
     private String formatQuery(String query, boolean prettify) {
         return XMLUtilities.formatXML(query, prettify, true);
-    }
-
-    private JPanel createButtonBar() {
-        JPanel panel = new JPanel();
-        JButton btnOK = new JButton("OK");
-        btnOK.setActionCommand("OK");
-        btnOK.setPreferredSize(new Dimension(75, 25));
-        btnOK.addActionListener(this);
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.setActionCommand("Cancel");
-        btnCancel.setPreferredSize(new Dimension(75, 25));
-        btnCancel.addActionListener(this);
-        panel.add(btnCancel);
-        panel.add(btnOK);
-        return panel;
     }
 
 

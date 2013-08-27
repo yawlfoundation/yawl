@@ -16,34 +16,28 @@ import java.util.Vector;
  * Author: Michael Adams
  * Creation Date: 8/04/2010
  */
-public class AddUserDefinedAttributeDialog extends JDialog
+public class AddUserDefinedAttributeDialog extends PropertyDialog
         implements ActionListener, CaretListener {
 
     private boolean cancelled;
     private JComboBox cbxTypes;
     private JTextField txtName;
     private JTextField txtEnumerations;
-    private JButton btnOK;
 
 
     public AddUserDefinedAttributeDialog(Window parent) {
         super(parent);
-        setModal(true);
         setTitle("Add a User-Defined Extended Attribute");
-        setResizable(false);
-        setLocationRelativeTo(parent);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        add(getContent());
-        this.setPreferredSize(new Dimension(370, 120));
+        setPreferredSize(new Dimension(370, 120));
         pack();
     }
 
 
-    private JPanel getContent() {
+    protected JPanel getContent() {
         JPanel content = new JPanel(new BorderLayout());
         content.add(getNamePanel(), BorderLayout.NORTH);
         content.add(getEnumPanel(), BorderLayout.CENTER);
-        content.add(getButtonBar(), BorderLayout.SOUTH);
+        content.add(getButtonBar(this), BorderLayout.SOUTH);
         return content;
     }
 
@@ -88,25 +82,6 @@ public class AddUserDefinedAttributeDialog extends JDialog
         return cbxTypes;
     }
 
-    private JPanel getButtonBar() {
-        JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(5,5,10,5));
-        panel.add(createButton("Cancel"));
-        btnOK = createButton("OK");
-        btnOK.setEnabled(false);
-        panel.add(btnOK);
-        return panel;
-    }
-
-
-    private JButton createButton(String caption) {
-        JButton btn = new JButton(caption);
-        btn.setActionCommand(caption);
-        btn.setPreferredSize(new Dimension(75,25));
-        btn.addActionListener(this);
-        return btn;
-    }
-
 
     public void actionPerformed(ActionEvent event) {
         cancelled = ! event.getActionCommand().equals("OK");
@@ -121,7 +96,7 @@ public class AddUserDefinedAttributeDialog extends JDialog
             int commaPos = values.lastIndexOf(',');
             enable = enable && commaPos > -1 && commaPos < values.length() - 1;
         }
-        btnOK.setEnabled(enable);
+        getOKButton().setEnabled(enable);
     }
 
     public boolean isCancelled() {

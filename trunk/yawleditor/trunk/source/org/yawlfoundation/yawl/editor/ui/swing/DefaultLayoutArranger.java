@@ -54,7 +54,7 @@ public class DefaultLayoutArranger {
     nodeBreadthsList = new LinkedList();
   }
 
-  private void layoutNet(NetGraphModel netModel) {
+  public void layoutNet(NetGraphModel netModel) {
     initialise();
 
     traverseGraphToDetermineNodeBredth(netModel);

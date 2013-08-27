@@ -11,17 +11,19 @@ import java.util.*;
  * A class to load/save user defined attributes from/to disk
  *
  * @author Michael Adams
- * @date 25/07/12
+ * @date 25/07/13
  */
 public abstract class UserDefinedAttributes {
+
+    private Map<String, String> _map;                 // attribute name, type
 
     public static final java.util.List<String> VALID_TYPE_NAMES = Arrays.asList(
             "string", "boolean", "integer", "double", "font", "color", "xquery");
 
+
     UserDefinedAttributes() { }
 
 
-    protected abstract Map<String, String> getMap();
 
     protected abstract String getFilePath();
 
@@ -60,6 +62,14 @@ public abstract class UserDefinedAttributes {
     public Set<String> getNames() {
         Map<String, String> map = getMap();
         return map != null ? map.keySet() : null;
+    }
+
+
+    protected Map<String, String> getMap() {
+        if (_map == null) {
+            _map = load(getFilePath());
+        }
+        return _map;
     }
 
 
@@ -106,6 +116,10 @@ public abstract class UserDefinedAttributes {
         return type.startsWith("enumeration{");
     }
 
+    private boolean isDynamic(String type) {
+        return type.startsWith("dynamic{");
+    }
+
 
     private void processLine(Map<String, String> map, String rawLine,
                              java.util.List<String> errors) {
@@ -131,6 +145,9 @@ public abstract class UserDefinedAttributes {
             else if (isEnumeration(type)) {
                 validateEnumeration(rawLine, type, errors);
             }
+            else if (isDynamic(type)) {
+                validateDynamic(rawLine, type, errors);
+            }
 
             if (errors.size() == startingErrorCount) {
                 map.put(name, type);            // all good
@@ -141,7 +158,7 @@ public abstract class UserDefinedAttributes {
 
 
     protected boolean validateType(String type) {
-        return VALID_TYPE_NAMES.contains(type) || isEnumeration(type);
+        return VALID_TYPE_NAMES.contains(type) || isEnumeration(type) || isDynamic(type);
     }
 
     private String coalesceErrorMessages(java.util.List<String> messages) {
@@ -170,5 +187,13 @@ public abstract class UserDefinedAttributes {
     }
 
 
+    private void validateDynamic(String rawLine, String type,
+                                        java.util.List<String> errors) {
+        int lastBracePos = type.indexOf('}');
+        if (lastBracePos == -1) {
+            errors.add("Malformed dynamic attribute entry, missing closing brace '}'" +
+                    " found on line: " + rawLine);
+        }
+    }
 
 }

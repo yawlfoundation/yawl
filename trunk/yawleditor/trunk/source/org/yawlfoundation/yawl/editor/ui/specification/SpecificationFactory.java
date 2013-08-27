@@ -36,7 +36,7 @@ public class SpecificationFactory {
         addCondition(graph, inputCondition);
 
         OutputCondition outputCondition = new OutputCondition(
-                getOutputConditionDefaultPoint(bounds, graph), net.getOutputCondition());
+                getOutputConditionPoint(bounds, graph), net.getOutputCondition());
         addCondition(graph, outputCondition);
     }
 
@@ -54,7 +54,7 @@ public class SpecificationFactory {
                 (int) (bounds.getHeight()/2) - (size.height/2)));
     }
 
-    private Point2D getOutputConditionDefaultPoint(Rectangle bounds, NetGraph graph) {
+    private Point2D getOutputConditionPoint(Rectangle bounds, NetGraph graph) {
         Dimension size = InputCondition.getVertexSize();
         return graph.snap(new Point((int) (bounds.getWidth()-MARGIN) - (size.width/2),
                 (int) (bounds.getHeight()/2)  - (size.height/2)));

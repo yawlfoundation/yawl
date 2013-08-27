@@ -32,7 +32,9 @@ public class ExtendedAttributesPropertyEditor extends DialogPropertyEditor {
         dialog.setVisible(true);
         NetTaskPair oldPair = pair;
         pair = new NetTaskPair(null, oldPair.getDecomposition(), null);
-        pair.setSimpleText(pair.getDecomposition().getAttributes().size() + " defined");
+        String text = pair.getDecomposition().getAttributes().isEmpty() ? "None" :
+                pair.getDecomposition().getAttributes().size() + " active";
+        pair.setSimpleText(text);
         firePropertyChange(oldPair, pair);
     }
 

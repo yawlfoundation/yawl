@@ -25,13 +25,18 @@ package org.yawlfoundation.yawl.editor.ui.repository.action;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.NetReloader;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import javax.swing.*;
@@ -75,7 +80,9 @@ public class RepositoryGetAction extends YAWLBaseAction {
                 case TaskDecomposition:
                     loadTaskDecomposition(name);
                     break;
-                case NetDecomposition: break;
+                case NetDecomposition:
+                    loadNet(name);
+                    break;
                 case ExtendedAttributes:
                     ((ExtendedAttributesDialog) owner).loadAttributes(
                             repo.getExtendedAttributesRepository().get(name));
@@ -101,5 +108,35 @@ public class RepositoryGetAction extends YAWLBaseAction {
         catch (YSyntaxException yse) {
             // ?
         }
+    }
+
+
+    private void loadNet(String name) {
+        try {
+            YNet net = null;
+
+            // have to load the task decompositions first
+            for(YDecomposition decomposition : YRepository.getInstance()
+                    .getNetRepository().getNetAndDecompositions(name)) {
+                if (decomposition instanceof YNet) {
+                    net = (YNet) decomposition;
+                }
+                else {
+                    SpecificationModel.getHandler().getControlFlowHandler()
+                        .addTaskDecomposition((YAWLServiceGateway) decomposition);
+                }
+            }
+            if (net != null) {
+                SpecificationModel.getHandler().getControlFlowHandler().addNet(net);
+                NetGraph graph = new NetGraph(net);
+                SpecificationModel.getInstance().getNets().addNoUndo(graph.getNetModel());
+                new NetReloader().reload(graph);
+                YAWLEditor.getNetsPane().openNet(graph);
+            }
+        }
+        catch (YSyntaxException yse) {
+            // ?
+        }
+
     }
 }
