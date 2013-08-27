@@ -40,7 +40,7 @@ public class DataVariableDialog extends JDialog
     private JButton btnApply;
 
     private boolean dirty;
-    private boolean isEditing;
+    private boolean isInserting;
 
 
     public DataVariableDialog(YNet net) {
@@ -81,9 +81,7 @@ public class DataVariableDialog extends JDialog
 
     public void tableChanged(TableModelEvent e) {
         dirty = true;
-        if (e.getType() == TableModelEvent.INSERT) {
-            isEditing = true;
-        }
+        isInserting = (e.getType() == TableModelEvent.INSERT);
         enableButtonsIfValid();
         VariableTableModel model = (VariableTableModel) e.getSource();
         model.setTableChanged(true);
@@ -92,13 +90,13 @@ public class DataVariableDialog extends JDialog
     }
 
     protected void enableButtonsIfValid() {
-        boolean allRowsValid = ! isEditing && allRowsValid();
+        boolean allRowsValid = !isInserting && allRowsValid();
         btnApply.setEnabled(allRowsValid && dirty);
         btnOK.setEnabled(allRowsValid);
     }
 
-    protected void setEditing(boolean editing) {
-        isEditing = editing;
+    protected void setInserting(boolean inserting) {
+        isInserting = inserting;
     }
 
     protected boolean allRowsValid() {

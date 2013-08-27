@@ -9,30 +9,36 @@ import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToolBarButton;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
 
 /**
+ * A dialog for editing attributes. Also supports adding and removing user-defined
+ * attribute definitions
+ *
  * @author Michael Adams
  * @date 21/06/13
  */
-public class ExtendedAttributesDialog extends JDialog implements ActionListener {
+public class ExtendedAttributesDialog extends PropertyDialog
+        implements ActionListener, ListSelectionListener {
 
     private JButton btnDel;
-    private UserDefinedAttributesPropertySheet propertySheet;
-    private UserDefinedAttributesBinder udAttributes;
+    private ExtendedAttributesPropertySheet propertySheet;
     private ExtendedAttributesBeanInfo attributesBeanInfo;
     private ExtendedAttributeProperties properties;
-    private YAttributeMap attributes;
+    private UserDefinedAttributesBinder udAttributes;
 
-    private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
+    // the set of attributes for a YDecomposition or YVariable
+    private YAttributeMap attributes;
 
 
     public ExtendedAttributesDialog(YDecomposition decomposition) {
@@ -53,48 +59,69 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
     public YAttributeMap getAttributes() { return attributes; }
 
+
+    /**
+     * Loads attribute values from repository
+     * @param loaded those attributes loaded from repository
+     */
     public void loadAttributes(YAttributeMap loaded) {
-        for (String key : loaded.keySet()) {
-            if (attributes.containsKey(key)) {
-                attributes.put(key, loaded.get(key));
-            }
+        if (loaded == null) return;
+
+        // throw away loaded attributes that don't match those currently on view
+        Set<String> filtered = propertySheet.filterForCurrentPropertyNames(loaded.keySet());
+
+        // add the values
+        for (String key : filtered) {
+            attributes.put(key, loaded.get(key));
         }
-        propertySheet.repaint();
+        propertySheet.readFromObject(properties);  // load new values to sheet
+
+        // let the user know
+        JOptionPane.showMessageDialog(this,
+                filtered.size() + " attribute values loaded",
+                "Load from Repository",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
 
+    /**
+     * Listens for button clicks to add or remove user-defined attributes, or to
+     * close the dialog
+     * @param event the button click event
+     */
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
         if (action.equals("OK")) {
-            propertySheet.getTable().commitEditing();
+            propertySheet.getTable().commitEditing();        // save any pending edits
             setVisible(false);
         }
         else if (action.equals("Add")) {
             addUdAttribute();
         }
         else if (action.equals("Del")) {
-            String name = propertySheet.getPropertyBeingRead();
-            if (name != null) {
-                if (propertySheet.removeProperty(name)) {
-                    udAttributes.remove(name);
-                }
-                else {
-                    // not a user-defined attribute
-                }
-            }
+            removeUdAttribute();
         }
     }
 
 
+    /**
+     * Called from the property sheet's table, and used to enable or disable the
+     * remove user-defined attribute button based on the selected attribute in the table
+     * @param event the table's selection event
+     */
+    public void valueChanged(ListSelectionEvent event) {
+        btnDel.setEnabled(propertySheet.isUserDefinedAttributeSelected());
+    }
+
+
+    /********************************************************************************/
 
     private void initialise() {
-        propertySheet = new UserDefinedAttributesPropertySheet();  // must be created first up
-        setModal(true);
-        setResizable(true);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationByPlatform(true);
     }
 
+    // setup for decomposition attributes
     private void setUp(YDecomposition decomposition) {
         attributes = decomposition.getAttributes();
         udAttributes = new UserDefinedAttributesBinder(propertySheet, decomposition);
@@ -104,6 +131,8 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
         setTitle("Attributes for Decomposition: " + decomposition.getID());
     }
 
+
+    // setup for variable attributes
     private void setUp(YAttributeMap attributes, String varName) {
         this.attributes = attributes;
         udAttributes = new UserDefinedAttributesBinder(propertySheet, attributes);
@@ -114,6 +143,8 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
     }
 
 
+    // binds the properties class with the bean class (augmented with the
+    // appropriate user-defined attributes)
     private void bind(ExtendedAttributeProperties properties,
                       UserDefinedAttributesBinder udAttributes) {
         attributesBeanInfo = new ExtendedAttributesBeanInfo(udAttributes);
@@ -122,18 +153,19 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
 
 
     private void completeInitialisation() {
-        add(getContent());
+        propertySheet.getTable().getSelectionModel().addListSelectionListener(this);
         setPreferredSize(new Dimension(400, 350));
         setMinimumSize(new Dimension(250, 300));
         pack();
     }
 
-    private JPanel getContent() {
+    protected JPanel getContent() {
+        propertySheet = new ExtendedAttributesPropertySheet();  // must be created first up
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(5,5,5,5));
         content.add(createToolbar(), BorderLayout.NORTH);
         content.add(createPropertiesPane(), BorderLayout.CENTER);
-        content.add(createButtonBar(), BorderLayout.SOUTH);
+        content.add(getButtonBar(this), BorderLayout.SOUTH);
         return content;
     }
 
@@ -144,6 +176,7 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
         toolbar.setRollover(true);
         toolbar.add(createToolBarButton("table_add", "Add", " Add a new attribute "));
         btnDel = createToolBarButton("table_delete", "Del", " Remove an attribute ");
+        btnDel.setEnabled(false);  // initially disabled
         toolbar.add(btnDel);
 
         toolbar.addSeparator();
@@ -157,18 +190,13 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
     }
 
 
-
     private JButton createToolBarButton(String iconName, String action, String tip) {
-        JButton button = new JButton(getIcon(iconName));
+        JButton button = new JButton(getMenuIcon(iconName));
         button.setActionCommand(action);
         button.setToolTipText(tip);
         button.setFocusPainted(false);
         button.addActionListener(this);
         return button;
-    }
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
     }
 
 
@@ -180,24 +208,15 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
     }
 
 
-    private JPanel createButtonBar() {
+    protected JPanel getButtonBar(ActionListener listener) {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        panel.add(createButton("OK"));
+        panel.add(createButton("OK", listener));
         return panel;
     }
 
 
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(70,25));
-        button.addActionListener(this);
-        return button;
-    }
-
-
+    // adds a new user-defined attribute template (to table and disk)
     private void addUdAttribute() {
         AddUserDefinedAttributeDialog dialog = new AddUserDefinedAttributeDialog(this);
         dialog.setVisible(true);
@@ -206,17 +225,37 @@ public class ExtendedAttributesDialog extends JDialog implements ActionListener 
             String type = dialog.getType();
             if (propertySheet.uniquePropertyName(name)) {
                 udAttributes.add(name, type);
+
+                // create a property for the sheet
                 ExtendedPropertyDescriptor property =
                     attributesBeanInfo.addProperty("UdAttributeValue");
                 property.setCategory("Ext. Attributes");
                 property.setDisplayName(name);
                 property.setPropertyEditorClass(udAttributes.getEditorClass(name));
                 property.setPropertyTableRendererClass(udAttributes.getRendererClass(name));
+
+                // update the table
                 propertySheet.setProperties(attributesBeanInfo.getPropertyDescriptors());
                 propertySheet.readFromObject(properties);
             }
         }
     }
 
+
+    private void removeUdAttribute() {
+        String name = propertySheet.getSelectedPropertyName();
+        if (name != null) {
+
+            // will remove only if it is a user-defined attribute
+            if (propertySheet.removeProperty(name)) {         // from table
+                udAttributes.remove(name);                    // from template (& disk)
+            }
+            else {
+                // not a user-defined attribute, but since the button that fires this
+                // method is only enabled for user-defined attributes, this should
+                // never be reached
+            }
+        }
+    }
 
 }

@@ -101,6 +101,7 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Map")) {
             new MappingDialog(parent.getNetTablePanel(),
                     table.getSelectedVariable()).setVisible(true);
+            table.getTableModel().fireTableDataChanged();
         }
         else if (action.equals("MarkMI")) {
             if (! parent.setMultiInstanceRow(table.getSelectedVariable())) {
@@ -206,7 +207,7 @@ public class VariableTablePanel extends JPanel
 
     protected void setEditMode(boolean editing) {
         isEditing = editing;
-        parent.setEditing(editing);
+        parent.setInserting(editing);
         enableButtons(!editing);
     }
 

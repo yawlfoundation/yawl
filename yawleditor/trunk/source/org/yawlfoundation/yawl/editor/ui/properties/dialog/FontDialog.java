@@ -14,7 +14,7 @@ import java.awt.event.MouseListener;
  * Author: Michael Adams
  * Creation Date: 8/04/2010
  */
-public class FontDialog extends JDialog
+public class FontDialog extends PropertyDialog
         implements ActionListener, ListSelectionListener, MouseListener {
 
     private Font _font;
@@ -25,16 +25,12 @@ public class FontDialog extends JDialog
     private JLabel _colourPane;
     private Color _colour;
 
-    public FontDialog(Component parent, Font font) {
-        super();
+    public FontDialog(Window parent, Font font) {
+        super(parent);
         _font = font;
         _colour = Color.BLACK;
-        setLocationRelativeTo(parent);
         setSize(new Dimension(360, 370));
-        add(getContent());
-        setModal(true);
         setTitle("Font Picker");
-        setResizable(false);
         _fontNames.ensureIndexIsVisible(_fontNames.getSelectedIndex());
     }
 
@@ -49,7 +45,7 @@ public class FontDialog extends JDialog
     public void setColour(Color color) { _colour = color; }
 
 
-    private JPanel getContent() {
+    protected JPanel getContent() {
         _fontNames = new JList(getFontNames());
         _fontSizes = new JComboBox(getFontSizes());
         _fontStyles = new JList(getFontStyles());
@@ -81,15 +77,6 @@ public class FontDialog extends JDialog
         _fontStyles.addListSelectionListener(this);
         _colourPane.addMouseListener(this);
 
-        JButton btnOK = new JButton("  OK  ");
-        btnOK.setActionCommand("OK");
-        btnOK.addActionListener(this);
-        btnOK.setSize(80, 20);
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.setActionCommand("Cancel");
-        btnCancel.addActionListener(this);
-        btnCancel.setSize(80, 20);
-
         JScrollPane fontNamesPane = new JScrollPane();
         fontNamesPane.setViewportView(_fontNames);
         fontNamesPane.setPreferredSize(new Dimension(220, 140));
@@ -99,10 +86,6 @@ public class FontDialog extends JDialog
         fontStylesPane.setViewportView(_fontStyles);
         fontStylesPane.setPreferredSize(new Dimension(120, 100));
         fontStylesPane.setBorder(BorderFactory.createTitledBorder("Style"));
-
-        JPanel btnPanel = new JPanel();
-        btnPanel.add(btnCancel);
-        btnPanel.add(btnOK);
 
         JPanel sizeStylePanel = new JPanel(new BorderLayout());
         sizeStylePanel.add(fontStylesPane, BorderLayout.NORTH);
@@ -117,7 +100,7 @@ public class FontDialog extends JDialog
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10, 10, 10, 12));
         content.add(subContent, BorderLayout.NORTH);
-        content.add(btnPanel, BorderLayout.SOUTH);
+        content.add(getButtonBar(this), BorderLayout.SOUTH);
 
         content.setPreferredSize(new Dimension(360, 370));
 

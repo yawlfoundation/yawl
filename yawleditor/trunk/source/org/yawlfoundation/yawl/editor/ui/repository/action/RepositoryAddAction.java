@@ -36,13 +36,10 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YTask;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Hashtable;
-import java.util.Map;
 
 public class RepositoryAddAction extends YAWLBaseAction {
 
@@ -86,7 +83,8 @@ public class RepositoryAddAction extends YAWLBaseAction {
                     }
                     break;
                 case NetDecomposition:
-                    addCurrentNet(name, description);
+                    YNet selectedNet = YAWLEditor.getNetsPane().getSelectedYNet();
+                    repo.getNetRepository().add(name, description, selectedNet);
                     break;
                 case ExtendedAttributes:
                     repo.getExtendedAttributesRepository().add(name, description,
@@ -114,38 +112,6 @@ public class RepositoryAddAction extends YAWLBaseAction {
         return "";
     }
 
-    private void addCurrentNet(String name, String description) {
-        YRepository repo = YRepository.getInstance();
-        YNet selectedNet = YAWLEditor.getNetsPane().getSelectedYNet();
-        addContainedDecompositions(selectedNet);
-        repo.getNetRepository().add(name, description, selectedNet);
-    }
-
-
-    private Map<String, String> addContainedDecompositions(YNet net) {
-        Map<String, String> changedIDs = new Hashtable<String, String>();
-        YRepository repo = YRepository.getInstance();
-        String decompDescription = "Stored as required by storage of " +
-                net.getID();
-        for (YTask task : net.getNetTasks()) {
-            YDecomposition decomposition = task.getDecompositionPrototype();
-            String currentID = decomposition.getID();
-            String newID = null;
-            if (decomposition instanceof YAWLServiceGateway) {
-                newID = repo.getTaskDecompositionRepository().add(currentID,
-                        decompDescription, (YAWLServiceGateway) decomposition);
-            }
-            else if (decomposition instanceof YNet) {
-                addContainedDecompositions((YNet) decomposition);     // sub-net recurse
-                newID = repo.getNetRepository().add(decomposition.getID(),
-                        decompDescription, (YNet) decomposition);
-            }
-            if (! currentID.equals(newID)) {
-                changedIDs.put(currentID, newID);
-            }
-        }
-        return changedIDs;
-    }
 
     private YDecomposition getSelectedDecomposition() {
         Object cell = YAWLEditor.getNetsPane().getSelectedGraph().getSelectionCell();

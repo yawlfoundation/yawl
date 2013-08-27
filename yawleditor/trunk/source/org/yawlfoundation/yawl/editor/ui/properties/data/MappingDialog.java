@@ -117,13 +117,7 @@ public class MappingDialog extends JDialog implements ActionListener {
 
         String mapping = _row.getMapping();
         if (mapping == null) {
-            if (netVarsButton.isEnabled()) {
-                netVarsButton.setSelected(true);
-                enableCombos(true, false);
-            }
-            else {
-                setExpressionButton();
-            }
+            setExpressionButton();
         }
         else {
             if (! (initExternalSelection(mapping) || initNetVarSelection(mapping))) {

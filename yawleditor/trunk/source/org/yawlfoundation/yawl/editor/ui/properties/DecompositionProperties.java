@@ -151,7 +151,9 @@ public class DecompositionProperties extends CellProperties {
 
     public NetTaskPair getExtAttributes() {
         NetTaskPair pair = new NetTaskPair(null, _decomposition, null);
-        pair.setSimpleText(_decomposition.getAttributes().size() + " defined");
+        String text = _decomposition.getAttributes().isEmpty() ? "None" :
+                _decomposition.getAttributes().size() + " active";
+        pair.setSimpleText(text);
         return pair;
     }
 

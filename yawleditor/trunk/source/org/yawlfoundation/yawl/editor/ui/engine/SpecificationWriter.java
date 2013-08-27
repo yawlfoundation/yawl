@@ -162,6 +162,7 @@ public class SpecificationWriter {
             YCompoundFlow engineFlow = editorFlow.getYFlow();
             if (engineFlow.hasSourceSplitType(YTask._XOR)) {
                 if (engineFlow.isOnlySourceFlow()) {
+                    engineFlow.setPredicate(null);
                     engineFlow.setIsDefaultFlow(true);
                 }
             }

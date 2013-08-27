@@ -30,143 +30,115 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class ProblemTable extends JSingleSelectTable {
-  
-  private static final long serialVersionUID = 1L;
-  
-  private static final int MAX_ROW_HEIGHT = 5;
-  
-  public ProblemTable() {
-    super();
-    initialise();
-  }
-  
-  private void initialise() {
-    setModel(new MessageTableModel());
-    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-  }
-  
-  public void addMessage(String message) {
-    getMessageModel().addMessage(message);
-  }
-  
-  private MessageTableModel getMessageModel() {
-    return (MessageTableModel) getModel();
-  }
 
-  public void setWidth() {
-      int widestRow = getMessageModel().getLongestMessageLength() * 8;
-      getColumnModel().getColumn(0).setPreferredWidth(widestRow);
-  }
+    private static final int MAX_ROW_HEIGHT = 5;
 
-  public void setCellSize(int maxWidth) {
-      int widestRow = getMessageModel().getLongestMessageLength() * 8;
-      getColumnModel().getColumn(0).setPreferredWidth(Math.min(widestRow, maxWidth));
-  }
-
-  
-  public void reset() {
-    getMessageModel().reset();
-  }
-
-  
-  public int getMessageHeight() {
-    return getFontMetrics(getFont()).getHeight();
-  }
-  
-  public Dimension getPreferredScrollableViewportSize() {
-    Dimension preferredSize = super.getPreferredScrollableViewportSize();
-
-    preferredSize.setSize(
-      preferredSize.getWidth(),
-      Math.min(
-          preferredSize.getHeight(), 
-          getFontMetrics(getFont()).getHeight() * MAX_ROW_HEIGHT
-      )
-    );
-    
-    return preferredSize;
-  }
-  
-  public Component prepareRenderer(TableCellRenderer renderer,
-      int row, 
-      int col) {
-
-    JComponent component = (JComponent) super.prepareRenderer(renderer, row, col);
-    JLabel componentAsLabel = (JLabel) component;
-    componentAsLabel.setHorizontalAlignment(JLabel.LEFT);
-    return component;
-  }
-  
-  public String getToolTipText(MouseEvent event){
-    Point mousePosition = event.getPoint();
-    if (rowAtPoint(mousePosition) >= 0) {
-
-      String rowContent = (String) getValueAt(
-         rowAtPoint(mousePosition),
-         MessageTableModel.PROBLEM_COLUMN
-      );
-
-      if (rowContent != null) {
-        return "<html><body style=\"width:300px\"><p>" + rowContent.toString() + "</p></body></html>";
-      }
+    public ProblemTable() {
+        super();
+        initialise();
     }
-    return "";
-  }
+
+    private void initialise() {
+        setModel(new MessageTableModel());
+        setFillsViewportHeight(true);
+        setTableHeader(null);
+    }
+
+    public void addMessage(String message) {
+        getMessageModel().addMessage(message);
+    }
+
+    private MessageTableModel getMessageModel() {
+        return (MessageTableModel) getModel();
+    }
+
+    public void setWidth(int width) {
+//        int widestRow = getMessageModel().getLongestMessageLength() * 8;
+        getColumnModel().getColumn(0).setPreferredWidth(width);
+    }
+
+
+    public void reset() {
+        getMessageModel().reset();
+    }
+
+
+    public Dimension getPreferredScrollableViewportSize() {
+        Dimension preferredSize = super.getPreferredScrollableViewportSize();
+
+        preferredSize.setSize(
+                preferredSize.getWidth(),
+                Math.min(
+                        preferredSize.getHeight(),
+                        getFontMetrics(getFont()).getHeight() * MAX_ROW_HEIGHT
+                )
+        );
+
+        return preferredSize;
+    }
+
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+        JComponent component = (JComponent) super.prepareRenderer(renderer, row, col);
+        JLabel componentAsLabel = (JLabel) component;
+        componentAsLabel.setHorizontalAlignment(JLabel.LEFT);
+        return component;
+    }
+
+    public String getToolTipText(MouseEvent event){
+        Point mousePosition = event.getPoint();
+        if (rowAtPoint(mousePosition) >= 0) {
+            String rowContent = (String) getValueAt(
+                    rowAtPoint(mousePosition),
+                    MessageTableModel.PROBLEM_COLUMN
+            );
+
+            if (rowContent != null) {
+                return "<html><body style=\"width:300px\"><p>" + rowContent.toString() + "</p></body></html>";
+            }
+        }
+        return "";
+    }
 }
 
 class MessageTableModel extends AbstractTableModel {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private ProblemList messages = new ProblemList();
-  
-  private static final String[] COLUMN_LABELS = { 
-    "Problem"
-  };
-  
-  public static final int PROBLEM_COLUMN          = 0;
+    private ProblemList messages = new ProblemList();
 
-  public int getColumnCount() {
-    return COLUMN_LABELS.length;
-  }
+    private static final String[] COLUMN_LABELS = { "Problem" };
 
-  public int getLongestMessageLength() {
-      int result = 0;
-      for (String msg : messages) {
-          result = Math.max(result, msg.length());
-      }
-      return result;
-  }
-  
-  public void reset() {
-    messages.clear();
-  }
+    public static final int PROBLEM_COLUMN = 0;
 
-
-  public String getColumnName(int columnIndex) {
-    return null;
-  }
-  
-  public int getRowCount() {
-    if (messages != null) {
-      return messages.size();
+    public int getColumnCount() {
+        return COLUMN_LABELS.length;
     }
-    return 0;
-  }
 
-  public Object getValueAt(int row, int col) {
-    switch (col) {
-      case PROBLEM_COLUMN:  {
-        return messages.get(row);
-      }
+    public int getLongestMessageLength() {
+        int result = 0;
+        for (String msg : messages) {
+            result = Math.max(result, msg.length());
+        }
+        return result;
     }
-    return null;
-  }
 
-  public void addMessage(String message) {
-    messages.add(message);
-    this.fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
-  }
+    public void reset() {
+        messages.clear();
+    }
+
+
+    public String getColumnName(int columnIndex) {
+        return null;
+    }
+
+    public int getRowCount() {
+        return (messages != null) ? messages.size() : 0;
+    }
+
+    public Object getValueAt(int row, int col) {
+        return col == PROBLEM_COLUMN ? messages.get(row) : null;
+    }
+
+    public void addMessage(String message) {
+        messages.add(message);
+        fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
+    }
 }

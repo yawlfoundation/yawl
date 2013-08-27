@@ -9,26 +9,22 @@ import java.awt.event.ActionEvent;
  * Author: Michael Adams
  * Creation Date: 8/04/2010
  */
-public class TextAreaDialog extends JDialog implements ActionListener {
+public class TextAreaDialog extends PropertyDialog implements ActionListener {
 
     private JTextArea _textArea;
     private String _text;
 
     public TextAreaDialog(Window parent, String title, String text) {
         super(parent);
-        setModal(true);
         setTitle(title);
-        setResizable(false);
-        setLocationRelativeTo(parent);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         _text = text;
         add(getContent());
-        this.setPreferredSize(new Dimension(420, 270));
+        setPreferredSize(new Dimension(420, 270));
         pack();
     }
 
 
-    private JPanel getContent() {
+    protected JPanel getContent() {
         JPanel content = new JPanel();
         _textArea = new JTextArea(5, 20);
         _textArea.setLineWrap(true);
@@ -36,15 +32,8 @@ public class TextAreaDialog extends JDialog implements ActionListener {
         _textArea.setText(_text);
         JScrollPane scrollPane = new JScrollPane(_textArea);
         scrollPane.setPreferredSize(new Dimension(400, 200));
-        JButton btnOK = new JButton("OK");
-        btnOK.setActionCommand("OK");
-        btnOK.addActionListener(this);
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.setActionCommand("Cancel");
-        btnCancel.addActionListener(this);
         content.add(scrollPane);
-        content.add(btnCancel);
-        content.add(btnOK);
+        content.add(getButtonBar(this));
         return content;
     }
 

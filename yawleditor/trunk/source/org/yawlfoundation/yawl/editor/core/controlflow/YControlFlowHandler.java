@@ -84,8 +84,11 @@ public class YControlFlowHandler {
         return net;
     }
 
-    public void addNet(YNet net) {
+    public String addNet(YNet net) {
+        String uniqueID = checkID(net.getID());
+        if (! uniqueID.equals(net.getID())) net.setID(uniqueID);
         _specification.addDecomposition(net);
+        return uniqueID;
     }
 
     public YNet getNet(String netName) {

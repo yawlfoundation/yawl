@@ -13,40 +13,41 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Michael Adams
- * @date 25/07/12
+ * @date 25/07/13
  */
 public class UserDefinedAttributesBinder {
 
     private YAttributeMap _attributeMap;
-    private UserDefinedAttributesPropertySheet _sheet;
+    private ExtendedAttributesPropertySheet _sheet;
 
     private OwnerType _ownerClass;
 
     public enum OwnerType { Decomposition, Parameter }
 
 
-    private UserDefinedAttributesBinder(UserDefinedAttributesPropertySheet sheet) {
+    private UserDefinedAttributesBinder(ExtendedAttributesPropertySheet sheet) {
         _sheet = sheet;
         _sheet.setUserDefinedAttributes(this);
     }
 
-    public UserDefinedAttributesBinder(UserDefinedAttributesPropertySheet sheet,
+    public UserDefinedAttributesBinder(ExtendedAttributesPropertySheet sheet,
                                        YDecomposition decomposition) {
         this(sheet);
-        _attributeMap = decomposition.getAttributes();
         _ownerClass = OwnerType.Decomposition;
+        setAttributeMap(decomposition.getAttributes());
     }
 
 
-    public UserDefinedAttributesBinder(UserDefinedAttributesPropertySheet sheet,
+    public UserDefinedAttributesBinder(ExtendedAttributesPropertySheet sheet,
                                        YAttributeMap attributes) {
         this(sheet);
-        _attributeMap = attributes;
         _ownerClass = OwnerType.Parameter;
+        setAttributeMap(attributes);
     }
 
 
@@ -139,6 +140,11 @@ public class UserDefinedAttributesBinder {
     }
 
 
+    private void setAttributeMap(YAttributeMap map) {
+        _attributeMap = map;
+        addDynamicAttributes();
+    }
+
     private String objToString(String key, Object value) {
         if (value == null) return null;
         String type = getAttributes().getType(key);
@@ -205,8 +211,14 @@ public class UserDefinedAttributesBinder {
         return type.startsWith("enumeration{");
     }
 
+    private boolean isDynamic(String type) {
+        return type.startsWith("dynamic{");
+    }
+
     private String getSelectedKey() {
-        return _sheet.getPropertyBeingRead();
+        String key =  _sheet.getPropertyBeingRead();
+        if (key == null) key = _sheet.getSelectedPropertyName();
+        return key;
     }
 
 
@@ -254,5 +266,20 @@ public class UserDefinedAttributesBinder {
     }
 
 
+    /**
+     * A dynamic attribute has the form 'name=dynamic{property}', where 'property' is
+     * the name of a data member of either a YDecomposition or YVariable, depending on
+     * which kind of object the attribute is added to. At runtime, the value will
+     * be assigned whatever the value of the data member is when the attribute is
+     * accessed.
+     */
+    private void addDynamicAttributes() {
+        for (Map.Entry<String, String> entry : getAttributes().getMap().entrySet()) {
+            String type = entry.getValue();
+            if (isDynamic(type)) {
+                _attributeMap.put(entry.getKey(), type);
+            }
+        }
+    }
 
 }
