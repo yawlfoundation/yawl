@@ -24,8 +24,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -40,10 +43,20 @@ public class UndoableNetAddition extends AbstractUndoableEdit {
     public void redo() {
         SpecificationModel.getInstance().getNets().addNoUndo(addedNet);
         addedNet.getGraph().getFrame().setVisible(true);
+        YAWLEditor.getNetsPane().add(addedNet.getName(), addedNet.getGraph().getFrame());
+        SpecificationModel.getHandler().getControlFlowHandler().addNet(
+                (YNet) addedNet.getDecomposition());
     }
 
     public void undo() {
-        addedNet.getGraph().getFrame().setVisible(false);
+        YAWLEditor.getNetsPane().remove(addedNet.getGraph().getFrame());
         SpecificationModel.getInstance().getNets().removeNoUndo(addedNet);
+        try {
+            SpecificationModel.getHandler().getControlFlowHandler().removeNet(
+                    addedNet.getDecomposition().getID());
+        }
+        catch (YControlFlowHandlerException ycfhe) {
+            // tried to remove the root net
+        }
     }
 }

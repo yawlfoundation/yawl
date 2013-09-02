@@ -39,7 +39,7 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
 
     protected void validateSchema() {
         AbstractXMLStyledDocument doc =  (AbstractXMLStyledDocument)
-        DataTypeDialogToolBarMenu.getInstance().getEditorPane().getEditor().getDocument();
+        DataTypeDialogToolBarMenu.getEditorPane().getEditor().getDocument();
         doc.publishValidity();
     }
 

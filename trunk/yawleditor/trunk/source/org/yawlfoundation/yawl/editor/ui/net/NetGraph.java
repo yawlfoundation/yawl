@@ -88,7 +88,14 @@ public class NetGraph extends JGraph {
 	  this.serviceAutomaton = new ServiceAutomatonTree(this);
   }
 
-  private void buildBasicGraphContent() {
+
+    @Override
+    public void updateUI() {
+        setUI(new NetGraphUI());
+        invalidate();
+    }
+
+    private void buildBasicGraphContent() {
     setGridMode(JGraph.DOT_GRID_MODE);
     setGridVisible(UserSettings.getShowGrid());
     setGridEnabled(true);
@@ -919,7 +926,10 @@ public class NetGraph extends JGraph {
     this.frame = frame;
   }
 
-  public void removeFrame() { frame = null; }  
+  public void removeFrame() {
+      frame.setVisible(false);
+      frame = null;
+  }
   
   public String getName() {
     return getNetModel().getName();

@@ -134,6 +134,7 @@ public class SpecificationWriter {
 
 
      private static void finaliseEngineNets(SpecificationModel model) {
+         _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
         for (NetGraphModel netModel : model.getNets()) {
             checkNetIdIsValidXML((YNet) netModel.getDecomposition());
             NetElementSummary editorNetSummary = new NetElementSummary(netModel);

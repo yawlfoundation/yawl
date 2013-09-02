@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
@@ -45,6 +46,7 @@ public class CellProperties extends NetProperties {
 
     public CellProperties() {
         super();
+        idLabelSynch = true;
     }
 
 
@@ -62,6 +64,7 @@ public class CellProperties extends NetProperties {
         graph.setElementLabel(vertex, value);
         vertex.setName(value);
         if (idLabelSynch) updateVertexID(value);
+        graph.setSelectionCell(vertex.getParent());
         setDirty();
     }
 
@@ -193,11 +196,13 @@ public class CellProperties extends NetProperties {
     public String getDecomposition() {
         YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
         String label = decomposition != null ? decomposition.getID() : "None";
-        boolean isReadOnly = ! requiresResourcing(decomposition);
-        setReadOnly("Timer", isReadOnly);
-        setReadOnly("CustomForm", isReadOnly);
-        setReadOnly("Resourcing", isReadOnly);
         setReadOnly("miAttributes", label.equals("None"));
+        if (decomposition instanceof YAWLServiceGateway) {
+            boolean isReadOnly = ! requiresResourcing(decomposition);
+            setReadOnly("Timer", isReadOnly);
+            setReadOnly("CustomForm", isReadOnly);
+            setReadOnly("Resourcing", isReadOnly);
+        }
         return label;
     }
 
@@ -224,35 +229,40 @@ public class CellProperties extends NetProperties {
         }
         else return;                        // no change (name = existing) so get out
 
-        // update
-        ((YAWLTask) vertex).setDecomposition(decomposition);
-        graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
-        setDirty();
-        Publisher.getInstance().publishState(GraphState.ElementsSelected,
-                new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
-
-        // update id if not tied to label
-        String label = getLabel();
-        if (decomposition != null && (label == null || ! label.equals(getId()))) {
-            firePropertyChange("id", decomposition.getID());
-            if (label == null) firePropertyChange("Label", decomposition.getID());
-        }
+        // update if there has been any change
+        updateDecomposition(decomposition);
     }
 
 
     private YDecomposition createDecomposition(YDecomposition current) {
+        boolean isComposite = (vertex instanceof YAWLCompositeTask);
         while (true) {
             String newName = JOptionPane.showInputDialog(YAWLEditor.getInstance(),
-                    "Please enter a name for the new Decomposition", getLabel());
+                    "Please enter a name for the new " +
+                            (isComposite ? "sub-net" : "decomposition"), getLabel());
             if (newName == null) {
                 break;                 // Cancelled
             }
             try {
-                return flowHandler.addTaskDecomposition(newName);
+                if (isComposite) {
+//                    YNet net = flowHandler.addNet(newName);
+//                    NetGraph graph = new NetGraph(net);
+
+                    YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false);
+                    panel.setTitle(newName);
+                    return panel.getNet().getNetModel().getDecomposition();
+
+                }
+                else {
+                    return flowHandler.addTaskDecomposition(newName);
+                }
             }
             catch (IllegalIdentifierException iie) {
                 showIdentifierWarning("Identifier Name Error", iie.getMessage());
             }
+//            catch (YControlFlowHandlerException ycfhe) {
+//                //
+//            }
         }
         return current;
     }
@@ -260,8 +270,10 @@ public class CellProperties extends NetProperties {
 
     private void renameDecomposition(YDecomposition current) {
         String oldID = current.getID();
+        boolean isComposite = (vertex instanceof YAWLCompositeTask);
         String newID = JOptionPane.showInputDialog(getSheet(),
-                "Please enter a new name for the Decomposition", getLabel());
+                "Please enter a new name for the "  +
+                        (isComposite ? "sub net" : "decomposition"), getLabel());
         if (! (newID == null || oldID.equals(newID))) {
             try {
                 newID = specHandler.checkID(newID);
@@ -277,6 +289,27 @@ public class CellProperties extends NetProperties {
         }
     }
 
+
+    private void updateDecomposition(YDecomposition decomposition) {
+        ((YAWLTask) vertex).setDecomposition(decomposition);
+        if (decomposition instanceof YAWLServiceGateway) {
+            graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
+        }
+        else if (decomposition instanceof YNet) {
+            graph.setElementLabel(vertex, decomposition.getID());
+        }
+        setDirty();
+        graph.setSelectionCell(vertex.getParent());
+        Publisher.getInstance().publishState(GraphState.ElementsSelected,
+                new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
+
+        // update id if not tied to label
+        String label = getLabel();
+        if (decomposition != null && (label == null || ! label.equals(getId()))) {
+            firePropertyChange("id", decomposition.getID());
+            if (label == null) firePropertyChange("Label", decomposition.getID());
+        }
+    }
 
 
     private YDecomposition getDecomposition(String name) {
@@ -339,6 +372,7 @@ public class CellProperties extends NetProperties {
             graph.setSplitDecorator((YAWLTask) vertex, type, pos);
             setDirty();
             setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
+            graph.setSelectionCell(vertex.getParent());
             fireDecoratorPositionChange("split", type > -1 ? pos : 14);
         }
     }
@@ -351,6 +385,7 @@ public class CellProperties extends NetProperties {
             if (pos == 14 && type > -1) pos = DEFAULT_JOIN_POS;
             graph.setJoinDecorator((YAWLTask) vertex, type, pos);
             setDirty();
+            graph.setSelectionCell(vertex.getParent());
             fireDecoratorPositionChange("join", type > -1 ? pos : 14);
         }
     }
@@ -361,6 +396,7 @@ public class CellProperties extends NetProperties {
             int type = getDecoratorIndex(getSplit());
             int pos = getDecoratorPosIndex(value);
             graph.setSplitDecorator((YAWLTask) vertex, type, pos);
+            graph.setSelectionCell(vertex.getParent());
             setDirty();
         }
     }
@@ -371,6 +407,7 @@ public class CellProperties extends NetProperties {
             int type = getDecoratorIndex(getJoin());
             int pos = getDecoratorPosIndex(value);
             graph.setJoinDecorator((YAWLTask) vertex, type, pos);
+            graph.setSelectionCell(vertex.getParent());
             setDirty();
         }
     }

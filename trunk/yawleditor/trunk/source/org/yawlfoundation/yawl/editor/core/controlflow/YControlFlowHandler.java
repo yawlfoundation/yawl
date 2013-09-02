@@ -5,10 +5,7 @@ import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.elements.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -64,6 +61,16 @@ public class YControlFlowHandler {
     }
 
 
+    public Set<YNet> getSubNets() {
+        if (_specification != null) {
+            Set<YNet> nets = getNets();
+            nets.remove(getRootNet());
+            return nets;
+        }
+        return Collections.emptySet();
+    }
+
+
     public YNet createRootNet(String netName)
             throws YControlFlowHandlerException, IllegalIdentifierException {
         if (_specification == null) raise("No specification is loaded");
@@ -102,9 +109,7 @@ public class YControlFlowHandler {
             if (net.equals(_specification.getRootNet())) {
                 raise("Removing the root net is not allowed");
             }
-            if (_specification.getDecompositions().remove(net)) {
-                return net;
-            }
+            return (YNet) _specification.removeDecomposition(netID);
         }
         return null;
     }
@@ -152,13 +157,24 @@ public class YControlFlowHandler {
 
 
     public YAWLServiceGateway removeTaskDecomposition(String name) {
-        YAWLServiceGateway gateway = getTaskDecomposition(name);
-        if (gateway != null) _specification.getDecompositions().remove(gateway);
-        return gateway;
+        return (YAWLServiceGateway) _specification.removeDecomposition(name);
     }
 
 
-    /*** net elements CRUD ***/
+    public void removeOrphanTaskDecompositions() {
+        Set<YDecomposition> orphans = new HashSet<YDecomposition>();
+        Set<YAtomicTask> allTasks = getAllAtomicTasks();
+        for (YDecomposition decomposition : getTaskDecompositions()) {
+            if (isOrphan(decomposition, allTasks)) {
+                orphans.add(decomposition);
+            }
+        }
+        for (YDecomposition orphan : orphans) {
+            _specification.removeDecomposition(orphan.getID());
+        }
+    }
+
+     /*** net elements CRUD ***/
 
     public YCondition addCondition(String netID, String id)
             throws IllegalIdentifierException {
@@ -371,6 +387,29 @@ public class YControlFlowHandler {
         }
         return null;
     }
+
+
+    private Set<YAtomicTask> getAllAtomicTasks() {
+         Set<YAtomicTask> taskSet = new HashSet<YAtomicTask>();
+         for (YNet net : getNets()) {
+             for (YTask task : net.getNetTasks()) {
+                 if (task instanceof YAtomicTask) {
+                     taskSet.add((YAtomicTask) task);
+                 }
+             }
+         }
+         return taskSet;
+     }
+
+     private boolean isOrphan(YDecomposition decomposition, Set<YAtomicTask> allTasks) {
+         for (YAtomicTask task : allTasks) {
+             YDecomposition decompOfTask = task.getDecompositionPrototype();
+             if ((decompOfTask != null) && (decompOfTask == decomposition)) {
+                 return false;
+             }
+         }
+         return true;    // no task references the decomposition
+     }
 
 
     private void raise(String msg) throws YControlFlowHandlerException {

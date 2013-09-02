@@ -103,7 +103,7 @@ public class ResetReductionRuleTester{
 	                 else
 	                 { msg += " Reduced net:"+ reducedNet.getNetElements().size();
 	                  isReducible = true;        
-	               //   newSpecification.setDecomposition((YDecomposition) reducedNet);
+	               //   newSpecification.setNet((YDecomposition) reducedNet);
 	                 }
 	               }//end if - null
 	          }//endfor

@@ -106,6 +106,7 @@ public class SpecificationReader {
         _handler.getControlFlowHandler().rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
+        _model.getNets().loadProperties(_model.getNets().getRootNet());
         SpecificationUndoManager.getInstance().discardAllEdits();
         ConfigurationImporter.ApplyConfiguration();
     }

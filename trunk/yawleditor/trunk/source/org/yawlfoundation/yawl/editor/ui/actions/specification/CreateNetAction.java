@@ -44,7 +44,7 @@ public class CreateNetAction extends YAWLOpenSpecificationAction implements Tool
     }
 
     public void actionPerformed(ActionEvent event) {
-        YAWLEditor.getNetsPane().newNet();
+        YAWLEditor.getNetsPane().newNet(true);
         SpecificationUndoManager.getInstance().setDirty(true);
     }
 

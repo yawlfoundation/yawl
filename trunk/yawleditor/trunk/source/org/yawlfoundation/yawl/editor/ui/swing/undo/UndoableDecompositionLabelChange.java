@@ -29,29 +29,24 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
 import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private YDecomposition decomposition;
-    
-  private String oldLabel;
-  private String newLabel;
-    
-  public UndoableDecompositionLabelChange(YDecomposition decomposition,
-                                          String oldName, 
-                                          String newName) {
-    this.decomposition = decomposition;
-    this.oldLabel = oldName;
-    this.newLabel = newName;
-  }
-  
-  public void redo() {
-    decomposition.setName(newLabel);
-  }
-  
-  public void undo() {
-    decomposition.setName(oldLabel);
-  }
+    private YDecomposition decomposition;
+    private String oldLabel;
+    private String newLabel;
+
+
+    public UndoableDecompositionLabelChange(YDecomposition decomposition,
+                                            String oldName, String newName) {
+        this.decomposition = decomposition;
+        this.oldLabel = oldName;
+        this.newLabel = newName;
+    }
+
+    public void redo() {
+        decomposition.setName(newLabel);
+    }
+
+    public void undo() {
+        decomposition.setName(oldLabel);
+    }
 }

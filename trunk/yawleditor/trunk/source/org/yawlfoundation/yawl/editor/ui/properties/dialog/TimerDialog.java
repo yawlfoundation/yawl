@@ -57,7 +57,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
             performAction(neverButton, "never");
         }
         else {
-            timerVariableComboBox.setDecomposition(net);
+            timerVariableComboBox.setNet(net);
             setTrigger(timerParameters.getTrigger());
             setValue(timerParameters);
         }

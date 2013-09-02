@@ -68,7 +68,7 @@ public class SpecificationModel {
             _specificationHandler.newSpecification();
             YNet net = _specificationHandler.getControlFlowHandler().getRootNet();
             NetGraph graph = new NetGraph(net);
-            nets.addNoUndo(graph.getNetModel());
+            nets.addRootNet(graph.getNetModel());
             reset();
             return graph;
         }
