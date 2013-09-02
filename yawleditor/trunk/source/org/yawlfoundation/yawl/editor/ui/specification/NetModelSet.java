@@ -81,16 +81,31 @@ public class NetModelSet extends HashSet<NetGraphModel> {
     }
 
     public boolean addNoUndo(NetGraphModel netModel) {
-        if (isEmpty()) {
-            netModel.setIsRootNet(true);
-            rootNet = netModel;
-        }
         boolean added = super.add(netModel);
         if (added) {
-            propertiesLoader.setGraph(netModel.getGraph());
             publisher.publishAddNetEvent();
         }
         return added;
+    }
+
+
+    public boolean addRootNet(NetGraphModel netModel) {
+        if (isEmpty()) {
+            netModel.setIsRootNet(true);
+            rootNet = netModel;
+            boolean added = super.add(netModel);
+            if (added) {
+                loadProperties(netModel);
+                publisher.publishAddNetEvent();
+            }
+            return added;
+        }
+        return false;
+    }
+
+
+    public void loadProperties(NetGraphModel netModel) {
+        propertiesLoader.setGraph(netModel.getGraph());
     }
 
 

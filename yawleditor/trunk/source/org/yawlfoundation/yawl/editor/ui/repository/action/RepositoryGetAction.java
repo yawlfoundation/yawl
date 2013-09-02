@@ -129,7 +129,7 @@ public class RepositoryGetAction extends YAWLBaseAction {
             if (net != null) {
                 SpecificationModel.getHandler().getControlFlowHandler().addNet(net);
                 NetGraph graph = new NetGraph(net);
-                SpecificationModel.getInstance().getNets().addNoUndo(graph.getNetModel());
+                SpecificationModel.getInstance().getNets().add(graph.getNetModel());
                 new NetReloader().reload(graph);
                 YAWLEditor.getNetsPane().openNet(graph);
             }

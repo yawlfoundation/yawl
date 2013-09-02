@@ -63,7 +63,6 @@ public class VertexPopupMenu extends JPopupMenu {
   private void addMenuItems() {
     YAWLVertex vertex = (YAWLVertex) cell;
     addGraphSpecificMenuItems(vertex);
-    addDataPerspectiveMenuItems(vertex);
     addConfigurableMenuItems();
       addPlugins();
   }
@@ -86,24 +85,6 @@ public class VertexPopupMenu extends JPopupMenu {
       return;
     }
     add(new YAWLPopupMenuItem(DeleteAction.getInstance()));
-  }
-  
-  private void addDataPerspectiveMenuItems(YAWLVertex vertex) {
-    if (!(vertex instanceof YAWLTask)) {
-      return;
-    }
-
-    if (getComponentCount() > 0) {
-      addSeparator();
-    }
-    
-    if (vertex instanceof YAWLCompositeTask) {
-      add(new YAWLPopupMenuItem(
-              new SetUnfoldingNetAction(
-                  (YAWLCompositeTask) vertex, graph)
-              )
-      );
-    }
   }
 
 

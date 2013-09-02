@@ -121,7 +121,7 @@ public class TestSpecificationEngineHandler extends TestCase {
 //
 //  private AtomicTask createFirstFlowEmbeddedDecomposedAtomicTask() {
 //    AtomicTask task = createFirstFlowEmbeddedAtomicTask();
-//    task.setDecomposition(createFirstTaskDecomposition());
+//    task.setNet(createFirstTaskDecomposition());
 //    return task;
 //  }
 //
@@ -400,7 +400,7 @@ public class TestSpecificationEngineHandler extends TestCase {
 //
 //  public void testSelfReferencingFlowEmbeddedCompositeTask() {
 //    CompositeTask task = createFirstFlowEmbeddedCompositeTask();
-//    task.setDecomposition(rootNet.getDecomposition());
+//    task.setNet(rootNet.getDecomposition());
 //    assertFalse(specificationIsValid());
 //  }
 //

@@ -23,25 +23,53 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.data;
 
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.schema.internal.YInternalType;
 
+import javax.swing.*;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * A Data variable combo-box that shows only variables in the given
- * decomposition scope and usage type that are of the XMLSchema 'duration' tupe.
+ * decomposition scope and usage type that are of the XMLSchema 'duration' type.
  * @author bradforl
  *
  */
 
-public class TimerDataVariableComboBox extends DataVariableComboBox {
+public class TimerDataVariableComboBox extends JComboBox {
+
+    private YNet _net;
 
     public TimerDataVariableComboBox() {
         super();
     }
+
+    public void setNet(YNet net) {
+        _net = net;
+        refresh();
+    }
+
+    public YDecomposition getNet() {
+        return _net;
+    }
+
+    public YVariable getSelectedVariable() {
+        String selectedVariableName = (String) getSelectedItem();
+        if (_net != null) {
+            return _net.getLocalOrInputVariable(selectedVariableName);
+        }
+        return null;
+    }
+
+
+    protected void refresh() {
+        removeAllItems();
+        addDataVariables();
+    }
+
 
     public void setEnabled(boolean enabled) {
         if ((enabled && getItemCount() > 0) || !enabled) {
@@ -50,10 +78,9 @@ public class TimerDataVariableComboBox extends DataVariableComboBox {
     }
 
     protected void addDataVariables() {
-        if (getDecomposition() != null) {
-            Set<YVariable> variables = new HashSet<YVariable>(
-                    ((YNet) getDecomposition()).getLocalVariables().values());
-            variables.addAll(getDecomposition().getInputParameters().values());
+        if (_net != null) {
+            Set<YVariable> variables = new HashSet<YVariable>(_net.getLocalVariables().values());
+            variables.addAll(_net.getInputParameters().values());
 
             for (YVariable variable : variables) {
                 if (YInternalType.YTimerType.name().equals(variable.getDataTypeName())) {

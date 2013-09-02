@@ -87,11 +87,6 @@ public class CellBeanInfo extends NetBeanInfo {
                     .setPropertyEditorClass(SplitConditionPropertyEditor.class);
             addProperty("ViewCancelSet", _category, "View Cancel Set",
                     "Display this task's cancellation set");
-
-            // decomposition property
-            addProperty("Decomposition", "Decomposition", "Name",
-                    "The name of the decomposition associated with the selected task")
-                    .setPropertyEditorClass(DecompositionNameEditor.class);
         }
         if (vertex instanceof YAWLAtomicTask) {
             addProperty("CustomForm", _category, "Custom Form",
@@ -100,13 +95,13 @@ public class CellBeanInfo extends NetBeanInfo {
             addProperty("Resourcing", _category, "Resourcing",
                     "Set resourcing properties for the currently selected task")
                     .setPropertyEditorClass(ResourcingPropertyEditor.class);
-            if (vertex instanceof MultipleAtomicTask) {
-                addProperty("miAttributes", _category, "M-I Attributes",
-                        "Set the minimum, maximum, threshold and creation mode for this " +
-                                "multiple-instance task")
-                        .setPropertyEditorClass(MultiInstancePropertyEditor.class);
-            }
-            else {
+
+            // decomposition property
+            addProperty("Decomposition", "Decomposition", "Name",
+                    "The name of the decomposition associated with the selected task")
+                    .setPropertyEditorClass(DecompositionNameEditor.class);
+
+            if (! (vertex instanceof MultipleAtomicTask)) {
                 addProperty("Timer", _category, null, "Set a timer on this task")
                         .setPropertyEditorClass(TimerPropertyEditor.class);
             }
@@ -114,6 +109,18 @@ public class CellBeanInfo extends NetBeanInfo {
             ExtendedPropertyDescriptor property = addProperty("Icon", _category, null, "");
             property.setPropertyEditorClass(IconPropertyEditor.class);
             property.setPropertyTableRendererClass(IconPropertyRenderer.class);
+        }
+        if (vertex instanceof YAWLCompositeTask) {
+            addProperty("Decomposition", "Decomposition", "Sub-net Name",
+                    "The name of the sub-net associated with the selected composite task")
+                    .setPropertyEditorClass(SubNetNameEditor.class);
+
+        }
+        if (vertex instanceof YAWLMultipleInstanceTask) {
+            addProperty("miAttributes", _category, "M-I Attributes",
+                    "Set the minimum, maximum, threshold and creation mode for this " +
+                            "multiple-instance task")
+                    .setPropertyEditorClass(MultiInstancePropertyEditor.class);
         }
     }
 

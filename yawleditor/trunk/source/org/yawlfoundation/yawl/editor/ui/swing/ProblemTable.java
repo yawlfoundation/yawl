@@ -53,7 +53,6 @@ public class ProblemTable extends JSingleSelectTable {
     }
 
     public void setWidth(int width) {
-//        int widestRow = getMessageModel().getLongestMessageLength() * 8;
         getColumnModel().getColumn(0).setPreferredWidth(width);
     }
 

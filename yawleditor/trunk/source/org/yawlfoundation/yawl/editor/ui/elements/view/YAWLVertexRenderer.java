@@ -42,49 +42,49 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
         Graphics2D g2 = (Graphics2D) g;
         boolean tmp = selected;
         if (isOpaque()) {
-            g.setColor(super.getBackground());
-            fillVertex(g, getSize());
-            g.setColor(super.getForeground());
+            g2.setColor(super.getBackground());
+            fillVertex(g2, getSize());
+            g2.setColor(super.getForeground());
         }
         try {
             setBorder(null);
             setOpaque(false);
             selected = false;
-            drawIcon(g, getSize());
+            drawIcon(g2, getSize());
             setStroke(g2);
-            drawVertex(g, getSize());
+            drawVertex(g2, getSize());
         }
         finally {
             selected = tmp;
         }
         if (bordercolor != null) {
             g2.setStroke(new BasicStroke(1));
-            g.setColor(bordercolor);
-            drawIcon(g, getSize());
-            drawVertex(g, getSize());
+            g2.setColor(bordercolor);
+            drawIcon(g2, getSize());
+            drawVertex(g2, getSize());
         }
         if (selected) {
             g2.setStroke(GraphConstants.SELECTION_STROKE);
-            g.setColor(highlightColor);
-            drawIcon(g, getSize());
-            drawVertex(g, getSize());
+            g2.setColor(highlightColor);
+            drawIcon(g2, getSize());
+            drawVertex(g2, getSize());
         }
 
         g2.setStroke(new BasicStroke(1));
         if (view.getCell() instanceof YAWLTask) {
             YAWLTask task = (YAWLTask) view.getCell();
             if (task.hasCancellationSetMembers()) {
-                drawCancelSetMarker(g, getSize());
+                drawCancelSetMarker(g2, getSize());
             }
             if (isAutomatedTask(task)) {
-                drawAutomatedMarker(g, getSize());
+                drawAutomatedMarker(g2, getSize());
                 if (hasCodelet(task)) {
-                    drawCodeletMarker(g, getSize());
+                    drawCodeletMarker(g2, getSize());
                 }
             }
             if (task instanceof AtomicTask) {
                 if (((AtomicTask) task).hasTimerEnabled()) {
-                    drawTimerMarker(g, getSize());
+                    drawTimerMarker(g2, getSize());
                 }
             }
         }
@@ -158,13 +158,13 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     // these indicator marker graphics are designed to occupy 25% of the width of
     // a task, and 25% of the height, across the top of the task
 
-    protected void drawCancelSetMarker(Graphics graphics, Dimension size) {
+    protected void drawCancelSetMarker(Graphics2D graphics, Dimension size) {
         int height = getMarkerHeight(size);
         graphics.setColor(Color.red);
         graphics.fillOval(Math.round(3 * size.width/4) - 2, 1, height, height);
     }
 
-    protected void drawTimerMarker(Graphics graphics, Dimension size) {
+    protected void drawTimerMarker(Graphics2D graphics, Dimension size) {
         int height = getMarkerHeight(size);
         int centre = height/2 + 1;
         graphics.setColor(Color.white);
@@ -175,7 +175,7 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
         graphics.drawLine(centre, centre, height + 1, centre);
     }
 
-    protected void drawAutomatedMarker(Graphics graphics, Dimension size) {
+    protected void drawAutomatedMarker(Graphics2D graphics, Dimension size) {
         int height = getMarkerHeight(size);
         int midWidth = Math.round(size.width/2);
         int eighthwidth = Math.round(size.width/8);
@@ -185,7 +185,7 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
         graphics.drawPolygon(x, y, 3);
     }
 
-    protected void drawCodeletMarker(Graphics graphics, Dimension size) {
+    protected void drawCodeletMarker(Graphics2D graphics, Dimension size) {
         int height = getMarkerHeight(size);
         int midWidth = Math.round(size.width/2);
         int eighthwidth = Math.round(size.width/8);

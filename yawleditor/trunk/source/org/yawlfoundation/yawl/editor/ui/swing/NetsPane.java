@@ -45,10 +45,10 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
 
-    public YAWLEditorNetPanel newNet() {
+    public YAWLEditorNetPanel newNet(boolean select) {
         try {
             YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds());
-            bindFrame(frame);
+            bindFrame(frame, select);
             NetGraph graph = frame.getNet();
             graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
 
@@ -62,7 +62,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     public void openNet(NetGraph graph) {
         YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds(), graph);
-        bindFrame(frame);
+        bindFrame(frame, true);
         graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
     }
 
@@ -97,19 +97,19 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
     public void stateChanged(ChangeEvent e) {
-        updateState();
+        updateState(true);
     }
 
-    private void bindFrame(final YAWLEditorNetPanel frame) {
+    private void bindFrame(final YAWLEditorNetPanel frame, boolean select) {
         int tabIndex = getInsertionIndex(frame);
         insertTab(frame.getTitle(), frame.getFrameIcon(), frame, null, tabIndex);
-        setSelectedIndex(tabIndex);
-        updateState();
+        if (select) setSelectedIndex(tabIndex);
+        updateState(select);
     }
 
 
 
-    private void updateState() {
+    private void updateState(boolean select) {
         YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
         Publisher publisher = Publisher.getInstance();
         if ((frame == null) || (frame.getNet() == null)) {
@@ -119,7 +119,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             return;
         }
         publisher.publishState(SpecificationState.NetSelected);
-        SpecificationModel.getInstance().getPropertiesLoader().setGraph(frame.getNet());
+        if (select) {
+            SpecificationModel.getInstance().getPropertiesLoader().setGraph(frame.getNet());
+        }
         try {
             getSelectedGraph().getSelectionListener().forceActionUpdate();
             getSelectedGraph().getCancellationSetModel().refresh();

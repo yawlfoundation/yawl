@@ -4,6 +4,7 @@ import com.l2fprod.common.propertysheet.*;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ColorPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.DecompositionNameEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.FontPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.SubNetNameEditor;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
@@ -121,6 +122,9 @@ public class YPropertySheet extends PropertySheetPanel {
                 // Remove 'Rename' item from decomposition name combo if name is 'None'
                 if (editor instanceof DecompositionNameEditor) {
                     ((DecompositionNameEditor) editor).rationaliseItems(property);
+                }
+                if (editor instanceof SubNetNameEditor) {
+                    ((SubNetNameEditor) editor).rationaliseItems(property);
                 }
             }
             return result;

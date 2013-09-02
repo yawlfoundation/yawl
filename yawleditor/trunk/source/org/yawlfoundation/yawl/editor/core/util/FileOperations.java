@@ -85,6 +85,7 @@ public class FileOperations {
         reset();
         _specification = new YSpecification();
         _specification.setMetaData(new YMetaData());
+        _specification.getSpecificationID().setUri("New_Specification");
         _layoutHandler = new LayoutHandler(_specification, null);
         return _specification;
     }

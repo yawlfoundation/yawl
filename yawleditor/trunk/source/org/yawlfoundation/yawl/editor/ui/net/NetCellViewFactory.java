@@ -56,7 +56,7 @@ public class NetCellViewFactory extends DefaultCellViewFactory {
             return new DecoratorView((Decorator) cell);
         }
         if (cell instanceof VertexContainer) {
-            return new VertexView(cell);
+            return new VertexContainerView(cell);
         }
         if (cell instanceof YAWLPort) {
             return new YPortView(cell);

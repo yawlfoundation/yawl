@@ -158,7 +158,7 @@ public class XQueryUpdateDialog extends AbstractDoneDialog implements ActionList
     private void populateInputVariableComboBox() {
         inputVariableComboBox.setEnabled(false);
 
-//        inputVariableComboBox.setDecomposition(
+//        inputVariableComboBox.setNet(
 //                attribute.getDecomposition()
 //        );
 
