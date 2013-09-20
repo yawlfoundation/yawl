@@ -961,8 +961,10 @@ public class EngineGatewayImpl implements EngineGateway {
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         YVerificationHandler verificationHandler = new YVerificationHandler();
+        List<YSpecificationID> uploadedList;
         try {
-            _engine.addSpecifications(specificationStr, false, verificationHandler);
+            uploadedList = _engine.addSpecifications(specificationStr, false,
+                    verificationHandler);
         }
         catch (Exception e) {
             if (e instanceof YPersistenceException) {
@@ -972,8 +974,12 @@ public class EngineGatewayImpl implements EngineGateway {
             return failureMessage(e.getMessage());
         }
 
-        return verificationHandler.hasMessages() ?
-                failureMessage(verificationHandler.getMessagesXML()) : SUCCESS;
+        String result = ! (uploadedList == null || uploadedList.isEmpty()) ? SUCCESS :
+                failureMessage("Upload failed: invalid specification");
+        if (verificationHandler.hasMessages()) {
+            result = failureMessage(verificationHandler.getMessagesXML());
+        }
+        return result;
     }
 
 

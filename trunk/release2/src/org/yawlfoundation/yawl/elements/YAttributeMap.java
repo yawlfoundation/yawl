@@ -141,6 +141,18 @@ public class YAttributeMap extends Hashtable<String, String> {
     }
 
 
+    public void transformDynamicValues(Object owner) {
+        for (String key : keySet()) {
+            String value = super.get(key);
+            if (value.startsWith("dynamic{")) {
+                super.remove(key);
+                value = value.substring(8, value.lastIndexOf('}') -1);
+                put(key, new DynamicValue(value, owner));
+            }
+        }
+    }
+
+
     /**
      * Write a specified key=value pair in XML attribute format: key="value"
      * @param key the key to write out, with its corresponding value.

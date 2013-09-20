@@ -689,11 +689,10 @@ public class YEngine implements InterfaceADesign,
     public Map<YSpecificationID, List<YIdentifier>> getRunningCaseMap() {
         Map<YSpecificationID, List<YIdentifier>> caseMap =
                 new HashMap<YSpecificationID, List<YIdentifier>>();
-        List<YIdentifier> list;
         for (YIdentifier caseID : _runningCaseIDToSpecMap.keySet()) {
             YSpecification specForCaseID = _runningCaseIDToSpecMap.get(caseID);
             YSpecificationID specID = specForCaseID.getSpecificationID();
-            list = caseMap.get(specID);
+            List<YIdentifier> list = caseMap.get(specID);
             if (list == null) {
                 list = new ArrayList<YIdentifier>();
                 caseMap.put(specID, list);
@@ -728,14 +727,18 @@ public class YEngine implements InterfaceADesign,
 
             runner.continueIfPossible(_pmgr);
             runner.start(_pmgr);
-
             YIdentifier runnerCaseID = runner.getCaseID();
-            _runningCaseIDToSpecMap.put(runnerCaseID, specification);
 
-            // announce the new case to the standalone gui (if any)
-            if (_interfaceBClient != null) {
-                _logger.debug("Asking client to add case " + runnerCaseID.toString());
-                _interfaceBClient.addCase(specID, runnerCaseID.toString());
+            // special case: if spec contains exactly one task, and its empty,
+            // the case (and runner) has already completed, so don't update map
+            if (runner.hasActiveTasks()) {
+                _runningCaseIDToSpecMap.put(runnerCaseID, specification);
+
+                // announce the new case to the standalone gui (if any)
+                if (_interfaceBClient != null) {
+                    _logger.debug("Asking client to add case " + runnerCaseID.toString());
+                    _interfaceBClient.addCase(specID, runnerCaseID.toString());
+                }
             }
             return runnerCaseID;
         }
