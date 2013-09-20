@@ -75,7 +75,7 @@ public final class YNet extends YDecomposition {
     /** This method removes a net element together with preSet, postSet, reset,
      * cancelledBy sets.
      */
-    public void removeNetElement(YExternalNetElement netElement) {
+    public boolean removeNetElement(YExternalNetElement netElement) {
 
         for (YExternalNetElement preset : netElement.getPresetElements()) {
             YFlow flow = new YFlow(preset, netElement);
@@ -106,7 +106,7 @@ public final class YNet extends YDecomposition {
             }
         }
 
-        _netElements.remove(netElement.getID());
+        return _netElements.remove(netElement.getID()) != null;
     }
 
 

@@ -231,7 +231,12 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
     public String getURI() {
-        return _specURI;
+        return _specID != null ? _specID.getUri() : _specURI;
+    }
+
+    public void setURI(String uri) {
+        _specURI = uri;
+        if (_specID != null) _specID.setUri(uri);
     }
 
     public String getID() {

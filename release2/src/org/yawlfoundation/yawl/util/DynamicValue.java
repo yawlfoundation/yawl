@@ -32,14 +32,19 @@ public class DynamicValue {
     private Object _target;      // the object containing the data member
 
     public DynamicValue(String property, Object target) {
-        _property = property;
-        _target = target;
+        setProperty(property);
+        setTarget(target);
     }
 
 
     public String getProperty() { return _property; }
 
-    public void setProperty(String property) { _property = property; }
+    public void setProperty(String property) {
+        if (property != null && property.startsWith("dynamic{")) {
+            property = property.substring(8, property.lastIndexOf('}') -1);
+        }
+        _property = property;
+    }
 
     public Object getTarget() { return _target; }
 

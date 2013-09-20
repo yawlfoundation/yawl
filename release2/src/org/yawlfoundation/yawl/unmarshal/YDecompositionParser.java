@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
+import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.Duration;
@@ -109,7 +110,12 @@ public class YDecompositionParser {
 
             //don't add the standard YAWL schema attributes to the pass through list.
             if(!("id".equals(attname) || ("type".equals(attname) && isXsiNS))) {
-                _decomposition.setAttribute(attr.getName(), attr.getValue());
+                String value = attr.getValue();
+                if (value.startsWith("dynamic{")) {
+                    _decomposition.setAttribute(attr.getName(),
+                            new DynamicValue(value, _decomposition));
+                }
+                else _decomposition.setAttribute(attr.getName(), value);
             }
         }
         
@@ -559,7 +565,7 @@ public class YDecompositionParser {
             }
 
             variable.getAttributes().fromJDOM(localVariableElem.getAttributes());
-
+            variable.getAttributes().transformDynamicValues(variable);
         }
         //the variable either is data typed xor linked to an element declaration
         variable.setDataTypeAndName(dataType, name, namespace);
