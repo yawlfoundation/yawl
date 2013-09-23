@@ -35,61 +35,67 @@ import java.awt.*;
 
 public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelListener {
 
-  private YAWLToggleToolBarButton previewProcessConfigurationButton;
-  private YAWLToggleToolBarButton applyProcessConfigurationButton;
+    private YAWLToggleToolBarButton previewProcessConfigurationButton;
+    private YAWLToggleToolBarButton applyProcessConfigurationButton;
 
 
-  public ToolBarMenu() {
-    super("YAWLEditor ToolBar");
-    ProcessConfigurationModel.getInstance().subscribe(this);
-  }
+    public ToolBarMenu() {
+        super("YAWLEditor ToolBar");
+        ProcessConfigurationModel.getInstance().subscribe(this);
+    }
 
-  protected void buildInterface() {
-    setMargin(new Insets(3,2,2,0));
-    add(new YAWLToolBarButton(new CreateSpecificationAction()));
-    add(new YAWLToolBarButton(new OpenSpecificationAction()));
-    add(new YAWLToolBarButton(new SaveSpecificationAction()));
-    add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
-    add(new YAWLToolBarButton(new CloseSpecificationAction()));
+    protected void buildInterface() {
+        setMargin(new Insets(3,2,2,0));
+        add(new YAWLToolBarButton(new CreateSpecificationAction()));
+        add(new YAWLToolBarButton(new OpenSpecificationAction()));
+        add(new YAWLToolBarButton(new SaveSpecificationAction()));
+        add(new YAWLToolBarButton(new SaveSpecificationAsAction()));
+        add(new YAWLToolBarButton(new CloseSpecificationAction()));
 
-    addSeparator();
+        addSeparator();
+        add(new YAWLToolBarButton(new ValidateSpecificationAction()));
+        add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
+        add(new YAWLToolBarButton(new UploadSpecificationAction()));
 
-	add(new YAWLToolBarButton(new ValidateSpecificationAction()));
-    add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
+        addSeparator();
+        add(new YAWLToolBarButton(new CreateNetAction()));
+        add(new YAWLToolBarButton(new RemoveNetAction()));
 
-    addSeparator();
-    add(new YAWLToolBarButton(new CreateNetAction()));
-  	add(new YAWLToolBarButton(new RemoveNetAction()));
-    addSeparator();
-    add(new YAWLToolBarButton(UndoAction.getInstance()));
-    add(new YAWLToolBarButton(RedoAction.getInstance()));
-    add(new YAWLToolBarButton(DeleteAction.getInstance()));
-    addSeparator();
-  	add(new YAWLToolBarButton(AlignTopAction.getInstance()));
-   	add(new YAWLToolBarButton(AlignMiddleAction.getInstance()));
-	  add(new YAWLToolBarButton(AlignBottomAction.getInstance()));
-	  add(new YAWLToolBarButton(AlignLeftAction.getInstance()));
-	  add(new YAWLToolBarButton(AlignCentreAction.getInstance()));
-	  add(new YAWLToolBarButton(AlignRightAction.getInstance()));
-	  addSeparator();
-    add(new YAWLToolBarButton(IncreaseSizeAction.getInstance()));
-    add(new YAWLToolBarButton(DecreaseSizeAction.getInstance()));
-	  addSeparator();
-    add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
-    add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
-    addSeparator();
-    previewProcessConfigurationButton =
-            new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
-    add(previewProcessConfigurationButton);
-    applyProcessConfigurationButton =
-            new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
-    add(applyProcessConfigurationButton);
-    addSeparator();
-    add(new YAWLToolBarButton(ZoomActualSizeAction.getInstance()));
-    add(new YAWLToolBarButton(ZoomOutAction.getInstance()));
-    add(new YAWLToolBarButton(ZoomInAction.getInstance()));
-    add(new YAWLToolBarButton(ZoomSelectedElementsAction.getInstance()));
-  }
+        addSeparator();
+        add(new YAWLToolBarButton(UndoAction.getInstance()));
+        add(new YAWLToolBarButton(RedoAction.getInstance()));
+        add(new YAWLToolBarButton(DeleteAction.getInstance()));
+
+        addSeparator();
+        add(new YAWLToolBarButton(AlignTopAction.getInstance()));
+        add(new YAWLToolBarButton(AlignMiddleAction.getInstance()));
+        add(new YAWLToolBarButton(AlignBottomAction.getInstance()));
+        add(new YAWLToolBarButton(AlignLeftAction.getInstance()));
+        add(new YAWLToolBarButton(AlignCentreAction.getInstance()));
+        add(new YAWLToolBarButton(AlignRightAction.getInstance()));
+
+        addSeparator();
+        add(new YAWLToolBarButton(IncreaseSizeAction.getInstance()));
+        add(new YAWLToolBarButton(DecreaseSizeAction.getInstance()));
+
+        addSeparator();
+        add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
+        add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
+
+        addSeparator();
+        previewProcessConfigurationButton =
+                new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
+        add(previewProcessConfigurationButton);
+        applyProcessConfigurationButton =
+                new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
+        add(applyProcessConfigurationButton);
+
+        addSeparator();
+        add(new YAWLToolBarButton(ZoomActualSizeAction.getInstance()));
+        add(new YAWLToolBarButton(ZoomOutAction.getInstance()));
+        add(new YAWLToolBarButton(ZoomInAction.getInstance()));
+        add(new YAWLToolBarButton(ZoomSelectedElementsAction.getInstance()));
+    }
 
 
     public void processConfigurationModelStateChanged(

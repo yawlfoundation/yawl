@@ -80,6 +80,10 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         return added;
     }
 
+    public boolean add(NetGraphModel netModel, boolean root) {
+        return root ? addRootNet(netModel) : addNoUndo(netModel);
+    }
+
     public boolean addNoUndo(NetGraphModel netModel) {
         boolean added = super.add(netModel);
         if (added) {

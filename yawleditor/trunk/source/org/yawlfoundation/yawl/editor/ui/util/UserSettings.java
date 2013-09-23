@@ -81,6 +81,10 @@ public class UserSettings {
     private static final String FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 15;
 
+    // specification upload settings
+    private static final String ON_UPLOAD_UNLOAD_PREVIOUS = "onUploadUnloadPrevious";
+    private static final String ON_UPLOAD_CANCEL_CASES = "onUploadCancelCases";
+    private static final String ON_UPLOAD_LAUNCH_CASE = "onUploadLaunchCase";
 
     // process configuration settings
     private static final String CONFIGURABLE_NEW_ELEMENTS =
@@ -453,6 +457,31 @@ public class UserSettings {
 
     public static String getLastSaveOrLoadPath() {
         return getString(LAST_SAVE_OR_LOAD_PATH);
+    }
+
+
+    public static boolean getUnloadPreviousOnUpload() {
+        return getBoolean(ON_UPLOAD_UNLOAD_PREVIOUS);
+    }
+
+    public static void setUnloadPreviousOnUpload(boolean unload) {
+        setBoolean(ON_UPLOAD_UNLOAD_PREVIOUS, unload);
+    }
+
+    public static boolean getCancelCasesOnUpload() {
+        return getBoolean(ON_UPLOAD_CANCEL_CASES);
+    }
+
+    public static void setCancelCasesOnUpload(boolean cancel) {
+        setBoolean(ON_UPLOAD_CANCEL_CASES, cancel);
+    }
+
+    public static boolean getLaunchCaseOnUpload() {
+        return getBoolean(ON_UPLOAD_LAUNCH_CASE);
+    }
+
+    public static void setLaunchCaseOnUpload(boolean launch) {
+        setBoolean(ON_UPLOAD_LAUNCH_CASE, launch);
     }
 
 

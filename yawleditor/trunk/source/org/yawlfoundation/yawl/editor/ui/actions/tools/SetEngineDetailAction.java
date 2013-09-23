@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.preferences.PreferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
@@ -46,9 +47,11 @@ public class SetEngineDetailAction extends YAWLBaseAction {
    */
   private static final long serialVersionUID = 1L;
 
-  private static final EngineDetailDialog dialog = new EngineDetailDialog();
+//  private static final EngineDetailDialog dialog = new EngineDetailDialog();
+   private static final PreferencesDialog dialog = new PreferencesDialog();
 
   private boolean invokedAtLeastOnce = false;
+
   
   {
     putValue(Action.SHORT_DESCRIPTION, " Specify login details for a running YAWL Engine.");
@@ -333,7 +336,7 @@ class EngineDetailDialog extends AbstractDoneDialog {
         if (visible){
             if (engineURIField.getText().equals("")) {
                 String uri = UserSettings.getEngineUri();
-                engineURIField.setText(uri != null ? uri : YEngineConnection.DEFAULT_URL);
+                engineURIField.setText(uri != null ? uri : ""); //YEngineConnection.DEFAULT_URL);
             }
             if (engineUserField.getText().equals("")) {
                 String userid = UserSettings.getEngineUserid();

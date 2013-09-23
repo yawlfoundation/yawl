@@ -25,6 +25,7 @@ public class YPropertySheet extends PropertySheetPanel {
     private Set<String> _readOnlyProperties;
 
     public YPropertySheet() {
+        super();
         setTable(new YPropertySheetTable());
         _readOnlyProperties = new HashSet<String>();
         setMode(PropertySheet.VIEW_AS_CATEGORIES);
@@ -77,6 +78,23 @@ public class YPropertySheet extends PropertySheetPanel {
         editorFactory.registerEditor(FontColor.class, new FontPropertyEditor());
     }
 
+    protected void pause(long milliseconds) {
+        Object lock = new Object();
+        long now = System.currentTimeMillis();
+        long finishTime = now + milliseconds;
+        while (now < finishTime) {
+            long timeToWait = finishTime - now;
+            synchronized (lock) {
+                try {
+                    lock.wait(timeToWait);
+                }
+                catch (InterruptedException ex) {
+                }
+            }
+            now = System.currentTimeMillis();
+        }
+    }
+
 
     /*****************************************************************************/
 
@@ -87,7 +105,7 @@ public class YPropertySheet extends PropertySheetPanel {
     protected class YPropertySheetTable extends PropertySheetTable {
 
         public YPropertySheetTable() {
-            super();
+            super(new YPropertySheetTableModel());
         }
 
 
@@ -99,10 +117,13 @@ public class YPropertySheet extends PropertySheetPanel {
 
         // override to avoid IndexOutOFBoundsExceptions in super class
         public TableCellRenderer getCellRenderer(int row, int column) {
-            if (getSheetModel().getPropertyCount() > 0) {
+            try {
                 return super.getCellRenderer(row, column);
             }
-            return getDefaultRenderer(String.class);
+            catch (IndexOutOfBoundsException ioobe) {
+                pause(100);                         // wait a bit for threads to catch up
+                return getCellRenderer(row, column);     // & retry
+            }
         }
 
 
@@ -138,8 +159,17 @@ public class YPropertySheet extends PropertySheetPanel {
                     getValueAt(row, column), isCellSelected(row, column),
                     false, row, column);
 
-            // disable for read-only
-                PropertySheetTableModel.Item item = getSheetModel().getPropertySheetElement(row);
+                // disable for read-only
+                PropertySheetTableModel.Item item = null;
+                while (item == null) {
+                    try {
+                        item = getSheetModel().getPropertySheetElement(row);
+                    }
+                    catch (IndexOutOfBoundsException ioobe) {
+                        pause(100);
+                    }
+                }
+
                 if (item.isProperty()) {
                     component.setEnabled(item.getProperty().isEditable() && !isReadOnly(row));
                 }
@@ -162,6 +192,25 @@ public class YPropertySheet extends PropertySheetPanel {
         }
 
     }
+
+
+    class YPropertySheetTableModel extends PropertySheetTableModel {
+
+        public YPropertySheetTableModel() {
+            super();
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            try {
+                return super.getValueAt(rowIndex, columnIndex);
+            }
+            catch (IndexOutOfBoundsException ioobe) {
+                pause(100);
+                return getValueAt(rowIndex, columnIndex);
+            }
+        }
+    }
+
 
 
     /**

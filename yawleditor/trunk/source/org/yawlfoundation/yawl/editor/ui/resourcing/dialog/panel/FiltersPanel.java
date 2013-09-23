@@ -15,6 +15,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -62,12 +63,23 @@ public class FiltersPanel extends JPanel implements ActionListener {
 
     public void save(BasicOfferInteraction offerInteraction) {
         offerInteraction.getFilterSet().clear();
-        if (! capabilityFilter.getParams().isEmpty()) {
+        if (hasValues(capabilityFilter)) {
             offerInteraction.getFilterSet().add(capabilityFilter);
         }
-        if (! orgFilter.getParams().isEmpty()) {
+        if (hasValues(orgFilter)) {
             offerInteraction.getFilterSet().add(orgFilter);
         }
+    }
+
+
+    private boolean hasValues(AbstractFilter filter) {
+        Map<String, String> params = filter.getParams();
+        for (String key : params.keySet()) {
+            if (! StringUtil.isNullOrEmpty(params.get(key))) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

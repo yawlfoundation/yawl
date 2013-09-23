@@ -92,6 +92,11 @@ public class ElementIdentifiers {
     }
 
 
+    public void removeIdentifier(String idString) {
+        removeIdentifier(new ElementIdentifier(idString, true));
+    }
+
+
 
     /**
      * Rationalises the identifiers in a specification if any of the suffix stores

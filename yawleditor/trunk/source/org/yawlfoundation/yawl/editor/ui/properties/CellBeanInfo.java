@@ -81,7 +81,7 @@ public class CellBeanInfo extends NetBeanInfo {
             addProperty("splitPosition", _category, "Split Position",
                     "Where the split is located on the selected task")
                     .setPropertyEditorClass(DecoratorPosEditor.class);
-            addProperty("SplitConditions", _category, "Split Conditions",
+            addProperty("SplitConditions", _category, "Split Predicates",
                     "Specify expressions for each outgoing flow to prioritise runtime" +
                             " control-flow")
                     .setPropertyEditorClass(SplitConditionPropertyEditor.class);
@@ -132,6 +132,10 @@ public class CellBeanInfo extends NetBeanInfo {
 
     /******************************************************************************/
 
+    public static class DecoratorPosEditor extends ComboPropertyEditor {
+        public DecoratorPosEditor() { super(CellProperties.DECORATOR_POS); }
+    }
+
     public static class SplitDecoratorEditor extends DecoratorEditor {
         public SplitDecoratorEditor() { super("Split"); }
     }
@@ -162,12 +166,6 @@ public class CellBeanInfo extends NetBeanInfo {
                + name + "16.gif");
        }
 
-    }
-
-
-    public static class DecoratorPosEditor extends ComboPropertyEditor {
-
-        public DecoratorPosEditor() { super(CellProperties.DECORATOR_POS); }
     }
 
 

@@ -1,9 +1,17 @@
 package org.yawlfoundation.yawl.editor.core.connection;
 
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -33,16 +41,24 @@ public class YEngineConnection extends YConnection {
     private Map<String, String> _externalDbCache = new Hashtable<String, String>();
 
     // default url
-    public static final String DEFAULT_URL = "http://localhost:8080/yawl/ia";
+    public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 8080;
+    public static final String IA_PATH = "/yawl/ia";
+    public static final String IB_PATH = "/yawl/ib";
+    public static final String IE_PATH = "/yawl/ie";
 
 
     /*********************************************************************************/
 
     // Constructors
     public YEngineConnection() {
+        this(DEFAULT_HOST, DEFAULT_PORT);
+    }
+
+    public YEngineConnection(String host, int port) {
         super();
         try {
-            setURL(DEFAULT_URL);
+            setURL(new URL("http", host, port, IA_PATH));
         }
         catch (MalformedURLException mue) {
             setURL((URL) null);
@@ -176,6 +192,117 @@ public class YEngineConnection extends YConnection {
     }
 
 
+    public String uploadSpecification(YSpecification specification) throws IOException {
+        if (isConnected()) {
+            return _client.uploadSpecification(
+                    getSpecificationXML(specification), _handle);
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public boolean unloadSpecification(YSpecificationID specID) throws IOException {
+        if (isConnected()) {
+            String result = _client.unloadSpecification(specID, _handle);
+            if (! successful(result)) {
+                throw new IOException(StringUtil.unwrap(result));
+            }
+            return true;
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public Set<YSpecificationID> getAllLoadedVersions(YSpecificationID specID)
+            throws IOException {
+        if (isConnected()) {
+            Set<YSpecificationID> versions = new HashSet<YSpecificationID>();
+            for (SpecificationData specData : getIbClient().getSpecificationList(_handle)) {
+                YSpecificationID thisID = specData.getID();
+                if (thisID.getIdentifier().equals(specID.getIdentifier())) {
+                    versions.add(thisID);
+                }
+            }
+            return versions;
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public Set<String> getAllRunningCases(YSpecificationID specID)
+            throws IOException {
+        if (isConnected()) {
+            String casesXML = getIbClient().getCases(specID, _handle);
+            if (successful(casesXML)) {
+                XNode casesNode = new XNodeParser().parse(casesXML);
+                if (casesNode != null) {
+                    Set<String> cases = new HashSet<String>();
+                    for (XNode caseNode : casesNode.getChildren()) {
+                        cases.add(caseNode.getText());
+                    }
+                    return cases;
+                }
+                throw new IOException("Invalid cases list returned from YAWL Engine");
+            }
+            throw new IOException(StringUtil.unwrap(casesXML));
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public String cancelAllCases(YSpecificationID specID) throws IOException {
+        StringBuilder result = new StringBuilder("Cases cancelled: ");
+        Set<String> cases = getAllRunningCases(specID);
+        for (String caseID : cases) {
+            if (cancelCase(caseID)) {
+                result.append(caseID).append(" ");
+            }
+        }
+        return result.toString();
+    }
+
+
+    public void unloadAllVersions(YSpecificationID specID, boolean cancelCases)
+            throws IOException {
+        for (YSpecificationID thisID : getAllLoadedVersions(specID)) {
+            if (cancelCases) {
+                cancelAllCases(thisID);
+            }
+            unloadSpecification(thisID);
+        }
+    }
+
+    public String launchCase(YSpecificationID specID, String caseParams,
+                           YLogDataItemList logList) throws IOException {
+        if (isConnected()) {
+            return getIbClient().launchCase(specID, caseParams, logList, _handle);
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public boolean cancelCase(String caseID) throws IOException {
+        if (isConnected()) {
+            return successful(getIbClient().cancelCase(caseID, _handle));
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public InterfaceB_EnvironmentBasedClient getIbClient() {
+        String iaUri = _client.getBackEndURI();
+        String ibUri = iaUri.replace(IA_PATH, IB_PATH);
+        return new InterfaceB_EnvironmentBasedClient(ibUri);
+    }
+
+
+    public YLogGatewayClient getIeClient() {
+        String iaUri = _client.getBackEndURI();
+        String ieUri = iaUri.replace(IA_PATH, IE_PATH);
+        return new YLogGatewayClient(ieUri);
+    }
+
+
     /**
      * Checks an xml string returned via the APi for error messages
      * @param xml the returned xml string to check
@@ -212,6 +339,10 @@ public class YEngineConnection extends YConnection {
         }
     }
 
+
+    private String getSpecificationXML(YSpecification specification) {
+        return YMarshal.marshal(specification);
+    }
 
 
     /**

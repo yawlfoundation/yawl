@@ -174,7 +174,7 @@ public class SpecificationFileHandler {
             }
         }
         SpecificationModel.getHandler().setFileName(getFullFileName(file));
-        SpecificationModel.getHandler().setUniqueID();
+ //       SpecificationModel.getHandler().setUniqueID();
         return true;
     }
 

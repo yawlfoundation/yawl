@@ -53,7 +53,6 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
     private static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
     private Color _backgroundColor = UserSettings.getVertexBackgroundColour();
-
     private String _designNotes;
 
     protected YExternalNetElement _yawlElement;

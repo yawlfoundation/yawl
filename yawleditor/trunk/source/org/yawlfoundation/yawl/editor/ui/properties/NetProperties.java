@@ -28,9 +28,9 @@ public class NetProperties extends YPropertiesBean {
 
     /*** SPEC PROPERTIES ***/
 
-    public String getUri() { return specHandler.getID().getUri(); }
+    public String getUri() { return specHandler.getURI(); }
 
-    public void setUri(String uri) { specHandler.getID().setUri(uri); }
+    public void setUri(String uri) { specHandler.setURI(uri); }
 
 
     public String getTitle() { return specHandler.getTitle(); }
@@ -115,7 +115,7 @@ public class NetProperties extends YPropertiesBean {
 
 
     public String getDataGateway() {
-        String gateway = model.getExternalDataGateway();
+        String gateway = model != null ? model.getExternalDataGateway() : null;
         return gateway != null ? gateway : "None";
     }
 

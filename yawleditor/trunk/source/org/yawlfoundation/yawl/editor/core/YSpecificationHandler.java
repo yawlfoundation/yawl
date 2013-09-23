@@ -50,13 +50,14 @@ public class YSpecificationHandler {
     public YSpecification newSpecification()
             throws YControlFlowHandlerException, YSyntaxException {
         _specification = _fileOps.newSpecification();
+        setUniqueID();
+        addAuthor(System.getProperty("user.name"));
+        setDescription("No description provided");
         _dataHandler.setSpecification(_specification);
         setSchema(DEFAULT_TYPE_DEFINITION);
         _controlFlowHandler.setSpecification(_specification);
         _controlFlowHandler.createRootNet("Net");
         _resourceHandler.setSpecification(_specification);
-        addAuthor(System.getProperty("user.name"));
-        setDescription("No description provided");
         return _specification;
     }
 
@@ -100,6 +101,11 @@ public class YSpecificationHandler {
         }
         return metaData;
     }
+
+
+    public void setURI(String uri) { _specification.setURI(uri); }
+
+    public String getURI() { return _specification.getURI(); }
 
 
     public void setTitle(String title) {

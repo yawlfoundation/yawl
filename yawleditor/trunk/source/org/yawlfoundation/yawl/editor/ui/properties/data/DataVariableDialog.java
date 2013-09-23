@@ -56,7 +56,7 @@ public class DataVariableDialog extends JDialog
         super();
         initialise(net);
         this.decomposition = decomposition;
-        this.task = getTask(task.getID());
+        this.task = task.getTask();
         setTitle("Data Variables for Task " + decomposition.getID());
         add(getContentForTaskLevel());
         enableDefaultValueEditing();
@@ -186,10 +186,6 @@ public class DataVariableDialog extends JDialog
          .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
                  dataType));
         return s.toString();
-    }
-
-    private YTask getTask(String name) {
-        return (YTask) net.getNetElement(name);
     }
 
 

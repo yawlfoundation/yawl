@@ -111,7 +111,9 @@ public class ProblemReportingEditorPane extends JPanel
 
     protected void showProblems(List<String> problemList) {
         if (problemList != null && problemList.size() > 0) {
-            errorBar.setText(problemList.get(0));
+
+            // remove the dummy element name from error message
+            errorBar.setText(problemList.get(0).replace(" 'foo_bar'", ""));
             setProblemPanelForeground(true);
         }
         else {

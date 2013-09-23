@@ -3,8 +3,13 @@ package org.yawlfoundation.yawl.editor.core;
 import org.yawlfoundation.yawl.editor.core.connection.YEngineConnection;
 import org.yawlfoundation.yawl.editor.core.connection.YResourceConnection;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
+import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
 import org.yawlfoundation.yawl.resourcing.resource.*;
@@ -86,9 +91,20 @@ public class YConnector {
     }
 
 
-    public static InterfaceA_EnvironmentBasedClient getEngineClient() {
+    public static InterfaceA_EnvironmentBasedClient getInterfaceAClient() {
         return _engConn.getClient();
     }
+
+
+    public static InterfaceB_EnvironmentBasedClient getInterfaceBClient() {
+        return _engConn.getIbClient();
+    }
+
+
+    public static YLogGatewayClient getInterfaceEClient() {
+        return _engConn.getIeClient();
+    }
+
 
     public static ResourceGatewayClient getResourceClient() {
         return _resConn.getClient();
@@ -104,6 +120,45 @@ public class YConnector {
     
     public static YAWLServiceReference getService(String uri) {
         return _engConn.getService(uri);
+    }
+
+    public static String uploadSpecification(YSpecification specification)
+            throws IOException {
+        return _engConn.uploadSpecification(specification);
+    }
+
+    public static boolean unloadSpecification(YSpecificationID specID)
+            throws IOException {
+        return _engConn.unloadSpecification(specID);
+    }
+
+    public static Set<YSpecificationID> getAllLoadedVersions(YSpecificationID specID)
+            throws IOException {
+        return _engConn.getAllLoadedVersions(specID);
+    }
+
+    public static Set<String> getAllRunningCases(YSpecificationID specID)
+            throws IOException {
+        return _engConn.getAllRunningCases(specID);
+    }
+
+    public static String cancelAllCases(YSpecificationID specID) throws IOException {
+        return _engConn.cancelAllCases(specID);
+    }
+
+    public static void unloadAllVersions(YSpecificationID specID, boolean cancelCases)
+            throws IOException {
+        _engConn.unloadAllVersions(specID, cancelCases);
+    }
+
+
+    public static String launchCase(YSpecificationID specID, String caseParams,
+                                    YLogDataItemList logList) throws IOException {
+        return _engConn.launchCase(specID, caseParams, logList);
+    }
+
+    public static boolean cancelCase(String caseID) throws IOException {
+        return _engConn.cancelCase(caseID);
     }
 
 

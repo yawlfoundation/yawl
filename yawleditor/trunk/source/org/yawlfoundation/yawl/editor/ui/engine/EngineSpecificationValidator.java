@@ -29,19 +29,28 @@ public class EngineSpecificationValidator {
 
 
     public List<String> getValidationResults() {
-        return getValidationResults(SpecificationModel.getInstance());
+        return getValidationResults(Validator.ALL_MESSAGES);
     }
 
-    public List<String> getValidationResults(SpecificationModel specification) {
+    public List<String> getValidationResults(int msgType) {
+        return getValidationResults(SpecificationModel.getInstance(), msgType);
+    }
+
+    public List<String> getValidationResults(SpecificationModel model) {
+        return getValidationResults(model, Validator.ALL_MESSAGES);
+    }
+
+    public List<String> getValidationResults(SpecificationModel model, int msgType) {
         return getValidationResults(
-                SpecificationWriter.populateSpecification(
-                        specification
-                )
-        );
+                SpecificationWriter.populateSpecification(model), msgType);
     }
 
     public List<String> getValidationResults(YSpecification specification) {
-        return new Validator().validate(specification);
+        return getValidationResults(specification, Validator.ALL_MESSAGES);
+    }
+
+    public List<String> getValidationResults(YSpecification specification, int msgType) {
+        return new Validator().validate(specification, msgType);
     }
 
 

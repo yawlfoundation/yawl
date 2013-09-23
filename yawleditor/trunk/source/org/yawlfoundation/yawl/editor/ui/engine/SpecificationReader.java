@@ -120,22 +120,22 @@ public class SpecificationReader {
 
     private void importNets() {
         YNet rootNet = _handler.getControlFlowHandler().getRootNet();
-        importNet(rootNet);
+        importNet(rootNet, true);
 
         // import sub-nets
         for (YNet net : _handler.getControlFlowHandler().getNets()) {
             if (! net.equals(rootNet)) {
-                importNet(net);
+                importNet(net, false);
             }
         }
     }
 
 
-    private NetGraphModel importNet(YNet engineNet) {
+    private NetGraphModel importNet(YNet engineNet, boolean root) {
         NetGraph editorNet = new NetGraph(engineNet);
         editorNet.setName(engineNet.getID());
         NetGraphModel graphModel = editorNet.getNetModel();
-        _model.getNets().addNoUndo(graphModel);
+        _model.getNets().add(graphModel, root);
 
         YAWLEditor.getNetsPane().openNet(editorNet);
         return graphModel;

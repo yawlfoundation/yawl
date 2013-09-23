@@ -138,7 +138,7 @@ public class DecompositionProperties extends CellProperties {
 
 
     public NetTaskPair getTaskDataVariables() {
-        return new NetTaskPair(flowHandler.getRootNet(), _decomposition, (YAWLTask) vertex);
+        return new NetTaskPair(getSelectedYNet(), _decomposition, (YAWLTask) vertex);
     }
 
     public void setTaskDataVariables(NetTaskPair value) {
