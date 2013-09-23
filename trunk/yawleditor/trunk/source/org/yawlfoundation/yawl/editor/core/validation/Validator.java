@@ -13,13 +13,35 @@ import java.util.List;
  */
 public class Validator {
 
-    private static final String NO_PROBLEMS_MESSAGE = "No problems reported.";
+    public static final String NO_PROBLEMS_MESSAGE = "No problems reported.";
+
+    public static final int ERROR_MESSAGES = 1;
+    public static final int WARNING_MESSAGES = 2;
+    public static final int ALL_MESSAGES = 3;
 
 
     public List<String> validate(YSpecification specification) {
+        return validate(specification, ALL_MESSAGES);
+    }
+
+
+    public List<String> validate(YSpecification specification, int messageType) {
         YVerificationHandler verificationHandler = new YVerificationHandler();
         specification.verify(verificationHandler);
-        return createProblemList(verificationHandler.getMessages());
+        return createProblemList(verificationHandler, messageType);
+    }
+
+
+    private List<String> createProblemList(YVerificationHandler verificationHandler,
+                                           int messageType) {
+        switch (messageType) {
+            case ERROR_MESSAGES :
+                return createProblemList(verificationHandler.getErrors());
+            case WARNING_MESSAGES :
+                return createProblemList(verificationHandler.getWarnings());
+            default : // ALL_MESSAGES
+                return createProblemList(verificationHandler.getMessages());
+        }
     }
 
 

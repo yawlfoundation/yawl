@@ -64,5 +64,4 @@ public abstract class PropertyDialog extends JDialog {
         return ResourceLoader.getImageAsIcon(MENU_ICON_PATH + iconName + ".png");
     }
 
-
 }

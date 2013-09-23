@@ -33,13 +33,11 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
 import javax.swing.*;
@@ -111,12 +109,12 @@ public class SpecificationWriter {
     }
 
 
-    public static String getEngineSpecificationXML(SpecificationModel model) {
-        return getEngineSpecificationXML(populateSpecification(model));
+    public static String getSpecificationXML(SpecificationModel model) {
+        return getSpecificationXML(populateSpecification(model));
     }
 
 
-    public static String getEngineSpecificationXML(YSpecification engineSpec) {
+    public static String getSpecificationXML(YSpecification engineSpec) {
         try {
             return YMarshal.marshal(engineSpec);
         } catch (Exception e) {
@@ -127,14 +125,14 @@ public class SpecificationWriter {
 
 
     public static YSpecification populateSpecification(SpecificationModel model) {
-        YSpecification spec = _handler.getSpecification();
+        _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
+        removeUndoneElements();
         finaliseEngineNets(model);
-        return spec;
+        return _handler.getSpecification();
     }
 
 
      private static void finaliseEngineNets(SpecificationModel model) {
-         _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
         for (NetGraphModel netModel : model.getNets()) {
             checkNetIdIsValidXML((YNet) netModel.getDecomposition());
             NetElementSummary editorNetSummary = new NetElementSummary(netModel);
@@ -200,5 +198,13 @@ public class SpecificationWriter {
         }
     }
 
+
+    private static void removeUndoneElements() {
+        for (YExternalNetElement netElement :
+                 SpecificationUndoManager.getInstance().getRemovedYNetElements()) {
+            _handler.getControlFlowHandler().removeNetElement(netElement);
+        }
+        SpecificationUndoManager.getInstance().clearYNetElementSet();
+    }
 
 }

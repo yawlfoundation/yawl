@@ -245,9 +245,6 @@ public class CellProperties extends NetProperties {
             }
             try {
                 if (isComposite) {
-//                    YNet net = flowHandler.addNet(newName);
-//                    NetGraph graph = new NetGraph(net);
-
                     YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false);
                     panel.setTitle(newName);
                     return panel.getNet().getNetModel().getDecomposition();
@@ -260,9 +257,6 @@ public class CellProperties extends NetProperties {
             catch (IllegalIdentifierException iie) {
                 showIdentifierWarning("Identifier Name Error", iie.getMessage());
             }
-//            catch (YControlFlowHandlerException ycfhe) {
-//                //
-//            }
         }
         return current;
     }
@@ -351,7 +345,7 @@ public class CellProperties extends NetProperties {
 
     public NetTaskPair getSplitConditions() {
         NetTaskPair pair = new NetTaskPair((YAWLTask) vertex, graph);
-        if (((YAWLTask) vertex).getOutgoingFlowCount() == 0) {
+        if (((YAWLTask) vertex).getOutgoingFlowCount() < 2) {
             pair.setSimpleText("None");
         }
         else {
@@ -502,13 +496,17 @@ public class CellProperties extends NetProperties {
 
     private void updateVertexID(String id) {
         if (id != null) {
-            try {
-                vertex.setID(flowHandler.checkID(XMLUtilities.toValidXMLName(id)));
-                firePropertyChange("id", getId());
-                setDirty();
-            }
-            catch (IllegalIdentifierException iie) {
-                showIdentifierWarning("Identifier Update Error", iie.getMessage());
+            String validID = XMLUtilities.toValidXMLName(id);
+            if (! vertex.getID().equals(validID)) {
+                try {
+                    validID = flowHandler.replaceID(vertex.getID(), validID);
+                    vertex.setID(validID);
+                    firePropertyChange("id", getId());
+                    setDirty();
+                }
+                catch (IllegalIdentifierException iie) {
+                    showIdentifierWarning("Identifier Update Error", iie.getMessage());
+                }
             }
         }
     }

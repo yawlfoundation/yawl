@@ -28,11 +28,15 @@ import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphUndoManager;
 import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The <code>SpecificationUndoManager</code> is a special case of an <code>UndoManager</code> 
@@ -57,6 +61,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
     private int     nonAcceptanceLevel = 0;
     private boolean compoundingEdits = false;
     private boolean dirty = false ;
+    private Set<YExternalNetElement> removedYNetElements;
 
     public static SpecificationUndoManager getInstance() {
         return INSTANCE;
@@ -65,6 +70,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
     private SpecificationUndoManager() {
         super();
         setLimit(500);
+        removedYNetElements = new HashSet<YExternalNetElement>();
     }
 
     /**
@@ -133,6 +139,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void undo() {
         showFrameOfEdit(editToBeUndone());
+        updateElementSet(editToBeUndone());
         if (canUndo()) super.undo();
         refreshButtons();
     }
@@ -148,6 +155,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void redo() {
         showFrameOfEdit(editToBeRedone());
+        updateElementSet(editToBeRedone());
         super.redo();
         refreshButtons();
     }
@@ -212,6 +220,14 @@ public class SpecificationUndoManager extends GraphUndoManager {
         }
     }
 
+
+    public Set<YExternalNetElement> getRemovedYNetElements() {
+        return removedYNetElements;
+    }
+
+    public void clearYNetElementSet() { removedYNetElements.clear(); }
+
+
     private boolean acceptingEdits() {
         return nonAcceptanceLevel <= 0;
     }
@@ -226,13 +242,18 @@ public class SpecificationUndoManager extends GraphUndoManager {
                 showFrameOfModel((NetGraphModel) gmEdit.getSource());
             }
         }
-        if (edit instanceof SpecificationCompoundEdit) {
+        else if (edit instanceof SpecificationCompoundEdit) {
             SpecificationCompoundEdit scEdit = (SpecificationCompoundEdit) edit;
             if (scEdit.getModel() != null) {
                 showFrameOfModel(scEdit.getModel());
             }
         }
+    }
 
+
+    private DefaultGraphModel.GraphModelEdit getGraphModelEdit(UndoableEdit edit) {
+        return (edit instanceof DefaultGraphModel.GraphModelEdit) ?
+                (DefaultGraphModel.GraphModelEdit) edit : null;
     }
 
     private void showFrameOfModel(NetGraphModel model) {
@@ -243,6 +264,28 @@ public class SpecificationUndoManager extends GraphUndoManager {
         } catch (Exception e) {}
     }
 
+
+    private void updateElementSet(UndoableEdit edit) {
+        DefaultGraphModel.GraphModelEdit gmEdit = getGraphModelEdit(edit);
+        if (gmEdit != null) {
+            Object[] aboutToBeRemoved = gmEdit.getInserted();
+            Object[] aboutToBeInserted = gmEdit.getRemoved();
+            if (aboutToBeRemoved != null) {
+                for (Object o : aboutToBeRemoved) {
+                    if (o instanceof YAWLVertex) {
+                        removedYNetElements.add(((YAWLVertex) o).getYAWLElement());
+                    }
+                }
+            }
+            else if (aboutToBeInserted != null) {
+                for (Object o : aboutToBeInserted) {
+                    if (o instanceof YAWLVertex) {
+                        removedYNetElements.remove(((YAWLVertex) o).getYAWLElement());
+                    }
+                }
+            }
+        }
+    }
 
     public boolean isDirty() {
         return dirty ;

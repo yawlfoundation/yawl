@@ -22,6 +22,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLActiveOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -51,5 +52,6 @@ public class UndoAction extends YAWLActiveOpenSpecificationAction {
 
     public void actionPerformed(ActionEvent event) {
         SpecificationUndoManager.getInstance().undo();
+        YAWLEditor.getPropertySheet().invalidate();
     }
 }

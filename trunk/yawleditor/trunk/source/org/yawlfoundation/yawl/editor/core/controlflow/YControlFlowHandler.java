@@ -127,7 +127,8 @@ public class YControlFlowHandler {
 
     public YAWLServiceGateway addTaskDecomposition(String name)
             throws IllegalIdentifierException {
-        YAWLServiceGateway gateway = new YAWLServiceGateway(checkID(name), _specification);
+        YAWLServiceGateway gateway = new YAWLServiceGateway(
+                checkDecompositionID(name), _specification);
         _specification.addDecomposition(gateway);
         return gateway;
     }
@@ -310,9 +311,13 @@ public class YControlFlowHandler {
     }
 
 
-    public void removeNetElement(String netID, YExternalNetElement element) {
+    public boolean removeNetElement(YExternalNetElement element) {
+        return removeNetElement(element.getNet().getID(), element);
+    }
+
+    public boolean removeNetElement(String netID, YExternalNetElement element) {
         YNet net = getNet(netID);
-        if (net != null) net.removeNetElement(element);
+        return net != null && net.removeNetElement(element);
     }
 
 
@@ -359,6 +364,11 @@ public class YControlFlowHandler {
         _identifiers.rationaliseIfRequired(_specification);
     }
 
+    public String replaceID(String oldID, String newID) {
+        _identifiers.removeIdentifier(oldID);
+        return checkID(newID);
+    }
+
     public String checkID(String id) throws IllegalIdentifierException {
         if (! isValidXMLIdentifier(id)) {
             throw new IllegalIdentifierException("Illegal XML identifier: '" + id + "'");
@@ -366,6 +376,16 @@ public class YControlFlowHandler {
         return _identifiers.getIdentifier(id).toString();
     }
 
+    public String checkDecompositionID(String id) throws IllegalIdentifierException {
+        if (! isValidXMLIdentifier(id)) {
+            throw new IllegalIdentifierException("Illegal XML identifier: '" + id + "'");
+        }
+        if (getDecompositionIds().contains(id)) {
+            throw new IllegalIdentifierException(
+                    "Identifier: '" + id + "' is already in use");
+        }
+        return id;
+    }
 
     public boolean isValidXMLIdentifier(String id) {
         return ! (id == null || id.toLowerCase().startsWith("xml")
