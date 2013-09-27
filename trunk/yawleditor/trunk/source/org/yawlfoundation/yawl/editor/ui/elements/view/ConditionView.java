@@ -50,6 +50,15 @@ public class ConditionView extends VertexView {
         protected void drawVertex(Graphics graphics, Dimension size) {
             graphics.drawOval(0, 0, size.width - 1, size.height - 1);
         }
+
+        // for use by input & output conditions
+        protected void overrideFill(Graphics graphics, Dimension size) {
+            Color color = graphics.getColor();
+            graphics.setColor(Color.WHITE);
+            fillVertex(graphics, size);
+            graphics.setColor(color);
+        }
+
     }
 }
 

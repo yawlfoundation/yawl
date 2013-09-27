@@ -54,7 +54,5 @@ class NetMenu extends YAWLOpenSpecificationMenu {
         add(new YAWLMenuItem(new RepositoryAddAction(null, Repo.NetDecomposition, null)));
         add(new YAWLMenuItem(new RepositoryGetAction(null, Repo.NetDecomposition, null)));
         add(new YAWLMenuItem(new RepositoryRemoveAction(null, Repo.NetDecomposition, null)));
-        addSeparator();
-        add(new ProcessConfigurationMenu());
     }
 }

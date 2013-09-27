@@ -31,18 +31,13 @@ import java.awt.event.KeyEvent;
 
 class HelpMenu extends JMenu {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+    public HelpMenu() {
+        super("Help");
+        buildInterface();
+    }
 
-  public HelpMenu() {
-    super("Help");
-    buildInterface();
-  }
-  
-  protected void buildInterface() {
-    setMnemonic(KeyEvent.VK_H);
-    add(new YAWLMenuItem(new ShowAboutEditorAction()));
-  }
+    protected void buildInterface() {
+        setMnemonic(KeyEvent.VK_H);
+        add(new YAWLMenuItem(new ShowAboutEditorAction()));
+    }
 }

@@ -46,6 +46,7 @@ public class InputConditionView extends VertexView {
 class InputConditionRenderer extends ConditionView.ConditionRenderer {
 
     protected void drawVertex(Graphics graphics, Dimension size) {
+        overrideFill(graphics, size);                  // white b/g for input condition
         Polygon startArrow = new Polygon();
         startArrow.addPoint(Math.round(size.width/3),
                 Math.round(size.height/4));
@@ -62,4 +63,5 @@ class InputConditionRenderer extends ConditionView.ConditionRenderer {
         graphics.drawPolygon(startArrow);
         super.drawVertex(graphics, size);
     }
+
 }

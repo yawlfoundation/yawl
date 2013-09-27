@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.ProcessConfigurationAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-public class CancellationRegionConfigurationAction extends YAWLBaseAction
+public class CancellationRegionConfigurationAction extends ProcessConfigurationAction
         implements TooltipTogglingWidget {
 
     {
@@ -23,13 +23,9 @@ public class CancellationRegionConfigurationAction extends YAWLBaseAction
 
     }
 
-    private YAWLTask task;
-    private NetGraph net;
 
-
-    public CancellationRegionConfigurationAction(YAWLTask task) {
-        this.task = task;
-        this.net = getGraph();
+    public CancellationRegionConfigurationAction() {
+        super();
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -46,6 +42,12 @@ public class CancellationRegionConfigurationAction extends YAWLBaseAction
                 dialog.setVisible(true);
             }
         });
+    }
+
+
+    public void setEnabled(boolean enable) {
+        super.setEnabled(enable && task != null && task.isConfigurable() &&
+                task.hasCancellationSetMembers());
     }
 
     public String getDisabledTooltipText() {
