@@ -49,45 +49,95 @@ public class YConnector {
 
     public static void disconnectResource() { _resConn.disconnect(); }
 
-    public static void setEngineUserID(String id) { _engConn.setUserID(id); }
-    public static void setEnginePassword(String pw) { _engConn.setPassword(pw); }
+
+    public static void setUserID(String id) {
+        _engConn.setUserID(id);
+        _resConn.setUserID(id);
+    }
+
+    public static void setPassword(String pw) {
+        _engConn.setPassword(pw);
+        _resConn.setPassword(pw);
+    }
+
     public static void setEngineURL(URL url) { _engConn.setURL(url); }
-    public static void setEngineURL(String url) { _engConn.setURL(makeURL(url)); }
 
-    public static void setResourceUserID(String id) { _resConn.setUserID(id); }
-    public static void setResourcePassword(String pw) { _resConn.setPassword(pw); }
+    public static void setEngineURL(String url) throws MalformedURLException {
+        _engConn.setURL(url);
+    }
+
+    public static void setEngineURL(String host, int port) throws MalformedURLException {
+        _engConn.setURL(host, port);
+    }
+
     public static void setResourceURL(URL url) { _resConn.setURL(url); }
-    public static void setResourceURL(String url) { _resConn.setURL(makeURL(url)); }
 
+    public static void setResourceURL(String url) throws MalformedURLException {
+        _resConn.setURL(url);
+    }
 
-    /**
-     * Checks whether a valid connection can be made with the parameters passed.
-     * @param url the connection's URL
-     * @param userid the userid
-     * @param password the password
-     * @return true if the parameters can be used to create a valid connection
-     */
-    public static boolean testEngineParameters(String url, String userid, String password) {
-        YEngineConnection tempConn = new YEngineConnection(url);
-        tempConn.setUserID(userid);
-        tempConn.setPassword(password);
-        return tempConn.isConnected();
+    public static void setResourceURL(String host, int port) throws MalformedURLException {
+        _resConn.setURL(host, port);
     }
 
 
     /**
      * Checks whether a valid connection can be made with the parameters passed.
-     * @param url the connection's URL
-     * @param userid the userid
+     * @param host the host's base URL
+     * @param port the port on the host
+     * @param user the userid
      * @param password the password
      * @return true if the parameters can be used to create a valid connection
      */
-    public static boolean testResourceServiceParameters(String url, String userid,
-                                                        String password) {
-        YResourceConnection tempConn = new YResourceConnection(url);
-        tempConn.setUserID(userid);
-        tempConn.setPassword(password);
-        return tempConn.isConnected();
+    public static boolean testEngineParameters(String host, int port,
+                                               String user, String password)
+            throws MalformedURLException {
+        YEngineConnection tempConn = new YEngineConnection();
+        tempConn.setURL(host, port);
+        return tempConn.testConnection(user, password);
+    }
+
+    public static boolean testEngineParameters(String url, String user, String password)
+            throws MalformedURLException {
+        YEngineConnection tempConn = new YEngineConnection();
+        tempConn.setURL(url);
+        return tempConn.testConnection(user, password);
+    }
+
+    public static boolean testEngineParameters(URL url, String user, String password)
+             throws MalformedURLException {
+         YEngineConnection tempConn = new YEngineConnection();
+         tempConn.setURL(url);
+        return tempConn.testConnection(user, password);
+     }
+
+
+    /**
+     * Checks whether a valid connection can be made with the parameters passed.
+     * @param url the connection's URL
+     * @param user the userid
+     * @param password the password
+     * @return true if the parameters can be used to create a valid connection
+     */
+    public static boolean testResourceServiceParameters(String url, String user,
+            String password) throws MalformedURLException {
+        YResourceConnection tempConn = new YResourceConnection();
+        tempConn.setURL(url);
+        return tempConn.testConnection(user, password);
+    }
+
+    public static boolean testResourceServiceParameters(String host, int port,
+            String user, String password) throws MalformedURLException {
+        YResourceConnection tempConn = new YResourceConnection();
+        tempConn.setURL(host, port);
+        return tempConn.testConnection(user, password);
+    }
+
+    public static boolean testResourceServiceParameters(URL url, String user,
+             String password) throws MalformedURLException {
+        YResourceConnection tempConn = new YResourceConnection();
+        tempConn.setURL(url);
+        return tempConn.testConnection(user, password);
     }
 
 
@@ -286,19 +336,6 @@ public class YConnector {
     public static List<YParameter> getServiceParameters(String serviceURI)
             throws IOException {
         return Arrays.asList(_engConn.getParametersForService(serviceURI));
-    }
-
-
-    private static URL makeURL(String url) {
-        if (url != null) {
-            try {
-                return new URL(url);
-            }
-            catch (MalformedURLException mue) {
-                // fallthrough to null
-            }
-        }
-        return null;
     }
 
 }

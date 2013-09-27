@@ -1,10 +1,13 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.preferences.PreferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +34,10 @@ public class JConnectionStatus extends JPanel {
             )
         );
         addIndicators();
+        addMouseListener(new PreferencesLauncher());
         startHeartbeat();
     }
+
 
     private static ImageIcon getIconByName(String iconName) {
       return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
@@ -82,6 +87,7 @@ public class JConnectionStatus extends JPanel {
         public JIndicator() {
             super();
             _indicator = new JLabel();
+            _indicator.addMouseListener(new PreferencesLauncher());
             setOnline(false);
             this.add(_indicator);
         }
@@ -109,6 +115,16 @@ public class JConnectionStatus extends JPanel {
 
         private String getStatus() {
             return _online ? "online" : "offline" ;
+        }
+    }
+
+    /*******************************************/
+
+    // Opens the preferences dialog when an icon or surrounding panel is clicked
+    class PreferencesLauncher extends MouseAdapter {
+        public void mouseClicked(MouseEvent mouseEvent) {
+            new PreferencesDialog().setVisible(true);
+            super.mouseClicked(mouseEvent);
         }
     }
 }

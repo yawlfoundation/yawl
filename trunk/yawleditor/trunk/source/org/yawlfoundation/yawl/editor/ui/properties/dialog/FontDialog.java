@@ -27,10 +27,11 @@ public class FontDialog extends PropertyDialog
 
     public FontDialog(Window parent, Font font) {
         super(parent);
-        _font = font;
+        setFont(font);
         _colour = Color.BLACK;
         setSize(new Dimension(360, 370));
         setTitle("Font Picker");
+        getOKButton().setEnabled(true);
         _fontNames.ensureIndexIsVisible(_fontNames.getSelectedIndex());
     }
 
@@ -42,7 +43,32 @@ public class FontDialog extends PropertyDialog
 
     public Color getColour() { return _colour; }
 
-    public void setColour(Color color) { _colour = color; }
+    public void setColour(Color color) {
+        _colour = color;
+        _colourPane.repaint();
+        setPreviewText();
+
+    }
+
+    public void setFont(Font font) {
+        _font = font;
+        if (_font != null) {
+            _fontSizes.removeActionListener(this);
+            _fontNames.removeListSelectionListener(this);
+            _fontStyles.removeListSelectionListener(this);
+
+            _fontNames.setSelectedValue(_font.getFamily(), true);
+            _fontSizes.setSelectedItem(new Integer(_font.getSize()));
+            _fontStyles.setSelectedIndex(_font.getStyle());
+            setPreviewText();
+
+            _fontSizes.addActionListener(this);
+            _fontNames.addListSelectionListener(this);
+            _fontStyles.addListSelectionListener(this);
+        }
+    }
+
+    public Font getFont() { return _font; }
 
 
     protected JPanel getContent() {
@@ -64,13 +90,6 @@ public class FontDialog extends PropertyDialog
         _colourPane.setForeground(_colourPane.getBackground());
         _previewPane.setBorder(BorderFactory.createTitledBorder("Preview"));
         _previewPane.setPreferredSize(new Dimension(350, 100));
-
-        if (_font != null) {
-            _fontNames.setSelectedValue(_font.getFamily(), true);
-            _fontSizes.setSelectedItem(_font.getSize());
-            _fontStyles.setSelectedIndex(_font.getStyle());
-            setPreviewText();
-        }
 
         _fontSizes.addActionListener(this);
         _fontNames.addListSelectionListener(this);
@@ -114,6 +133,7 @@ public class FontDialog extends PropertyDialog
         }
         else if (event.getActionCommand().equals("Cancel")) {
             _font = null;
+            _colour = null;
             setVisible(false);
         }
         else fontChanged();     // size change
@@ -129,8 +149,7 @@ public class FontDialog extends PropertyDialog
             int size = (Integer) _fontSizes.getSelectedItem();
             String name = _fontNames.getSelectedValue().toString();
             int style = getSelectedStyle();
-            _font = new Font(name, style, size);
-            setPreviewText();
+            setFont(new Font(name, style, size));
         }
         catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -157,7 +176,7 @@ public class FontDialog extends PropertyDialog
     }
 
     private Object[] getFontSizes() {
-        return new Object[] {8,9,10,11,12,13,14,15,16,18,24,36,48,64,72,96,144};
+        return new Integer[] {8,9,10,11,12,13,14,15,16,18,24,36,48,64,72,96,144};
     }
 
     private String[] getFontStyles() {

@@ -41,21 +41,20 @@ public class YResourceConnection extends YConnection {
     private List<AbstractSelector> _constraintCache = new ArrayList<AbstractSelector>();
     private List<CodeletInfo> _codeletCache = new ArrayList<CodeletInfo>();
 
-    // default URL
-    public static final String DEFAULT_URL = "http://localhost:8080/resourceService/gateway";
+    // default URL parts
+    public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 8080;
+    public static final String GATEWAY_PATH = "/resourceService/gateway";
 
 
     /*********************************************************************************/
 
     // Constructors
-    public YResourceConnection() {
+    public YResourceConnection() { }
+
+    public YResourceConnection(String host, int port) throws MalformedURLException {
         super();
-        try {
-            setURL(DEFAULT_URL);
-        }
-        catch (MalformedURLException mue) {
-            setURL((URL) null);
-        }
+        setURL(new URL("http", host, port, GATEWAY_PATH));
     }
 
     public YResourceConnection(String urlStr) { super(urlStr); }
@@ -452,14 +451,18 @@ public class YResourceConnection extends YConnection {
         _adapter = new ResourceGatewayClientAdapter(_url.toExternalForm());
     }
 
+    protected String getURLFilePath() {
+        return GATEWAY_PATH;
+    }
+
 
     /**********************************************************************************/
 
     // test this class
     public static void main(String[] args) {
-        YResourceConnection conn =
-                new YResourceConnection("http://localhost:8080/resourceService/gateway");
+        YResourceConnection conn = new YResourceConnection();
         try {
+            conn.setURL(DEFAULT_HOST, DEFAULT_PORT);
             List<Participant> ps = conn.getParticipants();
             System.out.println(ps.size());
             List<Role> rs = conn.getRoles();

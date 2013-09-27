@@ -1,6 +1,6 @@
 /*
- * Created on 9/10/2003
- * YAWLEditor v1.0 
+ * Created on 25/02/2005
+ * YAWLEditor v1.1-1
  *
  * @author Lindsay Bradford
  * 
@@ -29,30 +29,29 @@ import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
-public class AntiAliasedToggleAction extends YAWLBaseAction {
+public class ToolbarGridToggleAction extends YAWLBaseAction {
 
     private boolean selected;
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Toggle anti-aliasing of drawn graph elements. ");
-        putValue(Action.NAME, "Anti-alias Diagrams");
-        putValue(Action.LONG_DESCRIPTION, "Toggle anti-aliasing of drawn graph elements.");
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+        putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
+        putValue(Action.NAME, "Show Grid");
+        putValue(Action.SMALL_ICON, getPNGIcon("grid"));
+        putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
+        putValue(Action.MNEMONIC_KEY, KeyEvent.VK_G);
     }
 
-    public AntiAliasedToggleAction() {
-        selected = UserSettings.getShowAntiAliasing();
+    public ToolbarGridToggleAction() {
+        selected = UserSettings.getShowGrid();
     }
 
     public void actionPerformed(ActionEvent event) {
         selected = !selected;
-
-        JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
-        menuItem.setSelected(selected);
-        UserSettings.setShowAntiAliasing(selected);
+        UserSettings.setShowGrid(selected);
         for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
-            net.getGraph().setAntiAliased(selected);
+            net.getGraph().setGridVisible(selected);
         }
     }
 

@@ -36,7 +36,7 @@ public class ShowGridToggleAction extends YAWLBaseAction {
 
     {
         putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
-        putValue(Action.NAME, "Show Grids in Diagrams");
+        putValue(Action.NAME, "Show Grid");
         putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_G));
     }
@@ -47,7 +47,6 @@ public class ShowGridToggleAction extends YAWLBaseAction {
 
     public void actionPerformed(ActionEvent event) {
         selected = !selected;
-
         JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) event.getSource();
         menuItem.setSelected(selected);
         UserSettings.setShowGrid(selected);

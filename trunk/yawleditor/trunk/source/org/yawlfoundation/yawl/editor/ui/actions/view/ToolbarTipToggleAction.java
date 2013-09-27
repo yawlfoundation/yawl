@@ -22,33 +22,37 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.view;
 
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
-public class DefaultNetBackgroundColourAction extends YAWLBaseAction {
+public class ToolbarTipToggleAction extends YAWLBaseAction {
+
+    private boolean selected;
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Set the default net background colour. ");
-        putValue(Action.NAME, "Default Net Background Colour...");
-        putValue(Action.LONG_DESCRIPTION, "Set the default net background colour.");
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
+        putValue(Action.SHORT_DESCRIPTION, "Show Tooltips");
+        putValue(Action.NAME, "Show Tooltips");
+        putValue(Action.SMALL_ICON, getPNGIcon("balloon"));
+        putValue(Action.LONG_DESCRIPTION, "Show Tooltips");
+        putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
     }
 
-    public DefaultNetBackgroundColourAction() {}
+    public ToolbarTipToggleAction() {
+        selected = UserSettings.getShowToolTips();
+        ToolTipManager.sharedInstance().setEnabled(selected);
+    }
 
     public void actionPerformed(ActionEvent event) {
-        Color newColor = JColorChooser.showDialog(
-                YAWLEditor.getInstance(),
-                "Select Default Net Background Color",
-                UserSettings.getNetBackgroundColour()
-        );
-        if (newColor != null) {
-            UserSettings.setNetBackgroundColour(newColor);
-        }
+        selected = !selected;
+        ToolTipManager.sharedInstance().setEnabled(selected);
+        UserSettings.setShowToolTips(selected);
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

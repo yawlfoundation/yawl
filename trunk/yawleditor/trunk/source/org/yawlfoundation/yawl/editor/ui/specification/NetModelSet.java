@@ -12,6 +12,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -225,6 +226,17 @@ public class NetModelSet extends HashSet<NetGraphModel> {
             lastNetModel.postEdit(new UndoableFontSizeChange(oldSize, newSize));
         }
        stopEdits();
+    }
+
+    public NetGraphModel propagateGlobalFontChange(Font font) {
+        startEdits(getRootNet());
+        NetGraphModel lastNetModel = null;
+        for (NetGraphModel netModel : this) {
+            NetCellUtilities.propogateFontChangeAcrossNet(netModel.getGraph(), font);
+            lastNetModel = netModel;
+        }
+        stopEdits();
+        return lastNetModel;
     }
 
 

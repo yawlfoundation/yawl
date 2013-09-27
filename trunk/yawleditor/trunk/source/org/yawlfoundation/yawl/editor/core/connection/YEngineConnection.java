@@ -40,7 +40,7 @@ public class YEngineConnection extends YConnection {
     private Map<String, YParameter[]> _paramCache = new Hashtable<String, YParameter[]>();
     private Map<String, String> _externalDbCache = new Hashtable<String, String>();
 
-    // default url
+    // default url parts
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 8080;
     public static final String IA_PATH = "/yawl/ia";
@@ -51,18 +51,11 @@ public class YEngineConnection extends YConnection {
     /*********************************************************************************/
 
     // Constructors
-    public YEngineConnection() {
-        this(DEFAULT_HOST, DEFAULT_PORT);
-    }
+    public YEngineConnection() { }
 
-    public YEngineConnection(String host, int port) {
+    public YEngineConnection(String host, int port) throws MalformedURLException {
         super();
-        try {
-            setURL(new URL("http", host, port, IA_PATH));
-        }
-        catch (MalformedURLException mue) {
-            setURL((URL) null);
-        }
+        setURL(new URL("http", host, port, IA_PATH));
     }
 
     public YEngineConnection(String urlStr) { super(urlStr); }
@@ -350,6 +343,10 @@ public class YEngineConnection extends YConnection {
      */
     protected void init() {
         _client = new InterfaceA_EnvironmentBasedClient(_url.toExternalForm());
+    }
+
+    protected String getURLFilePath() {
+        return IA_PATH;
     }
 
 }

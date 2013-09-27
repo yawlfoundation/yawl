@@ -6,19 +6,25 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * @author Michael Adams
  * @date 23/09/13
  */
-public class PreferencesDialog extends JDialog {
+public class PreferencesDialog extends JDialog
+        implements ActionListener, CaretListener {
 
     private JPanel _mainPanel;
     private JPanel _currentPanel;
-
+    private JButton _btnApply;
+    private java.util.List<PreferencePanel> _contentPanels;
 
     protected static final String MENU_ICON_PATH =
             "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
@@ -30,15 +36,37 @@ public class PreferencesDialog extends JDialog {
         init();
     }
 
+    public void actionPerformed(ActionEvent event) {
+        if (! (event.getSource() instanceof JButton)) {
+            caretUpdate(null);
+        }
+        else {
+            String action = event.getActionCommand();
+            if (! action.equals("Cancel")) {
+                for (PreferencePanel panel : _contentPanels) {
+                    panel.applyChanges();
+                }
+                _btnApply.setEnabled(false);
+            }
+            if (! action.equals("Apply")) {
+                setVisible(false);
+            }
+        }
+    }
+
+    public void caretUpdate(CaretEvent event) {
+        if (_btnApply != null) _btnApply.setEnabled(true);
+    }
 
     private void init() {
+        _contentPanels = new ArrayList<PreferencePanel>();
         setModal(true);
-        setResizable(true);
-//        setLocationRelativeTo(parent);
+        setResizable(false);
+        setLocationByPlatform(true);
         setTitle("YAWL Editor Preferences");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add(getContent());
-        setPreferredSize(new Dimension(600, 500));
+        setPreferredSize(new Dimension(590, 500));
         pack();
     }
 
@@ -49,6 +77,7 @@ public class PreferencesDialog extends JDialog {
         toolbar.setUI(new IconPackagerButtonBarUI());
         _mainPanel.add(toolbar, BorderLayout.WEST);
         populateToolbar(toolbar);
+        _mainPanel.add(getButtonBar(this), BorderLayout.SOUTH);
         return _mainPanel;
     }
 
@@ -57,7 +86,8 @@ public class PreferencesDialog extends JDialog {
         ButtonGroup group = new ButtonGroup();
         addConnectionPreferences(toolbar, group);
         addAnalysisPreferences(toolbar, group);
-        addOtherPreferences(toolbar, group);
+        addFilePathPreferences(toolbar, group);
+        addDefaultPreferences(toolbar, group);
     }
 
 
@@ -73,28 +103,39 @@ public class PreferencesDialog extends JDialog {
 
 
     private void addConnectionPreferences(JButtonBar toolbar, ButtonGroup group) {
-        JPanel connectionPanel = new JPanel();
-        connectionPanel.add(new Label("connection"));
-        JToggleButton button = makeButton("Connect", "link", connectionPanel);
+        ConnectionsPanel connectionsPanel = new ConnectionsPanel(this);
+        JToggleButton button = makeButton("Connect", "connect", connectionsPanel);
         toolbar.add(button);
         group.add(button);
+        _contentPanels.add(connectionsPanel);
+
+        // make this the first one shown
         button.setSelected(true);
-        showContent(connectionPanel);
+        showContent(connectionsPanel);
     }
 
     private void addAnalysisPreferences(JButtonBar toolbar, ButtonGroup group) {
-         JPanel analysisPanel = new AnalysisPanel();
-         JToggleButton button = makeButton("Analysis", "cd-accept", analysisPanel);
+        AnalysisPanel analysisPanel = new AnalysisPanel(this);
+         JToggleButton button = makeButton("Analysis", "analyze", analysisPanel);
          toolbar.add(button);
          group.add(button);
-     }
+        _contentPanels.add(analysisPanel);
+    }
 
-    private void addOtherPreferences(JButtonBar toolbar, ButtonGroup group) {
-        JPanel connectionPanel = new JPanel();
-        connectionPanel.add(new Label("others"));
-        JToggleButton button = makeButton("Others", "folder-open-edit", connectionPanel);
+    private void addFilePathPreferences(JButtonBar toolbar, ButtonGroup group) {
+        FilePathPanel filePathPanel = new FilePathPanel(this);
+        JToggleButton button = makeButton("File Paths", "folder-open-edit", filePathPanel);
         toolbar.add(button);
         group.add(button);
+        _contentPanels.add(filePathPanel);
+    }
+
+    private void addDefaultPreferences(JButtonBar toolbar, ButtonGroup group) {
+        DefaultsPanel defaultsPanel = new DefaultsPanel(this);
+        JToggleButton button = makeButton("Defaults", "defaults", defaultsPanel);
+        toolbar.add(button);
+        group.add(button);
+        _contentPanels.add(defaultsPanel);
     }
 
     private JToggleButton makeButton(String caption, String iconName,
@@ -109,10 +150,29 @@ public class PreferencesDialog extends JDialog {
         return button;
     }
 
+    protected JPanel getButtonBar(ActionListener listener) {
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(5,5,10,5));
+        panel.add(createButton("Cancel", listener));
+        _btnApply = createButton("Apply", listener);
+        _btnApply.setEnabled(false);
+        panel.add(_btnApply);
+        panel.add(createButton("OK", listener));
+        return panel;
+    }
+
+
+    protected JButton createButton(String caption, ActionListener listener) {
+        JButton btn = new JButton(caption);
+        btn.setActionCommand(caption);
+        btn.setPreferredSize(new Dimension(75,25));
+        btn.addActionListener(listener);
+        return btn;
+    }
+
 
     protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(MENU_ICON_PATH + iconName + ".png");
     }
-
 
 }

@@ -1,12 +1,12 @@
-package org.yawlfoundation.yawl.editor.ui.actions.tools;
+package org.yawlfoundation.yawl.editor.ui.preferences;
 
-import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,10 +14,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Author: Michael Adams
- * Creation Date: 20/04/2010
+ * @author Michael Adams
+ * @date 26/09/13
  */
-public class ExternalFilePathsDialog extends AbstractDoneDialog {
+public class FilePathPanel extends JPanel implements PreferencePanel {
 
     private JTextField _fldDecomposition;
     private JTextField _fldVariable;
@@ -29,59 +29,55 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
             FileUtilities.getDecompositionAttributePath();
 
 
-    public ExternalFilePathsDialog() {
-        super("External File Paths Settings", true);
-        setContentPanel(buildContentPanel());
-        setSize(new Dimension(600, 385));
-        setResizable(false);
-
-        getDoneButton().addActionListener(new ActionListener() {
-           public void actionPerformed(ActionEvent e) {
-               UserSettings.setDecompositionAttributesFilePath(_fldDecomposition.getText());
-               UserSettings.setVariableAttributesFilePath(_fldVariable.getText());
-               UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
-               UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
-               UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
-      //         PaletteBar.getInstance().updatePluginIcons();
-           }
-
-           private String checkPath(String path) {
-               if (path.endsWith("/") || path.endsWith("\\")) {
-                   path = path.substring(0, path.length() - 1);
-               }
-               return path;
-           }
-        });
+    public FilePathPanel(CaretListener listener) {
+        super();
+        addContent(listener);
+        setPreferredSize(new Dimension(500, 400));
     }
 
 
-    private JPanel buildContentPanel() {
+    public void applyChanges() {
+        UserSettings.setDecompositionAttributesFilePath(_fldDecomposition.getText());
+        UserSettings.setVariableAttributesFilePath(_fldVariable.getText());
+        UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
+        UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
+        UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
+    }
+
+
+    private void addContent(CaretListener listener) {
         _fldVariable = new JTextField(getVariablePath());
         _fldDecomposition = new JTextField(getDecompositionPath());
         _fldIcons = new JTextField(getTaskIconsPath());
         _fldWofyawl = new JTextField(getWofyawlPath());
         _fldWendy = new JTextField(getWendyPath());
 
-        JPanel contentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel contentPanel = new JPanel(new GridLayout(0, 1, 10, 10));
         contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         contentPanel.add(buildFileEntryPanel(_fldDecomposition,
-                "Decomposition Extended Attributes File"));
-        contentPanel.add(buildFileEntryPanel(_fldVariable, "Variable Extended Attributes File"));
-        contentPanel.add(buildFileEntryPanel(_fldIcons, "Task Icons Folder"));
-        contentPanel.add(buildFileEntryPanel(_fldWofyawl, "WofYAWL Analysis File"));
-        contentPanel.add(buildFileEntryPanel(_fldWendy, "Wendy (Process Configuration) Folder"));
-        return contentPanel;
+                "Decomposition Extended Attributes File", listener));
+        contentPanel.add(buildFileEntryPanel(_fldVariable,
+                "Variable Extended Attributes File", listener));
+        contentPanel.add(buildFileEntryPanel(_fldIcons,
+                "Task Icons Folder", listener));
+        contentPanel.add(buildFileEntryPanel(_fldWofyawl,
+                "WofYAWL Analysis File", listener));
+        contentPanel.add(buildFileEntryPanel(_fldWendy,
+                "Wendy (Process Configuration) Folder", listener));
+        add(contentPanel);
     }
 
-
-    private JPanel buildFileEntryPanel(JTextField textField, String title) {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
+    private JPanel buildFileEntryPanel(JTextField textField, String title,
+                                       CaretListener listener) {
+        JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.setBorder(new TitledBorder(title));
         panel.add(buildFileButton(title), BorderLayout.EAST);
-        textField.setPreferredSize(new Dimension(540, 20));
+        textField.setPreferredSize(new Dimension(440, 25));
+        textField.addCaretListener(listener);
         panel.add(textField, BorderLayout.CENTER);
         return panel;
     }
+
 
     private JButton buildFileButton(String title) {
         JButton button = new JButton("...");
@@ -89,22 +85,22 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
         button.setToolTipText(" Select File Dialog ");
         button.setActionCommand(title.substring(0, title.indexOf(' ')));
 
-        final JDialog thisDialog = this;
+        final JPanel thisPanel = this;
         button.addActionListener(new ActionListener(){
-           public void actionPerformed(ActionEvent e) {
-               String cmd = e.getActionCommand();
-               JFileChooser fileChooser = new JFileChooser(getInitialDir(cmd));
-               fileChooser.setDialogTitle("Select " + getDialogTitle(cmd));
-               if (cmd.equals("Task") || cmd.equals("Wendy")) {
-                   fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-               }
-               if (fileChooser.showOpenDialog(thisDialog) == JFileChooser.APPROVE_OPTION) {
-                   File file = fileChooser.getSelectedFile();
-                   if (file != null) {
-                       setPath(cmd, file);
-                   }
-               }
-           }
+            public void actionPerformed(ActionEvent e) {
+                String cmd = e.getActionCommand();
+                JFileChooser fileChooser = new JFileChooser(getInitialDir(cmd));
+                fileChooser.setDialogTitle("Select " + getDialogTitle(cmd));
+                if (cmd.equals("Task") || cmd.equals("Wendy")) {
+                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                }
+                if (fileChooser.showOpenDialog(thisPanel) == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    if (file != null) {
+                        setPath(cmd, file);
+                    }
+                }
+            }
         });
         return button;
     }
@@ -127,6 +123,14 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
             getField(cmd).setText(file.getAbsolutePath());
         }
     }
+
+    private String checkPath(String path) {
+        if (path.endsWith("/") || path.endsWith("\\")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
+    }
+
 
     private String getDecompositionPath() {
         String path = UserSettings.getDecompositionAttributesFilePath();
@@ -174,5 +178,7 @@ public class ExternalFilePathsDialog extends AbstractDoneDialog {
         }
         return null;
     }
+
+
 
 }

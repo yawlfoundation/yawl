@@ -47,6 +47,10 @@ public abstract class YConnection {
     // when a connection URL is set or changed.
     protected abstract void init();
 
+    protected abstract String getURLFilePath();
+
+    protected abstract Interface_Client getClient();
+
     /***********************************************************************/
 
     /**
@@ -70,12 +74,20 @@ public abstract class YConnection {
         }
     }
 
+    public void setURL(String host, int port) throws MalformedURLException {
+        setURL(new URL("http", host, port, getURLFilePath()));
+    }
+
 
     /**
      * Gets the current URL for this connection object.
      * @return the current URL.
      */
     public URL getURL() { return _url; }
+
+    public String getHost() { return _url.getHost(); }
+
+    public int getPort() { return _url.getPort(); }
 
 
     /**
@@ -151,6 +163,13 @@ public abstract class YConnection {
         catch (IOException ioe) {
             return false;
         }
+    }
+
+
+    public boolean testConnection(String user, String password) {
+        setUserID(user);
+        setPassword(password);
+        return isConnected(getClient());
     }
 
     /***********************************************************************/
