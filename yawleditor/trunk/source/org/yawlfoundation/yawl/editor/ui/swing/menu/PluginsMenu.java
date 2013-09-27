@@ -1,5 +1,5 @@
 /*
- * Created on 07/10/2003
+ * Created on 05/10/2003
  * YAWLEditor v1.0 
  *
  * @author Lindsay Bradford
@@ -24,25 +24,21 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
-
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 
-public class YAWLMenuBar extends JMenuBar {
+class PluginsMenu extends JMenu {
 
-    public YAWLMenuBar(YSplashScreen splashScreen) {
-        super();
-        int progress = 0;
+    public PluginsMenu() {
+        super("Plugins");
+        buildInterface();
+    }
 
-        add(new SpecificationMenu());
-        splashScreen.updateProgress(progress+=15);
-        add(new EditMenu());
-        splashScreen.updateProgress(progress+=15);
-        add(new NetMenu());
-        splashScreen.updateProgress(progress+=15);
-        add(new ElementsMenu());
-        splashScreen.updateProgress(progress+=15);
-        add(new PluginsMenu());
-        add(new HelpMenu());
+    protected void buildInterface() {
+        setMnemonic(KeyEvent.VK_P);
+        addSeparator();
+        add(new ProcessConfigurationMenu());
+
+    //    add(new YAWLMenuItem(new ShowAboutEditorAction()));
     }
 }

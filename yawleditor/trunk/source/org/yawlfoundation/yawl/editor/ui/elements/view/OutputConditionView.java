@@ -45,6 +45,7 @@ public class OutputConditionView extends VertexView {
 class OutputConditionRenderer extends ConditionView.ConditionRenderer {
 
     protected void drawVertex(Graphics graphics, Dimension size) {
+        overrideFill(graphics, size);                  // white b/g for input condition
         graphics.setColor(Color.RED);
         graphics.fillRect(Math.round(size.width/4),
                 Math.round(size.height/4),

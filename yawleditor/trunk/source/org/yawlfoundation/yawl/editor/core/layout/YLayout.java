@@ -122,7 +122,8 @@ public class YLayout {
         }
 
         _size = YLayoutUtil.parseSize(specChild.getChild("size"));
-        _globalFontSize = StringUtil.strToInt(specChild.getChildText("labelFontSize"), 15);
+        _globalFontSize = StringUtil.strToInt(
+                specChild.getChildText("labelFontSize"), DEFAULT_FONT_SIZE);
         parseFillColor(specChild.getAttributeValue("defaultBgColor"));
         parseNets(specChild);
     }

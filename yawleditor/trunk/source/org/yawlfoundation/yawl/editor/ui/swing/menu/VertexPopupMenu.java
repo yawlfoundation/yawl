@@ -26,14 +26,12 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.CutAction;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
-import org.yawlfoundation.yawl.editor.ui.actions.element.*;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
-import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -43,13 +41,6 @@ public class VertexPopupMenu extends JPopupMenu {
 
   private NetGraph graph;
   private YAWLCell cell;
-
-  private JMenu processConfigurationMenu;
-  private YAWLPopupMenuCheckBoxItem configurableTaskItem;
-  private YAWLPopupMenuItem inputPortConfigurationItem;
-  private YAWLPopupMenuItem outputPortConfigurationItem;
-  private YAWLPopupMenuItem multipleInstanceConfigurationItem;
-  private YAWLPopupMenuItem cancellationRegionConfigurationItem;
 
   private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
 
@@ -63,7 +54,6 @@ public class VertexPopupMenu extends JPopupMenu {
   private void addMenuItems() {
     YAWLVertex vertex = (YAWLVertex) cell;
     addGraphSpecificMenuItems(vertex);
-    addConfigurableMenuItems();
       addPlugins();
   }
 
@@ -88,56 +78,6 @@ public class VertexPopupMenu extends JPopupMenu {
   }
 
 
-    private void addConfigurableMenuItems() {
-        if (cell instanceof YAWLTask) {
-            addSeparator();
-            processConfigurationMenu = new JMenu("Process Configuration");
-            processConfigurationMenu.add(buildConfigurableTaskItem());
-            processConfigurationMenu.add(buildInputPortConfigurationItem());
-            processConfigurationMenu.add(buildOutputPortConfigurationItem());
-            processConfigurationMenu.add(buildMultipleInstanceConfigurationItem());
-            processConfigurationMenu.add(buildCancelationRegionConfigurationItem());
-            processConfigurationMenu.setIcon(ResourceLoader.getImageAsIcon(
-                    "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/wrench.png"));
-            add(processConfigurationMenu);
-        }
-    }
-
-
-    private YAWLPopupMenuCheckBoxItem buildConfigurableTaskItem() {
-        ConfigurableTaskAction action = new ConfigurableTaskAction((YAWLTask)cell,graph);
-        configurableTaskItem = new YAWLPopupMenuCheckBoxItem(action);
-        action.setCheckBox(configurableTaskItem);
-        return configurableTaskItem;
-    }
-
-  private YAWLPopupMenuItem buildInputPortConfigurationItem() {
-	    inputPortConfigurationItem =
-	      new YAWLPopupMenuItem(new InputPortConfigurationAction((YAWLTask)cell,graph));
-
-	    return inputPortConfigurationItem;
-	  }
-
-  private YAWLPopupMenuItem buildOutputPortConfigurationItem() {
-	  outputPortConfigurationItem =
-	      new YAWLPopupMenuItem(new OutputPortConfigurationAction((YAWLTask)cell,graph));
-
-	    return outputPortConfigurationItem;
-	  }
-
-  private YAWLPopupMenuItem buildMultipleInstanceConfigurationItem() {
-	  multipleInstanceConfigurationItem =
-	      new YAWLPopupMenuItem(new MultipleInstanceConfigurationAction((YAWLTask)cell));
-
-	    return multipleInstanceConfigurationItem;
-	  }
-
-  private YAWLPopupMenuItem buildCancelationRegionConfigurationItem() {
-	  cancellationRegionConfigurationItem =
-	      new YAWLPopupMenuItem(new CancellationRegionConfigurationAction((YAWLTask)cell));
-
-	    return cancellationRegionConfigurationItem;
-	  }
 
     private int addPlugins() {
         int addedItemCount = 0;
@@ -164,30 +104,11 @@ public class VertexPopupMenu extends JPopupMenu {
   
   public void setVisible(boolean state) {
     if (state) {
-
-      // We didn't necessarily create items we don't need.
-      // For those that we did create, let them dictate 
-      // whether they''re enabled or visible.
-      
-
-    	if(cell instanceof YAWLTask){
-	    	YAWLTask task = (YAWLTask)cell;
-	    	configurableTaskItem.setEnabled(true);
-	    	configurableTaskItem.setState(task.isConfigurable());
-	    	inputPortConfigurationItem.setEnabled(task.isConfigurable());
-	    	outputPortConfigurationItem.setEnabled(task.isConfigurable());
-	    	multipleInstanceConfigurationItem.setEnabled((task.isConfigurable())&&(task instanceof YAWLMultipleInstanceTask ));
-	    	cancellationRegionConfigurationItem.setEnabled(task.isConfigurable() && (task.hasCancellationSetMembers()));
-
-    	}
-
-
         if (_item2pluginMap != null) {
             for (YAWLPopupMenuItem item : _item2pluginMap.keySet()) {
                 item.setEnabled(_item2pluginMap.get(item).setPopupMenuItemEnabled(cell));
             }
         }
-
     }
     super.setVisible(state);
   }

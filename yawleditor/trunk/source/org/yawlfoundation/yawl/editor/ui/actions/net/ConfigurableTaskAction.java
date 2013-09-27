@@ -5,20 +5,19 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
+import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class ConfigurableTaskAction extends YAWLSelectedNetAction implements TooltipTogglingWidget{
-
-    private static final long serialVersionUID = 1L;
+public class ConfigurableTaskAction extends ProcessConfigurationAction
+        implements TooltipTogglingWidget {
 
     private boolean selected;
-    private NetGraph net;
-    private YAWLTask task;
     private JCheckBoxMenuItem checkBox = null;
 
     {
@@ -30,12 +29,21 @@ public class ConfigurableTaskAction extends YAWLSelectedNetAction implements Too
 
     }
 
-    public ConfigurableTaskAction(YAWLTask task,NetGraph net) {
+    public ConfigurableTaskAction() {
         super();
+        this.selected = false;
+    }
+
+    public ConfigurableTaskAction(YAWLTask task, NetGraph net) {
+        this();
         this.net = net;
         this.task = task;
-        this.selected = false;
+    }
 
+
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        super.graphSelectionChange(state, event);
+        getCheckBox().setState(task != null && task.isConfigurable());
     }
 
 

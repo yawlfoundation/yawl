@@ -10,10 +10,10 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 public class ConfigurationSettingsAction extends YAWLBaseAction
         implements FileStateListener {
@@ -24,11 +24,9 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
 
     {
         putValue(Action.SHORT_DESCRIPTION, "Process Configuration Settings");
-        putValue(Action.NAME, "Process Configuration...");
+        putValue(Action.NAME, "Preferences...");
         putValue(Action.LONG_DESCRIPTION, "Process Configuration Settings");
-        putValue(Action.SMALL_ICON, getPNGIcon("wrench"));
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
-        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift C"));
+        putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
     }
 
 
@@ -48,7 +46,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
 
 
     public void specificationFileStateChange(FileState state) {
-        setEnabled(state == FileState.Busy);
+        setEnabled(state == FileState.Open);
     }
 
     /**

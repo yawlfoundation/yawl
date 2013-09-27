@@ -1,16 +1,15 @@
 package org.yawlfoundation.yawl.editor.ui.actions.element;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.ProcessConfigurationAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class MultipleInstanceConfigurationAction extends YAWLBaseAction implements TooltipTogglingWidget {
+public class MultipleInstanceConfigurationAction extends ProcessConfigurationAction
+        implements TooltipTogglingWidget {
 
 	
 	{
@@ -20,12 +19,8 @@ public class MultipleInstanceConfigurationAction extends YAWLBaseAction implemen
       putValue(Action.SMALL_ICON, getPNGIcon("application_cascade"));
 	  }
 	
-	private NetGraph net;            
-	private YAWLTask task;
-	
-	public MultipleInstanceConfigurationAction(YAWLTask task){
-		this.net = this.getGraph();
-		this.task = task;
+
+	public MultipleInstanceConfigurationAction(){
 	}
 	
 	public void actionPerformed(ActionEvent event) { 
@@ -44,6 +39,11 @@ public class MultipleInstanceConfigurationAction extends YAWLBaseAction implemen
 		        });
 		}
 	}
+
+    public void setEnabled(boolean enable) {
+        super.setEnabled(enable && task != null && task.isConfigurable() &&
+                (task instanceof YAWLMultipleInstanceTask));
+    }
 
 	public String getDisabledTooltipText() {
 		return null;
