@@ -28,8 +28,11 @@ import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
+import org.yawlfoundation.yawl.editor.ui.actions.view.ToolbarGridToggleAction;
+import org.yawlfoundation.yawl.editor.ui.actions.view.ToolbarTipToggleAction;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import java.awt.*;
 
@@ -95,6 +98,17 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         add(new YAWLToolBarButton(ZoomOutAction.getInstance()));
         add(new YAWLToolBarButton(ZoomInAction.getInstance()));
         add(new YAWLToolBarButton(ZoomSelectedElementsAction.getInstance()));
+
+        addSeparator();
+        YAWLToggleToolBarButton gridButton = new YAWLToggleToolBarButton(
+                new ToolbarGridToggleAction());
+        gridButton.setSelected(UserSettings.getShowGrid());
+        add(gridButton);
+
+        YAWLToggleToolBarButton tipButton = new YAWLToggleToolBarButton(
+                new ToolbarTipToggleAction());
+        tipButton.setSelected(UserSettings.getShowToolTips());
+        add(tipButton);
     }
 
 

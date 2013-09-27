@@ -118,7 +118,6 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         );
         cellsAndTheirEdges.addAll(getEdges(this, cells.toArray()));
         removeCellsFromCancellationSets(cellsAndTheirEdges);
-        freeEngineIdentifiers(cellsAndTheirEdges);
         resetAffectedCPorts(cellsAndTheirEdges);
 
         super.remove(cellsAndTheirEdges.toArray());
@@ -174,15 +173,6 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         }
     }
     
-    
-    private void freeEngineIdentifiers(Set cells) {
-//        for (Object cell : cells) {
-//            if (cell instanceof YAWLVertex) {
-//                SpecificationModel.getInstance().removeUniqueIdentifier(
-//                        ((YAWLVertex) cell).getEngineIdentifier());
-//            }
-//        }
-    }
 
     public Map cloneCells(Object[] cells) {
         LinkedList clones = new LinkedList();

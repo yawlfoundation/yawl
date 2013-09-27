@@ -79,7 +79,7 @@ public class NetCellUtilities {
         }
       }
     }
-
+    net.revalidate();
   }
 
   public static void translateView(NetGraph net, CellView view, double x, double y) {

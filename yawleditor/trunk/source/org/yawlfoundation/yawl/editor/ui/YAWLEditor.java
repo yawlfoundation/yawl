@@ -49,6 +49,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -357,13 +358,22 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
 
     private void establishConnections() {
-        YConnector.setEngineUserID(UserSettings.getEngineUserid());
-        YConnector.setEnginePassword(UserSettings.getEnginePassword());
-        YConnector.setEngineURL(UserSettings.getEngineUri());
-
-        YConnector.setResourceUserID(UserSettings.getResourceUserid());
-        YConnector.setResourcePassword(UserSettings.getResourcePassword());
-        YConnector.setResourceURL(UserSettings.getResourceUri());
+        YConnector.setUserID(UserSettings.getEngineUserid());
+        YConnector.setPassword(UserSettings.getEnginePassword());
+        try {
+            YConnector.setEngineURL(UserSettings.getEngineHost(),
+                    UserSettings.getEnginePort());
+        }
+        catch (MalformedURLException mue) {
+            //
+        }
+        try {
+            YConnector.setResourceURL(UserSettings.getResourceHost(),
+                                UserSettings.getResourcePort());
+        }
+        catch (MalformedURLException mue) {
+            //
+        }
     }
 
 }

@@ -107,7 +107,8 @@ public class AnalysisResultsParser {
     }
 
     public static boolean wofYawlAvailable() {
-        return new File(getWofYawlExecutableFilePath()).exists();
+        String path = getWofYawlExecutableFilePath();
+        return path.endsWith(".exe") && new File(path).exists();
     }
 
 

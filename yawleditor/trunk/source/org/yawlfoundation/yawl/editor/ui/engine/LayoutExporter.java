@@ -296,7 +296,8 @@ public class LayoutExporter {
 
 
     private Font getDefaultFont(float size) {
-        return UIManager.getDefaults().getFont("Label.font").deriveFont(size);
+//        return UIManager.getDefaults().getFont("Label.font").deriveFont(size);
+        return UserSettings.getDefaultFont().deriveFont(size);
     }
 
 }

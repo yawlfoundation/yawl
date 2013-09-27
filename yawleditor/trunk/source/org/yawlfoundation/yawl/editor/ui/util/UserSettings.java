@@ -49,6 +49,13 @@ public class UserSettings {
     // engine & resource service settings
     private static final String ENGINE_USERID = "engineUserID";
     private static final String ENGINE_PASSWORD = "engineUserPassword";
+    private static final String ENGINE_HOST = "engineHost";
+    private static final String ENGINE_PORT = "enginePort";
+    private static final String RESOURCE_HOST = "resourceHost";
+    private static final String RESOURCE_PORT = "resourcePort";
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 8080;
+
     private static final String ENGINE_URI = "engineURI";
     private static final String RESOURCE_USERID = "resourcingServiceUserID";
     private static final String RESOURCE_PASSWORD = "resourcingServiceUserPassword";
@@ -78,8 +85,13 @@ public class UserSettings {
     private static final String SPLIT_FILL_COLOUR = "splitFillColor";
     private static final String NET_BACKGROUND_COLOR = "netBackgroundColor";
     private static final String VERTEX_BACKGROUND_COLOR = "vertexBackgroundColor";
+    private static final String FONT_FAMILY = "fontFamily";
+    private static final String DEFAULT_FONT_FAMILY = "SERIF";
     private static final String FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 15;
+    private static final String FONT_STYLE = "fontStyle";
+    private static final int DEFAULT_FONT_STYLE = Font.PLAIN;
+    private static final String DEFAULT_TEXT_COLOUR = "defaultTextColor";
 
     // specification upload settings
     private static final String ON_UPLOAD_UNLOAD_PREVIOUS = "onUploadUnloadPrevious";
@@ -315,6 +327,38 @@ public class UserSettings {
         return getString(ENGINE_PASSWORD);
     }
 
+    public static String getEngineHost() {
+        return _prefs.get(ENGINE_HOST, DEFAULT_HOST);
+    }
+
+    public static void setEngineHost(String host) {
+        setString(ENGINE_HOST, host);
+    }
+
+    public static int getEnginePort() {
+        return _prefs.getInt(ENGINE_PORT, DEFAULT_PORT);
+    }
+
+    public static void setEnginePort(int port) {
+        _prefs.putInt(ENGINE_PORT, port);
+    }
+
+    public static String getResourceHost() {
+        return _prefs.get(RESOURCE_HOST, DEFAULT_HOST);
+    }
+
+    public static void setResourceHost(String host) {
+        setString(RESOURCE_HOST, host);
+    }
+
+    public static int getResourcePort() {
+        return _prefs.getInt(RESOURCE_PORT, DEFAULT_PORT);
+    }
+
+    public static void setResourcePort(int port) {
+        _prefs.putInt(RESOURCE_PORT, port);
+    }
+
     public static void setEngineUri(String uri) {
         setString(ENGINE_URI, uri);
     }
@@ -441,6 +485,34 @@ public class UserSettings {
 
     public static int getFontSize() {
         return _prefs.getInt(FONT_SIZE, DEFAULT_FONT_SIZE);
+    }
+
+    public static void setFontStyle(int style) {
+        _prefs.putInt(FONT_STYLE, style);
+    }
+
+    public static int getFontStyle() {
+        return _prefs.getInt(FONT_STYLE, DEFAULT_FONT_STYLE);
+    }
+
+    public static void setFontFamily(String name) {
+        setString(FONT_FAMILY, name);
+    }
+
+    public static String getFontFamily() {
+        return _prefs.get(FONT_FAMILY, DEFAULT_FONT_FAMILY);
+    }
+
+    public static Font getDefaultFont() {
+        return new Font(getFontFamily(), getFontStyle(), getFontSize());
+    }
+
+    public static Color getDefaultTextColour() {
+        return getColour(DEFAULT_TEXT_COLOUR, Color.BLACK);
+    }
+
+    public static void setDefaultTextColour(Color colour) {
+        setColour(DEFAULT_TEXT_COLOUR, colour);
     }
 
     public static Color getVertexBackgroundColour() {
@@ -575,8 +647,11 @@ public class UserSettings {
     }
 
     private static Color getColour(String key) {
-        return new Color(_prefs.getInt(key, Color.WHITE.getRGB()));
+        return getColour(key, Color.WHITE);
     }
 
+    private static Color getColour(String key, Color defaultColor) {
+        return new Color(_prefs.getInt(key, defaultColor.getRGB()));
+    }
 
 }

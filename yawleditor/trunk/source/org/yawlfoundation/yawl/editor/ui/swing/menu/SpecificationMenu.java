@@ -34,10 +34,6 @@ import java.awt.event.KeyEvent;
 
 class SpecificationMenu extends JMenu {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     public SpecificationMenu() {
         super("File");
@@ -46,39 +42,31 @@ class SpecificationMenu extends JMenu {
     }
 
     protected void buildInterface() {
-  //      YAWLEditor editor = YAWLEditor.getInstance();
         addMenuItemAction(new CreateSpecificationAction());
         addMenuItemAction(new OpenSpecificationAction());
         add(OpenRecentSubMenu.getInstance());
 
         addSeparator();
-
         addMenuItemAction(new SaveSpecificationAction());
         addMenuItemAction(new SaveSpecificationAsAction());
-
-    //    editor.updateLoadProgress(12);
+        addMenuItemAction(new CloseSpecificationAction());
 
         addSeparator();
         addMenuItemAction(new ValidateSpecificationAction());
         addMenuItemAction(new AnalyseSpecificationAction());
 
-    //    editor.updateLoadProgress(16);
-
         addSeparator();
         addMenuItemAction(new PrintSpecificationAction());
-        addSeparator();
 
-        addMenuItemAction(new UpdateSpecificationPropertiesAction());
+        addSeparator();
         addMenuItemAction(new DataTypeDefinitionsAction());
         addMenuItemAction(new DeleteOrphanDecompositionAction());
         addSeparator();
 
         if (addPlugins() > 0) addSeparator();
 
-        addMenuItemAction(new CloseSpecificationAction());
+        addMenuItemAction(new PreferencesAction());
         addMenuItemAction(new ExitAction(this));
-
-    //    editor.updateLoadProgress(18);
     }
 
 
