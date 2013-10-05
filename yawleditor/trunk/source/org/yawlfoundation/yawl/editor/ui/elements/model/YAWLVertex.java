@@ -232,12 +232,15 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     public String getLabel() {
-        VertexContainer container = (VertexContainer) this.getParent();
-        if (container != null && container.getLabel() != null) {
-            return container.getLabel().getLabel();
-        }
-        return null;
+        VertexLabel vertexLabel = getVertexLabel();
+        return vertexLabel != null ? vertexLabel.getText(): null;
     }
+
+    public VertexLabel getVertexLabel() {
+        VertexContainer container = (VertexContainer) this.getParent();
+        return container != null ? container.getLabel() : null;
+    }
+
 
     public boolean hasLabel() {
         return (getLabel() != null);

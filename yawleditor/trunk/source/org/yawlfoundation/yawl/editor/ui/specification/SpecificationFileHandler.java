@@ -23,6 +23,7 @@
  */
 package org.yawlfoundation.yawl.editor.ui.specification;
 
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
@@ -42,51 +43,60 @@ import java.io.File;
 
 public class SpecificationFileHandler {
 
+    private final YStatusBar _statusBar;
+    private final YSpecificationHandler _handler;
+
     private static final String EXTENSION = ".yawl";
-    private YStatusBar statusBar;
+
 
     public SpecificationFileHandler() {
-        statusBar = YAWLEditor.getStatusBar();
+        _statusBar = YAWLEditor.getStatusBar();
+        _handler = SpecificationModel.getHandler();
     }
 
 
-    public void processOpenRequest() {
-        loadFromFile(promptForLoadFileName());
+    /**
+     * Prompts the user for and opens a specification file
+     */
+    public void openFile() {
+        openFile(promptForLoadFileName());
     }
 
 
-    public void processOpenRequest(String fileName) {
+    /**
+     * Opens a specification file
+     * @param fileName the name of the file to open
+     */
+    public void openFile(String fileName) {
         loadFromFile(fileName);
     }
 
 
     /**
-     *  Processes a user's request to save an open specification.
-     *  This might include prompting for a file name if one has not yet been
-     *  set for the specification.
+     *  Saves the currently open specification. This might include prompting for a file
+     *  name if one has not yet been set for the specification.
      *  @return true if the specification was saved, false if the user cancelled the save.
      */
-
-    public boolean processSaveRequest() {
-        String fileName = SpecificationModel.getHandler().getFileName();
-        if (StringUtil.isNullOrEmpty(fileName) || ! fileName.endsWith(".yawl")) {
-            if (! promptForAndSetSaveFileName()) {
+    public boolean saveFile() {
+        String fileName = getFileName();
+        if (StringUtil.isNullOrEmpty(fileName) || ! fileName.endsWith(EXTENSION)) {
+            fileName = promptForSaveFileName();
+            if (fileName == null) {
                 return false;
             }
         }
-        saveSpecification();
+        saveSpecification(fileName);
         return true;
     }
 
 
     /**
-     *  Processes a user's request to save an open specification.
-     *  This might include prompting for a file name if one has not yet been
-     *  set for the specification.
+     *  Saves the currently open specification to a new file.
      */
-    public void processSaveAsRequest() {
-        if (promptForAndSetSaveFileName()) {
-            saveSpecification();
+    public void saveFileAs() {
+        String fileName = promptForSaveFileName();
+        if (fileName != null) {
+            saveSpecification(fileName);
         }
     }
 
@@ -96,9 +106,9 @@ public class SpecificationFileHandler {
      *  This might include prompting for a file name and saving
      *  the specification before closing it.
      */
-    public void processCloseRequest() {
-        statusBar.setText("Closing Specification...");
-        handleUserResponse();
+    public void closeFile() {
+        _statusBar.setText("Closing Specification...");
+        handleCloseResponse();
     }
 
 
@@ -107,84 +117,92 @@ public class SpecificationFileHandler {
      *  This might include prompting for a file name and saving
      *  the specification before closing it.
      */
-    public void processExitRequest() {
-        statusBar.setText("Exiting YAWLEditor...");
-        boolean okToExit = true;
-        if (Publisher.getInstance().getFileState() != FileState.Closed) {
-            okToExit = handleUserResponse();
-        }
-        if (okToExit) {
-            System.exit(0);
-        }
+    public boolean closeFileOnExit() {
+        _statusBar.setText("Exiting YAWL Editor...");
+        return Publisher.getInstance().getFileState() == FileState.Closed ||
+                handleCloseResponse();
     }
 
 
     /****************************************************************************/
 
-    private boolean handleUserResponse() {
+    private String getFileName() { return _handler.getFileName(); }
+
+
+    /**
+     * Asks user if they want to save the open specification before exiting
+     * @return true if ok to close, false if user cancelled exiting
+     */
+    private boolean handleCloseResponse() {
+
+        // only prompt to save if there have been changes
         if (SpecificationUndoManager.getInstance().isDirty()) {
             int response = getSaveOnCloseConfirmation();
-            if (response == JOptionPane.CANCEL_OPTION) {
-                statusBar.setTextToPrevious();
+            if (response == JOptionPane.CANCEL_OPTION) {         // user cancelled exit
+                _statusBar.setTextToPrevious();
                 return false;
             }
-            if (response == JOptionPane.YES_OPTION) {
+            if (response == JOptionPane.YES_OPTION) {           // save then exit
                 return saveWhilstClosing();
             }
         }
-        closeWithoutSaving();     // NO_OPTION
+        closeWithoutSaving();        // NO_OPTION               // exit and don't save
         return true;
     }
 
 
+    /**
+     * Constructs a suggested name for a new file, from the last used path and the
+     * specification URI
+     * @return the suggested file name to save the specification to
+     */
     private File getSuggestedFileName() {
-        String fileName = SpecificationModel.getHandler().getFileName();
-        if (StringUtil.isNullOrEmpty(fileName)) {
-            fileName = SpecificationModel.getHandler().getID().getUri() + ".yawl";
+        String path = UserSettings.getLastSaveOrLoadPath();
+        if (! path.endsWith(File.separator)) {
+            path = path.substring(0, path.lastIndexOf(File.separator));
         }
-        return new File(fileName.substring(0, fileName.lastIndexOf(".")) + ".yawl");
+        return new File(path, _handler.getID().getUri() + EXTENSION);
     }
 
 
-    private boolean promptForAndSetSaveFileName() {
-        JFileChooser chooser = FileChooserFactory.build(EXTENSION, "YAWL Specification",
-                        "Save specification to ", " file");
-        chooser.setSelectedFile(getSuggestedFileName());
-
-        if (JFileChooser.CANCEL_OPTION == chooser.showDialog(YAWLEditor.getInstance(), "Save")) {
-            return false;
+    private String promptForSaveFileName() {
+        JFileChooser dialog = FileChooserFactory.build(EXTENSION, "YAWL Specification",
+                        "Save specification");
+        dialog.setSelectedFile(getSuggestedFileName());
+        int response = dialog.showDialog(YAWLEditor.getInstance(), "Save");
+        if (response == JFileChooser.CANCEL_OPTION) {
+            return null;
         }
 
-        File file = chooser.getSelectedFile();
-        if (! file.getName().endsWith(".yawl")) {
-            file = new File(file.getName() + ".yawl");
+        // make sure the selected file name has the correct '.yawl' extension
+        File file = dialog.getSelectedFile();
+        if (! file.getName().endsWith(EXTENSION)) {
+            file = new File(file.getName() + EXTENSION);
         }
 
-        String fileName = SpecificationModel.getHandler().getFileName();
-        if (file.exists() &&  (! StringUtil.isNullOrEmpty(fileName)) &&
-                ! getFullFileName(file).equals(fileName)) {
-            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(YAWLEditor.getInstance(),
-                    "You have chosen an existing specification file.\n" +
-                    "If you save to this file, you will overwrite the file's contents.\n\n" +
-                    "Are you sure you want to save your specification to this file?\n",
-                    "Existing Specification File Selected",
+        if (matchesExistingFile(file)) {
+            response = JOptionPane.showConfirmDialog(YAWLEditor.getInstance(),
+                    "You have selected an existing specification file.\n" +
+                    "Are you sure you want to overwrite the existing file?",
+                    "Existing File Selected",
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE)) {
-                return false;
-            }
+                    JOptionPane.WARNING_MESSAGE);
+            if (response == JOptionPane.NO_OPTION) return null;
         }
-        SpecificationModel.getHandler().setFileName(getFullFileName(file));
- //       SpecificationModel.getHandler().setUniqueID();
-        return true;
+        return file.getAbsolutePath();
     }
 
 
-
-    private void saveSpecification() {
-        saveSpecification(SpecificationModel.getInstance());
+    private boolean matchesExistingFile(File file) {
+        return file.exists() && ! file.getAbsolutePath().equals(getFileName());
     }
 
-    private void saveSpecification(SpecificationModel specification) {
+
+    private void saveSpecification(String fileName) {
+        saveSpecification(SpecificationModel.getInstance(), fileName);
+    }
+
+    private void saveSpecification(SpecificationModel model, String fileName) {
 
         // if the net has configuration preview on, turn it off temporarily
         ProcessConfigurationModel.PreviewState previewState =
@@ -193,20 +211,19 @@ public class SpecificationFileHandler {
             PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
         }
 
-        String fullFileName = SpecificationModel.getHandler().getFileName();
-        if (StringUtil.isNullOrEmpty(fullFileName)) {
-            return;
-        }
+        if (StringUtil.isNullOrEmpty(fileName)) return;
 
         try {
-            saveToFile(specification);
-            OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+            saveToFile(model, fileName);
+            OpenRecentSubMenu.getInstance().addRecentFile(fileName);
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             JOptionPane.showMessageDialog(
                     YAWLEditor.getInstance(),
-                    "Error discovered whilst writing YAWL Editor save file.\n Save has not been performed.\n",
-                    "Editor File Saving Error",
+                    "Error discovered whilst writing YAWL Editor save file.\n" +
+                    "Save has not been performed.\n",
+                    "Editor File Save Error",
                     JOptionPane.ERROR_MESSAGE
             );
             LogWriter.error("Error discovered whilst saving specification", e);
@@ -249,15 +266,16 @@ public class SpecificationFileHandler {
     }
 
     private boolean saveWhilstClosing() {
-        String fileName = SpecificationModel.getHandler().getFileName();
-        if (StringUtil.isNullOrEmpty(fileName) || ! fileName.endsWith(".yawl")) {
-            if (! promptForAndSetSaveFileName()) {
+        String fileName = getFileName();
+        if (StringUtil.isNullOrEmpty(fileName) || ! fileName.endsWith(EXTENSION)) {
+            fileName = promptForSaveFileName();
+            if (fileName == null) {
                 return false;
             }
         }
 
         doPreSaveClosingWork();
-        saveSpecification();
+        saveSpecification(fileName);
         doPostSaveClosingWork();
 
         return true;
@@ -269,69 +287,53 @@ public class SpecificationFileHandler {
     }
 
 
-    private String getFullFileName(File file) {
-        if (file == null) return "";
-        String fullFileName = file.getAbsolutePath();
-        if (! fullFileName.toLowerCase().endsWith(EXTENSION)) {
-            fullFileName += EXTENSION;
-        }
-        return fullFileName;
-    }
-
-
-    private void saveToFile(SpecificationModel specificationModel) {
-        String fileName = SpecificationModel.getHandler().getFileName();
+    private void saveToFile(SpecificationModel model, String fileName) {
         if (StringUtil.isNullOrEmpty(fileName)) {
 
             // rollback version number if auto-incrementing
             if (UserSettings.getAutoIncrementVersionOnSave()) {
-                SpecificationModel.getHandler().getVersion().minorRollback();
+                _handler.getVersion().minorRollback();
             }
             return;     // user-cancelled save or no file name selected
         }
 
-        statusBar.setText("Saving Specification...");
-        statusBar.progressOverSeconds(2);
+        _statusBar.setText("Saving Specification...");
+        _statusBar.progressOverSeconds(2);
 
-        if (SpecificationWriter.checkAndExportEngineSpecToFile(
-                specificationModel, fileName)) {
+        if (new SpecificationWriter().writeToFile(model, fileName)) {
             SpecificationUndoManager.getInstance().setDirty(false);
-            statusBar.setText("Saved to file: " + fileName);
+            _statusBar.setText("Saved to file: " + fileName);
         }
-        else statusBar.setTextToPrevious();
+        else _statusBar.setTextToPrevious();
 
-        statusBar.resetProgress();
+        _statusBar.resetProgress();
     }
 
 
     private void loadFromFile(String fullFileName) {
         if (fullFileName == null) return;
-        statusBar.setText("Opening Specification...");
-        statusBar.progressOverSeconds(4);
+        _statusBar.setText("Opening Specification...");
+        _statusBar.progressOverSeconds(4);
         YAWLEditor.getNetsPane().setVisible(false);
 
-        SpecificationReader importer = new SpecificationReader();
-        importer.load(fullFileName);
+        new SpecificationReader().load(fullFileName);
 
         YAWLEditor.getNetsPane().setVisible(true);
-        statusBar.resetProgress();
+        _statusBar.resetProgress();
         OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
     }
 
 
     private String promptForLoadFileName() {
         JFileChooser chooser = FileChooserFactory.build(EXTENSION,
-                "YAWL Engine Specification", "Open specification from ", " file");
-
-        if (JFileChooser.CANCEL_OPTION == chooser.showDialog(YAWLEditor.getInstance(), "Open")) {
-            return null;
-        }
+                "YAWL Specification", "Open specification");
+        int response = chooser.showDialog(YAWLEditor.getInstance(), "Open");
+        if (response == JFileChooser.CANCEL_OPTION) return null;
 
         File file = chooser.getSelectedFile();
 
         // check for odd dirs on non dos os's
-        return file.isFile() ? getFullFileName(file) : null;
+        return file.isFile() ? file.getAbsolutePath() : null;
     }
-
 
 }

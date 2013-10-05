@@ -53,7 +53,7 @@ public class ExportNetToPngAction extends YAWLSelectedNetAction {
     public void actionPerformed(ActionEvent event) {
         JFileChooser chooser = FileChooserFactory.build(
                 PNG_FILE_TYPE, "Portable Network Graphics Image",
-                "Export net to ", " image");
+                "Save net image");
 
         chooser.showDialog(YAWLEditor.getInstance(), "Save");
         File file = chooser.getSelectedFile();

@@ -24,11 +24,12 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
     private YAWLFlowRelation _flow;
 
     public FlowPredicateDialog(Window parent, YAWLFlowRelation flow) {
-        super(parent);
+        super(parent, false);
         _flow = flow;
         setTitle(makeTitle());
         add(getContent());
         setPreferredSize(new Dimension(420, 290));
+        getOKButton().setEnabled(true);
         pack();
     }
 
@@ -52,7 +53,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
 
 
     private String makeTitle() {
-        return String.format("Predicate for Flow '%s:%s'", _flow.getSourceID(),
+        return String.format("Predicate for Flow '%s->%s'", _flow.getSourceID(),
                 _flow.getTargetID());
     }
 

@@ -246,8 +246,6 @@ public class YSpecificationHandler {
 
     public String getFileName() { return _fileOps.getFileName(); }
 
-    public void setFileName(String name) { _fileOps.setFileName(name); }  // temp for migration
-
 
     public void setLayout(YLayout layout) { _fileOps.setLayout(layout); }
 

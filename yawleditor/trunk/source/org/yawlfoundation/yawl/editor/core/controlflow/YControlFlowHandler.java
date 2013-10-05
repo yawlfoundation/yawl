@@ -275,6 +275,59 @@ public class YControlFlowHandler {
     }
 
 
+    public boolean setJoin(String netID, String id, int joinType)
+            throws YControlFlowHandlerException {
+        return setJoin(getTask(netID, id), joinType);
+    }
+
+    public boolean setJoin(YTask task, int joinType) throws YControlFlowHandlerException {
+        validateSplitParameters(task, joinType);
+        if (task.getJoinType() == joinType) return false;    // nothing to change
+
+        task.setJoinType(joinType);
+        return true;
+    }
+
+
+    public boolean setSplit(String netID, String id, int splitType)
+            throws YControlFlowHandlerException {
+        return setSplit(getTask(netID, id), splitType);
+    }
+
+    public boolean setSplit(YTask task, int splitType) throws YControlFlowHandlerException {
+        validateSplitParameters(task, splitType);
+        int oldType = task.getSplitType();
+        if (oldType == splitType) return false;    // nothing to change
+
+        YFlow defaultFlow = getDefaultFlow(task);
+        task.setSplitType(splitType);
+        int ordering = 0;
+        for (YFlow flow : task.getPostsetFlows()) {
+            if (splitType == YTask._AND) {
+                flow.setEvalOrdering(null);
+                flow.setXpathPredicate(null);
+                flow.setIsDefaultFlow(false);
+            }
+            else if (splitType == YTask._XOR) {
+                flow.setEvalOrdering(ordering++);
+            }
+            else {
+                flow.setEvalOrdering(null);
+            }
+            if (oldType == YTask._AND) {
+                flow.setXpathPredicate("true()");
+            }
+        }
+        if (oldType == YTask._AND) {
+            setDefaultFlow(task, splitType);
+        }
+        else if (defaultFlow != null) {
+            defaultFlow.setXpathPredicate(splitType == YTask._OR ? "true()" : null);
+        }
+        return true;
+    }
+
+
     public YAtomicTask getAtomicTask(String netID, String id) {
         YTask task = getTask(netID, id);
         return (task instanceof YAtomicTask) ? (YAtomicTask) task : null;
@@ -406,6 +459,49 @@ public class YControlFlowHandler {
             return source.getPostsetFlow(target);
         }
         return null;
+    }
+
+    private YFlow getDefaultFlow(YTask task) {
+        for (YFlow flow : task.getPostsetFlows()) {
+            if (flow.isDefaultFlow()) {
+                return flow;
+            }
+        }
+        return null;
+    }
+
+
+    // called when changing a task split type from AND to OR or XOR
+    private YFlow setDefaultFlow(YTask task, int splitType) {
+        YFlow chosenFlow = null;
+        Set<YFlow> flowSet = task.getPostsetFlows();
+
+        if (! flowSet.isEmpty()) {
+            int randomIndex = new Random().nextInt(flowSet.size());
+            Iterator<YFlow> itr = flowSet.iterator();
+            for (int i=0; i<=randomIndex; i++) {
+                if (itr.hasNext()) chosenFlow = itr.next();
+            }
+        }
+        if (chosenFlow != null) {
+            chosenFlow.setIsDefaultFlow(true);
+            if (splitType == YTask._XOR) {       // XOR default can't have a predicate
+                chosenFlow.setXpathPredicate(null);
+            }
+        }
+        return chosenFlow;
+    }
+
+    private void validateSplitParameters(YTask task, int splitType)
+            throws YControlFlowHandlerException {
+        if (! (splitType == YTask._AND ||
+                splitType == YTask._XOR ||
+                splitType == YTask._OR)) {
+            throw new YControlFlowHandlerException("Invalid split type");
+        }
+        if (task == null) {
+            throw new YControlFlowHandlerException("Task is null");
+        }
     }
 
 

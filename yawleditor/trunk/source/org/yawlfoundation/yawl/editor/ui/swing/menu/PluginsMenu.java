@@ -36,9 +36,9 @@ class PluginsMenu extends JMenu {
 
     protected void buildInterface() {
         setMnemonic(KeyEvent.VK_P);
-        addSeparator();
         add(new ProcessConfigurationMenu());
 
+  //      addSeparator();
     //    add(new YAWLMenuItem(new ShowAboutEditorAction()));
     }
 }

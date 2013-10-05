@@ -31,6 +31,7 @@ public class UserSettings {
     private static final String AUTO_INCREMENT_VERSION_ON_SAVE = "autoIncVersionExportCheck";
     private static final String FILE_BACKUP_ON_SAVE = "backupOnExportCheck";
     private static final String FILE_VERSIONING_ON_SAVE = "savePreviousOnExportCheck";
+    private static final String FILE_OPTIONS_DIALOG_ON_SAVE = "showFileOptionsDialog";
     private static final String RESET_NET_ANALYSIS = "resetNetAnalysisCheck";
     private static final String SOUNDNESS_ANALYSIS = "resetSoundnessCheck";
     private static final String WEAK_SOUNDNESS_ANALYSIS = "resetWeakSoundnessCheck";
@@ -191,6 +192,14 @@ public class UserSettings {
 
     public static boolean getFileVersioningOnSave() {
         return getBoolean(FILE_VERSIONING_ON_SAVE);
+    }
+
+    public static void setShowFileOptionsDialogOnSave(boolean show) {
+        setBoolean(FILE_OPTIONS_DIALOG_ON_SAVE, show);
+    }
+
+    public static boolean getShowFileOptionsDialogOnSave() {
+        return _prefs.getBoolean(FILE_OPTIONS_DIALOG_ON_SAVE, true);
     }
 
     public static FileSaveOptions getFileSaveOptions() {

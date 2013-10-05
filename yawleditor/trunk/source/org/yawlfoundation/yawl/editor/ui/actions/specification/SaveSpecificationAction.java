@@ -25,8 +25,10 @@
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,10 +45,14 @@ public class SaveSpecificationAction extends YAWLOpenSpecificationAction impleme
     }
 
     public void actionPerformed(ActionEvent event) {
-        SaveOptionsDialog dialog = new SaveOptionsDialog();
-        dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-        dialog.showOrHideSpecIDField();
-        dialog.setVisible(true);
+        boolean cancelled = false;
+        if (UserSettings.getShowFileOptionsDialogOnSave()) {
+            SaveOptionsDialog dialog = new SaveOptionsDialog();
+            dialog.setLocationRelativeTo(YAWLEditor.getInstance());
+            dialog.setVisible(true);
+            cancelled = dialog.cancelButtonSelected();
+        }
+        if (! cancelled) FileOperations.save();
     }
 
     public String getEnabledTooltipText() {

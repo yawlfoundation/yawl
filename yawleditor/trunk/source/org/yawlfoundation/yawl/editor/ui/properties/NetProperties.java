@@ -1,9 +1,8 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ImageFilter;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
@@ -11,9 +10,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Michael Adams
@@ -30,7 +27,14 @@ public class NetProperties extends YPropertiesBean {
 
     public String getUri() { return specHandler.getURI(); }
 
-    public void setUri(String uri) { specHandler.setURI(uri); }
+    public void setUri(String uri) {
+        if (StringUtil.isNullOrEmpty(uri)) {
+            showWarning("Invalid Specification Name",
+                    "Specification Name cannot be blank");
+            firePropertyChange("Uri", specHandler.getVersion().toString());
+        }
+        specHandler.setURI(uri);
+    }
 
 
     public String getTitle() { return specHandler.getTitle(); }
@@ -52,21 +56,18 @@ public class NetProperties extends YPropertiesBean {
     }
 
 
-    public double getVersion() {
-//        return SpecificationModel.getInstance().getVersionNumber().toDouble();
-        return specHandler.getVersion().toDouble();
+    public String getVersion() {
+        return specHandler.getVersion().toString();
     }
 
-    public void setVersion(double version) {
-        specHandler.setVersion(new YSpecVersion(String.valueOf(version)));
-//        YSpecVersion specVersion;
-//        try {
-//            specVersion = new YSpecVersion(String.valueOf(version));
-//        }
-//        catch (NumberFormatException nfe) {
-//            specVersion = SpecificationModel.getInstance().getVersionNumber(); // rollback
-//        }
-//        SpecificationModel.getInstance().setVersionNumber(specVersion);
+    public void setVersion(String version) {
+        try {
+            specHandler.setVersion(validateVersion(version));
+        }
+        catch (IllegalArgumentException iae) {
+            showWarning("Invalid Version", iae.getMessage());
+            firePropertyChange("Version", specHandler.getVersion().toString());
+        }
     }
 
 
@@ -79,7 +80,8 @@ public class NetProperties extends YPropertiesBean {
             specHandler.setSchema(schema);
         }
         catch (YSyntaxException yse) {
-            // invalid schema
+            showWarning("Invalid Schema", yse.getMessage());
+            firePropertyChange("DataSchema", specHandler.getSchema());
         }
     }
 
@@ -90,10 +92,17 @@ public class NetProperties extends YPropertiesBean {
 
     public void setName(String value) {
         String oldValue = getName();
-        graph.setName(value);
-        SpecificationModel.getInstance().getNets().propagateDecompositionNameChange(
-                model.getDecomposition(), oldValue);
-        setDirty();
+        if (oldValue.equals(value)) return;
+        try {
+            graph.setName(flowHandler.checkDecompositionID(value));
+            SpecificationModel.getInstance().getNets().propagateDecompositionNameChange(
+                    model.getDecomposition(), oldValue);
+            setDirty();
+        }
+        catch (IllegalIdentifierException iie) {
+            showWarning("Net Rename Error", iie.getMessage());
+            firePropertyChange("Name", oldValue);
+        }
     }
 
 
@@ -150,25 +159,17 @@ public class NetProperties extends YPropertiesBean {
         }
     }
 
-    public void actionPerformed(ActionEvent event) {
-        JFileChooser chooser = new JFileChooser("Select Background Image for Net");
-        chooser.setFileFilter(new ImageFilter());
-        int result = chooser.showOpenDialog(YAWLEditor.getInstance());
-        if (result == JFileChooser.APPROVE_OPTION) {
-            try {
-                String path = chooser.getSelectedFile().getCanonicalPath();
-                ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path);
-                if (bgImage != null) {
-                    bgImage.setDescription(path);   // store path
-                    graph.setBackgroundImage(bgImage);
-                    SpecificationUndoManager.getInstance().setDirty(true);
-                }
-            }
-            catch (IOException ioe) {
-                // ignore
-            }
+    private YSpecVersion validateVersion(String version) throws IllegalArgumentException {
+        if (StringUtil.strToDouble(version, 0) == 0) {
+            throw new IllegalArgumentException("Invalid version format");
         }
+        YSpecVersion oldVersion = specHandler.getVersion();
+        YSpecVersion newVersion = new YSpecVersion(version);
+        if (newVersion.compareTo(oldVersion) < 0) {
+           throw new IllegalArgumentException(
+                   "Version cannot be less than the current version");
+        }
+        return newVersion;
     }
-
 
 }

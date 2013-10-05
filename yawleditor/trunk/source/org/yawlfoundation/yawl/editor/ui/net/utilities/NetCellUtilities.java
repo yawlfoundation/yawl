@@ -53,7 +53,6 @@ public class NetCellUtilities {
   }
 
   public static void propogateFontChangeAcrossNetNoUndo(NetGraph net, Font font) {
-
     net.setFont(font);
 
     List cells = NetGraphModel.getDescendants(
@@ -67,7 +66,7 @@ public class NetCellUtilities {
       if (cell instanceof VertexContainer) {
         VertexContainer container = (VertexContainer) cell;
         if (container.getLabel() != null) {
-          String label = container.getLabel().getLabel();
+          String label = container.getLabel().getText();
           
           // cheap and nasty way of getting the label to position nicely
           // with the vertex is to delete, and set it again, letting 

@@ -25,8 +25,8 @@ public class AnalysisResultsParser {
     private static final String WOF_YAWL_BINARY = "wofyawl@WofYawlReleaseNumber@.exe";
 
 
-    public List<String> getAnalysisResults(SpecificationModel editorSpec) {
-        String specXML = SpecificationWriter.getSpecificationXML(editorSpec);
+    public List<String> getAnalysisResults(SpecificationModel model) {
+        String specXML = new SpecificationWriter().getSpecificationXML(model);
         return getAnalysisResults(specXML);
     }
 

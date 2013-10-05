@@ -289,7 +289,7 @@ public class YLayout {
         node.addAttribute("id", _specification.getURI());
 
         // only write non-default colors
-        if (! (_globalFillColor == null || _globalFillColor == Color.WHITE)) {
+        if (! (_globalFillColor == null || _globalFillColor.equals(Color.WHITE))) {
             node.addAttribute("defaultBgColor", _globalFillColor.getRGB());
         }
         node.addChild(getSizeNode());

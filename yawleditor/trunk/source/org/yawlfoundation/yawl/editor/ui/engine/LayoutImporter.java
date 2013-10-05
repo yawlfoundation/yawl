@@ -33,10 +33,7 @@ public class LayoutImporter {
             setNetLayout(netModel, netLayout);
             netModel.getGraph().getGraphLayoutCache().reload();
         }
-        int defaultFontSize = layout.getGlobalFontSize();
-        if (defaultFontSize != YLayout.DEFAULT_FONT_SIZE) {
-            model.setFontSize(YLayout.DEFAULT_FONT_SIZE, defaultFontSize);
-        }
+
         Color defaultBgColor = layout.getGlobalFillColor();
         if (defaultBgColor != null) {
             UserSettings.setNetBackgroundColour(defaultBgColor);
@@ -197,13 +194,16 @@ public class LayoutImporter {
 
     private static AttributeMap getLabelAttributes(YLayoutNode layout) {
         AttributeMap attributeMap = new AttributeMap();
-         if (layout.getLabelBounds() != null) {
-             attributeMap.put("bounds", layout.getLabelBounds());
-         }
-         if (layout.getFont() != null) {
-             attributeMap.put("font", layout.getFont());
-         }
-         return attributeMap;
+        if (layout.getLabelBounds() != null) {
+            attributeMap.put("bounds", layout.getLabelBounds());
+        }
+        if (layout.getLabelColor() != null) {
+            attributeMap.put("foregroundColor", layout.getLabelColor());
+        }
+        if (layout.getFont() != null) {
+            attributeMap.put("font", layout.getFont());
+        }
+        return attributeMap;
     }
 
 

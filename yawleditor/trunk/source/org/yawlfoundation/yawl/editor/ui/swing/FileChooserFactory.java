@@ -34,7 +34,7 @@ import java.io.File;
 public class FileChooserFactory {
 
     public static JFileChooser build(final String fileType, final String description,
-                                     final String titlePrefix, final String titleSuffix) {
+                                     final String title) {
 
         JFileChooser fileChooser = new JFileChooser() {
 
@@ -95,11 +95,7 @@ public class FileChooserFactory {
         }  // class
 
 
-        fileChooser.setDialogTitle(titlePrefix +
-                        fileType.toUpperCase().replaceAll(",", " or ") +
-                        titleSuffix
-        );
-
+        fileChooser.setDialogTitle(title);
         fileChooser.setAcceptAllFileFilterUsed(false);   // don't show 'all files' choice
         fileChooser.setFileFilter(new YAWLFileFilter());
 

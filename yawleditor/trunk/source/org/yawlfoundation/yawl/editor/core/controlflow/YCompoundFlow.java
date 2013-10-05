@@ -8,9 +8,11 @@ import org.yawlfoundation.yawl.elements.*;
  */
 public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
-    YFlow _flowFromSource;
-    YCondition _implicitCondition;
-    YFlow _flowIntoTarget;
+    private YFlow _flowFromSource;
+    private YCondition _implicitCondition;
+    private YFlow _flowIntoTarget;
+
+    private static final String DEFAULT_PREDICATE = "true()";
 
     public YCompoundFlow() { }
 
@@ -33,16 +35,8 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
             _flowIntoTarget = makeFlow(_implicitCondition, target);
         }
         else _flowFromSource = makeFlow(source, target);
-    }
 
-    public YCompoundFlow moveTo(YExternalNetElement source, YExternalNetElement target) {
-        removeImplicitCondition();
-        YCompoundFlow flow = new YCompoundFlow(source, target);
-        flow.setOrdering(this.getOrdering());
-        flow.setPredicate(this.getPredicate());
-        flow.setIsDefaultFlow(this.isDefaultFlow());
-        flow.setDocumentation(this.getDocumentation());
-        return flow;
+        if (source instanceof YTask) setInitialProperties(this);
     }
 
     public YCompoundFlow moveSourceTo(YExternalNetElement newSource) {
@@ -90,7 +84,6 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
     public void setPredicate(String predicate) {
         _flowFromSource.setXpathPredicate(predicate);
-        if (isCompound()) _flowIntoTarget.setXpathPredicate(predicate);
     }
 
     public String getPredicate() {
@@ -134,6 +127,12 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
         return isCompound() ? new YFlow(getSource(), getTarget()) : getSimpleFlow();
     }
 
+    public boolean isLoop() {
+        YExternalNetElement source = getSource();
+        YExternalNetElement target = getTarget();
+        return source != null && target != null && source == target;
+    }
+
 
     public void detach() {
         detach(getSourceFlow(), getTargetFlow());
@@ -171,7 +170,13 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
     private void detach(YFlow sourceFlow, YFlow targetFlow) {
         if (sourceFlow == null || targetFlow == null) return;
         YExternalNetElement source = sourceFlow.getPriorElement();
-        if (source != null) source.removePostsetFlow(sourceFlow);
+        if (source != null) {
+            source.removePostsetFlow(sourceFlow);
+            if ((source instanceof YTask) && sourceFlow.isDefaultFlow()) {
+                nominateDefaultFlow((YTask) source);
+            }
+        }
+
         YExternalNetElement target = targetFlow.getNextElement();
         if (target != null) target.removePresetFlow(targetFlow);
     }
@@ -201,6 +206,95 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
         implicit.setImplicit(true);
         net.addNetElement(implicit);
         return implicit;
+    }
+
+
+    private YCompoundFlow moveTo(YExternalNetElement source, YExternalNetElement target) {
+        removeImplicitCondition();
+        YCompoundFlow flow = new YCompoundFlow(source, target);
+        setPropertiesOnMove(flow);
+        return flow;
+    }
+
+
+    private void setInitialProperties(YCompoundFlow flow) {
+        YExternalNetElement source = flow.getSource();
+        if (source instanceof YTask) {
+            int splitType = ((YTask) source).getSplitType();
+
+            // NOTE: a condition or an AND-split task already have the correct defaults
+            if (splitType == YTask._XOR) {
+
+                // a new flow at an XOR-split becomes the new default
+                unsetDefaultFlow((YTask) source);
+                flow.setOrdering(source.getPostsetElements().size() -1);
+                flow.setIsDefaultFlow(true);
+            }
+            else if (splitType == YTask._OR) {
+                flow.setIsDefaultFlow(! hasDefaultFlow((YTask) source));
+                flow.setPredicate(DEFAULT_PREDICATE);
+            }
+        }
+    }
+
+
+    private void setPropertiesOnMove(YCompoundFlow flow) {
+        flow.setDocumentation(this.getDocumentation());
+        YExternalNetElement oldSource = this.getSource();
+        YExternalNetElement newSource = flow.getSource();
+
+        // if the flow has a new source, move its predicate to the new source
+        if ((newSource instanceof YTask) && ! newSource.equals(oldSource)) {
+            setInitialProperties(flow);
+            int splitType = ((YTask) newSource).getSplitType();
+            if ((splitType == YTask._XOR && ! isDefaultFlow()) ||
+                    splitType == YTask._OR) {
+                movePredicate(flow, this.getPredicate());
+           }
+        }
+    }
+
+
+    private boolean hasDefaultFlow(YTask task) {
+        for (YFlow flow : task.getPostsetFlows()) {
+            if (flow.isDefaultFlow()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // only called for XOR splits
+    private void unsetDefaultFlow(YTask task) {
+        for (YFlow flow : task.getPostsetFlows()) {
+            if (flow.isDefaultFlow()) {
+                flow.setIsDefaultFlow(false);
+                flow.setXpathPredicate(DEFAULT_PREDICATE);
+            }
+        }
+    }
+
+
+    private void movePredicate(YCompoundFlow flow, String predicate) {
+        flow.setPredicate(predicate != null ? predicate : DEFAULT_PREDICATE);
+    }
+
+
+    private void nominateDefaultFlow(YTask task) {
+        if (task.getSplitType() != YTask._AND) {
+            YFlow nominatedFlow = null;
+            int lowestPriority = -1;
+            for (YFlow flow : task.getPostsetFlows()) {
+                if (lowestPriority < flow.getEvalOrdering()) {
+                    lowestPriority = flow.getEvalOrdering();
+                    nominatedFlow = flow;
+                }
+            }
+            if (nominatedFlow != null) {
+                nominatedFlow.setIsDefaultFlow(true);
+            }
+        }
     }
 
 }

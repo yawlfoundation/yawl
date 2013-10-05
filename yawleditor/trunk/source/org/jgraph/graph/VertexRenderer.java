@@ -6,24 +6,14 @@
  */
 package org.jgraph.graph;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Stroke;
+import org.jgraph.JGraph;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.UIManager;
-
-import org.jgraph.JGraph;
 
 /**
  * This renderer displays entries that implement the CellView interface and
@@ -275,7 +265,8 @@ public class VertexRenderer extends JLabel implements CellViewRenderer,
 	protected void firePropertyChange(String propertyName, Object oldValue,
 			Object newValue) {
 		// Strings get interned...
-		if (propertyName == "text")
+		if (propertyName == "text" || propertyName == "font" ||
+                propertyName == "foreground")
 			super.firePropertyChange(propertyName, oldValue, newValue);
 	}
 

@@ -82,7 +82,9 @@ class VariableRow {
 
     public String getStartingName() { return startValues.name; }
 
-    public void setName(String name) { endValues.name = name; }
+    public void setName(String name) {
+        endValues.name = name;
+    }
 
     public boolean isNameChange() {
         return ! startValues.equals(startValues.name, endValues.name);

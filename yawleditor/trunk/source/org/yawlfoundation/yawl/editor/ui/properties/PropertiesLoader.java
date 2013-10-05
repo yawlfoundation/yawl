@@ -6,6 +6,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 
 import java.util.Arrays;
@@ -24,6 +25,7 @@ public class PropertiesLoader
     private FlowProperties _flowProperties;
     private DecompositionProperties _decompositionProperties;
     private EventListener _eventListener;
+    private FileState _lastFileState;
 
 
     public PropertiesLoader() {
@@ -33,6 +35,7 @@ public class PropertiesLoader
         _decompositionProperties = new DecompositionProperties();
         _eventListener = new EventListener();
         subscribe();
+        _lastFileState = FileState.Closed;
     }
 
 
@@ -103,14 +106,28 @@ public class PropertiesLoader
         }
     }
 
-
+    // state transition: Closed - Busy - Open - Busy (saving) - Open - Busy - Closed
     public void specificationFileStateChange(FileState state) {
         switch(state) {
             case Open: {
+                if (_lastFileState == FileState.Busy) {
+                    if (_netProperties != null) {
+                        _netProperties.firePropertyChange("Version",
+                                SpecificationModel.getHandler().getVersion().toDouble());
+                    }
+                }
+                _lastFileState = FileState.Open;
+                break;
+            }
+            case Busy: {                             // busy before open and when saving
+                if (_lastFileState == FileState.Open) {
+                    _lastFileState = FileState.Busy;
+                }
                 break;
             }
             case Closed: {
                 unbind();
+                _lastFileState = FileState.Closed;
                 break;
             }
         }

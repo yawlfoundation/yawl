@@ -69,6 +69,12 @@ class FlowConditionTable extends JSingleSelectTable {
     public boolean hasChangedRowOrder() { return orderChanged; }
 
 
+    public boolean allowPredicateEdit() {
+        YAWLFlowRelation flow = getSelectedFlow();
+        return ! (flow != null && flow.hasXorSplitAsSource() && flow.isDefaultFlow());
+    }
+
+
     /**
      * This method adds a custom action to prevent wrapping to the first table row
      * when the enter key is pressed while on the last table row - that is, it

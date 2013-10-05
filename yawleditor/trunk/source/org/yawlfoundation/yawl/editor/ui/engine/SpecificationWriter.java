@@ -23,7 +23,6 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
-import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
@@ -36,8 +35,9 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 
 import javax.swing.*;
@@ -46,50 +46,58 @@ import java.util.List;
 
 public class SpecificationWriter {
 
-    private static YSpecificationHandler _handler = SpecificationModel.getHandler();
+    private YSpecificationHandler _handler = SpecificationModel.getHandler();
 
-    // todo - make sure editor saveas matches core saveas
-    public static boolean checkAndExportEngineSpecToFile(SpecificationModel model,
-                                                         String fullFileName) {
+    public boolean writeToFile(SpecificationModel model, String fileName) {
         boolean success = false;
         try {
             if (checkUserDefinedDataTypes(model)) {
                 YLayout layout = new LayoutExporter().parse(model);
                 populateSpecification(model);
                 analyseIfNeeded();
-                if (fullFileName != null) {
-                    _handler.saveAs(fullFileName, layout, UserSettings.getFileSaveOptions());
+                if (! fileName.equals(_handler.getFileName())) {
+                    _handler.saveAs(fileName, layout, UserSettings.getFileSaveOptions());
                 }
                 else _handler.save(layout, UserSettings.getFileSaveOptions());
                 success = true;
             }
         }
         catch (Exception e) {
-            JOptionPane.showMessageDialog(null,
-                    "The attempt to save this specification to file failed.\n " +
-                            "Please see the log for details", "Save File Error",
-                    JOptionPane.ERROR_MESSAGE);
+            showError("The attempt to save this specification to file failed.\n " +
+                    "Please see the log for details", "Save File Error");
             LogWriter.error("Error saving specification to file.", e);
         }
         return success;
     }
 
 
-    private static boolean checkUserDefinedDataTypes(SpecificationModel model) {
+    public String getSpecificationXML(SpecificationModel model) {
+        return getSpecificationXML(populateSpecification(model));
+    }
+
+
+    public YSpecification populateSpecification(SpecificationModel model) {
+        _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
+        removeUndoneElements();
+        finaliseEngineNets(model);
+        return _handler.getSpecification();
+    }
+
+
+    private boolean checkUserDefinedDataTypes(SpecificationModel model) {
         List<String> results = new ArrayList<String>();
         results.addAll(new EngineSpecificationValidator().checkUserDefinedDataTypes(model));
         if (! results.isEmpty()) {
             YAWLEditor.getInstance().showProblemList("Export Errors", results);
-            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                    "Could not export Specification due to missing or invalid user-defined " +
-                            "datatypes.\nPlease see the problem list below for details.",
-                    "Export Datatype Error", JOptionPane.ERROR_MESSAGE);
+            showError("Could not export Specification due to missing or invalid user-" +
+                    "defined data types.\nPlease see the problem list below for details.",
+                    "Data type Error");
         }
         return results.isEmpty();
     }
 
 
-    private static void analyseIfNeeded() {
+    private void analyseIfNeeded() {
         List<String> results = new ArrayList<String>();
 
         if (UserSettings.getVerifyOnSave()) {
@@ -109,12 +117,8 @@ public class SpecificationWriter {
     }
 
 
-    public static String getSpecificationXML(SpecificationModel model) {
-        return getSpecificationXML(populateSpecification(model));
-    }
 
-
-    public static String getSpecificationXML(YSpecification engineSpec) {
+    private String getSpecificationXML(YSpecification engineSpec) {
         try {
             return YMarshal.marshal(engineSpec);
         } catch (Exception e) {
@@ -124,51 +128,15 @@ public class SpecificationWriter {
     }
 
 
-    public static YSpecification populateSpecification(SpecificationModel model) {
-        _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
-        removeUndoneElements();
-        finaliseEngineNets(model);
-        return _handler.getSpecification();
-    }
-
-
-     private static void finaliseEngineNets(SpecificationModel model) {
+     private void finaliseEngineNets(SpecificationModel model) {
         for (NetGraphModel netModel : model.getNets()) {
-            checkNetIdIsValidXML((YNet) netModel.getDecomposition());
             NetElementSummary editorNetSummary = new NetElementSummary(netModel);
             configureTasks(editorNetSummary);
-            setFlows(editorNetSummary);
             setCancellationSetDetail(editorNetSummary);
         }
     }
 
-    private static void checkNetIdIsValidXML(YNet net) {
-        String checkedID = XMLUtilities.toValidXMLName(net.getID());
-        if (! net.getID().equals(checkedID)) {
-            net.setID(checkedID);
-        }
-    }
-
-
-    private static void configureTasks(NetElementSummary editorNetSummary) {
-        for (YAWLTask task : editorNetSummary.getTasks()) {
-            configureTask(task);
-        }
-    }
-
-    private static void setFlows(NetElementSummary editorNetSummary) {
-        for (YAWLFlowRelation editorFlow : editorNetSummary.getFlows()) {
-            YCompoundFlow engineFlow = editorFlow.getYFlow();
-            if (engineFlow.hasSourceSplitType(YTask._XOR)) {
-                if (engineFlow.isOnlySourceFlow()) {
-                    engineFlow.setPredicate(null);
-                    engineFlow.setIsDefaultFlow(true);
-                }
-            }
-        }
-    }
-
-    private static void setCancellationSetDetail(NetElementSummary editorNetSummary) {
+    private void setCancellationSetDetail(NetElementSummary editorNetSummary) {
         for (YAWLTask editorTriggerTask : editorNetSummary.getTasksWithCancellationSets()) {
            List<YExternalNetElement> cancellationSet = new ArrayList<YExternalNetElement>();
             for (YAWLCell element : editorTriggerTask.getCancellationSet().getSetMembers()) {
@@ -187,7 +155,14 @@ public class SpecificationWriter {
     }
 
 
-    private static void configureTask(YAWLTask task) {
+    private void configureTasks(NetElementSummary editorNetSummary) {
+        for (YAWLTask task : editorNetSummary.getTasks()) {
+            configureTask(task);
+        }
+    }
+
+
+    private void configureTask(YAWLTask task) {
         if (task.isConfigurable()) {
             YTask yTask = (YTask) task.getYAWLElement();
             DefaultConfigurationExporter defaultConfig = new DefaultConfigurationExporter();
@@ -199,12 +174,18 @@ public class SpecificationWriter {
     }
 
 
-    private static void removeUndoneElements() {
+    private void removeUndoneElements() {
         for (YExternalNetElement netElement :
                  SpecificationUndoManager.getInstance().getRemovedYNetElements()) {
             _handler.getControlFlowHandler().removeNetElement(netElement);
         }
         SpecificationUndoManager.getInstance().clearYNetElementSet();
+    }
+
+
+    private void showError(String message, String title) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
+                JOptionPane.ERROR_MESSAGE);
     }
 
 }

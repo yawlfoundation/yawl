@@ -15,8 +15,10 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -55,6 +57,7 @@ public class FlowConditionTablePanel extends JPanel
         scrollPane.setPreferredSize(new Dimension(400, 180));
         add(scrollPane, BorderLayout.CENTER);
         enableButtons(true);
+        setStatus();
     }
 
 
@@ -77,7 +80,6 @@ public class FlowConditionTablePanel extends JPanel
 
 
     public void actionPerformed(ActionEvent event) {
-        clearStatus();
         String action = event.getActionCommand();
         if (action.equals("Up")) {
             table.moveSelectedRowUp();
@@ -93,10 +95,11 @@ public class FlowConditionTablePanel extends JPanel
 
 
     public void valueChanged(ListSelectionEvent e) {
-        if (! e.getValueIsAdjusting()) { // The mouse button has not yet been released
+        if (! e.getValueIsAdjusting()) {        // if the mouse button has been released
             int row = table.getSelectedRow();
             btnUp.setEnabled(row > 0);
-            btnDown.setEnabled(row < table.getRowCount() - 1);
+            btnDown.setEnabled(row > -1 && row < table.getRowCount() - 1);
+            enableMappingButton(row);
             highlightFlowOfSelectedRow();
         }
     }
@@ -108,6 +111,7 @@ public class FlowConditionTablePanel extends JPanel
 
     public void resetFlowColours() {
         setFlowColours(null, null);
+        table.getTableModel().cleanupFlows();
     }
 
 
@@ -150,6 +154,17 @@ public class FlowConditionTablePanel extends JPanel
         return button;
     }
 
+    private void enableMappingButton(int selectedRow) {
+        if (selectedRow < 0) {
+            btnMapping.setEnabled(false);
+        }
+        else {
+            boolean enabled = table.allowPredicateEdit();
+            btnMapping.setEnabled(enabled);
+            btnMapping.setToolTipText(enabled ? " Edit Condition " :
+                " Condition of XOR-split default flow can't be edited ");
+        }
+    }
 
     private ImageIcon getIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
@@ -190,6 +205,13 @@ public class FlowConditionTablePanel extends JPanel
             _graph.changeCellForeground(flow, flowColour);
         }
         _graph.startUndoableEdits();
+    }
+
+    private void setStatus() {
+        status.set(
+           "<html><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                   "The bottom-most flow is the default</i></html>",
+                Color.DARK_GRAY);
     }
 
 }

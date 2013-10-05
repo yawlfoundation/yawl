@@ -136,7 +136,7 @@ public class YFlowLayout extends YLayoutNode {
      * @param node the XML node describing this net's layout
      */
     protected void parse(XNode node) {
-        parseLabel(node.getChild("label"));
+        parseLabelText(node.getChild("label"));
         parsePorts(node.getChild("ports"));
         parseAttributes(node.getChild("attributes"));
         parseLineColor(node.getChild("attributes"));
@@ -160,7 +160,7 @@ public class YFlowLayout extends YLayoutNode {
 
 
 
-    private void parseLabel(XNode labelNode) {
+    private void parseLabelText(XNode labelNode) {
         if (labelNode != null) {
             _label = labelNode.getText(true);
         }

@@ -96,41 +96,43 @@ public class NetGraph extends JGraph {
     }
 
     private void buildBasicGraphContent() {
-    setGridMode(JGraph.DOT_GRID_MODE);
-    setGridVisible(UserSettings.getShowGrid());
-    setGridEnabled(true);
-    setDoubleBuffered(true);
-    setGridSize(4);
-    setMinimumMove(4);
-    setBackground(UserSettings.getNetBackgroundColour());
-    setAntiAliased(UserSettings.getShowAntiAliasing());
-    setPortsVisible(false);
-    setCloneable(false);
-    setTolerance(5);
-    setAutoResizeGraph(true);
-    setAutoscrolls(true);
-    getSelectionModel().setChildrenSelectable(false);
-    bindComponentListener();
-    bindKeyMappings();
+        setGridMode(JGraph.DOT_GRID_MODE);
+        setGridVisible(UserSettings.getShowGrid());
+        setGridEnabled(true);
+        setDoubleBuffered(true);
+        setGridSize(4);
+        setMinimumMove(4);
+        setBackground(UserSettings.getNetBackgroundColour());
+        setFont(UserSettings.getDefaultFont());
+        setForeground(UserSettings.getDefaultTextColour());
+        setAntiAliased(UserSettings.getShowAntiAliasing());
+        setPortsVisible(false);
+        setCloneable(false);
+        setTolerance(5);
+        setAutoResizeGraph(true);
+        setAutoscrolls(true);
+        getSelectionModel().setChildrenSelectable(false);
+        bindComponentListener();
+        bindKeyMappings();
 
-    addMouseListener(new NetPopupListener(this));
-    addMouseListener(new ElementDoubleClickListener(this));
-    addMouseListener(new ElementControlClickListener(this));
+        addMouseListener(new NetPopupListener(this));
+        addMouseListener(new ElementDoubleClickListener(this));
+        addMouseListener(new ElementControlClickListener(this));
 
-    bindCancellationModel();
-    setModel(new NetGraphModel(this));
-    ToolTipManager.sharedInstance().registerComponent(this);
-    selectionListener = new NetSelectionListener(this.getSelectionModel());
-    addGraphSelectionListener(selectionListener);
-    addFocusListener(new NetFocusListener(this));
-    setMarqueeHandler(new NetMarqueeHandler(this));
-    getModel().addUndoableEditListener(SpecificationUndoManager.getInstance());
-    
-    getGraphLayoutCache().setFactory(new NetCellViewFactory());
-    getGraphLayoutCache().setSelectsAllInsertedCells(false);
-    
-    startUndoableEdits();
-  }
+        bindCancellationModel();
+        setModel(new NetGraphModel(this));
+        ToolTipManager.sharedInstance().registerComponent(this);
+        selectionListener = new NetSelectionListener(this.getSelectionModel());
+        addGraphSelectionListener(selectionListener);
+        addFocusListener(new NetFocusListener(this));
+        setMarqueeHandler(new NetMarqueeHandler(this));
+        getModel().addUndoableEditListener(SpecificationUndoManager.getInstance());
+
+        getGraphLayoutCache().setFactory(new NetCellViewFactory());
+        getGraphLayoutCache().setSelectsAllInsertedCells(false);
+
+        startUndoableEdits();
+    }
   
   public ConfigurationSettingInfo getConfigurationSettings(){
         return this.configurationSettings;
@@ -314,7 +316,7 @@ public class NetGraph extends JGraph {
 
       getNetModel().beginUpdate();
       getModel().insert(new Object[] {flow}, null, cs, null, null);
-      setFlowPriorityIfNecessary(flow);
+ //     setFlowPriorityIfNecessary(flow);
       if (flow.connectsTaskToItself()) {
           NetCellUtilities.prettifyLoopingFlow(this, flow,
                   (EdgeView) getViewFor(flow), getViewFor(flow.getSourceTask()));
@@ -653,7 +655,7 @@ public class NetGraph extends JGraph {
     if (container != null) {
       VertexLabel label = container.getLabel();
       if (label != null) {
-        return container.getLabel().getLabel();
+        return container.getLabel().getText();
       }
     }
     return null;
@@ -685,20 +687,25 @@ public class NetGraph extends JGraph {
         element = (YAWLVertex) vertex;
         container = getNetModel().getVertexContainer(element, objectsToInsert, parentMap);
       }
-       
-      if(container.getLabel() != null) {
-        getNetModel().removeCells(new Object[]{container.getLabel()});
+
+        VertexLabel oldLabel = container.getLabel();
+      if(oldLabel != null) {
+        getNetModel().removeCells(new Object[]{oldLabel});
       }
       
       if(labelString == null || labelString.equals("") || labelString.equals("null")) {
         return;
       }
 
-      VertexLabel label = new VertexLabel(element, labelString);
+      VertexLabel newLabel = new VertexLabel(element, labelString);
+        if (oldLabel != null) {
+            newLabel.setFont(oldLabel.getFont());
+            newLabel.setForeground(oldLabel.getForeground());
+        }
       
       getNetModel().insert(objectsToInsert.toArray(),null, null, parentMap, null); 
       
-      getGraphLayoutCache().insert(label);
+      getGraphLayoutCache().insert(newLabel);
       
       // The ordering of the following code is very important for getting the label
       // to align correctly with the element (JGraph 5.7.3.1 exhibits this behaviour). 
@@ -707,7 +714,7 @@ public class NetGraph extends JGraph {
       
       NetCellUtilities.moveViewToLocation(
           this, 
-          getVertexViewFor(label),
+          getVertexViewFor(newLabel),
           getVertexViewFor(container).getBounds().getCenterX(),
           getVertexViewFor(container).getBounds().getMaxY()
       );
@@ -715,9 +722,9 @@ public class NetGraph extends JGraph {
       // Adding the label as a child to the container adds a couple pixels to the
       // label width, so we remember the correct label width now.
 
-      double labelWidth = getVertexViewFor(label).getBounds().getWidth();
-      
-      parentMap.addEntry(label, container);
+      double labelWidth = getVertexViewFor(newLabel).getBounds().getWidth();
+
+      parentMap.addEntry(newLabel, container);
       
       getNetModel().edit(null,null, parentMap, null); 
 
@@ -726,7 +733,7 @@ public class NetGraph extends JGraph {
       
       NetCellUtilities.translateView(
           this, 
-          getVertexViewFor(label),
+          getVertexViewFor(newLabel),
           Math.round(-1.0*(labelWidth/2.0)),
           0
       );

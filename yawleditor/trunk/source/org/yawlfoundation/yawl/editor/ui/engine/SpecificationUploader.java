@@ -47,7 +47,7 @@ public class SpecificationUploader {
 
     private YSpecification getSpecification() {
         if (_specification == null) {
-            _specification = SpecificationWriter.populateSpecification(
+            _specification = new SpecificationWriter().populateSpecification(
                             SpecificationModel.getInstance());
         }
         return _specification;

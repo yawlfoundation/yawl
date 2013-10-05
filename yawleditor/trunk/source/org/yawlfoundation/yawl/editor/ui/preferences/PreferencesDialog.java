@@ -66,7 +66,7 @@ public class PreferencesDialog extends JDialog
         setTitle("YAWL Editor Preferences");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add(getContent());
-        setPreferredSize(new Dimension(590, 500));
+        setPreferredSize(new Dimension(620, 500));
         pack();
     }
 
@@ -75,6 +75,7 @@ public class PreferencesDialog extends JDialog
         _mainPanel = new JPanel(new BorderLayout());
         JButtonBar toolbar = new JButtonBar(JButtonBar.VERTICAL);
         toolbar.setUI(new IconPackagerButtonBarUI());
+        toolbar.setPreferredSize(new Dimension(90, 500));
         _mainPanel.add(toolbar, BorderLayout.WEST);
         populateToolbar(toolbar);
         _mainPanel.add(getButtonBar(this), BorderLayout.SOUTH);
@@ -87,6 +88,7 @@ public class PreferencesDialog extends JDialog
         addConnectionPreferences(toolbar, group);
         addAnalysisPreferences(toolbar, group);
         addFilePathPreferences(toolbar, group);
+        addSaveOptionsPreferences(toolbar, group);
         addDefaultPreferences(toolbar, group);
     }
 
@@ -104,7 +106,7 @@ public class PreferencesDialog extends JDialog
 
     private void addConnectionPreferences(JButtonBar toolbar, ButtonGroup group) {
         ConnectionsPanel connectionsPanel = new ConnectionsPanel(this);
-        JToggleButton button = makeButton("Connect", "connect", connectionsPanel);
+        JToggleButton button = makeButton("Connections", "connect", connectionsPanel);
         toolbar.add(button);
         group.add(button);
         _contentPanels.add(connectionsPanel);
@@ -128,6 +130,14 @@ public class PreferencesDialog extends JDialog
         toolbar.add(button);
         group.add(button);
         _contentPanels.add(filePathPanel);
+    }
+
+    private void addSaveOptionsPreferences(JButtonBar toolbar, ButtonGroup group) {
+        FileOptionsPanel fileOptionsPanel = new FileOptionsPanel(this);
+        JToggleButton button = makeButton("Save Options", "saveOptions", fileOptionsPanel);
+        toolbar.add(button);
+        group.add(button);
+        _contentPanels.add(fileOptionsPanel);
     }
 
     private void addDefaultPreferences(JButtonBar toolbar, ButtonGroup group) {

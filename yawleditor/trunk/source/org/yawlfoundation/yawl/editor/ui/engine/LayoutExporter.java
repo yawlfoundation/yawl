@@ -231,7 +231,12 @@ public class LayoutExporter {
                 layout.setFillColor((Color) value);
             }
             else if (key.equals("foregroundColor") && ! isBlack((Color) value)) {
-                layout.setColor((Color) value);
+                if (cell instanceof VertexLabel) {
+                    layout.setLabelColor((Color) value);
+                }
+                else {
+                    layout.setColor((Color) value);
+                }
             }
             else if (key.equals("bounds")) {
                 Rectangle r = ((AttributeMap.SerializableRectangle2D) value).getBounds();
@@ -296,7 +301,6 @@ public class LayoutExporter {
 
 
     private Font getDefaultFont(float size) {
-//        return UIManager.getDefaults().getFont("Label.font").deriveFont(size);
         return UserSettings.getDefaultFont().deriveFont(size);
     }
 
