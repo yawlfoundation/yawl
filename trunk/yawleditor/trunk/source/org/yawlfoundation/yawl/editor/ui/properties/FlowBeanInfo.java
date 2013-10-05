@@ -3,7 +3,7 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ComboPropertyEditor;
 
 /**
- * Loads the properties for a CellProperties backing Bean
+ * Loads the properties for a FlowProperties backing Bean
  *
  * @author Michael Adams
  * @date 4/07/12
@@ -22,6 +22,12 @@ public class FlowBeanInfo extends NetBeanInfo {
                 .setPropertyEditorClass(StyleEditor.class);
         addProperty("Source", category, null, "Source element");
         addProperty("Target", category, null, "Target element");
+        addProperty("Predicate", category, null, "The control-flow predicate");
+         //       .setPropertyEditorClass(FlowPredicatePropertyEditor.class);
+        addProperty("Ordering", category, "Index",
+                "The evaluation ordering index (XOR-split flows only)");
+        addProperty("Default", category, null,
+                "Is the default flow from the source element");
     }
 
 

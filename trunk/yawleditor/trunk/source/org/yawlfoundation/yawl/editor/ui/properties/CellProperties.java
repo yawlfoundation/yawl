@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskResourceSet;
@@ -10,6 +11,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
@@ -65,6 +67,7 @@ public class CellProperties extends NetProperties {
         vertex.setName(value);
         if (idLabelSynch) updateVertexID(value);
         graph.setSelectionCell(vertex.getParent());
+        vertex.getVertexLabel().refreshLabelView();
         setDirty();
     }
 
@@ -112,9 +115,22 @@ public class CellProperties extends NetProperties {
     }
 
 
-    public Font getFont() { return new Font("Arial", Font.PLAIN, 12); }
+    public FontColor getFont() {
+        VertexLabel label = vertex.getVertexLabel();
+        Font font = label != null ? label.getFont() : UserSettings.getDefaultFont();
+        Color colour = label != null ? label.getForeground() :
+                UserSettings.getDefaultTextColour();
+        return new FontColor(font, colour);
+    }
 
-    public void setFont(Font font) {}
+    public void setFont(FontColor fontColor) {
+        VertexLabel label = vertex.getVertexLabel();
+        if (label != null) {
+            label.setFont(fontColor.getFont());
+            label.setForeground(fontColor.getColour());
+            graph.setElementLabel(vertex, label.getText());
+        }
+    }
 
 
     public String getCustomForm() {
@@ -255,7 +271,7 @@ public class CellProperties extends NetProperties {
                 }
             }
             catch (IllegalIdentifierException iie) {
-                showIdentifierWarning("Identifier Name Error", iie.getMessage());
+                showWarning("Identifier Name Error", iie.getMessage());
             }
         }
         return current;
@@ -278,7 +294,7 @@ public class CellProperties extends NetProperties {
                 current.setID(oldID);
             }
             catch (IllegalIdentifierException iie) {
-                showIdentifierWarning("Identifier Rename Error", iie.getMessage());
+                showWarning("Identifier Rename Error", iie.getMessage());
             }
         }
     }
@@ -359,28 +375,42 @@ public class CellProperties extends NetProperties {
 
     public void setSplit(String value) {
         if (! value.equals(currentSplitType)) {
-            currentSplitType = value;
-            int type = getDecoratorIndex(value);
-            int pos = getDecoratorPosIndex(getSplitPosition());
-            if (pos == 14 && type > -1) pos = DEFAULT_SPLIT_POS;
-            graph.setSplitDecorator((YAWLTask) vertex, type, pos);
-            setDirty();
-            setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
-            graph.setSelectionCell(vertex.getParent());
-            fireDecoratorPositionChange("split", type > -1 ? pos : 14);
+            try {
+                flowHandler.setSplit((YTask) vertex.getYAWLElement(),
+                        getYTaskSplitType(value));
+                currentSplitType = value;
+                int type = getDecoratorIndex(value);
+                int pos = getDecoratorPosIndex(getSplitPosition());
+                if (pos == 14 && type > -1) pos = DEFAULT_SPLIT_POS;
+                graph.setSplitDecorator((YAWLTask) vertex, type, pos);
+                setDirty();
+                setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
+                graph.setSelectionCell(vertex.getParent());
+                fireDecoratorPositionChange("split", type > -1 ? pos : 14);
+            }
+            catch (YControlFlowHandlerException ycfhe) {
+                YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+            }
         }
     }
 
     public void setJoin(String value) {
         if (! value.equals(currentJoinType)) {
-            currentJoinType = value;
-            int type = getDecoratorIndex(value);
-            int pos = getDecoratorPosIndex(getJoinPosition());
-            if (pos == 14 && type > -1) pos = DEFAULT_JOIN_POS;
-            graph.setJoinDecorator((YAWLTask) vertex, type, pos);
-            setDirty();
-            graph.setSelectionCell(vertex.getParent());
-            fireDecoratorPositionChange("join", type > -1 ? pos : 14);
+            try {
+                flowHandler.setJoin((YTask) vertex.getYAWLElement(),
+                        getYTaskJoinType(value));
+                currentJoinType = value;
+                int type = getDecoratorIndex(value);
+                int pos = getDecoratorPosIndex(getJoinPosition());
+                if (pos == 14 && type > -1) pos = DEFAULT_JOIN_POS;
+                graph.setJoinDecorator((YAWLTask) vertex, type, pos);
+                setDirty();
+                graph.setSelectionCell(vertex.getParent());
+                fireDecoratorPositionChange("join", type > -1 ? pos : 14);
+            }
+            catch (YControlFlowHandlerException ycfhe) {
+                YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+            }
         }
     }
 
@@ -420,6 +450,18 @@ public class CellProperties extends NetProperties {
             if (type.equals(DECORATOR[i])) return i;
         }
         return -1;    // "None"
+    }
+
+    private int getYTaskSplitType(String type) {
+        if (type.equals("AND")) return YTask._AND;
+        if (type.equals("OR")) return YTask._OR;
+        return YTask._XOR;
+    }
+
+    private int getYTaskJoinType(String type) {
+        if (type.equals("XOR")) return YTask._XOR;
+        if (type.equals("OR")) return YTask._OR;
+        return YTask._AND;
     }
 
     private int getDecoratorPosIndex(String pos) {
@@ -505,16 +547,12 @@ public class CellProperties extends NetProperties {
                     setDirty();
                 }
                 catch (IllegalIdentifierException iie) {
-                    showIdentifierWarning("Identifier Update Error", iie.getMessage());
+                    showWarning("Identifier Update Error", iie.getMessage());
                 }
             }
         }
     }
 
-    private void showIdentifierWarning(String title, String message) {
-        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
-                JOptionPane.WARNING_MESSAGE);
-    }
 
     private boolean shouldEnableSplitConditions() {
         Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();

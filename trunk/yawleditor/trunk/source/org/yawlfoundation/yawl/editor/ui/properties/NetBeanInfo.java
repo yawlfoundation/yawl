@@ -36,7 +36,7 @@ public class NetBeanInfo extends YBeanInfo {
         addProperty("DataSchema", category, "Data Definitions", "Define data types")
                 .setPropertyEditorClass(DataDefinitionPropertyEditor.class);
         addProperty("Description", category, null, "A description of the specification");
-        addProperty("Uri", category, "Name", "Name identifier");
+        addProperty("Uri", category, "Name", "Name identifier (must not be blank)");
         addProperty("Title", category, null, "A user title");
         addProperty("Version", category, "Version Number", "Version number of the " +
                 "specification. Consists of a major part and a minor part");

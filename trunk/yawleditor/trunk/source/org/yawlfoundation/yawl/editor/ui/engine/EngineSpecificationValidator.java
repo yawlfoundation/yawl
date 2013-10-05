@@ -42,7 +42,7 @@ public class EngineSpecificationValidator {
 
     public List<String> getValidationResults(SpecificationModel model, int msgType) {
         return getValidationResults(
-                SpecificationWriter.populateSpecification(model), msgType);
+                new SpecificationWriter().populateSpecification(model), msgType);
     }
 
     public List<String> getValidationResults(YSpecification specification) {

@@ -287,16 +287,6 @@ public class SpecificationReader {
                     engineFlow.getTarget());
             YAWLFlowRelation flow = new YAWLFlowRelation(engineFlow);
             editorNet.getGraph().connect(flow, sourceVertex, targetVertex);
-
-            // when a default flow is exported, it has no predicate or ordering recorded
-            // (because it is the _default_ flow) - so when importing from that xml,
-            // a default predicate and ordering need to be reinstated.
-            if (engineFlow.isDefaultFlow()) {
-                if (flow.getPredicate() == null) {
-                    flow.setPredicate("true()");
-                }
-                flow.setPriority(10000);        // ensure it's ordered last
-            }
         }
     }
 

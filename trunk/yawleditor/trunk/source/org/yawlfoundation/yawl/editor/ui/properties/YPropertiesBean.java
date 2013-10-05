@@ -3,18 +3,14 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ImageFilter;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
 
 /**
  * @author Michael Adams
@@ -53,26 +49,6 @@ public abstract class YPropertiesBean {
     }
 
 
-    protected void actionPerformed(ActionEvent event) {
-        JFileChooser chooser = new JFileChooser("Select Background Image for Net");
-        chooser.setFileFilter(new ImageFilter());
-        int result = chooser.showOpenDialog(YAWLEditor.getInstance());
-        if (result == JFileChooser.APPROVE_OPTION) {
-            try {
-                String path = chooser.getSelectedFile().getCanonicalPath();
-                ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path);
-                if (bgImage != null) {
-                    bgImage.setDescription(path);   // store path
-                    graph.setBackgroundImage(bgImage);
-                    SpecificationUndoManager.getInstance().setDirty(true);
-                }
-            }
-            catch (IOException ioe) {
-                // ignore
-            }
-        }
-    }
-
 
     protected void setDirty() {
         SpecificationUndoManager.getInstance().setDirty(true);
@@ -86,6 +62,12 @@ public abstract class YPropertiesBean {
 
     protected void firePropertyChange(String propertyName, Object newValue) {
         getSheet().firePropertyChange(propertyName, newValue);
+    }
+
+
+    protected void showWarning(String title, String message) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
+                JOptionPane.WARNING_MESSAGE);
     }
 
 

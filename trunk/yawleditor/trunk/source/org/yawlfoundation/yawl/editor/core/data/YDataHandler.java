@@ -636,7 +636,7 @@ public class YDataHandler {
                 variable = decomposition.getInputParameters().get(variableName);
                 break;
             case OUTPUT:
-                variable = decomposition.getInputParameters().get(variableName);
+                variable = decomposition.getOutputParameters().get(variableName);
                break;
         }
         return setVariableOrdering(variable, index);

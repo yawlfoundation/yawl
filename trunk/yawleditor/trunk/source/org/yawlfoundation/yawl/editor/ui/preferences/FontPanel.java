@@ -19,7 +19,7 @@ public class FontPanel extends JPanel {
     private ActionListener _listener;
     private Font _font;
     private JLabel _fontLabel;
-    private boolean _fontChanged;
+    private boolean _changed;
     private Color _textColour;
 
 
@@ -35,13 +35,13 @@ public class FontPanel extends JPanel {
 
 
     public void applyChanges() {
-        if (_fontChanged) {
+        if (_changed) {
             UserSettings.setFontFamily(_font.getFamily());
             UserSettings.setFontStyle(_font.getStyle());
             UserSettings.setFontSize(_font.getSize());
+            UserSettings.setDefaultTextColour(_textColour);
             propagateChange();
         }
-        UserSettings.setDefaultTextColour(_textColour);
     }
 
 
@@ -87,12 +87,13 @@ public class FontPanel extends JPanel {
                 Font newFont = dialog.showDialog();
                 if (! (newFont == null || newFont.equals(_font))) {
                     _font = newFont;
-                    _fontChanged = true;
+                    _changed = true;
                     announceChange();
                 }
                 Color colour = dialog.getColour();
                 if (! (colour == null || colour.equals(_textColour))) {
                     _textColour = colour;
+                    _changed = true;
                     announceChange();
                 }
                 _fontLabel.setForeground(_textColour);

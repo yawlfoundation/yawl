@@ -21,12 +21,16 @@ public abstract class PropertyDialog extends JDialog {
 
 
     public PropertyDialog(Window parent) {
+        this(parent, true);
+    }
+
+    public PropertyDialog(Window parent, boolean createContent) {
         super(parent);
         setModal(true);
         setResizable(false);
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        add(getContent());
+        if (createContent) add(getContent());
     }
 
 

@@ -35,6 +35,7 @@ public abstract class YLayoutNode {
     private Rectangle _bounds;
     private Rectangle _labelBounds;
     private Color _color;
+    private Color _labelColor;
     private Color _fillColor;
     private String _designNotes;
     private Font _font;
@@ -73,6 +74,15 @@ public abstract class YLayoutNode {
     public void setColor(Color color) { _color = color; }
 
     public void setColor(int rgb) { _color = new Color(rgb); }
+
+
+    public Color getLabelColor() {
+        return _labelColor != null ? _labelColor : YLayout.DEFAULT_COLOR;
+    }
+
+    public void setLabelColor(Color color) { _labelColor = color; }
+
+    public void setLabelColor(int rgb) { _labelColor = new Color(rgb); }
 
 
     public Color getFillColor() {
@@ -132,17 +142,21 @@ public abstract class YLayoutNode {
         String foreRGB = attributeNode.getChildText("foregroundColor");
         if (foreRGB != null) setColor(YLayoutUtil.strToInt(foreRGB));
 
-        XNode fontNode = attributeNode.getChild("font");
-        if (fontNode != null) parseFont(fontNode);
     }
 
 
-    protected void parseLabelBounds(XNode labelNode) {
+    protected void parseLabel(XNode labelNode) {
         if (labelNode != null) {
             XNode attributeNode = labelNode.getChild("attributes");
             if (attributeNode != null) {
                 setLabelBounds(YLayoutUtil.parseRect(
                         attributeNode.getChild("bounds"), _nbrFormatter));
+
+                String foreRGB = attributeNode.getChildText("foregroundColor");
+                setLabelColor(YLayoutUtil.strToInt(foreRGB));
+
+                XNode fontNode = attributeNode.getChild("font");
+               if (fontNode != null) parseFont(fontNode);
             }
         }
     }
@@ -174,10 +188,15 @@ public abstract class YLayoutNode {
         XNode node = new XNode("label");
         XNode attributeNode = node.addChild("attributes");
         if (_labelBounds != null) {
-            attributeNode.addChild(
-                    YLayoutUtil.getRectNode("bounds", _labelBounds, _nbrFormatter));
+            attributeNode.addChild(YLayoutUtil.getRectNode(
+                    "bounds", _labelBounds, _nbrFormatter));
         }
-        addCommonAttributes(attributeNode);
+        if (_labelColor != null) {
+            attributeNode.addChild("foregroundColor", _labelColor.getRGB());
+        }
+        if (_font != null) {
+            attributeNode.addChild(getFontNode());
+        }
         return node;
     }
 
@@ -185,7 +204,6 @@ public abstract class YLayoutNode {
     private XNode addCommonAttributes(XNode node) {
         if (_color != null) node.addChild("foregroundColor", _color.getRGB());
         if (_fillColor != null) node.addChild("backgroundColor", _fillColor.getRGB());
-        if (_font != null) node.addChild("font", getFontNode());
         return node;
     }
 

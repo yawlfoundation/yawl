@@ -35,7 +35,7 @@ public class YAWLFlowRelation extends DefaultEdge
         implements YAWLCell, Comparable<YAWLFlowRelation>, Cloneable {
 
     private boolean available = true;
-    private YCompoundFlow shadow;
+    private YCompoundFlow yCompoundFlow;
 
     public YAWLFlowRelation(YCompoundFlow flow) {
         super();
@@ -44,11 +44,11 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
     public void setYFlow(YCompoundFlow flow) {
-        shadow = flow;
+        yCompoundFlow = flow;
     }
 
     public YCompoundFlow getYFlow() {
-        return shadow;
+        return yCompoundFlow;
     }
 
     private void buildContent() {
@@ -61,13 +61,10 @@ public class YAWLFlowRelation extends DefaultEdge
         GraphConstants.setDisconnectable(map, true);
         GraphConstants.setConnectable(map, true);
         getAttributes().applyMap(map);
-
-        setPredicate("true()");
-        setPriority(shadow.getSource().getPostsetFlows().size() -1);
     }
 
     public boolean connectsTwoTasks() {
-        return shadow.isCompound();
+        return yCompoundFlow.isCompound();
     }
 
     public boolean isRemovable() {
@@ -84,9 +81,7 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
     public boolean isBroken() {
-        YAWLPort sourcePort = (YAWLPort) this.getSource();
-        YAWLPort targetPort = (YAWLPort) this.getTarget();
-        return sourcePort == null || targetPort == null;
+        return getSource() == null || getTarget() == null;
     }
 
     public boolean generatesOutgoingFlows() {
@@ -98,66 +93,50 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
 
-    public void setPriority(int priority) {
-        shadow.setOrdering(priority);
+    public void setPriority(Integer priority) {
+        yCompoundFlow.setOrdering(priority);
     }
 
-    public int getPriority() {
-        return shadow.getOrdering();
+    public Integer getPriority() {
+        return yCompoundFlow.getOrdering();
     }
 
     public String getPredicate() {
-        return shadow.getPredicate();
+        return yCompoundFlow.getPredicate();
     }
 
     public void setPredicate(String predicate) {
-        shadow.setPredicate(predicate);
+        yCompoundFlow.setPredicate(predicate);
     }
 
-    public void incrementPriority() {
-        setPriority(getPriority()+1);
+
+    public boolean isDefaultFlow() {
+        return yCompoundFlow.isDefaultFlow();
     }
 
-    public void decrementPriority() {
-        setPriority(getPriority()-1);
+    public void setIsDefaultFlow(boolean isDefault) {
+        yCompoundFlow.setIsDefaultFlow(isDefault);
     }
+
 
     public int compareTo(YAWLFlowRelation other) {
-        return getPriority() - other.getPriority();
+        Integer myOrdering = getPriority();
+        Integer otherOrdering = other.getPriority();
+        if (myOrdering == null && otherOrdering == null) return 0;
+        if (myOrdering == null) return -1;
+        if (otherOrdering == null) return 1;
+        return myOrdering - otherOrdering;
     }
 
 
     public String getSourceID() {
-        return getElementID(shadow.getSource());
+        return getElementID(yCompoundFlow.getSource());
     }
 
      public String getTargetID() {
-         return getElementID(shadow.getTarget());
+         return getElementID(yCompoundFlow.getTarget());
     }
 
-    public String getTargetLabel() {
-        if (getTarget() == null) {
-            return "";
-        }
-        Object target = ((YAWLPort)getTarget()).getParent();
-        if (target instanceof YAWLVertex) {
-            return ((YAWLVertex)target).getLabel();
-        }
-        if (target instanceof JoinDecorator) {
-            return ((JoinDecorator)target).getTask().getLabel();
-        }
-        return "";
-    }
-
-    public boolean isDefaultFlow() {
-        if (hasOrSplitAsSource() || hasXorSplitAsSource()) {
-            SplitDecorator decorator = (SplitDecorator) ((YAWLPort)getSource()).getParent();
-            if (decorator.getFlowsInPriorityOrder().last().equals(this)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public boolean hasOrSplitAsSource() {
         return hasSplitAsSource(Decorator.OR_TYPE);
@@ -187,9 +166,7 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
     public boolean connectsTaskToItself() {
-        YExternalNetElement source = shadow.getSource();
-        YExternalNetElement target = shadow.getTarget();
-        return source != null && target != null && source == target;
+        return yCompoundFlow.isLoop();
     }
 
     public YAWLTask getSourceTask() {
@@ -206,9 +183,6 @@ public class YAWLFlowRelation extends DefaultEdge
         return null;
     }
 
-    public boolean connectsElements() {
-        return getSource() != null && getTarget() != null;
-    }
 
     public YAWLVertex getSourceVertex() {
         if (getSource() == null) {
@@ -225,8 +199,6 @@ public class YAWLFlowRelation extends DefaultEdge
     }
 
     private YAWLVertex getVertexFrom(Object cell) {
-        assert cell != null : "null YAWLCell passed to getVertexFrom()";
-
         if (cell instanceof Decorator) {
             Decorator cellAsDecorator = (Decorator) cell;
             return cellAsDecorator.getTask();

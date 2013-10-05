@@ -24,26 +24,23 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JMenuItem;
-
-
-import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public class YAWLPopupMenuItem extends JMenuItem {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Insets margin = new Insets(0,0,0,0);
+//  private static final Insets margin = new Insets(0,0,0,0);
 
   public YAWLPopupMenuItem(YAWLBaseAction a) {
     super(a);    
-    setMargin(margin);
+ //   setMargin(margin);
   }
   
   public Point getToolTipLocation(MouseEvent e) {

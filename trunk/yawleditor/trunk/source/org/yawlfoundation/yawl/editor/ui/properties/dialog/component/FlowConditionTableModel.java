@@ -52,7 +52,8 @@ class FlowConditionTableModel extends AbstractTableModel {
                 return selected.getTargetID();
             }
             case CONDITION_COLUMN:  {
-                return selected.getPredicate();
+                String predicate = selected.getPredicate();
+                return predicate != null ? predicate : "true()";
             }
             default: {
                 return null;
@@ -80,25 +81,96 @@ class FlowConditionTableModel extends AbstractTableModel {
     public void swapRows(int first, int second) {
         Collections.swap(flows, first, second);
         resetOrdering();
+        if (defaultSwapped()) {
+            resetDefault();
+        }
         fireTableRowsUpdated(first, second);
     }
 
 
     public void setFlows(List<YAWLFlowRelation> list) {
         flows = list;
-        Collections.sort(flows);
+        sortFlows();
         fireTableRowsUpdated(0, getRowCount() - 1);
     }
+
 
     public List<YAWLFlowRelation> getFlows() {
         return flows;
     }
 
 
-    private void resetOrdering() {
-        for (int i=0; i<getRowCount(); i++) {
-            flows.get(i).setPriority(i);
+    public void cleanupFlows() {
+        if (hasXORSplit() && ! flows.isEmpty()) {
+           getDefaultFlow().setPredicate(null);
         }
+    }
+
+
+    private void resetOrdering() {
+        if (hasXORSplit()) {
+            for (int i=0; i<getRowCount(); i++) {
+                flows.get(i).setPriority(i);
+            }
+        }
+    }
+
+
+    private void resetDefault() {
+        if (getDefaultFlowIndex() != getRowCount() - 1) {
+            if (hasXORSplit()) {
+                getDefaultFlow().setPredicate("true()");
+            }
+            getDefaultFlow().setIsDefaultFlow(false);
+            setDefault();
+            if (hasXORSplit()) {
+                getDefaultFlow().setPredicate(null);
+            }
+        }
+    }
+
+    private void sortFlows() {
+        if (flows == null || flows.isEmpty()) return;
+
+        if (hasXORSplit()) {
+            Collections.sort(flows);
+        }
+        else {  // move default flow to end of list
+            Collections.swap(flows, getDefaultFlowIndex(), flows.size() -1);
+        }
+    }
+
+
+    private boolean hasXORSplit() {
+        return flows.get(0).hasXorSplitAsSource();
+    }
+
+
+    private int getDefaultFlowIndex() {
+        for (int i=0; i < getRowCount(); i++) {
+            if (flows.get(i).isDefaultFlow()) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+
+    private YAWLFlowRelation getDefaultFlow() {
+        return flows.get(getDefaultFlowIndex());
+    }
+
+
+    private YAWLFlowRelation getBottomFlow() {
+        return flows.get(flows.size() -1);
+    }
+
+    private void setDefault() {
+        getBottomFlow().setIsDefaultFlow(true);
+    }
+
+    private boolean defaultSwapped() {
+        return getDefaultFlowIndex() != flows.size() -1;
     }
 
 }

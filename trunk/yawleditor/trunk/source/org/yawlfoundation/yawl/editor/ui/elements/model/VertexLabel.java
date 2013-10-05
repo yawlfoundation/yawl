@@ -34,26 +34,15 @@ import java.util.HashMap;
  */
 public class VertexLabel extends DefaultGraphCell {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private YAWLVertex vertex;
-  private String     label;
-  
-  public VertexLabel() {
-    initialize(null, "");
-  }
+    private YAWLVertex vertex;
+    private String     label;
 
-  public VertexLabel(YAWLVertex vertex) {
-    initialize(vertex, "label");
-  }
 
-  public VertexLabel(YAWLVertex vertex, String label) {
-    initialize(vertex, label);
-    setFont(UserSettings.getDefaultFont());
-    setForeground(UserSettings.getDefaultTextColour());
-  }
+    public VertexLabel(YAWLVertex vertex, String label) {
+        initialize(vertex, label);
+        setFont(UserSettings.getDefaultFont());
+        setForeground(UserSettings.getDefaultTextColour());
+    }
 
     public void setForeground(Color foreColor) {
         HashMap map = new HashMap();
@@ -61,51 +50,60 @@ public class VertexLabel extends DefaultGraphCell {
         getAttributes().applyMap(map);
     }
 
-  public void setFont(Font font) {
-    HashMap map = new HashMap();
-    GraphConstants.setFont(map, font);
-    getAttributes().applyMap(map);
-  }
-  
-  public void refreshLabelView() {
-      setUserObject("<html><body style=\"width:" + vertex.getBounds().getWidth() * 3 + "\" align=\"center\">" + label + "</body></html>");
-  }
-  
-  public void setLabel(String label) {
-    this.label = label;
-    if (label != null && vertex != null) {
-      refreshLabelView();
-    } else {
-      setUserObject(null);
+    public Font getFont() {
+        return GraphConstants.getFont(getAttributes());
     }
-  }
-  
-  public String getLabel() {
-    return this.label;
-  }
-  
-  private void initialize(YAWLVertex vertex, String label) {
-    buildElement();
-    setVertex(vertex);
-    setLabel(label);
-  }
 
-  private void buildElement() {
-    HashMap map = new HashMap();
+    public Color getForeground() {
+        return GraphConstants.getForeground(getAttributes());
+    }
 
-    GraphConstants.setOpaque(map, false);
-    GraphConstants.setAutoSize(map, true);
-    GraphConstants.setForeground(map, Color.BLACK);
-    GraphConstants.setResize(map,false);
-    
-    getAttributes().applyMap(map);
-  }
+    public void setFont(Font font) {
+        HashMap map = new HashMap();
+        GraphConstants.setFont(map, font);
+        getAttributes().applyMap(map);
+    }
 
-  public YAWLVertex getVertex() {
-    return vertex;
-  }
+    public void refreshLabelView() {
+        setUserObject("<html><body style=\"width:" + vertex.getBounds().getWidth() * 3 + "\" align=\"center\">" + label + "</body></html>");
+    }
 
-  public void setVertex(YAWLVertex vertex) {
-    this.vertex = vertex;
-  }
+
+    public void setLabel(String label) {
+        this.label = label;
+        if (label != null && vertex != null) {
+            refreshLabelView();
+        } else {
+            setUserObject(null);
+        }
+    }
+
+    public String getText() {
+        return this.label;
+    }
+
+    private void initialize(YAWLVertex vertex, String label) {
+        buildElement();
+        setVertex(vertex);
+        setLabel(label);
+    }
+
+    private void buildElement() {
+        HashMap map = new HashMap();
+
+        GraphConstants.setOpaque(map, false);
+        GraphConstants.setAutoSize(map, true);
+        GraphConstants.setForeground(map, Color.BLACK);
+        GraphConstants.setResize(map,false);
+
+        getAttributes().applyMap(map);
+    }
+
+    public YAWLVertex getVertex() {
+        return vertex;
+    }
+
+    public void setVertex(YAWLVertex vertex) {
+        this.vertex = vertex;
+    }
 }

@@ -35,7 +35,7 @@ public abstract class YNetElementNode extends YLayoutNode {
 
     protected void parseContainer(XNode node) {
         parseVertex(node.getChild("vertex"));
-        parseLabelBounds(node.getChild("label"));
+        parseLabel(node.getChild("label"));
     }
 
 

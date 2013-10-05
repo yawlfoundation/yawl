@@ -29,6 +29,13 @@ public class FlowProperties extends NetProperties {
 
     public String getTarget() { return flow.getTargetID(); }      // read only
 
+    public boolean getDefault() { return flow.isDefaultFlow(); }
+
+    public String getPredicate() { return flow.getPredicate(); }
+
+
+    public Integer getOrdering() { return flow.getPriority(); }
+
 
     public String getLineStyle() {
         return STYLES[NetCellUtilities.getFlowLineStyle(graph, flow) - offset];

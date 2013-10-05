@@ -26,10 +26,9 @@ package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -47,14 +46,14 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
   }
   
   public void actionPerformed(ActionEvent event) {
-      String fileName = SpecificationModel.getHandler().getFileName();
-      if (StringUtil.isNullOrEmpty(fileName)) {                   // never been saved
+      boolean cancelled = false;
+      if (UserSettings.getShowFileOptionsDialogOnSave()) {
           SaveOptionsDialog dialog = new SaveOptionsDialog();
           dialog.setLocationRelativeTo(YAWLEditor.getInstance());
-          dialog.showOrHideSpecIDField();
           dialog.setVisible(true);
+          cancelled = dialog.cancelButtonSelected();
       }
-      else FileOperations.saveAs();
+      if (! cancelled) FileOperations.saveAs();
   }
   
   public String getEnabledTooltipText() {

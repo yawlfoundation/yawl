@@ -44,6 +44,6 @@ public class YAWLActiveOpenSpecificationAction extends YAWLOpenSpecificationActi
     }
 
     public void specificationFileStateChange(FileState state) {
-        if (state == FileState.Closed) setEnabled(false);
+        setEnabled(state != FileState.Closed);
     }
 }

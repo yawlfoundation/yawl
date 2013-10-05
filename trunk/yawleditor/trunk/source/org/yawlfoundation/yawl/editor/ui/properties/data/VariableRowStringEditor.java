@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.apache.xerces.util.XMLChar;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.VariableValueDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
@@ -154,18 +155,11 @@ public class VariableRowStringEditor extends AbstractCellEditor
         if (name.length() == 0) {
             errMsg = "Name can't be empty";
         }
-        if (! isUniqueName(name)) {
+        else if (! isUniqueName(name)) {
             errMsg = "There is already a variable with that name";
         }
-        for (char c : name.toCharArray()) {
-            if (Character.isWhitespace(c)) {
-                errMsg = "Spaces not allowed in name";
-                break;
-            }
-            else if (INVALID_CHARS.indexOf(c) > -1) {
-                errMsg = "'" + c + "' character not allowed in name";
-                break;
-            }
+        else if (! XMLChar.isValidName(name)) {
+            errMsg = "Invalid XML name";
         }
         if (errMsg != null) {
             tablePanel.showErrorStatus(errMsg, null);

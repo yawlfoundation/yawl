@@ -174,7 +174,7 @@ public class TestSpecificationModel extends TestCase {
 //    );
 //
 //    assertTrue(
-//        initialAtomicTask.getDecomposition().getLabel().equals(
+//        initialAtomicTask.getDecomposition().getText().equals(
 //            "initialTaskDecomposition"
 //        )
 //    );
@@ -250,11 +250,11 @@ public class TestSpecificationModel extends TestCase {
 //    rootNet.getDecomposition().setLabel("StartingNetRenamed");
 //
 //    SpecificationModel.getInstance().changeDecompositionInQueries(
-//        "StartingNet", rootNet.getDecomposition().getLabel()
+//        "StartingNet", rootNet.getDecomposition().getText()
 //    );
 //
 //    assertTrue(
-//      rootNet.getDecomposition().getLabel().equals("StartingNetRenamed")
+//      rootNet.getDecomposition().getText().equals("StartingNetRenamed")
 //    );
 //
 //    // Cecking that task parameter queries were updated correctly with net name change.

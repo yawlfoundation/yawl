@@ -62,11 +62,11 @@ public class FileOperations {
 
         switch (action) {
             case Open: {
-                handler.processOpenRequest();
+                handler.openFile();
                 break;
             }
             case OpenFile: {
-                handler.processOpenRequest(args[0]);
+                handler.openFile(args[0]);
                 break;
             }
             case Validate: {
@@ -81,19 +81,21 @@ public class FileOperations {
                 break;
             }
             case Save: {
-                handler.processSaveRequest();
+                handler.saveFile();
                 break;
             }
             case SaveAs: {
-                handler.processSaveAsRequest();
+                handler.saveFileAs();
                 break;
             }
             case Close: {
-                handler.processCloseRequest();
+                handler.closeFile();
                 break;
             }
             case Exit: {
-                handler.processExitRequest();
+                if (handler.closeFileOnExit()) {
+                    System.exit(0);
+                }
                 break;
             }
         }

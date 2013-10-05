@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class FileOperations {
 
     private String _fileName;
     private FileSaveOptions _saveOptions;
-    private YSpecVersion _prevVersion;
+    private String _prevVersion;
     private YSpecification _specification;
     private LayoutHandler _layoutHandler;
 
@@ -38,7 +39,6 @@ public class FileOperations {
 
     public String getFileName() { return _fileName; }
 
-    public void setFileName(String name) { _fileName = name; }  // temp for migration
 
 
     public YSpecification load(String file) throws IOException {
@@ -72,8 +72,12 @@ public class FileOperations {
 
     public void saveAs(String file, YMetaData metaData, FileSaveOptions saveOptions)
             throws IOException {
-        _fileName = file;
-        metaData.setUniqueID(generateSpecificationIdentifier());
+        if (StringUtil.isNullOrEmpty(_fileName) || ! _fileName.equals(file)) {
+            _fileName = file;
+            metaData.setUniqueID(generateSpecificationIdentifier());
+            metaData.setVersion(new YSpecVersion(0,1));
+            saveOptions.setAutoIncVersion(false);    // don't auto inc on save as
+        }
         save(saveOptions);
     }
 
@@ -129,19 +133,25 @@ public class FileOperations {
 
 
     private void incVersion() {
-        _prevVersion = _specification.getSpecificationID().getVersion();
-        _specification.getSpecificationID().getVersion().minorIncrement();
+        YSpecVersion version = getSpecVersion();
+        _prevVersion = version.toString();
+        version.minorIncrement();
     }
 
 
     private boolean isVersionChanged() {
         return (_prevVersion != null) &&
-               (! _specification.getSpecificationID().getVersion().equals(_prevVersion));
+               (! getSpecVersion().toString().equals(_prevVersion));
     }
 
 
     private void backup() throws IOException {
         FileUtil.backup(_fileName, _fileName + ".bak");
+    }
+
+
+    private YSpecVersion getSpecVersion() {
+        return _specification.getMetaData().getVersion();
     }
 
 

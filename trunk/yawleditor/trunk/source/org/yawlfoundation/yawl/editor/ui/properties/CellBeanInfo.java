@@ -43,7 +43,8 @@ public class CellBeanInfo extends NetBeanInfo {
         addProperty("id", _category, null, "Internal Identifier");
         addProperty("Documentation", _category, null, "A description of the element")
                 .setPropertyEditorClass(TextPropertyEditor.class);
-        addProperty("Font", _category, null, "The Font");
+        addProperty("Font", _category, null, "The Font")
+                .setPropertyEditorClass(FontPropertyEditor.class);
         addProperty("Label", _category, null, "Element name");
         addLocation();
         addProperty("idLabelSynch", _category, "Synch ID & Label",
