@@ -2207,6 +2207,10 @@
             <fileset dir="${classes.dir}${packageRoot}/elements"
                      includes="YAWLServiceReference.class YVerifiable.class"/>
         </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
+                     includes="YHttpServlet.class"/>
+        </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="StringUtil.class CharsetFilter.class Sessions*.class

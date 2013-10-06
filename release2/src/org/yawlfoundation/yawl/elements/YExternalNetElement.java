@@ -58,6 +58,13 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     }
 
 
+    public void setID(String id) {
+        String oldID = getID();
+        super.setID(id);
+        _net.refreshNetElementIdentifier(oldID);
+    }
+
+
     public String getName() { return _name; }
 
     public void setName(String name) { _name = name; }
@@ -92,8 +99,10 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void addPreset(YFlow flow) {
         if (flow != null) {
             YExternalNetElement prior = flow.getPriorElement();
-            _presetFlows.put(prior.getID(), flow);
-            prior._postsetFlows.put(this.getID(), flow);
+            if (prior != null) {
+                _presetFlows.put(prior.getID(), flow);
+                prior._postsetFlows.put(this.getID(), flow);
+            }
         }
     }
 
@@ -105,8 +114,10 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void addPostset(YFlow flow) {
         if (flow != null) {
             YExternalNetElement next = flow.getNextElement();
-            _postsetFlows.put(next.getID(), flow);
-            next._presetFlows.put(this.getID(), flow);
+            if (next != null) {
+                _postsetFlows.put(next.getID(), flow);
+                next._presetFlows.put(this.getID(), flow);
+            }
         }
     }
 

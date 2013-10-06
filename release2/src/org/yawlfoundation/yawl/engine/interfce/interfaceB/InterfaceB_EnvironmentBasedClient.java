@@ -102,7 +102,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
-     * Returns an XML string describing all a current work item.
+     * Returns an XML string describing a current work item.
      * @param itemID the workitem id
      * @param sessionHandle the session handle
      * @return an XML representation of the of workitem
