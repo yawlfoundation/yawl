@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -425,7 +426,7 @@ public abstract class InterfaceBWebsideController {
             _ibCache.addWorkItem(wir);
             return wir;
         }
-        else return null;
+        else throw new IOException(StringUtil.unwrap(itemXML));
     }
 
 

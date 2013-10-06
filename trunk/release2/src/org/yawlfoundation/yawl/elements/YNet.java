@@ -114,6 +114,14 @@ public final class YNet extends YDecomposition {
         _netElements.put(netElement.getID(), netElement);
     }
 
+    // only have to update the map when an element's id changes
+    public void refreshNetElementIdentifier(String oldIdentifier) {
+        YExternalNetElement element = _netElements.remove(oldIdentifier);
+        if (element != null) {
+            _netElements.put(element.getID(), element);
+        }
+    }
+
 
     public Map<String, YExternalNetElement> getNetElements() {
         return new HashMap<String, YExternalNetElement>(_netElements);

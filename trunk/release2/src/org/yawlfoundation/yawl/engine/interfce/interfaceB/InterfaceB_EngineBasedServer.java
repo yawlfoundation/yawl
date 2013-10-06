@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -31,7 +32,6 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -40,6 +40,9 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -54,9 +57,9 @@ import java.util.Enumeration;
  * @author Michael Adams (refactored for v2.0, 06/2008; 12/2008)
  *
  */
-public class InterfaceB_EngineBasedServer extends HttpServlet {
+public class InterfaceB_EngineBasedServer extends YHttpServlet {
+
     private EngineGateway _engine;
-    private static final Logger logger = Logger.getLogger(InterfaceB_EngineBasedServer.class);
 
 
     public void init() throws ServletException {
@@ -116,7 +119,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             }
         }
         catch (YPersistenceException e) {
-            logger.fatal("Failure to initialise runtime (persistence failure)", e);
+            _log.fatal("Failure to initialise runtime (persistence failure)", e);
             throw new UnavailableException("Persistence failure");
         }
 
@@ -124,7 +127,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             _engine.notifyServletInitialisationComplete(maxWaitSeconds);
         }
         else {
-            logger.fatal("Failed to initialise Engine (unspecified failure). Please " +
+            _log.fatal("Failed to initialise Engine (unspecified failure). Please " +
                     "consult the logs for details");
             throw new UnavailableException("Unspecified engine failure");
         }
@@ -151,30 +154,31 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             if (gateway != null)
                 _engine.registerObserverGateway(gateway);
             else
-                logger.warn("Error registering external ObserverGateway '" +
+                _log.warn("Error registering external ObserverGateway '" +
                             gatewayClassName + "'."); 
         }
         catch (ClassNotFoundException e) {
-            logger.warn("Unable to locate external ObserverGateway '" +
-                        gatewayClassName + "'.", e);
+            _log.warn("Unable to locate external ObserverGateway '" +
+                    gatewayClassName + "'.", e);
         }
         catch (InstantiationException ie) {
-            logger.warn("Unable to instantiate external ObserverGateway '" +
-                        gatewayClassName +
-                       "'. Perhaps it is missing a no-argument constructor.", ie);
+            _log.warn("Unable to instantiate external ObserverGateway '" +
+                    gatewayClassName +
+                    "'. Perhaps it is missing a no-argument constructor.", ie);
         }
         catch (YAWLException ye) {
-            logger.warn("Failed to register external ObserverGateway '" +
-                        gatewayClassName + "'.", ye);
+            _log.warn("Failed to register external ObserverGateway '" +
+                    gatewayClassName + "'.", ye);
         }
         catch (Exception e) {
-            logger.warn("Unable to instantiate external ObserverGateway '" +
-                        gatewayClassName + "'.", e);
+            _log.warn("Unable to instantiate external ObserverGateway '" +
+                    gatewayClassName + "'.", e);
         }
     }
 
     public void destroy() {
         _engine.shutdown();
+        super.destroy();
     }
 
 
@@ -192,12 +196,12 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         output.append("</response>");
         if (_engine.enginePersistenceFailure())
         {
-            logger.fatal("************************************************************");
-            logger.fatal("A failure has occurred whilst persisting workflow state to the");
-            logger.fatal("database. Check the status of the database connection defined");
-            logger.fatal("for the YAWL service, and restart the YAWL web application.");
-            logger.fatal("Further information may be found within the Tomcat log files.");
-            logger.fatal("************************************************************");
+            _log.fatal("************************************************************");
+            _log.fatal("A failure has occurred whilst persisting workflow state to the");
+            _log.fatal("database. Check the status of the database connection defined");
+            _log.fatal("for the YAWL service, and restart the YAWL web application.");
+            _log.fatal("Further information may be found within the Tomcat log files.");
+            _log.fatal("************************************************************");
             response.sendError(500, "Database persistence failure detected");
         }
         outputWriter.write(output.toString());
@@ -222,7 +226,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
         String taskID = request.getParameter("taskID");
 
         try {
-            if (logger.isDebugEnabled()) {
+            if (_log.isDebugEnabled()) {
                 debug(request, "Post");
             }
 
@@ -397,13 +401,13 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
                 msg.append(_engine.getWorkItemOptions(workItemID,
                         request.getRequestURL().toString(), sessionHandle));
             }
-            else logger.error("Interface B called with null action.");
+            else _log.error("Interface B called with null action.");
         }
         catch (RemoteException e) {
-            logger.error("Remote Exception in Interface B with action: " + action, e);
+            _log.error("Remote Exception in Interface B with action: " + action, e);
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg + "\n");
+        if (_log.isDebugEnabled()) {
+            _log.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg + "\n");
         }
         return msg.toString();
     }
@@ -415,7 +419,7 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
             try {
                 return new URI(completionObserver);
             } catch (URISyntaxException e) {
-                logger.error("Failure to ", e);
+                _log.error("Failure to ", e);
             }
         }
         return null;
@@ -423,14 +427,14 @@ public class InterfaceB_EngineBasedServer extends HttpServlet {
 
 
     private void debug(HttpServletRequest request, String service) {
-        logger.debug("\nInterfaceB_EngineBasedServer::do" + service + "() " +
+        _log.debug("\nInterfaceB_EngineBasedServer::do" + service + "() " +
                 "request.getRequestURL = " + request.getRequestURL());
-        logger.debug("\nInterfaceB_EngineBasedServer::do" + service +
+        _log.debug("\nInterfaceB_EngineBasedServer::do" + service +
                 "() request.parameters = ");
         Enumeration paramNms = request.getParameterNames();
         while (paramNms.hasMoreElements()) {
             String name = (String) paramNms.nextElement();
-            logger.debug("\trequest.getParameter(" + name + ") = " +
+            _log.debug("\trequest.getParameter(" + name + ") = " +
                     request.getParameter(name));
         }
     }

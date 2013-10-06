@@ -18,7 +18,9 @@
 
 package org.yawlfoundation.yawl.documentStore;
 
+import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -26,11 +28,11 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -41,7 +43,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 18/11/11
  */
-public class DocumentStore extends HttpServlet {
+public class DocumentStore extends YHttpServlet {
 
     private Sessions _sessions;            // maintains sessions with external services
     private HibernateEngine _db;           // communicates with underlying database
@@ -76,6 +78,7 @@ public class DocumentStore extends HttpServlet {
     public void destroy() {
         if (_db != null) _db.closeFactory();
         if (_sessions != null) _sessions.shutdown();
+        super.destroy();
     }
 
 
@@ -325,6 +328,22 @@ public class DocumentStore extends HttpServlet {
                 connection.close();
             } catch (SQLException sqle) {
                 //
+            }
+        }
+    }
+
+
+    private void deregisterDbDriver() {
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            try {
+                DriverManager.deregisterDriver(driver);
+                Logger.getLogger(this.getClass()).info(
+                        "Deregistered JDBC driver: " + driver);
+            } catch (SQLException e) {
+                Logger.getLogger(this.getClass()).warn(
+                        "Unable to deregister JDBC driver " + driver, e);
             }
         }
     }

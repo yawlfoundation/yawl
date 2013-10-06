@@ -1574,12 +1574,11 @@ public class WorkletService extends InterfaceBWebsideController {
     }
 
 
-    public WorkItemRecord getEngineStoredWorkItem(WorkItemRecord wir) {
-        try {
+    public WorkItemRecord getEngineStoredWorkItem(WorkItemRecord wir) throws IOException {
+        if (connected()) {
             return getEngineStoredWorkItem(wir.getID(), _sessionHandle);
-        } catch (IOException ioe) {
-            return null;
         }
+        return null;
     }
 
 

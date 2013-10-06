@@ -611,7 +611,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 break;
             }
             case Rollback: {
-                // todo
                 _log.warn("Rollback is not yet implemented - will ignore this step.");
                 break;
             }
@@ -1817,10 +1816,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 case CasePostconstaint : checkConstraints(mon, false); break;
                 case ItemPreconstraint : checkConstraints(mon, wir, true); break;
                 case ItemPostconstaint : checkConstraints(mon, wir, false); break;
-                case ItemAbort         : break;   // not yet implemented
+                case ItemAbort         : break ;   // not yet implemented
                 case ItemTimeout :
                     if (wir != null) handleTimeoutEvent(wir, wir.getTaskID()); break ;
-                case ItemResourceUnavailable : break ;   // todo
+                case ItemResourceUnavailable : break;   // todo
                 case ItemConstraintViolation : break;   // not yet implemented
                 case CaseExternalTrigger :
                     raiseExternalException("case", caseid, trigger); break;

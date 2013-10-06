@@ -63,7 +63,7 @@ public class YSpecVersion implements Comparable<YSpecVersion> {
                 _minor = Integer.parseInt(part[1]);
             } else {                        // handle versions numbers without a decimal
                 _major = Integer.parseInt(version);
-                _minor = 1;
+                _minor = _major == 0 ? 1 : 0;
             }
         } catch (NumberFormatException nfe) {
             setVersion(0, 1);             // default

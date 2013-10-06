@@ -67,7 +67,7 @@ public class Rdr {
     }
 
     public RdrNode addNode(WorkItemRecord wir, RuleType rType, RdrNode node) {
-        return addNode(new YSpecificationID(wir), wir.getTaskName(), rType, node);
+        return addNode(new YSpecificationID(wir), wir.getTaskID(), rType, node);
     }
 
     public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType, RdrNode node) {

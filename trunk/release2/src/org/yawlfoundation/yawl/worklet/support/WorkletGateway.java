@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -33,11 +34,14 @@ import org.yawlfoundation.yawl.worklet.rdr.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Enumeration;
 
 /**
  * The WorkletGateway class acts as a gateway between the Worklet Selection
@@ -50,12 +54,11 @@ import java.io.OutputStreamWriter;
  *         v0.8, 13/08/2006
  */
 
-public class WorkletGateway extends HttpServlet {
+public class WorkletGateway extends YHttpServlet {
 
     private WorkletService _ws;
     private Rdr _rdr;
     private Sessions _sessions;            // maintains sessions with external services
-    private static Logger _log = Logger.getLogger(WorkletGateway.class);
 
     public void init() {
         if (!Library.wsInitialised) {
@@ -98,6 +101,7 @@ public class WorkletGateway extends HttpServlet {
     public void destroy() {
         _sessions.shutdown();
         _ws.shutdown();
+        super.destroy();
     }
 
 
@@ -263,10 +267,16 @@ public class WorkletGateway extends HttpServlet {
         String wirStr = req.getParameter("wir");
         if (wirStr == null) return fail("Work item has null value");
         WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-        WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
-        if (refreshedWir == null) return fail("Work item '" + wir.getID() +
-                "' is unknown to the Engine");
-        wir = refreshedWir;
+
+        try {
+            WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+            if (refreshedWir == null) return fail("Work item '" + wir.getID() +
+                    "' is unknown to the Engine");
+            wir = refreshedWir;
+        }
+        catch (IOException ioe) {
+            return fail(ioe.getMessage());
+        }
 
         String dataStr = req.getParameter("data");
         Element data = JDOMUtil.stringToElement(dataStr);
@@ -345,14 +355,6 @@ public class WorkletGateway extends HttpServlet {
         } else return fail("No specification or process name provided for set");
 
         return set.toXML();
-    }
-
-    private String fail(String msg) {
-        return StringUtil.wrap(msg, "failure");
-    }
-
-    private String response(String result) {
-        return StringUtil.wrap(result, "response");
     }
 
 }

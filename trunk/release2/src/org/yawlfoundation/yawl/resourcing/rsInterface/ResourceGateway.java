@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
@@ -31,47 +32,49 @@ import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map;
 
 
 /**
-  *  The Resource Gateway class acts as a gateway between the Resource
-  *  Service and the external world for resource (org data) maintenance. It also
-  *  initialises the service with values from 'web.xml'.
-  *
-  *  @author Michael Adams
-  *  @date 13/08/2007
-  *
-  */
+ *  The Resource Gateway class acts as a gateway between the Resource
+ *  Service and the external world for resource (org data) maintenance. It also
+ *  initialises the service with values from 'web.xml'.
+ *
+ *  @author Michael Adams
+ *  @date 13/08/2007
+ *
+ */
 
-public class ResourceGateway extends HttpServlet {
+public class ResourceGateway extends YHttpServlet {
 
-    private ResourceManager _rm = ResourceManager.getInstance(); 
+    private ResourceManager _rm = ResourceManager.getInstance();
     private static final String SUCCESS = "<success/>";
-    private static final Logger _log = Logger.getLogger(ResourceGateway.class);
 
 
     /** Read settings from web.xml and use them to initialise the service */
     public void init() {
         if (! ResourceManager.serviceInitialised) {
             try {
-                ServletContext context = getServletContext();   
+                ServletContext context = getServletContext();
 
                 // set the actual root file path of the service
                 Docket.setServiceRootDir(context.getRealPath("/")) ;
 
                 // set the engine uri and the exception service uri (if enabled)
                 _rm.getClients().initClients(context.getInitParameter("InterfaceB_BackEnd"),
-                                         context.getInitParameter("InterfaceX_BackEnd"),
-                                         context.getInitParameter("InterfaceS_BackEnd"),
-                                         context.getInitParameter("CostService_BackEnd"),
-                                         context.getInitParameter("DocStore_BackEnd"));
+                        context.getInitParameter("InterfaceX_BackEnd"),
+                        context.getInitParameter("InterfaceS_BackEnd"),
+                        context.getInitParameter("CostService_BackEnd"),
+                        context.getInitParameter("DocStore_BackEnd"));
 
                 // set the path to external plugin classes (if any)
                 String pluginDir = context.getInitParameter("ExternalPluginsDir");
@@ -97,12 +100,12 @@ public class ResourceGateway extends HttpServlet {
                 String refreshRate = context.getInitParameter("OrgDataRefreshRate") ;
                 int orgDataRefreshRate = -1;
                 try {
-                     orgDataRefreshRate = Integer.parseInt(refreshRate);
+                    orgDataRefreshRate = Integer.parseInt(refreshRate);
                 }
                 catch (Exception e) {
                     _log.warn("ResourceGateway: Invalid integer value in web.xml" +
-                              " for OrgDataRefreshRate; value '" +
-                               refreshRate + "' will be ignored.");
+                            " for OrgDataRefreshRate; value '" +
+                            refreshRate + "' will be ignored.");
                 }
                 _rm.initOrgDataSource(orgDataSource, orgDataRefreshRate);
 
@@ -137,7 +140,7 @@ public class ResourceGateway extends HttpServlet {
 
                 // read the current version properties
                 _rm.initBuildProperties(context.getResourceAsStream(
-                                   "/WEB-INF/classes/version.properties"));
+                        "/WEB-INF/classes/version.properties"));
 
                 // now that we have all the settings, complete the init
                 _rm.finaliseInitialisation() ;
@@ -150,8 +153,8 @@ public class ResourceGateway extends HttpServlet {
                 }
                 catch (Exception e) {
                     _log.warn("ResourceGateway: Invalid integer value in web.xml" +
-                              " for GenerateRandomOrgData; value '" +
-                               generateOrgDataCount + "' will be ignored.");
+                            " for GenerateRandomOrgData; value '" +
+                            generateOrgDataCount + "' will be ignored.");
                 }
                 if (generateOrgDataCount > 0)
                     _rm.initRandomOrgDataGeneration(generateOrgDataCount);
@@ -166,93 +169,89 @@ public class ResourceGateway extends HttpServlet {
     }
 
 
-    private boolean getInitBooleanValue(String param, boolean defValue) {
-        return (param != null) ? param.equalsIgnoreCase("TRUE") : defValue;
-    }
-
-
     public void destroy() {
         _rm.shutdown();
+        super.destroy();
     }
 
 
-   public void doPost(HttpServletRequest req, HttpServletResponse res)
-                               throws IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse res)
+            throws IOException {
 
-       String result = "";
+        String result = "";
 
-       String action = req.getParameter("action");
-       String handle = req.getParameter("sessionHandle");
+        String action = req.getParameter("action");
+        String handle = req.getParameter("sessionHandle");
 
-       if (action == null) {
-              result = "<html><head>" +
-           "<title>YAWL Resource Service</title>" +
-           "</head><body>" +
-           "<H3>Welcome to the YAWL Resource Service \"Gateway\"</H3>" +
-           "<p> The Resource Gateway acts as a bridge between the Resource " +
-               "Service and the external world (it isn't meant to be browsed " +
-               " to directly).</p>" +
-           "</body></html>";
-       }
-       else if (action.equalsIgnoreCase("connect")) {
-           String userid = req.getParameter("userid");
-           String password = req.getParameter("password");
-           int interval = req.getSession().getMaxInactiveInterval();
-           result = _rm.serviceConnect(userid, password, interval);
-       }
-       else if (action.equalsIgnoreCase("checkConnection")) {
+        if (action == null) {
+            result = "<html><head>" +
+                    "<title>YAWL Resource Service</title>" +
+                    "</head><body>" +
+                    "<H3>Welcome to the YAWL Resource Service \"Gateway\"</H3>" +
+                    "<p> The Resource Gateway acts as a bridge between the Resource " +
+                    "Service and the external world (it isn't meant to be browsed " +
+                    " to directly).</p>" +
+                    "</body></html>";
+        }
+        else if (action.equalsIgnoreCase("connect")) {
+            String userid = req.getParameter("userid");
+            String password = req.getParameter("password");
+            int interval = req.getSession().getMaxInactiveInterval();
+            result = _rm.serviceConnect(userid, password, interval);
+        }
+        else if (action.equalsIgnoreCase("checkConnection")) {
             result = String.valueOf(_rm.checkServiceConnection(handle)) ;
-       }
-       else if (_rm.checkServiceConnection(handle)) {
-           if (action.startsWith("get")) {
-               result = doGetResourceAction(req, action);
-           }
-           else if (action.startsWith("set")) {
-               result = doSetResourceAction(req, action);
-           }
-           else if (action.startsWith("isKnown")) {
-               result = doIsKnownResourceAction(req, action);
-           }
-           else if (action.startsWith("add")) {
-               result = doAddResourceAction(req, action);
-           }
-           else if (action.startsWith("update")) {
-               result = doUpdateResourceAction(req, action);
-           }
-           else if (action.startsWith("remove")) {
-               result = doRemoveResourceAction(req, action);
-           }
-           else if (action.equalsIgnoreCase("disconnect")) {
-               _rm.serviceDisconnect(handle);
-           }
-           else if (action.equalsIgnoreCase("validateUserCredentials")) {
-               String userid = req.getParameter("userid");
-               String password = req.getParameter("password");
-               String adminStr = req.getParameter("checkForAdmin");
-               boolean admin = "true".equalsIgnoreCase(adminStr);
-               result = _rm.validateUserCredentials(userid, password, admin);
-           }
-           else if (action.equalsIgnoreCase("refreshOrgDataSet")) {
-               _rm.refreshOrgData();
-           }
-           else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
-               String rate = req.getParameter("rate");
-               _rm.startOrgDataRefreshTimer(Long.parseLong(rate));
-           }
-           else {
-               result = fail("Unrecognised action: " + action);
-           }
-       }
-       else throw new IOException("Invalid or disconnected session handle");
+        }
+        else if (_rm.checkServiceConnection(handle)) {
+            if (action.startsWith("get")) {
+                result = doGetResourceAction(req, action);
+            }
+            else if (action.startsWith("set")) {
+                result = doSetResourceAction(req, action);
+            }
+            else if (action.startsWith("isKnown")) {
+                result = doIsKnownResourceAction(req, action);
+            }
+            else if (action.startsWith("add")) {
+                result = doAddResourceAction(req, action);
+            }
+            else if (action.startsWith("update")) {
+                result = doUpdateResourceAction(req, action);
+            }
+            else if (action.startsWith("remove")) {
+                result = doRemoveResourceAction(req, action);
+            }
+            else if (action.equalsIgnoreCase("disconnect")) {
+                _rm.serviceDisconnect(handle);
+            }
+            else if (action.equalsIgnoreCase("validateUserCredentials")) {
+                String userid = req.getParameter("userid");
+                String password = req.getParameter("password");
+                String adminStr = req.getParameter("checkForAdmin");
+                boolean admin = "true".equalsIgnoreCase(adminStr);
+                result = _rm.validateUserCredentials(userid, password, admin);
+            }
+            else if (action.equalsIgnoreCase("refreshOrgDataSet")) {
+                _rm.refreshOrgData();
+            }
+            else if (action.equalsIgnoreCase("resetOrgDataRefreshRate")) {
+                String rate = req.getParameter("rate");
+                _rm.startOrgDataRefreshTimer(Long.parseLong(rate));
+            }
+            else {
+                result = fail("Unrecognised action: " + action);
+            }
+        }
+        else throw new IOException("Invalid or disconnected session handle");
 
-       // generate the output
-       OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
-       ServletUtils.finalizeResponse(outputWriter, result);
+        // generate the output
+        OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
+        ServletUtils.finalizeResponse(outputWriter, result);
     }
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-                                throws IOException, ServletException {
+            throws IOException, ServletException {
         doPost(req, res);                                // redirect all GETs to POSTs
     }
 
@@ -297,7 +296,7 @@ public class ResourceGateway extends HttpServlet {
                 result = getOrgDataSet().addNonHumanResource(resource);
             }
             else result = fail("Add", "NonHumanResource", name);
-        }        
+        }
         else if (action.equalsIgnoreCase("addCapability")) {
             String name = req.getParameter("name");
             if ((name != null) && (! getOrgDataSet().isKnownCapabilityName(name))) {
@@ -366,18 +365,18 @@ public class ResourceGateway extends HttpServlet {
             String subcategory = req.getParameter("subcategory");
             boolean success = false;
             NonHumanCategory category = (categoryName != null) ?
-                 getOrgDataSet().getNonHumanCategoryByName(categoryName) :
-                 getOrgDataSet().getNonHumanCategory(req.getParameter("id"));
+                    getOrgDataSet().getNonHumanCategoryByName(categoryName) :
+                    getOrgDataSet().getNonHumanCategory(req.getParameter("id"));
             if (category != null) {
                 success = category.addSubCategory(subcategory);
                 if (success) getOrgDataSet().updateNonHumanCategory(category);
-            }    
+            }
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
-                        "' already exists OR category is invalid.");
+                    "' already exists OR category is invalid.");
         }
         return result;
     }
-                                         
+
 
     public String doUpdateResourceAction(HttpServletRequest req, String action) {
         String result = SUCCESS;
@@ -533,7 +532,7 @@ public class ResourceGateway extends HttpServlet {
         return result;
     }
 
-    
+
     public String doRemoveResourceAction(HttpServletRequest req, String action) {
         String result = SUCCESS;
         if (action.equalsIgnoreCase("removeParticipant")) {
@@ -591,7 +590,7 @@ public class ResourceGateway extends HttpServlet {
                         getOrgDataSet().getNonHumanCategoryByName(categoryName);
                 if (category != null) {
                     success = getOrgDataSet().removeNonHumanCategory(category.getID());
-                }    
+                }
             }
             result = success ? "<success/>" : fail("Unknown category name: " + categoryName);
         }
@@ -604,10 +603,10 @@ public class ResourceGateway extends HttpServlet {
                 if (category != null) {
                     success = category.removeSubCategory(subcategory);
                     if (success) getOrgDataSet().updateNonHumanCategory(category);
-                }    
+                }
             }
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
-                        "' not found OR category id is invalid.");
+                    "' not found OR category id is invalid.");
         }
         else if (action.equalsIgnoreCase("removeNonHumanSubCategoryByName")) {
             String categoryName = req.getParameter("category");
@@ -622,7 +621,7 @@ public class ResourceGateway extends HttpServlet {
                 }
             }
             result = success ? "<success/>" : fail("Subcategory '" + subcategory +
-                        "' not found OR category name is invalid.");
+                    "' not found OR category name is invalid.");
         }
         return result;
     }
@@ -716,7 +715,7 @@ public class ResourceGateway extends HttpServlet {
         }
         else if (action.equalsIgnoreCase("getRole")) {
             Role role = getOrgDataSet().getRole(id);
-            result = (role != null) ? role.toXML() : fail("Unknown role id: " + id) ; 
+            result = (role != null) ? role.toXML() : fail("Unknown role id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getRoleByName")) {
             Role role = getOrgDataSet().getRoleByName(name);
@@ -725,22 +724,22 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getCapability")) {
             Capability capability = getOrgDataSet().getCapability(id);
             result = (capability != null) ? capability.toXML()
-                                          : fail("Unknown capability id: " + id) ;
+                    : fail("Unknown capability id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getCapabilityByName")) {
             Capability capability = getOrgDataSet().getCapabilityByLabel(name);
             result = (capability != null) ? capability.toXML()
-                                          : fail("Unknown capability name: " + id) ;
+                    : fail("Unknown capability name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getPosition")) {
             Position position = getOrgDataSet().getPosition(id);
             result = (position != null) ? position.toXML()
-                                        : fail("Unknown position id: " + id) ;
+                    : fail("Unknown position id: " + id) ;
         }
         else if (action.equalsIgnoreCase("getPositionByName")) {
             Position position = getOrgDataSet().getPositionByLabel(name);
             result = (position != null) ? position.toXML()
-                                        : fail("Unknown position name: " + id) ;
+                    : fail("Unknown position name: " + id) ;
         }
         else if (action.equalsIgnoreCase("getOrgGroup")) {
             OrgGroup group = getOrgDataSet().getOrgGroup(id);
@@ -791,7 +790,7 @@ public class ResourceGateway extends HttpServlet {
         else if (action.equalsIgnoreCase("getNonHumanCategory")) {
             NonHumanCategory category = getOrgDataSet().getNonHumanCategory(id);
             result = (category != null) ? category.toXML() : fail("Unknown category id: " + id);
-        }                
+        }
         else if (action.equalsIgnoreCase("getNonHumanCategorySet")) {
             result = getOrgDataSet().getNonHumanCategorySet();
         }
@@ -822,7 +821,7 @@ public class ResourceGateway extends HttpServlet {
             if (p != null) {
                 UserPrivileges up = p.getUserPrivileges();
                 result = (up != null) ? up.toXML() :
-                          fail("No privileges available for participant id: " + id);
+                        fail("No privileges available for participant id: " + id);
             }
             else result = fail("Unknown participant id: " + id);
         }
@@ -951,9 +950,9 @@ public class ResourceGateway extends HttpServlet {
         }
         return _rm.getOrgDataSet();
     }
-    
+
     private void updateCommonFields(AbstractResourceAttribute resource,
-                                   HttpServletRequest req) {
+                                    HttpServletRequest req) {
         String desc = req.getParameter("description");
         if (desc != null) resource.setDescription(desc);
         String notes = req.getParameter("notes");
@@ -1015,10 +1014,6 @@ public class ResourceGateway extends HttpServlet {
         return result;
     }
 
-    private String fail(String msg) {
-        return "<failure>" + msg + "</failure>";
-    }
-
 
     private String fail(String action, String className, String name) {
         String term = className.equals("Participant") ? "userid" : "name";
@@ -1026,10 +1021,10 @@ public class ResourceGateway extends HttpServlet {
         return fail(String.format(template, action, className, className, term, name));
     }
 
-    
+
     private String fail(String name, String id) {
         return (id == null) ? fail(String.format("Unrecognised or null %s id.", name))
-                            : fail(String.format("Unrecognised %s id: %s", name, id));
+                : fail(String.format("Unrecognised %s id: %s", name, id));
     }
 
 
@@ -1060,7 +1055,7 @@ public class ResourceGateway extends HttpServlet {
     private String stringMapToJSON(Map<String, String> map, String callback) {
         String s = "{";
         if (map != null) {
-             for (String key : map.keySet()) {
+            for (String key : map.keySet()) {
                 if (s.length() > 1) s += ",";
                 s += jsonPair(key, map.get(key));
             }
