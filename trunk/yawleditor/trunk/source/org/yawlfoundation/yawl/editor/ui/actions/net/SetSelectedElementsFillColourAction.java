@@ -38,33 +38,28 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
-                                implements TooltipTogglingWidget, GraphStateListener {
+        implements TooltipTogglingWidget, GraphStateListener {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Set the selected elements background colour. ");
+        putValue(Action.NAME, "Set Selected Fill Colour...");
+        putValue(Action.LONG_DESCRIPTION, "Set the fill colour for the selected elements.");
+        putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("F"));
+    }
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Set the selected elements background colour. ");
-    putValue(Action.NAME, "Set Selected Fill Colour...");
-    putValue(Action.LONG_DESCRIPTION, "Set the fill colour for the selected elements.");
-    putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("F"));
-  }
-
-  public SetSelectedElementsFillColourAction() {
-    super();
-      Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.NoElementSelected,
-                      GraphState.MultipleVerticesSelected));
-  }
+    public SetSelectedElementsFillColourAction() {
+        super();
+        Publisher.getInstance().subscribe(this,
+                Arrays.asList(GraphState.NoElementSelected,
+                        GraphState.MultipleVerticesSelected));
+    }
 
     public void actionPerformed(ActionEvent event) {
         Color newColor = JColorChooser.showDialog(
                 YAWLEditor.getInstance(),
-                "Set Selected Element Background Color",
+                "Set Selected Elements Background Color",
                 UserSettings.getVertexBackgroundColour()
         );
         if (newColor != null) {
@@ -92,18 +87,18 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
             result = (YAWLVertex) o;
         }
         if ((result != null) &&
-            ((result instanceof InputCondition) || (result instanceof OutputCondition))) {
+                ((result instanceof InputCondition) || (result instanceof OutputCondition))) {
             result = null;
         }
         return result ;
     }
 
     public String getEnabledTooltipText() {
-      return " Change the background colour of the selected element(s) ";
+        return " Change the background colour of the selected element(s) ";
     }
 
     public String getDisabledTooltipText() {
-      return " You must have a one or more net elements selected ";
+        return " You must have a one or more net elements selected ";
     }
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {

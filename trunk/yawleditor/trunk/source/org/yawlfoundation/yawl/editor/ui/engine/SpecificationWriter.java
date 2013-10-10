@@ -135,7 +135,7 @@ public class SpecificationWriter {
     private void setCancellationSetDetail(NetElementSummary editorNetSummary) {
         for (YAWLTask editorTriggerTask : editorNetSummary.getTasksWithCancellationSets()) {
            List<YExternalNetElement> cancellationSet = new ArrayList<YExternalNetElement>();
-            for (YAWLCell element : editorTriggerTask.getCancellationSet().getSetMembers()) {
+            for (YAWLCell element : editorTriggerTask.getCancellationSet().getMembers()) {
                 if (element instanceof YAWLFlowRelation) {
                     cancellationSet.add(((YAWLFlowRelation)
                             element).getYFlow().getImplicitCondition());

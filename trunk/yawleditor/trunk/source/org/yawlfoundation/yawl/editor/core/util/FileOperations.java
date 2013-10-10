@@ -19,8 +19,12 @@
 package org.yawlfoundation.yawl.editor.core.util;
 
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YTaskLayout;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -68,6 +72,7 @@ public class FileOperations {
             _fileName = file;
             _specification = specifications.get(0);
             _layoutHandler = new LayoutHandler(_specification, specXML);
+            nullifyUnlabelledTaskNames();
         }
         catch (YSyntaxException yse) {
             throw new IOException(yse.getMessage());
@@ -186,6 +191,35 @@ public class FileOperations {
 
     private String generateSpecificationIdentifier() {
         return "UID_" + UUID.randomUUID().toString();
+    }
+
+
+    /**
+     * When a specification is parsed, if a task has no name it is given a name
+     * derived from its ID for runtime purposes. For design time purposes, no name
+     * means a label has not been set for the task. Thus, any derived name given to a
+     * task has to be removed for an editor. We can test whether there is layout info
+     * for a task's label and, if not, unset the task's name.
+     */
+    private void nullifyUnlabelledTaskNames() {
+        for (YNetLayout netLayout : getLayout().getNetLayouts().values()) {
+            for (YTaskLayout taskLayout : netLayout.getTaskLayouts()) {
+                if (! taskLayout.hasLabel()) {
+                    nullifyTaskName(netLayout.getID(), taskLayout.getID());
+                }
+            }
+        }
+    }
+
+
+    private void nullifyTaskName(String netID, String taskID) {
+        YNet net = (YNet) _specification.getDecomposition(netID);
+        if (net != null) {
+            YTask task = (YTask) net.getNetElement(taskID);
+            if (task != null) {
+                task.setName(null);
+            }
+        }
     }
 
 }

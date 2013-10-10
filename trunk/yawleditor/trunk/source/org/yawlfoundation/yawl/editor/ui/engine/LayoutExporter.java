@@ -288,7 +288,9 @@ public class LayoutExporter {
                 layout.setOffset((Point2D.Double) value);
             }
             else if (key.equals("linecolor")) {
-                layout.setLineColor(new Integer(value.toString()));
+                if (! isBlack((Color) value)) {
+                    layout.setLineColor((Color) value);
+                }
             }
             else if (key.equals("labelposition")) {
                 layout.setLabelPosition((Point2D.Double) value);

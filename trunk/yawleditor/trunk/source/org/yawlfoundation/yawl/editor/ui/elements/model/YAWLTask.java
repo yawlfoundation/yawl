@@ -330,7 +330,7 @@ public abstract class YAWLTask extends YAWLVertex {
 
         CancellationSet clonedCancellationSet = (CancellationSet) getCancellationSet().clone();
         clone.setCancellationSet(clonedCancellationSet);
-        clonedCancellationSet.setTriggeringTask(clone);
+        clonedCancellationSet.setOwnerTask(clone);
 
         clone.setTask(((YTask) _yawlElement));
         clone.setDecomposition(getDecomposition());

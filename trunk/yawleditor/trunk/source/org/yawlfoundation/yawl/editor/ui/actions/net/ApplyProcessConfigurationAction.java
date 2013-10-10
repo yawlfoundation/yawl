@@ -171,9 +171,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 //                            new ViewCancellationSetAction(task, net);
 //                    viewAction.actionPerformed(simulateEvent);
 
- //                   for (YAWLCell member : task.getCancellationSet().getSetMembers()) {
+ //                   for (YAWLCell member : task.getCancellationSet().getMembers()) {
  //                       net.clearSelection();
-                        net.setSelectionCells(task.getCancellationSet().getSetMembers().toArray());
+                        net.setSelectionCells(task.getCancellationSet().getMembers().toArray());
                         net.removeSelectedCellsFromVisibleCancellationSet();
 
 //                        ActionEvent Event = new ActionEvent(net, 1001, null);

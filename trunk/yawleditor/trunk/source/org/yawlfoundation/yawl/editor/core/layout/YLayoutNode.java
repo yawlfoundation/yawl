@@ -82,7 +82,7 @@ public abstract class YLayoutNode {
 
     public void setLabelBounds(Rectangle bounds) { _labelBounds = bounds; }
 
-    protected boolean hasLabel() { return _labelBounds != null; }
+    public boolean hasLabel() { return _labelBounds != null; }
 
 
     public Color getColor() {

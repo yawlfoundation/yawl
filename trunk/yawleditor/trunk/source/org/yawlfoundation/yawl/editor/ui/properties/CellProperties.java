@@ -58,7 +58,6 @@ public class CellProperties extends NetProperties {
     protected static final int DEFAULT_SPLIT_POS = 13;
 
     private boolean idLabelSynch;
-    private boolean viewingCancelSet;
 
     private String currentSplitType;
     private String currentJoinType;
@@ -190,17 +189,6 @@ public class CellProperties extends NetProperties {
     public void setResourcing(NetTaskPair pair) {
         setResourcingString(pair);
         setDirty();
-    }
-
-
-    public boolean getViewCancelSet() {
-        return viewingCancelSet;
-    }
-
-    public void setViewCancelSet(boolean view) {
-        YAWLTask cancelTask = view ? (YAWLTask) vertex : null;
-        graph.changeCancellationSet(cancelTask);
-        viewingCancelSet = view;
     }
 
 

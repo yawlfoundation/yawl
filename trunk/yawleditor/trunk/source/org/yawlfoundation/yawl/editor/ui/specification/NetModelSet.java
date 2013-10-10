@@ -127,6 +127,10 @@ public class NetModelSet extends HashSet<NetGraphModel> {
     }
 
 
+    public void loadRootNetProperties() {
+        if (rootNet != null) loadProperties(rootNet);
+    }
+
     public void loadProperties(NetGraphModel netModel) {
         propertiesLoader.setGraph(netModel.getGraph());
     }

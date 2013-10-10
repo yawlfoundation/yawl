@@ -60,7 +60,7 @@ public class NetElementSummary {
           cells[i] instanceof MultipleAtomicTask ) {
         atomicTasks.add((YAWLAtomicTask) cells[i]);
           tasks.add((YAWLTask) cells[i]);
-        if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
+        if (((YAWLTask) cells[i]).getCancellationSet().getMembers().size() > 0) {
           tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
       }
@@ -68,7 +68,7 @@ public class NetElementSummary {
           cells[i] instanceof MultipleCompositeTask ) {
         compositeTasks.add((YAWLCompositeTask) cells[i]);
           tasks.add((YAWLTask) cells[i]);
-        if (((YAWLTask) cells[i]).getCancellationSet().getSetMembers().size() > 0) {
+        if (((YAWLTask) cells[i]).getCancellationSet().getMembers().size() > 0) {
           tasksWithCancellationSets.add((YAWLTask) cells[i]);
         }
       }

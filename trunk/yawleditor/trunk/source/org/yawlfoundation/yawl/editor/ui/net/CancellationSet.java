@@ -18,67 +18,88 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
-import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CancellationSet implements Serializable, Cloneable {
 
-    private static final long serialVersionUID = 1L;
-    private YAWLTask triggeringTask;
-    private HashSet<YAWLCell> setMembers;
+    private YAWLTask _ownerTask;
+    private Set<YAWLCell> _members;
 
-    public CancellationSet() {
-        setMembers = new HashSet<YAWLCell>();
+    // only called internally
+    private CancellationSet() {
+        _members = new HashSet<YAWLCell>();
     }
 
     public CancellationSet(YAWLTask task) {
         this();
-        triggeringTask = task;
+        _ownerTask = task;
     }
 
-    public YAWLTask getTriggeringTask() {
-        return triggeringTask;
+    public YAWLTask getOwnerTask() {
+        return _ownerTask;
     }
 
-    public void setTriggeringTask(YAWLTask task) {
-        triggeringTask = task;
+    public void setOwnerTask(YAWLTask task) {
+        _ownerTask = task;
     }
 
-    public HashSet<YAWLCell> getSetMembers() {
-        return setMembers;
+
+    public Set<YAWLCell> getMembers() {
+        return _members;
     }
 
-    public void setSetMembers(HashSet<YAWLCell> set) {
-        setMembers = set;
+    public void setMembers(Set<YAWLCell> members) {
+        _members = members;
     }
 
-    public boolean addMember(YAWLCell newSetMember) {
-        if (newSetMember instanceof YAWLTask || newSetMember instanceof Condition ||
-                newSetMember instanceof YAWLFlowRelation) {
-            return setMembers.add(newSetMember);
+    public boolean add(YAWLCell member) {
+        return _members.add(member);
+    }
+
+    public boolean remove(YAWLCell cell) {
+        return _members.remove(cell);
+    }
+
+    public void save() {
+        List<YExternalNetElement> removeSet = new ArrayList<YExternalNetElement>();
+        for (YAWLCell member : _members) {
+            if (member instanceof YAWLFlowRelation) {
+                YCompoundFlow yFlow = ((YAWLFlowRelation) member).getYFlow();
+                YCondition condition = yFlow.getImplicitCondition();
+                if (condition != null) {
+                    removeSet.add(condition);
+                }
+            }
+            else if (member instanceof VertexContainer) {
+                removeSet.add(((VertexContainer) member).getVertex().getYAWLElement());
+            }
+            else {
+                removeSet.add(((YAWLVertex) member).getYAWLElement());
+            }
         }
-        return false;
+        _ownerTask.getTask().addRemovesTokensFrom(removeSet);
     }
 
-    public boolean removeMember(YAWLCell oldSetMember) {
-        return setMembers.remove(oldSetMember);
-    }
 
     public boolean contains(YAWLCell cell) {
-        return setMembers.contains(cell);
+        return _members.contains(cell);
     }
 
     public int size() {
-        return setMembers.size();
+        return _members.size();
     }
 
     public boolean hasMembers() {
-        return size() > 0;
+        return ! _members.isEmpty();
     }
 
     public Object clone() {

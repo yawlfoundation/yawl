@@ -157,12 +157,12 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
                 getGraph().changeCancellationSet(null);
             }
             HashSet<YAWLCell> hashset = new HashSet<YAWLCell>();
-            for (Object setMember : taskWithCancellationSet.getCancellationSet().getSetMembers()) {
+            for (Object setMember : taskWithCancellationSet.getCancellationSet().getMembers()) {
                 if (!cells.contains(setMember)) {
                     hashset.add((YAWLCell) setMember);
                 }
             }
-            taskWithCancellationSet.getCancellationSet().setSetMembers(hashset);
+            taskWithCancellationSet.getCancellationSet().setMembers(hashset);
             if (viewingTask != null) {
                 getGraph().changeCancellationSet(viewingTask);
             }
