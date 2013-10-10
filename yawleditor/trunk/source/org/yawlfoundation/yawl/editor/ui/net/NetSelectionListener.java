@@ -68,11 +68,11 @@ public class NetSelectionListener implements GraphSelectionListener {
       if (moreThanOneVertexSelected(model)) {
           Publisher.getInstance().publishState(GraphState.MultipleVerticesSelected, event);
       }
+        if (singleElementSelected(model)) {
+            Publisher.getInstance().publishState(GraphState.OneElementSelected, event);
+        }
       if (singleTaskSelected(model)) {
           Publisher.getInstance().publishState(GraphState.OneTaskSelected, event);
-      }
-      if (singleElementSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.OneElementSelected, event);
       }
     }
 

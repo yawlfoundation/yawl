@@ -36,7 +36,8 @@ import org.yawlfoundation.yawl.elements.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,13 +47,13 @@ public class SpecificationReader {
 
     private SpecificationModel _model;
     private YSpecificationHandler _handler;
-    private Map<Object, Object> _engineToEditorElementMap;
+    private Map<YExternalNetElement, YAWLVertex> _elementMap;
 
 
     public SpecificationReader() {
         _model = SpecificationModel.getInstance();
         _handler = SpecificationModel.getHandler();
-        _engineToEditorElementMap = new Hashtable<Object, Object>();
+        _elementMap = new HashMap<YExternalNetElement, YAWLVertex>();
     }
 
 
@@ -60,7 +61,7 @@ public class SpecificationReader {
         boolean loaded = loadFile(fileName);
         if (loaded) {
             createEditorObjects();
-            layoutEditorObjects();
+            layoutElements();
             finaliseLoad();
         }
         return loaded;
@@ -84,7 +85,7 @@ public class SpecificationReader {
     }
 
 
-    private boolean layoutEditorObjects() {
+    private boolean layoutElements() {
         YLayout layout = _handler.getLayout();
         if (layout.hasNets()) {
             LayoutImporter.importAndApply(layout);
@@ -102,7 +103,7 @@ public class SpecificationReader {
         _handler.getControlFlowHandler().rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
-        _model.getNets().loadProperties(_model.getNets().getRootNet());
+        _model.getNets().loadRootNetProperties();
         SpecificationUndoManager.getInstance().discardAllEdits();
         ConfigurationImporter.ApplyConfiguration();
     }
@@ -110,7 +111,7 @@ public class SpecificationReader {
 
     private void createEditorObjects() {
         importNets();
-        populateEditorNets();
+        populateNets();
     }
 
 
@@ -127,185 +128,187 @@ public class SpecificationReader {
     }
 
 
-    private NetGraphModel importNet(YNet engineNet, boolean root) {
-        NetGraph editorNet = new NetGraph(engineNet);
-        editorNet.setName(engineNet.getID());
-        NetGraphModel graphModel = editorNet.getNetModel();
-        _model.getNets().add(graphModel, root);
-
-        YAWLEditor.getNetsPane().openNet(editorNet);
-        return graphModel;
+    private void importNet(YNet yNet, boolean isRoot) {
+        NetGraph netGraph = new NetGraph(yNet);
+        _model.getNets().add(netGraph.getNetModel(), isRoot);
+        YAWLEditor.getNetsPane().openNet(netGraph);
     }
 
 
-    private void populateEditorNets() {
+    private void populateNets() {
         for (NetGraphModel netModel : _model.getNets()) {
-            populateEditorNet((YNet) netModel.getDecomposition(), netModel);
+            populateNet(netModel);
         }
     }
 
 
-    private void populateEditorNet(YNet yNet, NetGraphModel editorNet) {
-        EngineNetElementSummary engineNetElementSummary = new EngineNetElementSummary(yNet);
+    private void populateNet(NetGraphModel netModel) {
+        YNet yNet = (YNet) netModel.getDecomposition();
+        Set<YFlow> flows = new HashSet<YFlow>();
+        Set<YCondition> implicitConditions = new HashSet<YCondition>();
+        Set<YTask> cancellationTasks = new HashSet<YTask>();
+        for (YExternalNetElement netElement : yNet.getNetElements().values()) {
+            if (netElement instanceof YInputCondition) {
+                addInputCondition((YInputCondition) netElement, netModel);
+            }
+            else if (netElement instanceof YOutputCondition) {
+                addOutputCondition((YOutputCondition) netElement, netModel);
+            }
+            else if (netElement instanceof YTask) {
+                YTask task = (YTask) netElement;
+                addTask(task, netModel);
+                if (! task.getRemoveSet().isEmpty()) {
+                    cancellationTasks.add(task);
+                }
+            }
+            else if (netElement instanceof YCondition) {
+                YCondition condition = (YCondition) netElement;
+                if (condition.isImplicit()) {
+                    implicitConditions.add(condition);
+                }
+                else {
+                    addCondition(condition, netModel);
+                }
+            }
+            flows.addAll(netElement.getPostsetFlows());
+        }
+        Set<YAWLFlowRelation> editorFlows =
+                addFlows(flows, implicitConditions, netModel.getGraph());
+        addCancellationSets(cancellationTasks, editorFlows);
+    }
 
+
+    private void addInputCondition(YInputCondition yInputCondition,
+                                   NetGraphModel netModel) {
         InputCondition inputCondition = new InputCondition(DEFAULT_LOCATION,
-                yNet.getInputCondition());
-        addElement(editorNet.getGraph(), inputCondition);
-        _engineToEditorElementMap.put(yNet.getInputCondition(), inputCondition);
+                yInputCondition);
+        addElement(netModel.getGraph(), inputCondition);
+        _elementMap.put(yInputCondition, inputCondition);
+    }
 
+    private void addOutputCondition(YOutputCondition yOutputCondition,
+                                    NetGraphModel netModel) {
         OutputCondition outputCondition = new OutputCondition(DEFAULT_LOCATION,
-                yNet.getOutputCondition());
-        addElement(editorNet.getGraph(), outputCondition);
-        _engineToEditorElementMap.put(yNet.getOutputCondition(), outputCondition);
-
-        populateElements(engineNetElementSummary, editorNet);
-        populateFlows(engineNetElementSummary.getFlows(), editorNet);
-//        removeImplicitConditions(engineNetElementSummary.getConditions(), editorNet);
-        populateCancellationSetDetail(engineNetElementSummary.getTasksWithCancellationSets());
+                yOutputCondition);
+        addElement(netModel.getGraph(), outputCondition);
+        _elementMap.put(yOutputCondition, outputCondition);
     }
 
 
-
-    private void populateElements(EngineNetElementSummary engineNetSummary,
-                                  NetGraphModel editorNet) {
-        populateAtomicTasks(engineNetSummary.getAtomicTasks(), editorNet);
-        populateCompositeTasks(engineNetSummary.getCompositeTasks(), editorNet);
-        populateConditions(engineNetSummary.getConditions(), editorNet);
+    private void addTask(YTask yTask, NetGraphModel netModel) {
+        YAWLTask editorTask = createEditorTask(yTask);
+        addElement(netModel.getGraph(), editorTask);
+        setTaskDecorators(yTask, editorTask, netModel);
+        setConfiguration(yTask, editorTask, netModel);
+        _elementMap.put(yTask, editorTask);
     }
 
 
-    private void populateAtomicTasks(Set<YAtomicTask> engineAtomicTasks,
-                                     NetGraphModel editorNet) {
-        for (YAtomicTask engineAtomicTask : engineAtomicTasks) {
-            YAWLAtomicTask editorAtomicTask;
-            if (engineAtomicTask.isMultiInstance()) {
-                editorAtomicTask = new MultipleAtomicTask(DEFAULT_LOCATION, engineAtomicTask);
-            }
-            else {
-                editorAtomicTask = new AtomicTask(DEFAULT_LOCATION, engineAtomicTask);
-            }
-            addElement(editorNet.getGraph(), (YAWLTask) editorAtomicTask, engineAtomicTask);
-
-            setTaskDecorators(engineAtomicTask, (YAWLTask) editorAtomicTask, editorNet);
-
-            if (engineAtomicTask.getConfigurationElement() != null) {
-                ConfigurationImporter.CTaskList.add((YAWLTask) editorAtomicTask);
-                ConfigurationImporter.map.put(editorAtomicTask,
-                        engineAtomicTask.getConfigurationElement());
-                ConfigurationImporter.NetTaskMap.put(editorAtomicTask, editorNet);
-            }
-
-            _engineToEditorElementMap.put(engineAtomicTask, editorAtomicTask);
+    private YAWLTask createEditorTask(YTask engineTask) {
+        if (engineTask instanceof YAtomicTask) {
+            return engineTask.isMultiInstance() ?
+                    new MultipleAtomicTask(DEFAULT_LOCATION, engineTask) :
+                    new AtomicTask(DEFAULT_LOCATION, engineTask);
         }
-
+        if (engineTask instanceof YCompositeTask) {
+            return engineTask.isMultiInstance() ?
+                    new MultipleCompositeTask(DEFAULT_LOCATION, engineTask) :
+                    new CompositeTask(DEFAULT_LOCATION, engineTask);
+        }
+        return null;   // won't be reached, will always match one of the above
     }
 
-    private void addElement(NetGraph graph, YAWLVertex element) {
-        addElement(graph, element, null);
-    }
 
-
-    private void addElement(NetGraph graph, YAWLVertex vertex,
-                            YExternalNetElement netElement) {
+    private void addElement(NetGraph graph, YAWLVertex vertex) {
         graph.addElement(vertex);
-
-        String label = null;
-        if (vertex.getName() != null) {
-            label = vertex.getName();
-        }
-        else if (! (netElement == null || netElement.getName() == null)) {
-            label = netElement.getName();
-        }
-        else if ((netElement instanceof YTask) &&
-                ((YTask) netElement).getDecompositionPrototype() != null) {
-            label = ((YTask) netElement).getDecompositionPrototype().getID();
-        }
+        String label = vertex.getName();
         if (label != null) graph.setElementLabel(vertex, label);
     }
 
 
     private void setTaskDecorators(YTask engineTask, YAWLTask editorTask,
-                                   NetGraphModel editorNet) {
-        editorNet.setJoinDecorator(editorTask, engineToEditorJoin(engineTask),
+                                   NetGraphModel netModel) {
+        netModel.setJoinDecorator(editorTask, engineToEditorJoin(engineTask),
                 JoinDecorator.getDefaultPosition());
-        editorNet.setSplitDecorator(editorTask, engineToEditorSplit(engineTask),
+        netModel.setSplitDecorator(editorTask, engineToEditorSplit(engineTask),
                 SplitDecorator.getDefaultPosition());
     }
 
 
-    private void populateCompositeTasks(Set<YCompositeTask> engineCompositeTasks,
-                                        NetGraphModel editorNet) {
-        for (YCompositeTask engineCompositeTask : engineCompositeTasks) {
-            YAWLCompositeTask editorCompositeTask;
-            if (engineCompositeTask.getMultiInstanceAttributes() == null) {
-                editorCompositeTask = new CompositeTask(DEFAULT_LOCATION, engineCompositeTask);
-            }
-            else {
-                editorCompositeTask = new MultipleCompositeTask(
-                        DEFAULT_LOCATION, engineCompositeTask);
-            }
-            addElement(editorNet.getGraph(), (YAWLTask) editorCompositeTask, engineCompositeTask);
-
-            setTaskDecorators(engineCompositeTask, (YAWLTask) editorCompositeTask, editorNet);
-
-            if (engineCompositeTask.getConfigurationElement() != null) {
-                ConfigurationImporter.CTaskList.add((YAWLTask) editorCompositeTask);
-                ConfigurationImporter.map.put(editorCompositeTask,
-                        engineCompositeTask.getConfigurationElement());
-                ConfigurationImporter.NetTaskMap.put(editorCompositeTask, editorNet);
-            }
-
-            _engineToEditorElementMap.put(engineCompositeTask, editorCompositeTask);
-        }
+    private void addCondition(YCondition engineCondition, NetGraphModel editorNet) {
+        Condition editorCondition = new Condition(DEFAULT_LOCATION, engineCondition);
+        addElement(editorNet.getGraph(), editorCondition);
+        _elementMap.put(engineCondition, editorCondition);
     }
 
 
-    /********************************************************************************/
-
-
-    private void populateConditions(Set<YCondition> engineConditions,
-                                    NetGraphModel editorNet) {
-        for (YCondition engineCondition : engineConditions) {
-
-            Condition editorCondition = new Condition(DEFAULT_LOCATION, engineCondition);
-            addElement(editorNet.getGraph(), editorCondition, engineCondition);
-            _engineToEditorElementMap.put(engineCondition, editorCondition);
-        }
-    }
-
-
-    private void populateFlows(Set<YCompoundFlow> engineFlows, NetGraphModel editorNet) {
-
-        for (YCompoundFlow engineFlow : engineFlows) {
-            YAWLVertex sourceVertex = (YAWLVertex) _engineToEditorElementMap.get(
-                    engineFlow.getSource());
-            YAWLVertex targetVertex = (YAWLVertex) _engineToEditorElementMap.get(
-                    engineFlow.getTarget());
+    private Set<YAWLFlowRelation> addFlows(Set<YFlow> flows,
+                                           Set<YCondition> implicitConditions,
+                                           NetGraph netGraph) {
+        Set<YAWLFlowRelation> editorFlows = new HashSet<YAWLFlowRelation>();
+        for (YCompoundFlow engineFlow : rationaliseFlows(flows, implicitConditions)) {
+            YAWLVertex sourceVertex = _elementMap.get(engineFlow.getSource());
+            YAWLVertex targetVertex = _elementMap.get(engineFlow.getTarget());
             YAWLFlowRelation flow = new YAWLFlowRelation(engineFlow);
-            editorNet.getGraph().connect(flow, sourceVertex, targetVertex);
+            netGraph.connect(flow, sourceVertex, targetVertex);
+            editorFlows.add(flow);
         }
+        return editorFlows;
     }
 
-    private void populateCancellationSetDetail(Set<YTask> engineTasksWithCancellationSets) {
-        for (YTask engineTask : engineTasksWithCancellationSets) {
-            YAWLTask editorTask = (YAWLTask) _engineToEditorElementMap.get(engineTask);
 
-            CancellationSet editorTaskCancellationSet = new CancellationSet(editorTask);
+    private Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows,
+                                                Set<YCondition> implicitConditions) {
+        Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
+        for (YCondition condition : implicitConditions) {
+            YFlow flowFromSource = condition.getPresetFlows().iterator().next();
+            YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();
+            compoundFlows.add(
+                    new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
+            flows.remove(flowFromSource);
+            flows.remove(flowIntoTarget);
+        }
+        for (YFlow flow : flows) {
+            compoundFlows.add(new YCompoundFlow(flow));
+        }
+        return compoundFlows;
+    }
+
+
+    private void addCancellationSets(Set<YTask> cancellationTasks,
+                                     Set<YAWLFlowRelation> editorFlows) {
+        for (YTask engineTask : cancellationTasks) {
+            YAWLTask editorTask = (YAWLTask) _elementMap.get(engineTask);
+            CancellationSet cancellationSet = new CancellationSet(editorTask);
 
             for (YExternalNetElement engineSetMember : engineTask.getRemoveSet()) {
-                YAWLCell editorSetMember = (YAWLCell) _engineToEditorElementMap.get(engineSetMember);
-                editorTaskCancellationSet.addMember(editorSetMember);
+                if (engineSetMember instanceof YCondition) {
+                    YCondition condition = (YCondition) engineSetMember;
+                    if (condition.isImplicit()) {
+                        cancellationSet.add(getFlow(editorFlows, condition));
+                    }
+                }
+                else {
+                    cancellationSet.add(_elementMap.get(engineSetMember));
+                }
             }
-            editorTask.setCancellationSet(editorTaskCancellationSet);
+            editorTask.setCancellationSet(cancellationSet);
         }
     }
 
 
-    private void removeEngineFlow(NetGraphModel netModel, YAWLFlowRelation flow) {
-        _handler.getControlFlowHandler().removeFlow( netModel.getName(),
-                flow.getSourceID(), flow.getTargetID());
-
+    private YAWLFlowRelation getFlow(Set<YAWLFlowRelation> flows, YCondition condition) {
+        YExternalNetElement source = condition.getPresetElements().iterator().next();
+        YExternalNetElement target = condition.getPostsetElements().iterator().next();
+        for (YAWLFlowRelation flow : flows) {
+            if (flow.getSourceVertex().getYAWLElement().equals(source) &&
+                flow.getTargetVertex().getYAWLElement().equals(target)) {
+                return flow;
+            }
+        }
+        return null;
     }
+
 
     private void removeUnnecessaryDecorators() {
         for (NetGraphModel net : _model.getNets())
@@ -348,6 +351,17 @@ public class SpecificationReader {
             case YTask._XOR : return Decorator.XOR_TYPE;
         }
         return Decorator.AND_TYPE;
+    }
+
+
+    private void setConfiguration(YTask engineTask, YAWLTask editorTask,
+                                  NetGraphModel netModel) {
+        if (engineTask.getConfigurationElement() != null) {
+            ConfigurationImporter.CTaskList.add(editorTask);
+            ConfigurationImporter.map.put(editorTask,
+                    engineTask.getConfigurationElement());
+            ConfigurationImporter.NetTaskMap.put(editorTask, netModel);
+        }
     }
 
 }

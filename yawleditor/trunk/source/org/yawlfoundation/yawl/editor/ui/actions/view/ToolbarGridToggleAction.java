@@ -32,10 +32,10 @@ public class ToolbarGridToggleAction extends YAWLBaseAction {
     private boolean selected;
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Toggle the display of grids on nets. ");
+        putValue(Action.SHORT_DESCRIPTION, " Toggle grid on net canvas ");
         putValue(Action.NAME, "Show Grid");
         putValue(Action.SMALL_ICON, getPNGIcon("grid"));
-        putValue(Action.LONG_DESCRIPTION, "Toggle the display of grids on nets.");
+        putValue(Action.LONG_DESCRIPTION, "Toggle grid on net canvas");
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_G);
     }
 

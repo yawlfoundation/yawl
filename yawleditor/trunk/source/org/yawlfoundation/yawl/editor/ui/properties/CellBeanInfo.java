@@ -104,8 +104,6 @@ public class CellBeanInfo extends NetBeanInfo {
                     "Specify expressions for each outgoing flow to prioritise runtime" +
                             " control-flow")
                     .setPropertyEditorClass(SplitConditionPropertyEditor.class);
-            addProperty("ViewCancelSet", _category, "View Cancel Set",
-                    "Display this task's cancellation set");
         }
         if (vertex instanceof YAWLAtomicTask) {
             addProperty("CustomForm", _category, "Custom Form",

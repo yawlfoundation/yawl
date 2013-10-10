@@ -167,9 +167,9 @@ public class NetGraph extends JGraph {
   }
   
   private void bindCancellationModel() {
-    cancellationSetModel = new CancellationSetModel(this);
-    this.getCancellationSetModel().subscribe(AddToVisibleCancellationSetAction.getInstance());
-    this.getCancellationSetModel().subscribe(RemoveFromVisibleCancellationSetAction.getInstance());
+      cancellationSetModel = new CancellationSetModel(this);
+      cancellationSetModel.subscribe(AddToVisibleCancellationSetAction.getInstance());
+      cancellationSetModel.subscribe(RemoveFromVisibleCancellationSetAction.getInstance());
   }
 
   private void bindKeyMappings() {
@@ -771,7 +771,7 @@ public class NetGraph extends JGraph {
   private void hideOldCancellationSet() {
     YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
     changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
-    for (YAWLCell cell : triggeringTask.getCancellationSet().getSetMembers()) {
+    for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
        showCellAsNotInCurrentCancellationSet(cell);
     }
   }
@@ -780,7 +780,7 @@ public class NetGraph extends JGraph {
     YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
     changeVertexBackground(triggeringTask, 
                            CancellationSetModel.CANCELLATION_SET_TRIGGER_BACKGROUND);
-    for (YAWLCell cell : triggeringTask.getCancellationSet().getSetMembers()) {
+    for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
        showCellAsInCurrentCancellationSet(cell);
     }
   }

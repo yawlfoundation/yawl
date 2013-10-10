@@ -18,51 +18,72 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
+import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
-public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
-        implements CancellationSetModelListener, TooltipTogglingWidget  {
-
-
-    private static final AddToVisibleCancellationSetAction INSTANCE
-            = new AddToVisibleCancellationSetAction();
+public class ViewCancellationSetAction extends YAWLSelectedNetAction
+        implements CancellationSetModelListener, GraphStateListener,
+        TooltipTogglingWidget  {
 
     {
         putValue(Action.SHORT_DESCRIPTION, " Add selected items to visible cancellation set ");
         putValue(Action.NAME, "Add to Cancellation Set");
         putValue(Action.LONG_DESCRIPTION, " Add selected items to visible cancellation set ");
-        putValue(Action.SMALL_ICON, getPNGIcon("AddToCancelSet"));
-        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
+        putValue(Action.SMALL_ICON, getPNGIcon("cancel"));
+        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,InputEvent.CTRL_MASK));
     }
 
-    private AddToVisibleCancellationSetAction() {
+    private YAWLTask task;
+    private boolean selected;
+
+
+    public ViewCancellationSetAction() {
+        Publisher.getInstance().subscribe(this,
+                Arrays.asList(GraphState.OneTaskSelected,
+                        GraphState.NoElementSelected,
+                        GraphState.OneElementSelected,
+                        GraphState.MultipleVerticesSelected));
+
         setEnabled(false);
     }
 
-    public static AddToVisibleCancellationSetAction getInstance() {
-        return INSTANCE;
+    public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        setEnabled(selected || state == GraphState.OneTaskSelected);
     }
 
     public void actionPerformed(ActionEvent event) {
-        final NetGraph graph = getGraph();
+        NetGraph graph = getGraph();
         if (graph != null) {
-            graph.addSelectedCellsToVisibleCancellationSet();
-            SpecificationUndoManager.getInstance().setDirty(true);
+            selected = ((JToggleButton) event.getSource()).isSelected();
+            if (selected) {
+                setTask(graph.getSelectionCell());
+            }
+            else {
+                task = null;
+                setEnabled(false);
+            }
+
+            graph.changeCancellationSet(task);
         }
     }
 
     public void notify(int notificationType, YAWLTask triggeringTask) {
+
         switch (notificationType) {
             case CancellationSetModel.NO_VALID_SELECTION_FOR_SET_MEMBERSHIP:
                 setEnabled(false);
@@ -77,12 +98,21 @@ public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
     }
 
     public String getEnabledTooltipText() {
-        return " Add selected items to visible cancellation set ";
+        return task != null ?
+                (" Viewing cancellation set of task " + task.getID() + " ") :
+                 " View cancellation set of the selected task ";
     }
 
     public String getDisabledTooltipText() {
-        return " You must be viewing a task's cancellation set" +
-                " and have selected net elements that are not" +
-                " set members to add them to the set ";
+        return " View cancellation set of a selected task ";
+    }
+
+    private void setTask(Object cell) {
+        if (cell instanceof VertexContainer) {
+            task = (YAWLTask) ((VertexContainer) cell).getVertex();
+        }
+        else {
+            task = (YAWLTask) cell;
+        }
     }
 }

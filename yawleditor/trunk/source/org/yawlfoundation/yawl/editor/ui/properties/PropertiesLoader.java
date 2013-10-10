@@ -42,7 +42,6 @@ public class PropertiesLoader
     private CellProperties _cellProperties;
     private FlowProperties _flowProperties;
     private DecompositionProperties _decompositionProperties;
-    private EventListener _eventListener;
     private FileState _lastFileState;
 
 
@@ -51,7 +50,6 @@ public class PropertiesLoader
         _cellProperties = new CellProperties();
         _flowProperties = new FlowProperties();
         _decompositionProperties = new DecompositionProperties();
-        _eventListener = new EventListener();
         subscribe();
         _lastFileState = FileState.Closed;
     }
@@ -63,7 +61,6 @@ public class PropertiesLoader
         _cellProperties.setGraph(graph);
         _flowProperties.setGraph(graph);
         _decompositionProperties.setGraph(graph);
-        _eventListener.setGraph(graph);
         showNetProperties();
     }
 
@@ -153,7 +150,6 @@ public class PropertiesLoader
 
 
     private void showVertexProperties(YAWLVertex vertex) {
-        if (vertex instanceof YAWLTask) _eventListener.setTask((YAWLTask) vertex);
         if (isTaskDecomposition(vertex)) {
             showDecompositionProperties(vertex);
         }
