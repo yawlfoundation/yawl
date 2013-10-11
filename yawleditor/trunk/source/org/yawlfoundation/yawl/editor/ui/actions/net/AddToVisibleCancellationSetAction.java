@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
@@ -70,9 +71,25 @@ public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
 
             case CancellationSetModel.VALID_SELECTION_FOR_SET_MEMBERSHIP:
             case CancellationSetModel.SET_CHANGED:
-                setEnabled(getGraph() != null && getGraph().getCancellationSetModel()
-                                .hasValidSelectedCellsForInclusion());
+                setEnabled(shouldEnable());
                 break;
+        }
+    }
+
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NetsExist: {
+                break;
+            }
+            case NoNetsExist:
+            case NoNetSelected: {
+                setEnabled(false);
+                break;
+            }
+            case NetSelected: {
+                setEnabled(shouldEnable());
+                break;
+            }
         }
     }
 
@@ -84,5 +101,10 @@ public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
         return " You must be viewing a task's cancellation set" +
                 " and have selected net elements that are not" +
                 " set members to add them to the set ";
+    }
+
+    private boolean shouldEnable() {
+        return getGraph() != null && getGraph().getCancellationSetModel()
+                                        .hasValidSelectedCellsForInclusion();
     }
 }

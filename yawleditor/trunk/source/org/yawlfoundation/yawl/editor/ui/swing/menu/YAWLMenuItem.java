@@ -23,13 +23,8 @@ import javax.swing.JMenuItem;
 
 public class YAWLMenuItem extends JMenuItem {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  public YAWLMenuItem(Action a) {
-    super(a);    
-    setToolTipText(null);
-  }
+    public YAWLMenuItem(Action a) {
+        super(a);
+        setToolTipText(null);
+    }
 }

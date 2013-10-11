@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
@@ -69,11 +70,29 @@ public class RemoveFromVisibleCancellationSetAction extends YAWLSelectedNetActio
 
             case CancellationSetModel.VALID_SELECTION_FOR_SET_MEMBERSHIP:
             case CancellationSetModel.SET_CHANGED:
-                setEnabled(getGraph() != null && getGraph().getCancellationSetModel()
-                                .hasValidSelectedCellsForExclusion());
+                setEnabled(shouldEnable());
                 break;
         }
     }
+
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NetsExist: {
+                break;
+            }
+            case NoNetsExist:
+            case NoNetSelected: {
+                setEnabled(false);
+                break;
+            }
+            case NetSelected: {
+                setEnabled(shouldEnable());
+                break;
+            }
+        }
+    }
+
+
 
     public String getEnabledTooltipText() {
         return " Remove selected items from visible cancellation set ";
@@ -84,4 +103,10 @@ public class RemoveFromVisibleCancellationSetAction extends YAWLSelectedNetActio
                 " and have selected some of its set members to" +
                 " remove them from the set ";
     }
+
+    private boolean shouldEnable() {
+        return getGraph() != null && getGraph().getCancellationSetModel()
+                                        .hasValidSelectedCellsForExclusion();
+    }
+
 }

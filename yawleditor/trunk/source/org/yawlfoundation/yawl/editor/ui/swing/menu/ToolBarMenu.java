@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelListener {
@@ -40,6 +41,20 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         super("YAWLEditor ToolBar");
         ProcessConfigurationModel.getInstance().subscribe(this);
     }
+
+
+    public AbstractButton getButtonWithAction(Action action) {
+        for (Component c : getComponents()) {
+            if (c instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) c;
+                if (button.getAction().equals(action)) {
+                    return button;
+                }
+            }
+        }
+        return null;
+    }
+
 
     protected void buildInterface() {
         setMargin(new Insets(3,2,2,0));
@@ -101,7 +116,7 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         add(applyProcessConfigurationButton);
 
         addSeparator();
-        add(new YAWLToggleToolBarButton(new ViewCancellationSetAction()));
+        add(new YAWLToggleToolBarButton(ViewCancellationSetAction.getInstance()));
         add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
         add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
     }

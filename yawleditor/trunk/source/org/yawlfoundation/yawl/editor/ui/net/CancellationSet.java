@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YCondition;
 import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
@@ -86,7 +87,8 @@ public class CancellationSet implements Serializable, Cloneable {
                 removeSet.add(((YAWLVertex) member).getYAWLElement());
             }
         }
-        _ownerTask.getTask().addRemovesTokensFrom(removeSet);
+        SpecificationModel.getHandler().getControlFlowHandler()
+                .setCancellationSet(_ownerTask.getTask(), removeSet);
     }
 
 

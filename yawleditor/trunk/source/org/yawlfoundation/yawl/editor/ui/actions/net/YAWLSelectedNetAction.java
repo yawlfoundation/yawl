@@ -18,40 +18,32 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 
-public class YAWLSelectedNetAction extends YAWLExistingNetAction 
-                                implements SpecificationStateListener {
-  
-  private static final long serialVersionUID = 1L;
+public class YAWLSelectedNetAction extends YAWLExistingNetAction
+        implements SpecificationStateListener {
 
-  public YAWLSelectedNetAction() {
-      Publisher.getInstance().subscribe(this);
-  }
 
-  public void specificationStateChange(SpecificationState state) {
-    switch(state) {
-      case NoNetsExist: {
-        setEnabled(false);     
-        break;    
-      }
-      case NetsExist: {
-        break;    
-      }
-      case NoNetSelected: {
-        setEnabled(false);
-        break;
-      }
-      case NetSelected: {
-        setEnabled(true);
-        break;
-      }
-      default: {
-        assert false : "Invalid state passed to updateState()";   
-      }    
+    public YAWLSelectedNetAction() {
+//        Publisher.getInstance().subscribe(this);
     }
-  }
+
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NetsExist: {
+                break;
+            }
+            case NoNetsExist:
+            case NoNetSelected: {
+                setEnabled(false);
+                break;
+            }
+            case NetSelected: {
+                setEnabled(true);
+                break;
+            }
+        }
+    }
 
 }

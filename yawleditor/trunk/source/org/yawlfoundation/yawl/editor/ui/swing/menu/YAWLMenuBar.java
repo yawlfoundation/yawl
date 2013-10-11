@@ -30,12 +30,16 @@ public class YAWLMenuBar extends JMenuBar {
 
         add(new SpecificationMenu());
         splashScreen.updateProgress(progress+=15);
+
         add(new EditMenu());
         splashScreen.updateProgress(progress+=15);
+
         add(new NetMenu());
         splashScreen.updateProgress(progress+=15);
+
         add(new ElementsMenu());
         splashScreen.updateProgress(progress+=15);
+
         add(new PluginsMenu());
         add(new HelpMenu());
     }

@@ -64,6 +64,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static YStatusBar statusBar;
     private static JSplitPane splitPane;
     private static YSplashScreen splashScreen;
+    private static ToolBarMenu toolBarMenu;
     private static YAWLEditor INSTANCE;
 
 
@@ -73,6 +74,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         establishConnections();
         buildInterface();
         Publisher.getInstance().subscribe(this);
+        SpecificationModel.getInstance();                         // just to init it
     }
 
 
@@ -91,6 +93,8 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     public static NetsPane getNetsPane() { return netsPane; }
 
     public static PaletteBar getPalette() { return paletteBar; }
+
+    public static ToolBarMenu getToolBar() { return toolBarMenu; }
 
 
     public void setTitle(String title) {
@@ -281,8 +285,8 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private JPanel getToolbarMenuPanel() {
         JPanel toolbarMenuPanel = new JPanel();
         toolbarMenuPanel.setLayout(new GridLayout(1,0));
-        ToolBarMenu menu = new ToolBarMenu();
-        toolbarMenuPanel.add(menu);
+        toolBarMenu = new ToolBarMenu();
+        toolbarMenuPanel.add(toolBarMenu);
         return toolbarMenuPanel;
     }
 

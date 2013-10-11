@@ -37,13 +37,17 @@ class NetMenu extends YAWLOpenSpecificationMenu {
         add(new YAWLMenuItem(new CreateNetAction()));
         add(new YAWLMenuItem(new RemoveNetAction()));
         add(new YAWLMenuItem(new SetRootNetAction()));
+
         addSeparator();
         add(new YAWLMenuItem(new ExportNetToPngAction()));
+
         addSeparator();
         add(new YAWLMenuItem(new NetBackgroundColourAction()));
         add(new YAWLMenuItem(new NetBackgroundImageAction()));
+
         addSeparator();
         add(new YAWLMenuItem(new PrintNetAction()));
+
         addSeparator();
         add(new YAWLMenuItem(new RepositoryAddAction(null, Repo.NetDecomposition, null)));
         add(new YAWLMenuItem(new RepositoryGetAction(null, Repo.NetDecomposition, null)));
