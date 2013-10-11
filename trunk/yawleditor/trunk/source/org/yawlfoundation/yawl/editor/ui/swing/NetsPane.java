@@ -118,7 +118,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         }
         try {
             getSelectedGraph().getSelectionListener().forceActionUpdate();
-            getSelectedGraph().getCancellationSetModel().refresh();
+        //    getSelectedGraph().getCancellationSetModel().refresh();
         }
         catch (Exception e) {}
     }

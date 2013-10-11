@@ -154,7 +154,7 @@ public class CancellationSetModel implements GraphSelectionListener {
         }
     }
 
-    private boolean hasValidCellSelected() {
+    public boolean hasValidCellSelected() {
         for (Object cell : _graph.getSelectionModel().getSelectionCells()) {
             if (cell instanceof VertexContainer) {
                 cell = ((VertexContainer) cell).getVertex();

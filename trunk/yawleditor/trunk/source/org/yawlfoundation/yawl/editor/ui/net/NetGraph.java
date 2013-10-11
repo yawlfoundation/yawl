@@ -168,6 +168,7 @@ public class NetGraph extends JGraph {
   
   private void bindCancellationModel() {
       cancellationSetModel = new CancellationSetModel(this);
+      cancellationSetModel.subscribe(ViewCancellationSetAction.getInstance());
       cancellationSetModel.subscribe(AddToVisibleCancellationSetAction.getInstance());
       cancellationSetModel.subscribe(RemoveFromVisibleCancellationSetAction.getInstance());
   }

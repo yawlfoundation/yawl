@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 
@@ -34,43 +33,41 @@ import java.util.Map;
 
 public class VertexPopupMenu extends JPopupMenu {
 
-  private NetGraph graph;
-  private YAWLCell cell;
+    private YAWLCell cell;
 
-  private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
+    private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
 
-  public VertexPopupMenu(YAWLCell cell, NetGraph graph) {
-    super();
-    this.cell = cell;
-    this.graph = graph;
-    addMenuItems();
-  }
-  
-  private void addMenuItems() {
-    YAWLVertex vertex = (YAWLVertex) cell;
-    addGraphSpecificMenuItems(vertex);
-      addPlugins();
-  }
-
-  private void addGraphSpecificMenuItems(YAWLVertex vertex) {
-    addCopyableMenuItems(vertex);
-    addRemoveableMenuItems(vertex);
-  }
-  
-  private void addCopyableMenuItems(YAWLVertex vertex) {
-    if (!vertex.isCopyable()) {
-      return;
+    public VertexPopupMenu(YAWLCell cell) {
+        super();
+        this.cell = cell;
+        addMenuItems();
     }
-    add(new YAWLPopupMenuItem(CutAction.getInstance()));
-    add(new YAWLPopupMenuItem(CopyAction.getInstance()));
-  }
-  
-  private void addRemoveableMenuItems(YAWLVertex vertex) {
-    if (!vertex.isRemovable()) {
-      return;
+
+    private void addMenuItems() {
+        YAWLVertex vertex = (YAWLVertex) cell;
+        addGraphSpecificMenuItems(vertex);
+        addPlugins();
     }
-    add(new YAWLPopupMenuItem(DeleteAction.getInstance()));
-  }
+
+    private void addGraphSpecificMenuItems(YAWLVertex vertex) {
+        addCopyableMenuItems(vertex);
+        addRemoveableMenuItems(vertex);
+    }
+
+    private void addCopyableMenuItems(YAWLVertex vertex) {
+        if (!vertex.isCopyable()) {
+            return;
+        }
+        add(new YAWLPopupMenuItem(CutAction.getInstance()));
+        add(new YAWLPopupMenuItem(CopyAction.getInstance()));
+    }
+
+    private void addRemoveableMenuItems(YAWLVertex vertex) {
+        if (!vertex.isRemovable()) {
+            return;
+        }
+        add(new YAWLPopupMenuItem(DeleteAction.getInstance()));
+    }
 
 
 
@@ -93,18 +90,18 @@ public class VertexPopupMenu extends JPopupMenu {
     }
 
 
-  public YAWLCell getCell() {
-    return cell;
-  }
-  
-  public void setVisible(boolean state) {
-    if (state) {
-        if (_item2pluginMap != null) {
-            for (YAWLPopupMenuItem item : _item2pluginMap.keySet()) {
-                item.setEnabled(_item2pluginMap.get(item).setPopupMenuItemEnabled(cell));
+    public YAWLCell getCell() {
+        return cell;
+    }
+
+    public void setVisible(boolean state) {
+        if (state) {
+            if (_item2pluginMap != null) {
+                for (YAWLPopupMenuItem item : _item2pluginMap.keySet()) {
+                    item.setEnabled(_item2pluginMap.get(item).setPopupMenuItemEnabled(cell));
+                }
             }
         }
+        super.setVisible(state);
     }
-    super.setVisible(state);
-  }
 }

@@ -77,7 +77,7 @@ public class ProcessConfigurationMenu extends JMenu
 
     private JMenu getTaskMenu() {
         _taskMenu = new JMenu("Task");
-         _taskMenu.setMnemonic('T');
+        _taskMenu.setMnemonic('T');
         _taskMenu.add(buildConfigurableTaskItem());
         _taskMenu.add(new YAWLPopupMenuItem(new InputPortConfigurationAction()));
         _taskMenu.add(new YAWLPopupMenuItem(new OutputPortConfigurationAction()));

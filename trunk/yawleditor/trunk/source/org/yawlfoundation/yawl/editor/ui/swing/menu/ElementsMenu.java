@@ -27,13 +27,11 @@ import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
 public class ElementsMenu extends YAWLOpenSpecificationMenu {
 
-    private JMenu vertexMenu;
 
     public ElementsMenu() {
         super("Elements",KeyEvent.VK_L);
@@ -85,26 +83,4 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
         return addedItemCount;
     }
 
-
-
-    private JMenu getVertexMenu() {
-        vertexMenu = new JMenu("Element");
-        vertexMenu.setMnemonic(KeyEvent.VK_E);
-        vertexMenu.setEnabled(false);
-        return vertexMenu;
-    }
-
-    public void addVertexMenu(VertexPopupMenu menu) {
-        vertexMenu.removeAll();
-        Component[] components = menu.getComponents();
-        for (Component component : components) {
-            vertexMenu.add(component);
-        }
-        vertexMenu.setEnabled(true);
-    }
-
-    public void removeVertexMenu() {
-        vertexMenu.removeAll();
-        vertexMenu.setEnabled(false);
-    }
 }

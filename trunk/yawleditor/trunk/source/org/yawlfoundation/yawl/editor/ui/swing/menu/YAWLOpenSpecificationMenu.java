@@ -25,19 +25,18 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import javax.swing.*;
 
-abstract class YAWLOpenSpecificationMenu extends JMenu 
-                                implements FileStateListener {
+abstract class YAWLOpenSpecificationMenu extends JMenu implements FileStateListener {
 
-  public YAWLOpenSpecificationMenu(String title, int keyEventCode) {
-    super(title);
-    setMnemonic(keyEventCode);
-    buildInterface();
-      Publisher.getInstance().subscribe(this);
-  }
-  
-  protected abstract void buildInterface();
-  
-  public void specificationFileStateChange(FileState state) {
-      setEnabled(state != FileState.Closed);
-  }
+    public YAWLOpenSpecificationMenu(String title, int keyEventCode) {
+        super(title);
+        setMnemonic(keyEventCode);
+        buildInterface();
+        Publisher.getInstance().subscribe(this);
+    }
+
+    protected abstract void buildInterface();
+
+    public void specificationFileStateChange(FileState state) {
+        setEnabled(state != FileState.Closed);
+    }
 }

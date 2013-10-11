@@ -20,42 +20,33 @@ package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
 
-class YAWLExistingNetAction extends YAWLBaseAction 
-                            implements SpecificationStateListener {
+class YAWLExistingNetAction extends YAWLBaseAction implements SpecificationStateListener {
 
-  private static final long serialVersionUID = 1L;
-  private final SpecificationModel specificationModel = 
-    SpecificationModel.getInstance();
-
-  {
-    Publisher.getInstance().subscribe(this);
-  }                                  
-
-  public void specificationStateChange(SpecificationState state) {
-    switch(state) {
-      case NoNetsExist: {
-        setEnabled(false);     
-        break;    
-      }
-      case NetsExist: {
-        setEnabled(true);
-        break;    
-      }
-      case NoNetSelected:
-      case NetSelected: {
-        break;
-      }
-      default: {
-        assert false : "Invalid state passed to updateState()";   
-      }    
+    {
+        Publisher.getInstance().subscribe(this);
     }
-  }
 
-  public SpecificationModel getSpecificationModel() {
-    return specificationModel;  
-  }
+    public void specificationStateChange(SpecificationState state) {
+        switch(state) {
+            case NoNetsExist: {
+                setEnabled(false);
+                break;
+            }
+            case NetsExist: {
+                setEnabled(true);
+                break;
+            }
+            case NoNetSelected:
+            case NetSelected: {
+                break;
+            }
+            default: {
+                assert false : "Invalid state passed to updateState()";
+            }
+        }
+    }
+
 }

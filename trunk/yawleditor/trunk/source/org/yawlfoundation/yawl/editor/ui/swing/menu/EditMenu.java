@@ -18,34 +18,27 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import java.awt.event.KeyEvent;
-
-import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
-import org.yawlfoundation.yawl.editor.ui.actions.CutAction;
-import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
-import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
-import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.ui.actions.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
 
-class EditMenu extends YAWLOpenSpecificationMenu {
-    
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+import java.awt.event.KeyEvent;
 
-  public EditMenu() {
-    super("Edit", KeyEvent.VK_E);
-  }
-  
-  protected void buildInterface() {
-    add(new YAWLMenuItem(UndoAction.getInstance()));
-    add(new YAWLMenuItem(RedoAction.getInstance()));
-    addSeparator();
-    add(new YAWLMenuItem(CutAction.getInstance()));
-    add(new YAWLMenuItem(CopyAction.getInstance()));
-    add(new YAWLMenuItem(PasteAction.getInstance()));
-    addSeparator();
-    add(new YAWLMenuItem(DeleteAction.getInstance()));
-  }
+class EditMenu extends YAWLOpenSpecificationMenu {
+
+    public EditMenu() {
+        super("Edit", KeyEvent.VK_E);
+    }
+
+    protected void buildInterface() {
+        add(new YAWLMenuItem(UndoAction.getInstance()));
+        add(new YAWLMenuItem(RedoAction.getInstance()));
+
+        addSeparator();
+        add(new YAWLMenuItem(CutAction.getInstance()));
+        add(new YAWLMenuItem(CopyAction.getInstance()));
+        add(new YAWLMenuItem(PasteAction.getInstance()));
+
+        addSeparator();
+        add(new YAWLMenuItem(DeleteAction.getInstance()));
+    }
 }

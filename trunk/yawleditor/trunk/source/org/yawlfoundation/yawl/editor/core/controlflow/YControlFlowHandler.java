@@ -251,7 +251,7 @@ public class YControlFlowHandler {
         YNet net = getNet(netID);
         return net == null ? null : new YCompoundFlow(getNetElement(netID, sourceID),
                        getNetElement(netID, targetID));
-     }
+    }
 
 
     public YExternalNetElement getNetElement(String netID, String id) {
@@ -426,6 +426,26 @@ public class YControlFlowHandler {
             flow.detach();
         }
         return flow;
+    }
+
+
+    public boolean setCancellationSet(String netID, String id,
+                                   List<YExternalNetElement> newSet) {
+        return setCancellationSet(getTask(netID, id), newSet);
+    }
+
+    public boolean setCancellationSet(YTask task, List<YExternalNetElement> newSet) {
+        if (task != null) {
+
+            // clean-up any existing elements no longer in set
+            for (YExternalNetElement element : task.getRemoveSet()) {
+                if (! newSet.contains(element)) {
+                    task.removeFromRemoveSet(element);
+                }
+            }
+            task.addRemovesTokensFrom(newSet);
+        }
+        return task != null;
     }
 
 

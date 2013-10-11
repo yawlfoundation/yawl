@@ -58,7 +58,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         String title = createTitle();
         YNet yNet = SpecificationModel.getHandler().getControlFlowHandler().addNet(title);
         NetGraph newGraph = new NetGraph(yNet);
-//        newGraph.buildNewGraphContent(cropRectangle(bounds, 15));
         new SpecificationFactory().populateGraph(yNet, newGraph);
         setNet(newGraph, title);
     }

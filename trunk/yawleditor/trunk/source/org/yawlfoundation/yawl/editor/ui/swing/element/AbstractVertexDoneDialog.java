@@ -26,53 +26,53 @@ import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import javax.swing.*;
 
 public abstract class AbstractVertexDoneDialog extends AbstractDoneDialog {
-  
-  private YAWLVertex vertex;
-  protected NetGraph graph;
-  
-  public AbstractVertexDoneDialog(String title, boolean modality, boolean showCancelButton) {
-    super(title,modality, showCancelButton);
-  }
 
-  public AbstractVertexDoneDialog(String title, boolean modality,
-                                  JPanel contentPanel, boolean showCancelButton) {
-    super(title, modality, contentPanel, showCancelButton);
-  }  
-  
-  protected void makeLastAdjustments() {
-    pack();
-    setResizable(false);
-  }
-  
-  public void setVertex(YAWLVertex vertex, NetGraph graph) {
-    this.vertex= vertex;
-    this.graph = graph;
-    setTitle(getTitlePrefix() + vertex.getType() + getTitleSuffix());
-  }
-  
-  public YAWLVertex getVertex() {
-    return this.vertex;
-  }
-  
-  public NetGraph getGraph() {
-    return this.graph;
-  }
-  
-  public void setVisible(boolean state) {
-    if (state) {
-      JUtilities.centreWindowUnderVertex(graph, this, vertex, 10);
+    private YAWLVertex vertex;
+    protected NetGraph graph;
+
+    public AbstractVertexDoneDialog(String title, boolean modality, boolean showCancelButton) {
+        super(title,modality, showCancelButton);
     }
-    super.setVisible(state);
-  }
-  
-  public String getTitlePrefix() {
-    return "";
-  }
-  
-  public String getTitleSuffix() {
-    if (vertex.getLabel() != null && !vertex.getLabel().equals("")) {
-      return " \"" + vertex.getLabel() + "\"";
+
+    public AbstractVertexDoneDialog(String title, boolean modality,
+                                    JPanel contentPanel, boolean showCancelButton) {
+        super(title, modality, contentPanel, showCancelButton);
     }
-    return "";
-  }
+
+    protected void makeLastAdjustments() {
+        pack();
+        setResizable(false);
+    }
+
+    public void setVertex(YAWLVertex vertex, NetGraph graph) {
+        this.vertex= vertex;
+        this.graph = graph;
+        setTitle(getTitlePrefix() + vertex.getType() + getTitleSuffix());
+    }
+
+    public YAWLVertex getVertex() {
+        return this.vertex;
+    }
+
+    public NetGraph getGraph() {
+        return this.graph;
+    }
+
+    public void setVisible(boolean state) {
+        if (state) {
+            JUtilities.centreWindowUnderVertex(graph, this, vertex, 10);
+        }
+        super.setVisible(state);
+    }
+
+    public String getTitlePrefix() {
+        return "";
+    }
+
+    public String getTitleSuffix() {
+        if (vertex.getLabel() != null && !vertex.getLabel().equals("")) {
+            return " \"" + vertex.getLabel() + "\"";
+        }
+        return "";
+    }
 }

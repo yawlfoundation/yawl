@@ -128,7 +128,7 @@ public class SpecificationWriter {
         for (NetGraphModel netModel : model.getNets()) {
             NetElementSummary editorNetSummary = new NetElementSummary(netModel);
             configureTasks(editorNetSummary);
-            setCancellationSetDetail(editorNetSummary);
+//            setCancellationSetDetail(editorNetSummary);
         }
     }
 

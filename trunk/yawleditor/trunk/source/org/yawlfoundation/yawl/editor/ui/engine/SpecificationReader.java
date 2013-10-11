@@ -105,6 +105,7 @@ public class SpecificationReader {
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
         _model.getNets().loadRootNetProperties();
         SpecificationUndoManager.getInstance().discardAllEdits();
+        setSelectedCancellationSets();
         ConfigurationImporter.ApplyConfiguration();
     }
 
@@ -293,6 +294,18 @@ public class SpecificationReader {
                 }
             }
             editorTask.setCancellationSet(cancellationSet);
+        }
+    }
+
+
+    private void setSelectedCancellationSets() {
+        for (NetGraphModel graphModel : _model.getNets()) {
+            NetGraph graph = graphModel.getGraph();
+            YAWLTask selectedCancellationTask =
+                     graph.getCancellationSetModel().getTriggeringTask();
+            if (selectedCancellationTask != null) {
+                graph.getSelectionModel().setSelectionCell(selectedCancellationTask);
+            }
         }
     }
 

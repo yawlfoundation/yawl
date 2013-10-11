@@ -19,15 +19,16 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModel;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToggleToolBarButton;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -36,7 +37,7 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 public class ViewCancellationSetAction extends YAWLSelectedNetAction
-        implements CancellationSetModelListener, GraphStateListener,
+        implements CancellationSetModelListener, GraphStateListener, FileStateListener,
         TooltipTogglingWidget  {
 
     {
@@ -49,51 +50,62 @@ public class ViewCancellationSetAction extends YAWLSelectedNetAction
     }
 
     private YAWLTask task;
-    private boolean selected;
+    private boolean isSelected;
+    private YAWLToggleToolBarButton toolBarButton;
+
+    private static final ViewCancellationSetAction INSTANCE =
+            new ViewCancellationSetAction();
 
 
-    public ViewCancellationSetAction() {
+    private ViewCancellationSetAction() {
         Publisher.getInstance().subscribe(this,
                 Arrays.asList(GraphState.OneTaskSelected,
                         GraphState.NoElementSelected,
                         GraphState.OneElementSelected,
                         GraphState.MultipleVerticesSelected));
-
+        Publisher.getInstance().subscribe((FileStateListener) this);
         setEnabled(false);
     }
 
+    public static ViewCancellationSetAction getInstance() {
+        return INSTANCE;
+    }
+
+
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
-        setEnabled(selected || state == GraphState.OneTaskSelected);
+        setEnabled(isSelected || state == GraphState.OneTaskSelected);
     }
 
     public void actionPerformed(ActionEvent event) {
         NetGraph graph = getGraph();
         if (graph != null) {
-            selected = ((JToggleButton) event.getSource()).isSelected();
-            if (selected) {
-                setTask(graph.getSelectionCell());
-            }
-            else {
-                task = null;
-                setEnabled(false);
-            }
-
+            toolBarButton = (YAWLToggleToolBarButton) event.getSource();
+            isSelected = toolBarButton.isSelected();
+            saveChangesToCancellationSet();
+            setTask(isSelected ? (YAWLCell) graph.getSelectionCell() : null);
+            toolBarButton.setToolTipText(getEnabledTooltipText());
             graph.changeCancellationSet(task);
+            setEnabled(isTaskSelected());
         }
     }
 
+    // CancellationSetModelListener
     public void notify(int notificationType, YAWLTask triggeringTask) {
+        if (notificationType == CancellationSetModel.SET_CHANGED) {
+            if (toolBarButton == null) {
+                toolBarButton = (YAWLToggleToolBarButton)
+                        YAWLEditor.getToolBar().getButtonWithAction(this);
+            }
+            isSelected = triggeringTask != null;
+            toolBarButton.setSelected(isSelected);
+            setTask(triggeringTask);
+            toolBarButton.setToolTipText(getEnabledTooltipText());
+        }
+    }
 
-        switch (notificationType) {
-            case CancellationSetModel.NO_VALID_SELECTION_FOR_SET_MEMBERSHIP:
-                setEnabled(false);
-                break;
-
-            case CancellationSetModel.VALID_SELECTION_FOR_SET_MEMBERSHIP:
-            case CancellationSetModel.SET_CHANGED:
-                setEnabled(getGraph() != null && getGraph().getCancellationSetModel()
-                                .hasValidSelectedCellsForInclusion());
-                break;
+    public void specificationFileStateChange(FileState state) {
+        if (state == FileState.Busy && isSelected && task != null) {
+            task.getCancellationSet().save();
         }
     }
 
@@ -107,12 +119,24 @@ public class ViewCancellationSetAction extends YAWLSelectedNetAction
         return " View cancellation set of a selected task ";
     }
 
-    private void setTask(Object cell) {
-        if (cell instanceof VertexContainer) {
-            task = (YAWLTask) ((VertexContainer) cell).getVertex();
-        }
-        else {
-            task = (YAWLTask) cell;
+    private void setTask(YAWLCell cell) {
+        task = (YAWLTask) ((cell instanceof VertexContainer) ?
+              ((VertexContainer) cell).getVertex() : cell);
+
+    }
+
+    private void saveChangesToCancellationSet() {
+        if (! (isSelected || task == null)) {
+            task.getCancellationSet().save();
         }
     }
+
+    private boolean isTaskSelected() {
+        Object o = getGraph().getSelectionCell();
+        if (o instanceof VertexContainer) {
+            o = ((VertexContainer) o).getVertex();
+        }
+        return (o instanceof YAWLTask);
+    }
+
 }
