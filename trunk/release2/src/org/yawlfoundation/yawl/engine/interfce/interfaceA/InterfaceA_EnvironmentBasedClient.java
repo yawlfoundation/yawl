@@ -92,6 +92,15 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                           prepareParamMap("checkConnection", sessionHandle));
     }
 
+    /**
+     * Disconnects an external entity from the engine
+     * @param handle the sessionHandle to disconnect
+     * @throws IOException if the engine can't be reached
+     */
+    public String disconnect(String handle) throws IOException {
+        return executePost(_backEndURIStr, prepareParamMap("disconnect", handle));
+    }
+
 
     /******* SERVICES *************************************************************/
 

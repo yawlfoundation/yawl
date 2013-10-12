@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.authentication;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ServiceConnection;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -153,8 +155,7 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
      * @param handle the session handle of the session to remove.
      */
     public void expire(String handle) {
-        YSession session = this.remove(handle);
-        if (session != null) audit(session.getClient().getUserName(), YAuditEvent.Action.expired);
+        removeSession(handle, YAuditEvent.Action.expired);
     }
 
 
@@ -180,8 +181,7 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
      * from the Engine. Also writes the disconnection to the session audit log.
      */
     public void disconnect(String handle) {
-        YSession session = this.remove(handle);
-        if (session != null) audit(session.getClient().getUserName(), YAuditEvent.Action.logoff);
+        removeSession(handle, YAuditEvent.Action.logoff);
     }
 
 
@@ -228,6 +228,15 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
         this.put(handle, session);
         audit(session.getClient().getUserName(), YAuditEvent.Action.logon);
         return handle;        
+    }
+
+
+    private void removeSession(String handle, YAuditEvent.Action action) {
+        YSession session = this.remove(handle);
+        if (session != null) {
+            session.cancelActivityTimer();
+            audit(session.getClient().getUserName(), action);
+        }
     }
 
 

@@ -577,6 +577,12 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String disconnect(String sessionHandle) throws RemoteException {
+        _sessionCache.disconnect(sessionHandle);
+        return SUCCESS;
+    }
+
+
     /**
      * @deprecated no longer valid - performs same function as 'checkConnection'
      * @param sessionHandle

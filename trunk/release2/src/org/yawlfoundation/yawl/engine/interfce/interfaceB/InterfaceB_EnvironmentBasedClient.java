@@ -76,6 +76,16 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
 
 
     /**
+     * Disconnects an external entity from the engine
+     * @param handle the sessionHandle to disconnect
+     * @throws IOException if the engine can't be reached
+     */
+    public String disconnect(String handle) throws IOException {
+        return executePost(_backEndURIStr, prepareParamMap("disconnect", handle));
+    }
+
+
+    /**
      * Returns a list (of WorkItemRecord) of all the work items that are
      * currently active in the engine.
      * @see org.yawlfoundation.yawl.engine.interfce.WorkItemRecord

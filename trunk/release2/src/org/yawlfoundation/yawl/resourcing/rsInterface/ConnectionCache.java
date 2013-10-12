@@ -104,14 +104,12 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
 
 
     public void disconnect(String handle) {
-        ServiceConnection con = this.remove(handle);
-        if (con != null) EventLogger.audit(con.getUserID(), EventLogger.audit.gwlogoff);
+        removeConnection(handle, EventLogger.audit.gwlogoff);
     }
 
 
     public void expire(String handle) {
-        ServiceConnection con = this.remove(handle);
-        if (con != null) EventLogger.audit(con.getUserID(), EventLogger.audit.gwexpired);
+        removeConnection(handle, EventLogger.audit.gwexpired);
     }
 
 
@@ -159,6 +157,15 @@ public class ConnectionCache extends Hashtable<String, ServiceConnection> {
         for (ServiceConnection con : cons)
             if (con.getUserID().equals(userid)) return true ;
         return false;
+    }
+
+
+    private void removeConnection(String handle, EventLogger.audit auditType) {
+        ServiceConnection con = this.remove(handle);
+        if (con != null) {
+            con.cancelActivityTimer();
+            EventLogger.audit(con.getUserID(), auditType);
+        }
     }
 
     

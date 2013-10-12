@@ -118,6 +118,9 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("checkConnection".equals(action)) {
                     msg.append(_engine.checkConnectionForAdmin(sessionHandle));
                 }
+                else if ("disconnect".equals(action)) {
+                    msg.append(_engine.disconnect(sessionHandle));
+                }
                 else if ("upload".equals(action)) {
                     String specXML = request.getParameter("specXML");
                     msg.append(_engine.loadSpecification(specXML, sessionHandle));

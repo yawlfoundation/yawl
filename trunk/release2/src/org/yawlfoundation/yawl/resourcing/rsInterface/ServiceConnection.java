@@ -71,7 +71,10 @@ public class ServiceConnection {
     }
 
     public void cancelActivityTimer() {
-        if (_activityTimer != null) _activityTimer.cancel();  // cancel old
+        if (_activityTimer != null) {
+            _activityTimer.cancel();                          // cancel old
+            _activityTimer = null;                            // drop thread
+        }
     }
 
     private class TimeOut extends TimerTask {
