@@ -138,7 +138,10 @@ public class YSession {
 
     // cancels a timer (mainly for when the server shuts down)
     public void cancelActivityTimer() {
-        if (_activityTimer != null) _activityTimer.cancel();
+        if (_activityTimer != null) {
+            _activityTimer.cancel();
+            _activityTimer = null;           // drop the thread
+        }
     }
 
 

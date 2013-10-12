@@ -117,6 +117,8 @@ public interface EngineGateway extends Remote {
 
     String checkConnection(String sessionHandle) throws RemoteException;
 
+    String disconnect(String sessionHandle) throws RemoteException;
+
     String checkConnectionForAdmin(String sessionHandle) throws RemoteException;
 
     String getTaskInformation(YSpecificationID specificationID, String taskID, String sessionHandle) throws RemoteException;

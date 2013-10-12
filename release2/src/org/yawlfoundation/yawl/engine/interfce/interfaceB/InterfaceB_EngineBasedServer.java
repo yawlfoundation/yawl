@@ -240,6 +240,9 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     int interval = request.getSession().getMaxInactiveInterval();
                     msg.append(_engine.connect(userID, password, interval));
                 }
+                else if ("disconnect".equals(action)) {
+                    msg.append(_engine.disconnect(sessionHandle));
+                }
                 else if (action.equals("checkout")) {
                     msg.append(_engine.startWorkItem(workItemID, sessionHandle));
                 }
