@@ -38,14 +38,6 @@ public class YExternalSession extends YSession {
     }
 
 
-    /**
-     * Implementation of super abstract method that has no meaning for external clients.
-     * @return null (always)
-     */
-    public String getURI() {
-        return null;                                     // clients don't require a uri
-    }
-
     public String getName() {
         return _client != null ? _client.getUserName() : null;
     }
