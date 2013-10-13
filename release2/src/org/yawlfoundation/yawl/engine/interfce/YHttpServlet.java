@@ -67,7 +67,6 @@ public class YHttpServlet extends HttpServlet {
             String name = thread.getName();
             if (name != null && name.startsWith("Timer")) {
                 thread.interrupt();
-                _log.info("Interrupted running timer thread: " + name);
             }
         }
     }

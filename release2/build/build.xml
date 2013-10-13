@@ -1328,7 +1328,9 @@
         <!-- 1. Copy required yawl classes into dir structure -->
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/authentication">
             <fileset dir="${classes.dir}${packageRoot}/authentication"
-                     includes="YExternalClient.class YClient.class"/>
+                     includes="YExternalClient.class YClient.class
+                               YAbstractSession.class YSessionTimer.class
+                               ISessionCache.class YSessionTimer$TimeOut.class"/>
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/cost/interfce"
               file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>

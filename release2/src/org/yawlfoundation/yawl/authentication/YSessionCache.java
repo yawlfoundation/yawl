@@ -21,9 +21,8 @@ package org.yawlfoundation.yawl.authentication;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
-import org.yawlfoundation.yawl.resourcing.rsInterface.ServiceConnection;
 
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,10 +36,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 
-public class YSessionCache extends ConcurrentHashMap<String, YSession> {
+public class YSessionCache extends ConcurrentHashMap<String, YSession>
+                           implements ISessionCache {
+
+    private YSessionTimer _timer;
 
     public YSessionCache() {
         super();
+        _timer = new YSessionTimer(this);
     }
 
     /******************************************************************************/
@@ -80,7 +83,8 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
             YAWLServiceReference service = getService(name);
             if (service != null) {
                 if (validateCredentials(service, password)) {
-                    result = storeSession(new YServiceSession(service, timeOutSeconds));
+                    result = storeSession(
+                            new YServiceSession(service, timeOutSeconds));
                 }
                 else result = badPassword(name);
             }
@@ -101,7 +105,7 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
         if (handle != null) {
             YSession session = this.get(handle) ;
             if (session != null) {
-                session.refresh();
+                _timer.reset(session);
                 result = true ;
             }
         }
@@ -192,8 +196,8 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
     public void shutdown() {
         for (YSession session : this.values()) {
             audit(session.getClient().getUserName(), YAuditEvent.Action.shutdown);
-            session.shutdown();
         }
+        _timer.shutdown();
     }
 
 
@@ -226,17 +230,19 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession> {
     private String storeSession(YSession session) {
         String handle = session.getHandle();
         this.put(handle, session);
+        _timer.add(session);
         audit(session.getClient().getUserName(), YAuditEvent.Action.logon);
         return handle;        
     }
 
 
-    private void removeSession(String handle, YAuditEvent.Action action) {
+    private YSession removeSession(String handle, YAuditEvent.Action action) {
         YSession session = this.remove(handle);
         if (session != null) {
-            session.cancelActivityTimer();
+            _timer.expire(session);
             audit(session.getClient().getUserName(), action);
         }
+        return session;
     }
 
 
