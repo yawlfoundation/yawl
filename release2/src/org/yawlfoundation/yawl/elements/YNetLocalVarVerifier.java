@@ -71,8 +71,8 @@ public class YNetLocalVarVerifier {
             verify(localTaskMap);
         }
 
-        _log.debug("Net: " + _net.getID() + " | Duration: " +
-                   (System.nanoTime() - startTime) + "nanoseconds.");
+        if (_log.isDebugEnabled()) _log.debug("Net: " + _net.getID() + " | Duration: " +
+                   (System.nanoTime() - startTime) + " nanoseconds.");
     }
 
 
@@ -115,9 +115,11 @@ public class YNetLocalVarVerifier {
         // for each incoming element to the base element (only one if no join)
         for (YExternalNetElement preElement : baseElement.getPresetElements()) {
 
-            _log.debug("Net: " + _net.getID() + " | Local var: " +
+            if (_log.isDebugEnabled()) {
+                _log.debug("Net: " + _net.getID() + " | Local var: " +
                     map.getLocalVar().getPreferredName() +  " | Subject: " +
                     subjectTask.getName() + " | PreElement: " + preElement.toString());
+            }
 
             // discard previously walked paths for an XOR join
             if (isMultiPathXORJoin(baseElement)) unwindOrJoins((YTask) baseElement, visited);

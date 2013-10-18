@@ -37,7 +37,7 @@ hibernate.connection.driver_class=org.h2.Driver
 hibernate.connection.url=jdbc:h2:@DB_Path@;MVCC=TRUE
 
 # URL example (please ensure the ';MVCC=TRUE' parameter is added to the end):
-# jdbc:h2:/home/abc/YAWL2_1beta/engine/databases/yawldb;MVCC=TRUE
+# jdbc:h2:/home/abc/YAWL2XX/engine/databases/yawldb;MVCC=TRUE
 
 
 
