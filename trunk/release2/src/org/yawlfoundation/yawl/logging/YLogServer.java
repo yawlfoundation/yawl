@@ -29,6 +29,7 @@ import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,9 +51,10 @@ public class YLogServer {
     private static final Logger _log = Logger.getLogger(YLogServer.class);
 
     // some error messages
-    private final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
-    private final String _pmErrStr = "<failure>Database connection is disabled.</failure>";
-    private final String _noRowsStr = "<failure>No rows returned.</failure>";
+    private static final String GENERAL_ERROR = "<failure>Unable to retrieve data.</failure>";
+    private static final String CONNECTION_ERROR = "<failure>Database connection is disabled.</failure>";
+    private static final String NO_ROWS_ERROR = "<failure>No rows returned.</failure>";
+    private static final String NO_KEY_ERROR = "<failure>Unknown key.</failure>";
 
 
     // CONSTRUCTOR - called from getInstance() //
@@ -108,12 +110,17 @@ public class YLogServer {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
                     result = getNetInstancesOfSpecification(spec.getRowKey());
-                } else result = "<failure>No records for specification '" +
-                        specID.toString() + "'.</failure>";
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else {
+                    result = "<failure>No records for specification '" +
+                            specID.toString() + "'.</failure>";
+                }
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -140,11 +147,14 @@ public class YLogServer {
                     }
                     xml.append("</netInstances>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -171,11 +181,14 @@ public class YLogServer {
                     }
                     xml.append("</events>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -191,11 +204,14 @@ public class YLogServer {
                 if (itr.hasNext()) {
                     YLogNetInstance instance = (YLogNetInstance) itr.next();
                     result = getCaseEvents(instance.getNetInstanceID());
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -225,11 +241,14 @@ public class YLogServer {
                     }
                     xml.append("</taskinstances>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -253,11 +272,14 @@ public class YLogServer {
                     }
                     xml.append("</events>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -280,11 +302,14 @@ public class YLogServer {
                     }
                     xml.append("</dataitems>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -303,11 +328,14 @@ public class YLogServer {
                     YLogDataType dataType = (YLogDataType) itr.next();
                     xml.append(dataType.toXML());
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -330,11 +358,14 @@ public class YLogServer {
                     }
                     xml.append("</taskinstances>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -357,11 +388,14 @@ public class YLogServer {
                     }
                     xml.append("</taskinstances>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -380,11 +414,14 @@ public class YLogServer {
                     }
                     xml.append("</specifications>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -414,11 +451,14 @@ public class YLogServer {
                     }
                     xml.append("</caseEvent>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -444,11 +484,14 @@ public class YLogServer {
                     }
                     xml.append("</caseEvent>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -470,12 +513,15 @@ public class YLogServer {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
                     result = getCompleteCaseLogsForSpecification(spec.getRowKey());
-                } else result = "<failure>No records for specification '" +
+                }
+                else result = "<failure>No records for specification '" +
                         specID.toString() + "'.</failure>";
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -492,12 +538,15 @@ public class YLogServer {
                 YLogSpecification spec = getSpecification(specID);
                 if (spec != null) {
                     result = getSpecificationStatistics(spec.getRowKey(), from, to);
-                } else result = "<failure>No records for specification '" +
+                }
+                else result = "<failure>No records for specification '" +
                         specID.toString() + "'.</failure>";
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -512,6 +561,8 @@ public class YLogServer {
         if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specKey);
+                if (spec == null) return NO_KEY_ERROR;
+
                 int casesStarted = 0;
                 int casesCompleted = 0;
                 int casesCancelled = 0;
@@ -572,10 +623,12 @@ public class YLogServer {
                 node.addChild("cancelledAvgtime",
                         StringUtil.formatTime((long) totalCancelledTime / casesCancelled));
                 result = node.toString();
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -595,7 +648,8 @@ public class YLogServer {
                     }
                     return cases;
                 }
-            } catch (YPersistenceException ype) {
+            }
+            catch (YPersistenceException ype) {
                 _log.error(ype.getMessage(), ype);
             }
         }
@@ -613,7 +667,7 @@ public class YLogServer {
             YLogTaskInstance logTaskInstance = (YLogTaskInstance) o;
             YLogTask task = getTask(logTaskInstance.getTaskID());
             XNode taskInstance = netInstance.addChild("taskinstance");
-            taskInstance.addChild("taskname", task.getName());
+            if (task != null) taskInstance.addChild("taskname", task.getName());
             taskInstance.addChild("engineinstanceid", logTaskInstance.getEngineInstanceID());
 
             // for each event for the task
@@ -653,8 +707,10 @@ public class YLogServer {
             dataItem.addChild("descriptor", dataItemInstance.getDescriptor());
             dataItem.addChild("name", dataItemInstance.getName());
             dataItem.addChild("value", dataItemInstance.getValue());
-            dataItem.addChild("typeName", dataType.getName());
-            dataItem.addChild("typeDefinition", dataType.getDefinition());
+            if (dataType != null) {
+                dataItem.addChild("typeName", dataType.getName());
+                dataItem.addChild("typeDefinition", dataType.getDefinition());
+            }
         }
         return dataInstances;
     }
@@ -665,19 +721,23 @@ public class YLogServer {
         if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specKey);
-                List instances = getNetInstanceObjects(spec.getRootNetID());
-                StringBuilder xml = new StringBuilder();
-                xml.append(String.format("<cases specKey=\"%d\">", specKey));
-                for (Object o : instances) {
-                    YLogNetInstance instance = (YLogNetInstance) o;
-                    xml.append(getCompleteCaseLog(instance.getEngineInstanceID()));
+                if (spec != null) {
+                    List instances = getNetInstanceObjects(spec.getRootNetID());
+                    StringBuilder xml = new StringBuilder();
+                    xml.append(String.format("<cases specKey=\"%d\">", specKey));
+                    for (Object o : instances) {
+                        YLogNetInstance instance = (YLogNetInstance) o;
+                        xml.append(getCompleteCaseLog(instance.getEngineInstanceID()));
+                    }
+                    xml.append("</cases>");
+                    result = xml.toString();
                 }
-                xml.append("</cases>");
-                result = xml.toString();
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                else result = NO_KEY_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        } else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -690,19 +750,26 @@ public class YLogServer {
                 YLogNetInstance rootNet = getNetInstance(caseID);
                 if (rootNet != null) {
                     YLogNet net = getNet(rootNet.getNetID());
-                    YLogSpecification spec = getSpecification(net.getSpecKey());
-                    StringBuilder xml = new StringBuilder();
-                    xml.append(String.format("<case id=\"%s\">", caseID));
-                    xml.append(spec.toXML());
-                    xml.append(getFullyPopulatedNetInstance(rootNet, net, true));
-                    xml.append("</case>");
-                    result = xml.toString();
-                } else result = String.format(
-                        "<failure>No record of case '%s'.</failure>", caseID);
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                    if (net != null) {
+                        YLogSpecification spec = getSpecification(net.getSpecKey());
+                        if (spec != null) {
+                            StringBuilder xml = new StringBuilder();
+                            xml.append(String.format("<case id=\"%s\">", caseID));
+                            xml.append(spec.toXML());
+                            xml.append(getFullyPopulatedNetInstance(rootNet, net, true));
+                            xml.append("</case>");
+                            return xml.toString();
+                        }
+                    }
+                }
+                result = String.format(
+                        "<failure>No full record of case '%s'.</failure>", caseID);
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -714,13 +781,15 @@ public class YLogServer {
             try {
                 YLogService service = getService(key);
                 if (service != null) {
-                    return StringUtil.wrap(service.getName(), "service");
-                } else result = String.format(
-                        "<failure>No record of service with key '%d'.</failure>", key);
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                    result = StringUtil.wrap(service.getName(), "service");
+                }
+                else result = NO_KEY_ERROR;
             }
-        } else result = _pmErrStr;
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
 
@@ -743,11 +812,14 @@ public class YLogServer {
                     }
                     xml.append("</taskevents>");
                     result = xml.toString();
-                } else result = _noRowsStr;
-            } catch (YPersistenceException ype) {
-                result = _exErrStr;
+                }
+                else result = NO_ROWS_ERROR;
             }
-        } else result = "<failure>Null item id</failure>";
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = "<failure>Null item id.</failure>";
 
         return result;
     }
@@ -758,7 +830,8 @@ public class YLogServer {
         if (cases != null) {
             return new YXESBuilder().buildLog(specid, cases);
         }
-        return "";
+        return "<failure>No records for specification '" +
+                            specid.toString() + "'.</failure>";
     }
 
     /**
@@ -788,17 +861,19 @@ public class YLogServer {
         xml.append(String.format("<taskinstance key=\"%d\">", instance.getTaskInstanceID()));
         YLogTask task = getTask(instance.getTaskID());
         String caseID = instance.getEngineInstanceID();
-        xml.append(task.toXML());
+        if (task != null) xml.append(task.toXML());
         xml.append(StringUtil.wrap(caseID, "caseid"));
         for (Object o : getInstanceEventObjects(instance.getTaskInstanceID())) {
             xml.append(getFullyPopulatedEvent((YLogEvent) o));
         }
 
         // recurse for sub-nets
-        if (task.getChildNetID() > -1) {
+        if (task != null && task.getChildNetID() > -1) {
             YLogNet childNet = getNet(task.getChildNetID());
             YLogNetInstance childInstance = getNetInstance(caseID);
-            xml.append(getFullyPopulatedNetInstance(childInstance, childNet, false));
+            if (childInstance != null) {
+                xml.append(getFullyPopulatedNetInstance(childInstance, childNet, false));
+            }
         }
         xml.append("</taskinstance>");
         return xml.toString();
@@ -811,7 +886,7 @@ public class YLogServer {
         xml.append(StringUtil.wrap(String.valueOf(event.getTimestamp()), "timestamp"));
         if (event.getServiceID() > -1) {
             YLogService service = getService(event.getServiceID());
-            xml.append(service.toXML());
+            if (service != null) xml.append(service.toXML());
         }
         List dataItemInstances = getDataItemInstanceObjects(event.getEventID());
         for (Object o : dataItemInstances) {
@@ -828,7 +903,7 @@ public class YLogServer {
         xml.append(String.format("<dataitem key=\"%d\">", instance.getDataItemID()));
         xml.append(instance.getDataItem().toXMLShort());
         YLogDataType dataType = getDataType(instance.getDataTypeID());
-        xml.append(dataType.toXML());
+        if (dataType != null) xml.append(dataType.toXML());
         xml.append("</dataitem>");
         return xml.toString();
     }
@@ -836,8 +911,7 @@ public class YLogServer {
 
     private String getEventListAsXML(long instanceID) throws YPersistenceException {
         StringBuilder xml = new StringBuilder();
-        List itemEvents = getInstanceEventObjects(instanceID);
-        for (Object o : itemEvents) {
+        for (Object o : getInstanceEventObjects(instanceID)) {
             YLogEvent event = (YLogEvent) o;
             xml.append(event.toXML());
         }
@@ -848,7 +922,8 @@ public class YLogServer {
     private YLogSpecification getSpecification(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogSpecification) _pmgr.selectScalar("YLogSpecification", "rowKey", key);
-        } else return null;
+        }
+        else return null;
     }
 
     private YLogSpecification getSpecification(YSpecificationID specID)
@@ -863,7 +938,8 @@ public class YLogServer {
                         .setString("version", specID.getVersionAsString())
                         .setString("uri", specID.getUri())
                         .iterate();
-            } else {
+            }
+            else {
                 itr = _pmgr.createQuery("from YLogSpecification as s where " +
                         "s.version=:version and s.uri=:uri")
                         .setString("version", specID.getVersionAsString())
@@ -881,7 +957,8 @@ public class YLogServer {
     private YLogNet getNet(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogNet) _pmgr.selectScalar("YLogNet", "netID", key);
-        } else return null;
+        }
+        else return null;
     }
 
 
@@ -890,7 +967,8 @@ public class YLogServer {
             return _pmgr.createQuery("from YLogNet as n where n.specKey=:specKey")
                     .setLong("specKey", specKey)
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
 
@@ -899,21 +977,23 @@ public class YLogServer {
             String quotedCaseID = String.format("'%s'", caseID);
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "engineInstanceID", quotedCaseID);
-        } else return null;
+        }
+        else return null;
     }
 
     private YLogNetInstance getNetInstance(long key) throws YPersistenceException {
         if (connected()) {
-            return (YLogNetInstance) _pmgr.selectScalar(
-                    "YLogNetInstance", "netID", key);
-        } else return null;
+            return (YLogNetInstance) _pmgr.selectScalar("YLogNetInstance", "netID", key);
+        }
+        else return null;
     }
 
     private YLogNetInstance getSubNetInstance(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogNetInstance) _pmgr.selectScalar(
                     "YLogNetInstance", "parentTaskInstanceID", key);
-        } else return null;
+        }
+        else return null;
     }
 
 
@@ -924,7 +1004,8 @@ public class YLogServer {
                     .setString("caseid", caseID)
                     .setString("likeid", caseID + ".%")
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
 
@@ -953,25 +1034,29 @@ public class YLogServer {
         if (connected()) {
             return (YLogTaskInstance) _pmgr.selectScalar(
                     "YLogTaskInstance", "taskInstanceID", key);
-        } else return null;
+        }
+        else return null;
     }
 
     private YLogTask getTask(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogTask) _pmgr.selectScalar("YLogTask", "taskID", key);
-        } else return null;
+        }
+        else return null;
     }
 
     private YLogService getService(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogService) _pmgr.selectScalar("YLogService", "serviceID", key);
-        } else return null;
+        }
+        else return null;
     }
 
     private YLogDataType getDataType(long key) throws YPersistenceException {
         if (connected()) {
             return (YLogDataType) _pmgr.selectScalar("YLogDataType", "dataTypeID", key);
-        } else return null;
+        }
+        else return null;
     }
 
     private List getInstanceEventObjects(long key) throws YPersistenceException {
@@ -980,7 +1065,8 @@ public class YLogServer {
                     "order by e.timestamp")
                     .setLong("key", key)
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
     private List getTaskInstanceObjects(long key) throws YPersistenceException {
@@ -989,7 +1075,8 @@ public class YLogServer {
                     "from YLogTaskInstance as ti where ti.parentNetInstanceID=:key")
                     .setLong("key", key)
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
     private List getNetInstanceObjects(long key) throws YPersistenceException {
@@ -997,7 +1084,8 @@ public class YLogServer {
             return _pmgr.createQuery("from YLogNetInstance as ni where ni.netID=:key")
                     .setLong("key", key)
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
     private List getDataItemInstanceObjects(long key) throws YPersistenceException {
@@ -1005,7 +1093,8 @@ public class YLogServer {
             return _pmgr.createQuery("from YLogDataItemInstance as di where di.eventID=:key")
                     .setLong("key", key)
                     .list();
-        } else return null;
+        }
+        else return Collections.emptyList();
     }
 
 
@@ -1015,6 +1104,5 @@ public class YLogServer {
         WorkItemInstance itemInstance = instanceCache.getWorkItemInstance(rootCaseID, itemID);
         return (itemInstance != null) ? itemInstance.getTaskName() : null;
     }
-
 
 }

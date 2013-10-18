@@ -85,7 +85,7 @@
      </filter-mapping>
     
 
-<!-- this servlet provides a gateway from the .NET rdrEditor -->
+<!-- this servlet provides a gateway from the doc store -->
 
     <servlet>
         <servlet-name>store</servlet-name>
