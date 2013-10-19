@@ -40,7 +40,7 @@ public class AnalysisResultsParser {
 
     protected static final YAnalyser _analyser = new YAnalyser();
 
-    private static final String WOF_YAWL_BINARY = "wofyawl@WofYawlReleaseNumber@.exe";
+    private static final String WOF_YAWL_BINARY = "wofyawl0.4.exe";
 
 
     public List<String> getAnalysisResults(SpecificationModel model) {

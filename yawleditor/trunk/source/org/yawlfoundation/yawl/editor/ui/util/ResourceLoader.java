@@ -27,6 +27,10 @@ import java.io.*;
 
 public class ResourceLoader {
 
+    protected static final String resourcesPath =
+            "/org/yawlfoundation/yawl/editor/ui/resources/";
+
+
     public static JLabel getImageAsJLabel(String imageFile) {
         return new JLabel(getImageAsIcon(imageFile));
     }
@@ -45,6 +49,11 @@ public class ResourceLoader {
         } catch (Exception e) {
             return null;
         }
+    }
+
+
+    public static ImageIcon getImage(String file) {
+        return getImageAsIcon(resourcesPath + file);
     }
 
     public static ImageIcon getExternalImageAsIcon(String imageFile) {

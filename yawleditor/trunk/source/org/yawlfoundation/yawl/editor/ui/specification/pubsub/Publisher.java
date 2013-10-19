@@ -33,7 +33,6 @@ public class Publisher {
 
     private Set<SpecificationStateListener> _specListeners;
     private Set<FileStateListener> _fileListeners;
-    private Set<ProblemListStateListener> _problemListListeners;
     private Map<GraphState, Set<GraphStateListener>> _graphListeners;
 
     private static Publisher INSTANCE;
@@ -42,7 +41,6 @@ public class Publisher {
     private Publisher() {
         _specListeners = new HashSet<SpecificationStateListener>();
         _fileListeners = new HashSet<FileStateListener>();
-        _problemListListeners = new HashSet<ProblemListStateListener>();
         initGraphListenersMap();
         _fileState = FileState.Closed;
         _specState = SpecificationState.NoNetsExist;
@@ -67,10 +65,6 @@ public class Publisher {
     }
 
 
-    public void subscribe(ProblemListStateListener listener) {
-        _problemListListeners.add(listener);
-    }
-
     public void subscribe(GraphStateListener listener,
                           List<GraphState> interestedStates) {
         for (GraphState state : interestedStates) {
@@ -89,13 +83,6 @@ public class Publisher {
     public void publishState(FileState state) {
         for (FileStateListener listener : _fileListeners) {
             listener.specificationFileStateChange(state);
-        }
-    }
-
-
-    public void publishState(ProblemListState state) {
-        for (ProblemListStateListener listener : _problemListListeners) {
-            listener.contentChange(state);
         }
     }
 

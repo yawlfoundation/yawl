@@ -86,7 +86,7 @@ public class FileUtil {
     /**
      * Strips the extension from a filename, assuming that extensions follow the
      * standard convention of being the text following the last '.' character
-     * in the filemane.
+     * in the filename.
      *
      * @param fileName
      * @return The filename sans its extension

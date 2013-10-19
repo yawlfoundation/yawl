@@ -56,20 +56,12 @@ public class JAlternatingRowColorTable extends JTable {
         return oddRowColor;
     }
 
-    public Component prepareRenderer(TableCellRenderer renderer,
-                                     int row,
-                                     int col) {
-
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
         JComponent theRenderer = (JComponent) super.prepareRenderer(renderer, row, col);
-
         theRenderer.setBackground(row %2 == 0 ? evenRowColor : oddRowColor);
-
         if (isRowSelected(row)) {
-            theRenderer.setBackground(
-                    getSelectionBackground()
-            );
+            theRenderer.setBackground(getSelectionBackground());
         }
-
         return theRenderer;
     }
 }

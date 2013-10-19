@@ -38,7 +38,7 @@ public class RepoMap {
     private File _backingStore;
 
     // the absolute path to the base repository dir
-    private static final String BACKINGSTORE_DIR =
+    protected static final String BACKINGSTORE_DIR =
             FileUtil.getHomeDir() + File.separatorChar + "repository";
 
 

@@ -63,10 +63,18 @@ public class SpecificationUploader {
     }
 
 
+    public void storeLayout() {
+        String layoutXML = new LayoutExporter().export(SpecificationModel.getInstance());
+        if (layoutXML != null) {
+            LayoutRepository.getInstance().add(getSpecificationID(), layoutXML);
+        }
+    }
+
+
     private YSpecification getSpecification() {
         if (_specification == null) {
-            _specification = new SpecificationWriter().populateSpecification(
-                            SpecificationModel.getInstance());
+            _specification = new SpecificationWriter().cleanSpecification(
+                    SpecificationModel.getInstance());
         }
         return _specification;
     }
@@ -78,11 +86,11 @@ public class SpecificationUploader {
 
 
     private boolean validate(YSpecification specification) {
-        List<String> errors = new EngineSpecificationValidator().getValidationResults(
+        List<String> errors = new SpecificationValidator().getValidationResults(
                 specification, Validator.ERROR_MESSAGES);
-
-        // always at least one, even if it is 'No problems'
-        YAWLEditor.getInstance().showProblemList("Validation Errors", errors);
-        return errors.get(0).equals(Validator.NO_PROBLEMS_MESSAGE);
+        List<ValidationMessage> messages = new ValidationResultsParser().parse(errors);
+        YAWLEditor.getInstance().showProblemList("Validation Results", messages);
+        return errors.isEmpty();
     }
+
 }

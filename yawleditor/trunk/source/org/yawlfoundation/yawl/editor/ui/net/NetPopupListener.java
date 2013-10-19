@@ -46,7 +46,7 @@ public class NetPopupListener extends MouseAdapter {
                 graph.getFirstCellForLocation(event.getX(), event.getY()));
 
         if (vertex instanceof YAWLTask || vertex instanceof Condition) {
-            new VertexPopupMenu(vertex, graph).show(graph, event.getX(), event.getY());
+            new VertexPopupMenu(vertex).show(graph, event.getX(), event.getY());
             return;
         }
 

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.core.util;
 
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.layout.YTaskLayout;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -62,21 +63,21 @@ public class FileOperations {
     public String getFileName() { return _fileName; }
 
 
-
-    public YSpecification load(String file) throws IOException {
-        String specXML = FileUtil.load(file);
-
-        try {
-            List<YSpecification> specifications =
-                    YMarshal.unmarshalSpecifications(specXML, false);
-            _fileName = file;
-            _specification = specifications.get(0);
-            _layoutHandler = new LayoutHandler(_specification, specXML);
-            nullifyUnlabelledTaskNames();
+    public YSpecification load(String specXML, String layoutXML)
+            throws IOException, YLayoutParseException {
+        parse(specXML);
+        if (layoutXML != null) {
+            YLayout layout = new YLayout(_specification);
+            layout.parse(layoutXML);
+            _layoutHandler.setLayout(layout);
         }
-        catch (YSyntaxException yse) {
-            throw new IOException(yse.getMessage());
-        }
+        return _specification;
+    }
+
+
+    public YSpecification load(String fileName) throws IOException {
+        parse(FileUtil.load(fileName));
+        _fileName = fileName;
         return _specification;
     }
 
@@ -114,6 +115,7 @@ public class FileOperations {
         _specification.setMetaData(new YMetaData());
         _specification.setURI("New_Specification");
         _layoutHandler = new LayoutHandler(_specification, null);
+        _fileName = null;
         return _specification;
     }
 
@@ -139,6 +141,19 @@ public class FileOperations {
         _layoutHandler = null;
     }
 
+    private YSpecification parse(String specXML) throws IOException {
+        try {
+            List<YSpecification> specifications =
+                    YMarshal.unmarshalSpecifications(specXML, false);
+            _specification = specifications.get(0);
+            _layoutHandler = new LayoutHandler(_specification, specXML);
+            nullifyUnlabelledTaskNames();
+        }
+        catch (YSyntaxException yse) {
+            throw new IOException(yse.getMessage());
+        }
+        return _specification;
+    }
 
     private boolean successful(String xml) {
         return ! (xml == null || xml.equals("null") || xml.startsWith("<fail"));

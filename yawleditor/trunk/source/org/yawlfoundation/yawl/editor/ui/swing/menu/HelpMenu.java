@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.actions.ShowAboutEditorAction;
+import org.yawlfoundation.yawl.editor.ui.actions.AboutEditorAction;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -32,6 +32,6 @@ class HelpMenu extends JMenu {
 
     protected void buildInterface() {
         setMnemonic(KeyEvent.VK_H);
-        add(new YAWLMenuItem(new ShowAboutEditorAction()));
+        add(new YAWLMenuItem(new AboutEditorAction()));
     }
 }

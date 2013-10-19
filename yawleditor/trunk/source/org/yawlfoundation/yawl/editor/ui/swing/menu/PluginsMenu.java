@@ -33,6 +33,6 @@ class PluginsMenu extends JMenu {
         add(new ProcessConfigurationMenu());
 
   //      addSeparator();
-    //    add(new YAWLMenuItem(new ShowAboutEditorAction()));
+    //    add(new YAWLMenuItem(new AboutEditorAction()));
     }
 }

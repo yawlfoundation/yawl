@@ -20,7 +20,8 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
-import org.yawlfoundation.yawl.editor.ui.engine.EngineSpecificationValidator;
+import org.yawlfoundation.yawl.editor.ui.engine.SpecificationValidator;
+import org.yawlfoundation.yawl.editor.ui.engine.ValidationResultsParser;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import java.awt.*;
@@ -88,14 +89,16 @@ public class FileOperations {
                 break;
             }
             case Validate: {
-                editor.showProblemList("Specification Validation Problems",
-                    new EngineSpecificationValidator().getValidationResults());
+                editor.showProblemList("Validation Results",
+                        new ValidationResultsParser().parse(
+                        new SpecificationValidator().getValidationResults()));
                 break;
             }
             case Analyse: {
                 editor.showProblemList("Analysis Results",
+                        new ValidationResultsParser().parse(
                         new AnalysisResultsParser().getAnalysisResults(
-                                SpecificationModel.getInstance()));
+                                SpecificationModel.getInstance())));
                 break;
             }
             case Save: {

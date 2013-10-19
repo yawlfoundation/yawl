@@ -41,7 +41,6 @@ public class TestRepository {
         YRepository repo = YRepository.getInstance();
         String xml = StringUtil.fileToString(
                 "/Users/adamsmj/Documents/Subversion/distributions/orderfulfilment20.yawl");
-//        String xml = StringUtil.fileToString("/Users/adamsmj/Documents/temp/_eaExample.yawl");
 
         try {
             YSpecification spec = YMarshal.unmarshalSpecifications(xml).get(0);

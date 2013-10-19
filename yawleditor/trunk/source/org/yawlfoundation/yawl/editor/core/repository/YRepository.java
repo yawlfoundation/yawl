@@ -43,6 +43,11 @@ public class YRepository {
     }
 
 
+    public String getRepositoryDir() {
+        return RepoMap.BACKINGSTORE_DIR;
+    }
+
+
     public TaskDecompositionRepository getTaskDecompositionRepository() {
         if (_taskDecompositionMap == null) {
             _taskDecompositionMap = new TaskDecompositionRepository();

@@ -18,35 +18,32 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ProblemList;
+import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 public class ProblemTable extends JSingleSelectTable {
 
     private static final int MAX_ROW_HEIGHT = 5;
 
-    public ProblemTable() {
+    public ProblemTable(ListSelectionListener listener) {
         super();
         initialise();
+        getSelectionModel().addListSelectionListener(listener);
     }
 
     private void initialise() {
-        setModel(new MessageTableModel());
+        setModel(new ValidationMessageTableModel());
         setFillsViewportHeight(true);
         setTableHeader(null);
     }
 
-    public void addMessage(String message) {
-        getMessageModel().addMessage(message);
-    }
 
-    private MessageTableModel getMessageModel() {
-        return (MessageTableModel) getModel();
+    public void addMessages(java.util.List<ValidationMessage> messages) {
+        getTableModel().addMessages(messages);
     }
 
     public void setWidth(int width) {
@@ -55,7 +52,11 @@ public class ProblemTable extends JSingleSelectTable {
 
 
     public void reset() {
-        getMessageModel().reset();
+        getTableModel().reset();
+    }
+
+    public String getLongMessageForSelectedRow() {
+        return getTableModel().getLongMessage(getSelectedRow());
     }
 
 
@@ -80,61 +81,9 @@ public class ProblemTable extends JSingleSelectTable {
         return component;
     }
 
-    public String getToolTipText(MouseEvent event){
-        Point mousePosition = event.getPoint();
-        if (rowAtPoint(mousePosition) >= 0) {
-            String rowContent = (String) getValueAt(
-                    rowAtPoint(mousePosition),
-                    MessageTableModel.PROBLEM_COLUMN
-            );
 
-            if (rowContent != null) {
-                return "<html><body style=\"width:300px\"><p>" + rowContent.toString() + "</p></body></html>";
-            }
-        }
-        return "";
+    private ValidationMessageTableModel getTableModel() {
+        return (ValidationMessageTableModel) getModel();
     }
 }
 
-class MessageTableModel extends AbstractTableModel {
-
-    private ProblemList messages = new ProblemList();
-
-    private static final String[] COLUMN_LABELS = { "Problem" };
-
-    public static final int PROBLEM_COLUMN = 0;
-
-    public int getColumnCount() {
-        return COLUMN_LABELS.length;
-    }
-
-    public int getLongestMessageLength() {
-        int result = 0;
-        for (String msg : messages) {
-            result = Math.max(result, msg.length());
-        }
-        return result;
-    }
-
-    public void reset() {
-        messages.clear();
-    }
-
-
-    public String getColumnName(int columnIndex) {
-        return null;
-    }
-
-    public int getRowCount() {
-        return (messages != null) ? messages.size() : 0;
-    }
-
-    public Object getValueAt(int row, int col) {
-        return col == PROBLEM_COLUMN ? messages.get(row) : null;
-    }
-
-    public void addMessage(String message) {
-        messages.add(message);
-        fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
-    }
-}

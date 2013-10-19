@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -46,7 +47,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -103,17 +103,9 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     }
 
 
-    public void showProblemList(String title, List<String> problemList) {
-        try {
-            bottomPanel.setProblemList(title, problemList);
-            splitPane.setDividerLocation(0.8);
-        }
-        catch (Exception e) {
-            List<String> stackMessageList = new LinkedList<String>();
-            stackMessageList.add(e.getMessage());
-            bottomPanel.setProblemList("Program Exception with problem list generation",
-                    stackMessageList);
-        }
+    public void showProblemList(String title, List<ValidationMessage> problemList) {
+        bottomPanel.setProblemList(title, problemList);
+        splitPane.setDividerLocation(0.8);
     }
 
 

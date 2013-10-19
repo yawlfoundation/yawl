@@ -65,6 +65,10 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         add(new YAWLToolBarButton(new CloseSpecificationAction()));
 
         addSeparator();
+        add(new YAWLToolBarButton(new DownloadSpecificationAction()));
+        add(new YAWLToolBarButton(new UploadSpecificationAction()));
+
+        addSeparator();
         add(new YAWLToolBarButton(UndoAction.getInstance()));
         add(new YAWLToolBarButton(RedoAction.getInstance()));
         add(new YAWLToolBarButton(DeleteAction.getInstance()));
@@ -72,7 +76,6 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         addSeparator();
         add(new YAWLToolBarButton(new ValidateSpecificationAction()));
         add(new YAWLToolBarButton(new AnalyseSpecificationAction()));
-        add(new YAWLToolBarButton(new UploadSpecificationAction()));
 
         addSeparator();
         add(new YAWLToolBarButton(new CreateNetAction()));
@@ -108,17 +111,17 @@ public class ToolBarMenu extends YToolBar implements ProcessConfigurationModelLi
         add(tipButton);
 
         addSeparator();
+        add(new YAWLToggleToolBarButton(ViewCancellationSetAction.getInstance()));
+        add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
+        add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
+
+        addSeparator();
         previewProcessConfigurationButton =
                 new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
         add(previewProcessConfigurationButton);
         applyProcessConfigurationButton =
                 new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
         add(applyProcessConfigurationButton);
-
-        addSeparator();
-        add(new YAWLToggleToolBarButton(ViewCancellationSetAction.getInstance()));
-        add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
-        add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
     }
 
 

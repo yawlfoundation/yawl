@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -29,7 +30,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
-import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
@@ -87,6 +87,13 @@ public class SpecificationModel {
         reset();
     }
 
+    public void loadFromXML(String xml, String layoutXML)
+            throws IOException, YLayoutParseException {
+        _specificationHandler.load(xml, layoutXML);
+        warnOnInvalidResources();
+        reset();
+    }
+
     public void reset() {
         nets.clear();
         _schemaValidator = new DataSchemaValidator();
@@ -100,15 +107,6 @@ public class SpecificationModel {
     public NetModelSet getNets() { return nets; }
 
     public DataSchemaValidator getSchemaValidator() { return _schemaValidator; }
-
-
-    public void setFontSize(int oldSize, int newSize) {
-        if (oldSize == newSize) {
-            return;
-        }
-        UserSettings.setFontSize(newSize);
-        nets.propagateSpecificationFontSize(oldSize, newSize);
-    }
 
 
     private void warnOnInvalidResources() {

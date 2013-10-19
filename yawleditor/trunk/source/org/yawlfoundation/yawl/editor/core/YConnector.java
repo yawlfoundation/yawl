@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
@@ -66,6 +67,11 @@ public class YConnector {
     public static void disconnectEngine() { _engConn.disconnect(); }
 
     public static void disconnectResource() { _resConn.disconnect(); }
+
+    public static void disconnect() {
+        disconnectEngine();
+        disconnectResource();
+    }
 
 
     public static void setUserID(String id) {
@@ -199,6 +205,17 @@ public class YConnector {
             throws IOException {
         return _engConn.unloadSpecification(specID);
     }
+
+    public static List<SpecificationData> getLoadedSpecificationList()
+            throws IOException {
+        return _engConn.getLoadedSpecificationList();
+    }
+
+    public static String getSpecification(YSpecificationID specID)
+            throws IOException {
+        return _engConn.getSpecification(specID);
+    }
+
 
     public static Set<YSpecificationID> getAllLoadedVersions(YSpecificationID specID)
             throws IOException {

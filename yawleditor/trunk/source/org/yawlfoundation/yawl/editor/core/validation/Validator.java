@@ -31,8 +31,6 @@ import java.util.List;
  */
 public class Validator {
 
-    public static final String NO_PROBLEMS_MESSAGE = "No problems reported.";
-
     public static final int ERROR_MESSAGES = 1;
     public static final int WARNING_MESSAGES = 2;
     public static final int ALL_MESSAGES = 3;
@@ -72,8 +70,9 @@ public class Validator {
             if (messageString.contains("composite task may not decompose to other than a net")) {
                 continue;
             }
+
+            // We have no running engine when validating, so this is not valid.
             if (messageString.contains("is not registered with engine.")) {
-                // We have no running engine when validating, so this is not valid.
                 continue;
             }
 
@@ -82,26 +81,21 @@ public class Validator {
                 continue;
             }
 
-            messageString = messageString.replaceAll("postset size", "outgoing flow number");
-            messageString = messageString.replaceAll("preset size", "incoming flow number");
             messageString = messageString.replaceAll(
                     "Check the empty tasks linking from i to o.",
                     "Should all atomic tasks in the net have no decomposition?");
             messageString = messageString.replaceAll("from i to o",
                     "between the input and output conditions");
-            messageString = messageString.replaceAll("InputCondition", "Input Condition");
-            messageString = messageString.replaceAll("OutputCondition", "Output Condition");
-            messageString = messageString.replaceAll("ExternalCondition", "Condition");
-            messageString = messageString.replaceAll("AtomicTask", "Atomic Task");
-            messageString = messageString.replaceAll("CompositeTask", "Composite Task");
+//            messageString = messageString.replaceAll("InputCondition", "Input Condition");
+//            messageString = messageString.replaceAll("OutputCondition", "Output Condition");
+//            messageString = messageString.replaceAll("ExternalCondition", "Condition");
+//            messageString = messageString.replaceAll("AtomicTask", "Atomic Task");
+//            messageString = messageString.replaceAll("CompositeTask", "Composite Task");
             messageString = messageString.replaceAll("The net \\(Net:", "The net (");
             messageString = messageString.replaceAll("composite task must contain a net",
                     "must unfold to some net");
 
             problemList.add(messageString);
-        }
-        if (problemList.size() == 0) {
-            problemList.add(NO_PROBLEMS_MESSAGE);
         }
         return problemList;
     }

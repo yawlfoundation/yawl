@@ -58,7 +58,16 @@ public class SpecificationReader {
 
 
     public boolean load(String fileName) {
-        boolean loaded = loadFile(fileName);
+        return populate(loadFile(fileName));
+    }
+
+
+    public boolean load(String fileName, String layoutXML) {
+        return populate(loadFromXML(fileName, layoutXML));
+    }
+
+
+    private boolean populate(boolean loaded) {
         if (loaded) {
             createEditorObjects();
             layoutElements();
@@ -67,18 +76,24 @@ public class SpecificationReader {
         return loaded;
     }
 
+    private boolean loadFromXML(String specXML, String layoutXML) {
+        try {
+            _model.loadFromXML(specXML, layoutXML);
+        }
+        catch (Exception e) {
+            showLoadError(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
 
     private boolean loadFile(String fileName) {
         try {
             _model.loadFromFile(fileName);
         }
         catch (IOException ioe) {
-            String errorMsg = ioe.getMessage();
-            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                    "Failed to load specification.\n" +
-                    (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
-                    "Specification File Load Error",
-                    JOptionPane.ERROR_MESSAGE);
+            showLoadError(ioe.getMessage());
             return false;
         }
         return true;
@@ -86,8 +101,12 @@ public class SpecificationReader {
 
 
     private boolean layoutElements() {
-        YLayout layout = _handler.getLayout();
-        if (layout.hasNets()) {
+        return layoutElements(_handler.getLayout());
+
+    }
+
+    private boolean layoutElements(YLayout layout) {
+        if (layout != null && layout.hasNets()) {
             LayoutImporter.importAndApply(layout);
             return true;
         }
@@ -366,6 +385,15 @@ public class SpecificationReader {
         return Decorator.AND_TYPE;
     }
 
+
+    private void showLoadError(String errorMsg) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                "Failed to load specification.\n" +
+                (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
+                "Specification File Load Error",
+                JOptionPane.ERROR_MESSAGE);
+
+    }
 
     private void setConfiguration(YTask engineTask, YAWLTask editorTask,
                                   NetGraphModel netModel) {
