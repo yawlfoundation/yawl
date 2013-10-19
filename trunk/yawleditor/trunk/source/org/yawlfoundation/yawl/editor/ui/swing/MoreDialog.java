@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -31,6 +33,9 @@ import java.awt.event.MouseEvent;
  */
 public class MoreDialog extends JDialog {
 
+    private static final int WIDTH = 500;
+    private static final int HEIGHT = 80;
+
     public MoreDialog(Window owner, String text) {
         super(owner);
         init(owner, text);
@@ -42,12 +47,31 @@ public class MoreDialog extends JDialog {
     }
 
 
-    private void init(Window owner, String text) {
+    public MoreDialog(Component parent, String text) {
+        super(YAWLEditor.getInstance());
+        init(parent, text);
+    }
+
+
+    public void setLocationAdjacentTo(Component c, Rectangle rect) {
+        Point screenLocation = c.getLocationOnScreen();
+        Point relativeLocation = rect != null ? rect.getLocation() : new Point(0,0);
+        Point offset = rect != null ?
+                new Point((int) rect.getWidth() / 4,  (int) rect.getHeight()) :
+                new Point(150, 10);
+        Point adjacentLocation = new Point(
+                (int) (screenLocation.getX() + relativeLocation.getX() + offset.getX()),
+                (int) (screenLocation.getY() + relativeLocation.getY() + offset.getY()));
+        setLocation(adjustLocationForScreenEdges(adjacentLocation, offset));
+    }
+
+
+    private void init(Component c, String text) {
         setUndecorated(true);
         setModal(true);
         add(getContent(text));
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(owner);
+        setLocationRelativeTo(c);
         pack();
     }
 
@@ -56,7 +80,7 @@ public class MoreDialog extends JDialog {
         StringBuilder s = new StringBuilder();
         if (textList != null) {
             for (String text : textList) {
-                if (! text.contains("foo_bar")) {
+                if (! text.contains("foo_bar")) {   // dummy task name for verification
                     s.append(text).append('\n');
                 }
             }
@@ -88,8 +112,22 @@ public class MoreDialog extends JDialog {
         });
 
         JScrollPane pane = new JScrollPane(textArea);
-        pane.setPreferredSize(new Dimension(500, 60));
+        pane.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         return pane;
+    }
+
+    private Point adjustLocationForScreenEdges(Point p, Point offset) {
+        GraphicsConfiguration gc = YAWLEditor.getInstance().getGraphicsConfiguration();
+        DisplayMode mode = gc.getDevice().getDisplayMode();  // current screen
+        double x = p.getX();
+        double y = p.getY();
+        if (mode.getHeight() < y + HEIGHT) {
+            y = y - HEIGHT - offset.getY();            // flip it
+        }
+        if (mode.getWidth() < p.getX() + WIDTH) {
+            x = mode.getWidth() - WIDTH;               // slide it left
+        }
+        return new Point((int) x, (int) y);
     }
 
 }

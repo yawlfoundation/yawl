@@ -36,10 +36,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A wrapper class for getting data from the YAWL engine, with added caching
@@ -224,11 +221,27 @@ public class YEngineConnection extends YConnection {
     }
 
 
+    public List<SpecificationData> getLoadedSpecificationList() throws IOException {
+        if (isConnected()) {
+            return getIbClient().getSpecificationList(_handle);
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
+    public String getSpecification(YSpecificationID specID) throws IOException {
+        if (isConnected()) {
+            return getIbClient().getSpecification(specID, _handle);
+        }
+        throw new IOException("Cannot connect to YAWL Engine");
+    }
+
+
     public Set<YSpecificationID> getAllLoadedVersions(YSpecificationID specID)
             throws IOException {
         if (isConnected()) {
             Set<YSpecificationID> versions = new HashSet<YSpecificationID>();
-            for (SpecificationData specData : getIbClient().getSpecificationList(_handle)) {
+            for (SpecificationData specData : getLoadedSpecificationList()) {
                 YSpecificationID thisID = specData.getID();
                 if (thisID.getIdentifier().equals(specID.getIdentifier())) {
                     versions.add(thisID);

@@ -131,6 +131,7 @@ public class SpecificationUploadDialog extends PropertyDialog
                     _cbxCancelCases.isSelected());
             String errorMsg = processUploadResult(result);
             if (errorMsg.isEmpty()) {
+                uploader.storeLayout();
                 message = "Specification uploaded successfully." + launchCase(uploader);
             }
             else {

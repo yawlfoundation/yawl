@@ -18,16 +18,23 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
+import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.swing.MoreDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.ProblemTable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-public class ProblemPanel extends JPanel
-        implements FileStateListener, ProblemListStateListener {
+public class ProblemPanel extends JPanel implements FileStateListener, ListSelectionListener {
 
     private ProblemTable problemTable;
     private BottomPanel owner;
@@ -37,19 +44,19 @@ public class ProblemPanel extends JPanel
     public ProblemPanel(BottomPanel owner) {
         super();
         this.owner = owner;
-        problemTable = new ProblemTable();
+        problemTable = new ProblemTable(this);
         buildContent();
-        Publisher.getInstance().subscribe((FileStateListener) this);
-        Publisher.getInstance().subscribe((ProblemListStateListener) this);
+        Publisher.getInstance().subscribe(this);
     }
 
 
-    public void setProblemList(String title, List<String> problemList) {
-        this.title = title;
+    public void setProblemList(String title, List<ValidationMessage> problemList) {
+        this.title = title + getTimestamp();
         if (problemList.isEmpty()) {
-            problemList.add("No problems reported.");
+            problemList.add(new ValidationMessage("No problems reported."));
         }
         populateProblemTable(problemList);
+        showTab();
     }
 
 
@@ -57,20 +64,29 @@ public class ProblemPanel extends JPanel
         if (state == FileState.Closed) problemTable.reset();
     }
 
+    public void valueChanged(ListSelectionEvent event) {
+        if (! event.getValueIsAdjusting()) {
+            String longForm = problemTable.getLongMessageForSelectedRow();
+            if (longForm != null) {
+                MoreDialog dialog = new MoreDialog(problemTable, longForm);
+                dialog.setLocationAdjacentTo(problemTable, problemTable.getCellRect(
+                        problemTable.getSelectedRow(), 0, true));
+                dialog.setVisible(true);
+                problemTable.clearSelection();
+            }
+        }
+    }
+
+
     public String getTitle() {
         return title;
     }
 
-    public void contentChange(ProblemListState state) {
-        if (state == ProblemListState.Entries) {
-            if (isVisible()) {
-                repaint();
-            }
-            else {
-                setVisible(true);
-            }
-            owner.selectProblemsTab();
-        }
+    public void showTab() {
+        if (isVisible()) repaint();
+        else setVisible(true);
+
+        owner.selectProblemsTab();
     }
 
 
@@ -78,20 +94,18 @@ public class ProblemPanel extends JPanel
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(4,5,5,5));
         JScrollPane problemScrollPane = new JScrollPane(problemTable);
-//        problemScrollPane.setPreferredSize(getPreferredSize());
         problemScrollPane.setBackground(Color.WHITE);
         add(problemScrollPane, BorderLayout.CENTER);
     }
 
 
-    private void populateProblemTable(List<String> problemList) {
-        problemTable.reset();
-        if (! problemList.isEmpty()) {
-            for (String problem : problemList) {
-                if (problem != null) problemTable.addMessage(problem.trim());
-            }
-//            problemTable.setWidth();
-        }
+    private void populateProblemTable(List<ValidationMessage> problemList) {
+        problemTable.addMessages(problemList);
     }
+
+    private String getTimestamp() {
+        return new SimpleDateFormat(" (HH:mm)").format(new Date());
+    }
+
 
 }

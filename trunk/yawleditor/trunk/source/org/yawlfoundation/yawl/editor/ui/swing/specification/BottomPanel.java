@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.specification;
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
@@ -103,7 +104,7 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
         setTitleAt(PROBLEM_PANEL_INDEX, problemPanel.getTitle());
     }
 
-    public void setProblemList(String title, List<String> problems) {
+    public void setProblemList(String title, List<ValidationMessage> problems) {
         problemPanel.setProblemList(title, problems);
     }
 }

@@ -20,15 +20,14 @@ package org.yawlfoundation.yawl.editor.ui.util;
 
 import org.apache.log4j.*;
 
-import java.io.IOException;
-
 /**
  * Author: Michael Adams
  * Creation Date: 3/03/2009
  */
 public class LogWriter {
 
-    private static Logger _log = Logger.getRootLogger() ;
+    private static final Level LOG_LEVEL = Level.WARN;
+    private static final Logger _log = Logger.getRootLogger() ;
 
     private LogWriter() {
         configure("");
@@ -38,20 +37,35 @@ public class LogWriter {
     
     
     private static void configure(String homeDir) {
-        _log.setLevel(Level.WARN);
-
+        _log.setLevel(LOG_LEVEL);
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%-5p] :- %m%n");
 
         // appender for system.out
-        _log.addAppender(new ConsoleAppender(layout));
+        initConsole(layout);
 
         // appender for file
-        try {
-            _log.addAppender(new FileAppender(layout, homeDir + "YAWLEditor.log"));
-        }
-        catch (IOException ioe) {
-            _log.error("Could not instantiate log file", ioe) ;
-        }
+        initFile(layout, homeDir + "YAWLEditor.log");
+    }
+
+    private static void initConsole(PatternLayout layout) {
+        ConsoleAppender console = new ConsoleAppender(); //create appender
+        console.setName("ConsoleLogger");
+        console.setLayout(layout);
+        console.setThreshold(LOG_LEVEL);
+        console.activateOptions();
+        _log.addAppender(console);
+    }
+
+
+    private static void initFile(PatternLayout layout, String filename) {
+        FileAppender file = new FileAppender();
+        file.setName("FileLogger");
+        file.setFile(filename);
+        file.setLayout(layout);
+        file.setThreshold(LOG_LEVEL);
+        file.setAppend(true);
+        file.activateOptions();
+        _log.addAppender(file);
     }
 
     public static void info(String msg) { _log.info(msg); }

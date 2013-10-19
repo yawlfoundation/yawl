@@ -136,7 +136,25 @@ public abstract class YConnection {
      * Drop the current connection - if any
      */
     public void disconnect() {
+        if (_handle != null) {
+            try {
+                disconnect(getClient());
+            }
+            catch (IOException ioe) {
+                //
+            }
+        }
         _handle = null;
+    }
+
+
+    protected void disconnect(Interface_Client client) throws IOException {
+        if (client instanceof InterfaceA_EnvironmentBasedClient) {
+            ((InterfaceA_EnvironmentBasedClient) client).disconnect(_handle);
+        }
+        if (client instanceof ResourceGatewayClient) {
+            ((ResourceGatewayClient) client).disconnect(_handle);
+        }
     }
 
 

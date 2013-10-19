@@ -17,6 +17,7 @@
  */
 package org.yawlfoundation.yawl.editor.ui.specification;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
@@ -113,6 +114,7 @@ public class SpecificationFileHandler {
      */
     public boolean closeFileOnExit() {
         _statusBar.setText("Exiting YAWL Editor...");
+        YConnector.disconnect();
         return Publisher.getInstance().getFileState() == FileState.Closed ||
                 handleCloseResponse();
     }
@@ -309,9 +311,7 @@ public class SpecificationFileHandler {
         _statusBar.setText("Opening Specification...");
         _statusBar.progressOverSeconds(4);
         YAWLEditor.getNetsPane().setVisible(false);
-
         new SpecificationReader().load(fullFileName);
-
         YAWLEditor.getNetsPane().setVisible(true);
         _statusBar.resetProgress();
         OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);

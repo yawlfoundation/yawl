@@ -50,7 +50,6 @@ public class OpenSpecificationAction extends YAWLSpecificationAction implements 
   }
   
   public String getDisabledTooltipText() {
-    return " You must have no specification" + 
-           " open in order to open another ";
+    return " You must have no specification open in order to open another ";
   }
 }

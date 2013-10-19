@@ -400,7 +400,7 @@ public class TestSpecificationEngineHandler extends TestCase {
 //
 //  private boolean specificationIsValid() {
 //    try {
-//      List problemList = EngineSpecificationValidator.getValidationResults();
+//      List problemList = SpecificationValidator.getValidationResults();
 //      String firstProblem = (String) problemList.get(0);
 //      return  (firstProblem.startsWith("No design-time engine validation problems"));
 //    } catch (Exception e) {

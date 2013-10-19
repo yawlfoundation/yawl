@@ -92,7 +92,9 @@ public class StatusPanel extends JPanel {
         _btnMore.setVisible(false);
         _btnMore.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                new MoreDialog(_owner, _moreText).setVisible(true);
+                MoreDialog dialog = new MoreDialog(_owner, _moreText);
+                dialog.setLocationAdjacentTo(_btnMore, _btnMore.getVisibleRect());
+                dialog.setVisible(true);
             }
         });
 

@@ -50,15 +50,19 @@ public class InvalidResourceReferencesDialog extends JDialog implements ActionLi
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("details")) toggleDetails();
-        else setVisible(false);
+        if (e.getActionCommand().equals("details")) {
+            toggleDetails();
+        }
+        else {
+            setVisible(false);
+        }
     }
 
     private void initialise() {
         setModal(true);
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationByPlatform(true);
+        setLocationRelativeTo(YAWLEditor.getInstance());
     }
 
 

@@ -149,6 +149,11 @@ public class YLayout {
 
     public YSpecification getSpecification() { return _specification; }
 
+    public void setSpecification(YSpecification specification) {
+        _specification = specification;
+    }
+
+
     public int getNetCount() { return _nets != null ? _nets.size() : 0; }
 
     public boolean hasNets() { return getNetCount() > 0; }

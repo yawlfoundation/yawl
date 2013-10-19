@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerExcept
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.util.FileOperations;
 import org.yawlfoundation.yawl.editor.core.util.FileSaveOptions;
@@ -209,14 +210,14 @@ public class YSpecificationHandler {
     }
 
 
-    public void load(String file) throws IOException {
-        YSpecification loaded = _fileOps.load(file);
-        if (loaded != null) {
-            _specification = loaded;
-            _dataHandler.setSpecification(loaded);
-            _controlFlowHandler.setSpecification(loaded);
-            _resourceHandler.setSpecification(loaded);
-        }
+    public void load(String specXML, String layoutXML)
+            throws IOException, YLayoutParseException {
+        initHandlers(_fileOps.load(specXML, layoutXML));
+    }
+
+
+    public void load(String fileName) throws IOException {
+        initHandlers(_fileOps.load(fileName));
     }
 
 
@@ -284,6 +285,15 @@ public class YSpecificationHandler {
 
     public YSpecificationID getID() {
         return _specification.getSpecificationID();
+    }
+
+    private void initHandlers(YSpecification loaded) {
+        if (loaded != null) {
+            _specification = loaded;
+            _dataHandler.setSpecification(loaded);
+            _controlFlowHandler.setSpecification(loaded);
+            _resourceHandler.setSpecification(loaded);
+        }
     }
 
 }
