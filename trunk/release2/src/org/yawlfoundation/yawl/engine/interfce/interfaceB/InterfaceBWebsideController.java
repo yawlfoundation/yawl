@@ -114,6 +114,15 @@ public abstract class InterfaceBWebsideController {
 
 
     /**
+     * Receives notification from the engine that an active case has become
+     * deadlocked.  Override this method to take any necessary action.
+     * @param caseID the id of the case that has been cancelled
+     * @param tasks the list of deadlocked task ids
+     */
+    public void handleDeadlockedCaseEvent(String caseID, String tasks) { }
+
+
+    /**
      * Receives notification from the engine that a case has been started. By overriding
      * this method a service can process case start events as required.
      * @param specID the specification id of the started case

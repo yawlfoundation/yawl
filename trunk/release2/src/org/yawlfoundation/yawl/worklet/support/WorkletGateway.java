@@ -256,9 +256,12 @@ public class WorkletGateway extends YHttpServlet {
 
     private String process(HttpServletRequest req) {
         if (!_ws.isExceptionServiceEnabled()) {
-            return fail("Exception handling is currently disabled. Please enable in " +
+            return fail("Exception handling is currently disabled. Please enable in it " +
                     "Worklet Service's web.xml");
         }
+
+        String dataStr = req.getParameter("data");
+        if (dataStr == null) return fail("Data value is null");
 
         String rTypeStr = req.getParameter("rtype");
         if (rTypeStr == null) return fail("Rule Type has null value");
@@ -278,7 +281,6 @@ public class WorkletGateway extends YHttpServlet {
             return fail(ioe.getMessage());
         }
 
-        String dataStr = req.getParameter("data");
         Element data = JDOMUtil.stringToElement(dataStr);
         if (data != null) wir.setUpdatedData(data);
 

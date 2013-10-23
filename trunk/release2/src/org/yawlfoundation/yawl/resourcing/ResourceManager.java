@@ -386,6 +386,12 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    public void handleDeadlockedCaseEvent(String caseID, String tasks) {
+        _log.error("Case " + caseID + " has deadlocked at tasks " + tasks);
+        handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any
+    }
+
+
     public void handleCompleteCaseEvent(String caseID, String casedata) {
         _log.info("Case completed: " + caseID);
         handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any

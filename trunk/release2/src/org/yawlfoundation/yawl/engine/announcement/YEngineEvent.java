@@ -32,6 +32,7 @@ public enum YEngineEvent {
     CASE_START ("announceCaseStarted", true),
     CASE_COMPLETE ("announceCaseCompleted", true),
     CASE_CANCELLED ("announceCaseCancelled", true),
+    CASE_DEADLOCKED ("announceCaseDeadlocked", true),
     CASE_SUSPENDING ("announceCaseSuspending", true),
     CASE_SUSPENDED ("announceCaseSuspended", true),
     CASE_RESUMED ("announceCaseResumed", true),
