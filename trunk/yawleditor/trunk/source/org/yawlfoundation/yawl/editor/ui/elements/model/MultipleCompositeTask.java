@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
+import org.yawlfoundation.yawl.editor.ui.configuration.MultipleInstanceTaskConfigSet;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YVariable;

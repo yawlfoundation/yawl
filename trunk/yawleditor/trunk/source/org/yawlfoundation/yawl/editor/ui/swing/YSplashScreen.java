@@ -30,6 +30,7 @@ import java.awt.geom.Rectangle2D;
 public class YSplashScreen {
 
     private static final SplashScreen splash = SplashScreen.getSplashScreen();
+    private static final Color spark = new Color(255,80,80);
     private Rectangle2D.Double textArea;
     private Rectangle2D.Double progressArea;
     private Graphics2D graphics;
@@ -77,6 +78,8 @@ public class YSplashScreen {
             // fill the done part one pixel smaller than the outline
             graphics.setPaint(Color.RED.darker());
             graphics.fillRect(x, y + 1, doneWidth, hgt - 1);
+//            graphics.setPaint(spark);
+//            graphics.fillRect(x + doneWidth -2, y + 1, 2, hgt - 1);
 
             // make sure it's displayed
             splash.update();

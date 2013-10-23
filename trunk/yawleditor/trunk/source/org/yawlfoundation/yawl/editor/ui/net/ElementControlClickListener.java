@@ -56,7 +56,7 @@ public class ElementControlClickListener extends MouseAdapter {
   }
 
     private void doCompositeTaskCtrlClickProcessing(YAWLCompositeTask compositeTask) {
-      NetGraphModel unfoldingNet = SpecificationModel.getInstance().getNets()
+      NetGraphModel unfoldingNet = SpecificationModel.getNets()
               .getNetModelFromName(compositeTask.getUnfoldingNetName());
 
         if (unfoldingNet != null) {

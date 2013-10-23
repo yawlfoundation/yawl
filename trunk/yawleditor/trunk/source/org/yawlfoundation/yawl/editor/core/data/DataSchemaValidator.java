@@ -42,7 +42,7 @@ public class DataSchemaValidator {
     public DataSchemaValidator(String schema) {  setDataTypeSchema(schema); }
 
 
-    public List<String> getSchemaValidationResults(String schema) {
+    public List<String> validateSchema(String schema) {
         if (StringUtil.isNullOrEmpty(schema)) return Collections.emptyList();
         SchemaHandler validator = new SchemaHandler(schema);
         validator.compileSchema();

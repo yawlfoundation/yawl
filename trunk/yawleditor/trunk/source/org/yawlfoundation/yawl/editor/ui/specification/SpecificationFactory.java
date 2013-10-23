@@ -39,7 +39,7 @@ public class SpecificationFactory {
 
 
     public void newSpecification() {
-        NetGraph graph = SpecificationModel.getInstance().newSpecification();
+        NetGraph graph = SpecificationModel.newSpecification();
         YNet net = (YNet) graph.getNetModel().getDecomposition();
         populateGraph(net, graph);
         YAWLEditor.getNetsPane().openNet(graph);
@@ -86,6 +86,6 @@ public class SpecificationFactory {
 
     private Rectangle cropRectangle(Rectangle r, int crop) {
          return new Rectangle(r.x, r.y, r.width - crop, r.height - crop);
-     }
+    }
 
 }

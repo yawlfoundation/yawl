@@ -35,7 +35,7 @@ public class UndoableNetAddition extends AbstractUndoableEdit {
     }
 
     public void redo() {
-        SpecificationModel.getInstance().getNets().addNoUndo(addedNet);
+        SpecificationModel.getNets().addNoUndo(addedNet);
         addedNet.getGraph().getFrame().setVisible(true);
         YAWLEditor.getNetsPane().add(addedNet.getName(), addedNet.getGraph().getFrame());
         SpecificationModel.getHandler().getControlFlowHandler().addNet(
@@ -44,7 +44,7 @@ public class UndoableNetAddition extends AbstractUndoableEdit {
 
     public void undo() {
         YAWLEditor.getNetsPane().remove(addedNet.getGraph().getFrame());
-        SpecificationModel.getInstance().getNets().removeNoUndo(addedNet);
+        SpecificationModel.getNets().removeNoUndo(addedNet);
         try {
             SpecificationModel.getHandler().getControlFlowHandler().removeNet(
                     addedNet.getDecomposition().getID());

@@ -75,7 +75,6 @@ public class FileOperations {
         SpecificationFileHandler handler = new SpecificationFileHandler();
         Publisher publisher = Publisher.getInstance();
         YAWLEditor editor = YAWLEditor.getInstance();
-        Cursor oldCursor = editor.getCursor();
         editor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         publisher.publishFileBusyEvent();
 
@@ -97,8 +96,7 @@ public class FileOperations {
             case Analyse: {
                 editor.showProblemList("Analysis Results",
                         new ValidationResultsParser().parse(
-                        new AnalysisResultsParser().getAnalysisResults(
-                                SpecificationModel.getInstance())));
+                        new AnalysisResultsParser().getAnalysisResults()));
                 break;
             }
             case Save: {
@@ -122,7 +120,7 @@ public class FileOperations {
         }
 
         publisher.publishFileUnbusyEvent();
-        editor.setCursor(oldCursor);
+        editor.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
 }

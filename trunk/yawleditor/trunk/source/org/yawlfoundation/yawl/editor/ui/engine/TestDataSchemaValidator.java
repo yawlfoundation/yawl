@@ -47,8 +47,8 @@ public class TestDataSchemaValidator extends TestCase {
   }
   
   protected void setUp() {
-      SpecificationModel.getInstance().reset();
-      validator = SpecificationModel.getInstance().getSchemaValidator();
+      SpecificationModel.reset();
+      validator = new DataSchemaValidator();
       validator.setDataTypeSchema(YSpecificationHandler.DEFAULT_TYPE_DEFINITION);
   }
 

@@ -20,6 +20,8 @@
 package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 
+import org.yawlfoundation.yawl.editor.ui.data.editor.XQueryEditor;
+
 import javax.swing.text.Document;
 
 public class XQueryEditorPane extends ProblemReportingEditorPane {

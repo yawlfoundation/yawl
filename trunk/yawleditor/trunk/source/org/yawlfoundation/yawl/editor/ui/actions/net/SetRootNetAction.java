@@ -65,11 +65,11 @@ class RootNetDialog extends AbstractDoneDialog {
         getDoneButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (netComboBox.isEnabled()) {
-                        String oldNet = SpecificationModel.getInstance().getNets()
+                        String oldNet = SpecificationModel.getNets()
                                 .getRootNet().getName();
                         String selectedNet = (String) netComboBox.getSelectedItem();
                         if (! (selectedNet == null || selectedNet.equals(oldNet))) {
-                            SpecificationModel.getInstance().getNets().setRootNet(selectedNet);
+                            SpecificationModel.getNets().setRootNet(selectedNet);
                             SpecificationUndoManager.getInstance().setDirty(true);
                         }
                     }
@@ -123,7 +123,7 @@ class RootNetDialog extends AbstractDoneDialog {
 
         String rootNetName = null;
         java.util.List<String> netNames = new ArrayList<String>();
-        for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+        for (NetGraphModel net : SpecificationModel.getNets()) {
             netNames.add(net.getName());
             if (net.isRootNet()) rootNetName = net.getName();
         }

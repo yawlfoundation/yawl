@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
-import org.yawlfoundation.yawl.editor.ui.actions.element.CustomFormDialogPanel;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 
 import javax.swing.*;
 import java.net.MalformedURLException;
@@ -55,7 +55,7 @@ public class CustomFormPropertyEditor extends DialogPropertyEditor {
         dialogPanel.setURI(urlStr);
 
         while (! done) {
-            int option = JOptionPane.showOptionDialog(editor, dialogPanel,
+            int option = JOptionPane.showOptionDialog(YAWLEditor.getInstance(), dialogPanel,
                     "Set Custom Form URI",
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE, null, null, null);

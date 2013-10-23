@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
@@ -32,9 +32,11 @@ import java.awt.*;
 
 public class NetsPane extends JTabbedPane implements ChangeListener {
 
+    private PropertiesLoader _propertiesLoader;
 
     public NetsPane() {
         super();
+        _propertiesLoader = new PropertiesLoader();
         addChangeListener(this);
     }
 
@@ -114,11 +116,10 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         }
         publisher.publishState(SpecificationState.NetSelected);
         if (select) {
-            SpecificationModel.getInstance().getPropertiesLoader().setGraph(frame.getNet());
+            _propertiesLoader.setGraph(frame.getNet());
         }
         try {
             getSelectedGraph().getSelectionListener().forceActionUpdate();
-        //    getSelectedGraph().getCancellationSetModel().refresh();
         }
         catch (Exception e) {}
     }

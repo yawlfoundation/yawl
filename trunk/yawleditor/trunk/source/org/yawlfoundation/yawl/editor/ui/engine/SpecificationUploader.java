@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.validation.Validator;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
@@ -64,7 +63,7 @@ public class SpecificationUploader {
 
 
     public void storeLayout() {
-        String layoutXML = new LayoutExporter().export(SpecificationModel.getInstance());
+        String layoutXML = new LayoutExporter().export();
         if (layoutXML != null) {
             LayoutRepository.getInstance().add(getSpecificationID(), layoutXML);
         }
@@ -73,8 +72,7 @@ public class SpecificationUploader {
 
     private YSpecification getSpecification() {
         if (_specification == null) {
-            _specification = new SpecificationWriter().cleanSpecification(
-                    SpecificationModel.getInstance());
+            _specification = new SpecificationWriter().cleanSpecification();
         }
         return _specification;
     }

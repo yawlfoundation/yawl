@@ -32,7 +32,6 @@ import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
 import java.util.Locale;
 
 public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
@@ -107,26 +106,22 @@ public class PrintSpecificationAction extends YAWLOpenSpecificationAction {
     }
 
     if (service != null) {
-      
-      Iterator netIterator = SpecificationModel.getInstance().getNets().iterator();
-      
-      while (netIterator.hasNext()) {
-        
-        // this could be nicer... we could aggregate all the nets into a single print job. 
-        // unfortunately, none of the printers on our network report that they can handle multiple
-        // documents. I would literally have to build a SimpleDoc with each of the diagrams
-        // embedded in it. 
-        
-        NetGraphModel graphModel = (NetGraphModel) netIterator.next();
 
-        jobName = new JobName(
-            SpecificationModel.getHandler().getFileName() + " - " + graphModel.getName(),
-            Locale.ENGLISH);
-        
-        printAttribs.add(jobName);
-        
-        NetPrintUtilities.print(graphModel.getGraph(), service, flavor, printAttribs);
-      }
+        for (NetGraphModel graphModel : SpecificationModel.getNets()) {
+
+            // this could be nicer... we could aggregate all the nets into a single print job.
+            // unfortunately, none of the printers on our network report that they can handle multiple
+            // documents. I would literally have to build a SimpleDoc with each of the diagrams
+            // embedded in it.
+
+            jobName = new JobName(
+                    SpecificationModel.getHandler().getFileName() + " - " + graphModel.getName(),
+                    Locale.ENGLISH);
+
+            printAttribs.add(jobName);
+
+            NetPrintUtilities.print(graphModel.getGraph(), service, flavor, printAttribs);
+        }
     } 
   }
   

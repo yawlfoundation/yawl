@@ -37,10 +37,9 @@ public class DefaultLayoutArranger {
 
   private HashSet breadthTraversedNodes;
   private LinkedList nodeBreadthsList;
-  private int largestNumberOfNodesAtSingleBreadth = 0;
 
-  public void layoutSpecification() {
-    for(NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+    public void layoutSpecification() {
+    for(NetGraphModel net : SpecificationModel.getNets()) {
       layoutNet(net);
     }
   }
@@ -66,7 +65,7 @@ public class DefaultLayoutArranger {
 
     nodeBreadthsList.add(startNodeList);
     breadthTraversedNodes.add(inputCondition);
-    largestNumberOfNodesAtSingleBreadth = 1;
+      int largestNumberOfNodesAtSingleBreadth = 1;
 
     while (getUntraversedNodesFrom((LinkedList) nodeBreadthsList.getLast()).size() > 0) {
       nodeBreadthsList.add(new LinkedList(getUntraversedNodesFrom((LinkedList) nodeBreadthsList.getLast())));

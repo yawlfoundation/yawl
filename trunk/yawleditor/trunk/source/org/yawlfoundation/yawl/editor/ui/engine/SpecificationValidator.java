@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.yawlfoundation.yawl.editor.core.validation.Validator;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
 import java.util.List;
@@ -35,22 +34,17 @@ public class SpecificationValidator {
         return getValidationResults(Validator.ALL_MESSAGES);
     }
 
+
     public List<String> getValidationResults(int msgType) {
-        return getValidationResults(SpecificationModel.getInstance(), msgType);
-    }
-
-    public List<String> getValidationResults(SpecificationModel model) {
-        return getValidationResults(model, Validator.ALL_MESSAGES);
-    }
-
-    public List<String> getValidationResults(SpecificationModel model, int msgType) {
         return getValidationResults(
-                new SpecificationWriter().cleanSpecification(model), msgType);
+                new SpecificationWriter().cleanSpecification(), msgType);
     }
+
 
     public List<String> getValidationResults(YSpecification specification) {
         return getValidationResults(specification, Validator.ALL_MESSAGES);
     }
+
 
     public List<String> getValidationResults(YSpecification specification, int msgType) {
         return new Validator().validate(specification, msgType);

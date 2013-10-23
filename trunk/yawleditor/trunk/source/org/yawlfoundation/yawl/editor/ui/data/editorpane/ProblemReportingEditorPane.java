@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import org.bounce.text.LineNumberMargin;
 import org.bounce.text.xml.XMLFoldingMargin;
+import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;

@@ -34,7 +34,6 @@ import java.awt.event.MouseWheelListener;
 
 public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
-    private static SpecificationModel model;
     private NetGraph net;
     private JScrollPane scrollPane;
     private String title;
@@ -47,7 +46,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
         setPreferredSize(getSize());
-        model = SpecificationModel.getInstance() ;
     }
 
 
@@ -78,7 +76,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         while (!validNameFound) {
             counter++;
             newTitle = "Net" + counter;
-            if (model.getNets().getNetModelFromName(newTitle) == null) {
+            if (SpecificationModel.getNets().getNetModelFromName(newTitle) == null) {
                 validNameFound = true;
             }
         }
@@ -119,7 +117,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
 
     public void removeFromSpecification() {
-        model.getNets().remove(getNet().getNetModel());
+        SpecificationModel.getNets().remove(getNet().getNetModel());
     }
 
 
@@ -135,7 +133,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
             setTitle(title);
             setNetName(title);
         }
-        model.getNets().add(getNet().getNetModel());
+        SpecificationModel.getNets().add(getNet().getNetModel());
         icon = NetUtilities.getIconForNetModel(net.getNetModel());
         Publisher.getInstance().publishAddNetEvent();
     }
@@ -182,7 +180,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     public void showRenameDialog() {
         String oldName = getNet().getNetModel().getName();
         String newName = null;
-        while(model.getNets().getNetModelFromName(newName) != getNet().getNetModel()) {
+        while(SpecificationModel.getNets().getNetModelFromName(newName) != getNet().getNetModel()) {
             newName = JOptionPane.showInputDialog(this,
                     "Change Net Name to:",
                     oldName);

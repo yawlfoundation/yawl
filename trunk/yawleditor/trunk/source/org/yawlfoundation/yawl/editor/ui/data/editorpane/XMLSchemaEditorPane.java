@@ -19,6 +19,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
+import org.yawlfoundation.yawl.editor.ui.data.editor.XMLSchemaEditor;
+
 public class XMLSchemaEditorPane extends ProblemReportingEditorPane {
 
 

@@ -74,7 +74,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         establishConnections();
         buildInterface();
         Publisher.getInstance().subscribe(this);
-        SpecificationModel.getInstance();                         // just to init it
     }
 
 
@@ -164,6 +163,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static void setLookAndFeel() {
         try {
             UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
+//            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         }
         catch (Exception e) {
             // accept default LaF
@@ -207,7 +207,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
         setIconImage(
                 ResourceLoader.getImageAsIcon(
-                        "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.gif"
+                        "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.png"
                 ).getImage()
         );
 

@@ -84,7 +84,7 @@ public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
 
     private Set<YAWLAtomicTask> getAllAtomicTasks() {
         Set<YAWLAtomicTask> tasks = new HashSet<YAWLAtomicTask>();
-        for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+        for (NetGraphModel net : SpecificationModel.getNets()) {
             tasks.addAll(NetUtilities.getAtomicTasks(net));
         }
         return tasks;

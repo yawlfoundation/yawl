@@ -18,11 +18,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.jgraph.graph.GraphCell;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -51,7 +53,7 @@ public abstract class YPropertiesBean {
 
     protected void setGraph(NetGraph g) {
         graph = g;
-        model = SpecificationModel.getInstance().getNets().get(graph.getName());
+        model = SpecificationModel.getNets().get(graph.getName());
     }
 
 
@@ -70,6 +72,10 @@ public abstract class YPropertiesBean {
 
     protected void setDirty() {
         SpecificationUndoManager.getInstance().setDirty(true);
+    }
+
+    protected void refreshCellView(GraphCell cell) {
+        NetCellUtilities.applyViewChange(graph, graph.getViewFor(cell));
     }
 
 

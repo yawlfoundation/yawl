@@ -61,11 +61,11 @@ public class ValidationResultsParser {
                     canSet("task decomposition"));
         }
         if (message.contains("infinite loop/recursion")) {
-            return new ValidationMessage("Warning: Element '" +
+            return new ValidationMessage("Error: Element '" +
                     extractLabel(message, ':', ')') + "' is in an infinite loop.",
                     "The element plays a part in an infinite loop/recursion in which " +
                     "no work items are created, which will result at runtime in a process " +
-                    "that cannot complete. Add a task with a decomposition to the loop" +
+                    "that cannot complete. Add a task with a decomposition to the loop " +
                     "or modify the control flow of that part of the net.");
         }
         if (message.contains("has timer settings but no decomposition")) {

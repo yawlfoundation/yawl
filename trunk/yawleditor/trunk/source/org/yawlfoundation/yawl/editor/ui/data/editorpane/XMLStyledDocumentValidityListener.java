@@ -18,6 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
+import org.yawlfoundation.yawl.editor.ui.data.Validity;
+
+
 public interface XMLStyledDocumentValidityListener {
 
     public void documentValidityChanged(Validity validity);
