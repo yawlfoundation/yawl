@@ -133,6 +133,7 @@ public class DecompositionProperties extends CellProperties {
             setReadOnly("Resourcing", auto);
             setReadOnly("CustomForm", auto);
             setDirty();
+            refreshCellView(vertex);
             if (! auto) firePropertyChange("Codelet", null);
         }
     }
@@ -150,6 +151,7 @@ public class DecompositionProperties extends CellProperties {
         if (_decomposition != null) {
             if (codelet != null && codelet.equals("None")) codelet = null;
             _decomposition.setCodelet(codelet);
+            refreshCellView(vertex);
             setDirty();
         }
     }

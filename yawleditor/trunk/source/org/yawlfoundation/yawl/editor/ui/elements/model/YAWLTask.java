@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.GraphConstants;
+import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;

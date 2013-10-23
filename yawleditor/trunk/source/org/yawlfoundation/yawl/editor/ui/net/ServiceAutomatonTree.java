@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.elements.model.CPort;
+import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;

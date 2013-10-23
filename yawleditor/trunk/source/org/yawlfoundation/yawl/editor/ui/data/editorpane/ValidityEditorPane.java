@@ -20,6 +20,8 @@ package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import org.bounce.text.xml.XMLEditorKit;
 import org.bounce.text.xml.XMLStyleConstants;
+import org.yawlfoundation.yawl.editor.ui.data.Validity;
+import org.yawlfoundation.yawl.editor.ui.data.document.*;
 
 import javax.swing.*;
 import javax.swing.text.PlainDocument;

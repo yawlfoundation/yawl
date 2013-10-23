@@ -18,53 +18,28 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification;
 
-import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
-import org.yawlfoundation.yawl.editor.core.data.DataSchemaValidator;
-import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
-import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
-import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
-import java.io.IOException;
-import java.util.Set;
-
 public class SpecificationModel {
 
-
     private static final YSpecificationHandler _specificationHandler = new YSpecificationHandler();
-    private static final SpecificationModel INSTANCE = new SpecificationModel();
+    private static final NetModelSet _nets = new NetModelSet();
 
-    private NetModelSet nets;
-    private DataSchemaValidator _schemaValidator;
-    private PropertiesLoader _propertiesLoader;
+    private SpecificationModel() { reset(); }
 
 
-    private SpecificationModel() {
-        _propertiesLoader = new PropertiesLoader();
-        nets = new NetModelSet(_propertiesLoader);
-        reset();
-    }
-
-
-    public static SpecificationModel getInstance() {
-        return INSTANCE;
-    }
-
-    public NetGraph newSpecification() {
+    public static NetGraph newSpecification() {
         try {
+            reset();
             _specificationHandler.newSpecification();
             YNet net = _specificationHandler.getControlFlowHandler().getRootNet();
             NetGraph graph = new NetGraph(net);
-            nets.addRootNet(graph.getNetModel());
-            reset();
+            _nets.addRootNet(graph.getNetModel());
             return graph;
         }
         catch (YControlFlowHandlerException ycfhe) {
@@ -77,46 +52,14 @@ public class SpecificationModel {
     }
 
 
-    public PropertiesLoader getPropertiesLoader() {
-        return _propertiesLoader;
-    }
-
-    public void loadFromFile(String fileName) throws IOException {
-        _specificationHandler.load(fileName);
-        warnOnInvalidResources();
-        reset();
-    }
-
-    public void loadFromXML(String xml, String layoutXML)
-            throws IOException, YLayoutParseException {
-        _specificationHandler.load(xml, layoutXML);
-        warnOnInvalidResources();
-        reset();
-    }
-
-    public void reset() {
-        nets.clear();
-        _schemaValidator = new DataSchemaValidator();
+    public static void reset() {
+        _nets.clear();
         YAWLEditor.getStatusBar().setText("Open or create a net to begin.");
-        Publisher.getInstance().setSpecificationState(SpecificationState.NoNetsExist);
     }
 
 
     public static YSpecificationHandler getHandler() { return _specificationHandler; }
 
-    public NetModelSet getNets() { return nets; }
-
-    public DataSchemaValidator getSchemaValidator() { return _schemaValidator; }
-
-
-    private void warnOnInvalidResources() {
-        YResourceHandler resHandler = getHandler().getResourceHandler();
-        if (YConnector.isResourceConnected()) {
-            Set<InvalidReference> invalidSet = resHandler.getInvalidReferences();
-            if (! invalidSet.isEmpty()) {
-                new InvalidResourceReferencesDialog(invalidSet).setVisible(true);
-            }
-        }
-    }
+    public static NetModelSet getNets() { return _nets; }
 
 }

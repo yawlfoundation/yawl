@@ -80,7 +80,9 @@ public class NetTaskPair {
 
     private String getText(YDecomposition decomposition) {
         StringBuilder s = new StringBuilder();
-        if (decomposition instanceof YNet) {
+
+        // only count locals at the net level
+        if (decomposition instanceof YNet && decomposition.equals(_net)) {
             int locals = ((YNet) decomposition).getLocalVariables().size();
             if (locals > 0) {
                 s.append("Local(").append(locals).append(") ");

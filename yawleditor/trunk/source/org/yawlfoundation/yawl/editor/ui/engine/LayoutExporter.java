@@ -44,13 +44,13 @@ public class LayoutExporter {
 
     public LayoutExporter() {}
 
-    public String export(SpecificationModel model) {
-        YLayout layout = parse(model);
+    public String export() {
+        YLayout layout = parse();
         return layout != null ? layout.toXML() : null;
     }
 
 
-    public YLayout parse(SpecificationModel model) {
+    public YLayout parse() {
         YSpecification _specification = SpecificationModel.getHandler().getSpecification();
         YLayout layout = new YLayout(_specification);
         if (UserSettings.getNetBackgroundColour() != Color.WHITE) {
@@ -60,7 +60,7 @@ public class LayoutExporter {
         layout.setGlobalFontSize(UserSettings.getFontSize());
         layout.setSize(getDesktopSize());
 
-        for (NetGraphModel net : model.getNets()) {
+        for (NetGraphModel net : SpecificationModel.getNets()) {
             YNetLayout netLayout = layout.newNetLayoutInstance(unspace(net.getName()));
             layout.addNetLayout(getNetLayout(net, netLayout));
         }

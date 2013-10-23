@@ -46,7 +46,7 @@ public class ToolbarGridToggleAction extends YAWLBaseAction {
     public void actionPerformed(ActionEvent event) {
         selected = !selected;
         UserSettings.setShowGrid(selected);
-        for (NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+        for (NetGraphModel net : SpecificationModel.getNets()) {
             net.getGraph().setGridVisible(selected);
         }
     }

@@ -18,15 +18,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.actions.element.CancellationRegionConfigurationAction;
-import org.yawlfoundation.yawl.editor.ui.actions.element.InputPortConfigurationAction;
-import org.yawlfoundation.yawl.editor.ui.actions.element.MultipleInstanceConfigurationAction;
-import org.yawlfoundation.yawl.editor.ui.actions.element.OutputPortConfigurationAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ApplyProcessConfigurationAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.CheckProcessCorrectness;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ConfigurableTaskAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
-import org.yawlfoundation.yawl.editor.ui.actions.tools.ConfigurationSettingsAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.CancellationRegionConfigurationAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.InputPortConfigurationAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.MultipleInstanceConfigurationAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.OutputPortConfigurationAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.ApplyProcessConfigurationAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.CheckProcessCorrectness;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.ConfigurableTaskAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.PreviewConfigurationProcessAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.ConfigurationSettingsAction;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;

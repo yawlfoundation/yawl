@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationExporter;
+import org.yawlfoundation.yawl.editor.ui.configuration.DefaultConfigurationExporter;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
@@ -40,12 +42,12 @@ public class SpecificationWriter {
 
     private YSpecificationHandler _handler = SpecificationModel.getHandler();
 
-    public boolean writeToFile(SpecificationModel model, String fileName) {
+    public boolean writeToFile(String fileName) {
         boolean success = false;
         try {
             if (checkUserDefinedDataTypes()) {
-                YLayout layout = new LayoutExporter().parse(model);
-                cleanSpecification(model);
+                YLayout layout = new LayoutExporter().parse();
+                cleanSpecification();
                 checkSpecification();
                 if (! fileName.equals(_handler.getFileName())) {
                     _handler.saveAs(fileName, layout, UserSettings.getFileSaveOptions());
@@ -63,8 +65,8 @@ public class SpecificationWriter {
     }
 
 
-    public String getSpecificationXML(SpecificationModel model) {
-        cleanSpecification(model);
+    public String getSpecificationXML() {
+        cleanSpecification();
         try {
             return _handler.getSpecificationXML();
         }
@@ -75,10 +77,10 @@ public class SpecificationWriter {
     }
 
 
-    public YSpecification cleanSpecification(SpecificationModel model) {
+    public YSpecification cleanSpecification() {
         _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
         removeUndoneElements();
-        configureTasks(model);
+        configureTasks();
         return _handler.getSpecification();
     }
 
@@ -120,8 +122,8 @@ public class SpecificationWriter {
     }
 
 
-     private void configureTasks(SpecificationModel model) {
-        for (NetGraphModel netModel : model.getNets()) {
+     private void configureTasks() {
+        for (NetGraphModel netModel : SpecificationModel.getNets()) {
             for (YAWLTask task : NetUtilities.getAllTasks(netModel)) {
                 if (task.isConfigurable()) {
                    YTask yTask = (YTask) task.getYAWLElement();

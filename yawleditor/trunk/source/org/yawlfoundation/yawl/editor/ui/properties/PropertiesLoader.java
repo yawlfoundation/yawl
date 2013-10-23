@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
@@ -56,12 +57,14 @@ public class PropertiesLoader
 
 
     public void setGraph(NetGraph graph) {
-        _graph = graph;
-        _netProperties.setGraph(graph);
-        _cellProperties.setGraph(graph);
-        _flowProperties.setGraph(graph);
-        _decompositionProperties.setGraph(graph);
-        showNetProperties();
+        if (graph != null && ! graph.equals(_graph)) {
+            _graph = graph;
+            _netProperties.setGraph(graph);
+            _cellProperties.setGraph(graph);
+            _flowProperties.setGraph(graph);
+            _decompositionProperties.setGraph(graph);
+            showNetProperties();
+        }
     }
 
     private void subscribe() {
@@ -82,12 +85,15 @@ public class PropertiesLoader
         if (_binder != null) _binder.unbind();
     }
 
+    private void setGraph() {
+        setGraph(YAWLEditor.getNetsPane().getSelectedGraph());
+    }
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
         if (event == null) return;
         switch(state) {
             case NoElementSelected: {
-                showNetProperties();
+                setGraph();
                 break;
             }
             case ElementsSelected: {
@@ -115,7 +121,7 @@ public class PropertiesLoader
             }
             case NetsExist: {
                 unbind();
-                if (_graph != null) showNetProperties();
+                setGraph();
                 break;
             }
         }

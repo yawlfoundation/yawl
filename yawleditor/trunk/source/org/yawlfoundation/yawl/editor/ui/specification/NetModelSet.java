@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
@@ -43,11 +42,9 @@ public class NetModelSet extends HashSet<NetGraphModel> {
 
     NetGraphModel rootNet;
     Publisher publisher;
-    PropertiesLoader propertiesLoader;
 
-    public NetModelSet(PropertiesLoader loader) {
+    public NetModelSet() {
         super();
-        propertiesLoader = loader;
         publisher = Publisher.getInstance();
     }
 
@@ -118,21 +115,11 @@ public class NetModelSet extends HashSet<NetGraphModel> {
             rootNet = netModel;
             boolean added = super.add(netModel);
             if (added) {
-                loadProperties(netModel);
                 publisher.publishAddNetEvent();
             }
             return added;
         }
         return false;
-    }
-
-
-    public void loadRootNetProperties() {
-        if (rootNet != null) loadProperties(rootNet);
-    }
-
-    public void loadProperties(NetGraphModel netModel) {
-        propertiesLoader.setGraph(netModel.getGraph());
     }
 
 
@@ -149,6 +136,7 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         return removed;
     }
 
+
     public boolean removeNoUndo(NetGraphModel netModel) {
         boolean success = super.remove(netModel);
         if (success) {
@@ -158,10 +146,17 @@ public class NetModelSet extends HashSet<NetGraphModel> {
     }
 
 
+    public void clear() {
+        super.clear();
+        publisher.setSpecificationState(SpecificationState.NoNetsExist);
+    }
+
+
     private NetGraphModel selectAnotherStartingNet(NetGraphModel netModel) {
         if (! isEmpty() && netModel.isRootNet()) {
             netModel.setIsRootNet(false);
-            for (NetGraphModel randomNet : this) {               // pick one at random
+            if (iterator().hasNext()) {
+                NetGraphModel randomNet = iterator().next();      // pick one in the set
                 randomNet.setIsRootNet(true);
                 return randomNet;
             }
@@ -231,24 +226,6 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         publisher.publishState(SpecificationState.NetDetailChanged);
     }
 
-
-    public void propagateSpecificationFontSize(int oldSize, int newSize) {
-        startEdits(getRootNet());
-        NetGraphModel lastNetModel = null;
-        for (NetGraphModel netModel : this) {
-            NetCellUtilities.propogateFontChangeAcrossNet(
-                    netModel.getGraph(),
-                    netModel.getGraph().getFont().deriveFont((float) newSize)
-            );
-            lastNetModel = netModel;
-        }
-
-        // post the font size edit to the last net.
-        if (lastNetModel != null) {
-            lastNetModel.postEdit(new UndoableFontSizeChange(oldSize, newSize));
-        }
-       stopEdits();
-    }
 
     public NetGraphModel propagateGlobalFontChange(Font font) {
         startEdits(getRootNet());

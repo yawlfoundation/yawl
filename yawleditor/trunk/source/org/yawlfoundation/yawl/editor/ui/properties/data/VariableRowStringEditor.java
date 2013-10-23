@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 import org.apache.xerces.util.XMLChar;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.VariableValueDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
@@ -187,17 +188,17 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
 
     private boolean validateValue(String value) {
-        String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
-        return value.isEmpty() || validate(dataType, value);
+        return validate(tablePanel.getVariableAtRow(editingRow).getDataType(), value);
     }
 
     private boolean validateType(String dataType) {
-        String value = tablePanel.getVariableAtRow(editingRow).getValue();
-        return value.isEmpty() || validate(dataType, value);
+        return validate(dataType, tablePanel.getVariableAtRow(editingRow).getValue());
     }
 
 
     private boolean validate(String dataType, String value) {
+        if (StringUtil.isNullOrEmpty(value)) return true;
+
         java.util.List<String> errors = SpecificationModel.getHandler().getDataHandler()
                     .validate(dataType, value);
         if (! errors.isEmpty()) {

@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.engine;
 import org.yawlfoundation.yawl.analyser.YAnalyser;
 import org.yawlfoundation.yawl.analyser.YAnalyserOptions;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
@@ -43,8 +42,8 @@ public class AnalysisResultsParser {
     private static final String WOF_YAWL_BINARY = "wofyawl0.4.exe";
 
 
-    public List<String> getAnalysisResults(SpecificationModel model) {
-        String specXML = new SpecificationWriter().getSpecificationXML(model);
+    public List<String> getAnalysisResults() {
+        String specXML = new SpecificationWriter().getSpecificationXML();
         return getAnalysisResults(specXML);
     }
 

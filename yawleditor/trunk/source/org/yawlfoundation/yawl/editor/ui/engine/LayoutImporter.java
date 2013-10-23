@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.engine;
 
 import org.jgraph.graph.AttributeMap;
+import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.core.layout.*;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
@@ -32,6 +33,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +47,8 @@ public class LayoutImporter {
     private LayoutImporter() {}
 
     public static void importAndApply(YLayout layout) {
-        SpecificationModel model = SpecificationModel.getInstance();
         for (YNetLayout netLayout : layout.getNetLayouts().values()) {
-            NetGraphModel netModel = model.getNets().get(netLayout.getID());
+            NetGraphModel netModel = SpecificationModel.getNets().get(netLayout.getID());
             setNetLayout(netModel, netLayout);
             netModel.getGraph().getGraphLayoutCache().reload();
         }
@@ -134,7 +135,25 @@ public class LayoutImporter {
 
 
     private static void setLabelLayout(YLayoutNode layout, VertexLabel label) {
-        if (label != null) label.getAttributes().applyMap(getLabelAttributes(layout));
+        if (label != null) {
+            AttributeMap updateMap = getLabelAttributes(layout);
+            Rectangle loadedBounds = (Rectangle) updateMap.get(GraphConstants.BOUNDS);
+            Rectangle2D.Double currentBounds = (Rectangle2D.Double)
+                    label.getAttributes().get(GraphConstants.BOUNDS);
+
+            // At this point, the label has already been added to the net, so has been
+            // given the correct height and width for its font, but in a default location.
+            // If we use the same bounds as the last save, the label may be truncated.
+            // So, we use the saved location, but the current height & width.
+            if (! (loadedBounds == null || currentBounds == null)) {
+                updateMap.put(GraphConstants.BOUNDS, new Rectangle2D.Double(
+                        loadedBounds.getX(),
+                        loadedBounds.getY(),
+                        currentBounds.getWidth(),
+                        currentBounds.getHeight()));
+            }
+            label.getAttributes().applyMap(updateMap);
+        }
     }
 
 

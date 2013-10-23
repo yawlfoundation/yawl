@@ -38,6 +38,7 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
         _text = text;
         add(getContent());
         setPreferredSize(new Dimension(420, 270));
+        getOKButton().setEnabled(true);
         pack();
     }
 

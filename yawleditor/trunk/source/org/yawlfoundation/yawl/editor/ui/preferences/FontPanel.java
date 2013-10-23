@@ -138,7 +138,7 @@ public class FontPanel extends JPanel {
 
 
     private void propagateChange() {
-        SpecificationModel.getInstance().getNets().propagateGlobalFontChange(_font);
+        SpecificationModel.getNets().propagateGlobalFontChange(_font);
     }
 
 }

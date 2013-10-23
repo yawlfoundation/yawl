@@ -18,15 +18,20 @@
 
 package org.yawlfoundation.yawl.editor.ui.engine;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
+import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationImporter;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.specification.InvalidResourceReferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -45,13 +50,11 @@ public class SpecificationReader {
 
     private static final Point DEFAULT_LOCATION = new Point(100,100);
 
-    private SpecificationModel _model;
     private YSpecificationHandler _handler;
     private Map<YExternalNetElement, YAWLVertex> _elementMap;
 
 
     public SpecificationReader() {
-        _model = SpecificationModel.getInstance();
         _handler = SpecificationModel.getHandler();
         _elementMap = new HashMap<YExternalNetElement, YAWLVertex>();
     }
@@ -78,7 +81,8 @@ public class SpecificationReader {
 
     private boolean loadFromXML(String specXML, String layoutXML) {
         try {
-            _model.loadFromXML(specXML, layoutXML);
+            SpecificationModel.reset();
+            _handler.load(specXML, layoutXML);
         }
         catch (Exception e) {
             showLoadError(e.getMessage());
@@ -90,7 +94,8 @@ public class SpecificationReader {
 
     private boolean loadFile(String fileName) {
         try {
-            _model.loadFromFile(fileName);
+            SpecificationModel.reset();
+            _handler.load(fileName);
         }
         catch (IOException ioe) {
             showLoadError(ioe.getMessage());
@@ -122,10 +127,10 @@ public class SpecificationReader {
         _handler.getControlFlowHandler().rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
-        _model.getNets().loadRootNetProperties();
         SpecificationUndoManager.getInstance().discardAllEdits();
         setSelectedCancellationSets();
         ConfigurationImporter.ApplyConfiguration();
+        warnOnInvalidResources();
     }
 
 
@@ -150,13 +155,13 @@ public class SpecificationReader {
 
     private void importNet(YNet yNet, boolean isRoot) {
         NetGraph netGraph = new NetGraph(yNet);
-        _model.getNets().add(netGraph.getNetModel(), isRoot);
+        SpecificationModel.getNets().add(netGraph.getNetModel(), isRoot);
         YAWLEditor.getNetsPane().openNet(netGraph);
     }
 
 
     private void populateNets() {
-        for (NetGraphModel netModel : _model.getNets()) {
+        for (NetGraphModel netModel : SpecificationModel.getNets()) {
             populateNet(netModel);
         }
     }
@@ -318,7 +323,7 @@ public class SpecificationReader {
 
 
     private void setSelectedCancellationSets() {
-        for (NetGraphModel graphModel : _model.getNets()) {
+        for (NetGraphModel graphModel : SpecificationModel.getNets()) {
             NetGraph graph = graphModel.getGraph();
             YAWLTask selectedCancellationTask =
                      graph.getCancellationSetModel().getTriggeringTask();
@@ -343,7 +348,7 @@ public class SpecificationReader {
 
 
     private void removeUnnecessaryDecorators() {
-        for (NetGraphModel net : _model.getNets())
+        for (NetGraphModel net : SpecificationModel.getNets())
             removeUnnecessaryDecorators(net);
     }
 
@@ -394,6 +399,45 @@ public class SpecificationReader {
                 JOptionPane.ERROR_MESSAGE);
 
     }
+
+
+    private void warnOnInvalidResources() {
+        YResourceHandler resHandler = _handler.getResourceHandler();
+        if (YConnector.isResourceConnected()) {
+            Set<InvalidReference> invalidSet = resHandler.getInvalidReferences();
+            if (! invalidSet.isEmpty()) {
+                new InvalidResourceReferencesDialog(invalidSet).setVisible(true);
+            }
+        }
+        else if (warnOnDisconnectedResourceService() == JOptionPane.YES_OPTION) {
+
+            // full package name required to differentiate from core's FileOperations
+            org.yawlfoundation.yawl.editor.ui.specification.FileOperations.close();
+        }
+    }
+
+
+    private int warnOnDisconnectedResourceService() {
+        Object[] buttonText = {"Close", "Continue"};
+        return JOptionPane.showOptionDialog(
+                YAWLEditor.getInstance(),
+                "The loaded specification contains resource settings, but the resource\n " +
+                "service is currently offline. This means that the settings cannot be\n "+
+                "validated and will be LOST if the specification is saved. It is\n " +
+                "suggested that the specification be closed, a valid connection to\n " +
+                "the resource service be established (via the Properties menu item),\n " +
+                "then the specification be reloaded.\n\n" +
+                "Click the 'Close' button to close the loaded file (recommended)\n " +
+                "or the 'Continue' button to keep it loaded, but with resourcing\n " +
+                "settings discarded.",
+                "Warning - read carefully",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                buttonText,
+                buttonText[0]);
+    }
+
 
     private void setConfiguration(YTask engineTask, YAWLTask editorTask,
                                   NetGraphModel netModel) {

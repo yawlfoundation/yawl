@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -113,7 +114,7 @@ public class NetProperties extends YPropertiesBean {
         if (oldValue.equals(value)) return;
         try {
             graph.setName(flowHandler.checkDecompositionID(value));
-            SpecificationModel.getInstance().getNets().propagateDecompositionNameChange(
+            SpecificationModel.getNets().propagateDecompositionNameChange(
                     model.getDecomposition(), oldValue);
             setDirty();
         }
@@ -153,7 +154,7 @@ public class NetProperties extends YPropertiesBean {
 
 
     public NetTaskPair getDataVariables() {
-        return new NetTaskPair(specHandler.getControlFlowHandler().getRootNet(), null, null);
+        return new NetTaskPair((YNet) model.getDecomposition(), null, null);
     }
 
     public void setDataVariables(NetTaskPair value) {

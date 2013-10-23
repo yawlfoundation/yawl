@@ -255,7 +255,7 @@ public final class NetUtilities {
       return null;
     }
 
-    for(NetGraphModel net : SpecificationModel.getInstance().getNets()) {
+    for(NetGraphModel net : SpecificationModel.getNets()) {
       if (net.getDecomposition() == task.getDecomposition()) {
         return net;
       }

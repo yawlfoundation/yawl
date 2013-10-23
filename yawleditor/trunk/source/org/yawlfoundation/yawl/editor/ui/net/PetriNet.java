@@ -23,6 +23,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
+import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 
 import java.io.File;

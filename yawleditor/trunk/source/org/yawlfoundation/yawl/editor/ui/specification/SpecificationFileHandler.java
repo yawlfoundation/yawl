@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.net.PreviewConfigurationProcessAction;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
 import org.yawlfoundation.yawl.editor.ui.engine.SpecificationReader;
 import org.yawlfoundation.yawl.editor.ui.engine.SpecificationWriter;
@@ -195,10 +195,6 @@ public class SpecificationFileHandler {
 
 
     private void saveSpecification(String fileName) {
-        saveSpecification(SpecificationModel.getInstance(), fileName);
-    }
-
-    private void saveSpecification(SpecificationModel model, String fileName) {
 
         // if the net has configuration preview on, turn it off temporarily
         ProcessConfigurationModel.PreviewState previewState =
@@ -210,7 +206,7 @@ public class SpecificationFileHandler {
         if (StringUtil.isNullOrEmpty(fileName)) return;
 
         try {
-            saveToFile(model, fileName);
+            saveToFile(fileName);
             OpenRecentSubMenu.getInstance().addRecentFile(fileName);
 
         }
@@ -255,7 +251,7 @@ public class SpecificationFileHandler {
 
     private void doPostSaveClosingWork() {
         YAWLEditor.getNetsPane().closeAllNets();
-        SpecificationModel.getInstance().reset();
+        SpecificationModel.reset();
         ProcessConfigurationModel.getInstance().reset();
         SpecificationUndoManager.getInstance().discardAllEdits();
         YAWLEditor.getNetsPane().setVisible(true);
@@ -283,7 +279,7 @@ public class SpecificationFileHandler {
     }
 
 
-    private void saveToFile(SpecificationModel model, String fileName) {
+    private void saveToFile(String fileName) {
         if (StringUtil.isNullOrEmpty(fileName)) {
 
             // rollback version number if auto-incrementing
@@ -296,7 +292,7 @@ public class SpecificationFileHandler {
         _statusBar.setText("Saving Specification...");
         _statusBar.progressOverSeconds(2);
 
-        if (new SpecificationWriter().writeToFile(model, fileName)) {
+        if (new SpecificationWriter().writeToFile(fileName)) {
             SpecificationUndoManager.getInstance().setDirty(false);
             _statusBar.setText("Saved to file: " + fileName);
         }

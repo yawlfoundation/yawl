@@ -45,7 +45,7 @@ public class TestSpecificationModel extends TestCase {
   }
   
   protected void setUp() {
-    SpecificationModel.getInstance().reset();
+    SpecificationModel.reset();
 //    setUpRootNet();
   }
   

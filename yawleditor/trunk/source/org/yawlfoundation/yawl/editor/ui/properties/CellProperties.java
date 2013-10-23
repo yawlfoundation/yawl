@@ -123,10 +123,13 @@ public class CellProperties extends NetProperties {
     }
 
     public void setLocation(Point p) {
-        Rectangle2D rect = vertex.getBounds();
-        vertex.setBounds(new Rectangle2D.Double(p.getX(), p.getY(),
-                rect.getWidth(), rect.getHeight()));
-        graph.moveElementTo(vertex, p.getX(), p.getY());
+        VertexContainer container = (VertexContainer) vertex.getParent();
+        if (container != null) {
+            graph.moveElementTo(container, p.getX(), p.getY());
+        }
+        else {
+            graph.moveElementTo(vertex, p.getX(), p.getY());
+        }
         graph.repaint();
         setDirty();
     }
@@ -177,7 +180,7 @@ public class CellProperties extends NetProperties {
         YTimerParameters parameters = ((AtomicTask) vertex).getTimerParameters();
         pair.setSimpleText(parameters != null ? parameters.toString(): "None");
         setDirty();
-        // nothing else to do - updates handled by dialog
+        refreshCellView(vertex);
     }
 
     public NetTaskPair getResourcing() {
@@ -198,6 +201,7 @@ public class CellProperties extends NetProperties {
 
     public void setIcon(String path) {
         graph.setVertexIcon(vertex, path);
+        refreshCellView(vertex);
         setDirty();
     }
 
