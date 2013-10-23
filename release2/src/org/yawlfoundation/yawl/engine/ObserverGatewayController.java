@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
@@ -326,6 +327,28 @@ public class ObserverGatewayController {
                         String scheme = gateway.getScheme();
                         gateway.announceCaseCancellation(
                                 getServicesForScheme(services, scheme), id);
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Notify environment that a case has deadlocked
+     * @param services - all services registered with the engine
+     * @param id - the case identifier
+     * @param tasks - the set of deadlocked tasks
+     */
+    public void notifyDeadlock(final Set<YAWLServiceReference> services,
+                               final YIdentifier id, final Set<YTask> tasks) {
+        _executor.execute(new Runnable() {
+            public void run() {
+                for (Set<ObserverGateway> gateways : _gateways.values()) {
+            	    for (ObserverGateway gateway : gateways) {
+                        String scheme = gateway.getScheme();
+                        gateway.announceDeadlock(
+                                getServicesForScheme(services, scheme), id, tasks);
                     }
                 }
             }

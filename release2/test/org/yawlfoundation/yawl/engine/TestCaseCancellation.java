@@ -8,6 +8,7 @@ import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.exceptions.*;
@@ -84,7 +85,11 @@ public class TestCaseCancellation extends TestCase {
             public void announceCaseSuspended(Set<YAWLServiceReference> ys, YIdentifier id) {}
             public void announceCaseSuspending(Set<YAWLServiceReference> ys, YIdentifier id) {}
             public void announceCaseResumption(Set<YAWLServiceReference> ys, YIdentifier id) {}
-            public void announceWorkItemStatusChange(Set<YAWLServiceReference> ys, YWorkItem item, YWorkItemStatus old, YWorkItemStatus anew) {}
+            public void announceWorkItemStatusChange(Set<YAWLServiceReference> ys,
+                                                     YWorkItem item, YWorkItemStatus old,
+                                                     YWorkItemStatus anew) {}
+            public void notifyDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
+                                       Set<YTask> tasks) {}
             public void shutdown() {}
         };
         _engine.registerInterfaceBObserverGateway(og);

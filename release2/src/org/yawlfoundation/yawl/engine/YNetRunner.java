@@ -372,6 +372,7 @@ public class YNetRunner {
                 }
             }
         }
+        _announcer.announceDeadlock(_caseIDForNet, _deadlockedTasks);
     }
 
 

@@ -23,6 +23,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
@@ -32,6 +33,7 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.unmarshal.YDecompositionParser;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -227,6 +229,20 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         }
     }
 
+    /**
+     * Called by the engine to announce the deadlock of a case
+     * @param services a set of custom services to receive the announcement
+     * @param id the case id of the deadlocked case
+     * @param tasks the deadlocked tasks
+     */
+    public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
+                               Set<YTask> tasks) {
+        for (YAWLServiceReference service : services) {
+            _executor.execute(new Handler(service, id, tasks, CASE_DEADLOCKED));
+        }
+    }
+
+
 
     /**
      * Called by the engine to announce shutdown of the engine's servlet container
@@ -282,6 +298,7 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private YSpecificationID _specID;
         private YIdentifier _caseID;
         private Document _caseData;
+        private Set<YTask> _tasks;
         private String _launchingService;
         private String _oldStatus;
         private String _newStatus;
@@ -323,7 +340,15 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             _command = command;
         }
         
-        public Handler(YAWLServiceReference yawlService, YSpecificationID specID, 
+        public Handler(YAWLServiceReference yawlService, YIdentifier id,
+                       Set<YTask> tasks, YEngineEvent command) {
+            _yawlService = yawlService;
+            _caseID = id;
+            _tasks = tasks;
+            _command = command;
+        }
+
+        public Handler(YAWLServiceReference yawlService, YSpecificationID specID,
                 YIdentifier id, String launchingService, boolean delayed, YEngineEvent command) {
             _yawlService = yawlService;
             _specID = specID;
@@ -356,6 +381,12 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                     }
                     case CASE_COMPLETE: {
                         paramsMap.put("casedata", JDOMUtil.documentToString(_caseData));
+                        break;
+                    }
+                    case CASE_DEADLOCKED: {
+                        Set<String> list = new HashSet<String>();
+                        for (YTask task : _tasks) list.add(task.getID());
+                        paramsMap.put("tasks", list.toString());
                         break;
                     }
                     case ENGINE_INIT: {

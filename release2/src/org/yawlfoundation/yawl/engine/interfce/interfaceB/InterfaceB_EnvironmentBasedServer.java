@@ -184,6 +184,10 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
         else if ("announceCaseCancelled".equals(action)) {
             _controller.handleCancelledCaseEvent(caseID);
         }
+        else if ("announceCaseDeadlocked".equals(action)) {
+            String tasks = request.getParameter("tasks");
+            _controller.handleDeadlockedCaseEvent(caseID, tasks);
+        }
         else if ("announceTimerExpiry".equals(action) || "timerExpiry".equals(action)) {
             _controller.handleTimerExpiryEvent(workItem);
         }

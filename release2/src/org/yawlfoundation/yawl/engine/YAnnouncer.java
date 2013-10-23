@@ -465,6 +465,10 @@ public class YAnnouncer {
     }
 
 
+    protected void announceDeadlock(YIdentifier caseID, Set<YTask> tasks) {
+        _controller.notifyDeadlock(_engine.getYAWLServices(), caseID, tasks);
+    }
+
     /****************************************************************************/
 
     private void debug(final String... phrases) {

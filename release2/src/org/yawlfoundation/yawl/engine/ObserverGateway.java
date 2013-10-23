@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 
@@ -151,6 +152,16 @@ public interface ObserverGateway {
      * @param id the identifier of the cancelled case
      */
     void announceCaseCancellation(Set<YAWLServiceReference> services, YIdentifier id) ;
+
+
+    /**
+     * Called by the engine to announce that a case has deadlocked
+     * @param services the set of services currently registered with the engine
+     * @param id the identifier of the deadlocked case
+     * @param tasks the set of deadlocked tasks
+     */
+    public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
+                               Set<YTask> tasks);
 
 
     /**
