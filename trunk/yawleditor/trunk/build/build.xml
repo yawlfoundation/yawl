@@ -58,6 +58,8 @@
               value="${root.class.name}-core-${editor.release.number}.jar" />
     <property name="analyser.jar.name"
               value="${root.class.name}-analyser-${editor.release.number}.jar" />
+    <property name="icons.jar.name"
+              value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
               value="jgraph4yawl-${editor.release.number}.jar" />
 
@@ -160,7 +162,7 @@
              basedir="${classes.dir}"
              manifest="${manifestFile}"
              includes="${package.dir}/ui/**"
-             excludes="**/Test*.class" />
+             excludes="**/Test*.class ${package.dir}/ui/resources/taskicons/**" />
         <checksum file="${distribution.dir}/${ui.jar.name}"/>
         <delete file="${manifestFile}" />
     </target>
@@ -174,7 +176,19 @@
              basedir="${classes.dir}"
              includes="${package.base.dir}/analyser/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${analyser.jar.name}"/>
+        <checksum file="${distribution.dir}/lib/${analyser.jar.name}"
+                  toDir="${distribution.dir}"/>
+    </target>
+
+    <target name="buildResourcesJar"
+            depends="copyLibs"
+  	        description="Build the Resources library">
+
+        <jar jarfile="${distribution.dir}/lib/${icons.jar.name}"
+             basedir="${classes.dir}"
+             includes="${package.dir}/ui/resources/taskicons/**"/>
+        <checksum file="${distribution.dir}/lib/${icons.jar.name}"
+                  toDir="${distribution.dir}"/>
     </target>
 
 
@@ -186,7 +200,8 @@
              basedir="${classes.dir}"
              includes="${package.dir}/core/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${core.jar.name}"/>
+        <checksum file="${distribution.dir}/lib/${core.jar.name}"
+                  toDir="${distribution.dir}"/>
     </target>
 
 
@@ -198,7 +213,8 @@
              basedir="${classes.dir}"
              includes="org/jgraph/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${jgraph.jar.name}"/>
+        <checksum file="${distribution.dir}/lib/${jgraph.jar.name}"
+                  toDir="${distribution.dir}"/>
     </target>
 
 
@@ -216,7 +232,7 @@
 
 
     <target name="buildJars"
-            depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildUIJar"
+            depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,buildUIJar"
             description="Builds all jars and copies required libraries"/>
 
 	<!--

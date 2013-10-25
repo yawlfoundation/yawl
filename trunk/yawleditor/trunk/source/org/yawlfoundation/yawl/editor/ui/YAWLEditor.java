@@ -31,14 +31,12 @@ import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.PaletteBar;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.editor.ui.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -162,16 +160,22 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private static void setLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
-//            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            if (MenuUtilities.isMacOS()) {
+                UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
+
+                // move menu to screen top - only affects OSX installs
+                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
+            }
+            else {
+//              UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
         }
         catch (Exception e) {
             // accept default LaF
         }
 
-        // move menu to screen top - only affects OSX installs
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 
 
@@ -184,6 +188,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         splashScreen = new YSplashScreen();
         splashScreen.init();
         LogWriter.init(FileUtilities.getHomeDir());
+        IconList.getInstance().load();
     }
 
     private static void finishLoading() {

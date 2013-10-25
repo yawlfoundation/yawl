@@ -36,16 +36,13 @@ class NetMenu extends YAWLOpenSpecificationMenu {
     protected void buildInterface() {
         add(new YAWLMenuItem(new CreateNetAction()));
         add(new YAWLMenuItem(new RemoveNetAction()));
-        add(new YAWLMenuItem(new SetRootNetAction()));
-
-        addSeparator();
-        add(new YAWLMenuItem(new ExportNetToPngAction()));
 
         addSeparator();
         add(new YAWLMenuItem(new NetBackgroundColourAction()));
         add(new YAWLMenuItem(new NetBackgroundImageAction()));
 
         addSeparator();
+        add(new YAWLMenuItem(new ExportNetToPngAction()));
         add(new YAWLMenuItem(new PrintNetAction()));
 
         addSeparator();

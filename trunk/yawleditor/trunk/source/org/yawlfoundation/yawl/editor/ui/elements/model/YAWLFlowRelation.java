@@ -114,6 +114,7 @@ public class YAWLFlowRelation extends DefaultEdge
 
 
     public int compareTo(YAWLFlowRelation other) {
+        if (isDefaultFlow()) return 1;
         Integer myOrdering = getPriority();
         Integer otherOrdering = other.getPriority();
         if (myOrdering == null && otherOrdering == null) return 0;

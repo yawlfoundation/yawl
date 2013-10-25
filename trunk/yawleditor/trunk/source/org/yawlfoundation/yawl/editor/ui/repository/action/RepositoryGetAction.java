@@ -22,7 +22,7 @@ import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
@@ -39,7 +39,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class RepositoryGetAction extends YAWLBaseAction {
+public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     Repo selectedRepo;
     Component caller;

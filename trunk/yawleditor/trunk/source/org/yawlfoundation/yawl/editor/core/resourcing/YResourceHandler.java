@@ -122,6 +122,9 @@ public class YResourceHandler {
     }
 
 
+    public boolean hasLoadedResources() { return _resourcesCache.hasLoadedResources(); }
+
+
     private void parseResources() {
         _resourcesCache.clear();
         for (YDecomposition decomposition : _specification.getDecompositions()) {

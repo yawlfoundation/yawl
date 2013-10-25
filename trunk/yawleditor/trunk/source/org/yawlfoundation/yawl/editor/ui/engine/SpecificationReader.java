@@ -403,6 +403,8 @@ public class SpecificationReader {
 
     private void warnOnInvalidResources() {
         YResourceHandler resHandler = _handler.getResourceHandler();
+        if (! resHandler.hasLoadedResources()) return;
+
         if (YConnector.isResourceConnected()) {
             Set<InvalidReference> invalidSet = resHandler.getInvalidReferences();
             if (! invalidSet.isEmpty()) {

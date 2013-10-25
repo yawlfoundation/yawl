@@ -370,17 +370,22 @@ public class CellProperties extends NetProperties {
     }
 
     public NetTaskPair getSplitConditions() {
-        NetTaskPair pair = new NetTaskPair((YAWLTask) vertex, graph);
-        if (((YAWLTask) vertex).getOutgoingFlowCount() < 2) {
-            pair.setSimpleText("None");
+        YAWLTask task = (YAWLTask) vertex;
+        NetTaskPair pair = new NetTaskPair(task, graph);
+        if (! task.hasSplitDecorator() ||
+                task.getSplitDecorator().getType() == Decorator.AND_TYPE) {
+            pair.setSimpleText("n/a");
         }
         else {
-            pair.setSimpleText(((YAWLTask) vertex).getOutgoingFlowCount() + " flows");
+            int flowCount = task.getOutgoingFlowCount();
+            pair.setSimpleText(flowCount < 2 ? "None" : flowCount + " flows");
         }
         return pair;
     }
 
-    public void setSplitConditions(NetTaskPair pair) {}    // handled by dialog
+    public void setSplitConditions(NetTaskPair pair) {
+        pair.setSimpleText(((YAWLTask) vertex).getOutgoingFlowCount() + " flows");
+    }
 
 
     public void setSplit(String value) {

@@ -22,7 +22,9 @@ import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -46,6 +48,7 @@ class AboutEditorDialog extends JDialog {
 
     private static final String VERSION = "3.0 (alpha)";
     private static final String COPYRIGHT = "\u00a9 2013 The YAWL Foundation";
+    private static final Color BACK_COLOUR = new Color(254,254,240);
 
     public AboutEditorDialog() {
         super();
@@ -60,8 +63,9 @@ class AboutEditorDialog extends JDialog {
 
     private JPanel getAboutPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(7,7,7,7));
-        panel.setBackground(Color.WHITE);
+        panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
+                new EmptyBorder(7,7,7,7)));
+        panel.setBackground(BACK_COLOUR);
         panel.add(getLogoPanel(), BorderLayout.WEST);
         panel.add(getTextPanel(), BorderLayout.CENTER);
         return panel;
@@ -71,7 +75,7 @@ class AboutEditorDialog extends JDialog {
     private JPanel getLogoPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(5,5,5,5));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BACK_COLOUR);
         JLabel logo = new JLabel(ResourceLoader.getImage("yawlLogo.png"));
         panel.add(logo);
         addMouseListener(logo);
@@ -82,7 +86,7 @@ class AboutEditorDialog extends JDialog {
     private JPanel getTextPanel() {
         JPanel panel = new JPanel(new GridLayout(0,1,3,3));
         panel.setBorder(new EmptyBorder(5,10,20,5));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BACK_COLOUR);
 
         JLabel nameLabel = new JLabel("The YAWL Process Editor");
         Font font = nameLabel.getFont();

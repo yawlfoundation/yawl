@@ -74,6 +74,8 @@ public class UserSettings {
     private static final String RESOURCE_PORT = "resourcePort";
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 8080;
+    private static final String DEFAULT_ENGINE_USERID = "editor";
+    private static final String DEFAULT_ENGINE_PASSWORD = "yEditor";
 
     private static final String ENGINE_URI = "engineURI";
     private static final String RESOURCE_USERID = "resourcingServiceUserID";
@@ -343,7 +345,7 @@ public class UserSettings {
     }
 
     public static String getEngineUserid() {
-        return getString(ENGINE_USERID);
+        return _prefs.get(ENGINE_USERID, DEFAULT_ENGINE_USERID);
     }
 
     public static void setEnginePassword(String password) {
@@ -351,7 +353,7 @@ public class UserSettings {
     }
 
     public static String getEnginePassword() {
-        return getString(ENGINE_PASSWORD);
+        return _prefs.get(ENGINE_PASSWORD, DEFAULT_ENGINE_PASSWORD);
     }
 
     public static String getEngineHost() {
@@ -479,7 +481,7 @@ public class UserSettings {
     }
 
     public static boolean getShowToolTips() {
-        return getBoolean(SHOW_TOOL_TIPS);
+        return _prefs.getBoolean(SHOW_TOOL_TIPS, true);
     }
 
     public static void setJoinFillColour(Color colour) {

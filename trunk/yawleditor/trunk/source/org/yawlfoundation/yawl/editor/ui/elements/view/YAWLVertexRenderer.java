@@ -22,7 +22,7 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
@@ -85,53 +85,17 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
     }
 
     protected void drawIcon(Graphics graphics, Dimension size) {
-        if (!(view.getCell() instanceof YAWLTask) ||
-                ((YAWLTask) view.getCell()).getIconPath() == null) {
-            return;
-        }
-
-        /*
-        * We try loading the icon from internal to the Jar first. If
-        * that fails, we assume it's external, and try again.
-        */
-
-        Icon icon = null;
-
-        try {
-            icon = ResourceLoader.getImageAsIcon(
-                    ((YAWLTask) view.getCell()).getIconPath()
-            );
-        } catch (Exception e) {}
-
-        if (icon == null) {
-            try {
-                icon = ResourceLoader.getExternalImageAsIcon(
-                    //    FileUtilities.getAbsoluteTaskIconPath(
-                                ((YAWLTask) view.getCell()).getIconPath()
-                     //   )
+        if (view.getCell() instanceof YAWLTask) {
+            YAWLTask task = (YAWLTask) view.getCell();
+            String iconPath = task.getIconPath();
+            if (iconPath != null) {
+                Icon icon = IconList.getInstance().getIcon(
+                        ((YAWLTask) view.getCell()).getIconPath());
+                icon.paintIcon(null, graphics,
+                        getIconHorizontalOffset(size, icon),
+                        getIconVerticalOffset(size,icon)
                 );
-            } catch (Exception e) {}
-        }
-
-        /*
-        * If everything else fails, default to a default broken icon
-        */
-
-        if (icon == null) {
-            try {
-                icon = ResourceLoader.getImageAsIcon(
-                        "/org/yawlfoundation/yawl/editor/ui/resources/taskicons/BrokenIcon.png"
-                );
-            } catch (Exception e) {}
-        }
-
-        if (icon != null) {
-            icon.paintIcon(
-                    null,
-                    graphics,
-                    getIconHorizontalOffset(size, icon),
-                    getIconVerticalOffset(size,icon)
-            );
+            }
         }
     }
 

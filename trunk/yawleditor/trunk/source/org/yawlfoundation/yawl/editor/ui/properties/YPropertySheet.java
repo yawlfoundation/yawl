@@ -124,6 +124,7 @@ public class YPropertySheet extends PropertySheetPanel {
 
         public YPropertySheetTable() {
             super(new YPropertySheetTableModel());
+            setGridColor(new Color(220,220,220));
         }
 
 

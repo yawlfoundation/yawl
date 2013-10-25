@@ -47,12 +47,14 @@ public class NetProperties extends YPropertiesBean {
     public String getUri() { return specHandler.getURI(); }
 
     public void setUri(String uri) {
-        if (StringUtil.isNullOrEmpty(uri)) {
-            showWarning("Invalid Specification Name",
-                    "Specification Name cannot be blank");
-            firePropertyChange("Uri", specHandler.getVersion().toString());
+        try {
+            specHandler.setURI(uri);
         }
-        specHandler.setURI(uri);
+        catch (IllegalIdentifierException iie) {
+            showWarning("Invalid Specification Name",
+                  "Specification Name cannot be blank or contain invalid XML characters");
+            firePropertyChange("Uri", specHandler.getURI());
+        }
     }
 
 

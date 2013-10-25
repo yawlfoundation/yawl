@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.ui.data.document.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
