@@ -41,7 +41,7 @@ public class RemoveFromVisibleCancellationSetAction extends YAWLSelectedNetActio
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Remove from Cancellation Set");
         putValue(Action.LONG_DESCRIPTION, " Remove selected items from visible cancellation set ");
-        putValue(Action.SMALL_ICON, getPNGIcon("RemoveFromCancelSet"));
+        putValue(Action.SMALL_ICON, getPNGIcon("removeFromCancelSet"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,InputEvent.CTRL_MASK));
     }

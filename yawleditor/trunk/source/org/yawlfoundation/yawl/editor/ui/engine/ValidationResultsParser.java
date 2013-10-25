@@ -71,7 +71,7 @@ public class ValidationResultsParser {
         if (message.contains("has timer settings but no decomposition")) {
             return new ValidationMessage("Warning: Task '"
                     + extractLabel(message) +
-                    "has invalid timer settings.", message + canSet("decomposition"));
+                    "' has invalid timer settings.", message + canSet("decomposition"));
         }
         if (message.startsWith("The type library (Schema) in specification contains")) {
             return new ValidationMessage("Error: Missing data type definition '"

@@ -39,20 +39,18 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
     }
 
     protected void buildInterface() {
-        add(new YAWLMenuItem(new SetSelectedElementsFillColourAction()));
         add(getAlignmentMenu());
-        addSeparator();
-
-        add(new YAWLMenuItem(new RepositoryAddAction(null, Repo.TaskDecomposition, null)));
-        add(new YAWLMenuItem(new RepositoryGetAction(null, Repo.TaskDecomposition, null)));
-        add(new YAWLMenuItem(new RepositoryRemoveAction(null, Repo.TaskDecomposition, null)));
+        add(getRepositoryMenu());
 
         addSeparator();
+        add(new YAWLMenuItem(new SetSelectedElementsFillColourAction()));
         add(new YAWLMenuItem(IncreaseSizeAction.getInstance()));
         add(new YAWLMenuItem(DecreaseSizeAction.getInstance()));
+
         addSeparator();
         add(new YAWLMenuItem(AddToVisibleCancellationSetAction.getInstance()));
         add(new YAWLMenuItem(RemoveFromVisibleCancellationSetAction.getInstance()));
+
         addPlugins();
     }
 
@@ -70,6 +68,20 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
 
         return alignmentMenu;
     }
+
+
+    private JMenu getRepositoryMenu() {
+        JMenu repositoryMenu = new JMenu("Decomposition");
+        repositoryMenu.setMnemonic(KeyEvent.VK_D);
+        repositoryMenu.add(new YAWLMenuItem(
+                new RepositoryAddAction(null, Repo.TaskDecomposition, null)));
+        repositoryMenu.add(new YAWLMenuItem(
+                new RepositoryGetAction(null, Repo.TaskDecomposition, null)));
+        repositoryMenu.add(new YAWLMenuItem(
+                new RepositoryRemoveAction(null, Repo.TaskDecomposition, null)));
+        return repositoryMenu;
+    }
+
 
     private int addPlugins() {
         int addedItemCount = 0;

@@ -77,6 +77,15 @@ public class ResourcesCache {
         return null;
     }
 
+    public boolean hasLoadedResources() {
+        for (Map<String, TaskResourceSet> map : _cache.values()) {    // net in spec
+            for (TaskResourceSet resources : map.values()) {          // task in spec
+                if (resources.hasAnyResourceReferences()) return true;
+            }
+        }
+        return false;
+    }
+
     public void clear() { _cache.clear(); }
 
 

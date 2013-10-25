@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.actions.datatypedialog.*;
-import org.yawlfoundation.yawl.editor.ui.data.editorpane.AbstractXMLStyledDocument;
+import org.yawlfoundation.yawl.editor.ui.data.document.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;

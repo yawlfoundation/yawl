@@ -100,6 +100,10 @@ public class BasicOfferInteraction extends AbstractInteraction {
     }
 
 
+    protected boolean hasResources() {
+        return ! (_participants.isEmpty() && _roles.isEmpty() && _dynParams.isEmpty());
+    }
+
 
     protected void parse(Element e, Namespace nsYawl) throws ResourceParseException {
 

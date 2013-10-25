@@ -20,8 +20,9 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
@@ -221,8 +222,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     private JPanel createAutoFormatPanel(final XQueryEditorPane editorPane) {
         String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/";
         JPanel content = new JPanel(new BorderLayout());
-        JButton btnFormat = new JButton(ResourceLoader.getImageAsIcon(
-                  iconPath + "taskicons/AutoFormat.png"));
+        JButton btnFormat = new JButton(IconList.getInstance().getIcon("autoformat.png"));
 
         btnFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

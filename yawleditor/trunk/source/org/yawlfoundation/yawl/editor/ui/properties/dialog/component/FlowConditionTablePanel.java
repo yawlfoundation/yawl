@@ -33,10 +33,8 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -69,6 +67,7 @@ public class FlowConditionTablePanel extends JPanel
         _parent = parent;
         List<YAWLFlowRelation> rows = new ArrayList<YAWLFlowRelation>(
                 task.getOutgoingFlows());
+        Collections.sort(rows);
         saveOriginalFlowColours(rows);
         add(createToolBar(parent), BorderLayout.SOUTH);
         JScrollPane scrollPane = new JScrollPane(createTable(rows));

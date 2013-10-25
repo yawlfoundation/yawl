@@ -44,12 +44,7 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
 
     public void setValue(Object value) {
         pair = (NetTaskPair) value;
-        String simpleText = "None";
-        if (pair != null) {
-            YTimerParameters timerParameters = getTimerParameters();
-            if (timerParameters != null) simpleText = timerParameters.toString();
-        }
-        ((DefaultCellRenderer) label).setValue(simpleText);
+        ((DefaultCellRenderer) label).setValue(pair.getSimpleText());
     }
 
 
@@ -58,13 +53,13 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
         TimerDialog dialog = new TimerDialog();
         dialog.setContent(oldDetail, getNet());
         dialog.setVisible(true);
+
+        NetTaskPair oldPair = pair;
+        pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
         YTimerParameters newDetail = dialog.getContent();
-        if ((newDetail == null && oldDetail != null) ||
-           (! (newDetail == null || newDetail.equals(oldDetail)))) {
-            ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
-            setValue(pair);
-            firePropertyChange(pair, pair);
-        }
+        ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
+        pair.setSimpleText(newDetail.toString());
+        firePropertyChange(oldPair, pair);
     }
 
 

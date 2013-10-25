@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.repository.action;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
@@ -37,7 +37,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class RepositoryAddAction extends YAWLBaseAction {
+public class RepositoryAddAction extends YAWLOpenSpecificationAction {
 
     Repo selectedRepo;
     Component caller;
@@ -77,6 +77,8 @@ public class RepositoryAddAction extends YAWLBaseAction {
                         repo.getTaskDecompositionRepository().add(
                                 name, description, (YAWLServiceGateway) decomposition);
                     }
+                    else showError(
+                            "Please first select a task with a decomposition", "Error");
                     break;
                 case NetDecomposition:
                     YNet selectedNet = YAWLEditor.getNetsPane().getSelectedYNet();
@@ -113,5 +115,10 @@ public class RepositoryAddAction extends YAWLBaseAction {
         Object cell = YAWLEditor.getNetsPane().getSelectedGraph().getSelectionCell();
         YAWLVertex vertex = NetCellUtilities.getVertexFromCell(cell);
         return vertex != null ? ((YAWLAtomicTask) vertex).getDecomposition() : null;
+    }
+
+    private void showError(String message, String title) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
+                JOptionPane.ERROR_MESSAGE);
     }
 }

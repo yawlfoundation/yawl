@@ -46,20 +46,21 @@ class SpecificationMenu extends JMenu {
         addMenuItemAction(new CloseSpecificationAction());
 
         addSeparator();
+        addMenuItemAction(new UploadSpecificationAction());
+        addMenuItemAction(new DownloadSpecificationAction());
+
+        addSeparator();
         addMenuItemAction(new ValidateSpecificationAction());
         addMenuItemAction(new AnalyseSpecificationAction());
 
         addSeparator();
         addMenuItemAction(new PrintSpecificationAction());
-
-        addSeparator();
-        addMenuItemAction(new DataTypeDefinitionsAction());
         addMenuItemAction(new DeleteOrphanDecompositionAction());
-        addSeparator();
+        addMenuItemAction(new PreferencesAction());
 
+        addSeparator();
         if (addPlugins() > 0) addSeparator();
 
-        addMenuItemAction(new PreferencesAction());
         addMenuItemAction(new ExitAction(this));
     }
 

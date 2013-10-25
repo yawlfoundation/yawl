@@ -109,6 +109,10 @@ public class YSpecificationHandler {
         return _controlFlowHandler.checkID(id);
     }
 
+    public boolean isValidXMLIdentifier(String id) {
+        return _controlFlowHandler.isValidXMLIdentifier(id);
+    }
+
     /******************************************************************************/
     // MetaData Settings //
 
@@ -122,7 +126,12 @@ public class YSpecificationHandler {
     }
 
 
-    public void setURI(String uri) { _specification.setURI(uri); }
+    public void setURI(String uri) throws IllegalIdentifierException {
+        if (isValidXMLIdentifier(uri)) {
+            _specification.setURI(uri);
+        }
+        else throw new IllegalIdentifierException("Invalid or Empty Specification URI");
+    }
 
     public String getURI() { return _specification.getURI(); }
 

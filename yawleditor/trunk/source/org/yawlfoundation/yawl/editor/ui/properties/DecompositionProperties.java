@@ -95,8 +95,9 @@ public class DecompositionProperties extends CellProperties {
 
             YAWLServiceReference service =
                     ((YAWLServiceGateway) _decomposition).getYawlService();
-            serviceName = service != null ? service.getServiceName() :
-                    ServicesPropertyEditor.DEFAULT_WORKLIST;
+            if (service != null) {
+                serviceName = service.getServiceName();
+            }
         }
 
         // update for old specs
@@ -187,6 +188,8 @@ public class DecompositionProperties extends CellProperties {
     private void enableServiceProperties(String service) {
         boolean isDefaultWorklist = service.equals(ServicesPropertyEditor.DEFAULT_WORKLIST);
         setReadOnly("Automated", ! isDefaultWorklist);
+        setReadOnly("Timer", ! isDefaultWorklist);
+        setReadOnly("Resourcing", ! isDefaultWorklist);
         if (! isDefaultWorklist) {
             firePropertyChange("Automated", false);
         }

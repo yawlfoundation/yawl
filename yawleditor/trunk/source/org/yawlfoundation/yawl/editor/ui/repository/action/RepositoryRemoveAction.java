@@ -18,8 +18,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
-import org.yawlfoundation.yawl.editor.core.repository.*;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.core.repository.Repo;
+import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
+import org.yawlfoundation.yawl.editor.core.repository.RepoMap;
+import org.yawlfoundation.yawl.editor.core.repository.YRepository;
+import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
@@ -27,7 +30,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class RepositoryRemoveAction extends YAWLBaseAction {
+public class RepositoryRemoveAction extends YAWLOpenSpecificationAction {
 
     Repo selectedRepo;
     Component caller;

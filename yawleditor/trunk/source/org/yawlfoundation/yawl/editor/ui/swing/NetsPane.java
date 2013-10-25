@@ -88,6 +88,16 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         return frame != null ? frame.getNet() : null;
     }
 
+    public void setSelectedTab(String caption) {
+        for (int i=0; i<getTabCount(); i++) {
+            if (getTitleAt(i).equals(caption)) {
+                setSelectedIndex(i);
+                updateState(true);
+                break;
+            }
+        }
+    }
+
     public YNet getSelectedYNet() {
         return (YNet) getSelectedGraph().getNetModel().getDecomposition();
     }

@@ -22,7 +22,9 @@ import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.CutAction;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.GotoSubNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
@@ -52,7 +54,9 @@ public class VertexPopupMenu extends JPopupMenu {
     private void addGraphSpecificMenuItems(YAWLVertex vertex) {
         addCopyableMenuItems(vertex);
         addRemoveableMenuItems(vertex);
+        addSubNetMenuItem(vertex);
     }
+
 
     private void addCopyableMenuItems(YAWLVertex vertex) {
         if (!vertex.isCopyable()) {
@@ -69,6 +73,12 @@ public class VertexPopupMenu extends JPopupMenu {
         add(new YAWLPopupMenuItem(DeleteAction.getInstance()));
     }
 
+
+    private void addSubNetMenuItem(YAWLVertex vertex) {
+        if (vertex instanceof YAWLCompositeTask) {
+            add(new YAWLPopupMenuItem(new GotoSubNetAction((YAWLCompositeTask) vertex)));
+        }
+    }
 
 
     private int addPlugins() {

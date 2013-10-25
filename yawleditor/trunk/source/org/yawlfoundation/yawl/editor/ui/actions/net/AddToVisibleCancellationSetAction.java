@@ -42,7 +42,7 @@ public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
         putValue(Action.SHORT_DESCRIPTION, " Add selected items to visible cancellation set ");
         putValue(Action.NAME, "Add to Cancellation Set");
         putValue(Action.LONG_DESCRIPTION, " Add selected items to visible cancellation set ");
-        putValue(Action.SMALL_ICON, getPNGIcon("AddToCancelSet"));
+        putValue(Action.SMALL_ICON, getPNGIcon("addToCancelSet"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,InputEvent.CTRL_MASK));
     }

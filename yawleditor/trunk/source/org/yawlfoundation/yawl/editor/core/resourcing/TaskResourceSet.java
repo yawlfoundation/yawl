@@ -78,6 +78,13 @@ public class TaskResourceSet {
         return invalids;
     }
 
+    public boolean hasResources() {
+        return _offer.hasResources() || _secondary.hasResources();
+    }
+
+    public boolean hasAnyResourceReferences() {
+        return hasResources() || ! getInvalidReferences().isEmpty();
+    }
 
     private void parse() {
         if (_task != null) {
