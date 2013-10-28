@@ -83,7 +83,7 @@ class VariableTable extends JSingleSelectTable {
         getTableModel().addRow();
         int row = getRowCount() - 1;
         selectRow(row);
-        editCellAt(row, 0);
+        editCellAt(row, 1);
         requestFocusInWindow();
         getTableModel().getVariableAtRow(row).setDecompositionID(netElementName);
         orderChanged = true;

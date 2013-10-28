@@ -26,12 +26,13 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 */
 class NetVarTableModel extends VariableTableModel {
 
-    private static final String[] COLUMN_LABELS = {"Name", "Type", "Scope", "Value"};
+    private static final String[] COLUMN_LABELS = {"", "Name", "Type", "Scope", "Value"};
 
-    public static final int NAME_COLUMN  = 0;
-    public static final int TYPE_COLUMN  = 1;
-    public static final int SCOPE_COLUMN = 2;
-    public static final int VALUE_COLUMN = 3;
+    public static final int SELECTOR_COLUMN  = 0;
+    public static final int NAME_COLUMN  = 1;
+    public static final int TYPE_COLUMN  = 2;
+    public static final int SCOPE_COLUMN = 3;
+    public static final int VALUE_COLUMN = 4;
 
     public NetVarTableModel() {
         super();
@@ -50,27 +51,19 @@ class NetVarTableModel extends VariableTableModel {
     }
 
     public boolean isCellEditable(int row, int column) {
-        return editable && (column != VALUE_COLUMN || getVariableAtRow(row).mayUpdateValue());
+        return column != SELECTOR_COLUMN && editable &&
+               (column != VALUE_COLUMN || getVariableAtRow(row).mayUpdateValue());
     }
 
     public Object getValueAt(int row, int col) {
         VariableRow selected = getVariableAtRow(row);
         switch (col) {
-            case NAME_COLUMN:  {
-                return selected.getName();
-            }
-            case TYPE_COLUMN:  {
-                return selected.getDataType();
-            }
-            case SCOPE_COLUMN:  {
-                return selected.getUsage();
-            }
-            case VALUE_COLUMN:  {
-                return selected.getValue();
-            }
-            default: {
-                return null;
-            }
+            case SELECTOR_COLUMN: return SELECTOR_INDICATOR;
+            case NAME_COLUMN:     return selected.getName();
+            case TYPE_COLUMN:     return selected.getDataType();
+            case SCOPE_COLUMN:    return selected.getUsage();
+            case VALUE_COLUMN:    return selected.getValue();
+            default: return null;
         }
     }
 

@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -159,7 +160,7 @@ public class VariableTablePanel extends JPanel
         table = new VariableTable(tableType.getModel());
         table.setVariables(rows);
         table.setNetElementName(netElementName);
-        VariableRowUsageEditor usageEditor = new VariableRowUsageEditor();
+        VariableRowUsageEditor usageEditor = new VariableRowUsageEditor(this);
         table.setDefaultEditor(Integer.class, usageEditor);
         VariableRowStringEditor stringEditor = new VariableRowStringEditor(this);
         table.setDefaultEditor(String.class, stringEditor);
@@ -167,6 +168,7 @@ public class VariableTablePanel extends JPanel
         table.setDefaultRenderer(Integer.class, usageRenderer);
         VariableRowStringRenderer stringRenderer = new VariableRowStringRenderer();
         table.setDefaultRenderer(String.class, stringRenderer);
+        fixSelectorColumn(table);
         if (table.getRowCount() > 0) table.selectRow(0);
         return table;
     }
@@ -205,6 +207,12 @@ public class VariableTablePanel extends JPanel
         return button;
     }
 
+    private void fixSelectorColumn(JTable table) {
+        TableColumn column = table.getColumnModel().getColumn(0);
+        column.setPreferredWidth(15);
+        column.setMaxWidth(15);
+        column.setResizable(false);
+    }
 
     private ImageIcon getIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");

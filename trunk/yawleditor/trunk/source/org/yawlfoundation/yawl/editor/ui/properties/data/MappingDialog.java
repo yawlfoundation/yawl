@@ -42,7 +42,7 @@ import java.util.Vector;
  */
 public class MappingDialog extends JDialog implements ActionListener {
 
-    private VariableRow _row;                    // the task input or output row
+    private VariableRow _taskRow;                    // the task input or output row
     private VariableTablePanel _netTablePanel;
     private XQueryEditorPane _xQueryEditor;
     private XQueryEditorPane _miQueryEditor;
@@ -58,7 +58,7 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     public MappingDialog(VariableTablePanel netTablePanel, VariableRow row) {
         super();
-        _row = row;
+        _taskRow = row;
         _netTablePanel = netTablePanel;
         setTitle(makeTitle());
         add(getContent());
@@ -66,7 +66,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
-        setPreferredSize(new Dimension(426, _row.isMultiInstance() ? 520 : 400));
+        setPreferredSize(new Dimension(426, _taskRow.isMultiInstance() ? 520 : 400));
         pack();
     }
 
@@ -83,6 +83,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         }
         else if (action.equals("expressionRadio")) {
             enableCombos(false, false);
+            _xQueryEditor.setText("");
         }
         else if (action.equals("netVarComboSelection")) {
             handleNetVarComboSelection();
@@ -92,9 +93,13 @@ public class MappingDialog extends JDialog implements ActionListener {
         }
         else {
             if (action.equals("OK")) {
-                _row.setMapping(formatQuery(_xQueryEditor.getText(), false));
-                if (_row.isMultiInstance()) {
-                    _row.setMIQuery(formatQuery(_miQueryEditor.getText(), false));
+                _taskRow.setMapping(formatQuery(_xQueryEditor.getText(), false));
+                if (_taskRow.isMultiInstance()) {
+                    _taskRow.setMIQuery(formatQuery(_miQueryEditor.getText(), false));
+                }
+                if (_taskRow.isOutput() && netVarsButton.isSelected()) {
+                    _taskRow.setNetVarForOutputMapping(
+                            (String) netVarsCombo.getSelectedItem());
                 }
                 _netTablePanel.getVariableDialog().enableApplyButton();
             }
@@ -105,9 +110,9 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private String makeTitle() {
         StringBuilder sb = new StringBuilder();
-        sb.append(YDataHandler.getScopeName(_row.getUsage()))
+        sb.append(YDataHandler.getScopeName(_taskRow.getUsage()))
           .append(" Data Mapping for Task: ")
-          .append(_row.getDecompositionID());
+          .append(_taskRow.getDecompositionID());
         return sb.toString();
     }
 
@@ -117,7 +122,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
         content.add(buildIOPanel());
         content.add(createQueryPanel());
-        if (_row.isMultiInstance()) content.add(createMiQueryPanel());
+        if (_taskRow.isMultiInstance()) content.add(createMiQueryPanel());
         content.add(createButtonBar());
         initContent();
         return content;
@@ -134,18 +139,14 @@ public class MappingDialog extends JDialog implements ActionListener {
             gatewayCombo.setEnabled(false);
         }
 
-        String mapping = _row.getMapping();
-        if (mapping == null) {
+        String mapping = _taskRow.getMapping();
+        if (mapping == null ||
+                ! (initNetVarSelection(mapping) || initExternalSelection(mapping))) {
             setExpressionButton();
         }
-        else {
-            if (! (initExternalSelection(mapping) || initNetVarSelection(mapping))) {
-                setExpressionButton();
-            }
-        }
+
         if (expressionButton.isSelected() && ! expressionButton.isVisible()) {
-            enableContents(queryPanel, false);
-            okButton.setEnabled(false);
+            enableQueryEditor(false);
         }
         if (_miQueryEditor != null) {
             disableChoicesForMIVariable();
@@ -165,17 +166,17 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
     private boolean initExternalSelection(String mapping) {
-        if (! mapping.contains("#external:")) return false;
-        String gatewayName = mapping.substring(
-                mapping.indexOf(':'), mapping.lastIndexOf(':'));
-        if (gatewayName != null) {
-            for (int i = 0; i < gatewayCombo.getItemCount(); i++) {
-                if (gatewayName.equals(gatewayCombo.getItemAt(i))) {
-                    enableCombos(false, true);
-                    gatewayCombo.setSelectedIndex(i);
-                    gatewayButton.setSelected(true);
-                    return true;
-                }
+        if (mapping == null || ! mapping.contains("#external:")) return false;
+        int first = mapping.indexOf(':');
+        int last = mapping.lastIndexOf(':');
+        if (first < 0 || last < 0) return false;
+        String gatewayName = mapping.substring(first, last);
+        for (int i = 0; i < gatewayCombo.getItemCount(); i++) {
+            if (gatewayName.equals(gatewayCombo.getItemAt(i))) {
+                enableCombos(false, true);
+                gatewayCombo.setSelectedIndex(i);
+                gatewayButton.setSelected(true);
+                return true;
             }
         }
         return false;          // gateway not in list
@@ -183,21 +184,30 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private boolean initNetVarSelection(String mapping) {
-        if (_row.isOutput()) {
-            enableCombos(true, false);
-            netVarsCombo.setSelectedItem(_row.getNetVarForOutputMapping());
-            netVarsButton.setSelected(true);
-            return true;
-        }
+        if (mapping == null) return false;
+
         DefaultMapping defMapping = new DefaultMapping(mapping);
         if (defMapping.isCustomMapping()) return false;
 
-        VariableRow row = getVariableRow(defMapping.getVariableName());
-        if (row != null && row.getDecompositionID().equals(defMapping.getContainerName())) {
+        String netVarName = null;
+        if (_taskRow.isInput()) {
+            VariableRow netVarRow = getVariableRow(defMapping.getVariableName());
+            if (netVarRow != null && netVarRow.getDecompositionID().equals(
+                    defMapping.getContainerName())) {
+                netVarName = netVarRow.getName();
+            }
+        }
+        else if (_taskRow.isOutput()) {
+            netVarName = _taskRow.getNetVarForOutputMapping();
+        }
+
+        if (netVarName != null) {
             enableCombos(true, false);
-            netVarsCombo.setSelectedItem(row.getName());
-            netVarsButton.setSelected(true);
-            return true;
+            netVarsCombo.setSelectedItem(netVarName);
+            if (netVarsCombo.getSelectedIndex() > -1) {
+                netVarsButton.setSelected(true);
+                return true;
+            }
         }
         return false;
     }
@@ -212,7 +222,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
     private JPanel createMiQueryPanel() {
-        String title = (_row.isInput() ? "Splitting" : "Joining") + " Query";
+        String title = (_taskRow.isInput() ? "Splitting" : "Joining") + " Query";
         JPanel miQueryPanel = new JPanel(new BorderLayout());
         miQueryPanel.setBorder(new TitledBorder(title));
         miQueryPanel.add(getMiQueryEditor(), BorderLayout.CENTER);
@@ -234,14 +244,14 @@ public class MappingDialog extends JDialog implements ActionListener {
         btnFormat.setToolTipText(" Auto-format query ");
         content.add(btnFormat, BorderLayout.EAST);
 
-        if (_row.isOutput()) {
+        if (_taskRow.isOutput()) {
             JPanel outerContent = new JPanel(new BorderLayout());
             JButton btnReset = new JButton(ResourceLoader.getImageAsIcon(
                     iconPath + "menuicons/arrow_undo.png"));
 
             btnReset.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    editorPane.setText(createMapping(_row));
+                    editorPane.setText(resetMapping(_taskRow));
                 }
             });
 
@@ -260,8 +270,8 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private String makeQueryTitle() {
-        return "Mapping for Task " + YDataHandler.getScopeName(_row.getUsage()) +
-                " Variable: " + _row.getName();
+        return "Mapping for Task " + YDataHandler.getScopeName(_taskRow.getUsage()) +
+                " Variable: " + _taskRow.getName();
     }
 
 
@@ -269,7 +279,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         _xQueryEditor = new XQueryEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setValidating(true);
-        _xQueryEditor.setText(formatQuery(_row.getMapping(), true));
+        _xQueryEditor.setText(formatQuery(_taskRow.getMapping(), true));
         return _xQueryEditor;
     }
 
@@ -277,7 +287,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         _miQueryEditor = new XQueryEditorPane();
         _miQueryEditor.setPreferredSize(new Dimension(400, 90));
         _miQueryEditor.setValidating(true);
-        _miQueryEditor.setText(formatQuery(_row.getMIQuery(), true));
+        _miQueryEditor.setText(formatQuery(_taskRow.getMIQuery(), true));
         return _miQueryEditor;
     }
 
@@ -300,6 +310,21 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
+    // task output only
+    private String resetMapping(VariableRow row) {
+        StringBuilder s = new StringBuilder();
+        if (netVarsButton.isSelected()) {
+            s.append('/').append(row.getDecompositionID()).append('/').append(row.getName())
+                    .append('/').append(getXQuerySuffix(row));
+        }
+        else {
+            s.append("#external:").append(gatewayCombo.getSelectedItem())
+                    .append(":").append(_taskRow.getName());
+        }
+        return s.toString();
+    }
+
+
     private String createMapping(VariableRow row) {
         StringBuilder s = new StringBuilder();
         s.append('/').append(row.getDecompositionID()).append('/').append(row.getName())
@@ -315,7 +340,7 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private JPanel buildIOPanel() {
-        String title = _row.isInput() ? "Input From" : "Output To";
+        String title = _taskRow.isInput() ? "Input From" : "Output To";
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new TitledBorder(title));
         panel.add(buildSelectionPanel(), BorderLayout.CENTER);
@@ -344,14 +369,15 @@ public class MappingDialog extends JDialog implements ActionListener {
         radioPanel.add(gatewayButton);
 
         // build even if output so spacing is consistent
-        expressionButton = new JRadioButton("Expression: ");
+        expressionButton = new JRadioButton("Expression");
         expressionButton.setMnemonic(KeyEvent.VK_E);
         expressionButton.setActionCommand("expressionRadio");
         expressionButton.addActionListener(this);
         buttonGroup.add(expressionButton);
         radioPanel.add(expressionButton);
 
-        if (_row.isOutput()) expressionButton.setVisible(false);
+        // output vars must map to a net var or data gateway
+        if (_taskRow.isOutput()) expressionButton.setVisible(false);
 
         return radioPanel;
     }
@@ -397,17 +423,23 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private void handleNetVarComboSelection() {
-        if (_row.isOutput()) return;
-        VariableRow row = getVariableRow((String) netVarsCombo.getSelectedItem());
-        if (row != null) {
-            _xQueryEditor.setText(createMapping(row));
+        if (_taskRow.isInput()) {
+            VariableRow netVar = getVariableRow((String) netVarsCombo.getSelectedItem());
+            if (netVar != null) {
+                _xQueryEditor.setText(createMapping(netVar));
+            }
+        }
+        else {
+            _xQueryEditor.setText(createMapping(_taskRow));
         }
     }
 
     private void handleGatewayComboSelection() {
-        if (_row.isOutput()) return;
+        if (_taskRow.isOutput()) {
+            enableQueryEditor(true);
+        }
         String expression ="#external:" + gatewayCombo.getSelectedItem() + ":" +
-                                            _row.getName();
+                                            _taskRow.getName();
         _xQueryEditor.setText(expression);
     }
 
@@ -421,8 +453,18 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private void enableContents(JPanel panel, boolean enable) {
         for (Component component : panel.getComponents()) {
+            if (component instanceof JPanel) {
+                enableContents((JPanel) component, enable);
+            }
             component.setEnabled(enable);
         }
+    }
+
+
+    private void enableQueryEditor(boolean enable) {
+        enableContents(queryPanel, enable);
+        _xQueryEditor.getXQueryEditor().setEnabled(enable);
+        okButton.setEnabled(enable);
     }
 
 

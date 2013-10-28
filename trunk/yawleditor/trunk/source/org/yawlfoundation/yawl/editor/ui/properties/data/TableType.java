@@ -27,7 +27,7 @@ public enum TableType {
     Net {
         public VariableTableModel getModel() { return new NetVarTableModel(); }
 
-        public int getPreferredWidth() { return 400; }
+        public int getPreferredWidth() { return 600; }
 
         public String getName() { return "Net"; }
     },
@@ -35,7 +35,7 @@ public enum TableType {
     TaskInput {
         public VariableTableModel getModel() { return new TaskInputVarTableModel(); }
 
-        public int getPreferredWidth() { return 200; }
+        public int getPreferredWidth() { return 350; }
 
         public String getName() { return "Task Input"; }
     },
@@ -43,7 +43,7 @@ public enum TableType {
     TaskOutput {
         public VariableTableModel getModel() { return new TaskOutputVarTableModel(); }
 
-        public int getPreferredWidth() { return 300; }
+        public int getPreferredWidth() { return 350; }
 
         public String getName() { return "Task Output"; }
     };
