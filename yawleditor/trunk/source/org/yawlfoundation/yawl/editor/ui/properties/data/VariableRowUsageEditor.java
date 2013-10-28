@@ -30,23 +30,32 @@ import java.awt.*;
  */
 public class VariableRowUsageEditor extends AbstractCellEditor implements TableCellEditor {
 
+    private VariableTablePanel tablePanel;
     private JComboBox usageCombo;
 
-    public VariableRowUsageEditor() {
+    public VariableRowUsageEditor(VariableTablePanel panel) {
         usageCombo = new JComboBox(YDataHandler.getScopeNames().toArray());
+        tablePanel = panel;
     }
 
 
     public Object getCellEditorValue() {
-        return usageCombo.getSelectedIndex() - 1;    // values start at -1
+        return usageCombo.getSelectedIndex() - 1;    // scope values start at -1
     }
 
 
     public Component getTableCellEditorComponent(JTable table, Object value,
                                                  boolean isSelected, int row,
                                                  int column) {
+        tablePanel.setEditMode(true);
         usageCombo.setSelectedItem(((Integer) value) + 1);
         return usageCombo;
+    }
+
+
+    public boolean stopCellEditing() {
+        tablePanel.setEditMode(false);
+        return super.stopCellEditing();
     }
 
 }

@@ -36,7 +36,7 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
         reset();
         VariableRow varRow = ((VariableTable) table).getTableModel().getVariableAtRow(row);
         if (isTaskTable(table)) {
-            if (varRow.getMapping() == null) {
+            if (column > 0 && varRow.getMapping() == null) {
                 setFont(getFont().deriveFont(Font.ITALIC));
             }
 

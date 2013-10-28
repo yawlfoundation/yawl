@@ -58,19 +58,20 @@ public class VariableRowStringEditor extends AbstractCellEditor
         valuePanel = createValueField();
     }
 
-    public VariableRowStringEditor(VariableTablePanel table) {
+    public VariableRowStringEditor(VariableTablePanel panel) {
         this();
-        setTablePanel(table);
+        setTablePanel(panel);
     }
 
 
-    public void setTablePanel(VariableTablePanel table) { tablePanel = table; }
+    public void setTablePanel(VariableTablePanel panel) { tablePanel = panel; }
 
 
     public Object getCellEditorValue() {
         if (editingColumnName.equals("Type")) return dataTypeCombo.getSelectedItem();
         if (editingColumnName.equals("Value")) {
-            return checkBox != null ? String.valueOf(checkBox.isSelected()) : valueField.getText();
+            return checkBox != null ? String.valueOf(checkBox.isSelected())
+                    : valueField.getText();
         }
         if (editingColumnName.equals("Name")) return nameField.getText();
         return null;

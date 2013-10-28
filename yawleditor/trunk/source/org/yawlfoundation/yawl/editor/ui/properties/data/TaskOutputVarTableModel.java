@@ -26,11 +26,12 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 */
 class TaskOutputVarTableModel extends VariableTableModel {
 
-    private static final String[] COLUMN_LABELS = {"Name", "Type", "Value"};
+    private static final String[] COLUMN_LABELS = {"", "Name", "Type", "Value"};
 
-    public static final int NAME_COLUMN  = 0;
-    public static final int TYPE_COLUMN  = 1;
-    public static final int VALUE_COLUMN = 2;
+    public static final int SELECTOR_COLUMN  = 0;
+    public static final int NAME_COLUMN  = 1;
+    public static final int TYPE_COLUMN  = 2;
+    public static final int VALUE_COLUMN = 3;
 
     public TaskOutputVarTableModel() {
         super();
@@ -49,24 +50,18 @@ class TaskOutputVarTableModel extends VariableTableModel {
     }
 
     public boolean isCellEditable(int row, int column) {
-        return editable && (column != VALUE_COLUMN || getVariableAtRow(row).isOutputOnlyTask());
+        return column != SELECTOR_COLUMN && editable &&
+               (column != VALUE_COLUMN || getVariableAtRow(row).isOutputOnlyTask());
     }
 
     public Object getValueAt(int row, int col) {
         VariableRow selected = getVariableAtRow(row);
         switch (col) {
-            case NAME_COLUMN:  {
-                return selected.getName();
-            }
-            case TYPE_COLUMN:  {
-                return selected.getDataType();
-            }
-            case VALUE_COLUMN:  {
-                return selected.getValue();
-            }
-            default: {
-                return null;
-            }
+            case SELECTOR_COLUMN: return SELECTOR_INDICATOR;
+            case NAME_COLUMN:     return selected.getName();
+            case TYPE_COLUMN:     return selected.getDataType();
+            case VALUE_COLUMN:    return selected.getValue();
+            default: return null;
         }
     }
 

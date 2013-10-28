@@ -26,10 +26,11 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 */
 class TaskInputVarTableModel extends VariableTableModel {
 
-    private static final String[] COLUMN_LABELS = {"Name", "Type"};
+    private static final String[] COLUMN_LABELS = {"", "Name", "Type"};
 
-    public static final int NAME_COLUMN  = 0;
-    public static final int TYPE_COLUMN  = 1;
+    public static final int SELECTOR_COLUMN  = 0;
+    public static final int NAME_COLUMN  = 1;
+    public static final int TYPE_COLUMN  = 2;
 
     public TaskInputVarTableModel() {
         super();
@@ -48,21 +49,16 @@ class TaskInputVarTableModel extends VariableTableModel {
     }
 
     public boolean isCellEditable(int row, int column) {
-        return editable;
+        return column != SELECTOR_COLUMN  && editable;
     }
 
     public Object getValueAt(int row, int col) {
         VariableRow selected = getVariableAtRow(row);
         switch (col) {
-            case NAME_COLUMN:  {
-                return selected.getName();
-            }
-            case TYPE_COLUMN:  {
-                return selected.getDataType();
-            }
-            default: {
-                return null;
-            }
+            case SELECTOR_COLUMN: return SELECTOR_INDICATOR;
+            case NAME_COLUMN:     return selected.getName();
+            case TYPE_COLUMN:     return selected.getDataType();
+            default: return null;
         }
     }
 

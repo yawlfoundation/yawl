@@ -66,7 +66,7 @@ public class DataVariableDialog extends JDialog
         initialise(net);
         setTitle("Data Variables for Net " + net.getID());
         add(getContentForNetLevel());
-        setPreferredSize(new Dimension(420, 280));
+        setPreferredSize(new Dimension(620, 280));
         pack();
     }
 
@@ -78,7 +78,7 @@ public class DataVariableDialog extends JDialog
         setTitle("Data Variables for Task " + decomposition.getID());
         add(getContentForTaskLevel());
         enableDefaultValueEditing();
-        setPreferredSize(new Dimension(660, 580));
+        setPreferredSize(new Dimension(760, 580));
         pack();
     }
 
@@ -141,7 +141,7 @@ public class DataVariableDialog extends JDialog
         VariableTable table = row.isInput() ? getTaskInputTable() : getTaskOutputTable();
         table.setMultiInstanceRow();
         row.setName(row.getName() + "_Item");
-        row.setDataType(itemType);
+        row.setDataType(unprefix(itemType));
 
         String mapping = row.getMapping();
         if (mapping != null) {
@@ -664,6 +664,17 @@ public class DataVariableDialog extends JDialog
             }
             index++;
         }
+    }
+
+
+    private String unprefix(String dataType) {
+        if (dataType != null) {
+            int pos = dataType.indexOf(':');
+            if (pos > -1) {
+                return dataType.substring(pos + 1);
+            }
+        }
+        return dataType;
     }
 
 }

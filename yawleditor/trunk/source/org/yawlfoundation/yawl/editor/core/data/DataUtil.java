@@ -83,6 +83,8 @@ public class DataUtil {
 
 
     public String getMultiInstanceItemType(String dataType) {
+        if (dataType.equals("YStringListType")) return dataType;
+
         if (_specificationSchema != null) {
             Document doc = JDOMUtil.stringToDocument(_specificationSchema);
             Element root = doc.getRootElement();
