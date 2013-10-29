@@ -110,7 +110,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 
 
     private Map<YAWLTask, DeconfiguredTask> cacheConfiguredTasks() {
-        Map<YAWLTask, DeconfiguredTask> tasks = new Hashtable<YAWLTask, DeconfiguredTask>();
+        Map<YAWLTask, DeconfiguredTask> tasks = new HashMap<YAWLTask, DeconfiguredTask>();
         for (Object cell : NetGraphModel.getRoots(net.getModel())) {
             if (cell instanceof VertexContainer) {
                 cell = ((VertexContainer) cell).getVertex();

@@ -28,40 +28,39 @@ import java.util.*;
  */
 public class Publisher {
 
-    private SpecificationState _specState;
-    private FileState _fileState;
+    private SpecificationState _currentSpecState;
+    private FileState _currentFileState;
 
     private Set<SpecificationStateListener> _specListeners;
     private Set<FileStateListener> _fileListeners;
     private Map<GraphState, Set<GraphStateListener>> _graphListeners;
 
-    private static Publisher INSTANCE;
+    private static final Publisher INSTANCE = new Publisher();
 
 
     private Publisher() {
         _specListeners = new HashSet<SpecificationStateListener>();
         _fileListeners = new HashSet<FileStateListener>();
         initGraphListenersMap();
-        _fileState = FileState.Closed;
-        _specState = SpecificationState.NoNetsExist;
+        _currentFileState = FileState.Closed;
+        _currentSpecState = SpecificationState.NoNetsExist;
     }
 
 
     public static Publisher getInstance() {
-        if (INSTANCE == null) INSTANCE = new Publisher();
         return INSTANCE;
     }
 
 
     public void subscribe(SpecificationStateListener listener) {
         _specListeners.add(listener);
-        listener.specificationStateChange(_specState);
+        listener.specificationStateChange(_currentSpecState);
     }
 
 
     public void subscribe(FileStateListener listener) {
         _fileListeners.add(listener);
-        listener.specificationFileStateChange(_fileState);
+        listener.specificationFileStateChange(_currentFileState);
     }
 
 
@@ -73,20 +72,6 @@ public class Publisher {
     }
 
 
-    public void publishState(SpecificationState state) {
-        for (SpecificationStateListener listener : _specListeners) {
-            listener.specificationStateChange(state);
-        }
-    }
-
-
-    public void publishState(FileState state) {
-        for (FileStateListener listener : _fileListeners) {
-            listener.specificationFileStateChange(state);
-        }
-    }
-
-
     public void publishState(GraphState state, GraphSelectionEvent event) {
         for (GraphStateListener listener : _graphListeners.get(state)) {
             listener.graphSelectionChange(state, event);
@@ -94,21 +79,10 @@ public class Publisher {
     }
 
 
-    public void setSpecificationState(SpecificationState state) {
-        _specState = state;
-        publishState(state);
-    }
-
-    public SpecificationState getSpecificationState() {
-      return _specState;
-    }
-
-
     public void publishAddNetEvent() {
-        if (getSpecificationState() == SpecificationState.NoNetsExist) {
+        if (_currentSpecState == SpecificationState.NoNetsExist) {
             setSpecificationState(SpecificationState.NetsExist);
         }
-        publishState(SpecificationState.NetDetailChanged);
     }
 
 
@@ -116,17 +90,11 @@ public class Publisher {
         if (noNets) {
             setSpecificationState(SpecificationState.NoNetsExist);
         }
-        publishState(SpecificationState.NetDetailChanged);
     }
 
 
-    public void setFileState(FileState state) {
-        _fileState = state;
-        publishState(state);
-    }
-
-    public FileState getFileState() {
-      return _fileState;
+    public boolean isFileStateClosed() {
+      return _currentFileState == FileState.Closed;
     }
 
 
@@ -137,19 +105,65 @@ public class Publisher {
 
     public void publishCloseFileEvent() {
         setFileState(FileState.Closed);
+        publishNoNetSelectedEvent();
     }
+
+
+    public void publishNoNetSelectedEvent() {
+        if (_currentSpecState != SpecificationState.NoNetsExist) {
+            publishState(SpecificationState.NoNetSelected);
+        }
+    }
+
+
+    public void publishNetSelectedEvent() {
+        publishState(SpecificationState.NetSelected);
+    }
+
+
+    public void publishNoNetsExistEvent() {
+        setSpecificationState(SpecificationState.NoNetsExist);
+    }
+
 
     public void publishFileBusyEvent() {
         publishState(FileState.Busy);
     }
 
+
     public void publishFileUnbusyEvent() {
-        publishState(_fileState);
+        publishState(_currentFileState);
+    }
+
+
+    private void setSpecificationState(SpecificationState state) {
+        _currentSpecState = state;
+        publishState(state);
+    }
+
+
+    private void setFileState(FileState state) {
+        _currentFileState = state;
+        publishState(state);
+    }
+
+
+    private void publishState(FileState state) {
+        for (FileStateListener listener : _fileListeners) {
+            listener.specificationFileStateChange(state);
+        }
+    }
+
+
+    private void publishState(SpecificationState state) {
+        for (SpecificationStateListener listener : _specListeners) {
+            listener.specificationStateChange(state);
+        }
     }
 
 
     private void initGraphListenersMap() {
-        _graphListeners = new Hashtable<GraphState, Set<GraphStateListener>>();
+        _graphListeners = new HashMap<GraphState, Set<GraphStateListener>>();
         for (GraphState state : GraphState.values()) {
             _graphListeners.put(state, new HashSet<GraphStateListener>());
         }

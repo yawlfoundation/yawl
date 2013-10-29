@@ -49,7 +49,7 @@ public class RepoMap {
      * @param path the absolute path to the file to load into the map
      */
     protected RepoMap(String path) {
-        _map = new Hashtable<String, RepoRecord>();
+        _map = new HashMap<String, RepoRecord>();
         load(getFilePath(path));
     }
 

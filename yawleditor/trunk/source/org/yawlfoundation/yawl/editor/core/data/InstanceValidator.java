@@ -103,7 +103,7 @@ public class InstanceValidator {
 
     private String getInternalTypeSchemaContent(String dataType) {
         if (_internalTypeSchemaMap == null) {
-            _internalTypeSchemaMap = new Hashtable<String, String>();
+            _internalTypeSchemaMap = new HashMap<String, String>();
         }
         String schema = _internalTypeSchemaMap.get(dataType);
         if (schema == null) {

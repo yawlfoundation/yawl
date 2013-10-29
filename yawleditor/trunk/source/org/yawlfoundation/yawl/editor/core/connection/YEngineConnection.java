@@ -51,9 +51,9 @@ public class YEngineConnection extends YConnection {
 
     // caches for each of the various resource entities
     private Map<String, YAWLServiceReference> _serviceCache =
-            new Hashtable<String, YAWLServiceReference>();
-    private Map<String, YParameter[]> _paramCache = new Hashtable<String, YParameter[]>();
-    private Map<String, String> _externalDbCache = new Hashtable<String, String>();
+            new HashMap<String, YAWLServiceReference>();
+    private Map<String, YParameter[]> _paramCache = new HashMap<String, YParameter[]>();
+    private Map<String, String> _externalDbCache = new HashMap<String, String>();
 
     // default url parts
     public static final String DEFAULT_HOST = "localhost";

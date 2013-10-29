@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YNetElement;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,7 +42,7 @@ public class ElementIdentifiers {
 
 
     public ElementIdentifiers() {
-        _identifiers = new Hashtable<String, SuffixStore>();
+        _identifiers = new HashMap<String, SuffixStore>();
     }
 
     public void clear() { _identifiers.clear(); }

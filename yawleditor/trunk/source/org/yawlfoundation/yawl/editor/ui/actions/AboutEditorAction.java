@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -27,6 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.InputStream;
 
 
 public class AboutEditorAction extends YAWLBaseAction {
@@ -46,8 +48,8 @@ public class AboutEditorAction extends YAWLBaseAction {
 
 class AboutEditorDialog extends JDialog {
 
-    private static final String VERSION = "3.0 (alpha)";
-    private static final String COPYRIGHT = "\u00a9 2013 The YAWL Foundation";
+    private static final String DEFAULT_VERSION = "3.0 (alpha)";
+    private static final String DEFAULT_YEAR = "2013";
     private static final Color BACK_COLOUR = new Color(254,254,240);
 
     public AboutEditorDialog() {
@@ -96,17 +98,19 @@ class AboutEditorDialog extends JDialog {
         addMouseListener(nameLabel);
         panel.add(nameLabel);
 
-        JLabel versionLabel = new JLabel("Version " + VERSION);
+        YBuildProperties buildProperties = loadBuildProperties();
+
+        JLabel versionLabel = new JLabel(getVersionText(buildProperties));
         versionLabel.setForeground(Color.DARK_GRAY);
         addMouseListener(versionLabel);
         panel.add(versionLabel);
 
-        JLabel buildLabel = new JLabel("Build " + "@BuildDate@");
+        JLabel buildLabel = new JLabel(getBuildDateText(buildProperties));
         buildLabel.setForeground(Color.DARK_GRAY);
         addMouseListener(buildLabel);
         panel.add(buildLabel);
 
-        JLabel copyLabel = new JLabel(COPYRIGHT);
+        JLabel copyLabel = new JLabel(getCopyrightText(buildProperties));
         copyLabel.setForeground(Color.DARK_GRAY);
         addMouseListener(copyLabel);
         panel.add(copyLabel);
@@ -114,6 +118,42 @@ class AboutEditorDialog extends JDialog {
         addMouseListener(panel);
         return panel;
     }
+
+
+    private YBuildProperties loadBuildProperties() {
+        YBuildProperties buildProperties = null;
+        InputStream is = getClass().getResourceAsStream("/version.properties");
+        if (is != null) {
+            buildProperties = new YBuildProperties();
+            buildProperties.load(is);
+        }
+        return buildProperties;
+    }
+
+
+    private String getVersionText(YBuildProperties buildProperties) {
+        String version = buildProperties.getVersion();
+        String buildNumber = buildProperties.getBuildNumber();
+        String result = "Version " + (version != null ? version : DEFAULT_VERSION);
+        if (buildNumber != null) {
+            result += " (build " + buildNumber + ")";
+        }
+        return result;
+    }
+
+
+    private String getBuildDateText(YBuildProperties buildProperties) {
+        String buildDate = buildProperties.getBuildDate();
+        return "Build Date: " + (buildDate != null ? buildDate : "");
+    }
+
+
+    private String getCopyrightText(YBuildProperties buildProperties) {
+        String buildDate = buildProperties.getBuildDate();
+        String year = buildDate != null ? buildDate.substring(0,4) : DEFAULT_YEAR;
+        return "\u00a9 " + year + " The YAWL Foundation";
+    }
+
 
     private void addMouseListener(Component c) {
         c.addMouseListener(new MouseAdapter() {

@@ -27,7 +27,6 @@ public enum SpecificationState {
     NoNetsExist,
     NetsExist,
     NoNetSelected,
-    NetSelected,
-    NetDetailChanged
+    NetSelected
 
 }

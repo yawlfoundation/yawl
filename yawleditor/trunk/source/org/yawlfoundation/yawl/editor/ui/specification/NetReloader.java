@@ -42,7 +42,7 @@ public class NetReloader {
     public void reload(NetGraph graph) {
         Set<YFlow> flowSet = new HashSet<YFlow>();
         Set<YCondition> conditions = new HashSet<YCondition>();
-        vertices = new Hashtable<String, YAWLVertex>();
+        vertices = new HashMap<String, YAWLVertex>();
         YNet net = (YNet) graph.getNetModel().getDecomposition();
         addBaseConditions(net, graph);
         for (YExternalNetElement element : net.getNetElements().values()) {

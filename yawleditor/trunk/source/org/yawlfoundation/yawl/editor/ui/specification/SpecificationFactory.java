@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.InputCondition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.OutputCondition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import java.awt.*;
@@ -43,7 +42,6 @@ public class SpecificationFactory {
         YNet net = (YNet) graph.getNetModel().getDecomposition();
         populateGraph(net, graph);
         YAWLEditor.getNetsPane().openNet(graph);
-        Publisher.getInstance().publishAddNetEvent();
     }
 
 

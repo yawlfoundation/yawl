@@ -127,10 +127,7 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
                 setText("Open or create a specification to begin.");
                 break;
             }
-            case NetsExist: {
-                setText("Select a net to continue editing it.");
-                break;
-            }
+            case NetsExist:
             case NoNetSelected: {
                 setText("Select a net to continue editing it.");
                 break;

@@ -298,7 +298,7 @@ public class YConnector {
 
 
     public static Map<String, YAWLServiceReference> getServicesMap() {
-        Map<String, YAWLServiceReference> map = new Hashtable<String, YAWLServiceReference>();
+        Map<String, YAWLServiceReference> map = new HashMap<String, YAWLServiceReference>();
         for (YAWLServiceReference service : getServices()) {
             map.put(service.getServiceID(), service);
         }
@@ -307,7 +307,7 @@ public class YConnector {
 
 
     public static Map<String, Participant> getParticipantMap() {
-        Map<String, Participant> map = new Hashtable<String, Participant>();
+        Map<String, Participant> map = new HashMap<String, Participant>();
         try {
             for (Participant participant : getParticipants()) {
                  map.put(participant.getID(), participant);
@@ -321,7 +321,7 @@ public class YConnector {
 
 
     public static Map<String, Role> getRoleMap() {
-        Map<String, Role> map = new Hashtable<String, Role>();
+        Map<String, Role> map = new HashMap<String, Role>();
         try {
             for (Role role : getRoles()) {
                  map.put(role.getID(), role);
@@ -335,7 +335,7 @@ public class YConnector {
 
 
     public static Map<String, NonHumanResource> getNonHumanResourceMap() {
-        Map<String, NonHumanResource> map = new Hashtable<String, NonHumanResource>();
+        Map<String, NonHumanResource> map = new HashMap<String, NonHumanResource>();
         try {
             for (NonHumanResource resource : getNonHumanResources()) {
                  map.put(resource.getID(), resource);

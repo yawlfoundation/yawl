@@ -45,7 +45,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.awt.*;
 import java.text.NumberFormat;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class YLayout {
 
     // hidden default constructor
     private YLayout() {
-        _nets = new Hashtable<String, YNetLayout>();
+        _nets = new HashMap<String, YNetLayout>();
         _locale = Locale.getDefault();
         _nbrFormatter = NumberFormat.getInstance(_locale);
     }

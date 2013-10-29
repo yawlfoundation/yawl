@@ -30,7 +30,7 @@ import java.awt.geom.Rectangle2D;
 public class YSplashScreen {
 
     private static final SplashScreen splash = SplashScreen.getSplashScreen();
-    private static final Color spark = new Color(255,220,220);
+    private static final Color spark = new Color(255,200,200);
     private Rectangle2D.Double textArea;
     private Rectangle2D.Double progressArea;
     private Graphics2D graphics;
@@ -80,7 +80,7 @@ public class YSplashScreen {
             graphics.fillRect(x, y + 1, doneWidth, hgt - 1);
 
             // draw the 'spark' at the leading end
-            int sparkWidth = 20;
+            int sparkWidth = 15;
             graphics.setPaint(new GradientPaint(
                     x + doneWidth - sparkWidth, y + 1, Color.RED.darker(),
                     x + doneWidth, y + 1, spark));

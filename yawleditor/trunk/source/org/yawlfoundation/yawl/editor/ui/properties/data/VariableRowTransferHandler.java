@@ -141,7 +141,7 @@ public class VariableRowTransferHandler extends TransferHandler {
         for (VariableRow row : _table.getVariables()) {
             if (row.getName().equals(name)) {
                 JOptionPane.showMessageDialog(null,
-                        "A variable with the same name already exists in this table.",
+                        "A variable of the same name already exists in the target list.",
                         "Transfer Error", JOptionPane.ERROR_MESSAGE);
                 _table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 return false;

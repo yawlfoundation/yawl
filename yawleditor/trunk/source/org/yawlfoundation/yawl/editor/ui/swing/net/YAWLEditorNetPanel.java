@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -135,7 +134,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         }
         SpecificationModel.getNets().add(getNet().getNetModel());
         icon = NetUtilities.getIconForNetModel(net.getNetModel());
-        Publisher.getInstance().publishAddNetEvent();
     }
 
     public boolean containsRootNet() {
@@ -177,22 +175,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         }
     }
 
-    public void showRenameDialog() {
-        String oldName = getNet().getNetModel().getName();
-        String newName = null;
-        while(SpecificationModel.getNets().getNetModelFromName(newName) != getNet().getNetModel()) {
-            newName = JOptionPane.showInputDialog(this,
-                    "Change Net Name to:",
-                    oldName);
-            if (newName == null) {
-                newName = oldName;
-            }
-            if (isValidNewDecompositionName(newName)) {
-                setNetName(newName);
-            }
-        }
-    }
-
     public boolean isValidNewDecompositionName(String name) {
         return ! (name == null || SpecificationModel.getHandler().getControlFlowHandler()
                 .getDecompositionIds().contains(name));
@@ -205,7 +187,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     }
 
 
-    public ImageIcon getFrameIcon() { return icon;}
+    public ImageIcon getFrameIcon() { return icon; }
 
     public void setFrameIcon(ImageIcon i) { icon = i; }
 

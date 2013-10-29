@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,7 +52,7 @@ public class ExtendedAttributeNameLookup {
 
 
     private void buildMaps() {
-        _attributeToPropertyMap = new Hashtable<String, String>();
+        _attributeToPropertyMap = new HashMap<String, String>();
         _attributeToPropertyMap.put("background-color", "backgroundColour");
         _attributeToPropertyMap.put("background-alt-color", "backgroundAltColour");
         _attributeToPropertyMap.put("header-font", "headerFont");
@@ -68,7 +68,7 @@ public class ExtendedAttributeNameLookup {
         _attributeToPropertyMap.put("text-below", "textBelow");
         _attributeToPropertyMap.put("text-area", "textArea");
 
-        _propertyToAttributeMap = new Hashtable<String, String>();
+        _propertyToAttributeMap = new HashMap<String, String>();
         for (String key : _attributeToPropertyMap.keySet()) {
             _propertyToAttributeMap.put(_attributeToPropertyMap.get(key), key);
         }

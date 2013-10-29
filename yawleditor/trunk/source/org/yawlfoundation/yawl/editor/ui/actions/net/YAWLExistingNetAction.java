@@ -39,13 +39,6 @@ class YAWLExistingNetAction extends YAWLBaseAction implements SpecificationState
                 setEnabled(true);
                 break;
             }
-            case NoNetSelected:
-            case NetSelected: {
-                break;
-            }
-            default: {
-                assert false : "Invalid state passed to updateState()";
-            }
         }
     }
 
