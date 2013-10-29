@@ -44,10 +44,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Stores the layout information for a particular net
@@ -72,9 +69,9 @@ public class YNetLayout {
 
     // hidden constructor
     private YNetLayout() {
-        _tasks = new Hashtable<String, YTaskLayout>();
-        _conditions = new Hashtable<String, YConditionLayout>();
-        _flows = new Hashtable<String, YFlowLayout>();
+        _tasks = new HashMap<String, YTaskLayout>();
+        _conditions = new HashMap<String, YConditionLayout>();
+        _flows = new HashMap<String, YFlowLayout>();
     }
 
 

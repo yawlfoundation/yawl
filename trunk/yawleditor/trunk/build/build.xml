@@ -45,7 +45,6 @@
     <property name="library.dir" value="lib" />
     <property name="tools.dir" value="tools" />
     <property name="javadoc.dir" value="${distribution.dir}/javadoc" />
-    <property name="filtered.source.dir" value="${tempBuild.dir}/filteredSource" />
 
     <!--
     	Define output file names
@@ -158,10 +157,22 @@
                        value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />
         </manifest>
 
+        <propertyfile file="${build.dir}/version.properties">
+            <entry key="Version" value="${editor.release.number}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+        <copy file="${build.dir}/version.properties"
+              tofile="${classes.dir}/version.properties"/>
+
         <jar jarfile="${distribution.dir}/${ui.jar.name}"
              basedir="${classes.dir}"
              manifest="${manifestFile}"
-             includes="${package.dir}/ui/**"
+             includes="${package.dir}/ui/** version.properties"
              excludes="**/Test*.class ${package.dir}/ui/resources/taskicons/**" />
         <checksum file="${distribution.dir}/${ui.jar.name}"/>
         <delete file="${manifestFile}" />
@@ -299,7 +310,6 @@
         <delete dir="${classes.dir}" />
         <delete dir="${javadoc.dir}" />
         <delete dir="${distribution.dir}" />
-    	<delete dir="${filtered.source.dir}" />
     </target>
 
 
@@ -319,18 +329,7 @@
 		Compile non-test code, filtering source code first to complete
 	     tokenized values (using build.properties supplied values)
 	-->
-    <target name="compile"
-            depends="initialize">
-
-        <mkdir dir="${filtered.source.dir}" />
-        <copy todir="${filtered.source.dir}">
-            <fileset dir="${source.dir}"/>
-        </copy>
-        <copy todir="${filtered.source.dir}/${package.dir}/ui/actions"
-              file="${source.dir}/${package.dir}/ui/actions/AboutEditorAction.java"
-              filtering="true" overwrite="true"/>
-
-
+    <target name="compile" depends="initialize">
         <mkdir dir="${classes.dir}" />
         <copy todir="${classes.dir}/${package.dir}/ui/resources">
             <fileset dir="${source.dir}/${package.dir}/ui/resources">
@@ -343,7 +342,7 @@
         <javac fork="yes"
                debug="yes"
                source="${source.release}"
-               srcdir="${filtered.source.dir}"
+               srcdir="${source.dir}"
                destdir="${classes.dir}">
             <include name="${source.file}" />
             <classpath>
@@ -352,8 +351,6 @@
             	<fileset refid="neededEngineDeps" />
             </classpath>
         </javac>
-
-        <delete dir="${filtered.source.dir}" />
     </target>
 
 

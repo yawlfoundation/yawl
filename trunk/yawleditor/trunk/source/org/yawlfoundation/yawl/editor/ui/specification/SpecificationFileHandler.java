@@ -20,13 +20,11 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.configuration.actions.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
+import org.yawlfoundation.yawl.editor.ui.configuration.actions.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.editor.ui.engine.SpecificationReader;
 import org.yawlfoundation.yawl.editor.ui.engine.SpecificationWriter;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
@@ -115,8 +113,7 @@ public class SpecificationFileHandler {
     public boolean closeFileOnExit() {
         _statusBar.setText("Exiting YAWL Editor...");
         YConnector.disconnect();
-        return Publisher.getInstance().getFileState() == FileState.Closed ||
-                handleCloseResponse();
+        return Publisher.getInstance().isFileStateClosed() || handleCloseResponse();
     }
 
 
@@ -242,11 +239,7 @@ public class SpecificationFileHandler {
 
     private void doPreSaveClosingWork() {
         YAWLEditor.getNetsPane().setVisible(false);
-        Publisher publisher = Publisher.getInstance();
-        publisher.publishCloseFileEvent();
-        if (publisher.getSpecificationState() != SpecificationState.NoNetsExist) {
-            publisher.publishState(SpecificationState.NoNetSelected);
-        }
+        Publisher.getInstance().publishCloseFileEvent();
     }
 
     private void doPostSaveClosingWork() {

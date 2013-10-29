@@ -78,9 +78,6 @@ public class AddToVisibleCancellationSetAction extends YAWLSelectedNetAction
 
     public void specificationStateChange(SpecificationState state) {
         switch(state) {
-            case NetsExist: {
-                break;
-            }
             case NoNetsExist:
             case NoNetSelected: {
                 setEnabled(false);

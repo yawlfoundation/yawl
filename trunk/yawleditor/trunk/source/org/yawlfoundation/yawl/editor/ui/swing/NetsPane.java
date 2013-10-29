@@ -20,15 +20,18 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
+import org.yawlfoundation.yawl.editor.ui.util.FileDrop;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.io.File;
 
 public class NetsPane extends JTabbedPane implements ChangeListener {
 
@@ -37,6 +40,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     public NetsPane() {
         super();
         _propertiesLoader = new PropertiesLoader();
+        addFileDropListener();
         addChangeListener(this);
     }
 
@@ -119,19 +123,18 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         YAWLEditorNetPanel frame = (YAWLEditorNetPanel) this.getSelectedComponent();
         Publisher publisher = Publisher.getInstance();
         if ((frame == null) || (frame.getNet() == null)) {
-            if (publisher.getSpecificationState() != SpecificationState.NoNetsExist) {
-                publisher.publishState(SpecificationState.NoNetSelected);
+            publisher.publishNoNetSelectedEvent();
+        }
+        else {
+            publisher.publishNetSelectedEvent();
+            if (select) {
+                _propertiesLoader.setGraph(frame.getNet());
             }
-            return;
+            try {
+                getSelectedGraph().getSelectionListener().forceActionUpdate();
+            }
+            catch (Exception e) {}
         }
-        publisher.publishState(SpecificationState.NetSelected);
-        if (select) {
-            _propertiesLoader.setGraph(frame.getNet());
-        }
-        try {
-            getSelectedGraph().getSelectionListener().forceActionUpdate();
-        }
-        catch (Exception e) {}
     }
 
 
@@ -155,6 +158,21 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             }
         }
         return i;
+    }
+
+
+    private void addFileDropListener() {
+        new FileDrop( this, new FileDrop.Listener() {
+                public void filesDropped(File[] files) {
+                    if (files != null && files.length > 0) {
+                        String fileName = files[0].getAbsolutePath();
+                        if (fileName.endsWith(".yawl")) {
+                            FileOperations.open(fileName);
+                        }
+                        else LogWriter.warn("Invalid file format dragged onto editor");
+                    }
+                }
+        });
     }
 
 

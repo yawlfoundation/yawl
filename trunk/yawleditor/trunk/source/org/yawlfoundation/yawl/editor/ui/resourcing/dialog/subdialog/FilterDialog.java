@@ -154,7 +154,7 @@ public class FilterDialog extends JDialog implements ActionListener {
 
 
     private Map<String, String> getParams() {
-        Map<String, String> params = new Hashtable<String, String>();
+        Map<String, String> params = new HashMap<String, String>();
         String expression = _leftPanel.getExpression();
         if (! StringUtil.isNullOrEmpty(expression)) {
             String key = isCapabilityFilter() ? "Capability" : "OrgGroup";

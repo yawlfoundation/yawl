@@ -21,10 +21,7 @@ package org.yawlfoundation.yawl.editor.core.resourcing;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.elements.YTask;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Caches all resource references for each task of the loaded specification
@@ -34,10 +31,11 @@ import java.util.Set;
 public class ResourcesCache {
 
     // [netID, [taskID, set of task resources]]
-    Map<String, Map<String, TaskResourceSet>> _cache;
+    private Map<String, Map<String, TaskResourceSet>> _cache;
+
 
     public ResourcesCache() {
-        _cache = new Hashtable<String, Map<String, TaskResourceSet>>();
+        _cache = new HashMap<String, Map<String, TaskResourceSet>>();
     }
 
 
@@ -118,7 +116,7 @@ public class ResourcesCache {
     private Map<String, TaskResourceSet> getNetMap(String netID) {
         Map<String, TaskResourceSet> map = _cache.get(netID);
         if (map == null) {
-            map = new Hashtable<String, TaskResourceSet>();
+            map = new HashMap<String, TaskResourceSet>();
             _cache.put(netID, map);
         }
         return map;

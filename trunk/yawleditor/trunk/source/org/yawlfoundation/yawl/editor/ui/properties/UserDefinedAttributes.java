@@ -92,7 +92,7 @@ public abstract class UserDefinedAttributes {
 
 
     protected Map<String, String> load(String path) {
-        Map<String, String> map = new Hashtable<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
         java.util.List<String> errors = new ArrayList<String>();
         try {
             InputStream in = new FileInputStream(path);

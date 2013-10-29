@@ -41,8 +41,8 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
 
 
     public void actionPerformed(ActionEvent event) {
-        Publisher.getInstance().publishOpenFileEvent();
         new SpecificationFactory().newSpecification();
+        Publisher.getInstance().publishOpenFileEvent();
         SpecificationUndoManager.getInstance().discardAllEdits();
     }
 
@@ -51,7 +51,6 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
     }
 
     public String getDisabledTooltipText() {
-        return " You must have no specification" +
-                " open to in order to create a new one ";
+        return " You must have no specification open to in order to create a new one ";
     }
 }

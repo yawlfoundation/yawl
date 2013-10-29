@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.core.layout;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ public enum DecoratorType {
 
     private String stringValue;
 
-    private static final Map<String, DecoratorType> _typeMap = new Hashtable<String, DecoratorType>(6);
+    private static final Map<String, DecoratorType> _typeMap = new HashMap<String, DecoratorType>(6);
 
     static {
         for (DecoratorType type : values()) _typeMap.put(type.toString(), type);

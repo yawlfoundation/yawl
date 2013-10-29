@@ -43,7 +43,7 @@ public class ServicesPropertyEditor extends ComboPropertyEditor {
 
 
     private void buildServicesMap() {
-        services = new Hashtable<String, YAWLServiceReference>();
+        services = new HashMap<String, YAWLServiceReference>();
         String label = "";
         for (YAWLServiceReference service : YConnector.getServices()) {
             if (! service.canBeAssignedToTask()) {

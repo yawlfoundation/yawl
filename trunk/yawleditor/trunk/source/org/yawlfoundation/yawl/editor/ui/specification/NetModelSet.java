@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.*;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -81,7 +80,6 @@ public class NetModelSet extends HashSet<NetGraphModel> {
             startEdits(null);
             newRootNet.postEdit(new UndoableStartingNetChange(newRootNet, oldRootNet));
             stopEdits();
-            publisher.publishState(SpecificationState.NetDetailChanged);
         }
         return newRootNet != null;
     }
@@ -113,11 +111,7 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         if (isEmpty()) {
             netModel.setIsRootNet(true);
             rootNet = netModel;
-            boolean added = super.add(netModel);
-            if (added) {
-                publisher.publishAddNetEvent();
-            }
-            return added;
+            return addNoUndo(netModel);
         }
         return false;
     }
@@ -147,8 +141,10 @@ public class NetModelSet extends HashSet<NetGraphModel> {
 
 
     public void clear() {
-        super.clear();
-        publisher.setSpecificationState(SpecificationState.NoNetsExist);
+        if (! isEmpty()) {
+            super.clear();
+            publisher.publishNoNetsExistEvent();
+        }
     }
 
 
@@ -223,7 +219,6 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         }
 
         stopEdits();
-        publisher.publishState(SpecificationState.NetDetailChanged);
     }
 
 

@@ -25,15 +25,10 @@ public class YAWLSelectedNetAction extends YAWLExistingNetAction
         implements SpecificationStateListener {
 
 
-    public YAWLSelectedNetAction() {
-//        Publisher.getInstance().subscribe(this);
-    }
+    public YAWLSelectedNetAction() { }
 
     public void specificationStateChange(SpecificationState state) {
         switch(state) {
-            case NetsExist: {
-                break;
-            }
             case NoNetsExist:
             case NoNetSelected: {
                 setEnabled(false);

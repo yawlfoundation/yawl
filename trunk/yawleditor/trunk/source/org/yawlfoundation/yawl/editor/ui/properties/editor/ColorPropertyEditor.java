@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.ColorCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,8 +47,8 @@ public class ColorPropertyEditor extends DialogPropertyEditor {
     }
 
     protected void showDialog() {
-        Color selectedColour = JColorChooser.showDialog(editor, "Choose a Colour",
-                currentColour);
+        Color selectedColour = JColorChooser.showDialog(YAWLEditor.getInstance(),
+                "Choose a Colour", currentColour);
 
         if (!( selectedColour == null || selectedColour.equals(currentColour))) {
             Color oldColour = currentColour;

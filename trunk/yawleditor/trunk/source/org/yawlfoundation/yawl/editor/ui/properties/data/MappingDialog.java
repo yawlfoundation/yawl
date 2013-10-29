@@ -98,8 +98,7 @@ public class MappingDialog extends JDialog implements ActionListener {
                     _taskRow.setMIQuery(formatQuery(_miQueryEditor.getText(), false));
                 }
                 if (_taskRow.isOutput() && netVarsButton.isSelected()) {
-                    _taskRow.setNetVarForOutputMapping(
-                            (String) netVarsCombo.getSelectedItem());
+                    _taskRow.setNetVarForOutputMapping(getSelectedNetVar());
                 }
                 _netTablePanel.getVariableDialog().enableApplyButton();
             }
@@ -191,7 +190,7 @@ public class MappingDialog extends JDialog implements ActionListener {
 
         String netVarName = null;
         if (_taskRow.isInput()) {
-            VariableRow netVarRow = getVariableRow(defMapping.getVariableName());
+            VariableRow netVarRow = getNetVariableRow(defMapping.getVariableName());
             if (netVarRow != null && netVarRow.getDecompositionID().equals(
                     defMapping.getContainerName())) {
                 netVarName = netVarRow.getName();
@@ -312,19 +311,18 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     // task output only
     private String resetMapping(VariableRow row) {
-        StringBuilder s = new StringBuilder();
         if (netVarsButton.isSelected()) {
-            s.append('/').append(row.getDecompositionID()).append('/').append(row.getName())
-                    .append('/').append(getXQuerySuffix(row));
+            return createMapping(row);
         }
-        else {
-            s.append("#external:").append(gatewayCombo.getSelectedItem())
-                    .append(":").append(_taskRow.getName());
-        }
+
+        StringBuilder s = new StringBuilder();
+        s.append("#external:").append(gatewayCombo.getSelectedItem())
+                .append(":").append(_taskRow.getName());
         return s.toString();
     }
 
 
+    // input only
     private String createMapping(VariableRow row) {
         StringBuilder s = new StringBuilder();
         s.append('/').append(row.getDecompositionID()).append('/').append(row.getName())
@@ -423,27 +421,30 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private void handleNetVarComboSelection() {
-        if (_taskRow.isInput()) {
-            VariableRow netVar = getVariableRow((String) netVarsCombo.getSelectedItem());
-            if (netVar != null) {
-                _xQueryEditor.setText(createMapping(netVar));
-            }
-        }
-        else {
-            _xQueryEditor.setText(createMapping(_taskRow));
+        VariableRow row = _taskRow.isInput() ?
+                getNetVariableRow(getSelectedNetVar()) : // input query based on net row
+                _taskRow;                               // output query based on task row
+
+        if (row != null) {
+            if (_taskRow.isOutput()) enableQueryEditor(true);
+            _xQueryEditor.setText(createMapping(row));
         }
     }
 
     private void handleGatewayComboSelection() {
-        if (_taskRow.isOutput()) {
-            enableQueryEditor(true);
+        VariableRow row = _taskRow.isInput() ?
+                _taskRow :                                 // input query uses task row
+                getNetVariableRow(getSelectedNetVar());    // output query uses net row
+
+        if (row != null) {
+            if (_taskRow.isOutput()) enableQueryEditor(true);
+            String expression ="#external:" + gatewayCombo.getSelectedItem() + ":" +
+                                              row.getName();
+            _xQueryEditor.setText(expression);
         }
-        String expression ="#external:" + gatewayCombo.getSelectedItem() + ":" +
-                                            _taskRow.getName();
-        _xQueryEditor.setText(expression);
     }
 
-    private VariableRow getVariableRow(String name) {
+    private VariableRow getNetVariableRow(String name) {
         for (VariableRow row : _netTablePanel.getTable().getVariables()) {
              if (row.getName().equals(name)) return row;
         }
@@ -460,6 +461,10 @@ public class MappingDialog extends JDialog implements ActionListener {
         }
     }
 
+
+    private String getSelectedNetVar() {
+        return (String) netVarsCombo.getSelectedItem();
+    }
 
     private void enableQueryEditor(boolean enable) {
         enableContents(queryPanel, enable);

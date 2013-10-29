@@ -211,7 +211,7 @@ public class DataVariableDialog extends JDialog
         this.net = net;
         dataHandler = SpecificationModel.getHandler().getDataHandler();
         setModal(true);
-        setResizable(false);
+        setResizable(true);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
     }
@@ -434,7 +434,7 @@ public class DataVariableDialog extends JDialog
 
     // [outparam name, net var it outputs to]
     private void createOutputVariableMap() {
-        outputVariableMap = new Hashtable<String, String>();
+        outputVariableMap = new HashMap<String, String>();
         Set<String> paramNames = decomposition.getOutputParameterNames();
         String decompKey = '/' + decomposition.getID() + '/';
         for (String outputQuery : task.getDataMappingsForTaskCompletion().keySet()) {

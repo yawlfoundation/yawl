@@ -740,7 +740,7 @@ public class YDataHandler {
         String searchKey = '{' + xpathDelimit(oldID);
         for (YTask task : net.getNetTasks()) {
             Map<String, String> mappings = task.getDataMappingsForTaskStarting();
-            Map<String,String> replacements = new Hashtable<String, String>();
+            Map<String,String> replacements = new HashMap<String, String>();
             for (String taskVarName : mappings.keySet()) {
                 String inputQuery = mappings.get(taskVarName);
                 if (inputQuery.contains(searchKey)) {
@@ -767,7 +767,7 @@ public class YDataHandler {
         String searchKey = '{' + xpathDelimit(oldID);
         for (YTask task : getTasks(decomposition)) {
             Map<String, String> mappings = task.getDataMappingsForTaskCompletion();
-            Map<String,String> replacements = new Hashtable<String, String>();
+            Map<String,String> replacements = new HashMap<String, String>();
             Set<String> replacedKeys = new HashSet<String>();
             for (String outputQuery : mappings.keySet()) {
                 if (outputQuery.contains(searchKey)) {

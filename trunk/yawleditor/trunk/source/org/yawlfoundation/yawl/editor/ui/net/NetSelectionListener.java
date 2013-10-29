@@ -28,16 +28,16 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 public class NetSelectionListener implements GraphSelectionListener {
 
     private GraphSelectionModel model;
-  
- 
+
+
     public NetSelectionListener(GraphSelectionModel model) {
         this.model = model;
     }
-  
+
     public void valueChanged(GraphSelectionEvent event) {
         publishState(model, event);
     }
-  
+
     public void forceActionUpdate() {
         publishState(model, null);
     }
@@ -50,30 +50,34 @@ public class NetSelectionListener implements GraphSelectionListener {
      * @param model
      */
     public void publishState(GraphSelectionModel model, GraphSelectionEvent event) {
-      if (model.isSelectionEmpty()) {
-          Publisher.getInstance().publishState(GraphState.NoElementSelected, event);
-      }
-      else {
-          Publisher.getInstance().publishState(GraphState.ElementsSelected, event);
-      }
-      if (copyableElementsSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.CopyableElementSelected, event);
-      }
-      if (deletableElementsSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.DeletableElementSelected, event);
-      }
-      if (oneOrMoreVertexSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.VerticesSelected, event);
-      }
-      if (moreThanOneVertexSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.MultipleVerticesSelected, event);
-      }
-        if (singleElementSelected(model)) {
-            Publisher.getInstance().publishState(GraphState.OneElementSelected, event);
+        if (model.isSelectionEmpty()) {
+            publishState(GraphState.NoElementSelected, event);
         }
-      if (singleTaskSelected(model)) {
-          Publisher.getInstance().publishState(GraphState.OneTaskSelected, event);
-      }
+        else {
+            publishState(GraphState.ElementsSelected, event);
+        }
+        if (copyableElementsSelected(model)) {
+            publishState(GraphState.CopyableElementSelected, event);
+        }
+        if (deletableElementsSelected(model)) {
+            publishState(GraphState.DeletableElementSelected, event);
+        }
+        if (oneOrMoreVertexSelected(model)) {
+            publishState(GraphState.VerticesSelected, event);
+        }
+        if (moreThanOneVertexSelected(model)) {
+            publishState(GraphState.MultipleVerticesSelected, event);
+        }
+        if (singleElementSelected(model)) {
+            publishState(GraphState.OneElementSelected, event);
+        }
+        if (singleTaskSelected(model)) {
+            publishState(GraphState.OneTaskSelected, event);
+        }
+    }
+
+    private void publishState(GraphState state, GraphSelectionEvent event) {
+        Publisher.getInstance().publishState(state, event);
     }
 
 
@@ -133,7 +137,7 @@ public class NetSelectionListener implements GraphSelectionListener {
             }
         }
         return validElementCount >= 2;
-      }
+    }
 
     private boolean oneOrMoreVertexSelected(GraphSelectionModel model) {
         for (Object o : model.getSelectionCells()) {
@@ -175,8 +179,8 @@ public class NetSelectionListener implements GraphSelectionListener {
      * @return
      */
     private boolean singleElementSelected(GraphSelectionModel model) {
-      Object[] elements = model.getSelectionCells();
-       return elements != null && elements.length == 1;
+        Object[] elements = model.getSelectionCells();
+        return elements != null && elements.length == 1;
     }
 
 }
