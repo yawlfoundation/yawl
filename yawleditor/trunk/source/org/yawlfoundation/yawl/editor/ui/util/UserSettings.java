@@ -64,6 +64,8 @@ public class UserSettings {
     private static final String BEHAVIOURAL_ANALYSIS = "wofYawlBehaviouralAnalysisCheck";
     private static final String EXTENDED_COVERABILITY = "wofYawlExtendedCoverabilityCheck";
     private static final String KEEP_ANALYSIS_DIALOG_OPEN = "keepAnalysisDialogOpenWhenDone";
+    private static final String ANALYSER_MAX_MARKINGS = "analyserMaxMarkings";
+    private static final int DEFAULT_ANALYSER_MAX_MARKINGS = 1000;
 
     // engine & resource service settings
     private static final String ENGINE_USERID = "engineUserID";
@@ -337,6 +339,14 @@ public class UserSettings {
 
     public static boolean getKeepAnalysisDialogOpen() {
         return getBoolean(KEEP_ANALYSIS_DIALOG_OPEN);
+    }
+
+    public static void setAnalyserMaxMarkings(int maxMarkings) {
+        _prefs.putInt(ANALYSER_MAX_MARKINGS, maxMarkings);
+    }
+
+    public static int getAnalyserMaxMarkings() {
+        return _prefs.getInt(ANALYSER_MAX_MARKINGS, DEFAULT_ANALYSER_MAX_MARKINGS);
     }
 
 

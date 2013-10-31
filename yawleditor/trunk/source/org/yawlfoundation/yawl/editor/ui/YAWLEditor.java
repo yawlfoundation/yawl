@@ -63,7 +63,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static JSplitPane splitPane;
     private static YSplashScreen splashScreen;
     private static ToolBarMenu toolBarMenu;
-    private static YAWLEditor INSTANCE;
+    private static final YAWLEditor INSTANCE = new YAWLEditor();
 
 
     private YAWLEditor() {
@@ -76,9 +76,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
 
     public static YAWLEditor getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new YAWLEditor();
-        }
         return INSTANCE;
     }
 

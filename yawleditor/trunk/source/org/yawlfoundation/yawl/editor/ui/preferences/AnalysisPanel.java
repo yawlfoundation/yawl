@@ -23,9 +23,13 @@ import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretListener;
+import javax.swing.text.NumberFormatter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.NumberFormat;
 
 public class AnalysisPanel extends JPanel implements PreferencePanel {
 
@@ -44,10 +48,12 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
     private JCheckBox useYAWLReductionRulesCheckBox;
     private JCheckBox useResetReductionRulesCheckBox;
     private JCheckBox keepOpenCheckBox;
+    private JFormattedTextField maxMarkingsField;
 
-    public AnalysisPanel(ActionListener listener) {
+    public AnalysisPanel(ActionListener actionListener, CaretListener caretListener) {
         super();
-        add(getContentPanel(listener));
+        add(getContentPanel(actionListener));
+        maxMarkingsField.addCaretListener(caretListener);           // only non-checkbox
         if (! AnalysisResultsParser.wofYawlAvailable()) {
             wofYawlAnalysisCheckBox.setEnabled(false);
             enableWofYAWLCheckBoxes(false);
@@ -66,6 +72,7 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
         UserSettings.setUseYawlReductionRules(useYAWLReductionRulesCheckBox.isSelected());
         UserSettings.setUseResetReductionRules(useResetReductionRulesCheckBox.isSelected());
         UserSettings.setKeepAnalysisDialogOpen(keepOpenCheckBox.isSelected());
+        UserSettings.setAnalyserMaxMarkings((Integer) maxMarkingsField.getValue());
 
         UserSettings.setWofyawlAnalysis(wofYawlAnalysisCheckBox.isSelected());
         UserSettings.setStructuralAnalysis(relaxedSoundnessCheckBox.isSelected());
@@ -88,6 +95,7 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
         content.add(getSoundnessCheckBox(listener));
         content.add(getShowObservationsCheckBox(listener));
         content.add(getKeepOpenCheckBox(listener));
+        content.add(getMaxMarkingsField());
 
         content.add(getWofYawlAnalysisCheckBox(listener));
         content.add(getRelaxedSoundnessCheckBox(listener));
@@ -234,4 +242,30 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
         transitionInvariantCheckBox.setEnabled(enable);
         extendedCoverabilityCheckBox.setEnabled(enable);
     }
+
+    private JPanel getMaxMarkingsField() {
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(0, 10, 0, 245));
+        panel.setAlignmentX(LEFT_ALIGNMENT);
+        maxMarkingsField = new JFormattedTextField(getPositiveIntegerFormatter());
+        maxMarkingsField.setPreferredSize(new Dimension(75, 25));
+        maxMarkingsField.setText(String.valueOf(UserSettings.getAnalyserMaxMarkings()));
+        panel.add(new JLabel("Maximum Markings:"));
+        panel.add(maxMarkingsField);
+        return panel;
+    }
+
+
+    private NumberFormatter getPositiveIntegerFormatter() {
+        NumberFormat plainIntegerFormat = NumberFormat.getInstance();
+        plainIntegerFormat.setGroupingUsed(false);                      // no commas
+
+        NumberFormatter portFormatter = new NumberFormatter(plainIntegerFormat);
+        portFormatter.setValueClass(Integer.class);
+        portFormatter.setAllowsInvalid(false);
+        portFormatter.setMinimum(0);
+        portFormatter.setMaximum(Integer.MAX_VALUE);
+        return portFormatter;
+    }
+
 }

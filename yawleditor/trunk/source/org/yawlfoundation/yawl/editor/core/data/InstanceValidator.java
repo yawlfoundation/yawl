@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.core.data;
 
+import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.internal.YInternalType;
@@ -66,7 +67,7 @@ public class InstanceValidator {
             schema = getInternalTypeSchema(cleansedType);
         }
         else {                                        // complex type or other namespace
-            schema = getAugmentedSchema(cleansedType);
+            schema = getAugmentedSchema(dataType);
         }
         if (schema != null) {
             _validator.setDataTypeSchema(schema);
@@ -76,27 +77,36 @@ public class InstanceValidator {
     }
 
 
+    private String extractNamespace() {
+        Document doc = JDOMUtil.stringToDocument(_specificationSchema);
+        return doc != null ? doc.getRootElement().getNamespace().getPrefix() + ":" : "";
+    }
+
+
     private String getXSDTypeSchema(String dataType) {
         XNode baseNode = getSchemaBase();
-        baseNode.addChild(buildInstanceNode("xs:" + dataType));
+        baseNode.addChild(buildInstanceNode(dataType));
         return baseNode.toString();
     }
 
 
     private String getInternalTypeSchema(String dataType) {
         return insertIntoSchema(getSchemaBase().toString(),
+                DataUtil.DEFAULT_NAMESPACE_PREFIX + ":",
                 getInternalTypeSchemaContent(dataType));
     }
 
 
     private String getAugmentedSchema(String dataType) {
-        return insertIntoSchema(_specificationSchema,
-                buildInstanceNode(dataType).toString());
+        String nsPrefix = extractNamespace();
+        return insertIntoSchema(_specificationSchema, nsPrefix,
+                buildInstanceNode(nsPrefix, dataType).toString());
     }
 
     private XNode getSchemaBase() {
-        XNode base = new XNode("xs:schema");
-        base.addAttribute("xmlns:xs", "http://www.w3.org/2001/XMLSchema");
+        String prefix = DataUtil.DEFAULT_NAMESPACE_PREFIX;
+        XNode base = new XNode(prefix + ":schema");
+        base.addAttribute("xmlns:" + prefix, DataUtil.DEFAULT_NAMESPACE_URL);
         return base;
     }
 
@@ -108,7 +118,8 @@ public class InstanceValidator {
         String schema = _internalTypeSchemaMap.get(dataType);
         if (schema == null) {
             Element schemaFor = YInternalType.getSchemaFor(dataType, TEMP_VAR_NAME);
-            schema = JDOMUtil.elementToString(schemaFor).replaceAll("yawl:", "xs:");
+            schema = JDOMUtil.elementToString(schemaFor)
+                    .replaceAll("yawl:", DataUtil.DEFAULT_NAMESPACE_PREFIX + ":");
             _internalTypeSchemaMap.put(dataType, schema);
         }
         return schema;
@@ -117,23 +128,33 @@ public class InstanceValidator {
 
     // remove the default namespace (if any)
     private String cleanse(String dataType) {
-        return dataType.startsWith("xs:") ? dataType.substring(3) : dataType;
+        int pos = dataType.indexOf(':');
+        return pos > -1 ? dataType.substring(pos + 1) : dataType;
     }
 
 
+    // for default xs types
     private XNode buildInstanceNode(String dataType) {
         XNode elementNode = new XNode("xs:element");
+        elementNode.addAttribute("name", TEMP_VAR_NAME);
+        elementNode.addAttribute("type", "xs:" + dataType);
+        return elementNode;
+    }
+
+    // for external types
+    private XNode buildInstanceNode(String prefix, String dataType) {
+        XNode elementNode = new XNode(prefix + "element");
         elementNode.addAttribute("name", TEMP_VAR_NAME);
         elementNode.addAttribute("type", dataType);
         return elementNode;
     }
 
-
-    private String insertIntoSchema(String schema, String toInsert) {
+    private String insertIntoSchema(String schema, String prefix, String toInsert) {
+        String endTag = "</" + prefix + "schema>";
         if (schema.endsWith("/>")) {
-            schema = schema.replaceFirst("/>", "></xs:schema>");
+            schema = schema.replaceFirst("/>", ">" + endTag);
         }
-        return StringUtil.insert(schema, toInsert, schema.lastIndexOf("</xs:schema>"));
+        return StringUtil.insert(schema, toInsert, schema.lastIndexOf(endTag));
     }
 
 }

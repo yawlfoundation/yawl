@@ -366,7 +366,7 @@ public class XMLUtilities {
             XNode node = new XNodeParser(true).parse(temp);
             if (node != null) {
                 if (prettify) {
-                    temp = node.toPrettyString(3);
+                    temp = node.toPrettyString(1,3);
                     return wrap ? StringUtil.unwrap(temp).substring(1) : temp;  // lead \n
                 }
                 else {                

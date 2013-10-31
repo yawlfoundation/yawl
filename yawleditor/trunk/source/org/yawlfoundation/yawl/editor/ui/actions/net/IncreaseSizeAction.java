@@ -50,8 +50,7 @@ public class IncreaseSizeAction extends YAWLSelectedNetAction implements Tooltip
   
   private IncreaseSizeAction() {
       Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.NoElementSelected,
-                      GraphState.ElementsSelected));
+              Arrays.asList(GraphState.NoElementSelected, GraphState.ElementsSelected));
   }  
   
   public static IncreaseSizeAction getInstance() {

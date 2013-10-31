@@ -38,17 +38,30 @@ public class YAnalyser {
     private boolean _cancelled;
     private String _specXML;
 
+    private static final int DEFAULT_MAX_MARKINGS = 5000;
+
     public String analyse(String specXML, YAnalyserOptions options) throws YSyntaxException {
+        return analyse(specXML, options, DEFAULT_MAX_MARKINGS);
+    }
+
+    public String analyse(String specXML, YAnalyserOptions options, int maxMarkings)
+            throws YSyntaxException {
         _specXML = specXML;
-        return analyse(YMarshal.unmarshalSpecifications(specXML).get(0), options);
+        return analyse(YMarshal.unmarshalSpecifications(specXML).get(0), options, maxMarkings);
     }
 
 
     public String analyse(YSpecification specification, YAnalyserOptions options) {
+        return analyse(specification, options, DEFAULT_MAX_MARKINGS);
+    }
+
+    public String analyse(YSpecification specification, YAnalyserOptions options,
+                          int maxMarkings) {
         StringBuilder results = new StringBuilder("<analysis_results>");
         if (options.isResetAnalysis()) {
             _resetAnalyser = new YAWLResetAnalyser();
-            results.append(_resetAnalyser.analyse(specification, options, _listeners));
+            results.append(
+                    _resetAnalyser.analyse(specification, options, _listeners, maxMarkings));
         }
         if (options.isWofAnalysis() && ! _cancelled) {
             if (_specXML == null) _specXML = specification.toXML();

@@ -48,8 +48,7 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
   
   private ZoomSelectedElementsAction() {
       Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.NoElementSelected,
-                      GraphState.ElementsSelected));
+              Arrays.asList(GraphState.NoElementSelected, GraphState.ElementsSelected));
   }
   
   public static ZoomSelectedElementsAction getInstance() {

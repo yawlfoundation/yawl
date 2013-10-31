@@ -57,12 +57,14 @@ public class PropertiesLoader
 
 
     public void setGraph(NetGraph graph) {
-        if (graph != null && ! graph.equals(_graph)) {
-            _graph = graph;
-            _netProperties.setGraph(graph);
-            _cellProperties.setGraph(graph);
-            _flowProperties.setGraph(graph);
-            _decompositionProperties.setGraph(graph);
+        if (graph != null) {
+            if (! graph.equals(_graph)) {
+                _graph = graph;
+                _netProperties.setGraph(graph);
+                _cellProperties.setGraph(graph);
+                _flowProperties.setGraph(graph);
+                _decompositionProperties.setGraph(graph);
+            }
             showNetProperties();
         }
     }
