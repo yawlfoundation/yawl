@@ -72,7 +72,6 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
                 break;
             }
             default: {
-
                 YAWLVertex vertex = NetCellUtilities.getVertexFromCell(
                         YAWLEditor.getNetsPane().getSelectedGraph().getSelectionCell()
                 );
@@ -82,11 +81,7 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
                 }
 
                 setEnabledAt(NOTES_PANEL_INDEX, true);
-                setTitleAt(
-                        NOTES_PANEL_INDEX,
-                        "Notes (" + vertex.getName()  + ")"
-                );
-
+                setTitleAt(NOTES_PANEL_INDEX, "Notes (" + vertex.getName()  + ")");
                 notesPanel.setVertex(vertex);
                 selectNotesTab();
                 break;

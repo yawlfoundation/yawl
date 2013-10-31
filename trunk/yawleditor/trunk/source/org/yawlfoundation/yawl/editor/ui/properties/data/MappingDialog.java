@@ -468,7 +468,7 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private void enableQueryEditor(boolean enable) {
         enableContents(queryPanel, enable);
-        _xQueryEditor.getXQueryEditor().setEnabled(enable);
+        _xQueryEditor.getEditor().setEnabled(enable);
         okButton.setEnabled(enable);
     }
 

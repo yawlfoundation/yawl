@@ -55,13 +55,13 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
 
     public void remove(int offset, int length) throws BadLocationException {
         super.remove(offset, length);
-        publishValidity();
+        if (length > 0) publishValidity();
     }
 
     public void replace(int offset, int length, String text, AttributeSet attrs)
             throws BadLocationException {
         super.replace(offset, length, text, attrs);
-        publishValidity();
+        if (length > 0) publishValidity();
     }
 
     public void publishValidity() {

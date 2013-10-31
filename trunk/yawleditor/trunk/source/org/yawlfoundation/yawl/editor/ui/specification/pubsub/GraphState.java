@@ -30,6 +30,5 @@ public enum GraphState {
     ElementsSelected,
     MultipleVerticesSelected,
     OneTaskSelected,
-    OneElementSelected,
-    VerticesSelected
+    OneElementSelected
 }

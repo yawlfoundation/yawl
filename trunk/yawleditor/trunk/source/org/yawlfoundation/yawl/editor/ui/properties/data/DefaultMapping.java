@@ -98,7 +98,8 @@ public class DefaultMapping {
 
 
     private void parse(String mapping) {
-        mapping = mapping.substring(mapping.indexOf(SEP_CHAR));
+
+        // if there's not three separators, it's not a default mapping
         int sepCount = 0;
         for (char c : mapping.toCharArray()) {
             if (c == SEP_CHAR) sepCount++;
@@ -110,7 +111,7 @@ public class DefaultMapping {
 
         int index = -1;
         StringBuilder s = new StringBuilder();
-        for (char c : mapping.toCharArray()) {
+        for (char c : mapping.substring(mapping.indexOf(SEP_CHAR)).toCharArray()) {
             if (Character.isWhitespace(c)) continue;
             if (c == SEP_CHAR) {
                 switch (index) {

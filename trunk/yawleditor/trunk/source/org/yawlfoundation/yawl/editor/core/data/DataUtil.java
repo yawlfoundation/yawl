@@ -43,7 +43,7 @@ public class DataUtil {
     protected static final String DEFAULT_NAMESPACE_PREFIX = "xs";
     protected static final String DEFAULT_NAMESPACE_URL = "http://www.w3.org/2001/XMLSchema";
     protected static final String DEFAULT_SCHEMA = "<xs:schema xmlns:" +
-            DEFAULT_NAMESPACE_PREFIX + "=\"" + DEFAULT_NAMESPACE_URL + ">\n\n</xs:schema>";
+            DEFAULT_NAMESPACE_PREFIX + "=\"" + DEFAULT_NAMESPACE_URL + "\">\n\n</xs:schema>";
 
 
     public DataUtil(String schema) {

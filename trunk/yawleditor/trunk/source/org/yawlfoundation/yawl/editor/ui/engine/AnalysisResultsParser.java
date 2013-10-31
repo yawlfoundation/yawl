@@ -63,7 +63,8 @@ public class AnalysisResultsParser {
         _analyser.addEventListener(messageDlg);
 
         try {
-            return _analyser.analyse(engineSpecXML, getAnalyserOptions());
+            return _analyser.analyse(engineSpecXML, getAnalyserOptions(),
+                    UserSettings.getAnalyserMaxMarkings());
         }
         catch (YSyntaxException yse) {
             messageDlg.setVisible(false);

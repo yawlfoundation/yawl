@@ -43,7 +43,7 @@ public final class ResetWFNet {
     private String _id;
     private YAWLResetAnalyser _parent;
 
-    private int MAX_MARKINGS = 5000;
+    private int _maxMarkings = 5000;
     private final String _baseMsg;
 
     /**
@@ -55,6 +55,12 @@ public final class ResetWFNet {
         _baseMsg = "The net " + _id;
         convertToResetNet(yNet.getNetElements());
     }
+
+    public ResetWFNet(YNet yNet, int maxMarkings) {
+        this(yNet);
+        _maxMarkings = maxMarkings;
+    }
+
 
     //an alternative to cloning
     public ResetWFNet(ResetWFNet rNet) {
@@ -109,7 +115,7 @@ public final class ResetWFNet {
         return _outputPlace;
     }
 
-    public void setMaxMarkings(int maxMarkings) { MAX_MARKINGS = maxMarkings; }
+    public void setMaxMarkings(int maxMarkings) { _maxMarkings = maxMarkings; }
 
     public void removeNetElement(RElement netElement) {
         for (RElement element : netElement.getPresetElements()) {
@@ -709,9 +715,9 @@ public final class ResetWFNet {
         while (! reachable.containsAll(visitingPS.getMarkings())) {
             if (_parent.isCancelled()) return reachable;
             reachable.addAll(visitingPS);
-            if (reachable.size() > MAX_MARKINGS) {
+            if (reachable.size() > _maxMarkings) {
                 _parent.announceProgressMessage(
-                        "Reachable markings exceed limit (" + MAX_MARKINGS +
+                        "Reachable markings exceed limit (" + _maxMarkings +
                         "). Possible infinite loop in the net '" + _id +
                         "'. Unable to complete analysis of this net.");
                 return reachable;
@@ -1037,14 +1043,13 @@ public final class ResetWFNet {
 
 
     private String printMarking(RMarking marking) {
-
-        String printStr = "";
+        StringBuilder s = new StringBuilder();
         Map<String, Integer> mPlaces = marking.getMarkedPlaces();
         for (String location : mPlaces.keySet()) {
-            printStr += mPlaces.get(location) + location + "+";
+            if (s.length() > 0) s.append('+');
+            s.append(mPlaces.get(location)).append(location);
         }
-        //To remove the last +
-        return printStr.substring(0, printStr.length()-1);
+        return s.toString();
     }
 
 

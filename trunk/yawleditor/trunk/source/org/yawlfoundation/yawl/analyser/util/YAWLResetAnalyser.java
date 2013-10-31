@@ -39,7 +39,7 @@ public class YAWLResetAnalyser {
 
 
     public String analyse(YSpecification specification, YAnalyserOptions options,
-                          Set<YAnalyserEventListener> listeners) {
+                          Set<YAnalyserEventListener> listeners, int maxMarkings) {
 
         // short circuit if no reset options selected
         if (! options.isResetAnalysis()) return "";
@@ -62,8 +62,8 @@ public class YAWLResetAnalyser {
                     if (reducedYNet != null) yNet = reducedYNet;
                 }
 
-                ResetWFNet resetNet = new ResetWFNet(yNet);
-                YAWLReachabilityUtils utils = new YAWLReachabilityUtils(yNet);
+                ResetWFNet resetNet = new ResetWFNet(yNet, maxMarkings);
+                YAWLReachabilityUtils utils = new YAWLReachabilityUtils(yNet, maxMarkings);
 
                 if (options.isResetReductionRules()) {
                     ResetWFNet reducedNet = reduceNet(resetNet);

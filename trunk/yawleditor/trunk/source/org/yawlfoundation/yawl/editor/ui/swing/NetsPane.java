@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -99,6 +101,25 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
                 updateState(true);
                 break;
             }
+        }
+    }
+
+    public void resetRootNet() {
+        YAWLEditorNetPanel rootNetFrame = null;
+        for (int i=0; i < getTabCount(); i++) {
+            YAWLEditorNetPanel panel = (YAWLEditorNetPanel) getComponentAt(i);
+            NetGraphModel model = panel.getNet().getNetModel();
+            if (model.isRootNet()) {
+                rootNetFrame = panel;
+                break;
+            }
+        }
+        if (rootNetFrame != null) {
+            setIconAt(0, NetUtilities.getSubNetIcon());
+            remove(rootNetFrame);
+            insertTab(rootNetFrame.getTitle(), NetUtilities.getRootNetIcon(),
+                    rootNetFrame, null, 0);
+            setSelectedIndex(0);
         }
     }
 

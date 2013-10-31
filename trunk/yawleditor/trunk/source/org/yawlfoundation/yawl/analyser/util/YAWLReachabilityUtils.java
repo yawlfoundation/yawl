@@ -40,12 +40,17 @@ public class YAWLReachabilityUtils{
     private Set<YTask> firedTasks = new HashSet<YTask>();
     private Set<YTask> orJoins = new HashSet<YTask>();
     private Map<String, YSetOfMarkings> ojMarkingsMap = new HashMap<String, YSetOfMarkings>();
-    private int MAX_MARKINGS = 5000;
+    private int _maxMarkings = 5000;
 
     private YAWLResetAnalyser _parent;
 
-    public YAWLReachabilityUtils(YNet net){
+    public YAWLReachabilityUtils(YNet net) {
         _yNet =  transformNet(net);
+    }
+
+    public YAWLReachabilityUtils(YNet net, int maxMarkings) {
+        this(net);
+        _maxMarkings = maxMarkings;
     }
 
     public void setParent(YAWLResetAnalyser parent) {
@@ -359,8 +364,8 @@ public class YAWLReachabilityUtils{
         while (!RS.containsAll(visitingPS.getMarkings())) {
             if (_parent.isCancelled()) return RS;
             RS.addAll(visitingPS);
-            if (RS.size() > MAX_MARKINGS) {
-                String msg = "Reachable markings exceeds limit (" + MAX_MARKINGS +
+            if (RS.size() > _maxMarkings) {
+                String msg = "Reachable markings exceeds limit (" + _maxMarkings +
                         "). Possible infinite loop in the net '" + _yNet.getID() +
                         "'. Unable to complete analysis of this net.";
                 _parent.announceProgressMessage(msg);

@@ -62,9 +62,6 @@ public class NetSelectionListener implements GraphSelectionListener {
         if (deletableElementsSelected(model)) {
             publishState(GraphState.DeletableElementSelected, event);
         }
-        if (oneOrMoreVertexSelected(model)) {
-            publishState(GraphState.VerticesSelected, event);
-        }
         if (moreThanOneVertexSelected(model)) {
             publishState(GraphState.MultipleVerticesSelected, event);
         }

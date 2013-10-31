@@ -137,10 +137,10 @@ public class DataSchemaValidator {
         int lines=1;
         int lastLineAt = 0;
         for (int i=0; i<pos; i++) {
-           if (schema.charAt(i) == '\n') {
-               lines++;
-               lastLineAt = i;
-           }
+            if (schema.charAt(i) == '\n') {
+                lines++;
+                lastLineAt = i;
+            }
         }
         return lines + ":" + (pos - lastLineAt - 1);
     }

@@ -48,8 +48,7 @@ public class DecreaseSizeAction extends YAWLSelectedNetAction
   
   private DecreaseSizeAction() {
       Publisher.getInstance().subscribe(this,
-              Arrays.asList(GraphState.NoElementSelected,
-                      GraphState.ElementsSelected));
+              Arrays.asList(GraphState.NoElementSelected, GraphState.ElementsSelected));
   }
   
   public static DecreaseSizeAction getInstance() {

@@ -135,7 +135,7 @@ public class PreferencesDialog extends JDialog
     }
 
     private void addAnalysisPreferences(JButtonBar toolbar, ButtonGroup group) {
-        AnalysisPanel analysisPanel = new AnalysisPanel(this);
+        AnalysisPanel analysisPanel = new AnalysisPanel(this, this);
          JToggleButton button = makeButton("Analysis", "analyze", analysisPanel);
          toolbar.add(button);
          group.add(button);

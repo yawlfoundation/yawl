@@ -414,11 +414,16 @@ public class DataVariableDialog extends JDialog
 
     private String unwrapMapping(String mapping) {
         if (mapping != null) {
-            if (mapping.contains("{")) {
-                return mapping.substring(mapping.indexOf('{') + 1, mapping.lastIndexOf('}'));
+
+            // remove outer {}'s, if any
+            if (mapping.trim().startsWith("{")) {
+                mapping = mapping.substring(mapping.indexOf('{') + 1,
+                        mapping.lastIndexOf('}'));
             }
-            if (mapping.contains("<")) {
-                return StringUtil.unwrap(mapping);
+
+            // remove outer (param name) tags
+            if (mapping.trim().startsWith("<")) {
+                mapping = StringUtil.unwrap(mapping);
             }
         }
         return mapping;

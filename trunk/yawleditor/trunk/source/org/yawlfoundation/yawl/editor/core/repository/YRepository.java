@@ -32,13 +32,12 @@ public class YRepository {
     private ExtendedAttributesRepository _extendedAttributesMap;
     private DataDefinitionRepository _dataDefinitionMap;
 
-    private static YRepository INSTANCE;
+    private final static YRepository INSTANCE = new YRepository();
 
 
     private YRepository() { }
 
     public static YRepository getInstance() {
-        if (INSTANCE == null) INSTANCE = new YRepository();
         return INSTANCE;
     }
 

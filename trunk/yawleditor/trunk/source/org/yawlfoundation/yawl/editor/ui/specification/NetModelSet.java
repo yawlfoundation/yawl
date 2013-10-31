@@ -226,7 +226,7 @@ public class NetModelSet extends HashSet<NetGraphModel> {
         startEdits(getRootNet());
         NetGraphModel lastNetModel = null;
         for (NetGraphModel netModel : this) {
-            NetCellUtilities.propogateFontChangeAcrossNet(netModel.getGraph(), font);
+            NetCellUtilities.propagateFontChangeAcrossNet(netModel.getGraph(), font);
             lastNetModel = netModel;
         }
         stopEdits();

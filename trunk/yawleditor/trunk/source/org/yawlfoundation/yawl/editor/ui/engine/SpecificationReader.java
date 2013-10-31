@@ -130,11 +130,13 @@ public class SpecificationReader {
         SpecificationUndoManager.getInstance().discardAllEdits();
         setSelectedCancellationSets();
         ConfigurationImporter.ApplyConfiguration();
+        YAWLEditor.getPropertySheet().setVisible(true);
         warnOnInvalidResources();
     }
 
 
     private void createEditorObjects() {
+        YAWLEditor.getPropertySheet().setVisible(false);
         importNets();
         populateNets();
     }
