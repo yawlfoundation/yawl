@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * @author Michael Adams
  * @date 3/08/12
  */
-class VariableRow {
+public class VariableRow {
 
     private Values startValues;
     private Values endValues;
@@ -36,8 +36,7 @@ class VariableRow {
     private String decompositionID;
     private boolean outputOnlyTask;                        // used only for tasks
     private boolean hasValidName;
-    private Boolean hasValidValue;
-
+    private boolean hasValidValue;
     private boolean multiInstance;
 
     // new row added at runtime, so no starting values

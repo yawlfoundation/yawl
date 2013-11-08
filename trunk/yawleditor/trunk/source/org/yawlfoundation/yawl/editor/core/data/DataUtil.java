@@ -37,12 +37,13 @@ import java.util.List;
 public class DataUtil {
 
     private String _specificationSchema;
+    private Document _schemaDoc;
     private final DataSchemaValidator _schemaValidator;
     private final InstanceValidator _instanceValidator;
 
-    protected static final String DEFAULT_NAMESPACE_PREFIX = "xs";
-    protected static final String DEFAULT_NAMESPACE_URL = "http://www.w3.org/2001/XMLSchema";
-    protected static final String DEFAULT_SCHEMA = "<xs:schema xmlns:" +
+    public static final String DEFAULT_NAMESPACE_PREFIX = "xs";
+    public static final String DEFAULT_NAMESPACE_URL = "http://www.w3.org/2001/XMLSchema";
+    public static final String DEFAULT_SCHEMA = "<xs:schema xmlns:" +
             DEFAULT_NAMESPACE_PREFIX + "=\"" + DEFAULT_NAMESPACE_URL + "\">\n\n</xs:schema>";
 
 
@@ -56,7 +57,8 @@ public class DataUtil {
     public void setSpecificationSchema(String schema) {
         _specificationSchema = schema != null ? schema : DEFAULT_SCHEMA;
         _schemaValidator.setDataTypeSchema(_specificationSchema);
-        _instanceValidator.setSpecificationSchema(schema);
+        _instanceValidator.setSpecificationSchema(_specificationSchema);
+        _schemaDoc = JDOMUtil.stringToDocument(_specificationSchema);
     }
 
 
@@ -81,13 +83,17 @@ public class DataUtil {
         return new ArrayList<String>(_schemaValidator.getPrimarySchemaTypeNames());
     }
 
+    public Namespace getDataSchemaNamespace() {
+        return _schemaDoc != null ? _schemaDoc.getRootElement().getNamespace() :
+                JDOMUtil.stringToDocument(DEFAULT_SCHEMA).getRootElement().getNamespace();
+    }
+
 
     public String getMultiInstanceItemType(String dataType) {
         if (dataType.equals("YStringListType")) return dataType;
 
-        if (_specificationSchema != null) {
-            Document doc = JDOMUtil.stringToDocument(_specificationSchema);
-            Element root = doc.getRootElement();
+        if (_schemaDoc != null) {
+            Element root = _schemaDoc.getRootElement();
             Namespace ns = root.getNamespace();
             for (Element child : root.getChildren()) {
                 String name = child.getAttributeValue("name");
@@ -112,6 +118,7 @@ public class DataUtil {
 
     public List<String> getDataTypeNames() {
         List<String> typeList = getBuiltInTypeNames();
+        typeList.remove("notation");                             // non-assignable type
         typeList.addAll(getInternalTypeNames());
         typeList.addAll(getUserDefinedTypeNames());
 

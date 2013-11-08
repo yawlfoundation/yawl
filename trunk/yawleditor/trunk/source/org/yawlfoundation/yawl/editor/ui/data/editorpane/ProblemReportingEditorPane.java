@@ -107,7 +107,7 @@ public class ProblemReportingEditorPane extends JPanel
     }
 
 
-    protected void showProblems(List<String> problemList) {
+    public void showProblems(List<String> problemList) {
         if (problemList != null && problemList.size() > 0) {
 
             // remove the dummy element name from error message

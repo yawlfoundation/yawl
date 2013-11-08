@@ -30,6 +30,9 @@ public class XQueryEditorPane extends ProblemReportingEditorPane {
         super(new XQueryEditor());
     }
 
+    public XQueryEditorPane(ValidityEditorPane editor) {
+        super(editor);
+    }
     public XQueryEditorPane(String extraParseText) {
         super(new XQueryEditor(extraParseText));
     }

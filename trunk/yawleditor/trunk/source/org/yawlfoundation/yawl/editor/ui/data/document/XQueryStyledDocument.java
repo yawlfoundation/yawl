@@ -68,13 +68,23 @@ public class XQueryStyledDocument extends AbstractXMLStyledDocument {
                 return;
             }
 
+            // cost expression
+            if (getEditor().getText().matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$")) {
+                setContentValidity(Validity.VALID);
+                return;
+            }
+
             try {
                 SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
                 errorList = SaxonUtil.getCompilerMessages();
                 setContentValidity(errorList.isEmpty() ? Validity.VALID : Validity.INVALID);
             }
             catch (SaxonApiException e) {
-                errorList.add(e.getMessage().split("\n")[1].trim());
+                String message = e.getMessage();
+                if (message.contains("\n")) {
+                    message = message.split("\n")[1].trim();
+                }
+                errorList.add(message);
                 setContentValidity(Validity.INVALID);
             }
         }
