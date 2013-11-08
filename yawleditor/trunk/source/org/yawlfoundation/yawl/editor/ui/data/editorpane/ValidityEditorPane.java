@@ -62,7 +62,7 @@ public class ValidityEditorPane extends JEditorPane
         return getXMLStyledDocument().isContentValid();
     }
 
-    public void validate() {
+    public void validateContent() {
         getXMLStyledDocument().publishValidity();
     }
 
@@ -81,7 +81,6 @@ public class ValidityEditorPane extends JEditorPane
     public void setText(String text) {
         super.setText(text);
         setSize(150, 15);
-        validate();
     }
 
     public List<String> getProblemList() {

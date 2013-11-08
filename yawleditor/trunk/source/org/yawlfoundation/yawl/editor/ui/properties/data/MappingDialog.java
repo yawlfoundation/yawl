@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
@@ -44,8 +46,9 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private VariableRow _taskRow;                    // the task input or output row
     private VariableTablePanel _netTablePanel;
-    private XQueryEditorPane _xQueryEditor;
+    private XQueryValidatingEditorPane _xQueryEditor;
     private XQueryEditorPane _miQueryEditor;
+    private MappingTypeValidator _typeValidator;
 
     private JRadioButton netVarsButton;
     private JRadioButton gatewayButton;
@@ -56,15 +59,16 @@ public class MappingDialog extends JDialog implements ActionListener {
     private JButton okButton;
 
 
-    public MappingDialog(VariableTablePanel netTablePanel, VariableRow row) {
+    public MappingDialog(VariableTablePanel netTablePanel, VariableRow row,
+                         java.util.List<VariableRow> mappedFromVariableList) {
         super();
         _taskRow = row;
         _netTablePanel = netTablePanel;
         setTitle(makeTitle());
-        add(getContent());
+        add(getContent(initTypeValidator(row, mappedFromVariableList)));
         setModal(true);
         setResizable(false);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationByPlatform(true);
         setPreferredSize(new Dimension(426, _taskRow.isMultiInstance() ? 520 : 400));
         pack();
@@ -107,6 +111,15 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
+    private MappingTypeValidator initTypeValidator(VariableRow row,
+                             java.util.List<VariableRow> mappedFromVariableList) {
+        String dataType = row.isInput() ? row.getDataType() :
+                getDataTypeForNetVar(row.getNetVarForOutputMapping());
+        _typeValidator = new MappingTypeValidator(mappedFromVariableList, row, dataType);
+        return _typeValidator;
+    }
+
+
     private String makeTitle() {
         StringBuilder sb = new StringBuilder();
         sb.append(YDataHandler.getScopeName(_taskRow.getUsage()))
@@ -116,11 +129,11 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private JPanel getContent() {
+    private JPanel getContent(MappingTypeValidator typeChecker) {
         JPanel content = new JPanel();
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
         content.add(buildIOPanel());
-        content.add(createQueryPanel());
+        content.add(createQueryPanel(typeChecker));
         if (_taskRow.isMultiInstance()) content.add(createMiQueryPanel());
         content.add(createButtonBar());
         initContent();
@@ -212,10 +225,11 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private JPanel createQueryPanel() {
+    private JPanel createQueryPanel(MappingTypeValidator typeChecker) {
         queryPanel = new JPanel(new BorderLayout());
         queryPanel.setBorder(new TitledBorder(makeQueryTitle()));
-        queryPanel.add(createAutoFormatPanel(getXQueryEditor()), BorderLayout.NORTH);
+        queryPanel.add(createAutoFormatPanel(getXQueryEditor(typeChecker)),
+                BorderLayout.NORTH);
         queryPanel.add(_xQueryEditor, BorderLayout.CENTER);
         return queryPanel;
     }
@@ -274,10 +288,12 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private XQueryEditorPane getXQueryEditor() {
-        _xQueryEditor = new XQueryEditorPane();
+    private XQueryEditorPane getXQueryEditor(MappingTypeValidator typeChecker) {
+        _xQueryEditor = new XQueryValidatingEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
+        _xQueryEditor.setTypeChecker(typeChecker);
         _xQueryEditor.setValidating(true);
+        _xQueryEditor.setTargetVariableName(_taskRow.getName());
         _xQueryEditor.setText(formatQuery(_taskRow.getMapping(), true));
         return _xQueryEditor;
     }
@@ -286,6 +302,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         _miQueryEditor = new XQueryEditorPane();
         _miQueryEditor.setPreferredSize(new Dimension(400, 90));
         _miQueryEditor.setValidating(true);
+        _miQueryEditor.setTargetVariableName(_taskRow.getName());
         _miQueryEditor.setText(formatQuery(_taskRow.getMIQuery(), true));
         return _miQueryEditor;
     }
@@ -421,15 +438,24 @@ public class MappingDialog extends JDialog implements ActionListener {
 
 
     private void handleNetVarComboSelection() {
+        String selectedNetVarName = getSelectedNetVar();
+
+        // the target net var has changed, and thus maybe the target data type too
+        if (_taskRow.isOutput()) {
+            _typeValidator.setDataType(getDataTypeForNetVar(selectedNetVarName));
+        }
+
+        // update the mapping text based on the new net var selection
         VariableRow row = _taskRow.isInput() ?
-                getNetVariableRow(getSelectedNetVar()) : // input query based on net row
+                getNetVariableRow(selectedNetVarName) : // input query based on net row
                 _taskRow;                               // output query based on task row
 
         if (row != null) {
-            if (_taskRow.isOutput()) enableQueryEditor(true);
+             if (_taskRow.isOutput()) enableQueryEditor(true);
             _xQueryEditor.setText(createMapping(row));
         }
     }
+
 
     private void handleGatewayComboSelection() {
         VariableRow row = _taskRow.isInput() ?
@@ -449,6 +475,12 @@ public class MappingDialog extends JDialog implements ActionListener {
              if (row.getName().equals(name)) return row;
         }
         return null;
+    }
+
+    private String getDataTypeForNetVar(String netVarName) {
+        if (netVarName == null) return null;
+        VariableRow row = getNetVariableRow(netVarName);
+        return row != null ? row.getDataType() : null;
     }
 
 

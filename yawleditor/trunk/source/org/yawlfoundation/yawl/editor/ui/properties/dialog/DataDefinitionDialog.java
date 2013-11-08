@@ -54,7 +54,7 @@ public class DataDefinitionDialog extends AbstractDoneDialog implements CaretLis
 
 
     public void caretUpdate(CaretEvent caretEvent) {
-        editorPane.getEditor().validate();
+        editorPane.getEditor().validateContent();
         getDoneButton().setEnabled(editorPane.isContentValid());
     }
 

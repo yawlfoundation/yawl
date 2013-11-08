@@ -118,8 +118,7 @@ public class VariableTablePanel extends JPanel
             table.moveSelectedRowDown();
         }
         else if (action.equals("Map")) {
-            new MappingDialog(parent.getNetTablePanel(),
-                    table.getSelectedVariable()).setVisible(true);
+            showMappingDialog();
             table.getTableModel().fireTableDataChanged();
         }
         else if (action.equals("MarkMI")) {
@@ -136,6 +135,17 @@ public class VariableTablePanel extends JPanel
                 parent.enableApplyButton();
             }
         }
+    }
+
+
+    private void showMappingDialog() {
+        java.util.List<VariableRow> mapFromList = (tableType == TableType.TaskInput) ?
+                parent.getNetTablePanel().getTable().getVariables() :
+                table.getVariables();
+
+        new MappingDialog(parent.getNetTablePanel(),
+                table.getSelectedVariable(),
+                mapFromList).setVisible(true);
     }
 
 

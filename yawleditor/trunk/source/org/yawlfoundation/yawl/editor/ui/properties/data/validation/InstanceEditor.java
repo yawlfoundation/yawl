@@ -40,8 +40,4 @@ public class InstanceEditor extends ValidityEditorPane {
         return _dataType;
     }
 
-    public void validate() {
-        super.validate();
-    }
-
 }

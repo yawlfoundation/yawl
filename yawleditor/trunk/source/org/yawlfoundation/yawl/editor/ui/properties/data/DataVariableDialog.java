@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -89,6 +90,7 @@ public class DataVariableDialog extends JDialog
             updateVariables();
             dirty = false;
             btnApply.setEnabled(false);
+            SpecificationUndoManager.getInstance().setDirty(true);
         }
 
         if (! action.equals("Apply")) {

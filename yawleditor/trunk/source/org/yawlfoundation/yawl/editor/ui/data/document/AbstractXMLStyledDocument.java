@@ -61,7 +61,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
     public void replace(int offset, int length, String text, AttributeSet attrs)
             throws BadLocationException {
         super.replace(offset, length, text, attrs);
-        if (length > 0) publishValidity();
+        publishValidity();
     }
 
     public void publishValidity() {

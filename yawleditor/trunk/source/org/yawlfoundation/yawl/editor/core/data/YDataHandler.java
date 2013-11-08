@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.core.data;
 
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -1431,6 +1432,8 @@ public class YDataHandler {
     public List<String> getInternalTypeNames() { return _utils.getInternalTypeNames(); }
 
     public List<String> getUserDefinedTypeNames() { return _utils.getUserDefinedTypeNames(); }
+
+    public Namespace getDataSchemaNamespace() { return _utils.getDataSchemaNamespace(); }
 
     public String getMultiInstanceItemType(String dataType) {
         return _utils.getMultiInstanceItemType(dataType);
