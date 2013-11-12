@@ -281,7 +281,7 @@ public class MappingTypeValidator {
      */
     private String evaluateQuery(String query, Document dataDocument)
             throws SaxonApiException {
-        boolean wrapped = query.startsWith("<") || query.startsWith("{");
+        boolean wrapped = ! query.startsWith("/");
         if (wrapped) {
             query = StringUtil.wrap(query, "foo_bar");
         }
@@ -301,7 +301,8 @@ public class MappingTypeValidator {
                 return field.getEnumeratedValues().get(0);
             }
             if (field.hasRestriction()) {
-       //         return field.getRestriction().getSampleValue();  todo
+                return new RestrictionSampleValueGenerator(field.getRestriction())
+                        .generateValue();
             }
             return XSDType.getSampleValue(field.getDataTypeUnprefixed());
         }
