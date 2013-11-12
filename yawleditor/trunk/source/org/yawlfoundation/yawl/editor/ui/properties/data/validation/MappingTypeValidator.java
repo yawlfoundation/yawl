@@ -266,6 +266,7 @@ public class MappingTypeValidator {
         else {
             for (DynFormField subField : field.getSubFieldList()) {
                 fieldNode.addChild(expandField(subField));
+                if (subField.isChoiceField()) break;              // only want one choice
             }
         }
         return fieldNode;
@@ -326,7 +327,5 @@ public class MappingTypeValidator {
     private YSpecificationHandler getSpecHandler() {
         return SpecificationModel.getHandler();
     }
-
-
 
 }

@@ -180,16 +180,18 @@ public class YPropertySheet extends PropertySheetPanel {
 
                 // disable for read-only
                 PropertySheetTableModel.Item item = null;
-                while (item == null) {
+                int threshold = 0;
+                while (item == null && threshold < 10) {
                     try {
                         item = getSheetModel().getPropertySheetElement(row);
                     }
                     catch (IndexOutOfBoundsException ioobe) {
                         pause(100);
+                        threshold++;
                     }
                 }
 
-                if (item.isProperty()) {
+                if (item != null && item.isProperty()) {
                     component.setEnabled(item.getProperty().isEditable() && !isReadOnly(row));
                 }
             }

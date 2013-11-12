@@ -76,6 +76,7 @@
 			any YAWL Services dependencies we know we *don't* need;
 			the full set of required packages for the Complete build
 	-->
+    <property name="automaton" value="automaton.jar"/>
     <property name="bounce" value="bounce-0.18.jar"/>
     <property name="forms" value="forms_rt.jar"/>
     <property name="imgscalr" value="imgscalr-lib-4.2.jar"/>
@@ -88,7 +89,7 @@
 
 	<fileset id="editorOnlyDeps" dir="${library.dir}"
 			 includes="${jcal} ${servlet} ${forms} ${bounce} ${imgscalr}
-			           ${goodies-common} ${goodies-looks} ${l2fprod}" />
+			           ${goodies-common} ${goodies-looks} ${l2fprod} ${automaton}" />
 
 	<fileset id="junitDeps" file="${tools.dir}/${junit}" />
 

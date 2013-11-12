@@ -120,6 +120,9 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
         secondUpdateThread.reset();
     }
 
+    public void freeze() {
+        secondUpdateThread.freeze();
+    }
 
     public void specificationStateChange(SpecificationState state) {
         switch(state) {
@@ -147,14 +150,14 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
 
         private int APPARENTLY_INSTANT_MILLISECONDS = 50;
         private int pauseSeconds = 0;
-        private volatile boolean shouldReset = false;
+        private volatile boolean shouldStop = false;
 
         public void run() {
             final int secondsAsMillis = pauseSeconds * 1000;
             final int pausePasses = secondsAsMillis / APPARENTLY_INSTANT_MILLISECONDS;
             for (int i = 0; i < pausePasses; i++) {
-                if (shouldReset) {
-                    return;
+                if (shouldStop) {
+                    break;
                 }
                 updateProgress((i * 100) / (pausePasses));
                 pause(APPARENTLY_INSTANT_MILLISECONDS);
@@ -166,8 +169,12 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
         }
 
         public void reset() {
-            this.shouldReset = true;
+            shouldStop = true;
             finishProgress();
+        }
+
+        public void freeze() {
+            shouldStop = true;
         }
 
         private void pause(long milliseconds) {

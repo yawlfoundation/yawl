@@ -113,6 +113,8 @@ public class MappingDialog extends JDialog implements ActionListener {
 
     private MappingTypeValidator initTypeValidator(VariableRow row,
                              java.util.List<VariableRow> mappedFromVariableList) {
+        if (row.isMultiInstance()) return null;         // no type checks for MI queries
+
         String dataType = row.isInput() ? row.getDataType() :
                 getDataTypeForNetVar(row.getNetVarForOutputMapping());
         _typeValidator = new MappingTypeValidator(mappedFromVariableList, row, dataType);
