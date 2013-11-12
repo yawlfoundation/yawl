@@ -179,6 +179,16 @@ public class XSDType {
         return (ordinal >= DATE) && (ordinal <= DATETIME);
     }
 
+    public static boolean isListType(String type) {
+        int ordinal = getOrdinal(type);
+        return ordinal == NMTOKENS || ordinal == ENTITIES || ordinal == IDREFS;
+    }
+
+    public static boolean isBinaryType(String type) {
+        int ordinal = getOrdinal(type);
+        return ordinal == HEX_BINARY || ordinal == BASE64_BINARY;
+    }
+
     public static boolean isStringForType(String s, int type) {
         return getString(type).equals(s);
     }
@@ -190,6 +200,59 @@ public class XSDType {
     public static String[] getBuiltInTypeArray() {
         return _typeList.toArray(new String[_typeList.size()]);
     }
+
+
+    public static String getSampleValue(String type) {
+        switch (getOrdinal(type)) {
+            case INTEGER:
+            case POSITIVE_INTEGER:
+            case INT:
+            case LONG:
+            case SHORT:
+            case UNSIGNED_LONG:
+            case UNSIGNED_INT:
+            case UNSIGNED_SHORT:
+            case UNSIGNED_BYTE:
+            case NON_NEGATIVE_INTEGER:
+            case GYEAR:
+            case BYTE:
+            case DECIMAL:               return "100";
+            case NEGATIVE_INTEGER:
+            case NON_POSITIVE_INTEGER:  return "-100";
+            case STRING:
+            case NORMALIZED_STRING:     return "a string";
+            case TOKEN:
+            case NMTOKEN:
+            case NMTOKENS:              return "token";
+            case NAME:
+            case NCNAME:
+            case ID:
+            case IDREF:
+            case IDREFS:
+            case ENTITY:
+            case ENTITIES:
+            case BASE64_BINARY:
+            case NOTATION:
+            case ANY_URI:
+            case ANY_TYPE:    return "name";
+            case BOOLEAN:     return "false";
+            case LANGUAGE:    return "en";
+            case QNAME:       return "xs:name";
+            case HEX_BINARY:  return "FF";
+            case DOUBLE:
+            case FLOAT:       return "3.142";
+            case DATE:        return "2013-01-01";
+            case TIME:        return "12:12:12";
+            case DATETIME:    return "2013-01-01T12:12:12";
+            case DURATION:    return "PY2";
+            case GDAY:        return "---01";
+            case GMONTH:      return "--01";
+            case GMONTHDAY:   return "--01-01";
+            case GYEARMONTH:  return "2013-01";
+        }
+        return "name";
+    }
+
 
     public static char[] getConstrainingFacetMap(String type) {
         String vMap;

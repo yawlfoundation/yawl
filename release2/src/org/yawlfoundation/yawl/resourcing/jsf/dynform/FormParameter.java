@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.io.Serializable;
 import java.util.Hashtable;

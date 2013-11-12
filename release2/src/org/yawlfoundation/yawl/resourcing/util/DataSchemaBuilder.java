@@ -23,6 +23,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.schema.XSDType;
@@ -91,14 +92,14 @@ public class DataSchemaBuilder {
      * @param parameters the List of parameters to build the schema for
      * @return the constructed schema (as a string)
      */
-    public String buildSchema(String rootName, List<YParameter> parameters) {
+    public String buildSchema(String rootName, List<? extends YVariable> parameters) {
         Namespace defNS = getDefaultNamespace();
 
         // create a new schema doc preamble (down to first sequence element)
         Element sequence = createPreamble(rootName, defNS);
 
         // for each param build an appropriate element
-        for (YParameter param : parameters) {
+        for (YVariable param : parameters) {
              sequence.addContent(createParamElement(param,  defNS));
         }
 
@@ -164,7 +165,7 @@ public class DataSchemaBuilder {
      * @param defNS the default namespace
      * @return the constructed schema for this parameter
      */
-    private Element createParamElement(YParameter param,  Namespace defNS) {
+    private Element createParamElement(YVariable param,  Namespace defNS) {
         Element element = new Element("element", defNS);
         element.setAttribute("name", param.getName());
 
@@ -212,7 +213,7 @@ public class DataSchemaBuilder {
      * @param defNS the default namespace
      * @return the constructed complex type schema
      */
-    private Element createComplexType(YParameter param, Element base, Namespace defNS) {
+    private Element createComplexType(YVariable param, Element base, Namespace defNS) {
         String URI = param.getDataTypeNameSpace();
         if (URI != null) {
             addNamespace(URI, param.getDataTypePrefix()) ;     // add any new namespace
