@@ -112,6 +112,7 @@ public class ProblemReportingEditorPane extends JPanel
 
             // remove the dummy element name from error message
             errorBar.setText(problemList.get(0).replace(" 'foo_bar'", ""));
+            errorBar.setCaretPosition(0);
             setProblemPanelForeground(true);
         }
         else {

@@ -407,6 +407,7 @@ public class SpecificationReader {
         YResourceHandler resHandler = _handler.getResourceHandler();
         if (! resHandler.hasLoadedResources()) return;
 
+        YAWLEditor.getStatusBar().freeze();
         if (YConnector.isResourceConnected()) {
             Set<InvalidReference> invalidSet = resHandler.getInvalidReferences();
             if (! invalidSet.isEmpty()) {

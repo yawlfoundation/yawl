@@ -542,13 +542,19 @@ public class CellProperties extends NetProperties {
         if (attributes != null) {
             StringBuilder shortString = new StringBuilder(10);
             shortString.append(attributes.getMinInstances()).append(", ");
-            shortString.append(attributes.getMaxInstances()).append(", ");
-            shortString.append(attributes.getThreshold()).append(", ");
+            shortString.append(getMIValue(attributes.getMaxInstances())).append(", ");
+            shortString.append(getMIValue(attributes.getThreshold())).append(", ");
             shortString.append(Character.toUpperCase(
                     attributes.getCreationMode().charAt(0)));
             return shortString.toString();
         }
         return "None";
+    }
+
+
+    private String getMIValue(int value) {
+        return value == Integer.MAX_VALUE ? Character.toString('\u221E') : // infinity
+                String.valueOf(value);
     }
 
     private void updateVertexID(String id) {

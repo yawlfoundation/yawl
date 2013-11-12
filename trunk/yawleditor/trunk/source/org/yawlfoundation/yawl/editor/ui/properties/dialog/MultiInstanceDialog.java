@@ -51,9 +51,11 @@ public class MultiInstanceDialog extends JDialog
     private MIAttributePanel thresholdPanel;
     private JCheckBox chkDynamic;
     private JLabel statusLabel;
+    private JButton btnOK;
 
     private String strValue;
     private Vector<String> integralVars;
+    private boolean initialising;
 
     private YNet net;
     private YTask task;
@@ -84,7 +86,9 @@ public class MultiInstanceDialog extends JDialog
 
 
     public void stateChanged(ChangeEvent e) {
-        statusLabel.setText(validateState((JSpinner) e.getSource()));
+        if (! (initialising)) {
+            validateState((JSpinner) e.getSource());
+        }
     }
 
 
@@ -116,7 +120,7 @@ public class MultiInstanceDialog extends JDialog
         panel.setBorder(new EmptyBorder(0,5,0,5));
         chkDynamic = new JCheckBox("Allow dynamic instance creation");
         panel.add(chkDynamic, BorderLayout.WEST);
-        statusLabel = new JLabel("Minimum can't exceed maximum");
+        statusLabel = new JLabel("");
         statusLabel.setForeground(Color.RED);
         panel.add(statusLabel, BorderLayout.EAST);
         return panel;
@@ -126,7 +130,8 @@ public class MultiInstanceDialog extends JDialog
         JPanel panel = new JPanel(new GridLayout(0,2,5,5));
         panel.setBorder(new EmptyBorder(10,0,0,0));
         panel.add(createButton("Cancel"));
-        panel.add(createButton("OK"));
+        btnOK = createButton("OK");
+        panel.add(btnOK);
         return panel;
     }
 
@@ -140,12 +145,14 @@ public class MultiInstanceDialog extends JDialog
 
 
     private void initValues() {
+        initialising = true;
         YMultiInstanceAttributes miAttributes = task.getMultiInstanceAttributes();
         initContent(minPanel, miAttributes.getMinInstancesQuery(), 1);
         initContent(maxPanel, miAttributes.getMaxInstancesQuery(), 2);
         initContent(thresholdPanel, miAttributes.getThresholdQuery(), 1);
         setCreationMode(miAttributes.getCreationMode());
         setCurrentValueString();
+        initialising = false;
     }
 
 
@@ -174,6 +181,12 @@ public class MultiInstanceDialog extends JDialog
     }
 
 
+    private void setStatusText(String text) {
+        statusLabel.setText(text);
+        btnOK.setEnabled(text.isEmpty());
+    }
+
+
     private String getCreationMode() {
         return chkDynamic.isSelected() ?
                 YMultiInstanceAttributes.CREATION_MODE_DYNAMIC :
@@ -189,7 +202,7 @@ public class MultiInstanceDialog extends JDialog
     }
 
 
-    private String validateState(JSpinner spinner) {
+    private void validateState(JSpinner spinner) {
         String statusText = "";
         int min = minPanel.getIntValue();
         int max = maxPanel.getIntValue();
@@ -197,34 +210,22 @@ public class MultiInstanceDialog extends JDialog
         if (minPanel.isSpinnerOf(spinner)) {
             if (max < min && max > 0) {
                 statusText = "Minimum can't exceed maximum";
-                spinner.setValue(--min);
             }
             else if (threshold < min && threshold > 0) {
                 statusText = "Minimum can't exceed threshold";
-                spinner.setValue(--min);
             }
         }
         else if (maxPanel.isSpinnerOf(spinner)) {
             if (max < min && min > 0) {
                 statusText = "Maximum can't be less than minimum";
-                spinner.setValue(++max);
-            }
-            else if (max < threshold && threshold > 0) {
-                statusText = "Maximum can't be less than threshold";
-                spinner.setValue(++max);
             }
         }
         else if (thresholdPanel.isSpinnerOf(spinner)) {
             if (threshold < min && min > 0) {
                 statusText = "Threshold can't be less than minimum";
-                spinner.setValue(++threshold);
-            }
-            else if (max < threshold && max > 0) {
-                statusText = "Threshold can't exceed maximum";
-                spinner.setValue(--threshold);
             }
         }
-        return statusText;
+        setStatusText(statusText);
     }
 
 
@@ -309,7 +310,7 @@ public class MultiInstanceDialog extends JDialog
             else if (action.equals("No limit")) {
                 enableComponents(false, false);
             }
-            statusLabel.setText("");
+            validateState(spnExactly);
         }
 
 
