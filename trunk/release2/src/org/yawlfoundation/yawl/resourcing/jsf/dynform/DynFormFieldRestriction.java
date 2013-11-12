@@ -459,4 +459,6 @@ public class DynFormFieldRestriction {
     public boolean hasFractionDigits() { return _fractionDigits != null; }
     public boolean hasEnumeration()    { return _enumeration != null; }
 
+
+
 }

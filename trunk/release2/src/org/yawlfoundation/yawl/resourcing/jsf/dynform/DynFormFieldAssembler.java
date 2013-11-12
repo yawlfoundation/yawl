@@ -41,7 +41,7 @@ public class DynFormFieldAssembler {
     private int _uniqueSuffix = 0;
 
 
-    public DynFormFieldAssembler() { }
+    private DynFormFieldAssembler() { }
 
     public DynFormFieldAssembler(String schemaStr, String dataStr,
                            Map<String, FormParameter> params) throws DynFormException {
