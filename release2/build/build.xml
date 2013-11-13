@@ -72,6 +72,7 @@
     <property name="enumeratedClasses" value="${temp.dir}/enumerated3rdPartyClasses"/>
     <property name="packageRoot" value="/org/yawlfoundation/yawl"/>
     <property name="webinf.dir" value="/WEB-INF/classes${packageRoot}"/>
+    <property name="analyzer.dir" value="${build.dir}/analyzer"/>
 
     <!--
         Application names (matching directories for source files)
@@ -193,8 +194,6 @@
     <!-- hbn -->
     <property name="jdom" value="jdom-2.0.5.jar"/>
     <!-- mul -->
-    <property name="jgraph" value="jgraphx.jar"/>
-    <!-- mul -->
     <property name="jsf-api" value="jsf-api.jar"/>
     <!-- jsf -->
     <property name="jsf-appbase" value="appbase.jar"/>
@@ -275,23 +274,11 @@
     <!-- hbn -->
     <property name="smtp" value="smtp.jar"/>
     <!-- sml -->
-    <property name="soaprmi" value="soaprmi-1_1.jar"/>
-    <!-- wsi -->
-    <property name="stax" value="stax-api-1.0.1.jar"/>
-    <!-- prl -->
     <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>
     <!-- twi -->
     <property name="ucp" value="ucp.jar"/>
     <!-- sch -->
-    <property name="vaadin" value="vaadin-6.7.9.jar"/>
-    <!-- sch -->
-    <property name="wsdl4j" value="wsdl4j-20030807.jar"/>
-    <!-- wsi -->
     <property name="wsif" value="wsif.jar"/>
-    <!-- wsi -->
-    <property name="wsif-j2c" value="wsif-j2c.jar"/>
-    <!-- wsi -->
-    <property name="wstx" value="wstx-asl-3.2.6.jar"/>
     <!-- prl -->
     <property name="xalan" value="xalan.jar"/>
     <!-- sch -->
@@ -303,10 +290,6 @@
     <!-- sch -->
     <property name="xmlunit" value="xmlunit-1.3.jar"/>
     <!-- sch -->
-    <property name="xsd" value="xsd.jar"/>
-    <!-- eng, xsd -->
-    <property name="xsd.resources" value="xsd.resources.jar"/>
-    <!-- eng, xsd -->
 
     <!--
         Filters and properties for per-database-type operations, using
@@ -399,7 +382,7 @@
                      ${slf4j} ${slf4j-log4j}"/>
 
     <property name="xsd.libs"
-              value="${common} ${ecore} ${xsd} ${xsd.resources}"/>
+              value="${common} ${ecore}"/>
 
     <property name="jsf.libs"
               value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl} ${jsf-webui}
@@ -428,8 +411,7 @@
               value="${collections-generic} ${colt} ${concurrent} ${jung-3d} 
                      ${jung-3d-demos} ${jung-algorithms} ${jung-api} ${jung-api-tests}
                      ${jung-graph} ${jung-io} ${jung-jai} ${jung-jai-samples}
-                     ${jung-jai-samples} ${jung-samples} ${jung-visualization} 
-                     ${stax} ${wstx}"/>
+                     ${jung-jai-samples} ${jung-samples} ${jung-visualization}"/>
 
     <!--
         Per webapp dependency lists
@@ -450,8 +432,7 @@
                      ${commonsCodec}"/>
 
     <property name="webapp_wsInvoker.libs"
-              value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j}
-                     ${soaprmi} ${wsif-j2c} ${xerces}
+              value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j} ${xerces}
                      ${commonsCodec} ${commonsLang} README.html"/>
 
     <property name="webapp_smsInvoker.libs"
@@ -524,14 +505,11 @@
         <pathelement location="${lib.dir}/${commonsLogging}"/>
         <pathelement location="${lib.dir}/${jaxrpc}"/>
         <pathelement location="${lib.dir}/${saaj}"/>
-        <pathelement location="${lib.dir}/${wsdl4j}"/>
     </path>
 
     <path id="cp.xsd">
         <pathelement location="${lib.dir}/${common}"/>
         <pathelement location="${lib.dir}/${ecore}"/>
-        <pathelement location="${lib.dir}/${xsd}"/>
-        <pathelement location="${lib.dir}/${xsd.resources}"/>
     </path>
 
     <path id="cp.persist">
@@ -617,14 +595,10 @@
         <pathelement location="${lib.dir}/${jung-jai-samples}"/>
         <pathelement location="${lib.dir}/${jung-samples}"/>
         <pathelement location="${lib.dir}/${jung-visualization}"/>
-        <pathelement location="${lib.dir}/${stax}"/>
-        <pathelement location="${lib.dir}/${wstx}"/>
     </path>
 
     <path id="cp.etc">
         <pathelement location="${lib.dir}/${twitter4j}"/>
-        <pathelement location="${lib.dir}/${vaadin}"/>
-        <pathelement location="${lib.dir}/${jgraph}"/>
     </path>
 
     <!--
@@ -2589,27 +2563,42 @@
         </jar>
     </target>
 
+
     <!--
-       Sonar Task
+        Produces a mapping of libraries used by all output wars & jars, which can
+        be used to identify unused libraries
     -->
+    <target name="analyze" depends="buildWebApps">
+        <taskdef name="jaranalyzer"
+                 classname="com.kirkk.analyzer.textui.JarAnalyzerTask">
+            <classpath>
+                <pathelement path="${analyzer.dir}/jaranalyzer-1.2.jar"/>
+                <pathelement path="${analyzer.dir}/lib/bcel-5.2.jar"/>
+                <pathelement path="${analyzer.dir}/lib/jakarta-regexp-1.3.jar"/>
+                <pathelement path="${analyzer.dir}/lib"/>
+            </classpath>
+        </taskdef>
 
-    <!-- Define the Sonar task -->
-    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-        <classpath path="${sharedLibs.dir}/sonar-ant-task-1.1.jar"/>
-    </taskdef>
+        <delete dir="${temp.dir}/analyze"/>
+        <mkdir dir="${temp.dir}/analyze"/>
+        <copy todir="${temp.dir}/analyze">
+             <fileset dir="${lib.dir}"/>
+             <fileset dir="${output.dir}" includes="*.war *.jar"/>
+        </copy>
+        <move todir="${temp.dir}/analyze">
+          <fileset dir="${temp.dir}/analyze"/>
+          <mapper type="glob" from="*.war" to="*.jar"/>
+        </move>
 
+        <jaranalyzer srcdir="${temp.dir}/analyze"
+                     destfile="${analyzer.dir}/dependencies.xml"
+                     summaryclass="com.kirkk.analyzer.textui.XMLUISummary"
+                     packageFilter="java.*;javax.*;" />
 
-    <!-- The target -->
-    <target name="sonar">
-        <property name="sonar.host.url" value="http://localhost:8080/sonar"/>
-        <property name="sonar.sources" value="${src.dir}"/>
-        <property name="sonar.projectName" value="YAWL"/>
-        <!--<property name="sonar.binaries" value="list of directories which contain for example the Java bytecode" />-->
-        <property name="sonar.tests" value="${test.dir}"/>
-        <property name="sonar.libraries" value="${lib.dir}"/>
+        <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
+              style="${analyzer.dir}/jaranalyzer.xsl"/>
 
-        <sonar:sonar key="OldEditor:Initial" version="0.1-SNAPSHOT"
-                     xmlns:sonar="antlib:org.sonar.ant"/>
+        <delete dir="${temp.dir}/analyze"/>
     </target>
 
 

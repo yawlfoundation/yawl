@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import org.eclipse.xsd.util.XSDConstants;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -27,6 +26,7 @@ import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
+import javax.xml.XMLConstants;
 import java.text.ParseException;
 import java.util.*;
 
@@ -45,7 +45,7 @@ class YSpecificationParser {
     private Namespace _yawlNS;
     private List<String> _emptyComplexTypeFlagTypes = new ArrayList<String>();
 
-    private static final String _schema4SchemaURI = XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001;
+    private static final String _schema4SchemaURI = XMLConstants.W3C_XML_SCHEMA_NS_URI;
     private static final String _defaultSchema =
                            "<xs:schema xmlns:xs=\"" + _schema4SchemaURI + "\"/>";
 
