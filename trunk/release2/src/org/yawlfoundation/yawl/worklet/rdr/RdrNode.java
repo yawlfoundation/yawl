@@ -226,6 +226,24 @@ public class RdrNode {
         _attributes = map;
         if (taskName != null) _attributes.put("taskName", taskName);
     }
+
+
+    /**
+     * Compares another node to this for equality in condition, conclusion and
+     * cornerstone values
+     * @param other the other node
+     * @return true if they match on the 3 c's
+     */
+    public boolean hasIdenticalContent(RdrNode other) {
+        return other != null && condition.equals(other.getCondition()) &&
+                equalContent(conclusion, other.getConclusion()) &&
+                equalContent(cornerstone, other.getCornerStone());
+    }
+
+
+    private boolean equalContent(Element e, Element eOther) {
+        return JDOMUtil.elementToString(e).equals(JDOMUtil.elementToString(eOther));
+    }
     
     
 //===========================================================================//

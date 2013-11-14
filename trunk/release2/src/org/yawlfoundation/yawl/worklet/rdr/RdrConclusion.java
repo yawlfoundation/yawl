@@ -67,7 +67,7 @@ public class RdrConclusion {
     }
 
     public Element getConclusion() {
-        return _conclusion.toElement() ;
+        return _conclusion != null ? _conclusion.toElement() : null;
     }
 
     public String getAction(int i) {
@@ -106,6 +106,17 @@ public class RdrConclusion {
 
     public void addPrimitive(ExletAction action, ExletTarget target) {
         addPrimitive(action.toString(), target.toString());
+    }
+
+
+    public boolean equals(Object o) {
+        return _conclusion != null && (o instanceof RdrConclusion) &&
+                ((RdrConclusion) o)._conclusion != null &&
+                _conclusion.toString().equals(((RdrConclusion) o)._conclusion.toString());
+    }
+
+    public int hashCode() {
+        return _conclusion != null ? _conclusion.toString().hashCode() : 17 * 31;
     }
 
 
@@ -152,7 +163,7 @@ public class RdrConclusion {
     }
 
     public String toString() {
-        return _conclusion.toPrettyString();
+        return _conclusion != null ? _conclusion.toPrettyString() : null;
     }
     
     public String toXML() {

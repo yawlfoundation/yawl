@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.worklet.support.RdrException;
 
 import java.util.Map;
 
@@ -45,7 +47,7 @@ public class Rdr {
     }
 
     public RdrConclusion evaluate(WorkItemRecord wir, Element data, RuleType rType) {
-        return getConclusion(new YSpecificationID(wir), wir.getTaskName(), data, rType);
+        return getConclusion(new YSpecificationID(wir), wir.getTaskID(), data, rType);
     }
 
     public RdrConclusion evaluate(YSpecificationID specID, String taskID, Element data,
@@ -58,23 +60,28 @@ public class Rdr {
     }
 
 
-    public RdrNode addNode(YSpecificationID specID, RuleType rType, RdrNode node) {
+    public RdrNode addNode(YSpecificationID specID, RuleType rType, RdrNode node)
+            throws RdrException {
         return addNode(specID, null, rType, node);
     }
 
-    public RdrNode addNode(String processName, RuleType rType, RdrNode node) {
+    public RdrNode addNode(String processName, RuleType rType, RdrNode node)
+            throws RdrException {
         return addNode(processName, null, rType, node);
     }
 
-    public RdrNode addNode(WorkItemRecord wir, RuleType rType, RdrNode node) {
+    public RdrNode addNode(WorkItemRecord wir, RuleType rType, RdrNode node)
+            throws RdrException{
         return addNode(new YSpecificationID(wir), wir.getTaskID(), rType, node);
     }
 
-    public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType, RdrNode node) {
+    public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType,
+                           RdrNode node) throws RdrException {
         return addNode(getRdrSet(specID), taskID, rType, node);
     }
     
-    public RdrNode addNode(String processName, String taskID, RuleType rType, RdrNode node) {
+    public RdrNode addNode(String processName, String taskID, RuleType rType,
+                           RdrNode node)  throws RdrException {
         return addNode(getRdrSet(processName), taskID, rType, node);
     }
 
@@ -88,7 +95,7 @@ public class Rdr {
     }
 
     public RdrNode getNode(WorkItemRecord wir, RuleType rType, int nodeID) {
-        return getNode(new YSpecificationID(wir), wir.getTaskName(), rType, nodeID);
+        return getNode(new YSpecificationID(wir), wir.getTaskID(), rType, nodeID);
     }
 
     public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, int nodeID) {
@@ -139,7 +146,7 @@ public class Rdr {
     }
 
     public RdrTree getRdrTree(WorkItemRecord wir, RuleType rType) {
-        return getTree(new YSpecificationID(wir), wir.getTaskName(), rType);
+        return getTree(new YSpecificationID(wir), wir.getTaskID(), rType);
     }
 
     public RdrTree getRdrTree(YSpecificationID specID, String taskID, RuleType rType) {
@@ -154,19 +161,12 @@ public class Rdr {
     /*****************************************************************************/
 
     
-    private RdrNode addNode(RdrSet set, String taskID, RuleType rType, RdrNode node) {
+    private RdrNode addNode(RdrSet set, String taskID, RuleType rType, RdrNode node)
+            throws RdrException {
         RdrNode addedNode = null;
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
-            RdrConclusion conc = getConclusion(tree, node.getCornerStone());
-            if (conc != null) {
-                RdrNode parent = conc.getParentNode();
-                if (parent != null) {
-                    node.setParent(parent);
-                    addedNode = tree.addNode(node, parent, conc.isLastPairEqual());
-                }
-                // else throw new Exception
-            }
+            addedNode = addNode(tree, node, getConclusion(tree, node.getCornerStone()));
         }
         else {
             tree = new RdrTree(taskID);
@@ -174,9 +174,31 @@ public class Rdr {
             set.addTree(tree, rType);
             addedNode = tree.addNode(node, root, true);
         }
-        set.save();
-        _rdrCache.update(set);
+        if (addedNode != null) {
+            set.save();
+            _rdrCache.update(set);
+        }
         return addedNode;
+    }
+
+
+    private RdrNode addNode(RdrTree tree, RdrNode node, RdrConclusion conc)
+            throws RdrException {
+        if (conc != null) {
+            RdrNode parent = conc.getParentNode();
+            if (parent != null) {
+
+                // don't add a duplicate node as a new child
+                if (parent.hasIdenticalContent(node)) {
+                    throw new RdrException("Failed to add node: Cannot add a node " +
+                            "identical to its parent.");
+                }
+                node.setParent(parent);
+                return tree.addNode(node, parent, conc.isLastPairEqual());
+            }
+            throw new RdrException("Failed to add node: Could not locate parent node.");
+        }
+        return null;
     }
     
     

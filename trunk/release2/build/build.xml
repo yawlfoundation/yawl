@@ -278,6 +278,8 @@
     <!-- twi -->
     <property name="ucp" value="ucp.jar"/>
     <!-- sch -->
+    <property name="wsdl4j" value="wsdl4j-20030807.jar"/>
+    <!-- wsi -->
     <property name="wsif" value="wsif.jar"/>
     <!-- prl -->
     <property name="xalan" value="xalan.jar"/>
@@ -505,6 +507,7 @@
         <pathelement location="${lib.dir}/${commonsLogging}"/>
         <pathelement location="${lib.dir}/${jaxrpc}"/>
         <pathelement location="${lib.dir}/${saaj}"/>
+        <pathelement location="${lib.dir}/${wsdl4j}"/>
     </path>
 
     <path id="cp.xsd">
