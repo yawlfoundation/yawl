@@ -119,7 +119,6 @@ public class VariableTablePanel extends JPanel
         }
         else if (action.equals("Map")) {
             showMappingDialog();
-            table.getTableModel().fireTableDataChanged();
         }
         else if (action.equals("MarkMI")) {
             if (! parent.setMultiInstanceRow(table.getSelectedVariable())) {
@@ -139,6 +138,7 @@ public class VariableTablePanel extends JPanel
 
 
     private void showMappingDialog() {
+        int selectedRow = table.getSelectedRow();
         java.util.List<VariableRow> mapFromList = (tableType == TableType.TaskInput) ?
                 parent.getNetTablePanel().getTable().getVariables() :
                 table.getVariables();
@@ -146,6 +146,8 @@ public class VariableTablePanel extends JPanel
         new MappingDialog(parent.getNetTablePanel(),
                 table.getSelectedVariable(),
                 mapFromList).setVisible(true);
+        table.getTableModel().fireTableDataChanged();
+        table.selectRow(selectedRow);
     }
 
 

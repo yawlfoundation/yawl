@@ -23,18 +23,22 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * @author Michael Adams
  * @date 8/08/12
  */
-public class VariableRowUsageEditor extends AbstractCellEditor implements TableCellEditor {
+public class VariableRowUsageEditor extends AbstractCellEditor
+        implements TableCellEditor, ActionListener {
 
     private VariableTablePanel tablePanel;
     private JComboBox usageCombo;
 
     public VariableRowUsageEditor(VariableTablePanel panel) {
         usageCombo = new JComboBox(YDataHandler.getScopeNames().toArray());
+        usageCombo.addActionListener(this);
         tablePanel = panel;
     }
 
@@ -56,6 +60,11 @@ public class VariableRowUsageEditor extends AbstractCellEditor implements TableC
     public boolean stopCellEditing() {
         tablePanel.setEditMode(false);
         return super.stopCellEditing();
+    }
+
+    public void actionPerformed(ActionEvent actionEvent) {
+        tablePanel.setEditMode(false);
+        fireEditingStopped();
     }
 
 }

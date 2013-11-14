@@ -95,19 +95,17 @@ public class MappingDialog extends JDialog implements ActionListener {
         else if (action.equals("gatewayComboSelection")) {
             handleGatewayComboSelection();
         }
-        else {
-            if (action.equals("OK")) {
-                _taskRow.setMapping(formatQuery(_xQueryEditor.getText(), false));
-                if (_taskRow.isMultiInstance()) {
-                    _taskRow.setMIQuery(formatQuery(_miQueryEditor.getText(), false));
-                }
-                if (_taskRow.isOutput() && netVarsButton.isSelected()) {
-                    _taskRow.setNetVarForOutputMapping(getSelectedNetVar());
-                }
-                _netTablePanel.getVariableDialog().enableApplyButton();
+        else if (action.equals("OK")) {
+            _taskRow.setMapping(formatQuery(_xQueryEditor.getText(), false));
+            if (_taskRow.isMultiInstance()) {
+                _taskRow.setMIQuery(formatQuery(_miQueryEditor.getText(), false));
             }
-            setVisible(false);
+            if (_taskRow.isOutput() && netVarsButton.isSelected()) {
+                _taskRow.setNetVarForOutputMapping(getSelectedNetVar());
+            }
+            _netTablePanel.getVariableDialog().enableApplyButton();
         }
+        setVisible(false);
     }
 
 

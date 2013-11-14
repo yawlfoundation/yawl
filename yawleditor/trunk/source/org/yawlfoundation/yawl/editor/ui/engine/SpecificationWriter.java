@@ -51,6 +51,8 @@ public class SpecificationWriter {
                 checkSpecification();
                 if (! fileName.equals(_handler.getFileName())) {
                     _handler.saveAs(fileName, layout, UserSettings.getFileSaveOptions());
+                    YAWLEditor.getPropertySheet().firePropertyChange("Uri",
+                            _handler.getURI());
                 }
                 else _handler.save(layout, UserSettings.getFileSaveOptions());
                 success = true;
