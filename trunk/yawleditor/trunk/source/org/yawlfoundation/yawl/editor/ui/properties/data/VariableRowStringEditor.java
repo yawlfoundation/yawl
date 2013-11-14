@@ -47,8 +47,6 @@ public class VariableRowStringEditor extends AbstractCellEditor
     private String editingColumnName;
     private int editingRow;
 
-    private static final String INVALID_CHARS = "<>&'\"";
-
 
     public VariableRowStringEditor() {
         nameField = new JTextField();

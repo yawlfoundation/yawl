@@ -20,9 +20,7 @@ package org.yawlfoundation.yawl.editor.core.resourcing.entity;
 
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 
 import java.util.*;
@@ -104,10 +102,6 @@ public abstract class EntityCollection<E> {
         _invalidReferences.add(reference);
     }
 
-
-    protected YResourceHandler getResourceHandler() {
-        return SpecificationModel.getHandler().getResourceHandler();
-    }
 
     protected Map<String, String> parseParams(Element e, Namespace nsYawl) {
         Map<String, String> result = new HashMap<String, String>() ;

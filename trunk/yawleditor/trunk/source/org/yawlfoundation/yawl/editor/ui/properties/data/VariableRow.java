@@ -276,10 +276,13 @@ public class VariableRow {
 
     private String getWrappedMapping(String tagName, String mapping) {
         if (StringUtil.isNullOrEmpty(mapping)) return null;
+        boolean isXPath = mapping.trim().startsWith("/");
         StringBuilder s = new StringBuilder();
-        s.append('<').append(tagName).append(">{");
+        s.append('<').append(tagName).append(">");
+        if (isXPath) s.append("{");
         s.append(mapping);
-        s.append("}</").append(tagName).append('>');
+        if (isXPath) s.append("}");
+        s.append("</").append(tagName).append('>');
         return s.toString();
     }
 

@@ -49,6 +49,8 @@ public class FileOperations {
     private YSpecification _specification;
     private LayoutHandler _layoutHandler;
 
+    private static final String DEFAULT_SPECIFICATION_URI = "New_Specification";
+
 
     public FileOperations() {
         setFileSaveOptions(new FileSaveOptions());
@@ -100,6 +102,7 @@ public class FileOperations {
             _fileName = file;
             metaData.setUniqueID(generateSpecificationIdentifier());
             metaData.setVersion(new YSpecVersion(0,1));
+            setURIOnSaveAs();
             saveOptions.setAutoIncVersion(false);    // don't auto inc on save as
         }
         save(saveOptions);
@@ -113,7 +116,7 @@ public class FileOperations {
         reset();
         _specification = new YSpecification();
         _specification.setMetaData(new YMetaData());
-        _specification.setURI("New_Specification");
+        _specification.setURI(DEFAULT_SPECIFICATION_URI);
         _layoutHandler = new LayoutHandler(_specification, null);
         _fileName = null;
         return _specification;
@@ -208,6 +211,16 @@ public class FileOperations {
         return "UID_" + UUID.randomUUID().toString();
     }
 
+    private void setURIOnSaveAs() {
+        String uri = _specification.getURI();
+        if (uri == null || uri.equals(DEFAULT_SPECIFICATION_URI)) {
+            File file = new File(_fileName);
+            String shortFileName = file.getName();
+            int extnPos = shortFileName.lastIndexOf('.');
+            if (extnPos > -1) shortFileName = shortFileName.substring(0, extnPos);
+            _specification.setURI(shortFileName);
+        }
+    }
 
     /**
      * When a specification is parsed, if a task has no name it is given a name

@@ -332,11 +332,8 @@ public class DataVariableDialog extends JDialog
         String netName = net.getID();
         Set<String> ioNames = new HashSet<String>();
         java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
-        for (YVariable variable : net.getLocalVariables().values()) {
-            rows.add(new VariableRow(variable, netName));
-        }
 
-        // join inputs & outputs
+        // join inputs & outputs, then add them, and add input-only parameters too
         for (String name : net.getInputParameterNames()) {
             YParameter input = net.getInputParameters().get(name);
             if (net.getOutputParameterNames().contains(name)) {
@@ -348,14 +345,25 @@ public class DataVariableDialog extends JDialog
             rows.add(new VariableRow(input, ioNames.contains(name), netName));
         }
 
+        // add output only
+        Set<String> dummyLocalNames = new HashSet<String>();
         for (String name : net.getOutputParameterNames()) {
             if (! ioNames.contains(name)) {
                 rows.add(new VariableRow(net.getOutputParameters().get(name), netName));
+                dummyLocalNames.add(name);
+            }
+        }
+
+        // add locals that weren't created to 'shadow' output-only parameters
+        for (YVariable variable : net.getLocalVariables().values()) {
+            if (! dummyLocalNames.contains(variable.getName())) {
+                rows.add(new VariableRow(variable, netName));
             }
         }
 
         return rows;
     }
+
 
     // task variables
     private java.util.List<VariableRow> createTableRows(Map<String, YParameter> parameters) {

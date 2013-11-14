@@ -249,7 +249,8 @@ public class YDataHandler {
 
 
     /**
-     * Creates a new variable and adds it to a net or task decomposition.
+     * Creates a new variable and adds it to a net or task decomposition. Note: An output
+     * only variable requires a 'shadow' local variable to be created also.
      * @param decompositionID the id of the net or task decomposition
      * @param name the variable name
      * @param dataType  the variable data type
@@ -272,7 +273,7 @@ public class YDataHandler {
         checkParameterType(scope);
         YDecomposition decomposition = getDecomposition(decompositionID);
         checkVariableNameUnique(decomposition, name, scope);
-        if (scope == LOCAL) {
+        if (scope == LOCAL || ((decomposition instanceof YNet) && scope == OUTPUT)) {
             YVariable localVar = new YVariable(decomposition);
             localVar.setDataTypeAndName(dataType, name, namespace);
             localVar.setInitialValue(value);
@@ -1091,7 +1092,8 @@ public class YDataHandler {
 
 
     /**
-     * Changes the scope of a local variable to some other scope
+     * Changes the scope of a local variable to some other scope. Note: An output only
+     * variable requires a 'shadow' local variable to be retained also.
      * @pre decomposition is a net decomposition
      * @param decomposition the containing net
      * @param variableName the name of the variable to change
@@ -1101,13 +1103,15 @@ public class YDataHandler {
     private boolean changeLocalScope(YDecomposition decomposition, String variableName,
                                     int newType) {
         YNet net = (YNet) decomposition;
-        YVariable localVar = net.removeLocalVariable(variableName);
+        YVariable localVar = net.getLocalOrInputVariable(variableName);
         if (localVar != null) {
-            YParameter parameter = newParameter(net, localVar, newType);
-            if (newType == INPUT) {
+            if (newType == INPUT || newType == INPUT_OUTPUT) {
+                YParameter parameter = newParameter(net, localVar, INPUT);
                 decomposition.addInputParameter(parameter);
+                net.removeLocalVariable(variableName);
             }
-            else {
+            if (newType == OUTPUT || newType == INPUT_OUTPUT) {
+                YParameter parameter = newParameter(net, localVar, OUTPUT);
                 decomposition.addOutputParameter(parameter);
             }
         }
@@ -1116,7 +1120,8 @@ public class YDataHandler {
 
 
     /**
-     * Changes the scope of a input variable to some other scope
+     * Changes the scope of a input variable to some other scope. Note: An output only
+     * variable requires a 'shadow' local variable to be retained also.
      * @pre if 'newType' is LOCAL, the decomposition is a net decomposition
      * @param decomposition the containing net or task decomposition
      * @param variableName the name of the variable to change
@@ -1125,15 +1130,18 @@ public class YDataHandler {
      */
     private boolean changeInputScope(YDecomposition decomposition, String variableName,
                                     int newType) {
-        YParameter inputParam = decomposition.removeInputParameter(variableName);
+        YParameter inputParam = decomposition.getInputParameters().get(variableName);
         if (inputParam != null) {
-            if (newType == LOCAL) {
+            if (newType == LOCAL || ((decomposition instanceof YNet) && newType == OUTPUT)) {
                 YVariable localVar = newLocalVariable((YNet) decomposition, inputParam);
                 ((YNet) decomposition).setLocalVariable(localVar);
             }
-            else {
-                YParameter outputParam = newParameter(decomposition, inputParam, newType);
+            else if (newType == INPUT_OUTPUT || newType == OUTPUT) {
+                YParameter outputParam = newParameter(decomposition, inputParam, OUTPUT);
                 decomposition.addOutputParameter(outputParam);
+            }
+            if (newType != INPUT_OUTPUT) {
+                decomposition.removeInputParameter(variableName);
             }
         }
         return inputParam != null;
@@ -1141,7 +1149,8 @@ public class YDataHandler {
 
 
     /**
-     * Changes the scope of a output variable to some other scope
+     * Changes the scope of a output variable to some other scope. Note: An output only
+     * variable removal requires its 'shadow' local variable to be removed also.
      * @pre if 'newType' is LOCAL, the decomposition is a net decomposition
      * @param decomposition the containing net or task decomposition
      * @param variableName the name of the variable to change
@@ -1150,15 +1159,15 @@ public class YDataHandler {
      */
     private boolean changeOutputScope(YDecomposition decomposition, String variableName,
                                     int newType) {
-        YParameter outputParam = decomposition.removeInputParameter(variableName);
+        YParameter outputParam = decomposition.getOutputParameters().get(variableName);
         if (outputParam != null) {
-            if (newType == LOCAL) {
-                YVariable localVar = newLocalVariable((YNet) decomposition, outputParam);
-                ((YNet) decomposition).setLocalVariable(localVar);
-            }
-            else {
-                YParameter inputParam = newParameter(decomposition, outputParam, newType);
+            if (newType != LOCAL) {
+                ((YNet) decomposition).removeLocalVariable(variableName);
+                YParameter inputParam = newParameter(decomposition, outputParam, INPUT);
                 decomposition.addInputParameter(inputParam);
+            }
+            if (newType != INPUT_OUTPUT) {
+                decomposition.removeOutputParameter(variableName);
             }
         }
         return outputParam != null;
@@ -1168,7 +1177,8 @@ public class YDataHandler {
     /**
      * Changes the scope of a input/output variable to some other scope. In actuality,
      * since an input/output variable is represented by two variables, this method
-     * will remove one and amend the other, as required
+     * will remove one and amend the other, as required. Note: An output only
+     * variable requires a 'shadow' local variable to be retained also.
      * @pre if 'newType' is LOCAL, the decomposition is a net decomposition
      * @param decomposition the containing net or task decomposition
      * @param variableName the name of the variable to change
@@ -1177,10 +1187,14 @@ public class YDataHandler {
      */
     private boolean changeInputOutputScope(YDecomposition decomposition,
                                            String variableName, int newType) {
-        boolean success = true;
         if (newType == OUTPUT) {
             if (decomposition instanceof YNet) {
-                return decomposition.removeInputParameter(variableName) != null;
+                YParameter inputParam = decomposition.removeInputParameter(variableName);
+                if (inputParam != null) {
+                    YVariable local = newLocalVariable((YNet) decomposition, inputParam);
+                    ((YNet) decomposition).setLocalVariable(local);
+                }
+                return inputParam != null;
             }
             else {
                 removeTaskDecompositionVariable(decomposition, variableName, INPUT);
@@ -1198,7 +1212,7 @@ public class YDataHandler {
             decomposition.removeInputParameter(variableName);
             return changeOutputScope(decomposition, variableName, newType);
         }
-        return success;
+        return true;
     }
 
 
