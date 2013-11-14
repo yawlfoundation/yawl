@@ -208,19 +208,25 @@ public class WorkletGateway extends YHttpServlet {
 
         RuleType rType = RuleType.valueOf(rTypeStr);
         RdrNode node = new RdrNode(nodeXML);
-        if (specID != null) {
-            node = _rdr.addNode(specID, taskID, rType, node);
-        } else if (processName != null) {
-            node = _rdr.addNode(processName, taskID, rType, node);
-        } else {
-            String wirStr = req.getParameter("wir");
-            if (wirStr == null) return fail(
-                    "No specification, process name or work item record provided for evaluation");
-            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-            node = _rdr.addNode(wir, rType, node);
+        try {
+            if (specID != null) {
+                node = _rdr.addNode(specID, taskID, rType, node);
+            }
+            else if (processName != null) {
+                node = _rdr.addNode(processName, taskID, rType, node);
+            }
+            else {
+                String wirStr = req.getParameter("wir");
+                if (wirStr == null) return fail("No specification, process name or " +
+                        "work item record provided for evaluation");
+                WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+                node = _rdr.addNode(wir, rType, node);
+            }
+            return node.toXML();
         }
-
-        return node.toXML();
+        catch(RdrException rdre) {
+            return fail(rdre.getMessage());
+        }
     }
 
     private String evaluate(HttpServletRequest req) {
