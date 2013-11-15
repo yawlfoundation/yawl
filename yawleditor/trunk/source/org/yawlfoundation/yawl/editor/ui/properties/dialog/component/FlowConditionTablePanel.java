@@ -18,12 +18,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.data.StatusPanel;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowConditionDialog;
-import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowPredicateDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -44,15 +45,15 @@ public class FlowConditionTablePanel extends JPanel
         implements ActionListener, ListSelectionListener {
 
     private FlowConditionTable table;
-    private JToolBar toolbar;
     private Map<YAWLFlowRelation, Color> origFlowColours;
     private NetGraph _graph;
     private FlowConditionDialog _parent;
+    private MappingTypeValidator _conditionValidator;
+    private Set<Integer> _invalidRows;
 
     // toolbar buttons
     private JButton btnUp;
     private JButton btnDown;
-    private JButton btnMapping;
     private StatusPanel status;
 
     private static final String iconPath =
@@ -65,6 +66,9 @@ public class FlowConditionTablePanel extends JPanel
         setBorder(new EmptyBorder(5,5,0,5));
         _graph = graph;
         _parent = parent;
+        _conditionValidator = new MappingTypeValidator(
+                        YAWLEditor.getNetsPane().getSelectedYNet(), null);
+        _invalidRows = new HashSet<Integer>();
         List<YAWLFlowRelation> rows = new ArrayList<YAWLFlowRelation>(
                 task.getOutgoingFlows());
         Collections.sort(rows);
@@ -83,18 +87,27 @@ public class FlowConditionTablePanel extends JPanel
 
     public void showErrorStatus(String msg, java.util.List<String> more) {
         status.set("    " + msg, StatusPanel.ERROR, more);
+        _invalidRows.add(table.getSelectedRow());
+        _parent.enableOK(false);
     }
 
 
-    public void showOKStatus(String msg, java.util.List<String> more) {
-        status.set("    " + msg, StatusPanel.OK, more);
+    public void showOKStatus() {
+        setStatus();
+        _invalidRows.remove(table.getSelectedRow());
+        _parent.enableOK(_invalidRows.isEmpty());
     }
 
+
+    public boolean isValidRow(int row) {
+        return ! _invalidRows.contains(row);
+    }
 
     public void clearStatus() {
         status.clear();
     }
 
+    public FlowConditionDialog getParentDialog() { return _parent; }
 
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
@@ -104,10 +117,6 @@ public class FlowConditionTablePanel extends JPanel
         else if (action.equals("Down")) {
             table.moveSelectedRowDown();
         }
-        else if (action.equals("Map")) {
-            new FlowPredicateDialog(_parent, getTable().getSelectedFlow()).setVisible(true);
-            table.getTableModel().fireTableDataChanged();
-        }
     }
 
 
@@ -116,7 +125,6 @@ public class FlowConditionTablePanel extends JPanel
             int row = table.getSelectedRow();
             btnUp.setEnabled(row > 0);
             btnDown.setEnabled(row > -1 && row < table.getRowCount() - 1);
-            enableMappingButton(row);
             highlightFlowOfSelectedRow();
         }
     }
@@ -136,18 +144,18 @@ public class FlowConditionTablePanel extends JPanel
         table = new FlowConditionTable(new FlowConditionTableModel());
         table.setFlows(rows);
         table.getSelectionModel().addListSelectionListener(this);
-
-//        VariableRowStringEditor stringEditor = new VariableRowStringEditor(this);
-//        table.setDefaultEditor(String.class, stringEditor);
-//        VariableRowStringRenderer stringRenderer = new VariableRowStringRenderer();
-//        table.setDefaultRenderer(String.class, stringRenderer);
+        FlowConditionEditor conditionEditor = new FlowConditionEditor(
+                this, _conditionValidator);
+        FlowConditionRenderer conditionRenderer = new FlowConditionRenderer(this);
+        table.setDefaultEditor(String.class, conditionEditor);
+        table.setDefaultRenderer(String.class, conditionRenderer);
         if (table.getRowCount() > 0) table.selectRow(0);
         return table;
     }
 
 
     private JToolBar createToolBar(Window parent) {
-        toolbar = new JToolBar();
+        JToolBar toolbar = new JToolBar();
         toolbar.setBorder(null);
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
@@ -155,8 +163,6 @@ public class FlowConditionTablePanel extends JPanel
         toolbar.add(btnUp);
         btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
         toolbar.add(btnDown);
-        btnMapping = createToolBarButton("mapping", "Map", " Edit Condition ");
-        toolbar.add(btnMapping);
         status = new StatusPanel(parent);
         toolbar.add(status);
         return toolbar;
@@ -171,17 +177,6 @@ public class FlowConditionTablePanel extends JPanel
         return button;
     }
 
-    private void enableMappingButton(int selectedRow) {
-        if (selectedRow < 0) {
-            btnMapping.setEnabled(false);
-        }
-        else {
-            boolean enabled = table.allowPredicateEdit();
-            btnMapping.setEnabled(enabled);
-            btnMapping.setToolTipText(enabled ? " Edit Condition " :
-                " Condition of XOR-split default flow can't be edited ");
-        }
-    }
 
     private ImageIcon getIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
@@ -192,7 +187,6 @@ public class FlowConditionTablePanel extends JPanel
         boolean hasRowSelected = table.getSelectedRow() > -1;
         btnUp.setEnabled(enable && hasRowSelected);
         btnDown.setEnabled(enable && hasRowSelected);
-        btnMapping.setEnabled(enable && hasRowSelected);
     }
 
 

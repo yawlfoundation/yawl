@@ -36,6 +36,7 @@ import java.awt.event.WindowEvent;
 public class FlowConditionDialog extends JDialog implements ActionListener {
 
     private FlowConditionTablePanel _tablePanel;
+    private JButton _btnOK;
 
     public FlowConditionDialog(Window parent, YAWLTask task, NetGraph graph) {
         super(parent);
@@ -62,12 +63,12 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
     private JPanel getContent(YAWLTask task, NetGraph graph) {
         JPanel content = new JPanel();
         _tablePanel = new FlowConditionTablePanel(this, task, graph);
-        JButton btnOK = new JButton("OK");
-        btnOK.setActionCommand("OK");
-        btnOK.setPreferredSize(new Dimension(75, 25));
-        btnOK.addActionListener(this);
+        _btnOK = new JButton("OK");
+        _btnOK.setActionCommand("OK");
+        _btnOK.setPreferredSize(new Dimension(75, 25));
+        _btnOK.addActionListener(this);
         content.add(_tablePanel);
-        content.add(btnOK);
+        content.add(_btnOK);
         return content;
     }
 
@@ -75,6 +76,9 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
         _tablePanel.resetFlowColours();
         setVisible(false);
     }
+
+
+    public void enableOK(boolean enable) { _btnOK.setEnabled(enable);}
 
 
     private String makeTitle(YAWLTask task) {

@@ -39,11 +39,9 @@ import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
 import org.yawlfoundation.yawl.editor.ui.util.*;
 
 import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -160,6 +158,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         try {
             if (MenuUtilities.isMacOS()) {
                 UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
+                resetClipboardMasks();
 
                 // move menu to screen top - only affects OSX installs
                 System.setProperty("com.apple.mrj.application.apple.menu.about.name", "YAWL Editor");
@@ -176,6 +175,17 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     }
 
+
+    private static void resetClipboardMasks() {
+        InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
+        im = (InputMap) UIManager.get("EditorPane.focusInputMap");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
+    }
 
     private void updateLoadProgress(int completionValue) {
         splashScreen.updateProgress(completionValue);

@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.actions.datatypedialog;
 
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -32,7 +33,7 @@ public class PasteDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.LONG_DESCRIPTION, "Paste contents of clipboard");
         putValue(Action.SMALL_ICON, getPNGIcon("page_paste"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("V"));
     }
 
 

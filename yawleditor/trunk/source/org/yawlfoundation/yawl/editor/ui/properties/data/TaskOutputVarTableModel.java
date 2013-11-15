@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 */
 class TaskOutputVarTableModel extends VariableTableModel {
 
-    private static final String[] COLUMN_LABELS = {"", "Name", "Type", "Value"};
+    private static final String[] COLUMN_LABELS = {"", "Name", "Type", "Default Value"};
 
     public static final int SELECTOR_COLUMN  = 0;
     public static final int NAME_COLUMN  = 1;

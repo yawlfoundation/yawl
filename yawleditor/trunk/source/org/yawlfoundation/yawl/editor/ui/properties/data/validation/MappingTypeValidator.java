@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormException;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFieldAssembler;
@@ -65,10 +66,19 @@ public class MappingTypeValidator {
                                 String dataTypeName) {
         _rootName = getRootElementName(row);
         _dataTypeName = dataTypeName;
-        Map<String, FormParameter> paramMap = getParamMap(varList);
-        _schema = getDataSchema(paramMap);
-        _fieldMap = getFieldMap(paramMap);
-        _dataDocument = getDataDocument(new ArrayList<DynFormField>(_fieldMap.values()));
+        init(getParamMap(varList));
+    }
+
+
+    /**
+     * This variant is used to validate split predicates
+     * @param net the selected net
+     * @param dataTypeName the name of the target data type, if null defaults to boolean
+     */
+    public MappingTypeValidator(YNet net, String dataTypeName) {
+        _rootName = "foo_bar";
+        _dataTypeName = dataTypeName != null ? dataTypeName : "boolean";
+        init(getParamMap(net));
     }
 
 
@@ -80,8 +90,6 @@ public class MappingTypeValidator {
     public void setDataType(String dataType) { _dataTypeName = dataType; }
 
 
-    /********************************************************************************/
-
     /**
      * Validates that the mapping matches the data type of the target variable
      * @param mapping the mapping to validate
@@ -92,7 +100,13 @@ public class MappingTypeValidator {
         if (shouldValidate(mapping)) {
             try {
                 String query = evaluateQuery(mapping.trim(), _dataDocument);
-                return getDataHandler().validate(_dataTypeName, query);
+                if (! query.isEmpty()) {
+                    List<String> errors = getDataHandler().validate(_dataTypeName, query);
+                    if (! errors.isEmpty()) {
+                        return Arrays.asList("Invalid value for target data type '" +
+                                _dataTypeName + "'");
+                    }
+                }
             }
             catch (SaxonApiException e) {
                 return Arrays.asList(e.getMessage());
@@ -102,13 +116,27 @@ public class MappingTypeValidator {
     }
 
 
+    /********************************************************************************/
+
+    /**
+     * Initialises the schema and data document
+     * @param paramMap a map of variable names to FormParameters (an extension of
+     *                 YVariable required for dynamic forms)
+     */
+    private void init(Map<String, FormParameter> paramMap) {
+        _schema = getDataSchema(paramMap);
+        _fieldMap = getFieldMap(paramMap);
+        _dataDocument = getDataDocument(new ArrayList<DynFormField>(_fieldMap.values()));
+    }
+
+
     /**
      * Checks whether validation is necessary.
      * @param mapping the mapping to check
      * @return true if this mapping targets a net or task level variable
      */
     private boolean shouldValidate(String mapping) {
-        return (! (mapping == null || isExternalGatewayMapping(mapping) ||
+        return (! (mapping == null || isBuiltinPredicate(mapping) ||
                 _fieldMap == null || _dataTypeName == null));
 
     }
@@ -216,6 +244,24 @@ public class MappingTypeValidator {
 
 
     /**
+     * Builds a map of form parameters from the set of net input and local variables
+     * @param net the selected net
+     * @return the composed map
+     */
+    private Map<String, FormParameter> getParamMap(YNet net) {
+        Set<YVariable> variables = new HashSet<YVariable>(
+                net.getInputParameters().values());
+        variables.addAll(net.getLocalVariables().values());
+        Map<String, FormParameter> paramMap = new HashMap<String, FormParameter>();
+        for (YVariable variable : variables) {
+            FormParameter param = getParameter(variable);
+            paramMap.put(param.getName(), param);
+        }
+        return paramMap;
+    }
+
+
+    /**
      * Creates a FormParameter object from the data contained in a variable row
      * @param row the row to use
      * @return a corresponding FormParameter
@@ -230,9 +276,30 @@ public class MappingTypeValidator {
     }
 
 
-    // return true if mapping is for an external data gateway
-    private boolean isExternalGatewayMapping(String mapping) {
-        return mapping.matches("^\\s*#external:\\w+\\s*:\\w+\\s*");
+    /**
+     * Creates a FormParameter object from the data contained in a variable
+     * @param variable the variable to use
+     * @return a corresponding FormParameter
+     */
+    private FormParameter getParameter(YVariable variable) {
+        FormParameter param = new FormParameter();
+        param.setInitialValue(variable.getInitialValue());
+        param.setDataTypeAndName(variable.getDataTypeName(), variable.getPreferredName(),
+                variable.getDataTypeNameSpace());
+        param.setAttributes(variable.getAttributes());
+        return param;
+    }
+
+
+    // return true if mapping is an external data gateway, timer or cost predicate
+    private boolean isBuiltinPredicate(String mapping) {
+        if (mapping.startsWith("boolean(")) {
+            mapping = mapping.replace("boolean(", "").replaceFirst("\\)", "");
+        }
+        return mapping.matches("^\\s*#external:\\w+\\s*:\\w+\\s*") ||
+               mapping.matches("^\\s*timer\\(\\w+\\)\\s*!?=\\s*" +
+                       "'(dormant|active|closed|expired)'\\s*$") ||
+               mapping.matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$");
     }
 
 
@@ -282,7 +349,7 @@ public class MappingTypeValidator {
      */
     private String evaluateQuery(String query, Document dataDocument)
             throws SaxonApiException {
-        boolean wrapped = ! query.startsWith("/");
+        boolean wrapped = ! (query.startsWith("/") || query.startsWith("bool"));
         if (wrapped) {
             query = StringUtil.wrap(query, "foo_bar");
         }

@@ -104,8 +104,9 @@ public class MappingDialog extends JDialog implements ActionListener {
                 _taskRow.setNetVarForOutputMapping(getSelectedNetVar());
             }
             _netTablePanel.getVariableDialog().enableApplyButton();
+            setVisible(false);
         }
-        setVisible(false);
+        else setVisible(false);   // cancelled
     }
 
 
@@ -163,6 +164,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         if (_miQueryEditor != null) {
             disableChoicesForMIVariable();
         }
+        _xQueryEditor.setParentDialogOKButton(okButton);
     }
 
 
@@ -288,7 +290,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private XQueryEditorPane getXQueryEditor(MappingTypeValidator typeChecker) {
+    private XQueryValidatingEditorPane getXQueryEditor(MappingTypeValidator typeChecker) {
         _xQueryEditor = new XQueryValidatingEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setTypeChecker(typeChecker);

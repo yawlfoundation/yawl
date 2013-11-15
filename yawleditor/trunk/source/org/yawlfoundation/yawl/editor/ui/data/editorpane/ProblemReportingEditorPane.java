@@ -121,6 +121,13 @@ public class ProblemReportingEditorPane extends JPanel
         }
     }
 
+    public String getErrorBarText() { return errorBar.getText(); }
+
+    public boolean showsErrors() {
+        String text = getErrorBarText();
+        return ! (text == null || text.isEmpty() || text.equals("OK"));
+    }
+
 
     private JScrollPane buildProblemPanel() {
         errorBar = new JTextArea();

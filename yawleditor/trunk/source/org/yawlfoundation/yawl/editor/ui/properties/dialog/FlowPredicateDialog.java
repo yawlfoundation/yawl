@@ -19,7 +19,9 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
+import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -38,8 +40,9 @@ import java.util.Vector;
  */
 public class FlowPredicateDialog extends PropertyDialog implements ActionListener {
 
-    private XQueryEditorPane _xQueryEditor;
+    private XQueryValidatingEditorPane _xQueryEditor;
     private YAWLFlowRelation _flow;
+
 
     public FlowPredicateDialog(Window parent, YAWLFlowRelation flow) {
         super(parent, false);
@@ -52,12 +55,26 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
     }
 
 
+    public void setTypeValidator(MappingTypeValidator validator) {
+        _xQueryEditor.setTypeChecker(validator, true);
+    }
+
+
+    public void setText(String text) {
+        _xQueryEditor.setText(formatQuery(text, true));
+    }
+
+
+    public String getText() { return _flow.getPredicate(); }
+
+
     protected JPanel getContent() {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(7,7,7,7));
         content.add(createHeadPanel(), BorderLayout.NORTH);
         content.add(createXQueryPane(), BorderLayout.CENTER);
         content.add(getButtonBar(this), BorderLayout.SOUTH);
+        _xQueryEditor.setParentDialogOKButton(getOKButton());
         return content;
     }
 
@@ -83,7 +100,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
     }
 
     private XQueryEditorPane createXQueryPane() {
-        _xQueryEditor = new XQueryEditorPane();
+        _xQueryEditor = new XQueryValidatingEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setValidating(true);
         _xQueryEditor.setText(formatQuery(_flow.getPredicate(), true));

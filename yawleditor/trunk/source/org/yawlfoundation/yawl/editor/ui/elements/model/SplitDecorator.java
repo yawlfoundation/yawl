@@ -18,32 +18,18 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
-
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class SplitDecorator extends Decorator {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * This constructor is ONLY to be invoked when we are reconstructing a decorator
-     * from saved state. Ports will not be created with this constructor, as they
-     * are already part of the JGraph state-space.
-     */
-
-    public SplitDecorator() {
-        super();
-    }
 
     /**
      * This constructor is to be invoked whenever we are creating a new decorator
      * from scratch. It also creates the correct ports needed for the decorator
      * as an intended side-effect.
      */
-
     public SplitDecorator(YAWLTask task, int type, int position) {
         super(task, type, position);
     }
@@ -85,40 +71,6 @@ public class SplitDecorator extends Decorator {
         }
         compressFlowPriorities(flows);
         return flows;
-    }
-
-    public void changeDecompositionInPredicates(String oldLabel, String newLabel) {
-        String oldLabelAsElement = XMLUtilities.toValidXMLName(oldLabel);
-        String newLabelAsElement = XMLUtilities.toValidXMLName(newLabel);
-
-        Iterator i = getFlowsInPriorityOrder().iterator();
-        while (i.hasNext()) {
-            YAWLFlowRelation flow = (YAWLFlowRelation) i.next();
-            // guard against NullPointerException
-            if (flow.getPredicate() == null)
-                continue;
-            String updatedPredicate =
-                    flow.getPredicate().replaceAll(
-                            "/" + oldLabelAsElement + "/",
-                            "/" + newLabelAsElement + "/");
-            flow.setPredicate(updatedPredicate);
-        }
-    }
-
-    public void changeVariableNameInPredicates(String oldVariableName, String newVariableName) {
-
-        Iterator i = getFlowsInPriorityOrder().iterator();
-        while (i.hasNext()) {
-            YAWLFlowRelation flow = (YAWLFlowRelation) i.next();
-            // guard against NullPointerException
-            if (flow.getPredicate() == null)
-                continue;
-            String updatedPredicate =
-                    flow.getPredicate().replaceAll(
-                            "/" + oldVariableName + "/",
-                            "/" + newVariableName + "/");
-            flow.setPredicate(updatedPredicate);
-        }
     }
 
     public String toString() {
