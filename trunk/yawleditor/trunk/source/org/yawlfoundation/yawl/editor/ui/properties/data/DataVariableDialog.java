@@ -630,6 +630,8 @@ public class DataVariableDialog extends JDialog
     private void removeVariable(VariableRow row, YDecomposition host)
             throws YDataHandlerException {
         String name = row.getStartingName();
+        if (name == null) return;                 // added and removed without updating
+
         if (row.isLocal()) {
             dataHandler.removeVariable(host.getID(), name, YDataHandler.LOCAL);
         }

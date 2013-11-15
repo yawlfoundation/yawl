@@ -60,7 +60,8 @@ class FlowConditionTableModel extends AbstractTableModel {
     }
 
     public boolean isCellEditable(int row, int column) {
-        return column == CONDITION_COLUMN;
+        return hasXORSplit() ? column == CONDITION_COLUMN && row < (getRowCount() - 1) :
+                column == CONDITION_COLUMN;
     }
 
     public Object getValueAt(int row, int col) {
@@ -119,7 +120,7 @@ class FlowConditionTableModel extends AbstractTableModel {
 
 
     public void cleanupFlows() {
-        if (hasXORSplit() && ! flows.isEmpty()) {
+        if (! flows.isEmpty() && hasXORSplit()) {
            getDefaultFlow().setPredicate(null);
         }
     }
@@ -160,7 +161,7 @@ class FlowConditionTableModel extends AbstractTableModel {
 
 
     private boolean hasXORSplit() {
-        return flows.get(0).hasXorSplitAsSource();
+        return ! flows.isEmpty() && flows.get(0).hasXorSplitAsSource();
     }
 
 

@@ -101,6 +101,7 @@ class VariableTable extends JSingleSelectTable {
 
     public void insertRow(int row, VariableRow variableRow) {
         getTableModel().insertRow(row, variableRow);
+        selectRow(row);
         orderChanged = true;
     }
 

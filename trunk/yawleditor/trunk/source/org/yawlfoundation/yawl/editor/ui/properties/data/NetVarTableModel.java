@@ -26,7 +26,8 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 */
 class NetVarTableModel extends VariableTableModel {
 
-    private static final String[] COLUMN_LABELS = {"", "Name", "Type", "Scope", "Value"};
+    private static final String[] COLUMN_LABELS =
+            {"", "Name", "Type", "Scope", "Initial Value"};
 
     public static final int SELECTOR_COLUMN  = 0;
     public static final int NAME_COLUMN  = 1;

@@ -41,6 +41,7 @@ public class VariableRow {
 
     // new row added at runtime, so no starting values
     public VariableRow(int scope) {
+        startValues = new Values();              // just to avoid NPEs
         endValues = new Values();
         endValues.name = "";
         endValues.dataType = "string";
@@ -97,20 +98,24 @@ public class VariableRow {
 
     public String getName() { return endValues.name; }
 
-    public String getStartingName() { return startValues.name; }
+    public String getStartingName() {
+        return startValues != null ? startValues.name : null; }
+
 
     public void setName(String name) {
         endValues.name = name;
     }
 
     public boolean isNameChange() {
-        return ! startValues.equals(startValues.name, endValues.name);
+        return ! startValues.equals(getStartingName(), endValues.name);
     }
 
 
     public String getDataType() { return endValues.dataType; }
 
-    public String getStartingDataType() { return startValues.dataType; }
+    public String getStartingDataType() {
+        return startValues != null ? startValues.dataType : null;
+    }
 
     public void setDataType(String dataType) { endValues.dataType = dataType; }
 
