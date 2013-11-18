@@ -114,9 +114,10 @@ public class ValidationResultsParser {
                     "has no default outgoing flow.",
                     "Any task with an OR or XOR split must have at least one outgoing " +
                     "flow marked as its default. " +
-                     canSet("a default flow in the Split Properties for the task") +
-                    "NOTE: You may also see this error if the task has no split and " +
-                    " no outgoing flow at all, in which case it can be disregarded.");
+                     canSet("default flow in the Split Properties for the task") +
+                    " NOTE: You may also see this error if the task has no split and " +
+                    "no outgoing flow at all, in which case it can be resolved by " +
+                    "adding an outgoing flow to the task.");
         }
         if (message.contains("an empty string value")) {
             return new ValidationMessage(

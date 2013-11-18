@@ -72,7 +72,7 @@ public class VariableRow {
 
     public boolean isModified() { return ! (isNew() || startValues.equals(endValues)); }
 
-    public boolean isNew() { return startValues == null; }
+    public boolean isNew() { return startValues.name == null; }
 
     public boolean isMultiInstance() { return multiInstance; }
 

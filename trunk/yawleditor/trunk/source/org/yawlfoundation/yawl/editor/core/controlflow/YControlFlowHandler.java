@@ -152,8 +152,11 @@ public class YControlFlowHandler {
     }
 
 
-    public void addTaskDecomposition(YAWLServiceGateway decomposition) {
+    public String addTaskDecomposition(YAWLServiceGateway decomposition) {
+        String uniqueID = checkID(decomposition.getID());
+        if (! uniqueID.equals(decomposition.getID())) decomposition.setID(uniqueID);
         _specification.addDecomposition(decomposition);
+        return uniqueID;
     }
 
 
