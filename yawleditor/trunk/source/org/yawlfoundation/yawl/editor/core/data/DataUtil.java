@@ -90,7 +90,7 @@ public class DataUtil {
 
 
     public String getMultiInstanceItemType(String dataType) {
-        if (dataType.equals("YStringListType")) return dataType;
+        if (dataType.equals("YStringListType")) return "string";
 
         if (_schemaDoc != null) {
             Element root = _schemaDoc.getRootElement();

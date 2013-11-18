@@ -67,7 +67,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     public Object getCellEditorValue() {
         if (editingColumnName.equals("Type")) return dataTypeCombo.getSelectedItem();
-        if (editingColumnName.equals("Value")) {
+        if (editingColumnName.endsWith("Value")) {
             return checkBox != null ? String.valueOf(checkBox.isSelected())
                     : valueField.getText();
         }
@@ -87,7 +87,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
             dataTypeCombo.setSelectedItem(value);
             return dataTypeCombo;
         }
-        else if (editingColumnName.equals("Value")) {
+        else if (editingColumnName.endsWith("Value")) {
             VariableRow varRow = tablePanel.getVariableAtRow(row);
             if (varRow.getDataType().equals("boolean")) {
                 checkBox = new JCheckBox();
@@ -158,7 +158,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
             row.setValidValue(validateType(value));
             if (! row.isValidValue()) return false;
         }
-        else if (editingColumnName.equals("Value")) {
+        else if (editingColumnName.endsWith("Value")) {
             row.setValidValue(validateValue(value));
             if (! row.isValidValue()) return false;
         }

@@ -44,7 +44,7 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
                 setForeground(Color.BLUE);
             }
         }
-        if (table.getColumnName(column).equals("Value")) {
+        if (table.getColumnName(column).endsWith("Value")) {
             if (! (varRow.isOutputOnlyTask() || varRow.isLocal())) {
                 setValue("###");
                 setHorizontalAlignment(CENTER);

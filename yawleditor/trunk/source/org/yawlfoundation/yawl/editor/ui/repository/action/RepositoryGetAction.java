@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
@@ -41,6 +42,7 @@ import java.awt.event.ActionEvent;
 
 public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
+    YRepository repository;
     Repo selectedRepo;
     Component caller;
     JDialog owner;
@@ -57,6 +59,7 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
     public RepositoryGetAction(JDialog owner, Repo repo) {
         this.owner = owner;
         selectedRepo = repo;
+        repository = YRepository.getInstance();
     }
 
     public RepositoryGetAction(JDialog owner, Repo repo, Component component) {
@@ -70,7 +73,6 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
         dialog.setVisible(true);
         RepoDescriptor descriptor = dialog.getSelection();
         if (descriptor != null) {
-            YRepository repo = YRepository.getInstance();
             String name = descriptor.getName();
             switch (selectedRepo) {
                 case TaskDecomposition:
@@ -81,10 +83,10 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                     break;
                 case ExtendedAttributes:
                     ((ExtendedAttributesDialog) owner).loadAttributes(
-                            repo.getExtendedAttributesRepository().get(name));
+                            repository.getExtendedAttributesRepository().get(name));
                     break;
                 case DataDefinition: {
-                    String text = repo.getDataDefinitionRepository().get(name);
+                    String text = repository.getDataDefinitionRepository().get(name);
                     ((DataTypeDialogToolBarMenu) caller).insertText(text, true);
                     break;
                 }
@@ -94,11 +96,10 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     private void loadTaskDecomposition(String name) {
         try {
-            YAWLServiceGateway gateway = YRepository.getInstance()
-                    .getTaskDecompositionRepository().get(name);
+            YAWLServiceGateway gateway = repository.getTaskDecompositionRepository()
+                    .get(name);
             if (gateway != null) {
-                SpecificationModel.getHandler().getControlFlowHandler()
-                        .addTaskDecomposition(gateway);
+                getHandler().addTaskDecomposition(gateway);
             }
         }
         catch (YSyntaxException yse) {
@@ -112,18 +113,17 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
             YNet net = null;
 
             // have to load the task decompositions first
-            for(YDecomposition decomposition : YRepository.getInstance()
-                    .getNetRepository().getNetAndDecompositions(name)) {
+            for (YDecomposition decomposition : repository.getNetRepository()
+                    .getNetAndDecompositions(name)) {
                 if (decomposition instanceof YNet) {
                     net = (YNet) decomposition;
                 }
                 else {
-                    SpecificationModel.getHandler().getControlFlowHandler()
-                        .addTaskDecomposition((YAWLServiceGateway) decomposition);
+                    getHandler().addTaskDecomposition((YAWLServiceGateway) decomposition);
                 }
             }
             if (net != null) {
-                SpecificationModel.getHandler().getControlFlowHandler().addNet(net);
+                getHandler().addNet(net);
                 NetGraph graph = new NetGraph(net);
                 SpecificationModel.getNets().add(graph.getNetModel());
                 new NetReloader().reload(graph);
@@ -133,6 +133,10 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
         catch (YSyntaxException yse) {
             // ?
         }
+    }
 
+
+    private YControlFlowHandler getHandler() {
+        return SpecificationModel.getHandler().getControlFlowHandler();
     }
 }

@@ -336,7 +336,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
         chooser.setDate(Calendar.getInstance().getTime());
 
         // workaround for too narrow an edit field
-        chooser.setDateFormatString("dd/MM/yyyy ");
+        chooser.setDateFormatString(" dd/MM/yyyy ");
         chooser.setMinimumSize(chooser.getPreferredSize());
         dateValueField.add(chooser) ;
 

@@ -115,13 +115,15 @@ public class NetProperties extends YPropertiesBean {
         String oldValue = getName();
         if (oldValue.equals(value)) return;
         try {
-            graph.setName(flowHandler.checkDecompositionID(value));
+            flowHandler.checkDecompositionID(value);      // throws exception if invalid
+            specHandler.getDataHandler().renameDecomposition(oldValue, value);
+            graph.setName(value);
             SpecificationModel.getNets().propagateDecompositionNameChange(
                     model.getDecomposition(), oldValue);
             setDirty();
         }
-        catch (IllegalIdentifierException iie) {
-            showWarning("Net Rename Error", iie.getMessage());
+        catch (Exception e) {
+            showWarning("Net Rename Error", e.getMessage());
             firePropertyChange("Name", oldValue);
         }
     }

@@ -121,9 +121,11 @@ public class VariableTablePanel extends JPanel
             showMappingDialog();
         }
         else if (action.equals("MarkMI")) {
+            int row = table.getSelectedRow();
             if (! parent.setMultiInstanceRow(table.getSelectedVariable())) {
                 showErrorStatus("Invalid MI data type", null);
             }
+            table.selectRow(row);
         }
         else if (action.equals("ExAt")) {
             VariableRow row = table.getSelectedVariable();

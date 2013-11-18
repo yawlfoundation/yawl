@@ -65,6 +65,13 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
         }
     }
 
+
+    public void enableCombos() {
+        cbxFourEyes.setEnabled(chkFourEyes.isSelected());
+        cbxFamTask.setEnabled(chkFamTask.isSelected());
+    }
+
+
     public void load(BasicOfferInteraction offerInteraction) {
         String famTask = offerInteraction.getFamiliarParticipantTask();
         if (famTask != null) {

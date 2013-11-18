@@ -79,6 +79,7 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         boolean selected = e.getStateChange() == ItemEvent.SELECTED;
         if (source == chkOffer) {
             enablePanelContent(offerPanelContent, selected);
+            if (selected) constraintsPanel.enableCombos();
         }
         else if (source == chkAllocate) {
             enablePanelContent(allocatePanelContent, selected);

@@ -201,7 +201,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         if (mapping == null) return false;
 
         DefaultMapping defMapping = new DefaultMapping(mapping);
-        if (defMapping.isCustomMapping()) return false;
+        if (defMapping.isCustomMapping() && ! _taskRow.isMultiInstance()) return false;
 
         String netVarName = null;
         if (_taskRow.isInput()) {
@@ -443,7 +443,7 @@ public class MappingDialog extends JDialog implements ActionListener {
         String selectedNetVarName = getSelectedNetVar();
 
         // the target net var has changed, and thus maybe the target data type too
-        if (_taskRow.isOutput()) {
+        if (_taskRow.isOutput() && _typeValidator != null) {
             _typeValidator.setDataType(getDataTypeForNetVar(selectedNetVarName));
         }
 
