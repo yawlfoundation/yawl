@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.editor;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowPredicateDialog;
 
 /**
@@ -51,7 +51,7 @@ public class FlowPredicatePropertyEditor extends DialogPropertyEditor {
     protected void showDialog() {
         FlowPredicateDialog dialog = new FlowPredicateDialog(
                 YAWLEditor.getInstance(), flow);
-        dialog.setTypeValidator(new MappingTypeValidator(
+        dialog.setTypeValidator(new BindingTypeValidator(
                         YAWLEditor.getNetsPane().getSelectedYNet(), null));
 
         dialog.setVisible(true);

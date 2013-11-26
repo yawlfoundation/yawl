@@ -18,6 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBindingDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
@@ -117,8 +120,8 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Down")) {
             table.moveSelectedRowDown();
         }
-        else if (action.equals("Map")) {
-            showMappingDialog();
+        else if (action.equals("Binding")) {
+            showBindingDialog();
         }
         else if (action.equals("MarkMI")) {
             int row = table.getSelectedRow();
@@ -139,16 +142,28 @@ public class VariableTablePanel extends JPanel
     }
 
 
-    private void showMappingDialog() {
+    private void showBindingDialog() {
         int selectedRow = table.getSelectedRow();
-        java.util.List<VariableRow> mapFromList = (tableType == TableType.TaskInput) ?
-                parent.getNetTablePanel().getTable().getVariables() :
-                table.getVariables();
+        java.util.List<VariableRow> netVars =
+                parent.getNetTablePanel().getTable().getVariables();
+        java.util.List<VariableRow> taskVars = table.getVariables();
+        AbstractDataBindingDialog dialog = null;
 
-        new MappingDialog(parent.getNetTablePanel(),
-                table.getSelectedVariable(),
-                mapFromList).setVisible(true);
-        table.getTableModel().fireTableDataChanged();
+        if (tableType == TableType.TaskInput) {
+            dialog = new InputBindingDialog(table.getSelectedVariable(),
+                    netVars, taskVars);
+        }
+        else if (tableType == TableType.TaskOutput) {
+            dialog = new OutputBindingDialog(table.getSelectedVariable(),
+                    netVars, taskVars, parent.getOutputBindings());
+        }
+        if (dialog != null) {
+            dialog.setVisible(true);
+            if (dialog.hasChanges()) {
+                parent.enableApplyButton();
+                table.getTableModel().fireTableDataChanged();
+            }
+        }
         table.selectRow(selectedRow);
     }
 
@@ -201,7 +216,7 @@ public class VariableTablePanel extends JPanel
         toolbar.add(btnUp);
         btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
         toolbar.add(btnDown);
-        btnMapping = createToolBarButton("mapping", "Map", " Map ");
+        btnMapping = createToolBarButton("mapping", "Binding", " Data Bindings ");
         toolbar.add(btnMapping);
         btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
         toolbar.add(btnMIVar);

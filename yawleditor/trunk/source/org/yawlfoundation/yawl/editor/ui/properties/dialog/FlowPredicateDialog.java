@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -55,7 +55,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
     }
 
 
-    public void setTypeValidator(MappingTypeValidator validator) {
+    public void setTypeValidator(BindingTypeValidator validator) {
         _xQueryEditor.setTypeChecker(validator, true);
     }
 

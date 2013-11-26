@@ -22,7 +22,8 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.DefaultBinding;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
@@ -48,7 +49,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     private VariableTablePanel _netTablePanel;
     private XQueryValidatingEditorPane _xQueryEditor;
     private XQueryEditorPane _miQueryEditor;
-    private MappingTypeValidator _typeValidator;
+    private BindingTypeValidator _typeValidator;
 
     private JRadioButton netVarsButton;
     private JRadioButton gatewayButton;
@@ -110,13 +111,13 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private MappingTypeValidator initTypeValidator(VariableRow row,
+    private BindingTypeValidator initTypeValidator(VariableRow row,
                              java.util.List<VariableRow> mappedFromVariableList) {
         if (row.isMultiInstance()) return null;         // no type checks for MI queries
 
         String dataType = row.isInput() ? row.getDataType() :
                 getDataTypeForNetVar(row.getNetVarForOutputMapping());
-        _typeValidator = new MappingTypeValidator(mappedFromVariableList, row, dataType);
+        _typeValidator = new BindingTypeValidator(mappedFromVariableList, row, dataType);
         return _typeValidator;
     }
 
@@ -130,7 +131,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private JPanel getContent(MappingTypeValidator typeChecker) {
+    private JPanel getContent(BindingTypeValidator typeChecker) {
         JPanel content = new JPanel();
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
         content.add(buildIOPanel());
@@ -200,8 +201,8 @@ public class MappingDialog extends JDialog implements ActionListener {
     private boolean initNetVarSelection(String mapping) {
         if (mapping == null) return false;
 
-        DefaultMapping defMapping = new DefaultMapping(mapping);
-        if (defMapping.isCustomMapping() && ! _taskRow.isMultiInstance()) return false;
+        DefaultBinding defMapping = new DefaultBinding(mapping);
+        if (defMapping.isCustomBinding() && ! _taskRow.isMultiInstance()) return false;
 
         String netVarName = null;
         if (_taskRow.isInput()) {
@@ -227,7 +228,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private JPanel createQueryPanel(MappingTypeValidator typeChecker) {
+    private JPanel createQueryPanel(BindingTypeValidator typeChecker) {
         queryPanel = new JPanel(new BorderLayout());
         queryPanel.setBorder(new TitledBorder(makeQueryTitle()));
         queryPanel.add(createAutoFormatPanel(getXQueryEditor(typeChecker)),
@@ -290,7 +291,7 @@ public class MappingDialog extends JDialog implements ActionListener {
     }
 
 
-    private XQueryValidatingEditorPane getXQueryEditor(MappingTypeValidator typeChecker) {
+    private XQueryValidatingEditorPane getXQueryEditor(BindingTypeValidator typeChecker) {
         _xQueryEditor = new XQueryValidatingEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setTypeChecker(typeChecker);
@@ -447,7 +448,7 @@ public class MappingDialog extends JDialog implements ActionListener {
             _typeValidator.setDataType(getDataTypeForNetVar(selectedNetVarName));
         }
 
-        // update the mapping text based on the new net var selection
+        // update the binding text based on the new net var selection
         VariableRow row = _taskRow.isInput() ?
                 getNetVariableRow(selectedNetVarName) : // input query based on net row
                 _taskRow;                               // output query based on task row

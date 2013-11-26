@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.data.StatusPanel;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowConditionDialog;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
@@ -48,7 +48,7 @@ public class FlowConditionTablePanel extends JPanel
     private Map<YAWLFlowRelation, Color> origFlowColours;
     private NetGraph _graph;
     private FlowConditionDialog _parent;
-    private MappingTypeValidator _conditionValidator;
+    private BindingTypeValidator _conditionValidator;
     private Set<Integer> _invalidRows;
 
     // toolbar buttons
@@ -66,7 +66,7 @@ public class FlowConditionTablePanel extends JPanel
         setBorder(new EmptyBorder(5,5,0,5));
         _graph = graph;
         _parent = parent;
-        _conditionValidator = new MappingTypeValidator(
+        _conditionValidator = new BindingTypeValidator(
                         YAWLEditor.getNetsPane().getSelectedYNet(), null);
         _invalidRows = new HashSet<Integer>();
         List<YAWLFlowRelation> rows = new ArrayList<YAWLFlowRelation>(

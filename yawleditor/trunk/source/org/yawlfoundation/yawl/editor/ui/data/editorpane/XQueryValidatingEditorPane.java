@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.data.editor.XQueryValidatingEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 
 import javax.swing.*;
 
@@ -23,11 +23,15 @@ public class XQueryValidatingEditorPane extends XQueryEditorPane {
         _parentDialogOK = ok;
     }
 
-    public void setTypeChecker(MappingTypeValidator checker) {
+    public void setTypeChecker(BindingTypeValidator checker) {
         ((XQueryValidatingEditor) getEditor()).setTypeChecker(checker);
     }
 
-    public void setTypeChecker(MappingTypeValidator checker, boolean isSplitPredicate) {
+    public BindingTypeValidator getTypeChecker() {
+        return ((XQueryValidatingEditor) getEditor()).getTypeChecker();
+    }
+
+    public void setTypeChecker(BindingTypeValidator checker, boolean isSplitPredicate) {
         ((XQueryValidatingEditor) getEditor()).setTypeChecker(checker, isSplitPredicate);
     }
 
