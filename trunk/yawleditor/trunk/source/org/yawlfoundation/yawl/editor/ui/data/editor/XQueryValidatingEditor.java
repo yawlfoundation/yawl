@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.editor.ui.data.editor;
 
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 
 /**
  * @author Michael Adams
@@ -11,15 +11,17 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeV
 public class XQueryValidatingEditor extends XQueryEditor {
 
     private XQueryValidatingEditorPane _problemPane;
-    private MappingTypeValidator _typeChecker;
+    private BindingTypeValidator _typeChecker;
     private boolean _isSplitPredicate;
 
 
     public void setProblemPane(XQueryValidatingEditorPane pane) { _problemPane = pane; }
 
-    public void setTypeChecker(MappingTypeValidator checker) { _typeChecker = checker; }
+    public BindingTypeValidator getTypeChecker() { return _typeChecker; }
 
-    public void setTypeChecker(MappingTypeValidator checker, boolean isSplitPredicate) {
+    public void setTypeChecker(BindingTypeValidator checker) { _typeChecker = checker; }
+
+    public void setTypeChecker(BindingTypeValidator checker, boolean isSplitPredicate) {
         _typeChecker = checker;
         _isSplitPredicate = isSplitPredicate;
     }

@@ -27,11 +27,14 @@
     	Define root class name, path and directories
     -->
     <property name="root.class.name" value="YAWLEditor" />
-    <property name="root.source.file" value="${root.class.name}.java" />
+    <property name="root.launcher.name" value="YLauncher" />
+    <property name="root.source.file" value="${root.launcher.name}.java" />
     <property name="package.base.dir" value="org/yawlfoundation/yawl" />
     <property name="package.dir" value="${package.base.dir}/editor" />
     <property name="root.classpath"
               value="org.yawlfoundation.yawl.editor.ui.${root.class.name}" />
+    <property name="root.launcher"
+              value="org.yawlfoundation.yawl.editor.ui.${root.launcher.name}" />
     <property name="source.file" value="${package.dir}/ui/${root.source.file}" />
     <property name="source.release" value="1.6" />
 
@@ -85,11 +88,12 @@
     <property name="goodies-common" value="jgoodies-common-1.6.0.jar"/>
     <property name="goodies-looks" value="jgoodies-looks-2.5.3.jar"/>
     <property name="l2fprod" value="l2fprod-common-all.jar"/>
+    <property name="macify" value="macify-1.4.jar"/>
     <property name="servlet" value="servlet-api.jar"/>
 	<property name="junit" value="junit-4.4.jar"/>
 
 	<fileset id="editorOnlyDeps" dir="${library.dir}"
-			 includes="${jcal} ${servlet} ${forms} ${bounce} ${imgscalr}
+			 includes="${jcal} ${servlet} ${forms} ${bounce} ${imgscalr} ${macify}
 			           ${goodies-common} ${goodies-looks} ${l2fprod} ${automaton}" />
 
 	<fileset id="junitDeps" file="${tools.dir}/${junit}" />
@@ -141,7 +145,7 @@
     	</manifestclasspath>
 
         <manifest file="${manifestFile}">
-            <attribute name="Main-Class" value="${root.classpath}" />
+            <attribute name="Main-Class" value="${root.launcher}" />
         	<attribute name="Class-Path" value="${manifest_cp}" />
             <attribute name="SplashScreen-Image"
                        value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />

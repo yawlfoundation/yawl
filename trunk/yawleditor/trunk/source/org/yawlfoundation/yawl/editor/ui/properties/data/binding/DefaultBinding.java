@@ -16,30 +16,30 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties.data;
+package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 /**
  * @author Michael Adams
  * @date 14/08/12
  */
-public class DefaultMapping {
+public class DefaultBinding {
 
     private String _containerName;
     private String _variableName;
     private String _suffix;
     private String _dataType;
-    private String _customMapping;
+    private String _customBinding;
 
     private static final char SEP_CHAR = '/';
 
-    public DefaultMapping() { }
+    public DefaultBinding() { }
 
-    public DefaultMapping(String mapping) {
-        parse(mapping);
+    public DefaultBinding(String binding) {
+        parse(binding);
     }
 
 
-    public DefaultMapping(String containerName, String variableName, String suffix,
+    public DefaultBinding(String containerName, String variableName, String suffix,
                           String dataType) {
         _containerName = containerName;
         _variableName = variableName;
@@ -67,15 +67,15 @@ public class DefaultMapping {
     public void setDataType(String dataType) { _dataType = dataType; }
 
 
-    public String getCustomMapping() { return _customMapping; }
+    public String getCustomBinding() { return _customBinding; }
 
-    public void setCustomMapping(String mapping) { _customMapping = mapping; }
+    public void setCustomBinding(String binding) { _customBinding = binding; }
 
-    public boolean isCustomMapping() { return _customMapping != null; }
+    public boolean isCustomBinding() { return _customBinding != null; }
 
 
     public boolean equals(Object o) {
-        return (o instanceof DefaultMapping) && toString().equals(o.toString());
+        return (o instanceof DefaultBinding) && toString().equals(o.toString());
     }
 
 
@@ -85,7 +85,7 @@ public class DefaultMapping {
 
 
     public String toString() {
-        if (_customMapping != null) return _customMapping;
+        if (_customBinding != null) return _customBinding;
 
         StringBuilder sb = new StringBuilder();
         sb.append('{').append(SEP_CHAR)
@@ -97,21 +97,21 @@ public class DefaultMapping {
     }
 
 
-    private void parse(String mapping) {
+    private void parse(String binding) {
 
-        // if there's not three separators, it's not a default mapping
+        // if there's not three separators, it's not a default binding
         int sepCount = 0;
-        for (char c : mapping.toCharArray()) {
+        for (char c : binding.toCharArray()) {
             if (c == SEP_CHAR) sepCount++;
         }
         if (sepCount != 3) {
-            _customMapping = mapping;
+            _customBinding = binding;
             return;
         }
 
         int index = -1;
         StringBuilder s = new StringBuilder();
-        for (char c : mapping.substring(mapping.indexOf(SEP_CHAR)).toCharArray()) {
+        for (char c : binding.substring(binding.indexOf(SEP_CHAR)).toCharArray()) {
             if (Character.isWhitespace(c)) continue;
             if (c == SEP_CHAR) {
                 switch (index) {

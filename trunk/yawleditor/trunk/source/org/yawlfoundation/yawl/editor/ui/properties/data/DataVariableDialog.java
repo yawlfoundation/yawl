@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -55,6 +56,7 @@ public class DataVariableDialog extends JDialog
     private YTask task;
     private YDataHandler dataHandler;
     private Map<String, String> outputVariableMap;
+    private OutputBindings outputBindings;
     private JButton btnOK;
     private JButton btnApply;
 
@@ -76,6 +78,7 @@ public class DataVariableDialog extends JDialog
         initialise(net);
         this.decomposition = decomposition;
         this.task = task.getTask();
+        outputBindings = new OutputBindings(this.task);
         setTitle("Data Variables for Task " + decomposition.getID());
         add(getContentForTaskLevel());
         enableDefaultValueEditing();
@@ -168,6 +171,8 @@ public class DataVariableDialog extends JDialog
             return decomposition.getOutputParameters().get(name);
         }
     }
+
+    protected OutputBindings getOutputBindings() { return outputBindings; }
 
 
     protected void updateMappingsOnVarNameChange(VariableRow row, String newName) {

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 
-import org.yawlfoundation.yawl.editor.ui.properties.data.validation.MappingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowPredicateDialog;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -39,7 +39,7 @@ public class FlowConditionEditor extends AbstractCellEditor
 
     private JPanel valuePanel;
     private FlowConditionTablePanel tablePanel;
-    private MappingTypeValidator _validator;
+    private BindingTypeValidator _validator;
 
 
     public FlowConditionEditor() {
@@ -47,7 +47,7 @@ public class FlowConditionEditor extends AbstractCellEditor
     }
 
     public FlowConditionEditor(FlowConditionTablePanel panel,
-                               MappingTypeValidator validator) {
+                               BindingTypeValidator validator) {
         this();
         _validator = validator;
         setTablePanel(panel);
