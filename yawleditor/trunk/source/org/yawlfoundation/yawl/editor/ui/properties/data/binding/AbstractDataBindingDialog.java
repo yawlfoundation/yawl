@@ -44,7 +44,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     private QueryPanel _queryPanel;
     private MIQueryPanel _miQueryPanel;
     private JButton _btnOK;
-    private boolean _initialising;
+    protected boolean _initialising;
 
 
     AbstractDataBindingDialog() { super(); }
@@ -63,7 +63,6 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         init();
         setPreferredSize(new Dimension(426, row.isMultiInstance() ? 550 : 440));
         pack();
-        _initialising = false;
     }
 
 
@@ -96,6 +95,10 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     public boolean hasChanges() { return _undoMap.isEmpty(); }
+
+    protected boolean isValidBinding(String binding) {
+        return ! binding.isEmpty() && _btnOK.isEnabled();
+    }
 
     protected void initContent(VariableRow row) {
         _queryPanel.setParentDialogOKButton(_btnOK);

@@ -195,7 +195,8 @@ public class VariableTablePanel extends JPanel
         table.setDefaultEditor(String.class, stringEditor);
         VariableRowUsageRenderer usageRenderer = new VariableRowUsageRenderer();
         table.setDefaultRenderer(Integer.class, usageRenderer);
-        VariableRowStringRenderer stringRenderer = new VariableRowStringRenderer();
+        VariableRowStringRenderer stringRenderer =
+                new VariableRowStringRenderer(parent.getOutputBindings());
         table.setDefaultRenderer(String.class, stringRenderer);
         fixSelectorColumn(table);
         if (table.getRowCount() > 0) table.selectRow(0);

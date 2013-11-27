@@ -39,9 +39,8 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
                               java.util.List<VariableRow> netVarList,
                               java.util.List<VariableRow> taskVarList) {
         super(row, netVarList, taskVarList);
-        if (! row.isMultiInstance()) {
-            setTypeValidator(new BindingTypeValidator(netVarList, row, row.getDataType()));
-        }
+        setTypeValidator(row);
+        _initialising = false;
     }
 
 
@@ -98,6 +97,13 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     }
 
 
+    private void setTypeValidator(VariableRow row) {
+        if (! row.isMultiInstance()) {
+            setTypeValidator(new BindingTypeValidator(getNetVarList(), row,
+                    row.getDataType()));
+        }
+    }
+
     private String getBindingSource(VariableRow row) {
         String binding = row.getMapping();
         if (binding == null) return null;
@@ -121,7 +127,8 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     }
 
     private void handleTaskVarSelection() {
-        if (! getEditorText().equals(getCurrentRow().getMapping())) {
+        String binding = getEditorText();
+        if (isValidBinding(binding) && ! binding.equals(getCurrentRow().getMapping())) {
             saveToUndo();
             getCurrentRow().setMapping(formatQuery(getEditorText(), false));
         }

@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -44,8 +43,9 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         super(row, netVarList, taskVarList);
         _outputBindings = outputBindings;
         _workingSelection = new WorkingSelection();
-        setTypeValidator();
         initSpecificContent(row);
+        setTypeValidator();
+        _initialising = false;
     }
 
 
@@ -102,7 +102,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         _generatePanel.setSelectedItem(row.getName());
         String target = _outputBindings.getTarget(row.getName());
         if (target == null) {
-            target = getFirstNetVarName();
+            target = getBestGuessTargetVarName(row);
         }
         if (target != null) {
             String binding;
@@ -135,19 +135,31 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
 
     private String getTargetDataType() {
-        String dataTypeName = "string";           // default
-        String netVarName = getCurrentRow().getNetVarForOutputMapping();
-        if (!StringUtil.isNullOrEmpty(netVarName)) {
-            VariableRow netVarRow = getNetVariableRow(netVarName);
-            if (netVarRow != null) {
-                dataTypeName = netVarRow.getDataType();
-            }
+        VariableRow netVarRow = getSelectedNetVariableRow();
+        if (netVarRow != null) {
+            return netVarRow.getDataType();
         }
-        return dataTypeName;
+        return "string";                               // default for external gateway
     }
 
 
-    private String getFirstNetVarName() {
+    private String getBestGuessTargetVarName(VariableRow taskVarRow) {
+
+        // try a match on name first
+        for (VariableRow netVarRow : getNetVarList()) {
+             if (netVarRow.getName().equals(taskVarRow.getName())) {
+                 return netVarRow.getName();
+             }
+        }
+
+        // no match, try on data type
+        for (VariableRow netVarRow : getNetVarList()) {
+             if (netVarRow.getDataType().equals(taskVarRow.getDataType())) {
+                 return netVarRow.getDataType();
+             }
+        }
+
+        // well, we tried - return the first listed var (if any)
         return getNetVarList().isEmpty() ? null : getNetVarList().get(0).getName();
     }
 
@@ -194,11 +206,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     private void handleNetVarSelection() {
         savePreviousSelection();
         VariableRow row = getSelectedNetVariableRow();
-        BindingTypeValidator validator = getTypeValidator();
-        if (validator != null) {
-            validator.setRootElementName(row.getName());
-            validator.setDataType(row.getDataType());
-        }
+        updateValidator(row);
         setTargetVariableName(row.getName());
         String binding = _outputBindings.getBinding(row.getName());
         setEditorText(binding);
@@ -208,6 +216,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     private void handleGatewaySelection() {
         savePreviousSelection();
         String gateway = _targetPanel.getSelectedDataGateway();
+        updateValidator(null);
         String binding = _outputBindings.getExternalBinding(
                 _generatePanel.getSelectedItem(), gateway);
         if (binding == null) {
@@ -227,20 +236,29 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     }
 
 
+    private void updateValidator(VariableRow row) {
+        BindingTypeValidator validator = getTypeValidator();
+        if (validator != null) {
+            validator.setRootElementName(row != null ? row.getName() : "foo_bar");
+            validator.setDataType(row != null ? row.getDataType() : "string");
+        }
+    }
+
     private void undoChanges() {
         _outputBindings.clear();
     }
 
 
     private void savePreviousSelection() {
-        if (! getEditorText().equals(_workingSelection.binding)) {
+        String binding = getEditorText();
+        if (isValidBinding(binding) && ! binding.equals(_workingSelection.binding)) {
             if (_workingSelection.isGateway) {
                 _outputBindings.setExternalBinding(_generatePanel.getSelectedItem(),
-                        formatQuery(_workingSelection.binding, false));
+                        formatQuery(binding, false));
             }
             else {
                 _outputBindings.setBinding(_workingSelection.item,
-                        formatQuery(_workingSelection.binding, false));
+                        formatQuery(binding, false));
             }
         }
     }

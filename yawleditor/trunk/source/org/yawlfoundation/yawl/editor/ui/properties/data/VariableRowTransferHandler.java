@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 import javax.activation.ActivationDataFlavor;
@@ -38,11 +39,13 @@ import java.io.IOException;
 public class VariableRowTransferHandler extends TransferHandler {
 
     private VariableTable _table;
+    private OutputBindings _outputBindings;
     private final DataFlavor _variableRowFlavor;
 
 
-    public VariableRowTransferHandler(VariableTable table) {
+    public VariableRowTransferHandler(VariableTable table, OutputBindings outputBindings) {
         _table = table;
+        _outputBindings = outputBindings;
         _variableRowFlavor = new ActivationDataFlavor(VariableRow.class, "VariableRow");
     }
 
@@ -157,15 +160,12 @@ public class VariableRowTransferHandler extends TransferHandler {
 
 
     private void createMapping(VariableRow netRow, VariableRow taskRow) {
-        String mapping;
         if (taskRow.isInput()) {
-            mapping = createMapping(netRow);
+            taskRow.setMapping(createMapping(netRow));
         }
         else {
-            mapping = createMapping(taskRow);
-            taskRow.setNetVarForOutputMapping(netRow.getName());
+            _outputBindings.setBinding(netRow.getName(), createMapping(taskRow));
         }
-        taskRow.setMapping(mapping);
     }
 
 
