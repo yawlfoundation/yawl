@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +30,12 @@ import java.awt.*;
  */
 public class VariableRowStringRenderer extends DefaultCellRenderer {
 
+    private OutputBindings _outputBindings;
+
+    public VariableRowStringRenderer(OutputBindings outputBindings) {
+        _outputBindings = outputBindings;
+    }
+
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
@@ -36,7 +43,7 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
         reset();
         VariableRow varRow = ((VariableTable) table).getTableModel().getVariableAtRow(row);
         if (isTaskTable(table)) {
-            if (column > 0 && varRow.getMapping() == null) {
+            if (column > 0 && ! hasBinding(varRow)) {
                 setFont(getFont().deriveFont(Font.ITALIC));
             }
 
@@ -76,6 +83,12 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
 
     private boolean isTaskTable(JTable table) {
         return ! (((VariableTable) table).getTableModel() instanceof NetVarTableModel);
+    }
+
+
+    private boolean hasBinding(VariableRow row) {
+        return (row.isInput() && row.getMapping() != null) ||
+               (row.isOutput() && _outputBindings.hasBinding(row.getName()));
     }
 
 }

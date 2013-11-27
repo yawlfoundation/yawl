@@ -160,20 +160,13 @@ public class VariableRow {
     public String getStartingMapping() { return startValues.mapping; }
 
     public String getFullMapping() {
-        if (isInput()) {
-            if (isMultiInstance()) return getMapping();
-            return getWrappedMapping(getName(), getMapping());
-        }
-        return getWrappedMapping(getNetVarForOutputMapping(), getMapping());
+        return isMultiInstance() ? getMapping() :
+                getWrappedMapping(getName(), getMapping());
     }
 
 
     public void setMapping(String mapping) { endValues.mapping = mapping; }
 
-    public void setMapping(String mapping, String netVarName) {
-        setMapping(mapping);
-        setNetVarForOutputMapping(netVarName);
-    }
 
     public void initMapping(String mapping) {
         startValues.mapping = mapping;
@@ -185,27 +178,12 @@ public class VariableRow {
     }
 
 
-    public void initNetVarForOutputMapping(String netVarName) {
-        startValues.netVarThisMapsTo = netVarName;
-        endValues.netVarThisMapsTo = netVarName;
-    }
-
-    public void setNetVarForOutputMapping(String netVarName) {
-        endValues.netVarThisMapsTo = netVarName;
-    }
-
-    public String getNetVarForOutputMapping() { return endValues.netVarThisMapsTo; }
-
-
     public String getMIQuery() {
         return endValues.miQuery;
     }
 
-    public String getFullMIQuery() {
-        if (isInput()) {
-            return getMIQuery();
-        }
-        return getWrappedMapping(getNetVarForOutputMapping(), getMapping());
+    public String getFullMIQuery(String outerTag) {
+        return isInput() ? getMIQuery() : getWrappedMapping(outerTag, getMIQuery());
     }
 
 

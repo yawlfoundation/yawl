@@ -49,7 +49,7 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
             setBorder(new TitledBorder(title));
         }
         add(buildNetSelectionPanel(varList, listener), BorderLayout.CENTER);
-        add(buildRadioPanel(), BorderLayout.WEST);
+        add(buildRadioPanel(listener), BorderLayout.WEST);
         setPreferredSize(new Dimension(410, 90));
         initContent();
     }
@@ -101,7 +101,7 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
     }
 
 
-    private JPanel buildRadioPanel() {
+    private JPanel buildRadioPanel(ActionListener listener) {
         ButtonGroup buttonGroup = new ButtonGroup();
         JPanel radioPanel = new JPanel(new GridLayout(0, 1));
         radioPanel.setBorder(new EmptyBorder(0,10,0,10));
@@ -110,6 +110,7 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         _netVarsButton.setMnemonic(KeyEvent.VK_N);
         _netVarsButton.setActionCommand("netVarRadio");
         _netVarsButton.addActionListener(this);
+        _netVarsButton.addActionListener(listener);
         buttonGroup.add(_netVarsButton);
         radioPanel.add(_netVarsButton);
 
@@ -117,6 +118,7 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         _gatewayButton.setMnemonic(KeyEvent.VK_D);
         _gatewayButton.setActionCommand("gatewayRadio");
         _gatewayButton.addActionListener(this);
+        _gatewayButton.addActionListener(listener);
         buttonGroup.add(_gatewayButton);
         radioPanel.add(_gatewayButton);
 
