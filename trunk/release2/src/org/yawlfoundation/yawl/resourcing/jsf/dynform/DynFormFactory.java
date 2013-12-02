@@ -854,9 +854,19 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
 
     protected String createUniqueID(String id) {
+        char[] idChars = id.toCharArray();
+        StringBuilder cleanChars = new StringBuilder(idChars.length);
+
+        // only letter, digit, underscore or dash allowed for an id
+        for (char c : idChars) {
+            if (Character.isJavaIdentifierPart(c) && c != '$') {
+                cleanChars.append(c);
+            }
+        }
+        String cleanid = cleanChars.toString();
         int suffix = 0;
-        while (_usedIDs.contains(id + ++suffix)) ;
-        String result = id + suffix;
+        while (_usedIDs.contains(cleanid + ++suffix)) ;
+        String result = cleanid + suffix;
         _usedIDs.add(result);
         return result;
     }
