@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.DynamicValue;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.xml.datatype.Duration;
@@ -520,7 +521,8 @@ public class YDecompositionParser {
     public static void parseLocalVariable(Element localVariableElem, YVariable variable,
                                           Namespace ns, boolean version2) {
         //parse & set the initial value
-        variable.setInitialValue(localVariableElem.getChildText("initialValue", ns));
+        variable.setInitialValue(JDOMUtil.decodeEscapes(
+                localVariableElem.getChildText("initialValue", ns)));
 
         String name;
         String dataType;
@@ -598,7 +600,8 @@ public class YDecompositionParser {
             parameter.setIsCutThroughParam(isCutThroughParam);
         }
 
-        String defaultValue = paramElem.getChildText("defaultValue", ns);
+        String defaultValue = JDOMUtil.decodeEscapes(
+                paramElem.getChildText("defaultValue", ns));
         if (defaultValue != null) parameter.setDefaultValue(defaultValue);
 
         parameter.setLogPredicate(parseLogPredicate(paramElem, ns));

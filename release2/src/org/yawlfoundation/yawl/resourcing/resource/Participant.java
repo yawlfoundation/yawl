@@ -240,7 +240,7 @@ public class Participant extends AbstractResource implements Cloneable {
 
     public void mergeRoles(Set<Role> roleSet) {
         for (Role r : roleSet) {
-            if (! _roles.contains(r)) _roles.add(r);
+            if (! _roles.contains(r)) addRole(r);
         }
     }
 
@@ -290,7 +290,7 @@ public class Participant extends AbstractResource implements Cloneable {
 
     public void mergeCapabilities(Set<Capability> capSet) {
         for (Capability c : capSet) {
-            if (! _capabilities.contains(c)) _capabilities.add(c);
+            if (! _capabilities.contains(c)) addCapability(c);
         }
     }
 
@@ -365,7 +365,7 @@ public class Participant extends AbstractResource implements Cloneable {
 
     public void mergePositions(Set<Position> posSet) {
         for (Position p : posSet) {
-            if (! _positions.contains(p)) _positions.add(p);
+            if (! _positions.contains(p)) addPosition(p);
         }
     }
 

@@ -299,6 +299,9 @@ public class StringUtil {
      */
     public static String unwrap(String xml) {
         if (xml != null) {
+            if (xml.matches("^<\\w+/>$")) {                      // shortened tag pair
+                return "";
+            }
             int start = xml.indexOf('>') + 1;
             int end = xml.lastIndexOf('<');
             if (end >= start) {

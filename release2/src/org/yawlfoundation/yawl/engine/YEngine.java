@@ -1573,7 +1573,9 @@ public class YEngine implements InterfaceADesign,
         if (completionType != WorkItemCompletion.Normal) {
             data = mapOutputDataForSkippedWorkItem(workItem, data);
         }
-        return JDOMUtil.stringToDocument(data);
+        Document doc = JDOMUtil.stringToDocument(data);
+        JDOMUtil.stripAttributes(doc.getRootElement());
+        return doc;
     }
 
 
