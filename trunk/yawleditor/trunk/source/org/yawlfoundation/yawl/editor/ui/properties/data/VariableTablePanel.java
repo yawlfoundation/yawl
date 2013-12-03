@@ -125,9 +125,8 @@ public class VariableTablePanel extends JPanel
         }
         else if (action.equals("MarkMI")) {
             int row = table.getSelectedRow();
-            if (! parent.setMultiInstanceRow(table.getSelectedVariable())) {
-                showErrorStatus("Invalid MI data type", null);
-            }
+            String error = parent.setMultiInstanceRow(table.getSelectedVariable());
+            if (error != null) showErrorStatus(error, null);
             table.selectRow(row);
         }
         else if (action.equals("ExAt")) {
@@ -158,6 +157,9 @@ public class VariableTablePanel extends JPanel
                     netVars, taskVars, parent.getOutputBindings());
         }
         if (dialog != null) {
+            if (table.hasMultiInstanceRow()) {
+                dialog.setMultiInstanceHandler(parent.getMultiInstanceHandler());
+            }
             dialog.setVisible(true);
             if (dialog.hasChanges()) {
                 parent.enableApplyButton();
@@ -219,10 +221,10 @@ public class VariableTablePanel extends JPanel
         toolbar.add(btnDown);
         btnMapping = createToolBarButton("mapping", "Binding", " Data Bindings ");
         toolbar.add(btnMapping);
-        btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
-        toolbar.add(btnMIVar);
         btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
         toolbar.add(btnExAttributes);
+        btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
+        toolbar.add(btnMIVar);
         status = new StatusPanel(parent);
         toolbar.add(status);
         return toolbar;

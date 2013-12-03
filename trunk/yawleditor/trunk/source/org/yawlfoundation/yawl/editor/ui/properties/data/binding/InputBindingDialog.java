@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 
@@ -64,10 +65,16 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
             VariableRow row = getCurrentRow();
             row.setMapping(formatQuery(getEditorText(), false));
             if (row.isMultiInstance()) {
-                row.setMIQuery(formatQuery(getMIEditorText(), false));
+                getMultiInstanceHandler().setSplitQuery(
+                        formatQuery(getMIEditorText(), false));
             }
             setVisible(false);
         }
+    }
+
+    public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
+        super.setMultiInstanceHandler(miHandler);
+        setMIEditorText(miHandler.getSplitQuery());
     }
 
 
@@ -90,9 +97,11 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         _generatePanel.setSelectedItem(getBindingSource(row));
         setEditorText(row.getMapping());
         if (getCurrentRow().isMultiInstance()) {
-            setMIEditorText(getCurrentRow().getMIQuery());
             _targetPanel.disableSelections();
             _generatePanel.disableSelections();
+        }
+        else {
+            _targetPanel.hideMiVar();
         }
     }
 

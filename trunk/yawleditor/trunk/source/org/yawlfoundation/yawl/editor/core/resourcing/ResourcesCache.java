@@ -90,7 +90,7 @@ public class ResourcesCache {
     public void generateXML() {
         for (Map<String, TaskResourceSet> map : _cache.values()) {    // net in spec
             for (TaskResourceSet resources : map.values()) {          // task in spec
-                resources.finaliseUpdate();
+                resources.setTaskXML();
             }
         }
     }

@@ -18,12 +18,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
-import org.apache.commons.collections15.map.HashedMap;
-import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,32 +43,60 @@ public class OutputBindings {
 
     public OutputBindings(YTask task) {
         _task = task;
-        _netVarBindings = new HashedMap<String, String>();
-        _externalBindings = new HashedMap<String, String>();
+        _netVarBindings = new HashMap<String, String>();
+        _externalBindings = new HashMap<String, String>();
         _orphanedBindings = new HashSet<String>();
     }
 
 
+    /**
+     * Gets the binding targeting the named net-level variable, with its outer tags
+     * removed
+     * @param netVarName the target net-level variable
+     * @return the corresponding binding
+     */
     public String getBinding(String netVarName) {
-        for (String binding : _netVarBindings.keySet()) {
-            String varName = _netVarBindings.get(binding);
-             if (netVarName.equals(varName)) {
-                 return unwrapMapping(binding);
-             }
-        }
-        return unwrapMapping(_task.getDataBindingForOutputParam(netVarName));
-    }
-
-    public String getBindingTarget(String binding) {
-        String netVar = _netVarBindings.get(binding);
-        return netVar != null ? netVar :
-                _task.getDataMappingsForTaskCompletion().get(binding);
+        return getBinding(netVarName, true);
     }
 
 
+    /**
+     * Gets the binding targeting the named net-level variable
+     * @param netVarName the target net-level variable
+     * @param unwrap true to remove the outer tags from the binding
+     * @return the corresponding binding
+     */
+    public String getBinding(String netVarName, boolean unwrap) {
+
+        // try update cache first, then those in the task
+        String binding = getAddedBinding(netVarName);
+        if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName);
+        return unwrap ? unwrapBinding(binding) : binding;
+    }
+
+
+    /**
+     * Sets the binding for a target net-level variable, and inserts the appropriate
+     * outer xml tags
+     * @param netVarName the target net-level variable
+     * @param binding the binding to associate with the net-level variable
+     */
     public void setBinding(String netVarName, String binding) {
+        setBinding(netVarName, binding, true);
+    }
+
+
+    /**
+     * Sets the binding for a target net-level variable
+     * @param netVarName the target net-level variable
+     * @param binding the binding to associate with the net-level variable
+     * @param wrap true to insert outer xml tags (of the net var) around the binding
+     */
+    public void setBinding(String netVarName, String binding, boolean wrap) {
         if (! (binding == null || netVarName == null)) {
-            _netVarBindings.put(binding, netVarName);
+            removeAddedBinding(netVarName);
+            String adjustedBinding = wrap ? wrapBinding(netVarName, binding) : binding;
+            _netVarBindings.put(adjustedBinding, netVarName);
         }
     }
 
@@ -139,10 +166,29 @@ public class OutputBindings {
     }
 
 
-    public void replaceBinding(String oldBinding, String newBinding) {
-        String netVar = getBindingTarget(oldBinding);
-        if (netVar != null) {
+    public void replaceBinding(String taskName, String oldBinding, String newBinding) {
+        String netVar = getTarget(taskName);
+        if (! (netVar == null || isGateway(netVar))) {
+            _netVarBindings.remove(wrapBinding(netVar, oldBinding));
             setBinding(netVar, newBinding);
+        }
+    }
+
+
+    public void removeBindingForTarget(String netVarName) {
+        if (removeAddedBinding(netVarName) == null) {
+            for (String binding : _task.getDataMappingsForTaskCompletion().keySet()) {
+                String varName = _task.getDataMappingsForTaskCompletion().get(binding);
+                if (varName.equals(netVarName)) {
+                    _task.getDataMappingsForTaskCompletion().remove(binding);
+                }
+            }
+        }
+    }
+
+    public void removeBinding(String binding) {
+        if (_netVarBindings.remove(binding) == null) {
+            _task.getDataMappingsForTaskCompletion().remove(binding);
         }
     }
 
@@ -153,10 +199,10 @@ public class OutputBindings {
     }
 
     public boolean renameNetVarTarget(String oldName, String newName) {
-        String binding = getBinding(oldName);
+        String binding = getBinding(oldName, false);
         if (binding != null) {
             _orphanedBindings.add(binding);
-            setBinding(newName, binding);
+            setBinding(newName, unwrapBinding(binding));
         }
         return binding != null;
     }
@@ -169,12 +215,6 @@ public class OutputBindings {
             setExternalBinding(newName, binding.replace(":" + oldName, ":" + newName));
         }
         return binding != null;
-    }
-
-
-    public String getMiJoinQuery() {
-        YMultiInstanceAttributes attributes = _task.getMultiInstanceAttributes();
-        return attributes != null ? attributes.getMIJoiningQuery() : null;
     }
 
 
@@ -209,6 +249,7 @@ public class OutputBindings {
         return ! (_netVarBindings.isEmpty() && _externalBindings.isEmpty());
     }
 
+
     private String getExternalBindingFromTask(String taskVarName) {
         for (String binding : _task.getDataMappingsForTaskCompletion().keySet()) {
             if (isGateway(binding) && binding.endsWith(":" + taskVarName)) {
@@ -219,22 +260,42 @@ public class OutputBindings {
     }
 
 
-    private String unwrapMapping(String mapping) {
-        if (mapping != null) {
-
-            // remove outer {}'s, if any
-            if (mapping.trim().startsWith("{")) {
-                mapping = mapping.substring(mapping.indexOf('{') + 1,
-                        mapping.lastIndexOf('}'));
-            }
-
-            // remove outer (param name) tags
-            if (mapping.trim().startsWith("<")) {
-                mapping = StringUtil.unwrap(mapping);
-            }
+    private String getAddedBinding(String netVarName) {
+        for (String binding : _netVarBindings.keySet()) {
+            String varName = _netVarBindings.get(binding);
+             if (netVarName.equals(varName)) {
+                 return binding;
+             }
         }
-        return mapping;
+        return null;
     }
+
+
+    private String removeAddedBinding(String netVarName) {
+        String binding = getAddedBinding(netVarName);
+        return binding != null ?
+                _netVarBindings.remove(wrapBinding(netVarName, binding)) : null;
+    }
+
+
+    private String unwrapBinding(String binding) {
+        return binding != null ?
+                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "") : null;
+    }
+
+
+    private String wrapBinding(String tagName, String binding) {
+        if (StringUtil.isNullOrEmpty(binding)) return null;
+        boolean isXPath = binding.trim().startsWith("/");
+        StringBuilder s = new StringBuilder();
+        s.append('<').append(tagName).append(">");
+        if (isXPath) s.append("{");
+        s.append(binding);
+        if (isXPath) s.append("}");
+        s.append("</").append(tagName).append('>');
+        return s.toString();
+    }
+
 
     private String getTarget(Map<String, String> bindings, String taskVarName) {
         String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';

@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 
@@ -71,7 +72,8 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         else if (action.equals("OK")) {
             savePreviousSelection();
             if (getCurrentRow().isMultiInstance()) {
-                getCurrentRow().setMIQuery(formatQuery(getMIEditorText(), false));
+                getMultiInstanceHandler().setJoinQueryUnwrapped(
+                        formatQuery(getMIEditorText(), false));
             }
             setVisible(false);
         }
@@ -82,6 +84,10 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         return _outputBindings.hasChanges();
     }
 
+    public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
+        super.setMultiInstanceHandler(miHandler);
+        setMIEditorText(miHandler.getJoinQueryUnwrapped());
+    }
 
     protected JPanel buildTargetPanel() {
         _targetPanel = new NetVariablePanel("Output To", getNetVarList(), this);
@@ -119,9 +125,11 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
             setEditorText(binding);
         }
         if (getCurrentRow().isMultiInstance()) {
-            setMIEditorText(getCurrentRow().getMIQuery());
             _targetPanel.disableSelections();
             _generatePanel.disableSelections();
+        }
+        else {
+            _generatePanel.hideMiVar();
         }
     }
 

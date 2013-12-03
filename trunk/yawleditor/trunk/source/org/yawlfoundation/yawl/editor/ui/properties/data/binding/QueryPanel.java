@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorP
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -45,10 +44,9 @@ class QueryPanel extends AbstractBindingPanel {
 
 
     QueryPanel(String title, ActionListener listener) {
+        super();
         setLayout(new BorderLayout());
-        if (!StringUtil.isNullOrEmpty(title)) {
-            setBorder(new TitledBorder(title));
-        }
+        setBorder(new TitledBorder(title));
         add(createToolBar(listener), BorderLayout.NORTH);
         add(createXQueryEditor(), BorderLayout.CENTER);
     }
@@ -91,7 +89,7 @@ class QueryPanel extends AbstractBindingPanel {
         _toolbar.setBorder(null);
         _toolbar.setFloatable(false);
         _toolbar.setRollover(true);
-        _toolbar.add(createToolBarButton("insertMapping", "insertBinding",
+        _toolbar.add(createToolBarButton("generateBinding", "insertBinding",
                 " Generate and insert binding ", listener));
         _toolbar.add(createToolBarButton("arrow-repeat", "resetBinding",
                 " Reset binding to original ", listener));

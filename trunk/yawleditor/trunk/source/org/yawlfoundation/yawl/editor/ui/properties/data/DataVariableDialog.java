@@ -56,6 +56,7 @@ public class DataVariableDialog extends JDialog
     private YTask task;
     private YDataHandler dataHandler;
     private OutputBindings outputBindings;
+    private MultiInstanceHandler _miHandler;
     private JButton btnOK;
     private JButton btnApply;
 
@@ -78,6 +79,9 @@ public class DataVariableDialog extends JDialog
         this.decomposition = decomposition;
         this.task = task.getTask();
         outputBindings = new OutputBindings(this.task);
+        if (this.task.isMultiInstance()) {
+            _miHandler = new MultiInstanceHandler(this.task, outputBindings);
+        }
         setTitle("Data Variables for Task " + decomposition.getID());
         add(getContentForTaskLevel());
         enableDefaultValueEditing();
@@ -135,33 +139,18 @@ public class DataVariableDialog extends JDialog
 
     protected VariableTablePanel getNetTablePanel() { return netTablePanel; }
 
+    protected MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
 
-    protected boolean setMultiInstanceRow(VariableRow row) {
-        if (row.isMultiInstance()) return true;        // already multi instance
 
-        String itemType = dataHandler.getMultiInstanceItemType(row.getDataType());
-        if (itemType == null) return false;            // invalid mi type
-
-        VariableTable table = row.isInput() ? getTaskInputTable() : getTaskOutputTable();
-        table.setMultiInstanceRow();
-        String origRowName = row.getName();
-        row.setName(origRowName + "_Item");
-        row.setDataType(unprefix(itemType));
-
-        String mapping = row.isInput() ? row.getMapping() :
-                outputBindings.getBindingFromSource(origRowName);
-        if (mapping != null) {
-            String workedMapping = mapping.substring(0, mapping.lastIndexOf('/'));
-            if (row.isInput()) {
-                row.setMapping(workedMapping);
-                row.setMIQuery("for $s in " + workedMapping + "/* return $s");
-            }
-            else if (row.isOutput()) {
-                outputBindings.setBindingFromSource(origRowName, workedMapping);
-                row.setMIQuery("for $j in " + workedMapping + " return $j");
-            }
+    protected String setMultiInstanceRow(VariableRow row) {
+        try {
+             _miHandler.setMultiInstanceRow(row, getTaskInputTable(),
+                     getTaskOutputTable(), this);
+             return null;
         }
-        return true;
+        catch (IllegalArgumentException iae) {
+            return iae.getMessage();
+        }
     }
 
 
@@ -189,7 +178,7 @@ public class DataVariableDialog extends JDialog
                     oldName, row.getDataType());
             String newBinding = createMapping(row.getDecompositionID(),
                     newName, row.getDataType());
-            outputBindings.replaceBinding(oldBinding, newBinding);
+            outputBindings.replaceBinding(oldName, oldBinding, newBinding);
             outputBindings.renameExternalTarget(oldName, newName);
         }
     }
@@ -260,7 +249,7 @@ public class DataVariableDialog extends JDialog
         VariableTablePanel taskPanel = createTablePanel(tableType);
         taskPanel.setBorder(new TitledBorder(tableType.getName() + " Variables"));
         setupTableForDropping(taskPanel.getTable());
-        taskPanel.showMIButton(task.isMultiInstance());
+        taskPanel.showMIButton(tableType == TableType.TaskInput && task.isMultiInstance());
         return taskPanel;
     }
 
@@ -301,11 +290,11 @@ public class DataVariableDialog extends JDialog
 
     private VariableTable getNetTable() { return netTablePanel.getTable(); }
 
-    private VariableTable getTaskInputTable() {
+    protected VariableTable getTaskInputTable() {
         return taskInputTablePanel != null ? taskInputTablePanel.getTable() : null;
     }
 
-    private VariableTable getTaskOutputTable() {
+    protected VariableTable getTaskOutputTable() {
         return taskOutputTablePanel != null ? taskOutputTablePanel.getTable() : null; }
 
 
@@ -366,11 +355,10 @@ public class DataVariableDialog extends JDialog
 
     // task variables
     private java.util.List<VariableRow> createTableRows(Map<String, YParameter> parameters) {
-        String miParam = getMIParamName();
         java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
         for (YParameter parameter : parameters.values()) {
             VariableRow row = new VariableRow(parameter, decomposition.getID());
-            initMappings(row, getMapping(parameter), miParam);
+            initMappings(row, getMapping(parameter), getMIParamName());
             rows.add(row);
         }
         return rows;
@@ -380,7 +368,6 @@ public class DataVariableDialog extends JDialog
     private void initMappings(VariableRow row, String mapping, String miParam) {
         if (miParam != null && row.getName().equals(miParam)) {
             row.setMultiInstance(true);
-            row.initMIQuery(getMIQueryForScope(row.isInput()));
             if (row.isInput()) {
                 row.initMapping(mapping);
             }
@@ -391,16 +378,7 @@ public class DataVariableDialog extends JDialog
     }
 
     private String getMIParamName() {
-        return task.isMultiInstance() ?
-                task.getMultiInstanceAttributes().getMIFormalInputParam() : null;
-    }
-
-
-    private String getMIQueryForScope(boolean isInput) {
-        if (! task.isMultiInstance()) return null;
-        return isInput ?
-                task.getMultiInstanceAttributes().getMISplittingQuery() :
-                unwrapMapping(task.getMultiInstanceAttributes().getMIJoiningQuery());
+        return task.isMultiInstance() ? _miHandler.getFormalInputParam() : null;
     }
 
 
@@ -433,14 +411,6 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    private String getNetVarFromMapping(String mapping) {
-        if (mapping == null) return null;
-        int openIndex = mapping.indexOf('<');
-        return openIndex > -1 ? mapping.substring(openIndex + 1, mapping.indexOf('>'))
-                : null;
-    }
-
-
     private void enableDefaultValueEditing() {
         boolean modified = false;
         for (VariableRow outputRow : getTaskOutputTable().getVariables()) {
@@ -464,6 +434,7 @@ public class DataVariableDialog extends JDialog
             updateVariables(getTaskInputTable(), decomposition);
             updateVariables(getTaskOutputTable(), decomposition);
             outputBindings.commit();
+            if (_miHandler != null) _miHandler.commit();
             dirty = false;
         }
         catch (YDataHandlerException ydhe) {
@@ -497,9 +468,6 @@ public class DataVariableDialog extends JDialog
                 }
                 if (isTaskTable(table) && row.isMappingChange()) {
                     handleMappingChange(row);         // only task tables have mappings
-                }
-                if (isTaskTable(table) && row.isMultiInstance() && row.isMIQueryChange()) {
-                    handleMIQueryChange(row);         // only task tables have mappings
                 }
                 if (isTaskTable(table) && row.isAttributeChange()) {
                     handleAttributeChange(row, host);
@@ -578,18 +546,6 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    private void handleMIQueryChange(VariableRow row) throws YDataHandlerException {
-        String variableName = row.isInput() ? row.getName() :
-                outputBindings.getTarget(row.getName());
-        String miQuery = row.getFullMIQuery(variableName);
-
-        if (! (miQuery == null || variableName == null)) {
-            dataHandler.setMIQuery(net.getID(), task.getID(), variableName,
-                    miQuery, row.getUsage());
-        }
-    }
-
-
     private void handleAttributeChange(VariableRow row, YDecomposition host)
             throws YDataHandlerException {
         dataHandler.setVariableAttributes(host.getID(), row.getName(),
@@ -653,17 +609,6 @@ public class DataVariableDialog extends JDialog
             }
             index++;
         }
-    }
-
-
-    private String unprefix(String dataType) {
-        if (dataType != null) {
-            int pos = dataType.indexOf(':');
-            if (pos > -1) {
-                return dataType.substring(pos + 1);
-            }
-        }
-        return dataType;
     }
 
 }

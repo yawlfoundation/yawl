@@ -178,27 +178,6 @@ public class VariableRow {
     }
 
 
-    public String getMIQuery() {
-        return endValues.miQuery;
-    }
-
-    public String getFullMIQuery(String outerTag) {
-        return isInput() ? getMIQuery() : getWrappedMapping(outerTag, getMIQuery());
-    }
-
-
-    public void setMIQuery(String query) { endValues.miQuery = query; }
-
-    public void initMIQuery(String query) {
-        startValues.miQuery = query;
-        endValues.miQuery = query;
-    }
-
-    public boolean isMIQueryChange() {
-        return ! startValues.equals(startValues.miQuery, endValues.miQuery);
-    }
-
-
     public void setDecompositionID(String name) { decompositionID = name; }
 
     public String getDecompositionID() { return decompositionID; }
@@ -270,15 +249,12 @@ public class VariableRow {
     }
 
 
-
     class Values {
         String name;
         String dataType;
         int scope;
         String value;
         String mapping;
-        String netVarThisMapsTo;       // output params only
-        String miQuery;                // mi params only
         YAttributeMap attributes;
 
         public Values copy() {
@@ -288,8 +264,6 @@ public class VariableRow {
             copy.scope = scope;
             copy.value = value;
             copy.mapping = mapping;
-            copy.netVarThisMapsTo = netVarThisMapsTo;
-            copy.miQuery = miQuery;
             copy.attributes = new YAttributeMap(attributes);
             return copy;
         }
@@ -300,8 +274,6 @@ public class VariableRow {
             return scope == other.scope && equals(name, other.name) &&
                     equals(dataType, other.dataType) && equals(value, other.value) &&
                     equals(mapping, other.mapping) &&
-                    equals(netVarThisMapsTo, other.netVarThisMapsTo) &&
-                    equals(miQuery, other.miQuery) &&
                     attributes.equals(other.attributes);
         }
 

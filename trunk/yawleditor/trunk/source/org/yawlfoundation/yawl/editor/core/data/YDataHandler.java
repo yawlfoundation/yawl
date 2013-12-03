@@ -1449,8 +1449,8 @@ public class YDataHandler {
 
     public Namespace getDataSchemaNamespace() { return _utils.getDataSchemaNamespace(); }
 
-    public String getMultiInstanceItemType(String dataType) {
-        return _utils.getMultiInstanceItemType(dataType);
+    public String[] getMultiInstanceItemNameAndType(String dataType) {
+        return _utils.getMultiInstanceItemNameAndType(dataType);
     }
 
     public String getXQuerySuffix(String dataType) {
