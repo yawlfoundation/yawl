@@ -22,6 +22,7 @@ import org.apache.xerces.util.XMLChar;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.elements.*;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.*;
 
@@ -34,6 +35,7 @@ public class YControlFlowHandler {
     private YSpecification _specification;
     private ElementIdentifiers _identifiers;
 
+    private static final String BASIC_RESOURCING_SPEC = createBasicResourcingSpec();
 
     public YControlFlowHandler() { _identifiers = new ElementIdentifiers(); }
 
@@ -213,7 +215,8 @@ public class YControlFlowHandler {
             throws IllegalIdentifierException {
         YNet net = getNet(netID);
         if (net != null) {
-            YAtomicTask task = new YAtomicTask(checkID(id), YTask._AND, YTask._XOR, net);
+            YAtomicTask task = new YAtomicTask(checkID(id), YTask._XOR, YTask._AND, net);
+            task.setResourcingXML(BASIC_RESOURCING_SPEC);
             net.addNetElement(task);
             return task;
         }
@@ -547,16 +550,28 @@ public class YControlFlowHandler {
 
 
     private Set<YAtomicTask> getAllAtomicTasks() {
-         Set<YAtomicTask> taskSet = new HashSet<YAtomicTask>();
-         for (YNet net : getNets()) {
-             for (YTask task : net.getNetTasks()) {
-                 if (task instanceof YAtomicTask) {
-                     taskSet.add((YAtomicTask) task);
-                 }
-             }
-         }
-         return taskSet;
-     }
+        Set<YAtomicTask> taskSet = new HashSet<YAtomicTask>();
+        for (YNet net : getNets()) {
+            for (YTask task : net.getNetTasks()) {
+                if (task instanceof YAtomicTask) {
+                    taskSet.add((YAtomicTask) task);
+                }
+            }
+        }
+        return taskSet;
+    }
+
+
+    private static String createBasicResourcingSpec() {
+        XNode node = new XNode("resourcing");
+        node.addChild("offer");
+        node.addChild("allocate");
+        node.addChild("start");
+        for (XNode child : node.getChildren()) {
+            child.addAttribute("initiator", "user");
+        }
+        return node.toString();
+    }
 
      private boolean isOrphan(YDecomposition decomposition, Set<YAtomicTask> allTasks) {
          for (YAtomicTask task : allTasks) {

@@ -128,6 +128,14 @@ class VariableTable extends JSingleSelectTable {
     }
 
 
+    public void setMultiInstanceRow(VariableRow row) {
+        getTableModel().setMultiInstanceRow(row);
+    }
+
+    public boolean hasMultiInstanceRow() {
+        return getTableModel().hasMultiInstanceRow();
+    }
+
     public boolean hasChangedRowOrder() { return orderChanged; }
 
     public boolean isChanged() { return getTableModel().isTableChanged(); }

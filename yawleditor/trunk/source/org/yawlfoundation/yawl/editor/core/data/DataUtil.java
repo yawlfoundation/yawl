@@ -89,8 +89,10 @@ public class DataUtil {
     }
 
 
-    public String getMultiInstanceItemType(String dataType) {
-        if (dataType.equals("YStringListType")) return "string";
+    public String[] getMultiInstanceItemNameAndType(String dataType) {
+        if (dataType.equals("YStringListType")) {
+            return new String[] { "item", "string" };
+        }
 
         if (_schemaDoc != null) {
             Element root = _schemaDoc.getRootElement();
@@ -105,7 +107,9 @@ public class DataUtil {
                             String maxOccurs = element.getAttributeValue("maxOccurs");
                             if (maxOccurs != null && (maxOccurs.equals("unbounded") ||
                                     ! maxOccurs.equals("1"))) {
-                                return element.getAttributeValue("type");
+                                String elementName = element.getAttributeValue("name");
+                                String elementType = element.getAttributeValue("type");
+                                return new String[] { elementName, elementType };
                             }
                         }
                     }

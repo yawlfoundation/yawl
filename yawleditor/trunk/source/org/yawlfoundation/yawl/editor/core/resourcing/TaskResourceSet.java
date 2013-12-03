@@ -54,6 +54,7 @@ public class TaskResourceSet {
         _secondary = new BasicSecondaryResources(_task);
         _privileges = new TaskPrivileges(_task);
         parse();
+        setTaskXML();
     }
 
     public YAtomicTask getTask() { return _task; }
@@ -69,7 +70,7 @@ public class TaskResourceSet {
     public TaskPrivileges getTaskPrivileges() { return _privileges; }
 
 
-    public void finaliseUpdate() { _task.setResourcingXML(toXML()); }
+    public void setTaskXML() { _task.setResourcingXML(toXML()); }
 
 
     public Set<InvalidReference> getInvalidReferences() {

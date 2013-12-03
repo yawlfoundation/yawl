@@ -115,9 +115,20 @@ abstract class VariableTableModel extends AbstractTableModel {
 
 
     public void setMultiInstanceRow(int row) {
+        setMultiInstanceRow(getVariableAtRow(row));
+    }
+
+    public void setMultiInstanceRow(VariableRow row) {
         for (VariableRow varRow : variables) varRow.setMultiInstance(false);
-        getVariableAtRow(row).setMultiInstance(true);
+        if (row != null) row.setMultiInstance(true);
         fireTableDataChanged();
+    }
+
+    public boolean hasMultiInstanceRow() {
+        for (VariableRow varRow : variables) {
+            if (varRow.isMultiInstance()) return true;
+        }
+        return false;
     }
 
 

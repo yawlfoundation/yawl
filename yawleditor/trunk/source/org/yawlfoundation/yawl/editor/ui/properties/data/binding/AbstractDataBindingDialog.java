@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -44,6 +45,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     private QueryPanel _queryPanel;
     private MIQueryPanel _miQueryPanel;
     private JButton _btnOK;
+    private MultiInstanceHandler _miHandler;
     protected boolean _initialising;
 
 
@@ -61,7 +63,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         setTitle(makeTitle(row));
         add(getContent(row));
         init();
-        setPreferredSize(new Dimension(426, row.isMultiInstance() ? 550 : 440));
+        setPreferredSize(new Dimension(426, row.isMultiInstance() ? 570 : 440));
         pack();
     }
 
@@ -95,6 +97,12 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     public boolean hasChanges() { return _undoMap.isEmpty(); }
+
+    public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
+        _miHandler = miHandler;
+    }
+
+    protected MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
 
     protected boolean isValidBinding(String binding) {
         return ! binding.isEmpty() && _btnOK.isEnabled();
@@ -174,7 +182,8 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     private JPanel buildMiQueryPanel() {
-        String title = (_currentRow.isInput() ? "Splitting" : "Joining") + " Query";
+        String title = "MI " + (_currentRow.isInput() ? "Splitting" : "Joining")
+                + " Query";
         _miQueryPanel = new MIQueryPanel(title);
         return _miQueryPanel;
     }
@@ -191,7 +200,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     private String makeTitle(VariableRow row) {
         StringBuilder sb = new StringBuilder();
         sb.append(YDataHandler.getScopeName(row.getUsage()))
-          .append(" Data Binding for Task: ")
+          .append(" Data Bindings for Task: ")
           .append(row.getDecompositionID());
         return sb.toString();
     }

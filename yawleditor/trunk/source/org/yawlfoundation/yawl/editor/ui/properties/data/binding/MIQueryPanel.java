@@ -33,8 +33,9 @@ class MIQueryPanel extends AbstractBindingPanel {
 
     MIQueryPanel(String title) {
         super();
+        setLayout(new BorderLayout());
         setBorder(new TitledBorder(title));
-        add(createMiQueryEditor());
+        add(createMiQueryEditor(), BorderLayout.CENTER);
     }
 
     protected void setTargetVariableName(String name) {
