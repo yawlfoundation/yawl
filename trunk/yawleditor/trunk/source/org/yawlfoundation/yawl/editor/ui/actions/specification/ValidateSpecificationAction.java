@@ -27,30 +27,25 @@ import java.awt.event.ActionEvent;
 
 public class ValidateSpecificationAction extends YAWLOpenSpecificationAction
         implements TooltipTogglingWidget {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
-    putValue(Action.NAME, "Validate");
-    putValue(Action.LONG_DESCRIPTION, "Validate this specification.");
-    putValue(Action.SMALL_ICON, getIconByName("Validate"));
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_V));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift V"));
-  }
-  
-  public void actionPerformed(ActionEvent event) {
-      FileOperations.validate();
-  }
-  
-  public String getEnabledTooltipText() {
-    return " Validate this specification ";
-  }
-  
-  public String getDisabledTooltipText() {
-    return " You must have an open specification" + 
-           " to validate it ";
-  }
+    {
+        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
+        putValue(Action.NAME, "Validate");
+        putValue(Action.LONG_DESCRIPTION, "Validate this specification.");
+        putValue(Action.SMALL_ICON, getPNGIcon("tick"));
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_V));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift V"));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        FileOperations.validate();
+    }
+
+    public String getEnabledTooltipText() {
+        return " Validate this specification ";
+    }
+
+    public String getDisabledTooltipText() {
+        return " You must have an open specification to validate it ";
+    }
 }

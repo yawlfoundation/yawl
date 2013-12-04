@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;

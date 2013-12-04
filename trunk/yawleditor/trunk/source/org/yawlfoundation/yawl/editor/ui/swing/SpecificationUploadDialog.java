@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationUploader;
+import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationUploader;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.PropertyDialog;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.util.StringUtil;

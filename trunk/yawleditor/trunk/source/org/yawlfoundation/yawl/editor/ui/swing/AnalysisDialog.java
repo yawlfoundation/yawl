@@ -23,7 +23,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.yawlfoundation.yawl.analyser.YAnalyserEvent;
 import org.yawlfoundation.yawl.analyser.YAnalyserEventListener;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;

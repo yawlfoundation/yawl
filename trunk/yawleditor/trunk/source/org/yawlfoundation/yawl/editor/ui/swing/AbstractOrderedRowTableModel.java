@@ -18,53 +18,45 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import javax.swing.table.AbstractTableModel;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.table.AbstractTableModel;
-
 public abstract class AbstractOrderedRowTableModel extends AbstractTableModel {
-  private static final long serialVersionUID = 1L;
 
-  private List orderedRows = new LinkedList();
+    private List orderedRows = new LinkedList();
 
-  public List getOrderedRows() {
-    return orderedRows;
-  }
-  
-  public void setOrderedRows(List orderedRows) {
-    this.orderedRows = orderedRows;
-  }
-  
-  public int getRowCount() {
-    if (getOrderedRows() != null) {
-      return getOrderedRows().size();
-    } 
-    return 0;
-  }
+    public List getOrderedRows() {
+        return orderedRows;
+    }
 
-  public void refresh() {
-    fireTableRowsUpdated(
-        0, 
-        Math.max(0,getRowCount() - 1)
-    );
-  }
-  
-  public void raiseRow(int row) {
-    doRaiseRow(row);    
-  }
-  
-  public void lowerRow(int row) {
-    doRaiseRow(row + 1);    
-  }
-  
-  private void doRaiseRow(int rowToRaise) {
+    public void setOrderedRows(List orderedRows) {
+        this.orderedRows = orderedRows;
+    }
 
-    getOrderedRows().add(
-        rowToRaise - 1,
-        getOrderedRows().remove(rowToRaise)    
-    );
-    
-    fireTableRowsUpdated(rowToRaise - 1, rowToRaise);
-  }
+    public int getRowCount() {
+        return getOrderedRows() != null ? getOrderedRows().size() : 0;
+    }
+
+    public void refresh() {
+        fireTableRowsUpdated(0, Math.max(0, getRowCount() - 1));
+    }
+
+    public void raiseRow(int row) {
+        doRaiseRow(row);
+    }
+
+    public void lowerRow(int row) {
+        doRaiseRow(row + 1);
+    }
+
+    private void doRaiseRow(int rowToRaise) {
+
+        getOrderedRows().add(
+                rowToRaise - 1,
+                getOrderedRows().remove(rowToRaise)
+        );
+
+        fireTableRowsUpdated(rowToRaise - 1, rowToRaise);
+    }
 }

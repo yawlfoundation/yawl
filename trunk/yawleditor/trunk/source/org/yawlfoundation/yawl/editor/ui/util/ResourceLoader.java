@@ -31,15 +31,6 @@ public class ResourceLoader {
             "/org/yawlfoundation/yawl/editor/ui/resources/";
 
 
-    public static JLabel getImageAsJLabel(String imageFile) {
-        return new JLabel(getImageAsIcon(imageFile));
-    }
-
-    /**
-     *
-     * @param imageFile
-     * @return
-     */
     public static ImageIcon getImageAsIcon(String imageFile) {
         try {
             InputStream in = ResourceLoader.class.getResourceAsStream(imageFile);

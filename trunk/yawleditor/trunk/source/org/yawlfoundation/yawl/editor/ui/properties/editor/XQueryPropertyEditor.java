@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
-import org.yawlfoundation.yawl.editor.ui.swing.data.DialogMode;
 
 /**
  * @author Michael Adams
@@ -28,11 +27,9 @@ import org.yawlfoundation.yawl.editor.ui.swing.data.DialogMode;
 public abstract class XQueryPropertyEditor extends DialogPropertyEditor {
 
     private String currentQuery;
-    private DialogMode mode;
 
-    public XQueryPropertyEditor(DialogMode mode) {
+    public XQueryPropertyEditor() {
         super(new DefaultCellRenderer());
-        this.mode = mode;
     }
 
     public Object getValue() {

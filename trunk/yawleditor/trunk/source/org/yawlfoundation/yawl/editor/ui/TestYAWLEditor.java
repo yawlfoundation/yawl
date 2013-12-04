@@ -19,7 +19,9 @@
 package org.yawlfoundation.yawl.editor.ui;
 
 import junit.framework.*;
-import org.yawlfoundation.yawl.editor.ui.engine.TestDataSchemaValidator;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.TestDataSchemaValidator;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.TestSpecificationEngineHandler;
+import org.yawlfoundation.yawl.editor.ui.swing.TestJXMLSchemaEditorPane;
 
 public class TestYAWLEditor extends TestCase {
 
@@ -47,11 +49,11 @@ public class TestYAWLEditor extends TestCase {
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.net.TestNetElementSummary.suite());
     parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.specification.TestSpecificationModel.suite());
 
-    parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.swing.data.TestJXMLSchemaEditorPane.suite());
+    parentSuite.addTest(TestJXMLSchemaEditorPane.suite());
   }
 
   private static void addMacroSuite(TestSuite parentSuite) {
-    parentSuite.addTest(org.yawlfoundation.yawl.editor.ui.engine.TestSpecificationEngineHandler.suite());
+    parentSuite.addTest(TestSpecificationEngineHandler.suite());
     parentSuite.addTest(TestDataSchemaValidator.suite());
   }
 }

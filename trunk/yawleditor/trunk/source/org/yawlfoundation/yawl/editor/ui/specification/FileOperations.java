@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationValidator;
-import org.yawlfoundation.yawl.editor.ui.engine.ValidationResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.SpecificationValidator;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationResultsParser;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import java.awt.*;
