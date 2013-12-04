@@ -433,7 +433,7 @@ public class DataVariableDialog extends JDialog
             updateVariables(getNetTable(), net);
             updateVariables(getTaskInputTable(), decomposition);
             updateVariables(getTaskOutputTable(), decomposition);
-            outputBindings.commit();
+            if (outputBindings != null) outputBindings.commit();
             if (_miHandler != null) _miHandler.commit();
             dirty = false;
         }

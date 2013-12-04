@@ -59,7 +59,6 @@ public class ResourceTablePanel extends JPanel
         scrollPane.setPreferredSize(tableType.getPreferredSize());
         add(createToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
-        enableButtons(true);
     }
 
 

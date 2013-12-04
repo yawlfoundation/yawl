@@ -93,8 +93,7 @@ public class DataUtil {
         if (dataType.equals("YStringListType")) {
             return new String[] { "item", "string" };
         }
-
-        if (_schemaDoc != null) {
+        if (! XSDType.isBuiltInType(dataType) && _schemaDoc != null) {
             Element root = _schemaDoc.getRootElement();
             Namespace ns = root.getNamespace();
             for (Element child : root.getChildren()) {

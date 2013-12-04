@@ -58,17 +58,17 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
         Object source = e.getItemSelectable();
         boolean selected = e.getStateChange() == ItemEvent.SELECTED;
         if (source == chkFourEyes) {
-            cbxFourEyes.setEnabled(selected);
+            enableCombo(cbxFourEyes, selected);
         }
         else if (source == chkFamTask) {
-            cbxFamTask.setEnabled(selected);
+            enableCombo(cbxFamTask, selected);
         }
     }
 
 
     public void enableCombos() {
-        cbxFourEyes.setEnabled(chkFourEyes.isSelected());
-        cbxFamTask.setEnabled(chkFamTask.isSelected());
+        enableCombo(cbxFourEyes, chkFourEyes.isSelected());
+        enableCombo(cbxFamTask, chkFamTask.isSelected());
     }
 
 
@@ -80,7 +80,7 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
                 showMissingTaskWarning("familiar task", famTask);
             }
         }
-        cbxFamTask.setEnabled(chkFamTask.isSelected());
+        enableCombo(cbxFamTask, chkFamTask.isSelected());
 
         for (AbstractConstraint constraint : offerInteraction.getConstraintSet().getAll()) {
             if (constraint.getName().equals(FOUR_EYES_NAME)) {
@@ -93,7 +93,7 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
                 }
             }
         }
-        cbxFourEyes.setEnabled(chkFourEyes.isSelected());
+        enableCombo(cbxFourEyes, chkFourEyes.isSelected());
 
         disableIfNoPresetTasks();
     }
@@ -191,6 +191,11 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
             }
         }
         return false;
+    }
+
+
+    private void enableCombo(JComboBox combo, boolean enable) {
+        combo.setEnabled(enable && combo.getItemCount() > 0);
     }
 
 

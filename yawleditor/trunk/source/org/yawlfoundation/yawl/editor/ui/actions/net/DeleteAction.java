@@ -34,11 +34,7 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 public class DeleteAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, GraphStateListener {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
   private static final DeleteAction INSTANCE = new DeleteAction();
   
   {

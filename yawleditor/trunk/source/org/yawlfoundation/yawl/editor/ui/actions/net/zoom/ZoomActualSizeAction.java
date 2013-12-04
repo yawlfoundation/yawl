@@ -18,37 +18,33 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net.zoom;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public class ZoomActualSizeAction extends YAWLSelectedNetAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final ZoomActualSizeAction INSTANCE = new ZoomActualSizeAction();
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Zoom to actual size ");
-    putValue(Action.NAME, "Zoom to actual size");
-    putValue(Action.LONG_DESCRIPTION, "Zoom to on this net.");
-    putValue(Action.SMALL_ICON, getIconByName("ZoomActual"));
-  }
-  
-  private ZoomActualSizeAction() {};  
-  
-  public static ZoomActualSizeAction getInstance() {
-    return INSTANCE; 
-  }
+    private static final ZoomActualSizeAction INSTANCE = new ZoomActualSizeAction();
 
-  public void actionPerformed(ActionEvent event) {
-    final NetGraph graph = getGraph();
-    if (graph != null) {
-     graph.setScale(1);
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Zoom to actual size ");
+        putValue(Action.NAME, "Zoom to actual size");
+        putValue(Action.LONG_DESCRIPTION, "Zoom to on this net.");
+        putValue(Action.SMALL_ICON, getIconByName("ZoomActual"));
     }
-  }
+
+    private ZoomActualSizeAction() {}
+
+    public static ZoomActualSizeAction getInstance() {
+        return INSTANCE;
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        final NetGraph graph = getGraph();
+        if (graph != null) {
+            graph.setScale(1);
+        }
+    }
 }

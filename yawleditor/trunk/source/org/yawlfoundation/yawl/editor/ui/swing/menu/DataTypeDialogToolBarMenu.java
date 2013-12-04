@@ -104,7 +104,7 @@ public class DataTypeDialogToolBarMenu extends YToolBar {
         add(new YAWLToolBarButton(UndoableDataTypeDialogActionListener.getInstance().getRedoAction()));
         addSeparator();
         add(new YAWLToolBarButton(new ToggleLineNumbersDataTypeDialogAction(this)));
-        formatButton = new YAWLToolBarButton(new ReformatDataTypeDialogAction(this));
+        formatButton = new YAWLToolBarButton(new ReformatDataTypeDialogAction());
         add(formatButton);
         addSeparator();
 

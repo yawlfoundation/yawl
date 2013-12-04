@@ -126,7 +126,7 @@ public class AddUserDefinedAttributeDialog extends PropertyDialog
         return cancelled ? null : txtName.getText();
     }
 
-    public String getType() {
+    public String getSelectedType() {
         if (cancelled) return null;
         String selectedType = (String) cbxTypes.getSelectedItem();
         if (isEnumerationTypeSelected(selectedType)) {

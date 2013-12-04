@@ -24,6 +24,8 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeV
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -35,6 +37,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     private NetVariablePanel _targetPanel;
     private OutputBindings _outputBindings;
     private WorkingSelection _workingSelection;
+    private Map<String, String> _externalUndoMap;
 
 
     public OutputBindingDialog(VariableRow row,
@@ -43,7 +46,9 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
                                OutputBindings outputBindings) {
         super(row, netVarList, taskVarList);
         _outputBindings = outputBindings;
+        _outputBindings.beginUpdates();
         _workingSelection = new WorkingSelection();
+        _externalUndoMap = new HashMap<String, String>();
         initSpecificContent(row);
         setTypeValidator();
         _initialising = false;
@@ -81,7 +86,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
 
     public boolean hasChanges() {
-        return _outputBindings.hasChanges();
+        return super.hasChanges() || ! _externalUndoMap.isEmpty();
     }
 
     public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
@@ -253,7 +258,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     }
 
     private void undoChanges() {
-        _outputBindings.clear();
+        _outputBindings.rollback();
     }
 
 
