@@ -22,7 +22,7 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.NetTaskPair;
-import org.yawlfoundation.yawl.editor.ui.resourcing.dialog.ResourceDialog;
+import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
 
 import javax.swing.*;
 

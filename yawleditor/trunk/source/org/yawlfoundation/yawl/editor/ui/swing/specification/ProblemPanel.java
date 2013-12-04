@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
-import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;

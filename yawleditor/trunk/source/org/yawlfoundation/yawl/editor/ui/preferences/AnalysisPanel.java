@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.preferences;
 
-import org.yawlfoundation.yawl.editor.ui.engine.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;

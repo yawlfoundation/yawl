@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 import com.toedter.calendar.JDateChooser;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
-import org.yawlfoundation.yawl.editor.ui.swing.data.TimerDataVariableComboBox;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.TimerDataVariableComboBox;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.JTimeSpinner;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTimerParameters;

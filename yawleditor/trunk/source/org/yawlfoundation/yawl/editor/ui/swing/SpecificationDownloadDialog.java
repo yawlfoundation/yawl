@@ -20,8 +20,8 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.engine.LayoutRepository;
-import org.yawlfoundation.yawl.editor.ui.engine.SpecificationReader;
+import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutRepository;
+import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationReader;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.PropertyDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.engine.YSpecificationID;

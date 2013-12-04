@@ -36,7 +36,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;

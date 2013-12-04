@@ -23,91 +23,84 @@ import org.yawlfoundation.yawl.editor.ui.swing.AbstractOrderedRowTableModel;
 import java.util.List;
 
 public class CodeletSelectTableModel extends AbstractOrderedRowTableModel {
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
 
-  private List<CodeletData> codeletDataList;
+    private List<CodeletData> codeletDataList;
 
-  private static final String[] COLUMN_LABELS = { "Name", "Description" };
+    private static final String[] COLUMN_LABELS = { "Name", "Description" };
 
-  public static final int NAME_COLUMN = 0;
-  public static final int DESC_COLUMN = 1;
+    public static final int NAME_COLUMN = 0;
+    public static final int DESC_COLUMN = 1;
 
-  public CodeletSelectTableModel() {
-    super();
-  }
 
-  public CodeletSelectTableModel(List<CodeletData> codeletDataList) {
-    super();
-    setCodeletDataList(codeletDataList);
-  }
-
-  public List<CodeletData> getCodeletDataList() {
-    return this.codeletDataList;
-  }
-
-  public void setCodeletDataList(List<CodeletData> codeletDataList) {
-    this.codeletDataList = codeletDataList;
-    if (codeletDataList != null) {
-        codeletDataList.add(0, new CodeletData("None", "Remove a previously selected codelet"));
-      setOrderedRows(codeletDataList);
+    public CodeletSelectTableModel(List<CodeletData> codeletDataList) {
+        super();
+        setCodeletDataList(codeletDataList);
     }
-  }
 
-  public int getColumnCount() {
-    return COLUMN_LABELS.length;
-  }
-
-  public String getColumnName(int columnIndex) {
-    return COLUMN_LABELS[columnIndex];
-  }
-
-  public Class getColumnClass(int columnIndex) {
-    return String.class;
-  }
-
-  public boolean isCellEditable(int row, int column) {
-    return false;
-  }
-
-  public int getRowCount() {
-    if (codeletDataList != null) {
-      return getCodeletDataList().size();
+    public List<CodeletData> getCodeletDataList() {
+        return this.codeletDataList;
     }
-    return 0;
-  }
 
-  public CodeletData getCodeletAt(int row) {
-    return getCodeletDataList().get(row);
-  }
+    public void setCodeletDataList(List<CodeletData> codeletDataList) {
+        this.codeletDataList = codeletDataList;
+        if (codeletDataList != null) {
+            codeletDataList.add(0, new CodeletData("None", "Remove a previously selected codelet"));
+            setOrderedRows(codeletDataList);
+        }
+    }
 
-  public String getNameAt(int row) {
-    return getCodeletAt(row).getSimpleName();
-  }
+    public int getColumnCount() {
+        return COLUMN_LABELS.length;
+    }
+
+    public String getColumnName(int columnIndex) {
+        return COLUMN_LABELS[columnIndex];
+    }
+
+    public Class getColumnClass(int columnIndex) {
+        return String.class;
+    }
+
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    }
+
+    public int getRowCount() {
+        if (codeletDataList != null) {
+            return getCodeletDataList().size();
+        }
+        return 0;
+    }
+
+    public CodeletData getCodeletAt(int row) {
+        return getCodeletDataList().get(row);
+    }
+
+    public String getNameAt(int row) {
+        return getCodeletAt(row).getSimpleName();
+    }
 
     public String getCanonicalNameAt(int row) {
-      return getCodeletAt(row).getName();
+        return getCodeletAt(row).getName();
     }
 
-  public String getDescriptionAt(int row) {
-    return getCodeletAt(row).getDescription();
-  }
-
-
-
-  public Object getValueAt(int row, int col) {
-    switch (col) {
-      case NAME_COLUMN:  {
-        return getNameAt(row);
-      }
-      case DESC_COLUMN:  {
-        return getDescriptionAt(row);
-      }
-      default: {
-        return null;
-      }
+    public String getDescriptionAt(int row) {
+        return getCodeletAt(row).getDescription();
     }
-  }
+
+
+
+    public Object getValueAt(int row, int col) {
+        switch (col) {
+            case NAME_COLUMN:  {
+                return getNameAt(row);
+            }
+            case DESC_COLUMN:  {
+                return getDescriptionAt(row);
+            }
+            default: {
+                return null;
+            }
+        }
+    }
 }

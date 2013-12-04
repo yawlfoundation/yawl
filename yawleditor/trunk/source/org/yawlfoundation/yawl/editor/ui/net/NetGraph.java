@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsUpAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellViewFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionChange;

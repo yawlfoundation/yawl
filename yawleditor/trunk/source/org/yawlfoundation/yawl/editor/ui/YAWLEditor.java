@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
-import org.yawlfoundation.yawl.editor.ui.engine.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;

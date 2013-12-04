@@ -24,106 +24,50 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 
 public class XMLUtilities {
 
-  private static final char[] XML_SPECIAL_CHARACTERS = {
-      '<','>','\"','\'','\\','&'
-  };
-  
+    private static final char[] XML_SPECIAL_CHARACTERS = {
+            '<','>','\"','\'','\\','&'
+    };
 
+    /**
+     * Returns a variant of the supplied string with all invalid XML name characters
+     * removed. A special case is the the space character, which is converted to the '_'
+     * character instead.
+     * @param name A string that could be used as an XML name.
+     * @return A valid XML name equivalent of name.
+     */
 
-  
+    public static String toValidXMLName(String name) {
+        if (name == null) return null;
 
-  /**
-   * Returns a variant of the supplied string with all invalid XML name characters
-   * removed. A special case is the the space character, which is converted to the '_'
-   * character instead.
-   * @param name A string that could be used as an XML name.
-   * @return A valid XML name equivalent of name.
-   */
-  
-  public static String toValidXMLName(String name) {
-      if (name == null) return null;
-
-      StringBuilder s = new StringBuilder(name.length());
-      for (char c : name.toCharArray()) {
-          if (c == ' ') {
-              s.append('_');
-          }
-          else if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.') {
-              s.append(c);
-          }
-      }
-      return s.toString();
-  }
-
-
-  /**
-   * Tests the supplied character to determine whether it is a 
-   * special XML Character. If so, it returns true.
-   * @param character A character to be tested.
-   * @return whether the character is a special XML character or not.
-   */
-
-  public static boolean isSpecialXMLCharacter(final char character) {
-      for (char XML_SPECIAL_CHARACTER : XML_SPECIAL_CHARACTERS) {
-          if (character == XML_SPECIAL_CHARACTER) {
-              return true;
-          }
-      }
-    return false;
-  }
-  
-  /**
-   * Quotes the special XML characters present in oldString so the
-   * return string can be embedded within an XML document without 
-   * problems.
-   * @param oldString A string that needs its XML special characters quoted.
-   * @return A string safe for inclusing within XML.
-   */
-  
-  public static String quoteSpecialCharacters(final String oldString) {
-    // small mod of method from http://www.javapractices.com/Topic96.cjp
-    
-    // TODO: Fix string quoting between editor and engine.
-    
-    // needed now only by initial value special character quoting.
-    
-    final StringBuffer quotedString = new StringBuffer();
-    
-    if (oldString == null) {
-      return null;
+        StringBuilder s = new StringBuilder(name.length());
+        for (char c : name.toCharArray()) {
+            if (c == ' ') {
+                s.append('_');
+            }
+            else if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.') {
+                s.append(c);
+            }
+        }
+        return s.toString();
     }
-    
-    for(int i = 0; i < oldString.length(); i++) {
-      if (oldString.charAt(i) == '<') {
-        quotedString.append("&lt;");
-      }
-      else if (oldString.charAt(i) == '>') {
-        quotedString.append("&gt;");
-      } 
-      else if (oldString.charAt(i) == '\"') {
-        quotedString.append("&quot;");
-      }
-      else if (oldString.charAt(i) == '\'') {
-        quotedString.append("&apos;");
-      }
-      else if (oldString.charAt(i) == '\\') {
-         quotedString.append("&#092;");
-      }
-      else if (oldString.charAt(i) == '&') {
-         quotedString.append("&amp;");
-      } 
-      else { 
-        //the char is not a special one
-        //add it to the result as is
-        quotedString.append(oldString.charAt(i));
-      }
+
+
+    /**
+     * Tests the supplied character to determine whether it is a
+     * special XML Character. If so, it returns true.
+     * @param character A character to be tested.
+     * @return whether the character is a special XML character or not.
+     */
+
+    public static boolean isSpecialXMLCharacter(final char character) {
+
+        for (char XML_SPECIAL_CHARACTER : XML_SPECIAL_CHARACTERS) {
+            if (character == XML_SPECIAL_CHARACTER) {
+                return true;
+            }
+        }
+        return false;
     }
-    return quotedString.toString();
-  }
-
-
-
-  
 
 
 
@@ -136,7 +80,7 @@ public class XMLUtilities {
                     temp = node.toPrettyString(1,3);
                     return wrap ? StringUtil.unwrap(temp).substring(1) : temp;  // lead \n
                 }
-                else {                
+                else {
                     temp = node.toString();
                     return wrap ? StringUtil.unwrap(temp) : temp;
                 }
