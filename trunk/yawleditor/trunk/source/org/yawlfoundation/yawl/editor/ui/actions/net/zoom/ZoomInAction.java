@@ -26,28 +26,25 @@ import java.awt.event.ActionEvent;
 
 public class ZoomInAction extends YAWLSelectedNetAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final ZoomInAction INSTANCE = new ZoomInAction();
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Zoom in ");
-    putValue(Action.NAME, "Zoom In");
-    putValue(Action.LONG_DESCRIPTION, "Zoom in on this net.");
-    putValue(Action.SMALL_ICON, getPNGIcon("magnifier_zoom_in"));
-  }
-  
-  private ZoomInAction() {};  
-  
-  public static ZoomInAction getInstance() {
-    return INSTANCE; 
-  }
 
-  public void actionPerformed(ActionEvent event) {
-    final NetGraph graph = getGraph();
-    if (graph != null) {
-     graph.setScale(graph.getScale()*1.5);
+    private static final ZoomInAction INSTANCE = new ZoomInAction();
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Zoom in ");
+        putValue(Action.NAME, "Zoom In");
+        putValue(Action.LONG_DESCRIPTION, "Zoom in on this net.");
+        putValue(Action.SMALL_ICON, getPNGIcon("magnifier_zoom_in"));
     }
-  }
+
+    private ZoomInAction() {}
+
+    public static ZoomInAction getInstance() {
+        return INSTANCE;
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        final NetGraph graph = getGraph();
+        if (graph != null) {
+            graph.setScale(graph.getScale()*1.5);
+        }
+    }
 }

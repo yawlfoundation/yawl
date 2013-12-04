@@ -220,6 +220,10 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         constraintsPanel.load(offerResources);
 
         populateAllocators(resources);
+
+        enablePanelContent(offerPanelContent, chkOffer.isSelected());
+        if (chkOffer.isSelected()) constraintsPanel.enableCombos();
+        enablePanelContent(allocatePanelContent, chkAllocate.isSelected());
     }
 
 

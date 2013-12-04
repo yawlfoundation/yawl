@@ -71,7 +71,8 @@ class VariableTable extends JSingleSelectTable {
 
 
     public VariableRow getSelectedVariable() {
-        return getTableModel().getVariableAtRow(getSelectedRow());
+        int selectedRow = getSelectedRow();
+        return selectedRow > -1 ? getTableModel().getVariableAtRow(selectedRow) : null;
     }
 
     public boolean allRowsValid() {

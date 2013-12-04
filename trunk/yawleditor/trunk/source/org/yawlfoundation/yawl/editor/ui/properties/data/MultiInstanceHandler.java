@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
@@ -121,7 +122,6 @@ public class MultiInstanceHandler {
 
     private void unsetRowProperties(VariableTable table, VariableRow row,
                                     VariableRow netVarRow) {
-        table.setMultiInstanceRow(null);
         row.setName(row.getName().substring(0, row.getName().lastIndexOf("_Item")));
         row.setDataType(netVarRow.getDataType());
         if (row.isInput()) {
@@ -131,6 +131,7 @@ public class MultiInstanceHandler {
             _outputBindings.removeBindingForTarget(_itemName);
             _outputBindings.setBinding(netVarRow.getName(), generateBinding(row));
         }
+        table.setMultiInstanceRow(null);
         clear();
     }
 
@@ -154,8 +155,7 @@ public class MultiInstanceHandler {
 
     private void checkValidRow(VariableRow row) {
         if (row == null || ! row.isInput()) {
-            throw new IllegalArgumentException(
-                    "Row parameter is null or not an input row");
+            throw new IllegalArgumentException("Row is null or not input");
         }
     }
 
@@ -178,15 +178,25 @@ public class MultiInstanceHandler {
                 return outputRow;
             }
         }
-        throw new IllegalArgumentException(
-                "No corresponding output variable exists");
+        return createOutputRow(outputTable, inputRow);
+    }
+
+
+    private VariableRow createOutputRow(VariableTable outputTable, VariableRow inputRow) {
+        VariableRow outputRow = new VariableRow(YDataHandler.OUTPUT);
+        outputRow.setName(inputRow.getName());
+        outputRow.setDataType(inputRow.getDataType());
+        outputRow.setDecompositionID(outputTable.getNetElementName());
+        _outputBindings.setBinding(outputRow.getName(), createMapping(outputRow));
+        outputTable.insertRow(outputTable.getRowCount(), outputRow);
+        return outputRow;
     }
 
 
     private void setRowProperties(VariableTable table, VariableRow row, String dataType) {
-        table.setMultiInstanceRow(row);
         row.setName(row.getName() + "_Item");
         row.setDataType(unprefix(dataType));
+        table.setMultiInstanceRow(row);
     }
 
 
@@ -202,9 +212,10 @@ public class MultiInstanceHandler {
         String oldBinding = _outputBindings.getBindingFromSource(name);
         String newBinding = oldBinding.replace(
                 "/" + name + "/*", "/" + name + "_Item/text()");
-//        _outputBindings.replaceBinding(name, oldBinding, newBinding);
-        _outputBindings.setBinding(name,
-                StringUtil.wrap(newBinding, _itemName), false);
+
+        // need to replace binding key first, to enable the set call to succeed
+        _outputBindings.replaceBinding(name, oldBinding, newBinding);
+        _outputBindings.setBinding(name, wrapQuery(_itemName, newBinding), false);
         return newBinding;
     }
 
@@ -222,11 +233,14 @@ public class MultiInstanceHandler {
 
     private String assembleSplitQuery(VariableRow inputRow) {
         String binding = inputRow.getMapping();
+        String querySuffix = SpecificationModel.getHandler().getDataHandler()
+                .getXQuerySuffix(inputRow.getDataType());
         StringBuilder s = new StringBuilder();
         s.append("for $s in ");
         s.append(binding.substring(binding.lastIndexOf('/')));
         s.append("/* return <").append(inputRow.getName());
-        s.append(">{$s/text()}</").append(inputRow.getName()).append('>');
+        s.append(">{$s/").append(querySuffix).append("}</");
+        s.append(inputRow.getName()).append('>');
         return s.toString();
     }
 
@@ -269,5 +283,15 @@ public class MultiInstanceHandler {
         return s.toString();
     }
 
+    private String createMapping(VariableRow row) {
+        StringBuilder s = new StringBuilder("/");
+        s.append(row.getDecompositionID())
+         .append("/")
+         .append(row.getName())
+         .append("/")
+         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                 row.getDataType()));
+        return s.toString();
+    }
 
 }

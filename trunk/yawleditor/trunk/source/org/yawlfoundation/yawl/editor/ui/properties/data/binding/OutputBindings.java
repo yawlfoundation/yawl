@@ -39,6 +39,7 @@ public class OutputBindings {
     private Map<String, String> _netVarBindings;        // [binding, netVarName]
     private Map<String, String> _externalBindings;      // [taskVarName, ext. binding]
     private Set<String> _orphanedBindings;
+    private RollbackPoint _rollbackPoint;
 
 
     public OutputBindings(YTask task) {
@@ -218,6 +219,11 @@ public class OutputBindings {
     }
 
 
+    public void beginUpdates() {
+        _rollbackPoint = new RollbackPoint();
+    }
+
+
     public void commit() {
         Map<String, String> currentBindings = _task.getDataMappingsForTaskCompletion();
         for (String binding : _orphanedBindings) {
@@ -237,11 +243,18 @@ public class OutputBindings {
         clear();
     }
 
+    public void rollback() {
+        _externalBindings = _rollbackPoint.externalBindings;
+        _netVarBindings = _rollbackPoint.netVarBindings;
+        _orphanedBindings = _rollbackPoint.orphanedBindings;
+    }
+
 
     public void clear() {
         _externalBindings.clear();
         _netVarBindings.clear();
         _orphanedBindings.clear();
+        _rollbackPoint = null;
     }
 
 
@@ -261,6 +274,7 @@ public class OutputBindings {
 
 
     private String getAddedBinding(String netVarName) {
+        if (netVarName == null) return null;
         for (String binding : _netVarBindings.keySet()) {
             String varName = _netVarBindings.get(binding);
              if (netVarName.equals(varName)) {
@@ -273,8 +287,7 @@ public class OutputBindings {
 
     private String removeAddedBinding(String netVarName) {
         String binding = getAddedBinding(netVarName);
-        return binding != null ?
-                _netVarBindings.remove(wrapBinding(netVarName, binding)) : null;
+        return binding != null ? _netVarBindings.remove(binding) : null;
     }
 
 
@@ -310,6 +323,21 @@ public class OutputBindings {
 
     protected boolean isGateway(String binding) {
         return ExternalDBGatewayFactory.isExternalDBMappingExpression(binding);
+    }
+
+
+    class RollbackPoint {
+
+        private Map<String, String> netVarBindings;
+        private Map<String, String> externalBindings;
+        private Set<String> orphanedBindings;
+
+        RollbackPoint() {
+            netVarBindings = new HashMap<String, String>(_netVarBindings);
+            externalBindings = new HashMap<String, String>(_externalBindings);
+            orphanedBindings = new HashSet<String>(_orphanedBindings);
+        }
+
     }
 
 }

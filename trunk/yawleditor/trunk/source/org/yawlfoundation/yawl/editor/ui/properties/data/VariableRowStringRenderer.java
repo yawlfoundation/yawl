@@ -47,7 +47,7 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
                 setFont(getFont().deriveFont(Font.ITALIC));
             }
 
-            if (varRow.isMultiInstance()) {
+            if (column > 0 && varRow.isMultiInstance()) {
                 setForeground(Color.BLUE);
             }
         }

@@ -63,7 +63,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         setTitle(makeTitle(row));
         add(getContent(row));
         init();
-        setPreferredSize(new Dimension(426, row.isMultiInstance() ? 570 : 440));
+        setPreferredSize(new Dimension(426, row.isMultiInstance() ? 560 : 440));
         pack();
     }
 
@@ -96,7 +96,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     protected abstract JPanel buildGeneratePanel();
 
 
-    public boolean hasChanges() { return _undoMap.isEmpty(); }
+    public boolean hasChanges() { return ! _undoMap.isEmpty(); }
 
     public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
         _miHandler = miHandler;

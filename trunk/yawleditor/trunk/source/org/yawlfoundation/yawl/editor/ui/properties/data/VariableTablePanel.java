@@ -18,10 +18,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -257,9 +259,23 @@ public class VariableTablePanel extends JPanel
         btnDel.setEnabled(enable && hasRowSelected);
         btnUp.setEnabled(enable && hasRowSelected);
         btnDown.setEnabled(enable && hasRowSelected);
-        btnMapping.setEnabled(enable && hasRowSelected);
-        btnMIVar.setEnabled(enable && hasRowSelected);
-        btnExAttributes.setEnabled(enable && hasRowSelected);
+        if (btnMapping.isVisible()) btnMapping.setEnabled(enable && hasRowSelected);
+        if (btnExAttributes.isVisible()) {
+            btnExAttributes.setEnabled(enable && hasRowSelected);
+        }
+        if (btnMIVar.isVisible()) btnMIVar.setEnabled(enable && shouldEnableMIButton());
+    }
+
+
+    private boolean shouldEnableMIButton() {
+        VariableRow row = table.getSelectedVariable();
+        YDataHandler handler = SpecificationModel.getHandler().getDataHandler();
+
+        // MI button can enable if the row is already MI (to allow toggling) or
+        // there's no current MI row AND the row's data type is MI valid
+        return row != null && (row.isMultiInstance() ||
+                ( ! table.hasMultiInstanceRow() &&
+                handler.getMultiInstanceItemNameAndType(row.getDataType()) != null));
     }
 
 

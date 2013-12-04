@@ -176,7 +176,11 @@ public class YSpecificationHandler {
     }
 
     public void addAuthor(String author) {
-        if (author != null) getAuthors().add(author);
+        if (author != null) {
+            List<String> authors = getAuthors();
+            authors.add(JDOMUtil.decodeEscapes(author));
+            getMetaData().setCreators(authors);
+        }
     }
 
     public void setVersion(YSpecVersion version) {

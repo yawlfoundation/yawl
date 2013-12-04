@@ -33,10 +33,9 @@ public class XQueryValidatingEditor extends XQueryEditor {
      */
     public void documentValidityChanged(Validity documentValid) {
         super.documentValidityChanged(documentValid);
-        if (_typeChecker != null) {
-            _problemPane.showProblems(documentValid == Validity.VALID ?
-                     _typeChecker.validate(getPredicate()) : getProblemList());
-        }
+        _problemPane.showProblems(
+                documentValid == Validity.VALID && _typeChecker != null ?
+                _typeChecker.validate(getPredicate()) : getProblemList());
     }
 
 

@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
-import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -89,9 +88,9 @@ class QueryPanel extends AbstractBindingPanel {
         _toolbar.setBorder(null);
         _toolbar.setFloatable(false);
         _toolbar.setRollover(true);
-        _toolbar.add(createToolBarButton("generateBinding", "insertBinding",
+        _toolbar.add(createToolBarButton("generate", "insertBinding",
                 " Generate and insert binding ", listener));
-        _toolbar.add(createToolBarButton("arrow-repeat", "resetBinding",
+        _toolbar.add(createToolBarButton("reset", "resetBinding",
                 " Reset binding to original ", listener));
         _toolbar.add(createFormatButton());
         content.add(_toolbar, BorderLayout.EAST);
@@ -100,7 +99,7 @@ class QueryPanel extends AbstractBindingPanel {
 
 
     private JButton createFormatButton() {
-        JButton btnFormat = new JButton(IconList.getInstance().getIcon("autoformat.png"));
+        JButton btnFormat = new JButton(getIcon("format"));
         btnFormat.setToolTipText(" Auto-format binding ");
         btnFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -124,7 +123,7 @@ class QueryPanel extends AbstractBindingPanel {
 
     private ImageIcon getIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/" +
+                "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/" +
                         iconName + ".png");
     }
 

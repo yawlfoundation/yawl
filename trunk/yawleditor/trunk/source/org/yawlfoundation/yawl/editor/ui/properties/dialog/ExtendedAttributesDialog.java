@@ -240,7 +240,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         dialog.setVisible(true);
         if (! dialog.isCancelled()) {
             String name = dialog.getName();
-            String type = dialog.getType();
+            String type = dialog.getSelectedType();
             if (propertySheet.uniquePropertyName(name)) {
                 udAttributes.add(name, type);
 
