@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+
 import javax.swing.*;
 import java.awt.*;
 

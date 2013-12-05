@@ -44,6 +44,7 @@ public class NetParamDialog extends JDialog implements ActionListener {
     private JComboBox _varCombo;
     private JRadioButton _rbParticipant;
     private JRadioButton _rbRole;
+    private JButton _btnOK;
 
     public NetParamDialog(ResourceDialog owner) {
         super(owner);
@@ -107,6 +108,7 @@ public class NetParamDialog extends JDialog implements ActionListener {
         content.add(createComboPanel(task), BorderLayout.NORTH);
         content.add(createRadioBox(), BorderLayout.CENTER);
         content.add(createButtonBar(), BorderLayout.SOUTH);
+        enableOK();
         return content;
     }
 
@@ -140,11 +142,12 @@ public class NetParamDialog extends JDialog implements ActionListener {
 
 
     private JPanel createButtonBar() {
-         JPanel panel = new JPanel();
-         panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-         panel.add(createButton("Cancel"));
-         panel.add(createButton("OK"));
-         return panel;
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(10, 0, 10, 0));
+        panel.add(createButton("Cancel"));
+        _btnOK = createButton("OK");
+        panel.add(_btnOK);
+        return panel;
      }
 
 
@@ -186,6 +189,11 @@ public class NetParamDialog extends JDialog implements ActionListener {
                 _varCombo.addItem(variable.getPreferredName());
             }
         }
+    }
+
+
+    private void enableOK() {
+        _btnOK.setEnabled(_varCombo.getItemCount() > 0);
     }
 
 }

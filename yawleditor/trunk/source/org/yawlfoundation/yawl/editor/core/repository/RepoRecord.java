@@ -58,7 +58,7 @@ public class RepoRecord {
         return descriptor;
     }
 
-    protected String getName() {
+    public String getName() {
         return descriptor.getName();
     }
 
@@ -66,7 +66,7 @@ public class RepoRecord {
         descriptor.setName(name);
     }
 
-    protected String getDescription() {
+    public String getDescription() {
         return descriptor.getDescription();
     }
 
@@ -74,7 +74,7 @@ public class RepoRecord {
         descriptor.setDescription(description);
     }
 
-    protected String getValue() {
+    public String getValue() {
         return value;
     }
 

@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui;
 
+import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
@@ -161,8 +162,9 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         }
         else {
             try {
+                UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
 //              UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//              UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
             catch (Exception e) {
                 // accept default LaF

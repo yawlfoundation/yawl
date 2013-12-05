@@ -51,7 +51,7 @@ public class DataTypeDefinitionsAction extends YAWLOpenSpecificationAction {
             }
             catch (YSyntaxException yse) {
                 YAWLEditor.getStatusBar().setText(
-                        "Failed to update Data Definition: Invalid syntax");
+                        "ERROR: Failed to update Data Definition: Invalid syntax");
             }
         }
 

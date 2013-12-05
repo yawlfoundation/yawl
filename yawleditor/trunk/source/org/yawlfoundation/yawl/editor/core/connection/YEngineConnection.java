@@ -243,7 +243,7 @@ public class YEngineConnection extends YConnection {
             Set<YSpecificationID> versions = new HashSet<YSpecificationID>();
             for (SpecificationData specData : getLoadedSpecificationList()) {
                 YSpecificationID thisID = specData.getID();
-                if (thisID.getIdentifier().equals(specID.getIdentifier())) {
+                if (specID.hasMatchingIdentifier(thisID)) {
                     versions.add(thisID);
                 }
             }

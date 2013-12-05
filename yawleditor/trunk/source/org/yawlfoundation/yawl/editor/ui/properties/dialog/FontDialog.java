@@ -51,6 +51,7 @@ public class FontDialog extends PropertyDialog
         setTitle("Font Picker");
         getOKButton().setEnabled(true);
         _fontNames.ensureIndexIsVisible(_fontNames.getSelectedIndex());
+        pack();
     }
 
 

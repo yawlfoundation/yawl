@@ -30,7 +30,7 @@ import java.awt.geom.Rectangle2D;
 public class YSplashScreen {
 
     private static final SplashScreen splash = SplashScreen.getSplashScreen();
-    private static final Color spark = new Color(255,140,140);
+    private static final Color spark = new Color(255,190,100);
     private Rectangle2D.Double textArea;
     private Rectangle2D.Double progressArea;
     private Graphics2D graphics;

@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
+
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -62,6 +64,8 @@ public class JAlternatingRowColorTable extends JTable {
         if (isRowSelected(row)) {
             theRenderer.setBackground(getSelectionBackground());
         }
+        if (!MenuUtilities.isMacOS()) theRenderer.setBorder(null);
+
         return theRenderer;
     }
 }
