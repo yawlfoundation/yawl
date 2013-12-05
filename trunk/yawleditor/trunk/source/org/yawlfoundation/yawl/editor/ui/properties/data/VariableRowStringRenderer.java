@@ -96,6 +96,11 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
     }
 
 
+    /**
+     * Finds the first font that can display the 'selector' unicode character
+     * @param s the selector string
+     * @return the first matching font (any one will do)
+     */
     private Font getSelectorFont(String s) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         for (Font font : ge.getAllFonts()) {

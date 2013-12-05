@@ -54,12 +54,14 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
         dialog.setContent(oldDetail, getNet());
         dialog.setVisible(true);
 
-        NetTaskPair oldPair = pair;
-        pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
         YTimerParameters newDetail = dialog.getContent();
-        ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
-        pair.setSimpleText(newDetail.toString());
-        firePropertyChange(oldPair, pair);
+        if (newDetail != null) {
+            NetTaskPair oldPair = pair;
+            pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
+            ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
+            pair.setSimpleText(newDetail.toString());
+            firePropertyChange(oldPair, pair);
+        }
     }
 
 
