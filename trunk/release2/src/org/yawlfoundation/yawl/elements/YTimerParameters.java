@@ -217,7 +217,7 @@ public class YTimerParameters {
             case Duration: s += _duration.toString(); break;
             case Expiry: s += new SimpleDateFormat().format(_expiryTime); break;
             case Interval: s += _ticks + " " + _timeUnit.name(); break;
-            case LateBound: s += _variableName; break;
+            case LateBound: s = "Variable: " + _variableName; break;
         }
         return s;
     }

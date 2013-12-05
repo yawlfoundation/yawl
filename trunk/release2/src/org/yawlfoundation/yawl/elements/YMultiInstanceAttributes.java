@@ -185,6 +185,11 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         _inputVarName = variableName;
     }
 
+    public String getMIOutputAssignmentVar() {
+        return _remoteOutputQuery != null ?
+                _task.getMIOutputAssignmentVar(_remoteOutputQuery) : null;
+    }
+
     public String getMIFormalOutputQuery() {
         return _remoteOutputQuery;
     }
@@ -205,7 +210,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
         StringBuilder xml = new StringBuilder();
         xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMinInstancesQuery()), "minimum"));
         xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMaxInstancesQuery()), "maximum"));
-        xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getMinInstancesQuery()), "threshold"));
+        xml.append(StringUtil.wrap(JDOMUtil.encodeEscapes(getThresholdQuery()), "threshold"));
         xml.append("<creationMode code=\"" + _creationMode + "\"/>");
         xml.append("<miDataInput>");
         xml.append("<expression query=\"" + JDOMUtil.encodeEscapes(_task.getPreSplittingMIQuery()) + "\"/>");
@@ -217,7 +222,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             xml.append("<formalOutputExpression query=\"" + JDOMUtil.encodeEscapes(_remoteOutputQuery) + "\"/>");
             xml.append("<outputJoiningExpression query=\"" + JDOMUtil.encodeEscapes(_outputProcessingQuery) + "\"/>");
             xml.append("<resultAppliedToLocalVariable>" +
-                    _task.getMIOutputAssignmentVar(_remoteOutputQuery) +
+                    getMIOutputAssignmentVar() +
                     "</resultAppliedToLocalVariable>"
             );
             xml.append("</miDataOutput>");
