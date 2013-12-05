@@ -46,7 +46,7 @@ public class LayoutRepository extends RepoMap {
     public String add(YSpecificationID specID, String layoutXML) {
         if (specID != null && layoutXML != null) {
             RepoRecord record = addRecord(new LayoutRecord(specID, layoutXML));
-            if (record != null) return ((LayoutRecord) record).getName();
+            if (record != null) return record.getName();
         }
         return null;
     }
@@ -59,7 +59,7 @@ public class LayoutRepository extends RepoMap {
      */
     public String get(YSpecificationID specID) {
         RepoRecord record = getRecord(specID.toKeyString());
-        return record != null ? ((LayoutRecord) record).getValue() : null;
+        return record != null ? record.getValue() : null;
     }
 
 
@@ -70,7 +70,7 @@ public class LayoutRepository extends RepoMap {
      */
     public String remove(YSpecificationID specID) {
         RepoRecord record = removeRecord(specID.toKeyString());
-        return record != null ? ((LayoutRecord) record).getValue() : null;
+        return record != null ? record.getValue() : null;
     }
 
 
@@ -81,10 +81,6 @@ public class LayoutRepository extends RepoMap {
         LayoutRecord(YSpecificationID specID, String layoutXML) {
             super(specID.toKeyString(), "", layoutXML);
         }
-
-        protected String getName() { return super.getName(); }
-
-        protected String getValue() { return super.getValue(); }
     }
 
 }

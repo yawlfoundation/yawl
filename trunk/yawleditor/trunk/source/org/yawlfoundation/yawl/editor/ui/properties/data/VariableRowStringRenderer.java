@@ -31,6 +31,7 @@ import java.awt.*;
 public class VariableRowStringRenderer extends DefaultCellRenderer {
 
     private OutputBindings _outputBindings;
+    private Font _selectorFont;
 
     public VariableRowStringRenderer(OutputBindings outputBindings) {
         _outputBindings = outputBindings;
@@ -42,12 +43,15 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         reset();
         VariableRow varRow = ((VariableTable) table).getTableModel().getVariableAtRow(row);
-        if (isTaskTable(table)) {
-            if (column > 0 && ! hasBinding(varRow)) {
+        if (column == 0) {
+            if (_selectorFont == null) _selectorFont = getSelectorFont((String) value);
+            if (_selectorFont != null) setFont(_selectorFont);
+        }
+        else if (isTaskTable(table)) {
+            if (! hasBinding(varRow)) {
                 setFont(getFont().deriveFont(Font.ITALIC));
             }
-
-            if (column > 0 && varRow.isMultiInstance()) {
+            if (varRow.isMultiInstance()) {
                 setForeground(Color.BLUE);
             }
         }
@@ -89,6 +93,17 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
     private boolean hasBinding(VariableRow row) {
         return (row.isInput() && row.getMapping() != null) ||
                (row.isOutput() && _outputBindings.hasBinding(row.getName()));
+    }
+
+
+    private Font getSelectorFont(String s) {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        for (Font font : ge.getAllFonts()) {
+        	if (font.canDisplayUpTo(s) == -1) {
+                return font.deriveFont(12.0f);
+        	}
+        }
+        return null;
     }
 
 }

@@ -114,6 +114,7 @@ public class VariableTablePanel extends JPanel
         }
         else if (action.equals("Del")) {
             table.removeRow();
+            parent.notifyTableChanged(tableType);
             enableButtons(true);
         }
         else if (action.equals("Up")) {

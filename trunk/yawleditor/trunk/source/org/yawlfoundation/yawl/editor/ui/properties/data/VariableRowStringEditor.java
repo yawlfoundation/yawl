@@ -174,7 +174,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
             errMsg = "Name can't be empty";
         }
         else if (! isUniqueName(name)) {
-            errMsg = "There is already a variable with that name";
+            errMsg = "Duplicate variable name";
         }
         else if (! XMLChar.isValidName(name)) {
             errMsg = "Invalid XML name";

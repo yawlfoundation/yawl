@@ -55,6 +55,8 @@
     -->
     <property name="source.zip"
               value="${root.class.name}${editor.release.number}Source.zip" />
+    <property name="release.zip"
+              value="${root.class.name}${editor.release.number}.zip" />
     <property name="ui.jar.name"
               value="${root.class.name}${editor.release.number}.jar" />
     <property name="core.jar.name"
@@ -240,6 +242,21 @@
             depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,buildUIJar"
             description="Builds all jars and copies required libraries"/>
 
+    <!--
+   		Create ZIP of source code (for release)
+   	-->
+   	<target name="zipRelease"
+   	        depends="buildJars"
+   	        description="Generate ZIP file of the editor jar and lib dir (for release)">
+
+   		<zip destfile="${distribution.dir}/${release.zip}">
+            <zipfileset dir="${distribution.dir}" includes="${ui.jar.name}"/>
+   	  	    <zipfileset dir="${distribution.dir}/lib" prefix="lib"/>
+   		</zip>
+        <checksum file="${distribution.dir}/${release.zip}" />
+    </target>
+
+
 	<!--
 		Generate javadoc for all non-test code (unlike javac, we have to
 	    specify all source explicitly). Can be run separately, or as part of
@@ -285,9 +302,10 @@
 	        description="Generate ZIP file of the source (for release)">
     
 		<zip destfile="${distribution.dir}/${source.zip}">
-        <zipfileset dir="${source.dir}" prefix="source"/>
+            <zipfileset dir="${source.dir}" prefix="source"/>
 	  	    <zipfileset dir="${library.dir}" prefix="lib"/>
 		    <zipfileset dir="${tools.dir}" prefix="tools" />
+            <zipfileset dir="${build.dir}" prefix="build" />
 		</zip>
         <checksum file="${distribution.dir}/${source.zip}" />
 

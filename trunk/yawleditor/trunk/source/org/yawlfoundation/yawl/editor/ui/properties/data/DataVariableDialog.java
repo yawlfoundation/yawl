@@ -137,6 +137,17 @@ public class DataVariableDialog extends JDialog
         enableButtonsIfValid();
     }
 
+    // when one task table has changed, refresh the other one
+    protected void notifyTableChanged(TableType tableType) {
+        VariableTableModel model = null;
+        switch (tableType) {
+            case TaskInput: model = getTaskOutputTable().getTableModel(); break;
+            case TaskOutput: model = getTaskInputTable().getTableModel(); break;
+        }
+        if (model != null) model.fireTableDataChanged();
+    }
+
+
     protected VariableTablePanel getNetTablePanel() { return netTablePanel; }
 
     protected MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
@@ -144,7 +155,7 @@ public class DataVariableDialog extends JDialog
 
     protected String setMultiInstanceRow(VariableRow row) {
         try {
-             _miHandler.setMultiInstanceRow(row, getTaskInputTable(),
+             _miHandler.setupMultiInstanceRow(row, getTaskInputTable(),
                      getTaskOutputTable(), this);
              return null;
         }
@@ -358,27 +369,33 @@ public class DataVariableDialog extends JDialog
         java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
         for (YParameter parameter : parameters.values()) {
             VariableRow row = new VariableRow(parameter, decomposition.getID());
-            initMappings(row, getMapping(parameter), getMIParamName());
+            initMappings(row, getMapping(parameter));
             rows.add(row);
         }
         return rows;
     }
 
 
-    private void initMappings(VariableRow row, String mapping, String miParam) {
-        if (miParam != null && row.getName().equals(miParam)) {
-            row.setMultiInstance(true);
+    private void initMappings(VariableRow row, String mapping) {
+        if (_miHandler != null) {
             if (row.isInput()) {
-                row.initMapping(mapping);
+                String miParam = _miHandler.getFormalInputParam();
+                if (miParam != null && row.getName().equals(miParam)) {
+                    row.setMultiInstance(true);
+                    row.initMapping(mapping);
+                }
+            }
+            else {    // output
+                String target = _miHandler.getOutputTarget();
+                if (target != null &&
+                        outputBindings.getTarget(row.getName()).equals(target)) {
+                    row.setMultiInstance(true);
+                }
             }
         }
         else {
             row.initMapping(unwrapMapping(mapping));
         }
-    }
-
-    private String getMIParamName() {
-        return task.isMultiInstance() ? _miHandler.getFormalInputParam() : null;
     }
 
 

@@ -38,7 +38,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -142,6 +142,7 @@ public class SpecificationDownloadDialog extends PropertyDialog
         catch (IOException ioe) {
             showError("Failed to get list of specifications from the YAWL Engine:", ioe);
         }
+        sortSpecificationsList(list);
         return list;
     }
 
@@ -154,6 +155,15 @@ public class SpecificationDownloadDialog extends PropertyDialog
     private void showError(String message, Exception e) {
         JOptionPane.showMessageDialog(this, message + '\n' + e.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    private void sortSpecificationsList(java.util.List<YSpecificationID> list) {
+        Collections.sort(list, new Comparator<YSpecificationID>() {
+            public int compare(YSpecificationID specID1, YSpecificationID specID2) {
+                return specID1.toString().compareTo(specID2.toString());
+            }
+        });
     }
 
 

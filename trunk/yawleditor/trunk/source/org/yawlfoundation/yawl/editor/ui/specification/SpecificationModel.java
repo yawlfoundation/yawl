@@ -55,7 +55,8 @@ public class SpecificationModel {
     public static void reset() {
         _nets.clear();
         _specificationHandler.close();
-        YAWLEditor.getStatusBar().setText("Open or create a net to begin.");
+        YAWLEditor.getStatusBar().setText(
+                "Open a specification file or create a net to begin.");
     }
 
 
