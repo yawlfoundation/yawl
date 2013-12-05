@@ -29,7 +29,6 @@ import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -39,7 +38,10 @@ import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -394,7 +396,7 @@ public class DataVariableDialog extends JDialog
             }
         }
         else {
-            row.initMapping(unwrapMapping(mapping));
+            row.initMapping(unwrapBinding(mapping));
         }
     }
 
@@ -410,21 +412,9 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    private String unwrapMapping(String mapping) {
-        if (mapping != null) {
-
-            // remove outer {}'s, if any
-            if (mapping.trim().startsWith("{")) {
-                mapping = mapping.substring(mapping.indexOf('{') + 1,
-                        mapping.lastIndexOf('}'));
-            }
-
-            // remove outer (param name) tags
-            if (mapping.trim().startsWith("<")) {
-                mapping = StringUtil.unwrap(mapping);
-            }
-        }
-        return mapping;
+    private String unwrapBinding(String binding) {
+        return binding != null ?
+                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "") : null;
     }
 
 
@@ -598,7 +588,7 @@ public class DataVariableDialog extends JDialog
     private void refreshTaskMappings() {
         if (getTaskInputTable() == null) return;            // showing netvars only
         for (VariableRow row : getTaskInputTable().getVariables()) {
-            String mapping = unwrapMapping(getMapping(row.getName(), YDataHandler.INPUT));
+            String mapping = unwrapBinding(getMapping(row.getName(), YDataHandler.INPUT));
             row.initMapping(mapping);
         }
         getTaskInputTable().repaint();

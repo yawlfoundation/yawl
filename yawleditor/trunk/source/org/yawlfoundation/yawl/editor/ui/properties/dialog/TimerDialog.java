@@ -48,6 +48,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
     private JPanel dateValueField;
     private JTimeSpinner durationValueField;
     private JPanel expiresPanel;
+    private JPanel beginsPanel;
     private ButtonGroup expiresGroup;
     private JRadioButton variableButton;
     private JRadioButton neverButton;
@@ -76,14 +77,17 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
         }
         else {
             timerVariableComboBox.setNet(net);
-            setTrigger(timerParameters.getTrigger());
+            YWorkItemTimer.Trigger trigger = timerParameters.getTrigger();
+            if (trigger != null) {
+                setTrigger(trigger);
+            }
             setValue(timerParameters);
         }
     }
 
 
     public YTimerParameters getContent() {
-        return neverButton.isSelected() ? null : getValue();
+        return neverButton.isSelected() || cancelButtonSelected() ? null : getValue();
     }
 
 
@@ -220,7 +224,12 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
     private void enableWidgets(String action) {
         enablePanel(dateValueField, action.equals("exactly"));
         durationValueField.setEnabled(action.equals("duration"));
-        enablePanel(timerVariableComboBox.getParent(), action.equals("variable"));
+        boolean varSelected = action.equals("variable");
+        enablePanel(timerVariableComboBox.getParent(), varSelected);
+        offerButton.setSelected(varSelected);
+        enablePanel(beginsPanel, ! varSelected);
+        exactlyButton.setEnabled(exactlyButton.isEnabled() || varSelected);
+        durationButton.setEnabled(durationButton.isEnabled() || varSelected);
     }
 
 
@@ -275,7 +284,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
         beginsGroup.add(offerButton);
         beginsGroup.add(startButton);
 
-        JPanel beginsPanel = new JPanel(new BorderLayout());
+        beginsPanel = new JPanel(new BorderLayout());
         beginsPanel.setBorder(new TitledBorder("Begins"));
         JPanel innerBeginsPanel = new JPanel(new GridLayout(0, 1));
         innerBeginsPanel.setBorder(new EmptyBorder(0, 10, 0, 10));

@@ -127,7 +127,7 @@ public class JTimeSpinner extends JPanel {
         timePart.append(getDurationItem(secSpinner, "S"));
         if (timePart.length() > 1) periodPart.append(timePart);
         String durationStr = periodPart.length() > 1 ? periodPart.toString() : "PT0S";
-        return StringUtil.strToDuration(periodPart.toString());
+        return StringUtil.strToDuration(durationStr);
     }
 
 
