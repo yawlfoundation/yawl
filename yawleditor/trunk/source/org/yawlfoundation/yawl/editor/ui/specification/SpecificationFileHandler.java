@@ -239,6 +239,7 @@ public class SpecificationFileHandler {
 
     private void doPreSaveClosingWork() {
         YAWLEditor.getNetsPane().setVisible(false);
+        YAWLEditor.getPropertySheet().setIgnoreRepaint(true);
         Publisher.getInstance().publishCloseFileEvent();
     }
 

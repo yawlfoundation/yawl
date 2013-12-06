@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.editor.ui.properties.editor.FontPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.SubNetNameEditor;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
@@ -134,14 +135,19 @@ public class YPropertySheet extends PropertySheetPanel {
         }
 
 
-        // override to avoid IndexOutOFBoundsExceptions in super class
         public TableCellRenderer getCellRenderer(int row, int column) {
+            return getCellRenderer(row, column, 0);
+        }
+
+        // override to avoid IndexOutOFBoundsExceptions in super class
+        public TableCellRenderer getCellRenderer(int row, int column, int threshold) {
+            if (threshold >= 2) return new DefaultTableCellRenderer();
             try {
                 return super.getCellRenderer(row, column);
             }
             catch (IndexOutOfBoundsException ioobe) {
-                pause(100);                         // wait a bit for threads to catch up
-                return getCellRenderer(row, column);     // & retry
+                pause(20);                 // wait a bit for threads to catch up
+                return getCellRenderer(row, column, ++threshold);     // & retry
             }
         }
 
@@ -222,12 +228,17 @@ public class YPropertySheet extends PropertySheetPanel {
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
+            return getValueAt(rowIndex, columnIndex, 0);
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex, int threshold) {
+            if (threshold >= 10) return null;
             try {
                 return super.getValueAt(rowIndex, columnIndex);
             }
             catch (IndexOutOfBoundsException ioobe) {
                 pause(100);
-                return getValueAt(rowIndex, columnIndex);
+                return getValueAt(rowIndex, columnIndex, ++threshold);
             }
         }
     }

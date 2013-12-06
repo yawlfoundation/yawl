@@ -388,9 +388,7 @@ public class DataVariableDialog extends JDialog
                 }
             }
             else {    // output
-                String target = _miHandler.getOutputTarget();
-                if (target != null &&
-                        outputBindings.getTarget(row.getName()).equals(target)) {
+                if (_miHandler.outputQueryBindsFrom(row.getName())) {
                     row.setMultiInstance(true);
                 }
             }
