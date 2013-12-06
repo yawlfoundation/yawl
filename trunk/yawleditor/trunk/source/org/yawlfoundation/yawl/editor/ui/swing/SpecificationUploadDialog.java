@@ -123,6 +123,8 @@ public class SpecificationUploadDialog extends PropertyDialog
 
 
     private void upload() {
+        YAWLEditor editor = YAWLEditor.getInstance();
+        editor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         String message = "";
         int msgType = JOptionPane.INFORMATION_MESSAGE;
         SpecificationUploader uploader = new SpecificationUploader();
@@ -149,6 +151,7 @@ public class SpecificationUploadDialog extends PropertyDialog
         }
         String title = "Upload " + (msgType == JOptionPane.ERROR_MESSAGE ?
                 "Error" : "Success");
+        editor.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title, msgType);
     }
 

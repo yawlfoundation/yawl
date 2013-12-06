@@ -67,8 +67,23 @@ public class MultiInstanceHandler {
     }
 
     protected String getOutputTarget() {
+        if (_netVarTarget != null) return _netVarTarget;
         String target = _attributes.getMIOutputAssignmentVar();
         return target != null ? target : getTaskAttributes().getMIOutputAssignmentVar();
+    }
+
+    public String getOutputQuery() {
+        String binding = _attributes.getMIFormalOutputQuery();
+        return binding != null ? binding : getTaskAttributes().getMIFormalOutputQuery();
+    }
+
+
+    public boolean outputQueryBindsFrom(String taskVarName) {
+        String sep = "/";
+        String xpath = sep + _task.getDecompositionPrototype().getID() +
+                sep + taskVarName + sep;
+        String binding = getOutputQuery();
+        return binding != null && unwrapQuery(binding).startsWith(xpath);
     }
 
 
@@ -143,7 +158,7 @@ public class MultiInstanceHandler {
 
 
     private String getOutputBinding() {
-        return _outputBindings.getBinding(_netVarTarget, false);
+        return _outputBindings.getBinding(getOutputTarget(), false);
     }
 
     private YMultiInstanceAttributes getTaskAttributes() {
@@ -270,7 +285,7 @@ public class MultiInstanceHandler {
 
 
     private String assembleJoinQuery() {
-        String tag = _netVarTarget;
+        String tag = getOutputTarget();
         StringBuilder s = new StringBuilder();
         s.append('<').append(tag);
         s.append(">{for $j in /").append(_task.getID()).append("/");
@@ -281,7 +296,7 @@ public class MultiInstanceHandler {
 
     private String unwrapQuery(String binding) {
         return binding != null ?
-                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "") : null;
+                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "").trim() : null;
     }
 
 

@@ -156,7 +156,7 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
     private JPanel createAllocatePanelContent(ResourceDialog owner) {
         allocatePanelContent = new JPanel();
         allocatePanelContent.setBorder(new EmptyBorder(5,10,5,205));
-        allocatePanelContent.add(new Label("Allocation Strategy: "));
+        allocatePanelContent.add(new JLabel("Allocation Strategy: "));
         cbxAllocations = new JComboBox();
         cbxAllocations.setRenderer(new AllocatorRenderer());
         cbxAllocations.setPreferredSize(new Dimension(300, 25));

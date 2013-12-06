@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.elements.YAtomicTask;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemListener;
 import java.util.Set;
@@ -82,11 +83,22 @@ public abstract class AbstractResourceTabContent extends JPanel {
         for (Component component : panel.getComponents()) {
             if (component instanceof JPanel) {
                 enablePanelContent((JPanel) component, enabled);
+                enableTitledBorder((JPanel) component, enabled);
             }
             component.setEnabled(enabled);
         }
     }
 
+
+    private void enableTitledBorder(JPanel panel, boolean enable) {
+        if (panel.getBorder() instanceof TitledBorder) {
+            ((TitledBorder) panel.getBorder()).setTitleColor(
+                    enable ?
+                    UIManager.getDefaults().getColor("TitledBorder.titleColor") :
+                    UIManager.getDefaults().getColor("Label.disabledForeground")
+            );
+        }
+    }
 
     public abstract void load();
 
