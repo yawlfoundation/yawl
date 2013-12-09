@@ -43,7 +43,7 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
     private JTextField _fldWofyawl;
     private JTextField _fldWendy;
 
-    public static final String PROPERTY_LOCATION =
+    private static final String PROPERTY_LOCATION =
             FileUtilities.getDecompositionAttributePath();
 
 

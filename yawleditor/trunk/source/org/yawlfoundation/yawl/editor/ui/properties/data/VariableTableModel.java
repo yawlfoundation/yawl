@@ -29,10 +29,10 @@ import java.util.List;
 */
 abstract class VariableTableModel extends AbstractTableModel {
 
-    protected List<VariableRow> variables;
-    protected List<VariableRow> removed;
+    private List<VariableRow> variables;
+    private List<VariableRow> removed;
     protected boolean editable;
-    protected boolean tableChanged;
+    private boolean tableChanged;
 
     protected static final String SELECTOR_INDICATOR = "\u25B6";      // right arrowhead
 

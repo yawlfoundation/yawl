@@ -39,8 +39,8 @@ import java.util.TreeSet;
  */
 public class NetModelSet extends HashSet<NetGraphModel> {
 
-    NetGraphModel rootNet;
-    Publisher publisher;
+    private NetGraphModel rootNet;
+    private final Publisher publisher;
 
     public NetModelSet() {
         super();

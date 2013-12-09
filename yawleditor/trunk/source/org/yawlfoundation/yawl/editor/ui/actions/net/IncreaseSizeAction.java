@@ -33,12 +33,7 @@ import java.util.Arrays;
 
 public class IncreaseSizeAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, GraphStateListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final IncreaseSizeAction INSTANCE 
-    = new IncreaseSizeAction();
+  private static final IncreaseSizeAction INSTANCE  = new IncreaseSizeAction();
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Increase Size");

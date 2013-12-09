@@ -42,7 +42,7 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
     private JButton btnCancel;
     private boolean cancelled;
     private AnalysisResultsParser _owner;
-    private String header;
+    private final String header;
 
     public AnalysisDialog(String title, JFrame owner) {
         super(owner);

@@ -40,7 +40,7 @@ public final class ResetWFNet {
     private Set<YTask> _tasks = new HashSet<YTask>();
     private RPlace _inputPlace;
     private RPlace _outputPlace;
-    private String _id;
+    private final String _id;
     private YAWLResetAnalyser _parent;
 
     private int _maxMarkings = 5000;
@@ -1058,7 +1058,7 @@ public final class ResetWFNet {
      * to yawl. If there are yawl mappings, the message returns them, otherwise
      * it returns an empty set.
      */
-    public static Set<YExternalNetElement> convertToYawlMappings(RElement element){
+    private static Set<YExternalNetElement> convertToYawlMappings(RElement element){
         Set<YExternalNetElement> yawlMappings = element.getYawlMappings();
         for (RElement innerElement : element.getResetMappings()) {
             yawlMappings.addAll(innerElement.getYawlMappings());
@@ -1077,7 +1077,7 @@ public final class ResetWFNet {
     }
 
 
-    public static Set<YTask> convertToYawlMappingsForTasks(RElement e){
+    private static Set<YTask> convertToYawlMappingsForTasks(RElement e){
         Set<YTask> taskMappings = new HashSet<YTask>();
         for (YExternalNetElement netElement : convertToYawlMappings(e)) {
             if (netElement instanceof YTask) {

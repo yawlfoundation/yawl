@@ -34,10 +34,10 @@ import java.awt.event.ActionListener;
  */
 public class AddDialog extends JDialog implements ActionListener, CaretListener {
 
-    JButton btnOK;
+    private JButton btnOK;
 
-    JTextField txtName;
-    JTextArea txtDescription;
+    private JTextField txtName;
+    private JTextArea txtDescription;
 
     public AddDialog(JDialog owner, String defaultText) {
         super(owner);

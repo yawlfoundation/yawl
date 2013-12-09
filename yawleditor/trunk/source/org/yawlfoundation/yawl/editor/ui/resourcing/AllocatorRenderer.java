@@ -30,7 +30,7 @@ import java.awt.*;
  */
 public class AllocatorRenderer extends BasicComboBoxRenderer {
 
-    JLabel _cell = new JLabel();
+    private final JLabel _cell = new JLabel();
 
     @Override
     public Component getListCellRendererComponent(

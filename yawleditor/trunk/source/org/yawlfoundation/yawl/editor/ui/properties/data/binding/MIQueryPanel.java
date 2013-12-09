@@ -43,7 +43,7 @@ class MIQueryPanel extends AbstractBindingPanel {
     }
 
     protected void setText(String text) {
-        _miQueryEditor.setText(formatQuery(text, true));
+        _miQueryEditor.setText(formatQuery(text));
     }
 
     protected String getText() { return _miQueryEditor.getXQueryEditor().getText(); }

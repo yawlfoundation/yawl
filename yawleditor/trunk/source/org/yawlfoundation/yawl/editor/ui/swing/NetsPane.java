@@ -37,7 +37,7 @@ import java.io.File;
 
 public class NetsPane extends JTabbedPane implements ChangeListener {
 
-    private PropertiesLoader _propertiesLoader;
+    private final PropertiesLoader _propertiesLoader;
 
     public NetsPane() {
         super();

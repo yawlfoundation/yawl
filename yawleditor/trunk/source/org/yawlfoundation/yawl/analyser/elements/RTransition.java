@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class RTransition extends RElement {
 
-    private Set<RElement> _removeSet = new HashSet<RElement>();
+    private final Set<RElement> _removeSet = new HashSet<RElement>();
 
     public RTransition(String id) {
         super(id);

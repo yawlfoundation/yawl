@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class VertexPopupMenu extends JPopupMenu {
 
-    private YAWLCell cell;
+    private final YAWLCell cell;
 
     private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
 

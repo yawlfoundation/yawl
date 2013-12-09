@@ -28,7 +28,7 @@ import java.awt.*;
 
 public class NotesPanel extends JPanel {
 
-    private NotesEditor editor;
+    private final NotesEditor editor;
 
     public NotesPanel() {
         editor = new NotesEditor();

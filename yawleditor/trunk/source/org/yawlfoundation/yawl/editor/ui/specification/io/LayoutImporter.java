@@ -295,10 +295,10 @@ public class LayoutImporter {
     /*******************************************************************************/
 
     private static class NetRootSorter {
-        Map<String, YAWLFlowRelation> _flowMap = new HashMap<String, YAWLFlowRelation>();
-        Map<String, YAWLVertex> _vertexMap = new HashMap<String, YAWLVertex>();
-        Map<String, VertexLabel> _labelMap = new HashMap<String, VertexLabel>();
-        Map<String, Decorator> _decoratorMap = new HashMap<String, Decorator>();
+        final Map<String, YAWLFlowRelation> _flowMap = new HashMap<String, YAWLFlowRelation>();
+        final Map<String, YAWLVertex> _vertexMap = new HashMap<String, YAWLVertex>();
+        final Map<String, VertexLabel> _labelMap = new HashMap<String, VertexLabel>();
+        final Map<String, Decorator> _decoratorMap = new HashMap<String, Decorator>();
 
         public NetRootSorter(List rootList) {
             for (Object o : rootList) {

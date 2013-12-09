@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask
 
 public class MultipleInstanceTaskConfigSet {
 	
-	private YAWLMultipleInstanceTask task;
+	private final YAWLMultipleInstanceTask task;
 	
 	private long reduceMax;
 	private long increaseMin;

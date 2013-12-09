@@ -33,7 +33,7 @@ import java.util.*;
 public class YControlFlowHandler {
 
     private YSpecification _specification;
-    private ElementIdentifiers _identifiers;
+    private final ElementIdentifiers _identifiers;
 
     private static final String BASIC_RESOURCING_SPEC = createBasicResourcingSpec();
 

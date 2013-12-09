@@ -31,8 +31,8 @@ public class Publisher {
     private SpecificationState _currentSpecState;
     private FileState _currentFileState;
 
-    private Set<SpecificationStateListener> _specListeners;
-    private Set<FileStateListener> _fileListeners;
+    private final Set<SpecificationStateListener> _specListeners;
+    private final Set<FileStateListener> _fileListeners;
     private Map<GraphState, Set<GraphStateListener>> _graphListeners;
 
     private static final Publisher INSTANCE = new Publisher();

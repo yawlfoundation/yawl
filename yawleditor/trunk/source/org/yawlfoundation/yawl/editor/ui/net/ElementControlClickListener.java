@@ -28,7 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ElementControlClickListener extends MouseAdapter {
-  private NetGraph net;
+  private final NetGraph net;
 
   public ElementControlClickListener(NetGraph net) {
     this.net = net;

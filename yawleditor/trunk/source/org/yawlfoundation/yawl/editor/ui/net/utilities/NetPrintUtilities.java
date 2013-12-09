@@ -64,7 +64,7 @@ public class NetPrintUtilities {
     }
   }
 
-  public static BufferedImage toBufferedImage(NetGraph net, int imageBuffer) {
+  private static BufferedImage toBufferedImage(NetGraph net, int imageBuffer) {
     Object[] cells = net.getRoots();
 
     Rectangle2D bounds = net.getCellBounds(cells);

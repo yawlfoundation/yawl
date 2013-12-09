@@ -35,15 +35,15 @@ import java.util.Set;
  */
 public class TaskResourceSet {
 
-    private YAtomicTask _task;
+    private final YAtomicTask _task;
 
-    private BasicOfferInteraction _offer;
-    private AllocateInteraction _allocate;
-    private StartInteraction _start;
-    private BasicSecondaryResources _secondary;
+    private final BasicOfferInteraction _offer;
+    private final AllocateInteraction _allocate;
+    private final StartInteraction _start;
+    private final BasicSecondaryResources _secondary;
 
     // user-task privileges
-    private TaskPrivileges _privileges ;
+    private final TaskPrivileges _privileges ;
 
 
     public TaskResourceSet(YAtomicTask task) {
@@ -52,7 +52,7 @@ public class TaskResourceSet {
         _allocate = new AllocateInteraction(_task.getID());
         _start = new StartInteraction(_task.getID()) ;
         _secondary = new BasicSecondaryResources(_task);
-        _privileges = new TaskPrivileges(_task);
+        _privileges = new TaskPrivileges();
         parse();
         setTaskXML();
     }

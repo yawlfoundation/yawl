@@ -33,10 +33,6 @@ import java.util.Arrays;
 
 public class AlignCentreAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, GraphStateListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final AlignCentreAction INSTANCE = new AlignCentreAction();
   {
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());

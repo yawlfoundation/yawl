@@ -128,8 +128,7 @@ public class YConnector {
         return tempConn.testConnection(user, password);
     }
 
-    public static boolean testEngineParameters(URL url, String user, String password)
-             throws MalformedURLException {
+    public static boolean testEngineParameters(URL url, String user, String password) {
          YEngineConnection tempConn = new YEngineConnection();
          tempConn.setURL(url);
         return tempConn.testConnection(user, password);
@@ -158,7 +157,7 @@ public class YConnector {
     }
 
     public static boolean testResourceServiceParameters(URL url, String user,
-             String password) throws MalformedURLException {
+             String password) {
         YResourceConnection tempConn = new YResourceConnection();
         tempConn.setURL(url);
         return tempConn.testConnection(user, password);

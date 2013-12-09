@@ -28,8 +28,8 @@ import java.awt.*;
 
 public class YStatusBar extends JPanel implements SpecificationStateListener {
 
-    private static JLabel statusLabel = new JLabel();
-    private static JConnectionStatus modeIndicator = new JConnectionStatus();
+    private static final JLabel statusLabel = new JLabel();
+    private static final JConnectionStatus modeIndicator = new JConnectionStatus();
     private JProgressBar progressBar;
     private SecondUpdateThread secondUpdateThread;
     private String previousStatusText;
@@ -148,7 +148,7 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
 
     class SecondUpdateThread extends Thread {
 
-        private int APPARENTLY_INSTANT_MILLISECONDS = 50;
+        private final int APPARENTLY_INSTANT_MILLISECONDS = 50;
         private int pauseSeconds = 0;
         private volatile boolean shouldStop = false;
 

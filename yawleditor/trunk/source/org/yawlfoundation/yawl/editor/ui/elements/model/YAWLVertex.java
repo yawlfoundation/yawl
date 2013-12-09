@@ -40,10 +40,10 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     public static final int RIGHT = Decorator.RIGHT;
     public static final int NOWHERE = Decorator.NOWHERE;
 
-    protected Point2D _startPoint;
+    private Point2D _startPoint;
 
     public static final Color DEFAULT_VERTEX_FOREGROUND = Color.BLACK;
-    public static final int DEFAULT_SIZE = 32;
+    private static final int DEFAULT_SIZE = 32;
 
     private static final Dimension size = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
     private Color _backgroundColor = UserSettings.getVertexBackgroundColour();

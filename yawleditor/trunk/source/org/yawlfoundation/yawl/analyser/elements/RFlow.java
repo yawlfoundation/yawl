@@ -27,8 +27,8 @@ import org.yawlfoundation.yawl.analyser.elements.RElement;
 
 public class RFlow {
 
-    private RElement _priorElement;
-    private RElement _nextElement;
+    private final RElement _priorElement;
+    private final RElement _nextElement;
 
     public RFlow(RElement prior, RElement next) {
         _priorElement = prior;

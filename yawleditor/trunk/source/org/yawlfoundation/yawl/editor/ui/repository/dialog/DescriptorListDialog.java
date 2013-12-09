@@ -43,7 +43,7 @@ public class DescriptorListDialog extends JDialog implements ActionListener, Car
     private JList listBox;
     private JTextField filterField;
     private JTextArea txtDescription;
-    private int action;
+    private final int action;
 
     public static final int GET_ACTION = 0;
     public static final int REMOVE_ACTION = 1;

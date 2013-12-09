@@ -313,40 +313,6 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
         return null;
     }
 
-    public void testGeneratingTree(){
-//        for(Node node:nodes){
-//            if(node.shortestPathSucessor == -2){
-//                System.out.println("ID"+node.ID);
-//            }
-/*			System.out.println("sucessors");
-			for(int i=0; i< node.sucessors.size();i++){
-				System.out.println(node.sucessors.get(i).myOperation+"->"+node.sucessors.get(i).myNode);
-			}
-			System.out.println("preceder");
-			for(int i=0; i< node.preceders.size();i++){
-				System.out.println(node.preceders.get(i).myOperation+"->"+node.preceders.get(i).myNode);
-		}
-			System.out.println("Mapping id "+this.positionMap.get(node.ID));
-			if(node.isFinal){
-				System.out.println("This is the final state");
-			}else if (node.isInitial){
-				System.out.println("This is the initial state");
-	}
-			if(!node.isFinal){
-				System.out.println("steps needed "+node.shortestPathPreceder);
-				if(node.preferPreceder != null){
-					System.out.println("my prefer preceder is "+ node.preferPreceder.myOperation+"->"+ node.preferPreceder.myNode);
-				}
-				System.out.println("steps needed "+node.shortestPathSucessor);
-				if(node.preferSucessor != null){
-				System.out.println("my prefer sucessor is "+ node.preferSucessor.myOperation +"->"+node.preferSucessor.myNode);
-				}
-			}
-			System.out.println();
-		}*/
-//        }
-    }
-
 
     public String getCurrentState() {
         return currentState;
@@ -463,8 +429,8 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
 
     private class Node{
         public String ID;
-        public ArrayList<Operation> preceders = new ArrayList<Operation>();
-        public ArrayList<Operation> sucessors = new ArrayList<Operation>();
+        public final ArrayList<Operation> preceders = new ArrayList<Operation>();
+        public final ArrayList<Operation> sucessors = new ArrayList<Operation>();
         public boolean isInitial = false;
         public boolean isFinal = false;
         public Operation preferPreceder = null;

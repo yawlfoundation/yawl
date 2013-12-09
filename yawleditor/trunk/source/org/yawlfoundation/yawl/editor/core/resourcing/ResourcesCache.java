@@ -31,7 +31,7 @@ import java.util.*;
 public class ResourcesCache {
 
     // [netID, [taskID, set of task resources]]
-    private Map<String, Map<String, TaskResourceSet>> _cache;
+    private final Map<String, Map<String, TaskResourceSet>> _cache;
 
 
     public ResourcesCache() {

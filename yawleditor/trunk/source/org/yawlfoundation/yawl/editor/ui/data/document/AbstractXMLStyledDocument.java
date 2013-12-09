@@ -29,13 +29,13 @@ import java.util.List;
 
 public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
 
-    private List<XMLStyledDocumentValidityListener> subscribers;
-    private ValidityEditorPane editor;
+    private final List<XMLStyledDocumentValidityListener> subscribers;
+    private final ValidityEditorPane editor;
     private Validity contentValid;
     private boolean validating;
 
 
-    public AbstractXMLStyledDocument(ValidityEditorPane editorPane) {
+    protected AbstractXMLStyledDocument(ValidityEditorPane editorPane) {
         editor = editorPane;
         subscribers = new ArrayList<XMLStyledDocumentValidityListener>();
         contentValid = Validity.UNCERTAIN;
@@ -43,7 +43,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
     }
 
 
-    public ValidityEditorPane getEditor() {
+    protected ValidityEditorPane getEditor() {
         return editor;
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
         return contentValid;
     }
 
-    public void setContentValidity(Validity validity) {
+    protected void setContentValidity(Validity validity) {
         contentValid = validity;
     }
 
@@ -97,7 +97,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
 
     /******************************************************************/
 
-    public abstract void checkValidity();
+    protected abstract void checkValidity();
 
     public abstract void setPreAndPostEditorText(String preText, String postText);
 

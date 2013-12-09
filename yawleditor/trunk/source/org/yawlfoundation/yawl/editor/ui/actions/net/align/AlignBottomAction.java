@@ -33,10 +33,6 @@ import java.util.Arrays;
 
 public class AlignBottomAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, GraphStateListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final AlignBottomAction INSTANCE = new AlignBottomAction();
     
   {

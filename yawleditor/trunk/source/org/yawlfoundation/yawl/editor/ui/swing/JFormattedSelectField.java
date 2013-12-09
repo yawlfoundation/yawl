@@ -29,10 +29,6 @@ import java.awt.event.ActionListener;
 
 public class JFormattedSelectField extends JFormattedTextField {
   
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private Color normalBackground;
   private Color normalForeground;
 

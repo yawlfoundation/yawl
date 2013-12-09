@@ -42,9 +42,9 @@ public class VariableTablePanel extends JPanel
         implements ActionListener, ListSelectionListener {
 
     private VariableTable table;
-    private DataVariableDialog parent;
+    private final DataVariableDialog parent;
     private JToolBar toolbar;
-    private TableType tableType;
+    private final TableType tableType;
     private boolean isEditing;
 
     // toolbar buttons
@@ -164,10 +164,8 @@ public class VariableTablePanel extends JPanel
                 dialog.setMultiInstanceHandler(parent.getMultiInstanceHandler());
             }
             dialog.setVisible(true);
-            if (dialog.hasChanges()) {
-                parent.enableApplyButton();
-                table.getTableModel().fireTableDataChanged();
-            }
+            if (dialog.hasChanges()) parent.enableApplyButton();
+            table.getTableModel().fireTableDataChanged();
         }
         table.selectRow(selectedRow);
     }

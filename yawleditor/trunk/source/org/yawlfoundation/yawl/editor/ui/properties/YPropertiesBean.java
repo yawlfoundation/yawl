@@ -38,11 +38,11 @@ import java.awt.*;
  */
 public abstract class YPropertiesBean {
 
-    protected YSpecificationHandler specHandler;
-    protected YControlFlowHandler flowHandler;
+    protected final YSpecificationHandler specHandler;
+    protected final YControlFlowHandler flowHandler;
     protected NetGraph graph;
     protected NetGraphModel model;
-    protected YPropertySheet propertySheet;
+    protected final YPropertySheet propertySheet;
 
     public YPropertiesBean(YPropertySheet sheet) {
         propertySheet = sheet;

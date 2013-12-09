@@ -30,10 +30,8 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
  */
 public class NonHumanResourceSet extends EntityCollection<NonHumanResource> {
 
-    public NonHumanResourceSet() { this(false); }
-
-    public NonHumanResourceSet(boolean allowDuplicates) {
-        super(allowDuplicates);
+    public NonHumanResourceSet() {
+        super(false);
     }
 
 

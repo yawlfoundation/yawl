@@ -203,5 +203,5 @@ abstract class LineStyleAction extends YAWLSelectedNetAction {
 
     abstract public int getStyle();
 
-    abstract public String getStyleText();
+    protected abstract String getStyleText();
 }

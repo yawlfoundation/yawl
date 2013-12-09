@@ -30,7 +30,7 @@ public class FlowProperties extends NetProperties {
     private YAWLFlowRelation flow;
 
     private static final int offset = 11;
-    protected static String[] STYLES = new String[] {"Orthogonal", "Bezier", "Spline"};
+    protected static final String[] STYLES = new String[] {"Orthogonal", "Bezier", "Spline"};
 
 
     public FlowProperties() {

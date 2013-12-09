@@ -33,13 +33,13 @@ import java.util.*;
  */
 public class YAWLReachabilityUtils{
 
-    private YNet _yNet;
-    private YSetOfMarkings endMarkings = new YSetOfMarkings();
-    private YSetOfMarkings VisitedMarkings = new YSetOfMarkings();
+    private final YNet _yNet;
+    private final YSetOfMarkings endMarkings = new YSetOfMarkings();
+    private final YSetOfMarkings VisitedMarkings = new YSetOfMarkings();
     private YSetOfMarkings RS;
-    private Set<YTask> firedTasks = new HashSet<YTask>();
-    private Set<YTask> orJoins = new HashSet<YTask>();
-    private Map<String, YSetOfMarkings> ojMarkingsMap = new HashMap<String, YSetOfMarkings>();
+    private final Set<YTask> firedTasks = new HashSet<YTask>();
+    private final Set<YTask> orJoins = new HashSet<YTask>();
+    private final Map<String, YSetOfMarkings> ojMarkingsMap = new HashMap<String, YSetOfMarkings>();
     private int _maxMarkings = 5000;
 
     private YAWLResetAnalyser _parent;
@@ -683,7 +683,7 @@ public class YAWLReachabilityUtils{
     }
 
 
-    public static Set<YTask> convertToYawlMappingsForTasks(YExternalNetElement e) {
+    private static Set<YTask> convertToYawlMappingsForTasks(YExternalNetElement e) {
         Set<YTask> taskMappings = new HashSet<YTask>();
         for (YExternalNetElement netElement : convertToYawlMappings(e)) {
             if (netElement instanceof YTask) taskMappings.add((YTask) netElement);

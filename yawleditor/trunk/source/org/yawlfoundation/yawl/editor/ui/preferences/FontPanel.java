@@ -34,7 +34,7 @@ import java.awt.event.ActionListener;
  */
 public class FontPanel extends JPanel {
 
-    private ActionListener _listener;
+    private final ActionListener _listener;
     private Font _font;
     private JLabel _fontLabel;
     private boolean _changed;
@@ -65,7 +65,7 @@ public class FontPanel extends JPanel {
 
     private void addContent() {
         setLayout(new BorderLayout());
-        add(buildCaptionPanel("Default Font:"), BorderLayout.WEST);
+        add(buildCaptionPanel(), BorderLayout.WEST);
         _fontLabel = new JLabel(getFontLabelText());
         _fontLabel.setForeground(_textColour);
         _fontLabel.setToolTipText("Current Font");
@@ -75,9 +75,9 @@ public class FontPanel extends JPanel {
     }
 
 
-    private JPanel buildCaptionPanel(String caption) {
+    private JPanel buildCaptionPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.add(new JLabel(caption));
+        panel.add(new JLabel("Default Font:"));
         panel.setPreferredSize(new Dimension(100, 25));
         return panel;
     }

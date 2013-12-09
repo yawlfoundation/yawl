@@ -30,7 +30,7 @@ import java.awt.*;
  */
 public class VariableRowStringRenderer extends DefaultCellRenderer {
 
-    private OutputBindings _outputBindings;
+    private final OutputBindings _outputBindings;
     private Font _selectorFont;
 
     public VariableRowStringRenderer(OutputBindings outputBindings) {

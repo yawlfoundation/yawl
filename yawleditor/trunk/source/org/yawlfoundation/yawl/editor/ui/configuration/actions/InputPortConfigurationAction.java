@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 InputConfigurationJDialog dialog = new InputConfigurationJDialog(
-                        new javax.swing.JFrame(), true, task, net);
+                        new javax.swing.JFrame(), task, net);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
                 });
@@ -87,18 +88,18 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
 
         private List<CPort> inputPorts;
 
-        private YAWLTask task;
-        private NetGraph net;
-        private int size;
+        private final YAWLTask task;
+        private final NetGraph net;
+        private final int size;
         private TableColumn column = null;
         private TableColumn IDcolumn = null;
-        private ActionEvent simulateEvent = new ActionEvent(this,1001,"Preview Process Configuration");
-        private PreviewConfigurationProcessAction simulateAction=
+        private final ActionEvent simulateEvent = new ActionEvent(this,1001,"Preview Process Configuration");
+        private final PreviewConfigurationProcessAction simulateAction=
                 PreviewConfigurationProcessAction.getInstance();
 
         /** Creates new form NewJDialog */
-        public InputConfigurationJDialog(java.awt.Frame parent, boolean modal,YAWLTask task, NetGraph net) {
-            super(parent, modal);
+        public InputConfigurationJDialog(Frame parent, YAWLTask task, NetGraph net) {
+            super(parent, true);
             this.task = task;
             this.net = net;
             size = this.task.getInputCPorts().size();
@@ -152,10 +153,10 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
                             "Port ID", "Source Nodes",  "Configuration"
                     }
             ) {
-                Class[] types = new Class [] {
+                final Class[] types = new Class [] {
                         java.lang.Integer.class, java.lang.String.class, java.lang.String.class
                 };
-                boolean[] canEdit = new boolean [] {
+                final boolean[] canEdit = new boolean [] {
                         false, false, false
                 };
 
@@ -447,9 +448,9 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
 
     private class SetInputPortDefaultConfigurationJDialog extends javax.swing.JDialog {
 
-        private NetGraph net;
-        private YAWLTask task;
-        private Object[][] rowInfor;
+        private final NetGraph net;
+        private final YAWLTask task;
+        private final Object[][] rowInfor;
         private List<CPort> inputPorts;
 
         public void  initInputPorts(){
@@ -503,10 +504,10 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
                             "Port ID", "Source Nodes", "Default Configuration"
                     }
             ) {
-                Class[] types = new Class [] {
+                final Class[] types = new Class [] {
                         java.lang.Integer.class, java.lang.String.class, java.lang.String.class
                 };
-                boolean[] canEdit = new boolean [] {
+                final boolean[] canEdit = new boolean [] {
                         false, false, false
                 };
 

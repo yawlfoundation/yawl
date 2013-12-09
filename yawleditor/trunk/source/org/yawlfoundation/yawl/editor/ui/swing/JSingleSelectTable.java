@@ -18,14 +18,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class JSingleSelectTable extends JAlternatingRowColorTable {
 
-    protected static final int DEFAULT_ROWS = 5;
+    private static final int DEFAULT_ROWS = 5;
 
     public JSingleSelectTable() {
         super();

@@ -28,7 +28,7 @@ import javax.swing.*;
  */
 public class IconPropertyEditor extends ComboPropertyEditor {
 
-    private IconList _list = IconList.getInstance();
+    private final IconList _list = IconList.getInstance();
     private static final String INTERNAL_PATH =
             "org/yawlfoundation/yawl/editor/ui/resources/taskicons";
 

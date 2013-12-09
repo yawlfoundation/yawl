@@ -52,7 +52,7 @@ public class FlowPredicatePropertyEditor extends DialogPropertyEditor {
         FlowPredicateDialog dialog = new FlowPredicateDialog(
                 YAWLEditor.getInstance(), flow);
         dialog.setTypeValidator(new BindingTypeValidator(
-                        YAWLEditor.getNetsPane().getSelectedYNet(), null));
+                        YAWLEditor.getNetsPane().getSelectedYNet()));
 
         dialog.setVisible(true);
         String newPredicate = flow.getPredicate();

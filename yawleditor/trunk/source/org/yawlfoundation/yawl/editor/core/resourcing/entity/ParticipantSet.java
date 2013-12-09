@@ -30,10 +30,8 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
  */
 public class ParticipantSet extends EntityCollection<Participant> {
 
-    public ParticipantSet() { this(false); }
-
-    public ParticipantSet(boolean allowDuplicates) {
-        super(allowDuplicates);
+    public ParticipantSet() {
+        super(false);
     }
 
 

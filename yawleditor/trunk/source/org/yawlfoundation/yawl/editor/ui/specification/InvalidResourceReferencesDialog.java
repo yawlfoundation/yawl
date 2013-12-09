@@ -105,15 +105,15 @@ public class InvalidResourceReferencesDialog extends JDialog implements ActionLi
     private JPanel createButtonBar() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        panel.add(createButton("OK"));
+        panel.add(createButton());
         return panel;
      }
 
 
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
+    private JButton createButton() {
+        JButton button = new JButton("OK");
+        button.setActionCommand("OK");
+        button.setMnemonic("OK".charAt(0));
         button.setPreferredSize(new Dimension(70,25));
         button.addActionListener(this);
         return button;

@@ -31,8 +31,8 @@ import java.text.NumberFormat;
  */
 public class ConnectionPanel extends JPanel {
 
-    JTextField _hostField;
-    JFormattedTextField _portField;
+    private JTextField _hostField;
+    private JFormattedTextField _portField;
 
 
     public ConnectionPanel(String title) {

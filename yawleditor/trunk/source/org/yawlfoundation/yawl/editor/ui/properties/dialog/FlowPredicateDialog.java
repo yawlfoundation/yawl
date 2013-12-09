@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorP
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -41,7 +42,7 @@ import java.util.Vector;
 public class FlowPredicateDialog extends PropertyDialog implements ActionListener {
 
     private XQueryValidatingEditorPane _xQueryEditor;
-    private YAWLFlowRelation _flow;
+    private final YAWLFlowRelation _flow;
 
 
     public FlowPredicateDialog(Window parent, YAWLFlowRelation flow) {
@@ -95,6 +96,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
 
     private JPanel createHeadPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(0,0,10,0));
         panel.add(createVarList(), BorderLayout.WEST);
         return panel;
     }
@@ -114,19 +116,13 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
 
 
     private JPanel createVarList() {
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Net Variables: "));
-        final JComboBox combo = new JComboBox(getComboItems());
-        combo.setPreferredSize(new Dimension(250,25));
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Net Variables: "), BorderLayout.WEST);
+        JComboBox combo = new JComboBox(getComboItems());
         combo.setEnabled(combo.getItemCount() > 0);
-        combo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                String varID = (String) combo.getSelectedItem();
-                String xQuery = createXQuery(varID);
-                _xQueryEditor.setText(xQuery);
-            }
-        });
-        panel.add(combo);
+        panel.setPreferredSize(new Dimension(400, 26));
+        panel.add(combo, BorderLayout.CENTER);
+        panel.add(createToolBar(combo), BorderLayout.EAST);
         return panel;
     }
 
@@ -140,6 +136,36 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
         return varIDs;
     }
 
+
+    private JPanel createToolBar(final JComboBox combo) {
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBorder(new EmptyBorder(5,20,0,0));
+        JButton button = new JButton(getIcon("generate"));
+        button.setToolTipText(" Insert variable query ");
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                String varID = (String) combo.getSelectedItem();
+                String xQuery = createXQuery(varID);
+                _xQueryEditor.setText(xQuery);
+            }
+        });
+        JToolBar toolbar = new JToolBar();
+        toolbar.setBorder(null);
+        toolbar.setFloatable(false);
+        toolbar.setRollover(true);
+        toolbar.add(button);
+        content.add(toolbar, BorderLayout.EAST);
+        return content;
+    }
+
+
+    private ImageIcon getIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(
+                "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/" +
+                        iconName + ".png");
+    }
+
+
     private String createXQuery(String varID) {
         YNet net = _flow.getYFlow().getSource().getNet();
         StringBuilder s = new StringBuilder("/");
@@ -151,6 +177,5 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
                  net.getLocalOrInputVariable(varID).getDataTypeName()));
         return s.toString();
     }
-
 
 }

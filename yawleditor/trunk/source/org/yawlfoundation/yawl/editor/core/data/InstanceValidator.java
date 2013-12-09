@@ -35,7 +35,7 @@ import java.util.*;
 public class InstanceValidator {
 
     private String _specificationSchema;
-    private DataSchemaValidator _validator;
+    private final DataSchemaValidator _validator;
 
     // a lookup map for internal type schemas
     private Map<String, String> _internalTypeSchemaMap;

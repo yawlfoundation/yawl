@@ -35,9 +35,9 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
     private TaskVariablePanel _generatePanel;
     private NetVariablePanel _targetPanel;
-    private OutputBindings _outputBindings;
-    private WorkingSelection _workingSelection;
-    private Map<String, String> _externalUndoMap;
+    private final OutputBindings _outputBindings;
+    private final WorkingSelection _workingSelection;
+    private final Map<String, String> _externalUndoMap;
 
 
     public OutputBindingDialog(VariableRow row,
@@ -105,19 +105,17 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         return _generatePanel;
     }
 
-    protected void initContent(VariableRow row) {
-        super.initContent(row);
-    }
-
     private void initSpecificContent(VariableRow row) {
         _generatePanel.setSelectedItem(row.getName());
         String target = _outputBindings.getTarget(row.getName());
+        boolean guessedTarget = false;
         if (target == null) {
-            target = getBestGuessTargetVarName(row);
+            target = getBestGuessTarget(row);
+            guessedTarget = true;
         }
         if (target != null) {
-            String binding;
             _targetPanel.setSelectedItem(target);
+            String binding;
             if (_outputBindings.isGateway(target)) {
                 binding = target;
                 _workingSelection.set(_targetPanel.getSelectedDataGateway(),
@@ -127,7 +125,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
                 binding = _outputBindings.getBinding(target);
                 _workingSelection.set(target, binding, false);
             }
-            setEditorText(binding);
+            if (! guessedTarget) setEditorText(binding);
         }
         if (getCurrentRow().isMultiInstance()) {
             _targetPanel.disableSelections();
@@ -156,7 +154,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     }
 
 
-    private String getBestGuessTargetVarName(VariableRow taskVarRow) {
+    private String getBestGuessTarget(VariableRow taskVarRow) {
 
         // try a match on name first
         for (VariableRow netVarRow : getNetVarList()) {
@@ -173,7 +171,11 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         }
 
         // well, we tried - return the first listed var (if any)
-        return getNetVarList().isEmpty() ? null : getNetVarList().get(0).getName();
+        if (! getNetVarList().isEmpty()) return getNetVarList().get(0).getName();
+
+        // no net vars? get the first gateway listed
+        String gateway = _targetPanel.getFirstDataGateway();
+        return gateway != null ? "#external:" + gateway + ":" : null;
     }
 
 

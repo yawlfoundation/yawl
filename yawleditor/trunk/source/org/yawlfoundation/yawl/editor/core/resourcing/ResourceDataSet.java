@@ -61,7 +61,7 @@ public class ResourceDataSet {
     }
 
 
-    protected static Map<String, Participant> getParticipantMap() {
+    private static Map<String, Participant> getParticipantMap() {
         if (_participantMap == null) {
             _participantMap = YConnector.getParticipantMap();
         }
@@ -79,7 +79,7 @@ public class ResourceDataSet {
     }
 
 
-    protected static Map<String, Role> getRoleMap() {
+    private static Map<String, Role> getRoleMap() {
         if (_roleMap == null) {
             _roleMap = YConnector.getRoleMap();
         }
@@ -97,7 +97,7 @@ public class ResourceDataSet {
     }
 
 
-    protected static Map<String, NonHumanResource> getNonHumanResourceMap() {
+    private static Map<String, NonHumanResource> getNonHumanResourceMap() {
         if (_nhrMap == null) {
             _nhrMap = YConnector.getNonHumanResourceMap();
         }
@@ -134,7 +134,7 @@ public class ResourceDataSet {
         return null;
     }
 
-    protected static List<AbstractSelector> getFilters() {
+    private static List<AbstractSelector> getFilters() {
         if (_filters == null) {
             try {
                 _filters = YConnector.getFilters();
@@ -152,7 +152,7 @@ public class ResourceDataSet {
     }
 
 
-    protected static List<AbstractSelector> getConstraints() {
+    private static List<AbstractSelector> getConstraints() {
         if (_constraints == null) {
             try {
                 _constraints = YConnector.getConstraints();

@@ -26,11 +26,11 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableTaskIconChange extends AbstractUndoableEdit {
 
-  private NetGraph net;
-  private YAWLTask task;
+  private final NetGraph net;
+  private final YAWLTask task;
   
-  private String oldIconPath;
-  private String newIconPath;
+  private final String oldIconPath;
+  private final String newIconPath;
 
 
   public UndoableTaskIconChange(NetGraph net, YAWLVertex vertex,

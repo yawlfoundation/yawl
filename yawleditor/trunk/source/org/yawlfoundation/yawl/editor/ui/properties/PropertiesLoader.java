@@ -39,10 +39,10 @@ public class PropertiesLoader
 
     private NetGraph _graph;
     private Binder _binder;
-    private NetProperties _netProperties;
-    private CellProperties _cellProperties;
-    private FlowProperties _flowProperties;
-    private DecompositionProperties _decompositionProperties;
+    private final NetProperties _netProperties;
+    private final CellProperties _cellProperties;
+    private final FlowProperties _flowProperties;
+    private final DecompositionProperties _decompositionProperties;
     private FileState _lastFileState;
 
 

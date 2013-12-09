@@ -37,8 +37,8 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
     private static final int NOTES_PANEL_INDEX = 0;
     private static final int PROBLEM_PANEL_INDEX = 1;
 
-    private NotesPanel notesPanel;
-    private ProblemPanel problemPanel;
+    private final NotesPanel notesPanel;
+    private final ProblemPanel problemPanel;
 
 
     public BottomPanel() {

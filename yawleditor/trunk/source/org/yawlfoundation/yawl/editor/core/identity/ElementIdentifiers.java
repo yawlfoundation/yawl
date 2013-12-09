@@ -35,10 +35,10 @@ import java.util.Map;
  */
 public class ElementIdentifiers {
     
-    public static String DEFAULT_ELEMENT_NAME = "element";
+    private static final String DEFAULT_ELEMENT_NAME = "element";
 
     // a map of element names to used and available or used suffix integers for each name
-    private Map<String, SuffixStore> _identifiers;
+    private final Map<String, SuffixStore> _identifiers;
 
 
     public ElementIdentifiers() {
@@ -58,7 +58,7 @@ public class ElementIdentifiers {
         for (YDecomposition decomposition : spec.getDecompositions()) {
             if (decomposition instanceof YNet) {
                 for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
-                    ElementIdentifier id = new ElementIdentifier(element.getID(), true);
+                    ElementIdentifier id = new ElementIdentifier(element.getID());
                     getSuffixStore(id.getName()).use(id.getSuffix());
                 }
             }
@@ -111,7 +111,7 @@ public class ElementIdentifiers {
 
 
     public void removeIdentifier(String idString) {
-        removeIdentifier(new ElementIdentifier(idString, true));
+        removeIdentifier(new ElementIdentifier(idString));
     }
 
 
@@ -146,7 +146,7 @@ public class ElementIdentifiers {
 
     private void rationalise(YNetElement element) {
         String original = element.getID();
-        ElementIdentifier id = rationalise(new ElementIdentifier(original, true));
+        ElementIdentifier id = rationalise(new ElementIdentifier(original));
         if (! id.toString().equals(original)) {
             element.setID(id.toString());
         }

@@ -47,10 +47,10 @@ import java.util.Set;
 
 public class NetGraph extends JGraph {
 
-  public static final int DEFAULT_MARGIN  = 50;
+  private static final int DEFAULT_MARGIN  = 50;
   
   // Default margin size of whitespace to appear around elements being added to a net
-  public static final int WHITESPACE_MARGIN  = 20;
+  private static final int WHITESPACE_MARGIN  = 20;
 
   private YAWLEditorNetPanel frame;
   private NetSelectionListener selectionListener;
@@ -1041,7 +1041,7 @@ class NetFocusListener implements FocusListener {
    * a flow.
    */
   
-  private NetGraph net;
+  private final NetGraph net;
   
   public NetFocusListener(NetGraph net) {
     this.net = net;

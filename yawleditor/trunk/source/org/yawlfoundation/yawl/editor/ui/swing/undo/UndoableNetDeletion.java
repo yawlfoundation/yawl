@@ -28,11 +28,11 @@ import java.util.Set;
 
 public class UndoableNetDeletion extends AbstractUndoableEdit {
 
-    private NetGraphModel deletedNet;
-    private boolean wasRootNet;
-    private NetGraphModel newRootNet;
-    private Set<YAWLCompositeTask> changedTasks;
-    private NetModelSet nets;
+    private final NetGraphModel deletedNet;
+    private final boolean wasRootNet;
+    private final NetGraphModel newRootNet;
+    private final Set<YAWLCompositeTask> changedTasks;
+    private final NetModelSet nets;
 
     public UndoableNetDeletion(NetModelSet nets, NetGraphModel deletedNet,
                                NetGraphModel newRootNet,

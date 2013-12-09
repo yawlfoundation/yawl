@@ -27,7 +27,7 @@ import java.awt.*;
  */
 public class CustomFormDialogPanel extends JPanel {
 
-    private JTextArea textArea;
+    private final JTextArea textArea;
 
     public CustomFormDialogPanel() {
         setLayout(new BorderLayout(5, 5));

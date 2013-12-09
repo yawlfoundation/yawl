@@ -27,7 +27,7 @@ import java.io.*;
 
 public class ResourceLoader {
 
-    protected static final String resourcesPath =
+    private static final String resourcesPath =
             "/org/yawlfoundation/yawl/editor/ui/resources/";
 
 

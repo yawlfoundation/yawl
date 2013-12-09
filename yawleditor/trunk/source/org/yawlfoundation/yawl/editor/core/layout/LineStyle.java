@@ -29,7 +29,7 @@ public enum LineStyle {
     // the indices match the legacy jgraph equivalents
     Orthogonal(11), Bezier(12), Spline(13);
 
-    private int index;
+    private final int index;
 
     private LineStyle(int i) {index = i; }
 

@@ -33,7 +33,7 @@ import java.beans.*;
  */
 public class Binder implements PropertyChangeListener {
 
-    private YPropertiesBean _bean;
+    private final YPropertiesBean _bean;
     private YBeanInfo _beanInfo;
     private final YPropertySheet _sheet;
 

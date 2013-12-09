@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class RoleListModel extends AbstractResourceListModel {
 
-    private List<Role> fullList;
+    private final List<Role> fullList;
     private List<Role> filteredList;
 
     private int filterLength;

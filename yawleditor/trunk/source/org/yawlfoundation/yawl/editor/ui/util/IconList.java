@@ -40,10 +40,10 @@ public class IconList {
     private boolean _loaded;
     private Icon _brokenPath;
 
-    private static IconList INSTANCE = new IconList();
-    private static List<IconPair> _icons = new ArrayList<IconPair>();
+    private static final IconList INSTANCE = new IconList();
+    private static final List<IconPair> _icons = new ArrayList<IconPair>();
 
-    public static final String INTERNAL_PATH =
+    private static final String INTERNAL_PATH =
             "org/yawlfoundation/yawl/editor/ui/resources/taskicons";
 
 
@@ -109,9 +109,9 @@ public class IconList {
 
     public class IconPair implements Comparable<IconPair> {
 
-        private String _name;
-        private Icon _icon;
-        private Icon _menuIcon;
+        private final String _name;
+        private final Icon _icon;
+        private final Icon _menuIcon;
 
         public IconPair(String name, Icon icon, Icon menuIcon) {
             _name = name;

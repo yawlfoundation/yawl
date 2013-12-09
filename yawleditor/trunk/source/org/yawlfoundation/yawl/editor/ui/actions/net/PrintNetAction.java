@@ -34,14 +34,11 @@ import java.awt.event.ActionEvent;
 import java.util.Locale;
 
 public class PrintNetAction extends YAWLSelectedNetAction {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private PrintRequestAttributeSet printAttribs = new HashPrintRequestAttributeSet();
+
+  private final PrintRequestAttributeSet printAttribs = new HashPrintRequestAttributeSet();
   private JobName jobName;
 
-  private DocFlavor flavor = DocFlavor.INPUT_STREAM.PNG;
+  private final DocFlavor flavor = DocFlavor.INPUT_STREAM.PNG;
 
   private PrintService printServices[];
   private PrintService defaultService;

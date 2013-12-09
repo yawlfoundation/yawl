@@ -26,7 +26,7 @@ import java.io.InputStream;
  */
 public class MacListener extends ApplicationAdapter {
 
-    private Application application;
+    private final Application application;
 
 
     public MacListener() {

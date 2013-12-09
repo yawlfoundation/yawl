@@ -24,8 +24,8 @@ package org.yawlfoundation.yawl.editor.core.identity;
  * most complex specifications).
  */
 class SuffixStore {
-    int size = 4;                                 // initial size
-    boolean[] used = new boolean[size];
+    private int size = 4;                                 // initial size
+    private boolean[] used = new boolean[size];
 
     int getNext() {
         int i = 0;

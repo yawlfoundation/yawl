@@ -46,10 +46,10 @@ public class FlowConditionTablePanel extends JPanel
 
     private FlowConditionTable table;
     private Map<YAWLFlowRelation, Color> origFlowColours;
-    private NetGraph _graph;
-    private FlowConditionDialog _parent;
-    private BindingTypeValidator _conditionValidator;
-    private Set<Integer> _invalidRows;
+    private final NetGraph _graph;
+    private final FlowConditionDialog _parent;
+    private final BindingTypeValidator _conditionValidator;
+    private final Set<Integer> _invalidRows;
 
     // toolbar buttons
     private JButton btnUp;
@@ -67,7 +67,7 @@ public class FlowConditionTablePanel extends JPanel
         _graph = graph;
         _parent = parent;
         _conditionValidator = new BindingTypeValidator(
-                        YAWLEditor.getNetsPane().getSelectedYNet(), null);
+                        YAWLEditor.getNetsPane().getSelectedYNet());
         _invalidRows = new HashSet<Integer>();
         List<YAWLFlowRelation> rows = new ArrayList<YAWLFlowRelation>(
                 task.getOutgoingFlows());
@@ -77,7 +77,7 @@ public class FlowConditionTablePanel extends JPanel
         JScrollPane scrollPane = new JScrollPane(createTable(rows));
         scrollPane.setPreferredSize(new Dimension(400, 180));
         add(scrollPane, BorderLayout.CENTER);
-        enableButtons(true);
+        enableButtons();
         setStatus();
     }
 
@@ -183,10 +183,10 @@ public class FlowConditionTablePanel extends JPanel
     }
 
 
-    protected void enableButtons(boolean enable) {
+    protected void enableButtons() {
         boolean hasRowSelected = table.getSelectedRow() > -1;
-        btnUp.setEnabled(enable && hasRowSelected);
-        btnDown.setEnabled(enable && hasRowSelected);
+        btnUp.setEnabled(hasRowSelected);
+        btnDown.setEnabled(hasRowSelected);
     }
 
 

@@ -36,7 +36,7 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
     private SwatchPanel _netSwatch;
     private SwatchPanel _elementSwatch;
     private FontPanel _fontPanel;
-    private ActionListener _listener;
+    private final ActionListener _listener;
 
 
     public DefaultsPanel(ActionListener listener) {

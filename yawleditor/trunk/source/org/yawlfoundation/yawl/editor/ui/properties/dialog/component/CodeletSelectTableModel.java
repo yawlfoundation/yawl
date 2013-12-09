@@ -28,8 +28,8 @@ public class CodeletSelectTableModel extends AbstractOrderedRowTableModel {
 
     private static final String[] COLUMN_LABELS = { "Name", "Description" };
 
-    public static final int NAME_COLUMN = 0;
-    public static final int DESC_COLUMN = 1;
+    private static final int NAME_COLUMN = 0;
+    private static final int DESC_COLUMN = 1;
 
 
     public CodeletSelectTableModel(List<CodeletData> codeletDataList) {

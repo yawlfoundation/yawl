@@ -31,10 +31,10 @@ import java.awt.event.ActionListener;
  */
 public class StatusPanel extends JPanel {
 
-    private JLabel _statusLabel;
+    private final JLabel _statusLabel;
     private JButton _btnMore;
     private java.util.List<String> _moreText;
-    private Window _owner;
+    private final Window _owner;
 
     public static final Color ERROR = Color.RED;
     public static final Color WARNING = Color.YELLOW;

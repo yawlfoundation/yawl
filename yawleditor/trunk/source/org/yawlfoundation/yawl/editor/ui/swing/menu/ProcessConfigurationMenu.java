@@ -43,8 +43,8 @@ import javax.swing.*;
 public class ProcessConfigurationMenu extends JMenu
         implements ProcessConfigurationModelListener, FileStateListener {
 
-    JMenu _netMenu;
-    JMenu _taskMenu;
+    private JMenu _netMenu;
+    private JMenu _taskMenu;
 
     public ProcessConfigurationMenu() {
         super("Process Configuration");

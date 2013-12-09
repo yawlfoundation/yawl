@@ -32,7 +32,7 @@ public class CodeletDialog extends AbstractDoneDialog {
 
 
     public CodeletDialog() {
-        super("Set Codelet for Automated Decomposition", true);
+        super("Set Codelet for Automated Decomposition");
         setContentPanel(getCodeletPanel());
         getDoneButton().setText("OK");
         getRootPane().setDefaultButton(getCancelButton());

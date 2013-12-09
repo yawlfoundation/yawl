@@ -30,72 +30,64 @@ import javax.swing.text.DocumentFilter;
 /**
  * This class is an extension of {@link JFormattedSelectField} that allows
  * users to only enter characters that are not XML special characters.
- * 
+ *
  * @author Lindsay Bradford
  */
 
 public class JFormattedSafeXMLCharacterField extends JFormattedSelectField {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  public JFormattedSafeXMLCharacterField(int columns) {
-    super();
-    setFormatterFactory(new SafeXMLFormatterFactory());
-    setColumns(columns);
-    setMinimumSize(getPreferredSize());  
-  }
+    public JFormattedSafeXMLCharacterField() {
+        super();
+        setFormatterFactory(new SafeXMLFormatterFactory());
+        setColumns(15);
+        setMinimumSize(getPreferredSize());
+    }
 }
 
 class SafeXMLFormatterFactory extends JFormattedTextField.AbstractFormatterFactory {
-  private final SafeXMLFormatter FORMATTER = new SafeXMLFormatter();
-  public AbstractFormatter getFormatter(JFormattedTextField field) {
-    assert field instanceof JFormattedSafeXMLCharacterField;
-    return FORMATTER;
-  }
+    private final SafeXMLFormatter FORMATTER = new SafeXMLFormatter();
+    public AbstractFormatter getFormatter(JFormattedTextField field) {
+        assert field instanceof JFormattedSafeXMLCharacterField;
+        return FORMATTER;
+    }
 }
 
 class SafeXMLFormatter extends DefaultFormatter {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private final SafeXMLCharacterFilter filter = new SafeXMLCharacterFilter();
-  
+    private final SafeXMLCharacterFilter filter = new SafeXMLCharacterFilter();
 
-  public SafeXMLFormatter() {
-    super();
-  }
-  
-  protected DocumentFilter getDocumentFilter() {
-    return filter;
-  }
+
+    public SafeXMLFormatter() {
+        super();
+    }
+
+    protected DocumentFilter getDocumentFilter() {
+        return filter;
+    }
 }
 
 class SafeXMLCharacterFilter extends DocumentFilter {
-  
-  public SafeXMLCharacterFilter() {}
-  
-  public void replace(DocumentFilter.FilterBypass bypass,
-                      int offset,
-                      int length,
-                      String text,
-                      AttributeSet attributes) throws BadLocationException {
-    if (isValidText(text))
-      super.replace(bypass,offset,length,text,attributes);
-  }
 
-  protected boolean isValidText(String text) {
-    if (text == null) {
-      return true;
+    public SafeXMLCharacterFilter() {}
+
+    public void replace(DocumentFilter.FilterBypass bypass,
+                        int offset,
+                        int length,
+                        String text,
+                        AttributeSet attributes) throws BadLocationException {
+        if (isValidText(text))
+            super.replace(bypass,offset,length,text,attributes);
     }
-    for (int i = 0; i < text.length(); i++) {
-      
-      if (XMLUtilities.isSpecialXMLCharacter(text.charAt(i))) {
-        return false;
-      }
+
+    protected boolean isValidText(String text) {
+        if (text == null) {
+            return true;
+        }
+        for (int i = 0; i < text.length(); i++) {
+
+            if (XMLUtilities.isSpecialXMLCharacter(text.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-  }
 }

@@ -36,7 +36,6 @@ import java.util.List;
  */
 public class DataUtil {
 
-    private String _specificationSchema;
     private Document _schemaDoc;
     private final DataSchemaValidator _schemaValidator;
     private final InstanceValidator _instanceValidator;
@@ -55,10 +54,10 @@ public class DataUtil {
 
 
     public void setSpecificationSchema(String schema) {
-        _specificationSchema = schema != null ? schema : DEFAULT_SCHEMA;
-        _schemaValidator.setDataTypeSchema(_specificationSchema);
-        _instanceValidator.setSpecificationSchema(_specificationSchema);
-        _schemaDoc = JDOMUtil.stringToDocument(_specificationSchema);
+        String specificationSchema = schema != null ? schema : DEFAULT_SCHEMA;
+        _schemaValidator.setDataTypeSchema(specificationSchema);
+        _instanceValidator.setSpecificationSchema(specificationSchema);
+        _schemaDoc = JDOMUtil.stringToDocument(specificationSchema);
     }
 
 

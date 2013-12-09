@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ParticipantListModel extends AbstractResourceListModel {
 
-    private List<Participant> fullList;
+    private final List<Participant> fullList;
     private List<Participant> filteredList;
 
     private int filterLength;

@@ -31,8 +31,8 @@ import java.awt.event.ActionListener;
 public class VariableValueDialog extends JDialog implements ActionListener {
 
     private InstanceEditorPane _editorPane;
-    private String _varName;
-    private String _dataType;
+    private final String _varName;
+    private final String _dataType;
     private String _value;
 
 

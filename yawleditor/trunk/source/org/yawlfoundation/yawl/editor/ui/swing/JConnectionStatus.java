@@ -98,7 +98,7 @@ public class JConnectionStatus extends JPanel {
 
     class JIndicator extends JPanel {
 
-        private JLabel _indicator ;
+        private final JLabel _indicator ;
         private boolean _online ;
         private String _indicatorFor;
 
@@ -139,7 +139,7 @@ public class JConnectionStatus extends JPanel {
     /*******************************************/
 
     // Opens the preferences dialog when an icon or surrounding panel is clicked
-    class PreferencesLauncher extends MouseAdapter {
+    private class PreferencesLauncher extends MouseAdapter {
         public void mouseClicked(MouseEvent mouseEvent) {
             new PreferencesDialog().setVisible(true);
             super.mouseClicked(mouseEvent);

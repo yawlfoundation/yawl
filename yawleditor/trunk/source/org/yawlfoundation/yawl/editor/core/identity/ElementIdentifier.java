@@ -37,9 +37,9 @@ public class ElementIdentifier {
         _suffix = suffix;
     }
 
-    public ElementIdentifier(String label, boolean parse) {
+    public ElementIdentifier(String label) {
         this(label, 0);                                        // default
-        if (parse) parseLabel(label);
+        parseLabel(label);
     }
 
     public String getName() { return _label; }

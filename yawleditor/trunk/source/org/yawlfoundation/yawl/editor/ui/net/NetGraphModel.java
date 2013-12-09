@@ -33,9 +33,9 @@ import java.util.*;
 
 public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGraphModel> {
 
-    private NetGraph _graph;
+    private final NetGraph _graph;
     private YDecomposition _decomposition;        // the YNet
-    private YSpecificationHandler _specificationHandler = SpecificationModel.getHandler();
+    private final YSpecificationHandler _specificationHandler = SpecificationModel.getHandler();
 
 
     public NetGraphModel(NetGraph graph) {

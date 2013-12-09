@@ -44,12 +44,12 @@ import java.util.Set;
 public class BasicOfferInteraction extends AbstractInteraction {
 
     // distribution set
-    private ParticipantSet _participants;
-    private RoleSet _roles;
-    private DynParamSet _dynParams;
+    private final ParticipantSet _participants;
+    private final RoleSet _roles;
+    private final DynParamSet _dynParams;
 
-    private FilterSet _filters;
-    private ConstraintSet _constraints;
+    private final FilterSet _filters;
+    private final ConstraintSet _constraints;
     private String _familiarParticipantTask ;
 
 

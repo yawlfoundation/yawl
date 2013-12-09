@@ -35,7 +35,7 @@ public class JTimeSpinner extends JPanel {
 
     private enum Interval { Hour, Minute, Second, Open }
 
-    public static final int TIME_TYPE = 0;
+    private static final int TIME_TYPE = 0;
     public static final int DURATION_TYPE = 1;
 
     private JSpinner yearSpinner;
@@ -264,7 +264,8 @@ public class JTimeSpinner extends JPanel {
     /*******************************************************************************/
 
     class CyclingSpinnerListModel extends SpinnerListModel {
-        Object firstValue, lastValue;
+        final Object firstValue;
+        final Object lastValue;
         SpinnerModel linkedModel = null;
 
         public CyclingSpinnerListModel(Object[] values) {

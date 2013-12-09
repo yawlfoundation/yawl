@@ -31,13 +31,8 @@ import java.awt.event.ActionEvent;
 public class SetElementFillColourAction extends YAWLSelectedNetAction
                                 implements TooltipTogglingWidget {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
-
-    private NetGraph net;
-    private YAWLVertex vertex;
+    private final NetGraph net;
+    private final YAWLVertex vertex;
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Set the element's background colour. ");

@@ -40,12 +40,12 @@ public class CancellationSetModel implements GraphSelectionListener {
     public static final Color NOT_CANCELLATION_SET_MEMBER_FOREGROUND =
             YAWLVertex.DEFAULT_VERTEX_FOREGROUND;
 
-    private List<CancellationSetModelListener> _subscribers;
+    private final List<CancellationSetModelListener> _subscribers;
     private  NetGraph _graph;
     private CancellationSet _currentSet;
 
 
-    public CancellationSetModel() {
+    private CancellationSetModel() {
         _graph = null;
         _currentSet = null;
         _subscribers = new ArrayList<CancellationSetModelListener>();

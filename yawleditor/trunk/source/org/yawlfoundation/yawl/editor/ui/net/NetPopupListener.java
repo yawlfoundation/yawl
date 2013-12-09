@@ -31,7 +31,7 @@ import java.awt.event.MouseEvent;
 public class NetPopupListener extends MouseAdapter {
 
     private static final PalettePopupMenu palettePopup = new PalettePopupMenu();
-    private NetGraph graph;
+    private final NetGraph graph;
 
     public NetPopupListener(NetGraph graph) {
         this.graph = graph;

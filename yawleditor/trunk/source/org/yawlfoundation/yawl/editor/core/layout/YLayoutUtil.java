@@ -149,7 +149,7 @@ public class YLayoutUtil {
         byte[] buffer = new byte[BUF_SIZE];
 
         // read chunks from the input stream and write them out
-        int bytesRead = 0;
+        int bytesRead;
         while ((bytesRead = inStream.read(buffer, 0, BUF_SIZE)) > 0) {
             outStream.write(buffer, 0, bytesRead);
         }

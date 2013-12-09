@@ -32,22 +32,22 @@ public abstract class AbstractDoneDialog extends JDialog {
 
     private enum ButtonType { Done, Cancel }
 
-    private JButton _doneButton = buildDoneButton();
-    private JButton _cancelButton = buildCancelButton();
+    private final JButton _doneButton = buildDoneButton();
+    private final JButton _cancelButton = buildCancelButton();
     private JPanel _buttonPanel;
     private boolean _showCancelButton;
     private ButtonType buttonSelected = ButtonType.Cancel;
-    protected boolean closeCancelled = false;
+    private boolean closeCancelled = false;
 
 
     /**
      * ***********************************************************
      */
 
-    public AbstractDoneDialog(String title,
-                              boolean modality,
-                              JPanel contentPanel,
-                              boolean showCancelButton) {
+    protected AbstractDoneDialog(String title,
+                                 boolean modality,
+                                 JPanel contentPanel,
+                                 boolean showCancelButton) {
         super();
         setTitle(title);
         setModal(modality);
@@ -56,21 +56,21 @@ public abstract class AbstractDoneDialog extends JDialog {
         setUndecorated(false);
     }
 
-    public AbstractDoneDialog(String title, boolean modality, boolean showCancelButton) {
+    protected AbstractDoneDialog(String title, boolean modality, boolean showCancelButton) {
         super();
         setTitle(title);
         setModal(modality);
         _showCancelButton = showCancelButton;
     }
 
-    public AbstractDoneDialog(String title, boolean modality) {
+    protected AbstractDoneDialog(String title) {
         super();
         setTitle(title);
-        setModal(modality);
+        setModal(true);
         _showCancelButton = true;
     }
 
-    public AbstractDoneDialog() {
+    protected AbstractDoneDialog() {
         super();
     }
 
@@ -79,18 +79,18 @@ public abstract class AbstractDoneDialog extends JDialog {
      * ***********************************************************
      */
 
-    public void setContentPanel(JPanel contentPanel) {
+    protected void setContentPanel(JPanel contentPanel) {
         getContentPane().add(bindContentAndButton(contentPanel), BorderLayout.CENTER);
         makeLastAdjustments();
     }
 
 
-    public JButton getDoneButton() {
+    protected JButton getDoneButton() {
         return _doneButton;
     }
 
 
-    public JButton getCancelButton() {
+    protected JButton getCancelButton() {
         return _cancelButton;
     }
 

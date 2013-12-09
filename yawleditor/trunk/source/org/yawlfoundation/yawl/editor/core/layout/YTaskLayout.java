@@ -33,14 +33,12 @@ import java.util.Set;
  */
 public class YTaskLayout extends YNetElementNode {
 
-    private YTask _task;
     private YDecoratorLayout _split;
     private YDecoratorLayout _join;
     private String _icon;
 
     public YTaskLayout(YTask task, NumberFormat formatter) {
         setID(task.getID());
-        _task = task;
         setNumberFormatter(formatter);
     }
 

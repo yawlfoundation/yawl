@@ -138,7 +138,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     private class UDAPropertySheetTable extends YPropertySheetTable {
 
-        UDACellRenderer udaCellRenderer = new UDACellRenderer();
+        final UDACellRenderer udaCellRenderer = new UDACellRenderer();
 
         UDAPropertySheetTable() {
             super();
@@ -185,7 +185,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     class UDACellRenderer extends DefaultTableCellRenderer {
 
-        Color foreColor =  new Color(0,0,200);
+        final Color foreColor =  new Color(0,0,200);
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,

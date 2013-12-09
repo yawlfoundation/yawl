@@ -33,8 +33,8 @@ import java.awt.event.ActionListener;
 public class VariableRowUsageEditor extends AbstractCellEditor
         implements TableCellEditor, ActionListener {
 
-    private VariableTablePanel tablePanel;
-    private JComboBox usageCombo;
+    private final VariableTablePanel tablePanel;
+    private final JComboBox usageCombo;
 
     public VariableRowUsageEditor(VariableTablePanel panel) {
         usageCombo = new JComboBox(YDataHandler.getScopeNames().toArray());

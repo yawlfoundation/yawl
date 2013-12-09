@@ -50,7 +50,7 @@ public class TaskPrivilegeSubPanel extends JPanel implements ItemListener {
     private ParticipantTableModel _participantTableModel;
     private RoleTableModel _roleTableModel;
 
-    private String _privilege;
+    private final String _privilege;
 
     public TaskPrivilegeSubPanel(String caption, String privilege, ResourceDialog owner) {
         super();

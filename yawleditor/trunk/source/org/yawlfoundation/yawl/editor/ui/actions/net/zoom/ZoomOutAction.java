@@ -26,10 +26,6 @@ import java.awt.event.ActionEvent;
 
 public class ZoomOutAction extends YAWLSelectedNetAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final ZoomOutAction INSTANCE = new ZoomOutAction();
   {
     putValue(Action.SHORT_DESCRIPTION, " Zoom out ");

@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 
 public class FindTextDataTypeDialogAction extends YAWLBaseAction {
 
-    private DataTypeDialogToolBarMenu toolbar;
+    private final DataTypeDialogToolBarMenu toolbar;
 
     {
         putValue(Action.SHORT_DESCRIPTION, " Find text");

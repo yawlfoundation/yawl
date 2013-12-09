@@ -32,9 +32,9 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
     private JTextArea _textArea;
     private String _text;
 
-    public TextAreaDialog(Window parent, String title, String text) {
+    public TextAreaDialog(Window parent, String text) {
         super(parent);
-        setTitle(title);
+        setTitle("Update text");
         _text = text;
         add(getContent());
         setPreferredSize(new Dimension(420, 280));

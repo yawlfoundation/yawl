@@ -56,11 +56,11 @@ public class SetRootNetAction extends YAWLExistingNetAction {
 
 class RootNetDialog extends AbstractDoneDialog {
 
-    protected JComboBox netComboBox;
+    private JComboBox netComboBox;
 
 
     public RootNetDialog() {
-        super("Choose Root Net", true);
+        super("Choose Root Net");
         setContentPanel(getStartingNetPanel());
         getDoneButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.resourcing.codelets.CodeletInfo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
@@ -33,11 +32,6 @@ import java.util.TreeMap;
 
 
 public class CodeletSelectTable extends JOrderedSingleSelectTable {
-
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
 
   private static final int MAX_TABLE_HEIGHT = 290;
   private static final int CODELET_TABLE_WIDTH = 585;
@@ -80,11 +74,6 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
 
   public Dimension getPreferredScrollableViewportSize() {
     return new Dimension(preferredTableWidth, getPreferredViewportHeight());
-  }
-
-
-  public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
-    return super.prepareRenderer(renderer, row, col);
   }
 
 

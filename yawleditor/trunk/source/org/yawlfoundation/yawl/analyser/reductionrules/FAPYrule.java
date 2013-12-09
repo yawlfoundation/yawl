@@ -66,8 +66,8 @@ public class FAPYrule extends YAWLReductionRule {
 
             //check if all pre and post tasks are xor-splits and xor-joins  
             if (preSet.size() > 1 && postSet.size() > 1 &&
-                    checkTaskSplitJoinType(preSet, true, YTask._XOR) &&
-                    checkTaskSplitJoinType(postSet, false, YTask._XOR)) {
+                    checkTaskSplitJoinType(preSet, true) &&
+                    checkTaskSplitJoinType(postSet, false)) {
 
                 // potential candidate exits so now try and find 
                 // one or more other conditions
@@ -97,15 +97,15 @@ public class FAPYrule extends YAWLReductionRule {
 
 
     private boolean checkTaskSplitJoinType(Set<YExternalNetElement> elements,
-                                           boolean checkSplit, int type) {
+                                           boolean checkSplit) {
         for (YExternalNetElement next : elements) {
             if (next instanceof YTask) {
                 YTask task = (YTask) next;
                 if (checkSplit) {
-                    if (task.getSplitType() != type) return false;
+                    if (task.getSplitType() != YTask._XOR) return false;
                 }
                 else {
-                    if (task.getJoinType() != type) return false;
+                    if (task.getJoinType() != YTask._XOR) return false;
                 }
             }
         }

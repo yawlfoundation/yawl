@@ -24,9 +24,9 @@ package org.yawlfoundation.yawl.analyser;
  */
 public class YAnalyserEvent {
 
-    private YAnalyserEventType _eventType;
-    private String _source;
-    private String _message;
+    private final YAnalyserEventType _eventType;
+    private final String _source;
+    private final String _message;
 
     public YAnalyserEvent(YAnalyserEventType eventType, String source, String message) {
         _eventType = eventType;

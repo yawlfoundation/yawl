@@ -38,8 +38,8 @@ import java.io.IOException;
  */
 public class VariableRowTransferHandler extends TransferHandler {
 
-    private VariableTable _table;
-    private OutputBindings _outputBindings;
+    private final VariableTable _table;
+    private final OutputBindings _outputBindings;
     private final DataFlavor _variableRowFlavor;
 
 

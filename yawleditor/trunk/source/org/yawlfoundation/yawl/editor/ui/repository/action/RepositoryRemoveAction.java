@@ -32,9 +32,9 @@ import java.awt.event.ActionEvent;
 
 public class RepositoryRemoveAction extends YAWLOpenSpecificationAction {
 
-    Repo selectedRepo;
-    Component caller;
-    JDialog owner;
+    private final Repo selectedRepo;
+    private Component caller;
+    private final JDialog owner;
 
     {
         putValue(Action.SHORT_DESCRIPTION, "Remove From Repository");

@@ -35,10 +35,8 @@ import java.util.Map;
  */
 public class FilterSet extends EntityCollection<AbstractFilter> {
 
-    public FilterSet() { this(false); }
-
-    public FilterSet(boolean allowDuplicates) {
-        super(allowDuplicates);
+    public FilterSet() {
+        super(false);
     }
 
 

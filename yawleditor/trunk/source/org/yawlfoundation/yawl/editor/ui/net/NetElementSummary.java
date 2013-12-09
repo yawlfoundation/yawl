@@ -24,17 +24,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class NetElementSummary {
-  private NetGraphModel model;
+  private final NetGraphModel model;
   
   private InputCondition inputCondition;
   private OutputCondition outputCondition;
 
-  private Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-  private Set<Condition> conditions = new HashSet<Condition>();
-  private Set<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
-  private Set<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
-    private Set<YAWLTask> tasks = new HashSet<YAWLTask>();
-  private Set<YAWLTask> tasksWithCancellationSets = new HashSet<YAWLTask>();
+  private final Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+  private final Set<Condition> conditions = new HashSet<Condition>();
+  private final Set<YAWLAtomicTask> atomicTasks = new HashSet<YAWLAtomicTask>();
+  private final Set<YAWLCompositeTask> compositeTasks = new HashSet<YAWLCompositeTask>();
+    private final Set<YAWLTask> tasks = new HashSet<YAWLTask>();
+  private final Set<YAWLTask> tasksWithCancellationSets = new HashSet<YAWLTask>();
   
   public NetElementSummary(NetGraphModel model) {
     this.model = model;

@@ -18,21 +18,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net.align;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public class MoveElementsLeftAction extends YAWLSelectedNetAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final MoveElementsLeftAction INSTANCE 
-    = new MoveElementsLeftAction();
+  private static final MoveElementsLeftAction INSTANCE = new MoveElementsLeftAction();
   {
     putValue(Action.SHORT_DESCRIPTION, " Move selected items left");
     putValue(Action.NAME, "Move Items Left");

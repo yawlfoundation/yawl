@@ -85,6 +85,6 @@ public abstract class ResetReductionRule {
     * returns a reduced ResetWFNet or null if a given net cannot be reduced.
     * Must be implemented by individual reduction rule
     */
-    public abstract ResetWFNet reduceElement(ResetWFNet net, RElement element);
+    protected abstract ResetWFNet reduceElement(ResetWFNet net, RElement element);
 
 }

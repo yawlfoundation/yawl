@@ -91,7 +91,7 @@ public class SplitDecorator extends Decorator {
         }
     }
 
-    class FlowPriorityComparator implements Comparator {
+    private class FlowPriorityComparator implements Comparator {
 
         /*
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
