@@ -48,11 +48,11 @@ public class YSpecificationHandler {
 
     private YSpecification _specification;
     private boolean _modified;
-    private FileOperations _fileOps;
+    private final FileOperations _fileOps;
 
-    private YControlFlowHandler _controlFlowHandler;
-    private YDataHandler _dataHandler;
-    private YResourceHandler _resourceHandler;
+    private final YControlFlowHandler _controlFlowHandler;
+    private final YDataHandler _dataHandler;
+    private final YResourceHandler _resourceHandler;
 
     public static final String DEFAULT_TYPE_DEFINITION =
             "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n</xs:schema>";

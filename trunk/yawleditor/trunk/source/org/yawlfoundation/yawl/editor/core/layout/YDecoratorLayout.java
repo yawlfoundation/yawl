@@ -30,7 +30,7 @@ import java.text.NumberFormat;
  */
 public class YDecoratorLayout extends YLayoutNode {
 
-    private YTaskLayout _owner;
+    private final YTaskLayout _owner;
     private DecoratorType _type;
     private DecoratorPosition _position;
 

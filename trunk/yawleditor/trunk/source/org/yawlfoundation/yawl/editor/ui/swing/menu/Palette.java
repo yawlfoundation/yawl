@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class Palette extends JPanel {
 
-    private java.util.List<PaletteListener> paletteListeners = new ArrayList<PaletteListener>();
+    private final java.util.List<PaletteListener> paletteListeners = new ArrayList<PaletteListener>();
 
     public static enum SelectionState {
         ATOMIC_TASK,
@@ -41,7 +41,7 @@ public class Palette extends JPanel {
 
     private boolean enabledState = true;
 
-    private PaletteButton[] buttons = {
+    private final PaletteButton[] buttons = {
         new PaletteButton(this, new AtomicTaskAction(), KeyEvent.VK_1),
         new PaletteButton(this, new MultipleAtomicTaskAction(), KeyEvent.VK_2),
         new PaletteButton(this, new ConditionAction(), KeyEvent.VK_3),

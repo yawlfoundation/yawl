@@ -36,27 +36,27 @@ import java.util.List;
 
 public class PetriNet {
 
-    private NetGraphModel model;
+    private final NetGraphModel model;
 
     private InputCondition inputCondition;
     private OutputCondition outputCondition;
 
-    private ArrayList<YAWLFlowRelation> flows = new ArrayList<YAWLFlowRelation>();
-    private ArrayList<Condition> conditions = new ArrayList<Condition>();
+    private final ArrayList<YAWLFlowRelation> flows = new ArrayList<YAWLFlowRelation>();
+    private final ArrayList<Condition> conditions = new ArrayList<Condition>();
     private ArrayList<YAWLTask> tasks = new ArrayList<YAWLTask>();
 
-    private ArrayList<Integer> places;
-    private ArrayList<String> roles;
-    private ArrayList<Transition> transitions;
+    private final ArrayList<Integer> places;
+    private final ArrayList<String> roles;
+    private final ArrayList<Transition> transitions;
     private int initialMarking;
     private int finalCondition;
 
-    private HashMap<Condition, Integer> conditionToPlace = new HashMap<Condition, Integer>();
-    private HashMap<YAWLFlowRelation, Integer> flowToSourcePlace = new HashMap<YAWLFlowRelation, Integer>();
-    private HashMap<YAWLFlowRelation, Integer> flowToTargetPlace = new HashMap<YAWLFlowRelation, Integer>();
+    private final HashMap<Condition, Integer> conditionToPlace = new HashMap<Condition, Integer>();
+    private final HashMap<YAWLFlowRelation, Integer> flowToSourcePlace = new HashMap<YAWLFlowRelation, Integer>();
+    private final HashMap<YAWLFlowRelation, Integer> flowToTargetPlace = new HashMap<YAWLFlowRelation, Integer>();
 
     private int placeID;
-    private String path;
+    private final String path;
 
     public PetriNet(NetGraphModel model, String path) {
         places = new  ArrayList<Integer>();
@@ -296,8 +296,8 @@ public class PetriNet {
 
     private class Transition {
         public String role;
-        public ArrayList<Integer> consumePlaces;
-        public ArrayList<Integer> producePlaces;
+        public final ArrayList<Integer> consumePlaces;
+        public final ArrayList<Integer> producePlaces;
         public Transition(){
             this.role= null;
             this.consumePlaces = new ArrayList<Integer>();

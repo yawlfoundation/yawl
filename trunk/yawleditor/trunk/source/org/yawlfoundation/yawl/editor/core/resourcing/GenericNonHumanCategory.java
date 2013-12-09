@@ -27,7 +27,7 @@ public class GenericNonHumanCategory implements Comparable<GenericNonHumanCatego
 
     private String _id;
     private String _name;
-    protected String _subCatName;
+    private String _subCatName;
 
     public GenericNonHumanCategory(String id, String name) {
         setId(id);

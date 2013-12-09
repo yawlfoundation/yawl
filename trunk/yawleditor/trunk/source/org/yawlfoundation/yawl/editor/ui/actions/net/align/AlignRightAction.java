@@ -33,10 +33,6 @@ import java.util.Arrays;
 
 public class AlignRightAction extends YAWLSelectedNetAction implements TooltipTogglingWidget, GraphStateListener {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final AlignRightAction INSTANCE = new AlignRightAction();
   
   {

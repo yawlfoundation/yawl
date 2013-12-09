@@ -76,6 +76,11 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
                 : null;
     }
 
+    public String getFirstDataGateway() {
+        return _gatewayCombo.getItemCount() > 0 ?
+                (String) _gatewayCombo.getItemAt(0) : null;
+    }
+
 
     protected void initContent() {
         if (_varsCombo.getItemCount() == 0) {
@@ -90,7 +95,15 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
 
 
     protected void setSelectedItem(String item) {
-        if (! initExternalSelection(item)) {
+        if (item == null) {
+            if (_varsCombo.getItemCount() > 0) {
+                _netVarsButton.setSelected(true);
+            }
+            else if (_gatewayCombo.getItemCount() > 0) {
+                _gatewayButton.setSelected(true);
+            }
+        }
+        else if (! initExternalSelection(item)) {
             enableCombos(true, false);
             _netVarsButton.setSelected(true);
             _varsCombo.setSelectedItem(item);
@@ -145,7 +158,7 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         int first = mapping.indexOf(':');
         int last = mapping.lastIndexOf(':');
         if (first < 0 || last < 0) return false;
-        String gatewayName = mapping.substring(first, last);
+        String gatewayName = mapping.substring(first + 1, last);
         for (int i = 0; i < _gatewayCombo.getItemCount(); i++) {
             if (gatewayName.equals(_gatewayCombo.getItemAt(i))) {
                 enableCombos(false, true);

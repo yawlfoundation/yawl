@@ -50,7 +50,7 @@ public class ResourceDialog extends JDialog
     private JButton btnApply;
 
     private YNet net;
-    private YAtomicTask task;
+    private final YAtomicTask task;
 
 
     public ResourceDialog(YNet net, YAWLTask task) {

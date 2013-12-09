@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.editor.core.resourcing;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.elements.YAtomicTask;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -40,8 +39,8 @@ public class TaskPrivileges {
             "canDeallocate", "canDelegate", "canSkip", "canPile" );
 
 
-    public TaskPrivileges(YAtomicTask task) {
-        init(task);
+    public TaskPrivileges() {
+        init();
     }
 
 
@@ -93,7 +92,7 @@ public class TaskPrivileges {
     }
 
 
-    private void init(YAtomicTask task) {
+    private void init() {
         _privileges = new ArrayList<TaskPrivilege>();
         for (String name : PRIVILEGE_NAMES) {
             _privileges.add(new TaskPrivilege(name));

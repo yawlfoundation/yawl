@@ -18,18 +18,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class SelectAllNetElementsAction extends YAWLSelectedNetAction {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final SelectAllNetElementsAction INSTANCE 
     = new SelectAllNetElementsAction();
   {

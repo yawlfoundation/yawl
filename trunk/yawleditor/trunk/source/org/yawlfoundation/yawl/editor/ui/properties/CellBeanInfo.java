@@ -37,7 +37,7 @@ import java.util.ArrayList;
  */
 public class CellBeanInfo extends NetBeanInfo {
 
-    private java.util.List<Property> _basicProperties;
+    private final java.util.List<Property> _basicProperties;
     private String _category;
 
 

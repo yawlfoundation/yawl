@@ -33,7 +33,7 @@ public enum ResetReductionRuleType {
     FESR (FESRrule.class);
 
 
-    private Class ruleClass;
+    private final Class ruleClass;
 
 
     private ResetReductionRuleType(Class clazz) {

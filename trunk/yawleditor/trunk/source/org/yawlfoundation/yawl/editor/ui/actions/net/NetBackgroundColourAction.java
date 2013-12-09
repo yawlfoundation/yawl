@@ -26,11 +26,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class NetBackgroundColourAction extends YAWLSelectedNetAction {
-  
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+
 
   {
     putValue(Action.SHORT_DESCRIPTION, " Set the net background colour. ");

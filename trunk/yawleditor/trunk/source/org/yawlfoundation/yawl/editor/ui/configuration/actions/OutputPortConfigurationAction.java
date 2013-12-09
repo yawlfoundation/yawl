@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                OutputConfigurationJDialog dialog = new OutputConfigurationJDialog(new javax.swing.JFrame(), true, task, net);
+                OutputConfigurationJDialog dialog = new OutputConfigurationJDialog(new javax.swing.JFrame(), task, net);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
                 });
@@ -87,20 +88,20 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
         private List<CPort> OutputPorts;
 
-        private YAWLTask task;
+        private final YAWLTask task;
 
-        private int size;
+        private final int size;
 
         private TableColumn column = null;
         private TableColumn IDcolumn = null;
-        private NetGraph net;
-        private ActionEvent simulateEvent = new ActionEvent(this,1001,"Preview Process Configuration");
-        private PreviewConfigurationProcessAction simulateAction =
+        private final NetGraph net;
+        private final ActionEvent simulateEvent = new ActionEvent(this,1001,"Preview Process Configuration");
+        private final PreviewConfigurationProcessAction simulateAction =
                 PreviewConfigurationProcessAction.getInstance();
 
         /** Creates new form NewJDialog */
-        public OutputConfigurationJDialog(java.awt.Frame parent, boolean modal,YAWLTask task, NetGraph net) {
-            super(parent, modal);
+        public OutputConfigurationJDialog(Frame parent, YAWLTask task, NetGraph net) {
+            super(parent, true);
             this.task = task;
             this.net = net;
             size = this.task.getOutputCPorts().size();
@@ -150,10 +151,10 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                             "Port ID", "Target Nodes",  "Configuration"
                     }
             ) {
-                Class[] types = new Class [] {
+                final Class[] types = new Class [] {
                         java.lang.Integer.class, java.lang.String.class, java.lang.String.class
                 };
-                boolean[] canEdit = new boolean [] {
+                final boolean[] canEdit = new boolean [] {
                         false, false, false
                 };
 
@@ -339,7 +340,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             final YAWLTask task = this.task;
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    SetOutputPortDefaultConfigurationJDialog dialog = new SetOutputPortDefaultConfigurationJDialog(new javax.swing.JFrame(), true, net, task);
+                    SetOutputPortDefaultConfigurationJDialog dialog = new SetOutputPortDefaultConfigurationJDialog(new javax.swing.JFrame(), net, task);
                     dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     });
                     dialog.setLocationRelativeTo(YAWLEditor.getInstance());
@@ -411,9 +412,9 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
     private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDialog {
 
-        private NetGraph net;
-        private YAWLTask task;
-        private Object[][] rowInfor;
+        private final NetGraph net;
+        private final YAWLTask task;
+        private final Object[][] rowInfor;
         private List<CPort> outputPorts;
 
         public void  initOutputPorts(){
@@ -433,8 +434,8 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
 
         /** Creates new form NewJDialog  */
-        public SetOutputPortDefaultConfigurationJDialog(java.awt.Frame parent, boolean modal, NetGraph net, YAWLTask task) {
-            super(parent, modal);
+        public SetOutputPortDefaultConfigurationJDialog(Frame parent, NetGraph net, YAWLTask task) {
+            super(parent, true);
             this.net = net;
             this.task = task;
             initOutputPorts();
@@ -466,10 +467,10 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                             "Port ID", "Target Nodes", "Default Configuration"
                     }
             ) {
-                Class[] types = new Class [] {
+                final Class[] types = new Class [] {
                         java.lang.Integer.class, java.lang.String.class, java.lang.String.class
                 };
-                boolean[] canEdit = new boolean [] {
+                final boolean[] canEdit = new boolean [] {
                         false, false, false
                 };
 

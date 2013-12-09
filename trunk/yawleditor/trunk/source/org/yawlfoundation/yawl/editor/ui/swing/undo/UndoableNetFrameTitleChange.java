@@ -23,15 +23,11 @@ import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableNetFrameTitleChange extends AbstractUndoableEdit {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
 
-  private YAWLEditorNetPanel frame;
+  private final YAWLEditorNetPanel frame;
     
-  private String oldName;
-  private String newName;
+  private final String oldName;
+  private final String newName;
     
   public UndoableNetFrameTitleChange(YAWLEditorNetPanel frame, String oldName, String newName) {
     this.frame = frame;

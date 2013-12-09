@@ -28,7 +28,7 @@ import org.jgraph.graph.PortView;
  */
 public class YPortView extends PortView {
 
-    public static transient PortRenderer renderer = new YPortRenderer();
+    private static final transient PortRenderer renderer = new YPortRenderer();
 
 
     public YPortView() { super(); }

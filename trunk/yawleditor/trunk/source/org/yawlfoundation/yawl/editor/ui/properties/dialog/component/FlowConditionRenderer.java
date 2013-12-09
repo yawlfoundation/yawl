@@ -29,7 +29,7 @@ import java.awt.*;
  */
 public class FlowConditionRenderer extends DefaultCellRenderer {
 
-    FlowConditionTablePanel _tablePanel;
+    private final FlowConditionTablePanel _tablePanel;
 
 
     public FlowConditionRenderer(FlowConditionTablePanel tablePanel) {

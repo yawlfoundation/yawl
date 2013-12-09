@@ -70,8 +70,8 @@ class AbstractBindingPanel extends JPanel {
     }
 
 
-    protected String formatQuery(String query, boolean prettify) {
-        return XMLUtilities.formatXML(query, prettify, true);
+    protected String formatQuery(String query) {
+        return XMLUtilities.formatXML(query, true, true);
     }
 
 

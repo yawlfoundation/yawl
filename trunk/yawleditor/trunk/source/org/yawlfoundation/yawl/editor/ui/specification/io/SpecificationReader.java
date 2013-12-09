@@ -50,8 +50,8 @@ public class SpecificationReader {
 
     private static final Point DEFAULT_LOCATION = new Point(100,100);
 
-    private YSpecificationHandler _handler;
-    private Map<YExternalNetElement, YAWLVertex> _elementMap;
+    private final YSpecificationHandler _handler;
+    private final Map<YExternalNetElement, YAWLVertex> _elementMap;
 
 
     public SpecificationReader() {

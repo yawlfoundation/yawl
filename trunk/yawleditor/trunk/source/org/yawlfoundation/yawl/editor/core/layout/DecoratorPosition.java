@@ -29,7 +29,7 @@ public enum DecoratorPosition {
     // the indices match the legacy jgraph ordinals
     North(10), South(11), West(12), East(13);
 
-    private int index;
+    private final int index;
 
     private DecoratorPosition(int i) {index = i; }
 

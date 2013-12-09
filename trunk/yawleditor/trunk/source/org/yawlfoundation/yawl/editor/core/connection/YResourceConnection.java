@@ -60,9 +60,9 @@ public class YResourceConnection extends YConnection {
     private List<CodeletInfo> _codeletCache = new ArrayList<CodeletInfo>();
 
     // default URL parts
-    public static final String DEFAULT_HOST = "localhost";
-    public static final int DEFAULT_PORT = 8080;
-    public static final String GATEWAY_PATH = "/resourceService/gateway";
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 8080;
+    private static final String GATEWAY_PATH = "/resourceService/gateway";
 
 
     /*********************************************************************************/

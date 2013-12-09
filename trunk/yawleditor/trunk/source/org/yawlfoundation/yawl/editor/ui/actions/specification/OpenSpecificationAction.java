@@ -27,11 +27,6 @@ import java.awt.event.ActionEvent;
 
 public class OpenSpecificationAction extends YAWLSpecificationAction implements TooltipTogglingWidget {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
   {
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
     putValue(Action.NAME, "Open...");

@@ -171,7 +171,7 @@ public class SpecificationDownloadDialog extends PropertyDialog
 
     class SpecificationListModel extends AbstractListModel {
 
-        private java.util.List<YSpecificationID> items;
+        private final java.util.List<YSpecificationID> items;
 
 
         protected SpecificationListModel(java.util.List<YSpecificationID> items) {

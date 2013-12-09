@@ -50,17 +50,17 @@ public class YEngineConnection extends YConnection {
     private InterfaceA_EnvironmentBasedClient _client;
 
     // caches for each of the various resource entities
-    private Map<String, YAWLServiceReference> _serviceCache =
+    private final Map<String, YAWLServiceReference> _serviceCache =
             new HashMap<String, YAWLServiceReference>();
-    private Map<String, YParameter[]> _paramCache = new HashMap<String, YParameter[]>();
-    private Map<String, String> _externalDbCache = new HashMap<String, String>();
+    private final Map<String, YParameter[]> _paramCache = new HashMap<String, YParameter[]>();
+    private final Map<String, String> _externalDbCache = new HashMap<String, String>();
 
     // default url parts
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 8080;
-    public static final String IA_PATH = "/yawl/ia";
-    public static final String IB_PATH = "/yawl/ib";
-    public static final String IE_PATH = "/yawl/ie";
+    private static final String IA_PATH = "/yawl/ia";
+    private static final String IB_PATH = "/yawl/ib";
+    private static final String IE_PATH = "/yawl/ie";
 
 
     /*********************************************************************************/

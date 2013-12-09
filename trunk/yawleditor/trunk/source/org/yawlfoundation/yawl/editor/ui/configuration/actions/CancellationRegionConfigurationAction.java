@@ -52,7 +52,7 @@ public class CancellationRegionConfigurationAction extends ProcessConfigurationA
             public void run() {
                 ConfigureCancellationSetJDialog dialog =
                         new ConfigureCancellationSetJDialog(
-                                new javax.swing.JFrame(), true, task);
+                                new javax.swing.JFrame(), task);
                 dialog.setLocationRelativeTo(YAWLEditor.getInstance());
                 dialog.setPreferredSize(new Dimension(200, 100));
                 dialog.setResizable(false);
@@ -79,14 +79,13 @@ public class CancellationRegionConfigurationAction extends ProcessConfigurationA
 
     private class ConfigureCancellationSetJDialog extends JDialog implements ActionListener {
 
-        private YAWLTask task;
+        private final YAWLTask task;
 
         /**
          * Creates new form ConfigureCancellationSetJDialog
          */
-        public ConfigureCancellationSetJDialog(java.awt.Frame parent, boolean modal,
-                                               YAWLTask task) {
-            super(parent, modal);
+        public ConfigureCancellationSetJDialog(Frame parent, YAWLTask task) {
+            super(parent, true);
             this.task = task;
             this.setTitle("");
             initComponents();

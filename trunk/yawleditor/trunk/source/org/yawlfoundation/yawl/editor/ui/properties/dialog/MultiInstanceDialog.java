@@ -57,8 +57,8 @@ public class MultiInstanceDialog extends JDialog
     private Vector<String> integralVars;
     private boolean initialising;
 
-    private YNet net;
-    private YTask task;
+    private final YNet net;
+    private final YTask task;
 
 
     public MultiInstanceDialog(YNet net, String taskID) {
@@ -240,7 +240,7 @@ public class MultiInstanceDialog extends JDialog
         private JRadioButton rbVariable;
         private JRadioButton rbNoLimit;
 
-        private String label;
+        private final String label;
 
         MIAttributePanel(ChangeListener listener, String label) {
             this.label = label;

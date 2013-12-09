@@ -176,7 +176,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     private JPanel buildQueryPanel() {
-        _queryPanel = new QueryPanel("Binding", this);
+        _queryPanel = new QueryPanel(this);
         return _queryPanel;
     }
 

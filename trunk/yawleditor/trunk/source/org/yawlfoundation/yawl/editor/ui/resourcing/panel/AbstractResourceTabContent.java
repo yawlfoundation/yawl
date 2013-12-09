@@ -38,9 +38,9 @@ import java.util.Set;
  */
 public abstract class AbstractResourceTabContent extends JPanel {
 
-    private Logger _log;
-    private YNet _net;
-    private YAtomicTask _task;
+    private final Logger _log;
+    private final YNet _net;
+    private final YAtomicTask _task;
 
 
     protected AbstractResourceTabContent(YNet net, YAtomicTask task) {

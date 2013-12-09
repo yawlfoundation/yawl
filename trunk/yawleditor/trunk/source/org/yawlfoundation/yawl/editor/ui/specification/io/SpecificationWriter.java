@@ -44,7 +44,7 @@ import java.util.List;
 
 public class SpecificationWriter {
 
-    private YSpecificationHandler _handler = SpecificationModel.getHandler();
+    private final YSpecificationHandler _handler = SpecificationModel.getHandler();
 
     public boolean writeToFile(String fileName) {
         boolean success = false;

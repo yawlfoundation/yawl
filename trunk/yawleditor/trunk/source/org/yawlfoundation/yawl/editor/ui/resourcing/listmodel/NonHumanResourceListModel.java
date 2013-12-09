@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class NonHumanResourceListModel extends AbstractResourceListModel {
 
-    private List<NonHumanResource> fullList;
+    private final List<NonHumanResource> fullList;
     private List<NonHumanResource> filteredList;
 
     private int filterLength;

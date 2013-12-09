@@ -451,11 +451,11 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 
     class DeconfiguredTask {
 
-        YAWLTask _task;
-        List<CPort> inPorts;
-        List<CPort> outPorts;
-        List<List<String>> sourceNames;
-        List<List<String>> targetNames;
+        final YAWLTask _task;
+        final List<CPort> inPorts;
+        final List<CPort> outPorts;
+        final List<List<String>> sourceNames;
+        final List<List<String>> targetNames;
         boolean deconfigured;
 
 

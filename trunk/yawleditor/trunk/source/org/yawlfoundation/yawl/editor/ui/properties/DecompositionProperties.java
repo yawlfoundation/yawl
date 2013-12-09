@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ServicesPropertyEditor;
@@ -25,7 +26,11 @@ import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -110,8 +115,17 @@ public class DecompositionProperties extends CellProperties {
 
     public void setCustomService(String serviceName) {
         if (_decomposition != null) {
-            ((YAWLServiceGateway) _decomposition).setYawlService(
-                    ServicesPropertyEditor.getService(serviceName));
+            YAWLServiceReference service = ServicesPropertyEditor.getService(serviceName);
+            if (service != null) {
+                ((YAWLServiceGateway) _decomposition).setYawlService(service);
+                try {
+                    addParameters(YConnector.getServiceParameters(service.getURI()));
+                }
+                catch (IOException ioe) {
+                    showWarning("Service Parameter Error",
+                            "Failed to load required parameters from service");
+                }
+            }
             setDirty();
             enableServiceProperties(serviceName);
         }
@@ -152,6 +166,13 @@ public class DecompositionProperties extends CellProperties {
         if (_decomposition != null) {
             if (codelet != null && codelet.equals("None")) codelet = null;
             _decomposition.setCodelet(codelet);
+            try {
+                addParameters(YConnector.getCodeletParameters(codelet));
+            }
+            catch (IOException ioe) {
+                showWarning("Codelet Parameter Error",
+                        "Failed to load required parameters from codelet");
+            }
             refreshCellView(vertex);
             setDirty();
         }
@@ -195,4 +216,22 @@ public class DecompositionProperties extends CellProperties {
         }
     }
 
+
+    private void addParameters(List<YParameter> parameters) {
+        if (! (parameters == null || parameters.isEmpty())) {
+            for (YParameter parameter : parameters) {
+                if (parameter.isInput()) {
+                    _decomposition.addInputParameter(parameter);
+                }
+                else if (parameter.isOutput()) {
+                    _decomposition.addOutputParameter(parameter);
+                }
+            }
+
+            // update net-level data property changed via the task data dialog
+            NetTaskPair netPair = new NetTaskPair(getSelectedYNet(),
+                    _decomposition, (YAWLTask) vertex);
+            firePropertyChange("TaskDataVariables", netPair);
+        }
+    }
 }

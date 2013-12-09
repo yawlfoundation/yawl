@@ -32,11 +32,11 @@ import java.awt.event.ActionListener;
 
 public class LabelElementDialog extends AbstractVertexDoneDialog {
 
-    protected JFormattedSafeXMLCharacterField labelField;
-    protected JCheckBox cbxSynch;
+    private JFormattedSafeXMLCharacterField labelField;
+    private JCheckBox cbxSynch;
 
     public LabelElementDialog() {
-        super(null, true, true);
+        super();
         setContentPanel(getLabelPanel());
         getDoneButton().addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -105,7 +105,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
        "safe" (non-special) characters that this text field enforces.  
     */
 
-        labelField = new JFormattedSafeXMLCharacterField(15);
+        labelField = new JFormattedSafeXMLCharacterField();
 
         labelField.setToolTipText(" Enter a label to go under this net element. ");
         labelField.addActionListener(

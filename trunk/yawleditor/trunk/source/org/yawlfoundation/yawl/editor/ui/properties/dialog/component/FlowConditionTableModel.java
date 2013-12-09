@@ -30,7 +30,7 @@ import java.util.List;
 */
 class FlowConditionTableModel extends AbstractTableModel {
 
-    protected List<YAWLFlowRelation> flows;
+    private List<YAWLFlowRelation> flows;
     protected boolean editable;
 
     private static final String[] COLUMN_LABELS = {"Target", "Condition"};

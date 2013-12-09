@@ -37,7 +37,7 @@ public class FlowConditionEditor extends AbstractCellEditor
 
     private JTextField valueField;
 
-    private JPanel valuePanel;
+    private final JPanel valuePanel;
     private FlowConditionTablePanel tablePanel;
     private BindingTypeValidator _validator;
 

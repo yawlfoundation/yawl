@@ -34,10 +34,6 @@ import java.util.Arrays;
 public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements GraphStateListener {
 
   private static final int ZOOM_PADDING = 20;
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   private static final ZoomSelectedElementsAction INSTANCE = new ZoomSelectedElementsAction();
   {
     putValue(Action.SHORT_DESCRIPTION, " Zoom to selected elements ");

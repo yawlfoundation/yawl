@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
  */
 public class InstanceEditor extends ValidityEditorPane {
 
-    private String _dataType;
+    private final String _dataType;
 
     public InstanceEditor(String dataType, String value) {
         super();

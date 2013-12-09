@@ -23,8 +23,8 @@ package org.yawlfoundation.yawl.editor.core.resourcing.validation;
  */
 public abstract class InvalidReference {
 
-    private String _id;
-    private String _msgName;
+    private final String _id;
+    private final String _msgName;
     private String _netID;
     private String _taskID;
 

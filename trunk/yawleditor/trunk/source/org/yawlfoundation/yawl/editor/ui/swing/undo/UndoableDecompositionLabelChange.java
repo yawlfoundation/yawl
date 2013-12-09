@@ -24,9 +24,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableDecompositionLabelChange extends AbstractUndoableEdit {
 
-    private YDecomposition decomposition;
-    private String oldLabel;
-    private String newLabel;
+    private final YDecomposition decomposition;
+    private final String oldLabel;
+    private final String newLabel;
 
 
     public UndoableDecompositionLabelChange(YDecomposition decomposition,

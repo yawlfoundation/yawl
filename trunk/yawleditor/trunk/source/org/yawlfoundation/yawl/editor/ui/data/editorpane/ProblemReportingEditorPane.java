@@ -36,7 +36,7 @@ public class ProblemReportingEditorPane extends JPanel
         implements XMLStyledDocumentValidityListener {
 
     private ValidityEditorPane editor;
-    private JScrollPane editorScrollPane;
+    private final JScrollPane editorScrollPane;
     private JTextArea errorBar;
     private JPanel rowHeader;
     private boolean showLineNumbers = true;

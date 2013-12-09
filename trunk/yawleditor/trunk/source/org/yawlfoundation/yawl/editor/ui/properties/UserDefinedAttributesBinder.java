@@ -41,7 +41,7 @@ import java.util.Set;
 public class UserDefinedAttributesBinder {
 
     private YAttributeMap _attributeMap;
-    private ExtendedAttributesPropertySheet _sheet;
+    private final ExtendedAttributesPropertySheet _sheet;
 
     private OwnerType _ownerClass;
 

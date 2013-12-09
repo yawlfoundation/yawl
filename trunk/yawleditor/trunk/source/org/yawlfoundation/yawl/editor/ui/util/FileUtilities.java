@@ -35,7 +35,7 @@ public class FileUtilities {
     System.getProperty("file.separator") + 
     TASK_ICON_PATH;
   
-  public static final String ABSOLUTE_TASK_ICON_PATH = 
+  private static final String ABSOLUTE_TASK_ICON_PATH =
     HOME_DIR + RELATIVE_TASK_ICON_PATH;
 
 
@@ -56,7 +56,7 @@ public class FileUtilities {
     System.getProperty("file.separator") + 
     EXTENDED_ATTRIBUTE_PATH;
 
-  public static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH = 
+  private static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH =
     HOME_DIR + RELATIVE_EXTENDED_ATTRIBUTE_PATH;
 
   /**

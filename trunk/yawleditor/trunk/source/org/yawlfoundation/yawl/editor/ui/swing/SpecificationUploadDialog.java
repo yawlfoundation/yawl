@@ -42,9 +42,9 @@ import java.io.IOException;
 public class SpecificationUploadDialog extends PropertyDialog
         implements ActionListener, ItemListener {
 
-    JCheckBox _cbxUnloadPrevious;
-    JCheckBox _cbxLaunchCase;
-    JCheckBox _cbxCancelCases;
+    private JCheckBox _cbxUnloadPrevious;
+    private JCheckBox _cbxLaunchCase;
+    private JCheckBox _cbxCancelCases;
 
     public SpecificationUploadDialog(Window parent) {
         super(parent);
@@ -125,7 +125,7 @@ public class SpecificationUploadDialog extends PropertyDialog
     private void upload() {
         YAWLEditor editor = YAWLEditor.getInstance();
         editor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        String message = "";
+        String message;
         int msgType = JOptionPane.INFORMATION_MESSAGE;
         SpecificationUploader uploader = new SpecificationUploader();
         try {

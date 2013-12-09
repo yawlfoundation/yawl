@@ -577,7 +577,7 @@ public abstract class YAWLTask extends YAWLVertex {
 
     // this method accessed on 06/05/2010 from:
     // http://stackoverflow.com/questions/1670862/obtaining-powerset-of-a-set-in-java
-    public static <T> Set<Set<T>> getPowerSet(Set<T> originalSet) {
+    private static <T> Set<Set<T>> getPowerSet(Set<T> originalSet) {
         Set<Set<T>> sets = new HashSet<Set<T>>();
         if (originalSet.isEmpty()) {
             sets.add(new HashSet<T>());

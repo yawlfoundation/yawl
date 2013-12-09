@@ -297,7 +297,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
     /******************************************************************/
 
     class SpecificationCompoundEdit extends CompoundEdit {
-        private NetGraphModel model;
+        private final NetGraphModel model;
 
         public SpecificationCompoundEdit(NetGraphModel model) {
             super();

@@ -80,11 +80,11 @@ public enum ResourceTableType {
 
 
 
-    private static int DEFAULT_WIDTH = 200;
+    private static final int DEFAULT_WIDTH = 200;
 
-    private static int DEFAULT_HEIGHT = 150;
+    private static final int DEFAULT_HEIGHT = 150;
 
-    private static Dimension DEFAULT_SIZE = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    private static final Dimension DEFAULT_SIZE = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
 
     public Dimension getPreferredSize() { return DEFAULT_SIZE; }

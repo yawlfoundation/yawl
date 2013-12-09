@@ -30,7 +30,7 @@ public class ProcessConfigurationModel {
 
     private PreviewState previewState;
     private ApplyState applyState;
-    private LinkedList<ProcessConfigurationModelListener> subscribers;
+    private final LinkedList<ProcessConfigurationModelListener> subscribers;
 
     private static ProcessConfigurationModel INSTANCE ;
 

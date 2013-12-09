@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class FiltersPanel extends JPanel implements ActionListener {
 
-    private ResourceDialog owner;
+    private final ResourceDialog owner;
     private JTextArea txtCapability;
     private JTextArea txtOrgStructure;
 

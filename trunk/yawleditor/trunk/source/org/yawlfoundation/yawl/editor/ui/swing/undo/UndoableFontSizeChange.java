@@ -24,8 +24,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableFontSizeChange extends AbstractUndoableEdit {
 
-    private int oldSize;
-    private int newSize;
+    private final int oldSize;
+    private final int newSize;
 
     public UndoableFontSizeChange(int oldSize, int newSize) {
         this.oldSize = oldSize;

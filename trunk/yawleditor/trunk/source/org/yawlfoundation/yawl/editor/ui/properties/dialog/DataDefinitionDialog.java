@@ -31,10 +31,10 @@ import java.awt.*;
 
 public class DataDefinitionDialog extends AbstractDoneDialog implements CaretListener {
 
-    protected XMLSchemaEditorPane editorPane;
+    private XMLSchemaEditorPane editorPane;
 
     public DataDefinitionDialog() {
-        super("Update Data Type Definitions", true);
+        super("Update Data Type Definitions");
         setContentPanel(getVariablePanel());
         getContentPane().add(getToolbarMenuPanel(), BorderLayout.NORTH) ;
         getRootPane().setDefaultButton(getCancelButton());

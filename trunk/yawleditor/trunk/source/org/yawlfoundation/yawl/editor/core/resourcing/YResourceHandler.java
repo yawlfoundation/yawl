@@ -34,7 +34,7 @@ import java.util.Set;
 public class YResourceHandler {
 
     private YSpecification _specification;
-    private ResourcesCache _resourcesCache;
+    private final ResourcesCache _resourcesCache;
 
 
     public YResourceHandler() {

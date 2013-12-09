@@ -33,7 +33,7 @@ public abstract class EntityCollection<E> {
 
     private AbstractCollection<E> _entities;
     private Set<InvalidReference> _invalidReferences;
-    private boolean _allowDuplicates;
+    private final boolean _allowDuplicates;
 
     protected static final String YAWL_PACKAGE_ROOT = "org.yawlfoundation.yawl.";
 
@@ -122,9 +122,9 @@ public abstract class EntityCollection<E> {
     }
 
 
-    public abstract boolean add(String id);
+    protected abstract boolean add(String id);
 
-    public abstract E get(String id);
+    protected abstract E get(String id);
 
     public abstract void parse(Element e, Namespace nsYawl) throws ResourceParseException;
 

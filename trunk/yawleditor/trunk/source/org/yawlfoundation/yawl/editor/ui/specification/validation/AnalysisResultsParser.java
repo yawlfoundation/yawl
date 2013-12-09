@@ -38,7 +38,7 @@ import java.util.List;
 
 public class AnalysisResultsParser {
 
-    protected static final YAnalyser _analyser = new YAnalyser();
+    private static final YAnalyser _analyser = new YAnalyser();
 
     private static final String WOF_YAWL_BINARY = "wofyawl0.4.exe";
 

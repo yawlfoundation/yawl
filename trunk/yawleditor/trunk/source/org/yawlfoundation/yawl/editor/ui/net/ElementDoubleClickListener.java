@@ -27,7 +27,7 @@ import java.awt.event.MouseEvent;
 
 public class ElementDoubleClickListener extends MouseAdapter {
 
-    private NetGraph net;
+    private final NetGraph net;
 
     public ElementDoubleClickListener(NetGraph net) {
         this.net = net;

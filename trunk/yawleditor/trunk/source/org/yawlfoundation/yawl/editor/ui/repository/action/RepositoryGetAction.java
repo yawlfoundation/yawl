@@ -42,10 +42,10 @@ import java.awt.event.ActionEvent;
 
 public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
-    YRepository repository;
-    Repo selectedRepo;
-    Component caller;
-    JDialog owner;
+    private final YRepository repository;
+    private final Repo selectedRepo;
+    private Component caller;
+    private final JDialog owner;
 
     {
         putValue(Action.SHORT_DESCRIPTION, "Load From Repository");

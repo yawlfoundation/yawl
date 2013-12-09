@@ -33,8 +33,6 @@ import java.util.HashMap;
 
 public class ConfigureInformation extends DefaultGraphCell {
 
-  
-  private static final long serialVersionUID = 1L;
   private YAWLVertex vertex;
   private String     configureInfor;
   

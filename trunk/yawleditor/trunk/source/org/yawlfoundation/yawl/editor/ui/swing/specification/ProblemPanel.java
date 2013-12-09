@@ -36,8 +36,8 @@ import java.util.List;
 
 public class ProblemPanel extends JPanel implements FileStateListener, ListSelectionListener {
 
-    private ProblemTable problemTable;
-    private BottomPanel owner;
+    private final ProblemTable problemTable;
+    private final BottomPanel owner;
     private String title;
 
 

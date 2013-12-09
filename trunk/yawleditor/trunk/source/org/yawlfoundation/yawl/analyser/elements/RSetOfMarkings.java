@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class RSetOfMarkings {
 
-    private Set<RMarking> _markings = new HashSet<RMarking>();
+    private final Set<RMarking> _markings = new HashSet<RMarking>();
 
 
     public void addMarking(RMarking marking) {

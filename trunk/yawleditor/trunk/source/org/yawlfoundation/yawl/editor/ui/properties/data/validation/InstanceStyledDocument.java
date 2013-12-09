@@ -33,7 +33,7 @@ import java.util.List;
 public class InstanceStyledDocument extends AbstractXMLStyledDocument {
 
     private List<String> _errorList;
-    private String _dataType;
+    private final String _dataType;
 
     private static final YDataHandler DATA_HANDLER =
             SpecificationModel.getHandler().getDataHandler();

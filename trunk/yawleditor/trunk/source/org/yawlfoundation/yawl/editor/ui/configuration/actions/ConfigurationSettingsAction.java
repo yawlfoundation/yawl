@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -54,7 +55,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 ConfigurationReferenceJDialog dialog =
-                        new ConfigurationReferenceJDialog(new JFrame(), true, net);
+                        new ConfigurationReferenceJDialog(new JFrame(), net);
                 dialog.setLocationRelativeTo(YAWLEditor.getInstance());
                 dialog.setVisible(true);
             }
@@ -73,11 +74,11 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
      */
     private class ConfigurationReferenceJDialog extends javax.swing.JDialog {
 
-        private NetGraph net;
+        private final NetGraph net;
 
         /** Creates new form ConfigurationReferenceJDialog */
-        public ConfigurationReferenceJDialog(java.awt.Frame parent, boolean modal, NetGraph net) {
-            super(parent, modal);
+        public ConfigurationReferenceJDialog(Frame parent, NetGraph net) {
+            super(parent, true);
             this.net = net;
             initComponents();
         }

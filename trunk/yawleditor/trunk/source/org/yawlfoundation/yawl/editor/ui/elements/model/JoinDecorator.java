@@ -19,10 +19,6 @@
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 public class JoinDecorator extends Decorator {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     /**
      * This constructor is ONLY to be invoked when we are reconstructing a decorator

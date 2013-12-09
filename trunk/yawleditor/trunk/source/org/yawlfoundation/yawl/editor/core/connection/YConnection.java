@@ -35,13 +35,13 @@ import java.net.URL;
 public abstract class YConnection {
 
     // some default values
-    public static final String DEFAULT_USERID = "editor";
-    public static final String DEFAULT_PASSWORD = "yEditor";
+    private static final String DEFAULT_USERID = "editor";
+    private static final String DEFAULT_PASSWORD = "yEditor";
 
     protected URL _url;                                        // the connection's url
     protected String _handle;                                  // a session handle
-    protected String _userid = DEFAULT_USERID;
-    protected String _password = DEFAULT_PASSWORD;
+    private String _userid = DEFAULT_USERID;
+    private String _password = DEFAULT_PASSWORD;
 
     private static final int MAX_WAIT = 2000;                  // max ping response time
 

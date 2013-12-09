@@ -73,11 +73,11 @@ public class BindingTypeValidator {
     /**
      * This variant is used to validate split predicates
      * @param net the selected net
-     * @param dataTypeName the name of the target data type, if null defaults to boolean
+     *
      */
-    public BindingTypeValidator(YNet net, String dataTypeName) {
+    public BindingTypeValidator(YNet net) {
         _rootName = "foo_bar";
-        _dataTypeName = dataTypeName != null ? dataTypeName : "boolean";
+        _dataTypeName = "boolean";
         init(getParamMap(net));
     }
 

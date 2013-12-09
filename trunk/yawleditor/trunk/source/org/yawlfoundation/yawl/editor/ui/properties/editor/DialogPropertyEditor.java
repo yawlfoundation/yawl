@@ -32,7 +32,7 @@ import java.awt.event.ActionListener;
  */
 public abstract class DialogPropertyEditor extends AbstractPropertyEditor {
 
-    protected JComponent label;
+    protected final JComponent label;
 
     public DialogPropertyEditor(JComponent renderer) {
         label = renderer;

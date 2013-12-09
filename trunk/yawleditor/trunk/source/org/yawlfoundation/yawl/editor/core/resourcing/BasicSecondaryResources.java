@@ -38,14 +38,12 @@ import java.util.Set;
  */
 public class BasicSecondaryResources {
 
-    private YAtomicTask _task;
-    private ParticipantSet participants;                // unique resource
-    private NonHumanResourceSet nonHumanResources;      // unique resource
-    private RoleSet roles;                             // allows duplicates
-    private NonHumanCategorySet nonHumanCategories;
+    private final ParticipantSet participants;                // unique resource
+    private final NonHumanResourceSet nonHumanResources;      // unique resource
+    private final RoleSet roles;                             // allows duplicates
+    private final NonHumanCategorySet nonHumanCategories;
 
     public BasicSecondaryResources(YAtomicTask task) {
-        _task = task;
         participants = new ParticipantSet();
         roles = new RoleSet(EntityCollection.ALLOW_DUPLICATES);
         nonHumanResources = new NonHumanResourceSet();

@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class MultipleInstanceConfigurationAction extends ProcessConfigurationAction
@@ -45,7 +46,7 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 				final YAWLMultipleInstanceTask task = (YAWLMultipleInstanceTask) this.task;
 				java.awt.EventQueue.invokeLater(new Runnable() {
 		            public void run() {
-		                MultipleInstanceConfigureJDialog dialog = new MultipleInstanceConfigureJDialog(new javax.swing.JFrame(), true, task);
+		                MultipleInstanceConfigureJDialog dialog = new MultipleInstanceConfigureJDialog(new javax.swing.JFrame(), task);
 		                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 		                    
 		                });
@@ -82,16 +83,16 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	 */
 	private class MultipleInstanceConfigureJDialog extends javax.swing.JDialog {
 		
-		private YAWLMultipleInstanceTask task;
+		private final YAWLMultipleInstanceTask task;
 		private long maxInstance;
 		private long minInstance;
 		private long threshhold;
 		private int createType;
 
 	    /** Creates new form MultipleInstanceConfigureJDialog */
-	    public MultipleInstanceConfigureJDialog(java.awt.Frame parent, boolean modal, YAWLMultipleInstanceTask task) {
-	        super(parent, modal);
-	        this.task = (YAWLMultipleInstanceTask) task;
+	    public MultipleInstanceConfigureJDialog(Frame parent, YAWLMultipleInstanceTask task) {
+	        super(parent, true);
+	        this.task = task;
 	        initComponents();
 	        
 	    }

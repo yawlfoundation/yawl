@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class OutputBindings {
 
-    private YTask _task;
+    private final YTask _task;
     private Map<String, String> _netVarBindings;        // [binding, netVarName]
     private Map<String, String> _externalBindings;      // [taskVarName, ext. binding]
     private Set<String> _orphanedBindings;
@@ -328,9 +328,9 @@ public class OutputBindings {
 
     class RollbackPoint {
 
-        private Map<String, String> netVarBindings;
-        private Map<String, String> externalBindings;
-        private Set<String> orphanedBindings;
+        private final Map<String, String> netVarBindings;
+        private final Map<String, String> externalBindings;
+        private final Set<String> orphanedBindings;
 
         RollbackPoint() {
             netVarBindings = new HashMap<String, String>(_netVarBindings);

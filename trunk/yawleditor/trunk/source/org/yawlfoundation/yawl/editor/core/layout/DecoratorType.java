@@ -36,7 +36,7 @@ public enum DecoratorType {
     XorJoin("XOR_join"),
     OrJoin("OR_join");
 
-    private String stringValue;
+    private final String stringValue;
 
     private static final Map<String, DecoratorType> _typeMap = new HashMap<String, DecoratorType>(6);
 

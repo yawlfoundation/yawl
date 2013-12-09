@@ -18,17 +18,14 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
-
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
+import javax.swing.undo.AbstractUndoableEdit;
+
 public class UndoableStartingNetChange extends AbstractUndoableEdit {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private NetGraphModel newStartingNet;
-  private NetGraphModel oldStartingNet;
+
+  private final NetGraphModel newStartingNet;
+  private final NetGraphModel oldStartingNet;
     
   public UndoableStartingNetChange(NetGraphModel newStartingNet, NetGraphModel oldStartingNet) {
     this.newStartingNet = newStartingNet;

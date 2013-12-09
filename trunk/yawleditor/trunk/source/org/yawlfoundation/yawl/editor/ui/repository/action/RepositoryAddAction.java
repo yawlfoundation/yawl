@@ -39,9 +39,9 @@ import java.awt.event.ActionEvent;
 
 public class RepositoryAddAction extends YAWLOpenSpecificationAction {
 
-    Repo selectedRepo;
-    Component caller;
-    JDialog owner;
+    private final Repo selectedRepo;
+    private Component caller;
+    private final JDialog owner;
 
     {
         putValue(Action.SHORT_DESCRIPTION, "Store in Repository");
@@ -89,7 +89,8 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
                             ((ExtendedAttributesDialog) owner).getAttributes());
                     break;
                 case DataDefinition: {
-                    String content = ((DataTypeDialogToolBarMenu) caller).getSelectedText();
+                    String content = ((DataTypeDialogToolBarMenu) caller)
+                            .getSelectedTextQualified();
                     repo.getDataDefinitionRepository().add(name, description, content);
                     break;
                 }

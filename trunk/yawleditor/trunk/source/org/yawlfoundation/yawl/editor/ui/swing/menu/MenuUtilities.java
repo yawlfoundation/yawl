@@ -26,7 +26,7 @@ import javax.swing.*;
  */
 public class MenuUtilities {
 
-    private static String os = System.getProperty("os.name");
+    private static final String os = System.getProperty("os.name");
 
     public MenuUtilities() {  }
 

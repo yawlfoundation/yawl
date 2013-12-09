@@ -35,8 +35,6 @@ import java.util.*;
  */
 public class ConfigureSet implements Serializable, Cloneable {
 
-  private static final long serialVersionUID = 1L;
-
   public static final int NO_Join = 0;
   public static final int NO_Split = 1;
   public static final int AND_Split = 2;
@@ -44,17 +42,17 @@ public class ConfigureSet implements Serializable, Cloneable {
   
   
   private HashSet<YAWLCell> removeMembers; //This set is used to store all elements that need to be removed
-  private HashSet removalTasks;	//This set is used to store the tasks that need to be removed
-  private HashSet removalFlows; //This set is used to store the flows that need to be removed
-  private HashSet removalConditions; 
-  private HashSet<VertexContainer> removeVertexContainer;
-  private NetGraphModel model;
+  private final HashSet removalTasks;	//This set is used to store the tasks that need to be removed
+  private final HashSet removalFlows; //This set is used to store the flows that need to be removed
+  private final HashSet removalConditions;
+  private final HashSet<VertexContainer> removeVertexContainer;
+  private final NetGraphModel model;
   
-  private HashSet conditions = new HashSet();
-  private HashSet flows = new HashSet();
-  private HashSet tasks = new HashSet();
-  private HashSet<VertexContainer> vertexContainers = new HashSet<VertexContainer>();
-  private HashMap<YAWLTask, Integer> changeTaskDecoration = new HashMap<YAWLTask, Integer>();
+  private final HashSet conditions = new HashSet();
+  private final HashSet flows = new HashSet();
+  private final HashSet tasks = new HashSet();
+  private final HashSet<VertexContainer> vertexContainers = new HashSet<VertexContainer>();
+  private final HashMap<YAWLTask, Integer> changeTaskDecoration = new HashMap<YAWLTask, Integer>();
   
   
   

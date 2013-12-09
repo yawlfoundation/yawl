@@ -62,7 +62,7 @@ public class FileChooserFactory {
 
         class YAWLFileFilter extends FileFilter {
 
-            private String[] extensions = fileType.split(",");
+            private final String[] extensions = fileType.split(",");
 
             private boolean isValidExtension(File file) {
                 for (String extn : extensions) {

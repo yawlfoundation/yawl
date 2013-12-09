@@ -34,8 +34,8 @@ import java.awt.event.KeyEvent;
  */
 class TaskVariablePanel extends AbstractBindingPanel {
 
-    private JComboBox _varsCombo;
-    private JLabel _prompt;
+    private final JComboBox _varsCombo;
+    private final JLabel _prompt;
     private String _miVarName;
 
 

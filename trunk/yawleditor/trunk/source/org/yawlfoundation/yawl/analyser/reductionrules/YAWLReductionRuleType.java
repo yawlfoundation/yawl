@@ -38,7 +38,7 @@ public enum YAWLReductionRuleType {
     FOR (FORrule.class);
 
 
-    private Class ruleClass;
+    private final Class ruleClass;
 
 
     private YAWLReductionRuleType(Class clazz) {

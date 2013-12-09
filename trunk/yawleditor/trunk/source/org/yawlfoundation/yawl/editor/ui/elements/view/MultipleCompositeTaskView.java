@@ -46,11 +46,11 @@ class MultipleCompositeTaskRenderer extends
   private int   horizontalGap = 0;
   private int   verticalGap   = 0;
 
-  protected int innerHorizontalGap;
-  protected int innerVerticalGap;  
+  private int innerHorizontalGap;
+  private int innerVerticalGap;
 
-  protected int doubleInnerHorizontalGap;
-  protected int doubleInnerVerticalGap;
+  private int doubleInnerHorizontalGap;
+  private int doubleInnerVerticalGap;
 
   protected void fillVertex(Graphics graphics, Dimension size) {
     horizontalGap = size.width/GAP_DIVISOR;

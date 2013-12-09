@@ -37,12 +37,12 @@ import java.util.Vector;
 public class VariableRowStringEditor extends AbstractCellEditor
         implements TableCellEditor, ActionListener {
 
-    private JTextField nameField;
-    private JComboBox dataTypeCombo;
+    private final JTextField nameField;
+    private final JComboBox dataTypeCombo;
     private JTextField valueField;
     private JCheckBox checkBox;
 
-    private JPanel valuePanel;
+    private final JPanel valuePanel;
     private VariableTablePanel tablePanel;
     private String editingColumnName;
     private int editingRow;

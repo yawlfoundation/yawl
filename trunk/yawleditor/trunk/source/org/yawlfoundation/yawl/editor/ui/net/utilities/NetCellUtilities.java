@@ -46,7 +46,7 @@ public class NetCellUtilities {
     }
 
 
-    public static void propagateFontChangeAcrossNetNoUndo(NetGraph net, Font font) {
+    private static void propagateFontChangeAcrossNetNoUndo(NetGraph net, Font font) {
         net.setFont(font);
 
         List cells = NetGraphModel.getDescendants(net.getNetModel(),
@@ -114,7 +114,7 @@ public class NetCellUtilities {
     }
 
 
-    public static void moveViewsToLocation(NetGraph net, CellView[] views, double x, double y) {
+    private static void moveViewsToLocation(NetGraph net, CellView[] views, double x, double y) {
         for (CellView view: views) {
             Rectangle2D oldBounds = view.getBounds();
             Rectangle2D.Double newBounds = new Rectangle2D.Double(x, y,
@@ -154,7 +154,7 @@ public class NetCellUtilities {
     }
 
 
-    public static void applyViewChange(NetGraph net, CellView[] views) {
+    private static void applyViewChange(NetGraph net, CellView[] views) {
         CellView[] allViews = VertexView.getDescendantViews(views);
         Map attributes = GraphConstants.createAttributes(allViews, null);
         net.getNetModel().edit(attributes, null, null, null);
@@ -339,7 +339,7 @@ public class NetCellUtilities {
         return null;
     }
 
-    public static Point2D getCenterOfPort(NetGraph net, PortView portView) {
+    private static Point2D getCenterOfPort(NetGraph net, PortView portView) {
         return new Point2D.Double(
                 portView.getBounds().getCenterX(),
                 portView.getBounds().getCenterY());
@@ -370,7 +370,7 @@ public class NetCellUtilities {
      * @param views
      * @return
      */
-    public static Object[] getCellsOfViews(CellView[] views) {
+    private static Object[] getCellsOfViews(CellView[] views) {
         Object[] cells = new Object[views.length];
 
         int i = 0;
@@ -394,7 +394,7 @@ public class NetCellUtilities {
         return null;
     }
 
-    public static Condition getConditionFromCell(Object cell) {
+    private static Condition getConditionFromCell(Object cell) {
         YAWLVertex vertex = getVertexFromCell(cell);
         return vertex instanceof Condition ? (Condition) vertex : null;
     }

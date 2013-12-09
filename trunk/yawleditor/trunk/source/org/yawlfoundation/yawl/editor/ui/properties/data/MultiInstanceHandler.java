@@ -13,8 +13,8 @@ import org.yawlfoundation.yawl.util.StringUtil;
  */
 public class MultiInstanceHandler {
 
-    private YTask _task;
-    private OutputBindings _outputBindings;
+    private final YTask _task;
+    private final OutputBindings _outputBindings;
     private String _dataItemName;
     private String _netVarTarget;
     private YMultiInstanceAttributes _attributes;                  // current updates

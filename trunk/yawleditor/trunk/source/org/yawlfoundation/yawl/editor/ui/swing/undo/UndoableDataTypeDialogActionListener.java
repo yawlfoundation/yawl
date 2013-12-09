@@ -40,9 +40,9 @@ public class UndoableDataTypeDialogActionListener implements UndoableEditListene
 
     private static UndoableDataTypeDialogActionListener _me;
 
-    protected UndoAction undoAction;
-    protected RedoAction redoAction;
-    protected UndoManager undo = new UndoManager();
+    private UndoAction undoAction;
+    private RedoAction redoAction;
+    private final UndoManager undo = new UndoManager();
 
     public static UndoableDataTypeDialogActionListener getInstance() {
         if (_me == null) _me = new UndoableDataTypeDialogActionListener();

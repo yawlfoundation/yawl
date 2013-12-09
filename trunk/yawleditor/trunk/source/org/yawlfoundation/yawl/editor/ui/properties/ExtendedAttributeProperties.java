@@ -33,7 +33,7 @@ import java.io.File;
  */
 public class ExtendedAttributeProperties extends YPropertiesBean {
 
-    private UserDefinedAttributesBinder _udAttributes;
+    private final UserDefinedAttributesBinder _udAttributes;
     private YAttributeMap _attributes;
 
     private ExtendedAttributeProperties(YPropertySheet sheet,

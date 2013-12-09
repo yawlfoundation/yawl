@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
 public class GotoSubNetAction extends YAWLSelectedNetAction
         implements TooltipTogglingWidget {
 
-    private YAWLCompositeTask _task;
+    private final YAWLCompositeTask _task;
 
     {
        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());

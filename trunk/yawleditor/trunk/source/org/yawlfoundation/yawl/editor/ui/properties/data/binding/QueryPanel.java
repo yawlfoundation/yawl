@@ -35,17 +35,16 @@ import java.awt.event.ActionListener;
 class QueryPanel extends AbstractBindingPanel {
 
     private XQueryValidatingEditorPane _xQueryEditor;
-    private JToolBar _toolbar;
 
     QueryPanel() {
         super();
     }
 
 
-    QueryPanel(String title, ActionListener listener) {
+    QueryPanel(ActionListener listener) {
         super();
         setLayout(new BorderLayout());
-        setBorder(new TitledBorder(title));
+        setBorder(new TitledBorder("Binding"));
         add(createToolBar(listener), BorderLayout.NORTH);
         add(createXQueryEditor(), BorderLayout.CENTER);
     }
@@ -64,7 +63,7 @@ class QueryPanel extends AbstractBindingPanel {
     }
 
     protected void setText(String text) {
-        _xQueryEditor.setText(formatQuery(text, true));
+        _xQueryEditor.setText(formatQuery(text));
     }
 
     protected String getText() { return _xQueryEditor.getText(); }
@@ -84,7 +83,7 @@ class QueryPanel extends AbstractBindingPanel {
 
     private JPanel createToolBar(ActionListener listener) {
         JPanel content = new JPanel(new BorderLayout());
-        _toolbar = new JToolBar();
+        JToolBar _toolbar = new JToolBar();
         _toolbar.setBorder(null);
         _toolbar.setFloatable(false);
         _toolbar.setRollover(true);
@@ -104,7 +103,7 @@ class QueryPanel extends AbstractBindingPanel {
         btnFormat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String text = _xQueryEditor.getText();
-                _xQueryEditor.setText(formatQuery(text, true));
+                _xQueryEditor.setText(formatQuery(text));
             }
         });
         return btnFormat;

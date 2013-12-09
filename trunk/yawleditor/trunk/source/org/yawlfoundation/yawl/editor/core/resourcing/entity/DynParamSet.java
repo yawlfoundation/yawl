@@ -28,10 +28,8 @@ import org.yawlfoundation.yawl.editor.core.resourcing.DynParam;
  */
 public class DynParamSet extends EntityCollection<DynParam> {
 
-    public DynParamSet() { this(false); }
-
-    public DynParamSet(boolean allowDuplicates) {
-        super(allowDuplicates);
+    public DynParamSet() {
+        super(false);
     }
 
     public boolean add(String name) {

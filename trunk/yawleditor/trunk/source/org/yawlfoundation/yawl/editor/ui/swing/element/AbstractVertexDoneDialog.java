@@ -30,8 +30,8 @@ public abstract class AbstractVertexDoneDialog extends AbstractDoneDialog {
     private YAWLVertex vertex;
     protected NetGraph graph;
 
-    public AbstractVertexDoneDialog(String title, boolean modality, boolean showCancelButton) {
-        super(title,modality, showCancelButton);
+    public AbstractVertexDoneDialog() {
+        super(null, true, true);
     }
 
     public AbstractVertexDoneDialog(String title, boolean modality,

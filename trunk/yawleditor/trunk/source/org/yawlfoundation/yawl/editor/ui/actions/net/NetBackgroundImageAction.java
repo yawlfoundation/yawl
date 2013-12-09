@@ -29,11 +29,6 @@ import java.io.IOException;
 
 public class NetBackgroundImageAction extends YAWLSelectedNetAction {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
-
   {
     putValue(Action.SHORT_DESCRIPTION, " Set the net background image. ");
     putValue(Action.NAME, "Set Net Background Image...");

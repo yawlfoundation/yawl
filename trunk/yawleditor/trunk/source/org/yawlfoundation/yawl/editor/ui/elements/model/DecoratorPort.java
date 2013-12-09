@@ -20,10 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 public class DecoratorPort extends YAWLPort {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
 
     public boolean acceptsIncomingFlows() {
         return getDecorator().acceptsIncomingFlows();

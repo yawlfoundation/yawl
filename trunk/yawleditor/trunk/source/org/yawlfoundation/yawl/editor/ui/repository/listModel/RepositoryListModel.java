@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class RepositoryListModel extends AbstractListModel {
 
-    private List<RepoDescriptor> fullList;
+    private final List<RepoDescriptor> fullList;
     private List<RepoDescriptor> filteredList;
 
     private int filterLength;

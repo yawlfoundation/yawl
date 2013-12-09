@@ -36,7 +36,7 @@ public class FileOperations {
 
     private enum Action { Open, OpenFile, Validate, Analyse, Save, SaveAs, Close, Exit }
 
-    private static ExecutorService _executor;
+    private static final ExecutorService _executor;
 
 
     static {

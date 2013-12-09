@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 public class NetSelectionListener implements GraphSelectionListener {
 
-    private GraphSelectionModel model;
+    private final GraphSelectionModel model;
 
 
     public NetSelectionListener(GraphSelectionModel model) {

@@ -41,8 +41,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     private static final int PORT_BUFFER = 2;
 
     private PortView sourcePort, targetPort = null;
-    private NetGraph net;
-    private PaletteBar paletteBar;
+    private final NetGraph net;
+    private final PaletteBar paletteBar;
 
     private enum State {
         ABOVE_CANVAS,

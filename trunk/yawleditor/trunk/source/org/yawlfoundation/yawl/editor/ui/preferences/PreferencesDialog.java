@@ -44,7 +44,7 @@ public class PreferencesDialog extends JDialog
     private JButton _btnApply;
     private java.util.List<PreferencePanel> _contentPanels;
 
-    protected static final String MENU_ICON_PATH =
+    private static final String MENU_ICON_PATH =
             "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
 
 

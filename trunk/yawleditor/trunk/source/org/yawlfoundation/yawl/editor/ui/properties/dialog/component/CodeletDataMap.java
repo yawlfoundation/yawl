@@ -25,7 +25,7 @@ import java.util.TreeMap;
 
 public class CodeletDataMap {
 
-  protected Map<String, String> _codeletMap;
+  private Map<String, String> _codeletMap;
 
   public CodeletDataMap() {}
 

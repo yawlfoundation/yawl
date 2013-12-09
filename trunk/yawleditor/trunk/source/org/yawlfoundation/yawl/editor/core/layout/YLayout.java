@@ -61,7 +61,7 @@ public class YLayout {
 
     public static final Color DEFAULT_COLOR = Color.BLACK;
     public static final Color DEFAULT_FILL_COLOR = Color.WHITE;
-    public static final int DEFAULT_FONT_SIZE = 15;
+    private static final int DEFAULT_FONT_SIZE = 15;
 
 
     private YSpecification _specification;        // spec this layout is for
@@ -70,7 +70,7 @@ public class YLayout {
     private Dimension _size;                      // saved canvas size
     private int _globalFontSize;
     private Color _globalFillColor;
-    private Map<String, YNetLayout> _nets;        // the nets of this spec
+    private final Map<String, YNetLayout> _nets;        // the nets of this spec
 
 
     // hidden default constructor

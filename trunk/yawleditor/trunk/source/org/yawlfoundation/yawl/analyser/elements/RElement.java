@@ -31,12 +31,12 @@ import java.util.*;
 public class RElement {
 
     private String _name;
-    private String _id;
+    private final String _id;
     private Map<String, RFlow> _presetFlows = new HashMap<String, RFlow>();
     private Map<String, RFlow> _postsetFlows = new HashMap<String, RFlow>();
-    private Set<RTransition> _cancelledBySet = new HashSet<RTransition>(); // for reduction rules code
-    private Set<YExternalNetElement> _yElementsSet = new HashSet<YExternalNetElement>(); // for reduction rules mapping
-    private Set<RElement> _rElementsSet = new HashSet<RElement>(); // for reduced net mappings
+    private final Set<RTransition> _cancelledBySet = new HashSet<RTransition>(); // for reduction rules code
+    private final Set<YExternalNetElement> _yElementsSet = new HashSet<YExternalNetElement>(); // for reduction rules mapping
+    private final Set<RElement> _rElementsSet = new HashSet<RElement>(); // for reduced net mappings
 
     public RElement(String id) {
         _id = id;

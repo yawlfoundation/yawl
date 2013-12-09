@@ -27,46 +27,41 @@ import java.io.File;
 
 public class OpenRecentSpecificationAction extends YAWLSpecificationAction implements TooltipTogglingWidget {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
+    {
+        putValue(Action.LONG_DESCRIPTION, "Open a recently loaded specification");
+        putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
+    }
 
-  {
-    putValue(Action.LONG_DESCRIPTION, "Open a recently loaded specification");
-    putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
-  }
+    private String _fullFileName = null;
 
-  private String _fullFileName = null;
+    public OpenRecentSpecificationAction() { }
 
-  public OpenRecentSpecificationAction() { }  
-
-  public OpenRecentSpecificationAction(String fullFileName) {
-      setFileName(fullFileName);
-  }
+    public OpenRecentSpecificationAction(String fullFileName) {
+        setFileName(fullFileName);
+    }
 
 
-  public void setFileName(String fullFileName) {
-      _fullFileName = fullFileName ;
-      putValue(Action.NAME, getShortFileName());
-  }
+    public void setFileName(String fullFileName) {
+        _fullFileName = fullFileName ;
+        putValue(Action.NAME, getShortFileName());
+    }
 
 
-  public void actionPerformed(ActionEvent event) {
-      FileOperations.open(_fullFileName) ;
-  }
+    public void actionPerformed(ActionEvent event) {
+        FileOperations.open(_fullFileName) ;
+    }
 
-  public String getEnabledTooltipText() {
-    return _fullFileName;
-  }
+    public String getEnabledTooltipText() {
+        return _fullFileName;
+    }
 
-  public String getDisabledTooltipText() {
-    return " You must have no specification" +
-           " open to in order to open another ";
-  }
+    public String getDisabledTooltipText() {
+        return " You must have no specification" +
+                " open to in order to open another ";
+    }
 
-  private String getShortFileName() {
-      File file = new File(_fullFileName);
-      return file.getName();
-  }
+    private String getShortFileName() {
+        File file = new File(_fullFileName);
+        return file.getName();
+    }
 }

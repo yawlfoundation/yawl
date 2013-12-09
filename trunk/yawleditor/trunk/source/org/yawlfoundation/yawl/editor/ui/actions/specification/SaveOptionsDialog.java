@@ -42,7 +42,7 @@ class SaveOptionsDialog extends AbstractDoneDialog {
     private JCheckBox showDialogCheckBox;
 
     public SaveOptionsDialog() {
-        super("File Save Options", true);
+        super("File Save Options");
 
         setContentPanel(getContent());
         getDoneButton().setText("OK");

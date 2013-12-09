@@ -41,7 +41,7 @@ import java.util.Set;
  */
 public class YPropertySheet extends PropertySheetPanel {
 
-    private Set<String> _readOnlyProperties;
+    private final Set<String> _readOnlyProperties;
 
     public YPropertySheet() {
         super();
@@ -287,7 +287,7 @@ public class YPropertySheet extends PropertySheetPanel {
      */
     public class CategorySorter implements Comparator<String> {
 
-        java.util.List<String> categories = Arrays.asList("Specification", "Net", "Task",
+        final java.util.List<String> categories = Arrays.asList("Specification", "Net", "Task",
                 "Condition", "Flow", "Decomposition", "Ext. Attributes");
 
         public int compare(String s1, String s2) {

@@ -72,8 +72,8 @@ class SplitDecoratorRenderer extends DecoratorRenderer {
 
 abstract class DecoratorRenderer extends YAWLVertexRenderer {
 
-    private static Color WHITE_FILL = Color.WHITE;
-    private Decorator decorator;
+    private static final Color WHITE_FILL = Color.WHITE;
+    private final Decorator decorator;
 
     public DecoratorRenderer(Decorator decorator) {
         this.decorator = decorator;

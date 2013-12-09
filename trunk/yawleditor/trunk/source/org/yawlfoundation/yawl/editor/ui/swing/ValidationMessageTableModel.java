@@ -43,7 +43,7 @@ import java.util.ArrayList;
 
 public class ValidationMessageTableModel extends AbstractTableModel {
 
-    private java.util.List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
+    private final java.util.List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
 
     private static final String[] COLUMN_LABELS = { "Problem" };
     public static final int PROBLEM_COLUMN = 0;

@@ -37,7 +37,7 @@ public class ValidityEditorPane extends JEditorPane
 
     private static final Color DISABLED_BACKGROUND = Color.LIGHT_GRAY;
 
-    private Color enabledBackground;
+    private final Color enabledBackground;
 
 
     public ValidityEditorPane() {

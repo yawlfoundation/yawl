@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 public class PrettyOutputStateManager {
-  private NetGraph net;
+  private final NetGraph net;
   
   private double rememberedScale;
   private boolean rememberedGridVisibility;

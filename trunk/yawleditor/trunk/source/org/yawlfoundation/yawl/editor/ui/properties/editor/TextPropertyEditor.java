@@ -45,7 +45,7 @@ public class TextPropertyEditor extends DialogPropertyEditor {
 
     protected void showDialog() {
         String newText = new TextAreaDialog(YAWLEditor.getInstance(),
-                "Update text", currentText).showDialog();
+                currentText).showDialog();
         if (! (newText == null || newText.equals(currentText))) {
             String oldText = currentText;
             setValue(newText);

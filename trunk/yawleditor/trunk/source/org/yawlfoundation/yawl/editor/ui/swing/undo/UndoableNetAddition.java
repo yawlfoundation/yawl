@@ -28,7 +28,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableNetAddition extends AbstractUndoableEdit {
 
-    private NetGraphModel addedNet;
+    private final NetGraphModel addedNet;
 
     public UndoableNetAddition(NetGraphModel addedNet) {
         this.addedNet = addedNet;

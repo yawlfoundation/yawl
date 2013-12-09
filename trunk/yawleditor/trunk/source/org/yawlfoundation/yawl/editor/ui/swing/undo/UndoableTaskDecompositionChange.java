@@ -25,9 +25,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 public class UndoableTaskDecompositionChange extends AbstractUndoableEdit {
 
-  private YDecomposition oldDecomposition;
-  private YDecomposition newDecomposition;
-  private YAWLTask task;
+  private final YDecomposition oldDecomposition;
+  private final YDecomposition newDecomposition;
+  private final YAWLTask task;
     
   public UndoableTaskDecompositionChange(YAWLTask      task,
                                          YDecomposition oldDecomposition,

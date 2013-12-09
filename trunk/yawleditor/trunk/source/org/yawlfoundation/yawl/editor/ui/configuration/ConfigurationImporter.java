@@ -30,9 +30,9 @@ import java.util.*;
 
 public class ConfigurationImporter {
 	
-	public static HashMap map = new HashMap();
-	public static LinkedList<YAWLTask> CTaskList = new LinkedList();
-	public static HashMap NetTaskMap = new HashMap();
+	public static final HashMap map = new HashMap();
+	public static final LinkedList<YAWLTask> CTaskList = new LinkedList();
+	public static final HashMap NetTaskMap = new HashMap();
 	public ConfigurationImporter(){
 		
 	}
