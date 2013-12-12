@@ -502,6 +502,8 @@ public class TaskPrivileges {
 
                 // get the set of participant and/or role tags for this privilege
                 Element eSet = ePrivilege.getChild("set", nsYawl);
+                if (eSet == null) continue;
+
                 for (Element eResource : eSet.getChildren()) {
 
                     // if it's a 'role' child, unpack it to a set of participants ...
