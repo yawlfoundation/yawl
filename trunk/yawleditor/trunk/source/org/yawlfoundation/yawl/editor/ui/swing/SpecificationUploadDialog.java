@@ -146,7 +146,7 @@ public class SpecificationUploadDialog extends PropertyDialog
             message = unwrap(ioe.getMessage());
             if (message.equals("Invalid Specification")) {
                 message += ". Please resolve the issues listed in the " +
-                        "\n'Validation Errors' pane below before retrying an upload.";
+                        "\n'Validation Results' pane below before retrying an upload.";
             }
         }
         String title = "Upload " + (msgType == JOptionPane.ERROR_MESSAGE ?

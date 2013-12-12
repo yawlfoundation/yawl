@@ -23,7 +23,6 @@ import com.l2fprod.common.beans.editor.FilePropertyEditor;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 
 /**
  * @author Michael Adams
@@ -33,7 +32,6 @@ public class ImageFilePropertyEditor extends FilePropertyEditor {
 
     public ImageFilePropertyEditor() {
         super();
-        removeCancelButton();
     }
 
 
@@ -44,12 +42,4 @@ public class ImageFilePropertyEditor extends FilePropertyEditor {
         chooser.addChoosableFileFilter(filter);
     }
 
-
-    private void removeCancelButton() {
-        for (Component component : ((JPanel) editor).getComponents()) {
-            if (component instanceof JButton && ((JButton) component).getText().equals("X")) {
-                ((JPanel) editor).remove(component);
-            }
-        }
-    }
 }

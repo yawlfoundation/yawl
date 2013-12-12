@@ -40,11 +40,11 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     private final Map<String, String> _externalUndoMap;
 
 
-    public OutputBindingDialog(VariableRow row,
+    public OutputBindingDialog(String taskID, VariableRow row,
                                java.util.List<VariableRow> netVarList,
                                java.util.List<VariableRow> taskVarList,
                                OutputBindings outputBindings) {
-        super(row, netVarList, taskVarList);
+        super(taskID, row, netVarList, taskVarList);
         _outputBindings = outputBindings;
         _outputBindings.beginUpdates();
         _workingSelection = new WorkingSelection();

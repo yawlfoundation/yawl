@@ -21,11 +21,14 @@ package org.yawlfoundation.yawl.editor.ui.net;
 import org.jgraph.graph.CellView;
 import org.jgraph.plaf.basic.BasicGraphUI;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.ImageObserver;
 
 /**
- * An override only for the paintCell method below
+ * An override for a couple of paint methods
  *
  * @author Michael Adams
  * @date 30/08/13
@@ -59,5 +62,45 @@ public class NetGraphUI extends BasicGraphUI {
                 (int) bounds.getY(), (int) bounds.getWidth(),
    			    (int) bounds.getHeight(), true);
    	}
+
+
+    // overridden to tile images
+    protected void paintBackgroundImage(Graphics g, Rectangle clip) {
+   		Component component = graph.getBackgroundComponent();
+   		if (component != null) {
+   			paintBackgroundComponent(g, component, clip);
+   		}
+   		ImageIcon icon = graph.getBackgroundImage();
+   		if (icon == null || icon.getImage() == null) {
+   			return;
+   		}
+   		Graphics2D g2 = (Graphics2D) g;
+   		AffineTransform transform = null;
+   		if (graph.isBackgroundScaled()) {
+   			transform = g2.getTransform();
+   			g2.scale(graph.getScale(), graph.getScale());
+   		}
+        tileBackgroundImage(g2, icon);
+   		if (transform != null) {
+   			g2.setTransform(transform);
+   		}
+   	}
+
+
+    private void tileBackgroundImage(Graphics g, ImageIcon icon) {
+        ImageObserver observer = icon.getImageObserver();
+        int width = graph.getWidth();
+        int height = graph.getHeight();
+        Image image = icon.getImage();
+        int imageW = image.getWidth(observer);
+        int imageH = image.getHeight(observer);
+
+        // Tile the image to fill graph background area
+        for (int x = 0; x < width; x += imageW) {
+            for (int y = 0; y < height; y += imageH) {
+                g.drawImage(image, x, y, graph);
+            }
+        }
+    }
 
 }

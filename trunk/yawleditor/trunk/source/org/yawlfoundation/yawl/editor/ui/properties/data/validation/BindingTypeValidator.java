@@ -60,7 +60,7 @@ public class BindingTypeValidator {
      *            the output task variable being bound from
      * @param dataTypeName the name of the target data type (the data type of the
      *                     task-level variable for input bindings, or the data type
-     *                     of the net-level variable for output bindings                     input
+     *                     of the net-level variable for output bindings
      */
     public BindingTypeValidator(List<VariableRow> varList, VariableRow row,
                                 String dataTypeName) {

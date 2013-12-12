@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -53,6 +54,7 @@ public class VariableTablePanel extends JPanel
     private JButton btnAdd;
     private JButton btnDel;
     private JButton btnMapping;
+    private JButton btnAutoMapping;
     private JButton btnMIVar;
     private JButton btnExAttributes;
     private StatusPanel status;
@@ -65,12 +67,14 @@ public class VariableTablePanel extends JPanel
         this.parent = parent;
         this.tableType = tableType;
         setLayout(new BorderLayout());
+        setBorder(new EmptyBorder(10,10,0,10));
         JScrollPane scrollPane = new JScrollPane(createTable(rows, tableType, netElementName));
-        scrollPane.setPreferredSize(new Dimension(tableType.getPreferredWidth(), 180));
+        scrollPane.setSize(new Dimension(tableType.getPreferredWidth(), 180));
         add(createToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
         if (tableType == TableType.Net) {
             btnMapping.setVisible(false);
+            btnAutoMapping.setVisible(false);
             btnMIVar.setVisible(false);
             btnExAttributes.setVisible(false);
         }
@@ -126,6 +130,9 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Binding")) {
             showBindingDialog();
         }
+        else if (action.equals("Autobind")) {
+            autobind();
+        }
         else if (action.equals("MarkMI")) {
             int row = table.getSelectedRow();
             String error = parent.setMultiInstanceRow(table.getSelectedVariable());
@@ -149,14 +156,15 @@ public class VariableTablePanel extends JPanel
         java.util.List<VariableRow> netVars =
                 parent.getNetTablePanel().getTable().getVariables();
         java.util.List<VariableRow> taskVars = table.getVariables();
+        String taskID = parent.getTask().getID();
         AbstractDataBindingDialog dialog = null;
 
         if (tableType == TableType.TaskInput) {
-            dialog = new InputBindingDialog(table.getSelectedVariable(),
+            dialog = new InputBindingDialog(taskID, table.getSelectedVariable(),
                     netVars, taskVars);
         }
         else if (tableType == TableType.TaskOutput) {
-            dialog = new OutputBindingDialog(table.getSelectedVariable(),
+            dialog = new OutputBindingDialog(taskID, table.getSelectedVariable(),
                     netVars, taskVars, parent.getOutputBindings());
         }
         if (dialog != null) {
@@ -220,8 +228,10 @@ public class VariableTablePanel extends JPanel
         toolbar.add(btnUp);
         btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
         toolbar.add(btnDown);
-        btnMapping = createToolBarButton("mapping", "Binding", " Data Bindings ");
+        btnMapping = createToolBarButton("mapping", "Binding", " Data Bindings Dialog ");
         toolbar.add(btnMapping);
+        btnAutoMapping = createToolBarButton("generate", "Autobind", " Smart Data Bindings ");
+        toolbar.add(btnAutoMapping);
         btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
         toolbar.add(btnExAttributes);
         btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
@@ -263,6 +273,9 @@ public class VariableTablePanel extends JPanel
             btnExAttributes.setEnabled(enable && hasRowSelected);
         }
         if (btnMIVar.isVisible()) btnMIVar.setEnabled(enable && shouldEnableMIButton());
+        if (btnAutoMapping.isVisible()) {
+            btnAutoMapping.setEnabled(enable && shouldEnableAutoMappingButton());
+        }
     }
 
 
@@ -275,6 +288,31 @@ public class VariableTablePanel extends JPanel
         return row != null && (row.isMultiInstance() ||
                 ( ! table.hasMultiInstanceRow() &&
                 handler.getMultiInstanceItemNameAndType(row.getDataType()) != null));
+    }
+
+
+    private boolean shouldEnableAutoMappingButton() {
+        for (VariableRow row : table.getVariables()) {
+            if (! hasBinding(row)) return true;
+        }
+        return false;
+    }
+
+
+    private boolean hasBinding(VariableRow row) {
+        return (row.isInput() && row.getMapping() != null) ||
+               (row.isOutput() && parent.getOutputBindings().hasBinding(row.getName()));
+    }
+
+
+    private void autobind() {
+        boolean changed = false;
+        for (VariableRow row : table.getVariables()) {
+            if (! hasBinding(row)) {
+                changed = parent.createAutoBinding(row) || changed;
+            }
+        }
+        if (changed) table.getTableModel().fireTableDataChanged();
     }
 
 

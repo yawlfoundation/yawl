@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -119,6 +120,10 @@ public class YResourceHandler {
 
     public Set<InvalidReference> getInvalidReferences() {
         return _resourcesCache.getAllInvalidReferences();
+    }
+
+    public void updateRationalisedReferences(Map<String, String> updateMap) {
+        _resourcesCache.updateRationalisedReferences(updateMap);
     }
 
 

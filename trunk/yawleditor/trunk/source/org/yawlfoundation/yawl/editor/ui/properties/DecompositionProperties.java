@@ -220,10 +220,13 @@ public class DecompositionProperties extends CellProperties {
     private void addParameters(List<YParameter> parameters) {
         if (! (parameters == null || parameters.isEmpty())) {
             for (YParameter parameter : parameters) {
+                parameter.setParentDecomposition(_decomposition);
                 if (parameter.isInput()) {
+                    parameter.setOrdering(_decomposition.getInputParameters().size());
                     _decomposition.addInputParameter(parameter);
                 }
                 else if (parameter.isOutput()) {
+                    parameter.setOrdering(_decomposition.getOutputParameters().size());
                     _decomposition.addOutputParameter(parameter);
                 }
             }
