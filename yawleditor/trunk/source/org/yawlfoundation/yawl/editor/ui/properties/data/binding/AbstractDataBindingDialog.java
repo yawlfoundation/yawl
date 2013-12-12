@@ -49,9 +49,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     protected boolean _initialising;
 
 
-    AbstractDataBindingDialog() { super(); }
-
-    public AbstractDataBindingDialog(VariableRow row,
+    public AbstractDataBindingDialog(String taskID, VariableRow row,
                                      java.util.List<VariableRow> netVarList,
                                      java.util.List<VariableRow> taskVarList) {
         super();
@@ -60,7 +58,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         _taskVarList = taskVarList;
         _currentRow = row;
         _undoMap = new HashMap<String, String>();
-        setTitle(makeTitle(row));
+        setTitle(makeTitle(taskID, row));
         add(getContent(row));
         init();
         setPreferredSize(new Dimension(426, row.isMultiInstance() ? 560 : 440));
@@ -197,11 +195,11 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     }
 
 
-    private String makeTitle(VariableRow row) {
+    private String makeTitle(String taskID, VariableRow row) {
         StringBuilder sb = new StringBuilder();
         sb.append(YDataHandler.getScopeName(row.getUsage()))
-          .append(" Data Bindings for Task: ")
-          .append(row.getDecompositionID());
+          .append(" Data Bindings for Task ")
+          .append(taskID);
         return sb.toString();
     }
 

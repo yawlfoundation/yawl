@@ -172,11 +172,18 @@ public class NetProperties extends YPropertiesBean {
     }
 
     public void setBackgroundImage(File file) {
-        String path = file.getAbsolutePath();
-        ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path);
-        if (bgImage != null) {
-            bgImage.setDescription(path);   // store path
-            graph.setBackgroundImage(bgImage);
+        if (file != null) {
+            String path = file.getAbsolutePath();
+            ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path, -1);
+            if (bgImage != null) {
+                bgImage.setDescription(path);   // store path
+                graph.setBackgroundImage(bgImage);
+                graph.repaint();
+                setDirty();
+            }
+        }
+        else {   // remove existing
+            graph.setBackgroundImage(null);
             graph.repaint();
             setDirty();
         }

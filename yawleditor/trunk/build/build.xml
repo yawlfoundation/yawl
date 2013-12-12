@@ -47,6 +47,7 @@
     <property name="distribution.dir" value="output" />
     <property name="library.dir" value="lib" />
     <property name="tools.dir" value="tools" />
+    <property name="manual.dir" value="manual" />
     <property name="javadoc.dir" value="${distribution.dir}/javadoc" />
     <property name="analyzer.dir" value="${build.dir}/analyzer" />
 
@@ -252,6 +253,7 @@
    		<zip destfile="${distribution.dir}/${release.zip}">
             <zipfileset dir="${distribution.dir}" includes="${ui.jar.name}"/>
    	  	    <zipfileset dir="${distribution.dir}/lib" prefix="lib"/>
+            <zipfileset dir="${manual.dir}" prefix="manual"/>
    		</zip>
         <checksum file="${distribution.dir}/${release.zip}" />
     </target>

@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.core.resourcing;
 
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.elements.YTask;
+import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 
 import java.util.*;
 
@@ -75,6 +76,7 @@ public class ResourcesCache {
         return null;
     }
 
+
     public boolean hasLoadedResources() {
         for (Map<String, TaskResourceSet> map : _cache.values()) {    // net in spec
             for (TaskResourceSet resources : map.values()) {          // task in spec
@@ -83,6 +85,35 @@ public class ResourcesCache {
         }
         return false;
     }
+
+
+    public void updateRationalisedReferences(Map<String, String> updateMap) {
+        for (Map<String, TaskResourceSet> map : _cache.values()) {    // net in spec
+            for (TaskResourceSet resources : map.values()) {          // task in spec
+                BasicOfferInteraction offer = resources.getOffer();
+                String famTaskID = offer.getFamiliarParticipantTask();
+                if (famTaskID != null && updateMap.containsKey(famTaskID)) {
+                    offer.setFamiliarParticipantTask(updateMap.get(famTaskID));
+                }
+                for (AbstractConstraint constraint : offer.getConstraintSet().getAll()) {
+                    if (constraint.getName().equals("SeparationOfDuties")) {
+                        famTaskID = constraint.getParamValue("familiarTask");
+                        if (famTaskID != null && updateMap.containsKey(famTaskID)) {
+                            constraint.setKeyValue("SeparationOfDuties",
+                                    updateMap.get(famTaskID));
+                        }
+                    }
+                }
+            }
+            for (String oldID : updateMap.keySet()) {
+                 if (map.containsKey(oldID)) {
+                     TaskResourceSet resources = map.remove(oldID);
+                     map.put(updateMap.get(oldID), resources);
+                 }
+            }
+        }
+    }
+
 
     public void clear() { _cache.clear(); }
 

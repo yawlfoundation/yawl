@@ -47,14 +47,20 @@ public class ResourceLoader {
         return getImageAsIcon(resourcesPath + file);
     }
 
+
     public static ImageIcon getExternalImageAsIcon(String imageFile) {
+        return getExternalImageAsIcon(imageFile, -1);
+    }
+
+
+    public static ImageIcon getExternalImageAsIcon(String imageFile, int scale) {
         try {
             BufferedImage b = ImageIO.read(new File(imageFile));
 
             // scale to fit inside tasks
             if (b != null) {
-                if (b.getHeight() > 24 || b.getWidth() > 24) {
-                    b = Scalr.resize(b, 24);
+                if (scale > 0 && (b.getHeight() > scale || b.getWidth() > scale)) {
+                    b = Scalr.resize(b, scale);
                 }
                 return new ImageIcon(b);
             }

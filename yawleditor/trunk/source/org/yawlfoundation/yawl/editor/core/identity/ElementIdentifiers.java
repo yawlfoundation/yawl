@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YNetElement;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -120,36 +121,44 @@ public class ElementIdentifiers {
      * Rationalises the identifiers in a specification if any of the suffix stores
      * contains gaps in used suffixes
      */
-    public void rationaliseIfRequired(YSpecification specification) {
+    public Map<String, String> rationaliseIfRequired(YSpecification specification) {
         if (specification != null) {
             for (SuffixStore store : _identifiers.values()) {
                 if (store.isDirty()) {
-                    rationalise(specification);
-                    break;
+                    return rationalise(specification);
                 }
             }
         }
+        return Collections.emptyMap();
     }
 
 
-    private void rationalise(YSpecification spec) {
+    private Map<String, String> rationalise(YSpecification spec) {
         clear();
+        Map<String, String> changes = new HashMap<String, String>();
         for (YDecomposition decomposition : spec.getDecompositions()) {
             if (decomposition instanceof YNet) {
                 for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
-                    rationalise(element);
+                    String oldID = element.getID();
+                    String newID = rationalise(element);
+                    if (newID != null) {
+                        changes.put(oldID, newID);
+                    }
                 }
             }
         }
+        return changes;
     }
 
 
-    private void rationalise(YNetElement element) {
+    private String rationalise(YNetElement element) {
         String original = element.getID();
         ElementIdentifier id = rationalise(new ElementIdentifier(original));
         if (! id.toString().equals(original)) {
             element.setID(id.toString());
+            return id.toString();
         }
+        return null;
     }
 
 

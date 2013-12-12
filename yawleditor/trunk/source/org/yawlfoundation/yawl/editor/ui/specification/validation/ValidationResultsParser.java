@@ -128,9 +128,20 @@ public class ValidationResultsParser {
                     "Error: An uninitialised data value will cause a failure at runtime.",
                     message);
         }
+        if (message.contains("needs to be connected with the input parameter")) {
+            return new ValidationMessage("Error: Task '" +
+                    extractLabel(message, '=', ')') +
+                    "' has a variable without a data binding expression.",
+                    message);
+        }
+        if (message.contains("cannot be equal to null or the empty string")) {
+            return new ValidationMessage("Error: The data binding expression for variable '" +
+                    extractLabel(message, "m [", ']') + "' of Task '" +
+                    extractLabel(message, '=', ']') + "' is missing.", message);
+        }
         if (message.startsWith("The decomposition")) {
-            return new ValidationMessage("Warning: Decomposition:"
-                    + extractLabel(message, '[', ']') + " is unused.",
+            return new ValidationMessage("Warning: Decomposition '"
+                    + extractLabel(message, '[', ']') + "' is unused.",
                     "The decomposition is either not associated with any task " +
                     "or its task is currently not connected. You can remove this " +
                     "decomposition now using the 'File->Delete Orphaned Decompositions' " +
@@ -153,8 +164,12 @@ public class ValidationResultsParser {
         return extractLabel(message, message.indexOf(leftChar), rightChar);
     }
 
+    private String extractLabel(String message, String left, char rightChar) {
+        return extractLabel(message, message.indexOf(left) + left.length() - 1, rightChar);
+    }
+
     private String extractLabel(String message, int left, char rightChar) {
-        int right = message.indexOf(rightChar);
+        int right = message.indexOf(rightChar, left);
         if (left > -1 && right > -1) {
             return simplifyLabel(message.substring(left == 0 ? 0 : left + 1, right));
         }

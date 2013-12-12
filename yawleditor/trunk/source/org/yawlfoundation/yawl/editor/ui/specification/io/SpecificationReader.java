@@ -124,7 +124,7 @@ public class SpecificationReader {
 
 
     private void finaliseLoad() {
-        _handler.getControlFlowHandler().rationaliseIdentifiers();
+        rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
         SpecificationUndoManager.getInstance().discardAllEdits();
@@ -132,6 +132,15 @@ public class SpecificationReader {
         ConfigurationImporter.ApplyConfiguration();
         YAWLEditor.getPropertySheet().setVisible(true);
         warnOnInvalidResources();
+    }
+
+
+    private void rationaliseIdentifiers() {
+        Map<String, String> changes =
+                _handler.getControlFlowHandler().rationaliseIdentifiers();
+        if (! changes.isEmpty()) {
+            _handler.getResourceHandler().updateRationalisedReferences(changes);
+        }
     }
 
 

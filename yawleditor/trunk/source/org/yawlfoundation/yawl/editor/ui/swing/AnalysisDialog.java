@@ -112,13 +112,17 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
         }
     }
 
-    public void yAnalyserEvent(YAnalyserEvent event) {
-        switch (event.getEventType()) {
-            case Init : refresh() ; break;
-            case Message : write(event.getMessage()); break;
-            case Cancelled : if (! cancelled) cancelled = true; else break;
-            case Completed : finished(); break;
-        }
+    public void yAnalyserEvent(final YAnalyserEvent event) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                switch (event.getEventType()) {
+                  case Init : refresh() ; break;
+                  case Message : write(event.getMessage()); break;
+                  case Cancelled : if (! cancelled) cancelled = true; else break;
+                  case Completed : finished(); break;
+              }
+            }
+        });
     }
 
 

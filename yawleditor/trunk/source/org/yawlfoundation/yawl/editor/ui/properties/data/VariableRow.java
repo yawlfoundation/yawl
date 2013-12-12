@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
  * @author Michael Adams
  * @date 3/08/12
  */
-public class VariableRow {
+public class VariableRow implements Comparable<VariableRow> {
 
     private Values startValues;
     private Values endValues;
@@ -183,6 +183,11 @@ public class VariableRow {
     public String getDecompositionID() { return decompositionID; }
 
 
+    public int getIndex() { return endValues.index; }
+
+    public void setIndex(int index) { endValues.index = index; }
+
+
     public void updatesApplied() {
         startValues = endValues.copy();
     }
@@ -201,11 +206,16 @@ public class VariableRow {
         return sb.toString();
     }
 
+    public int compareTo(VariableRow other) {
+        return getIndex() - other.getIndex();
+    }
+
 
     private void initialise(YVariable variable, boolean isInputOutput, String netElement) {
         startValues = new Values();
         startValues.name = variable.getName();
         startValues.dataType = variable.getDataTypeName();
+        startValues.index = variable.getOrdering();
         startValues.attributes = variable.getAttributes();
         startValues.value = null;
         if (isInputOutput) {
@@ -253,6 +263,7 @@ public class VariableRow {
         String name;
         String dataType;
         int scope;
+        int index;
         String value;
         String mapping;
         YAttributeMap attributes;
@@ -262,6 +273,7 @@ public class VariableRow {
             copy.name = name;
             copy.dataType = dataType;
             copy.scope = scope;
+            copy.index = index;
             copy.value = value;
             copy.mapping = mapping;
             copy.attributes = new YAttributeMap(attributes);

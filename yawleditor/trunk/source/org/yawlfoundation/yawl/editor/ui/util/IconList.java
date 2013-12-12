@@ -43,8 +43,6 @@ public class IconList {
     private static final IconList INSTANCE = new IconList();
     private static final List<IconPair> _icons = new ArrayList<IconPair>();
 
-    private static final String INTERNAL_PATH =
-            "org/yawlfoundation/yawl/editor/ui/resources/taskicons";
 
 
     private IconList() { }
@@ -113,6 +111,10 @@ public class IconList {
         private final Icon _icon;
         private final Icon _menuIcon;
 
+        private static final String INTERNAL_PATH =
+                "org/yawlfoundation/yawl/editor/ui/resources/taskicons/";
+
+
         public IconPair(String name, Icon icon, Icon menuIcon) {
             _name = name;
             _icon = icon;
@@ -133,9 +135,8 @@ public class IconList {
         }
 
         public boolean matches(String name) {
-            return name != null && (name.equals(_name) ||
-                    _name.equals(INTERNAL_PATH + '/' + name) ||         // most end here
-                    _name.equalsIgnoreCase(INTERNAL_PATH + '/' + name));  // legacy only
+            return name != null && ((INTERNAL_PATH + name).equals(_name) ||
+                    name.toLowerCase().endsWith(_name));  // legacy only
         }
 
         public int compareTo(IconPair other) {

@@ -116,10 +116,14 @@ public class JConnectionStatus extends JPanel {
         }
 
 
-        public void setOnline(boolean online) {
+        public void setOnline(final boolean online) {
             _online = online;
-            _indicator.setIcon(online ? onlineIcon : offlineIcon) ;
-            setTip();
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    _indicator.setIcon(online ? onlineIcon : offlineIcon);
+                    setTip();
+                }
+            });
         }
 
         public void setIndicatorFor(String iFor) {

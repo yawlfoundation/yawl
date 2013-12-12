@@ -38,10 +38,7 @@ import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -71,7 +68,7 @@ public class DataVariableDialog extends JDialog
         initialise(net);
         setTitle("Data Variables for Net " + net.getID());
         add(getContentForNetLevel());
-        setPreferredSize(new Dimension(620, 280));
+        setPreferredSize(new Dimension(620, 290));
         pack();
     }
 
@@ -84,7 +81,8 @@ public class DataVariableDialog extends JDialog
         if (this.task.isMultiInstance()) {
             _miHandler = new MultiInstanceHandler(this.task, outputBindings);
         }
-        setTitle("Data Variables for Task " + decomposition.getID());
+        setTitle("Data Variables for Decomposition " + decomposition.getID() +
+                 " [Task: " + task.getID() + "]");
         add(getContentForTaskLevel());
         enableDefaultValueEditing();
         setPreferredSize(new Dimension(760, 580));
@@ -197,9 +195,35 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    private String createMapping(String netID, String varName, String dataType) {
+    protected boolean createAutoBinding(VariableRow row) {
+        if (hasMatchingNetVar(row)) {
+            if (row.isInput()) {
+                row.setMapping(createMapping(net.getID(), row.getName(), row.getDataType()));
+            }
+            else {
+                outputBindings.setBinding(row.getName(),
+                        createMapping(task.getID(), row.getName(), row.getDataType()));
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    private boolean hasMatchingNetVar(VariableRow taskRow) {
+        for (VariableRow netRow : getNetTable().getVariables()) {
+            if (netRow.getName().equals(taskRow.getName()) &&
+                    netRow.getDataType().equals(taskRow.getDataType())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private String createMapping(String decompositionID, String varName, String dataType) {
         StringBuilder s = new StringBuilder("/");
-        s.append(netID)
+        s.append(decompositionID)
          .append("/")
          .append(varName)
          .append("/")
@@ -221,9 +245,10 @@ public class DataVariableDialog extends JDialog
 
     private JPanel getContentForNetLevel() {
         createNetTablePanel();
-        JPanel content = new JPanel();
-        content.add(netTablePanel);
-        content.add(createButtonBar());
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBorder(new EmptyBorder(0, 0, 10, 0));
+        content.add(netTablePanel, BorderLayout.CENTER);
+        content.add(createButtonBar(), BorderLayout.SOUTH);
         return content;
     }
 
@@ -234,11 +259,13 @@ public class DataVariableDialog extends JDialog
         getNetTable().setTransferHandler(
                 new VariableRowTransferHandler(getNetTable(), outputBindings));
 
-        JPanel content = new JPanel();
+        JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10, 10, 10, 10));
-        content.add(netTablePanel);
-        content.add(createTaskPanel());
-        content.add(createButtonBar());
+        JPanel subContent = new JPanel(new GridLayout(0,1));
+        subContent.add(netTablePanel);
+        subContent.add(createTaskPanel());
+        content.add(subContent, BorderLayout.CENTER);
+        content.add(createButtonBar(), BorderLayout.SOUTH);
         return content;
     }
 
@@ -280,7 +307,7 @@ public class DataVariableDialog extends JDialog
     }
 
     private JPanel createButtonBar() {
-        JPanel panel = new JPanel(new GridLayout(0,3,5,5));
+        JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10,0,0,0));
         panel.add(createButton("Cancel"));
         btnApply = createButton("Apply");
@@ -294,6 +321,7 @@ public class DataVariableDialog extends JDialog
 
     private JButton createButton(String label) {
         JButton button = new JButton(label);
+        button.setPreferredSize(new Dimension(70,25));
         button.setActionCommand(label);
         button.setMnemonic(label.charAt(0));
         button.addActionListener(this);
@@ -309,6 +337,9 @@ public class DataVariableDialog extends JDialog
 
     protected VariableTable getTaskOutputTable() {
         return taskOutputTablePanel != null ? taskOutputTablePanel.getTable() : null; }
+
+
+    protected YTask getTask() { return task; }
 
 
     private VariableTablePanel getTablePanelFromTableModel(VariableTableModel model) {
@@ -362,6 +393,7 @@ public class DataVariableDialog extends JDialog
             }
         }
 
+        Collections.sort(rows);
         return rows;
     }
 
@@ -374,6 +406,7 @@ public class DataVariableDialog extends JDialog
             initMappings(row, getMapping(parameter));
             rows.add(row);
         }
+        Collections.sort(rows);
         return rows;
     }
 

@@ -36,10 +36,10 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     private NetVariablePanel _generatePanel;
 
 
-    public InputBindingDialog(VariableRow row,
+    public InputBindingDialog(String taskID, VariableRow row,
                               java.util.List<VariableRow> netVarList,
                               java.util.List<VariableRow> taskVarList) {
-        super(row, netVarList, taskVarList);
+        super(taskID, row, netVarList, taskVarList);
         setTypeValidator(row);
         _initialising = false;
     }

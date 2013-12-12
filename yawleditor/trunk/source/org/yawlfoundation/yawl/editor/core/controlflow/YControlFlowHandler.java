@@ -457,8 +457,8 @@ public class YControlFlowHandler {
 
     public ElementIdentifiers getIdentifiers() { return _identifiers; }
 
-    public void rationaliseIdentifiers() {
-        _identifiers.rationaliseIfRequired(_specification);
+    public Map<String, String> rationaliseIdentifiers() {
+        return _identifiers.rationaliseIfRequired(_specification);
     }
 
     public String replaceID(String oldID, String newID) {

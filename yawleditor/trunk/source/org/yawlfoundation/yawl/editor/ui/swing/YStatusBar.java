@@ -33,6 +33,7 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     private JProgressBar progressBar;
     private SecondUpdateThread secondUpdateThread;
     private String previousStatusText;
+    private UpdateProgressByTime updater;
 
 
     public YStatusBar() {
@@ -90,21 +91,40 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     }
 
 
-    public void updateProgress(int completionValue) {
-        if (completionValue < 0 || completionValue > 100) {
-            return;
-        }
-        progressBar.setVisible(true);
-        progressBar.setValue(completionValue);
+    public void updateProgress(final int completionValue) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (completionValue < 0 || completionValue > 100) {
+                    return;
+                }
+                progressBar.setVisible(true);
+                progressBar.setValue(completionValue);
+            }
+        });
     }
 
 
     public void finishProgress() {
-        progressBar.setVisible(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                progressBar.setVisible(false);
+            }
+        });
     }
 
 
     public void progressOverSeconds(final int pauseSeconds) {
+//        updater = new UpdateProgressByTime(pauseSeconds);
+//        updater.addPropertyChangeListener(new PropertyChangeListener() {
+//            public void propertyChange(PropertyChangeEvent evt) {
+//                if ("progress".equals(evt.getPropertyName())) {
+//                    progressBar.setValue((Integer) evt.getNewValue());
+//                }
+//            }
+//        });
+//
+//        updater.execute();
+
         secondUpdateThread = new SecondUpdateThread();
         try {
             secondUpdateThread.setPauseSeconds(pauseSeconds);
@@ -117,10 +137,13 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
 
 
     public void resetProgress() {
+//        updater.cancel(true);
+//        finishProgress();
         secondUpdateThread.reset();
     }
 
     public void freeze() {
+ //       updater.cancel(true);
         secondUpdateThread.freeze();
     }
 
@@ -145,6 +168,44 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
 
 
     /******************************************************************************/
+
+    class UpdateProgressByTime extends SwingWorker<Void, Integer> {
+
+        private static final long WAIT_MSECS = 100;
+        private final int seconds;
+
+        UpdateProgressByTime(int seconds) {
+            this.seconds = seconds;
+         }
+
+        protected Void doInBackground() throws Exception {
+            int progress = 0;
+            int maxMSecs = seconds * 1000;
+            while (progress < maxMSecs) {
+                progress += WAIT_MSECS;
+                setProgress((progress / maxMSecs) * 100);
+                pause(WAIT_MSECS);
+            }
+            return null;
+        }
+
+        private void pause(long milliseconds) {
+             Object lock = new Object();
+             long now = System.currentTimeMillis();
+             long finishTime = now + milliseconds;
+             while (now < finishTime) {
+                 long timeToWait = finishTime - now;
+                 synchronized (lock) {
+                     try {
+                         lock.wait(timeToWait);
+                     }
+                     catch (InterruptedException ex) {
+                     }
+                 }
+                 now = System.currentTimeMillis();
+             }
+         }
+    }
 
     class SecondUpdateThread extends Thread {
 

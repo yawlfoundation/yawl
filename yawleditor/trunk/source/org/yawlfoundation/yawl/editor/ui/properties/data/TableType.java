@@ -37,7 +37,7 @@ public enum TableType {
 
         public int getPreferredWidth() { return 350; }
 
-        public String getName() { return "Task Input"; }
+        public String getName() { return "Decomposition Input"; }
     },
 
     TaskOutput {
@@ -45,7 +45,7 @@ public enum TableType {
 
         public int getPreferredWidth() { return 350; }
 
-        public String getName() { return "Task Output"; }
+        public String getName() { return "Decomposition Output"; }
     };
 
 
