@@ -32,6 +32,8 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
+import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
 import org.yawlfoundation.yawl.schema.SchemaHandler;
@@ -269,26 +271,17 @@ public class CostService implements InterfaceX_Service {
             Predicate costPredicate = new Predicate(predicate);
 
             // if verified (no exception), get the list of events for the case
-            String log = _rsLogClient.getCaseEvents(caseID, getRSHandle());
-            List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
-            Element events = JDOMUtil.stringToElement(log);
-            if (events != null) {
-                for (Element event : events.getChildren()) {
-                    eventList.add(new ResourceEvent(event));
-                }
-            }
-            if (eventList.isEmpty()) {
-                throw new IllegalArgumentException("No events found for case " + caseID);
-            }
+            List<ResourceEvent> eventList = getLogEvents(specID, caseID, costPredicate);
 
             // get cost model(s) and evaluate
             CostModelCache cache = getModelCache(specID);
             if (cache != null) {
                 return _evaluator.evaluate(costPredicate, eventList, cache.getDriverMatrix());
-            } else
-                throw new IllegalArgumentException("No cost models found for case " + caseID);
-        } catch (Exception e) {
-            _log.error("Failed to evaluate cost predicate: " + e.getMessage());
+            }
+            else throw new IllegalArgumentException("No cost models found for case " + caseID);
+        }
+        catch (Exception e) {
+            _log.error("Failed to evaluate cost predicate: ", e);
         }
         return false;
     }
@@ -326,7 +319,8 @@ public class CostService implements InterfaceX_Service {
      */
 
     private String getRSHandle() throws IOException {
-        if (_rsHandle == null) {
+        if (_rsHandle == null ||
+                ! _rsLogClient.checkConnection(_rsHandle).equalsIgnoreCase("true")) {
             _rsHandle = _rsLogClient.connect(_engineLogonName, _engineLogonPassword);
             if (_rsHandle.startsWith("<fail")) throw new IOException();
         }
@@ -390,9 +384,45 @@ public class CostService implements InterfaceX_Service {
     }
 
 
-    private void logItemStart(CostModelCache cache, WorkItemRecord wir, String data) {
+    private List<ResourceEvent> getLogEvents(YSpecificationID specID, String caseID,
+                                             Predicate predicate) throws IOException {
+        List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
+        if (predicate.isAllCases()) {
+            appendEvents(eventList,
+                    _rsLogClient.getSpecificationEvents(specID, getRSHandle()));
+        }
+        else if (predicate.hasCaseList()) {
+            for (String rangeID : predicate.getCaseList()) {
+                appendEvents(eventList, _rsLogClient.getCaseEvents(rangeID, getRSHandle()));
+            }
+        }
+        else {
+            appendEvents(eventList, _rsLogClient.getCaseEvents(caseID, getRSHandle()));
+        }
+        if (eventList.isEmpty()) {
+            throw new IllegalArgumentException("No events found for case " + caseID);
+        }
+        return eventList;
     }
 
+
+    private List<ResourceEvent> parseEventLog(String log) {
+        List<ResourceEvent> eventList = new ArrayList<ResourceEvent>();
+        if (! (log == null || log.startsWith("<fail"))) {
+            Element events = JDOMUtil.stringToElement(log);
+            if (events != null) {
+                for (Element event : events.getChildren()) {
+                    eventList.add(new ResourceEvent(event));
+                }
+            }
+        }
+        return eventList;
+    }
+
+
+    private void appendEvents(List<ResourceEvent> eventList, String log) {
+        eventList.addAll(parseEventLog(log));
+    }
 
     /**
      * ****************************************************************************

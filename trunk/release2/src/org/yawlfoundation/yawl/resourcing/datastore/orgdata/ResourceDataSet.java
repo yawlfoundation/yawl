@@ -1185,7 +1185,50 @@ public class ResourceDataSet {
         else if (isKnownOrgGroup(anyID)) {
             pSet.addAll(getOrgGroupParticipants(anyID));
         }
+        else {
+            pSet.addAll(resolveParticipantsFromResourceName(anyID));
+        }
         return pSet;
+    }
+
+
+    public Set<Participant> resolveParticipantsFromResourceName(String anyName) {
+        Set<Participant> pSet = new HashSet<Participant>();
+        Participant p = getParticipantFromUserID(anyName);
+        if (p != null) {
+            pSet.add(p);
+            return pSet;
+        }
+        Role r = getRoleByName(anyName);
+        if (r != null) {
+            pSet.addAll(getRoleParticipants(r.getID()));
+            return pSet;
+        }
+        Position pos = getPositionByLabel(anyName);
+        if (pos != null) {
+            pSet.addAll(getPositionParticipants(pos.getID()));
+            return pSet;
+        }
+        OrgGroup o = getOrgGroupByLabel(anyName);
+        if (o != null) {
+            pSet.addAll(getOrgGroupParticipants(o.getID()));
+            return pSet;
+        }
+        Capability c = getCapabilityByLabel(anyName);
+        if (c != null) {
+            pSet.addAll(getCapabilityParticipants(c.getID()));
+        }
+        return pSet;
+    }
+
+
+    public Participant getParticipantFromUserID(String userID) {
+        for (Participant p : getParticipants()) {
+            if (p.getUserID().equals(userID)) {
+                return p;
+            }
+        }
+        return null;
     }
 
 

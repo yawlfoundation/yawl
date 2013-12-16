@@ -39,7 +39,7 @@ import java.util.Map;
  *
  * Once the function is added, it can be used in any rule's conditional expression
  *
- * Currently only a STUB with a couple of examples
+ * Currently hosts the cost service function and a couple of other examples
  *
  *  @author Michael Adams
  *  v0.8 04-097/2006
@@ -49,7 +49,8 @@ public class RdrConditionFunctions {
     // HEADER //
 
     // add the name of each defined function here
-    public static final String[] _functionNames = { "max",
+    public static final String[] _functionNames = { "cost",
+                                                    "max",
                                                     "min",
                                                     "isNotCompleted",
                                                     "hasTimerExpired",
@@ -73,12 +74,14 @@ public class RdrConditionFunctions {
      * @return the function's result
      */
     public static String execute(String name, Map<String, String> args) {
-        if (name.equalsIgnoreCase("isNotCompleted")) {
-            String taskInfo = args.get("this");
+        String taskInfo = args.get("this");
+        if (name.equalsIgnoreCase("cost")) {
+            return "10";
+        }
+        else if (name.equalsIgnoreCase("isNotCompleted")) {
             return isNotCompleted(taskInfo);
         }
         else if (name.equalsIgnoreCase("hasTimerExpired")) {
-            String taskInfo = args.get("this");
             return hasTimerExpired(taskInfo);
         }
         else if (name.equalsIgnoreCase("max")) {

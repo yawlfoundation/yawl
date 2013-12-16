@@ -69,21 +69,26 @@ class ResourceTaskTimings {
         processIfSuspended(event);
         if (isEventType(event, "schedule")) {
             scheduled = event.get_timeStamp();
-        } else if (isEventType(event, "allocate")) {
+        }
+        else if (isEventType(event, "allocate")) {
             allocated = event.get_timeStamp();
-        } else if (isEventType(event, "start")) {
+        }
+        else if (isEventType(event, "start")) {
             if (started == null) started = new Hashtable<String, Long>();
             started.put(event.get_itemID(), event.get_timeStamp());
 
             // it may have gone straight from schedule to start
             if (allocated == 0) allocated = event.get_timeStamp();
-        } else if (isEventType(event, "complete")) {
+        }
+        else if (isEventType(event, "complete") || isEventType(event, "cancel")) {
             if (completed == null) completed = new Hashtable<String, Long>();
             completed.put(event.get_itemID(), event.get_timeStamp());
-        } else if (isEventType(event, "suspend")) {
+        }
+        else if (isEventType(event, "suspend")) {
             if (suspended == null) suspended = new Hashtable<String, Long>();
             suspended.put(event.get_itemID(), event.get_timeStamp());
-        } else if (isEventType(event, "withdraw")) {
+        }
+        else if (isEventType(event, "withdraw")) {
 
             // withdraw means deallocate - i.e. revert from allocated to offered
             allocated = 0;
@@ -113,7 +118,7 @@ class ResourceTaskTimings {
      *         allocated until when it was started by a resource
      */
     public long getAllocatedTime(String instance) {
-        return timeDiff(started.get(instance), allocated);
+        return started != null ? timeDiff(checkLong(started.get(instance)), allocated) : -1;
     }
 
 
@@ -123,7 +128,9 @@ class ResourceTaskTimings {
      *         until when it was completed or cancelled
      */
     public long getBusyTime(String instance) {
-        return timeDiff(completed.get(instance), started.get(instance));
+        if (completed == null || started == null) return -1;
+        return timeDiff(checkLong(completed.get(instance)),
+                checkLong(started.get(instance)));
     }
 
 
@@ -133,7 +140,7 @@ class ResourceTaskTimings {
      *         until when it was started
      */
     public long getInactiveTime(String instance) {
-        return timeDiff(started.get(instance), scheduled);
+        return started != null ? timeDiff(checkLong(started.get(instance)), scheduled) : -1;
     }
 
 
@@ -242,6 +249,11 @@ class ResourceTaskTimings {
     private long timeDiff(long later, long earlier) {
         return (later > -1) && (earlier > -1) && (later > earlier) ?
                 (later - earlier) : -1;
+    }
+
+
+    private long checkLong(Long time) {
+        return time != null ? time : -1;
     }
 
 }

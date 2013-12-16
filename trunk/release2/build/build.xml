@@ -1190,6 +1190,8 @@
             <fileset dir="${classes.dir}${packageRoot}/authentication"
                      includes="YClient.class YExternalClient.class"/>
         </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/cost/interfce"
+              file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>

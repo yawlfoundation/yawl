@@ -905,7 +905,7 @@ public class ResourceGatewayClient extends Interface_Client {
 
     /*****************************************************************************/
 
-    // GET METHODS - returning boolean //
+    // IS METHODS - returning boolean //
 
     /**
      * Check if the id passed is that of a known Participant

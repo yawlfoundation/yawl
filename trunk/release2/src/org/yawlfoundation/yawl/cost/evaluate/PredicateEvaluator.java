@@ -28,31 +28,9 @@ public class PredicateEvaluator {
 
 
     private boolean evaluate(Predicate predicate) {
-        String taskID = predicate.getTaskID();
-        String resourceID = predicate.getResourceID();
         double cost = 0;
-
-        // both specified
-        if (!(taskID == null || resourceID == null)) {
-            TaskCost taskCost = _taskCosts.get(taskID);
-            if (taskCost != null && resourceID.equals(taskCost.getResourceID())) {
-                cost = taskCost.getCost();
-            }
-
-        } else if (taskID != null) {
-            TaskCost taskCost = _taskCosts.get(taskID);
-            if (taskCost != null) {
-                cost = taskCost.getCost();
-            }
-        } else if (resourceID != null) {
-            for (TaskCost taskCost : _taskCosts.values()) {
-                if (resourceID.equals(taskCost.getResourceID())) {
-                    cost += taskCost.getCost();
-                }
-            }
-            return predicate.evaluate(cost);
-        } else if (predicate.isWholeCase() || predicate.isAllTasks() || predicate.isAllResources()) {
-            for (TaskCost taskCost : _taskCosts.values()) {
+        for (TaskCost taskCost : _taskCosts.values()) {
+            if (meetsCriteria(taskCost, predicate)) {
                 cost += taskCost.getCost();
             }
         }
@@ -73,6 +51,16 @@ public class PredicateEvaluator {
                 processDrivers(matrix, event, timings);
             }
         }
+    }
+
+
+    private boolean meetsCriteria(TaskCost taskCost, Predicate predicate) {
+        Set<String> taskList = predicate.getTaskList();
+        Set<String> resourceList = predicate.getResourceList();
+
+        return taskCost != null &&
+               (taskList == null || taskList.contains(taskCost.getTaskID())) &&
+               (resourceList == null || resourceList.contains(taskCost.getResourceID()));
     }
 
 

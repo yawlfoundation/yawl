@@ -162,6 +162,18 @@ public class WorkletRecord {
         return _datalist ;
     }
 
+    public Element getSearchData() {
+        Element processData = _wir.getDataList().clone();
+
+        //convert the wir contents to an Element
+        Element wirElement = JDOMUtil.stringToElement(_wir.toXML()).detach();
+
+        Element eInfo = new Element("process_info");     // new Element for process data
+        eInfo.addContent(wirElement);
+        processData.addContent(eInfo);                     // add element to case data
+        return processData;
+    }
+
     public String getCaseID() {
         return _wir.getCaseID();            // the originating workitem's case id
     }

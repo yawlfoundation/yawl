@@ -128,7 +128,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 else if ("getAccounts".equals(action)) {
                     msg.append(_engine.getAccounts(sessionHandle));
                 }
-                else if ("getAccount".equals(action)) {
+                else if ("getClientAccount".equals(action)) {
                     msg.append(_engine.getClientAccount(userID, sessionHandle));
                 }
                 else if ("getList".equals(action)) {
