@@ -439,7 +439,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
             else if (! defWorklist.getURI().equals(_yawlService.getURI())) {
                 _logger.warn(MessageFormat.format(
                         "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
-                        " [{2}]. Redirecting workitem to default worklist handler.",
+                        " [{2}], or the service repsonded with an error (check the Tomcat" +
+                        " log files for details). Redirecting workitem to default worklist handler.",
                         connect ? "connect to" : "find", _yawlService.getURI(),
                         _workItem.getIDString()));
                 YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);

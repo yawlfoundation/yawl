@@ -19,11 +19,13 @@
 package org.yawlfoundation.yawl.util;
 
 import org.yawlfoundation.yawl.authentication.YClient;
+import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -277,7 +279,7 @@ public class Sessions {
             checkConnection();
 
             // try for custom service first, then client app
-            YClient engineClient = iaClient.getYAWLService(userid, iaHandle);
+            YClient engineClient = getServiceAccount(userid);
             if (engineClient == null) {
                 engineClient = iaClient.getClientAccount(userid, iaHandle);
             }
@@ -287,6 +289,22 @@ public class Sessions {
                 credentials.put(userid, engineClient.getPassword());
             }
             return engineClient != null;
+        }
+
+
+        /**
+         * Gets the YAWL service using the userid passed
+         * @param userid the userid of the service to get
+         * @return the matching service, or null of a mtch isn't found
+         * @throws IOException if there's a problem connecting to the engine
+         */
+        YClient getServiceAccount(String userid) throws IOException {
+            for (YAWLServiceReference service : iaClient.getRegisteredYAWLServices(iaHandle)) {
+                if (service.getServiceName().equals(userid)) {
+                    return service;
+                }
+            }
+            return null;
         }
 
 

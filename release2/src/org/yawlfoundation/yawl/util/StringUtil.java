@@ -311,6 +311,39 @@ public class StringUtil {
         return xml;
     }
 
+
+    /**
+     * Removes single or double quotes surrounding a string
+     * @param s the string
+     * @return the string with the quotes removed
+     */
+    public static String deQuote(String s) {
+        if (! isNullOrEmpty(s)) {
+            char first = s.charAt(0);
+            if (first == '\'' || first == '"') {
+                int last = s.lastIndexOf(first);
+                if (last > 0) {
+                    return s.substring(1, last);
+                }
+            }
+        }
+        return s;
+    }
+
+
+    /**
+     * Wraps a string in the specified quote marks
+     * @param s the string to wrap
+     * @param quoteMark the quote character to use
+     * @return the wrapped sgtring
+     */
+    public static String enQuote(String s, char quoteMark) {
+        return s == null ? s :
+                new StringBuilder(s.length() + 2)
+                        .append(quoteMark).append(s).append(quoteMark).toString();
+    }
+
+
     /**
      * Encodes reserved characters in an xml string
      *

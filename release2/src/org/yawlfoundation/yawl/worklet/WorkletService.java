@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet;
 
 import org.apache.log4j.Logger;
 import org.jdom2.*;
+import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -184,6 +185,12 @@ public class WorkletService extends InterfaceBWebsideController {
         _engineURI = uri;
         _interfaceAClient =
                 new InterfaceA_EnvironmentBasedClient(_engineURI.replaceFirst("/ib", "/ia"));
+    }
+
+
+    public String getExternalServiceHandle(CostGatewayClient costClient)
+            throws IOException {
+        return costClient.connect(engineLogonName, engineLogonPassword);
     }
 
 
@@ -612,7 +619,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("Processing worklet substitution for workitem: " + childId);
 
         // select appropriate worklet
-        RdrConclusion result = new RdrConclusion(tree.search(coChild.getDatalist()));
+        RdrConclusion result = new RdrConclusion(tree.search(coChild.getSearchData()));
 
         // null result means no rule matched context
         if (!result.nullConclusion()) {
