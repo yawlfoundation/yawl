@@ -52,7 +52,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
 
     public YMultiInstanceAttributes(YTask container) {
-        this(container, "1", "2", "1", CREATION_MODE_STATIC);
+        this(container, "1", "2", "2", CREATION_MODE_STATIC);
     }
 
 
@@ -60,23 +60,9 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
                                        String maxInstancesQuery, String thresholdQuery,
                                        String creationMode) {
         _task = container;
-        try {
-            _minInstances = new Integer(minInstancesQuery);
-        } catch (NumberFormatException e) {
-            _minInstancesQuery = minInstancesQuery;
-        }
-        try {
-            _maxInstances = new Integer(maxInstancesQuery);
-        } catch (NumberFormatException e) {
-            _maxInstancesQuery = maxInstancesQuery;
-        }
-        try {
-            _threshold = new Integer(thresholdQuery);
-        } catch (NumberFormatException e) {
-            _thresholdQuery = thresholdQuery;
-        }
-        _creationMode = creationMode;
+        setProperties(minInstancesQuery, maxInstancesQuery, thresholdQuery, creationMode);
     }
+
 
     protected YTask getTask() { return _task; }
 
@@ -147,6 +133,28 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
     public boolean isDynamicCreationMode() {
         return _creationMode.equalsIgnoreCase(CREATION_MODE_DYNAMIC);
+    }
+
+
+    public void setProperties(String minInstancesQuery, String maxInstancesQuery,
+                              String thresholdQuery, String creationMode) {
+        try {
+            _minInstances = new Integer(minInstancesQuery);
+        } catch (NumberFormatException e) {
+            _minInstancesQuery = minInstancesQuery;
+        }
+        try {
+            _maxInstances = new Integer(maxInstancesQuery);
+        } catch (NumberFormatException e) {
+            _maxInstancesQuery = maxInstancesQuery;
+        }
+        try {
+            _threshold = new Integer(thresholdQuery);
+        } catch (NumberFormatException e) {
+            _thresholdQuery = thresholdQuery;
+        }
+        _creationMode = creationMode;
+
     }
 
 

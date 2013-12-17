@@ -774,7 +774,12 @@ public class YNetRunner {
 
         if (taskExited) {
             if (workItem != null) {
-                _workItemRepository.removeWorkItemFamily(workItem);
+                for (YWorkItem removed : _workItemRepository.removeWorkItemFamily(workItem)) {
+                    if (! removed.hasCompletedStatus()) {      // MI fired or incomplete
+                        _announcer.announceCancelledWorkItem(removed);
+                    }
+                }
+
                 updateTimerState(workItem.getTask(), YWorkItemTimer.State.closed);
             }
 
