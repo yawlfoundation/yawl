@@ -53,9 +53,20 @@ public class RepoDescriptor implements Comparable<RepoDescriptor> {
     }
 
     public int compareTo(RepoDescriptor other) {
-        if (other == null) return -1;
-        int result = getName().compareTo(other.getName());
-        return (result != 0) ? result : getDescription().compareTo(other.getDescription());
+        if (this == other) return 0;
+        if (other == null) return 1;                 // null < !null
+        if (name != null) {
+            if (other.name == null) return 1;
+            int result = name.compareTo(other.name);
+            if (result == 0) {
+                if (description != null) {
+                    if (other.description == null) return 1;
+                    return description.compareTo(other.description);
+                }
+                return other.description == null ? 0 : -1;   // this.description == null
+            }
+        }
+        return other.name == null ? 0 : -1;                  // this.name == null
     }
 
 }

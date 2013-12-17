@@ -105,6 +105,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
         _xQueryEditor = new XQueryValidatingEditorPane();
         _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setValidating(true);
+        _xQueryEditor.setPreAndPostEditorText("<foo_bar>", "</foo_bar>");
         _xQueryEditor.setText(formatQuery(_flow.getPredicate(), true));
         return _xQueryEditor;
     }

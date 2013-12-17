@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -160,7 +161,7 @@ public class VariableRow implements Comparable<VariableRow> {
     public String getStartingMapping() { return startValues.mapping; }
 
     public String getFullMapping() {
-        return isMultiInstance() ? getMapping() :
+        return isMultiInstance() || isExternalGateway(getMapping()) ? getMapping() :
                 getWrappedMapping(getName(), getMapping());
     }
 
@@ -256,6 +257,11 @@ public class VariableRow implements Comparable<VariableRow> {
         if (isXPath) s.append("}");
         s.append("</").append(tagName).append('>');
         return s.toString();
+    }
+
+
+    private boolean isExternalGateway(String mapping) {
+        return ExternalDBGatewayFactory.isExternalDBMappingExpression(mapping);
     }
 
 
