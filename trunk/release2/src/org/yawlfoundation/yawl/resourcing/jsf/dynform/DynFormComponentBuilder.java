@@ -254,6 +254,7 @@ public class DynFormComponentBuilder {
         cbox.setStyleClass("dynformInput");
         cbox.setStyle(makeStyle(cbox, input)) ;
         cbox.setVisible(isVisible(input));
+        cbox.setToolTip(input.getToolTip());
         return cbox ;
     }
 
@@ -270,6 +271,7 @@ public class DynFormComponentBuilder {
         cal.setStyleClass(getInputStyleClass(input));    
         cal.setStyle(makeStyle(cal, input));
         cal.setVisible(isVisible(input));
+        cal.setToolTip(input.getToolTip());
         return cal;
     }
 
@@ -323,6 +325,7 @@ public class DynFormComponentBuilder {
         dropdown.setSelected(getEnumeratedListValue(input));
         dropdown.setDisabled(isDisabled(input));
         dropdown.setVisible(isVisible(input));
+        dropdown.setToolTip(input.getToolTip());
         return dropdown;
     }
 
