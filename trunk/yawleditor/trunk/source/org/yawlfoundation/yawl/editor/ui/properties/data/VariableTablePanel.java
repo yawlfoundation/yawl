@@ -274,7 +274,7 @@ public class VariableTablePanel extends JPanel
         }
         if (btnMIVar.isVisible()) btnMIVar.setEnabled(enable && shouldEnableMIButton());
         if (btnAutoMapping.isVisible()) {
-            btnAutoMapping.setEnabled(enable && shouldEnableAutoMappingButton());
+            btnAutoMapping.setEnabled(enable && shouldEnableAutoBindingButton());
         }
     }
 
@@ -291,7 +291,8 @@ public class VariableTablePanel extends JPanel
     }
 
 
-    private boolean shouldEnableAutoMappingButton() {
+    private boolean shouldEnableAutoBindingButton() {
+        if (parent.getNetTablePanel().getTable().getRowCount() == 0) return false;
         for (VariableRow row : table.getVariables()) {
             if (! hasBinding(row)) return true;
         }

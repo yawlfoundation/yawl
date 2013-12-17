@@ -492,7 +492,7 @@ public class YControlFlowHandler {
 
     private void setMultiInstance(YTask task) {
         if (task != null) {
-            task.setUpMultipleInstanceAttributes("1", "2", "1",
+            task.setUpMultipleInstanceAttributes("1", "2", "2",
                     YMultiInstanceAttributes.CREATION_MODE_STATIC);
         }
     }

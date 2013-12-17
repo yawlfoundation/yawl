@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -103,11 +104,14 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
                 _gatewayButton.setSelected(true);
             }
         }
-        else if (! initExternalSelection(item)) {
+        else if (ExternalDBGatewayFactory.isExternalDBMappingExpression(item)) {
+            initExternalSelection(item);
+        }
+        else if (_varsCombo.getItemCount() > 0) {
             enableCombos(true, false);
             _netVarsButton.setSelected(true);
             _varsCombo.setSelectedItem(item);
-            if (_varsCombo.getItemCount() > 0 && _varsCombo.getSelectedIndex() < 0) {
+            if (_varsCombo.getSelectedIndex() < 0) {
                 _varsCombo.setSelectedIndex(0);
             }
         }
@@ -157,15 +161,18 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         if (mapping == null || ! mapping.contains("#external:")) return false;
         int first = mapping.indexOf(':');
         int last = mapping.lastIndexOf(':');
-        if (first < 0 || last < 0) return false;
+        if (first < 0 || last < 0 || last <= first) return false;
         String gatewayName = mapping.substring(first + 1, last);
+        _gatewayButton.setSelected(true);
         for (int i = 0; i < _gatewayCombo.getItemCount(); i++) {
             if (gatewayName.equals(_gatewayCombo.getItemAt(i))) {
                 enableCombos(false, true);
                 _gatewayCombo.setSelectedIndex(i);
-                _gatewayButton.setSelected(true);
                 return true;
             }
+        }
+        if (_gatewayCombo.getItemCount() > 0 && _gatewayCombo.getSelectedIndex() < 0) {
+            _gatewayCombo.setSelectedIndex(0);
         }
         return false;          // gateway not in list
     }

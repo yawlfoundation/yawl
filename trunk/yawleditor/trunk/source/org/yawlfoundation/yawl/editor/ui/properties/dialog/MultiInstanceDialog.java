@@ -169,8 +169,8 @@ public class MultiInstanceDialog extends JDialog
 
 
     private void updateTask() {
-        task.setUpMultipleInstanceAttributes(minPanel.getContent(), maxPanel.getContent(),
-                thresholdPanel.getContent(), getCreationMode());
+        task.getMultiInstanceAttributes().setProperties(minPanel.getContent(),
+                maxPanel.getContent(), thresholdPanel.getContent(), getCreationMode());
         setCurrentValueString();
     }
 
