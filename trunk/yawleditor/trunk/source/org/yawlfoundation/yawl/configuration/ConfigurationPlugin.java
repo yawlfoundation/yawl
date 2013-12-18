@@ -16,24 +16,33 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.plugin;
+package org.yawlfoundation.yawl.configuration;
 
+import org.yawlfoundation.yawl.configuration.menu.ProcessConfigurationMenu;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
 
 import javax.swing.*;
 
 /**
  * @author Michael Adams
- * @date 24/04/12
+ * @date 18/12/2013
  */
-public interface YEditorPlugin {
+public class ConfigurationPlugin implements YEditorPlugin {
 
-    String getName();
+    public String getName() {
+        return null;
+    }
 
-    String getDescription();
+    public String getDescription() {
+        return null;
+    }
 
-    YAWLSelectedNetAction getPluginMenuAction();
+    public YAWLSelectedNetAction getPluginMenuAction() {
+        return null;
+    }
 
-    JMenu getPluginMenu();
-
+    public JMenu getPluginMenu() {
+        return new ProcessConfigurationMenu();
+    }
 }

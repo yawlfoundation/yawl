@@ -20,8 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.ExitAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
-import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -59,22 +57,8 @@ class SpecificationMenu extends JMenu {
         addMenuItemAction(new PreferencesAction());
 
         addSeparator();
-        if (addPlugins() > 0) addSeparator();
 
         addMenuItemAction(new ExitAction(this));
-    }
-
-
-    private int addPlugins() {
-        int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
-            AbstractAction action = plugin.getSpecificationMenuAction();
-            if (action != null) {
-                addMenuItemAction(action);
-                addedItemCount++;
-            }
-        }
-        return addedItemCount;
     }
 
 

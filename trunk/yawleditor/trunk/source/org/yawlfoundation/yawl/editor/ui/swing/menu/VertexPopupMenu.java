@@ -20,24 +20,17 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.CutAction;
-import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.DeleteAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.GotoSubNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCompositeTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 
 import javax.swing.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class VertexPopupMenu extends JPopupMenu {
 
     private final YAWLCell cell;
-
-    private Map<YAWLPopupMenuItem, YEditorPlugin> _item2pluginMap;
 
     public VertexPopupMenu(YAWLCell cell) {
         super();
@@ -48,7 +41,6 @@ public class VertexPopupMenu extends JPopupMenu {
     private void addMenuItems() {
         YAWLVertex vertex = (YAWLVertex) cell;
         addGraphSpecificMenuItems(vertex);
-        addPlugins();
     }
 
     private void addGraphSpecificMenuItems(YAWLVertex vertex) {
@@ -81,37 +73,8 @@ public class VertexPopupMenu extends JPopupMenu {
     }
 
 
-    private int addPlugins() {
-        int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
-            YAWLBaseAction action = plugin.getPopupMenuAction();
-            if (action != null) {
-                if (addedItemCount == 0) {
-                    _item2pluginMap = new HashMap<YAWLPopupMenuItem, YEditorPlugin>();
-                    addSeparator();
-                }
-                YAWLPopupMenuItem item = new YAWLPopupMenuItem(action);
-                add(item);
-                _item2pluginMap.put(item, plugin);
-                addedItemCount++;
-            }
-        }
-        return addedItemCount;
-    }
-
-
     public YAWLCell getCell() {
         return cell;
     }
 
-    public void setVisible(boolean state) {
-        if (state) {
-            if (_item2pluginMap != null) {
-                for (YAWLPopupMenuItem item : _item2pluginMap.keySet()) {
-                    item.setEnabled(_item2pluginMap.get(item).setPopupMenuItemEnabled(cell));
-                }
-            }
-        }
-        super.setVisible(state);
-    }
 }

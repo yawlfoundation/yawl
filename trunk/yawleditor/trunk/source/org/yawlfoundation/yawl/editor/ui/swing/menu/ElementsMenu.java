@@ -21,8 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.align.*;
-import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
@@ -50,8 +48,6 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
         addSeparator();
         add(new YAWLMenuItem(AddToVisibleCancellationSetAction.getInstance()));
         add(new YAWLMenuItem(RemoveFromVisibleCancellationSetAction.getInstance()));
-
-        addPlugins();
     }
 
     private JMenu getAlignmentMenu() {
@@ -80,20 +76,6 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
         repositoryMenu.add(new YAWLMenuItem(
                 new RepositoryRemoveAction(null, Repo.TaskDecomposition, null)));
         return repositoryMenu;
-    }
-
-
-    private int addPlugins() {
-        int addedItemCount = 0;
-        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
-            AbstractAction action = plugin.getElementsMenuAction();
-            if (action != null) {
-                if (addedItemCount == 0) addSeparator();
-                add(new YAWLMenuItem(action));
-                addedItemCount++;
-            }
-        }
-        return addedItemCount;
     }
 
 }

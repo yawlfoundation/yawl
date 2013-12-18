@@ -16,12 +16,30 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.configuration.actions;
+/*
+ * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationTableCellRenderer;
 import org.yawlfoundation.yawl.editor.ui.configuration.PortIDRenderer;
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -53,9 +71,9 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
     public void actionPerformed(ActionEvent event) {
         final YAWLTask task = this.task;
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        EventQueue.invokeLater(new Runnable() {
             public void run() {
-                OutputConfigurationJDialog dialog = new OutputConfigurationJDialog(new javax.swing.JFrame(), task, net);
+                OutputConfigurationJDialog dialog = new OutputConfigurationJDialog(new JFrame(), task, net);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
                 });
@@ -84,7 +102,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
      *
      * @author jingxin
      */
-    private class OutputConfigurationJDialog extends javax.swing.JDialog {
+    private class OutputConfigurationJDialog extends JDialog {
 
         private List<CPort> OutputPorts;
 
@@ -132,17 +150,17 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
         // <editor-fold defaultstate="collapsed" desc="Generated Code">
         private void initComponents() {
 
-            jLabel1 = new javax.swing.JLabel();
-            jScrollPane1 = new javax.swing.JScrollPane();
-            outputPortsConfigurationTable = new javax.swing.JTable();
-            ActivateButton = new javax.swing.JButton();
-            BlockButton = new javax.swing.JButton();
-            SetDefaultButton = new javax.swing.JButton();
-            DefaultButton = new javax.swing.JButton();
+            jLabel1 = new JLabel();
+            jScrollPane1 = new JScrollPane();
+            outputPortsConfigurationTable = new JTable();
+            ActivateButton = new JButton();
+            BlockButton = new JButton();
+            SetDefaultButton = new JButton();
+            DefaultButton = new JButton();
 
-            setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             this.setTitle("Output Ports Configuration");
-            jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14));
+            jLabel1.setFont(new Font("Tahoma", 0, 14));
             jLabel1.setText("Please select which ports you want to configure.");
 
             outputPortsConfigurationTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -152,7 +170,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                     }
             ) {
                 final Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                        Integer.class, String.class, String.class
                 };
                 final boolean[] canEdit = new boolean [] {
                         false, false, false
@@ -190,14 +208,14 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
             ActivateButton.setText("Activate");
             ActivateButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     ActivateButtonActionPerformed(evt);
                 }
             });
 
             BlockButton.setText("Block");
             BlockButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     BlockButtonActionPerformed(evt);
                 }
             });
@@ -206,14 +224,14 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
             DefaultButton.setText("Use Default");
             DefaultButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     DefaultButtonActionPerformed(evt);
                 }
             });
 
             SetDefaultButton.setText("Set Defaults");
             SetDefaultButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     SetDefaultButtonActionPerformed(evt);
                 }
             });
@@ -271,7 +289,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             pack();
         }// </editor-fold>
 
-        private void ActivateButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void ActivateButtonActionPerformed(ActionEvent evt) {
             int length = this.outputPortsConfigurationTable.getSelectedRowCount();
             int[] selectedRows = this.outputPortsConfigurationTable.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -292,7 +310,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             }
         }
 
-        private void BlockButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void BlockButtonActionPerformed(ActionEvent evt) {
             int length = this.outputPortsConfigurationTable.getSelectedRowCount();
             int[] selectedRows = this.outputPortsConfigurationTable.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -313,7 +331,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             }
         }
 
-        private void DefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void DefaultButtonActionPerformed(ActionEvent evt) {
             int length = this.outputPortsConfigurationTable.getSelectedRowCount();
             int[] selectedRows = this.outputPortsConfigurationTable.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -331,11 +349,11 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             }
         }
 
-        private void SetDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void SetDefaultButtonActionPerformed(ActionEvent evt) {
             final YAWLTask task = this.task;
-            java.awt.EventQueue.invokeLater(new Runnable() {
+            EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    SetOutputPortDefaultConfigurationJDialog dialog = new SetOutputPortDefaultConfigurationJDialog(new javax.swing.JFrame(), net, task);
+                    SetOutputPortDefaultConfigurationJDialog dialog = new SetOutputPortDefaultConfigurationJDialog(new JFrame(), net, task);
                     dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     });
                     dialog.setLocationRelativeTo(YAWLEditor.getInstance());
@@ -394,17 +412,17 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
 
         // Variables declaration - do not modify
-        private javax.swing.JButton ActivateButton;
-        private javax.swing.JButton BlockButton;
-        private javax.swing.JButton DefaultButton;
-        private javax.swing.JButton SetDefaultButton;
-        private javax.swing.JTable outputPortsConfigurationTable;
-        private javax.swing.JLabel jLabel1;
-        private javax.swing.JScrollPane jScrollPane1;
+        private JButton ActivateButton;
+        private JButton BlockButton;
+        private JButton DefaultButton;
+        private JButton SetDefaultButton;
+        private JTable outputPortsConfigurationTable;
+        private JLabel jLabel1;
+        private JScrollPane jScrollPane1;
 
     }
 
-    private class SetOutputPortDefaultConfigurationJDialog extends javax.swing.JDialog {
+    private class SetOutputPortDefaultConfigurationJDialog extends JDialog {
 
         private final NetGraph net;
         private final YAWLTask task;
@@ -447,12 +465,12 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
         // <editor-fold defaultstate="collapsed" desc="Generated Code">
         private void initComponents() {
 
-            jScrollPane1 = new javax.swing.JScrollPane();
-            jTable1 = new javax.swing.JTable();
-            AllowButton = new javax.swing.JButton();
-            BlockButton = new javax.swing.JButton();
-            EmptyButton = new javax.swing.JButton();
-            setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+            jScrollPane1 = new JScrollPane();
+            jTable1 = new JTable();
+            AllowButton = new JButton();
+            BlockButton = new JButton();
+            EmptyButton = new JButton();
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             this.setTitle("Output Ports Default Configuration Setting");
 
             jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -462,7 +480,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                     }
             ) {
                 final Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                        Integer.class, String.class, String.class
                 };
                 final boolean[] canEdit = new boolean [] {
                         false, false, false
@@ -493,21 +511,21 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
 
             AllowButton.setText("Activate");
             AllowButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     AllowButtonActionPerformed(evt);
                 }
             });
 
             BlockButton.setText("Block ");
             BlockButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     BlockButtonActionPerformed(evt);
                 }
             });
 
             EmptyButton.setText("No Default");
             EmptyButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                public void actionPerformed(ActionEvent evt) {
                     EmptyButtonActionPerformed(evt);
                 }
             });
@@ -548,7 +566,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             pack();
         }// </editor-fold>
 
-        private void AllowButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void AllowButtonActionPerformed(ActionEvent evt) {
             int length = jTable1.getSelectedRowCount();
             int[] selectedRows = this.jTable1.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -559,7 +577,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             toggleEnabled(AllowButton);
         }
 
-        private void BlockButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void BlockButtonActionPerformed(ActionEvent evt) {
             int length = jTable1.getSelectedRowCount();
             int[] selectedRows = this.jTable1.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -570,7 +588,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             toggleEnabled(BlockButton);
         }
 
-        private void EmptyButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        private void EmptyButtonActionPerformed(ActionEvent evt) {
             int length = jTable1.getSelectedRowCount();
             int[] selectedRows = this.jTable1.getSelectedRows();
             for(int i=0; i<length; i++){
@@ -592,11 +610,11 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
         }
 
         // Variables declaration - do not modify
-        private javax.swing.JButton AllowButton;
-        private javax.swing.JButton BlockButton;
-        private javax.swing.JButton EmptyButton;
-        private javax.swing.JScrollPane jScrollPane1;
-        private javax.swing.JTable jTable1;
+        private JButton AllowButton;
+        private JButton BlockButton;
+        private JButton EmptyButton;
+        private JScrollPane jScrollPane1;
+        private JTable jTable1;
 
         // End of variables declaration
 

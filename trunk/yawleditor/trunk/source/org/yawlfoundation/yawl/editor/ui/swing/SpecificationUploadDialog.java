@@ -134,7 +134,8 @@ public class SpecificationUploadDialog extends PropertyDialog
             String errorMsg = processUploadResult(result);
             if (errorMsg.isEmpty()) {
                 uploader.storeLayout();
-                message = "Specification uploaded successfully." + launchCase(uploader);
+                String launchResult = launchCase(uploader);
+                message = "Specification uploaded successfully." + launchResult;
             }
             else {
                 message = errorMsg;

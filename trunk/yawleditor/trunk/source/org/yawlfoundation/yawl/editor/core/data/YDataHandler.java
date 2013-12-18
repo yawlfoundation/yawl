@@ -341,7 +341,6 @@ public class YDataHandler {
      * 'dataType' parameter is invalid, or the variable has a value that is incompatible
      * with the new data type, or the 'scope' parameter is invalid
      */
-    // todo: throw an exception if the var has a value mismatch with the new type
     public boolean setVariableDataType(String decompositionID, String variableName,
                         String dataType, int scope) throws YDataHandlerException {
         checkParameterType(scope);
@@ -349,8 +348,13 @@ public class YDataHandler {
         boolean success = true;
         if (scope == LOCAL) {
             if (decomposition instanceof YNet) {
-                return setVariableDataType(((YNet) decomposition).getLocalVariables()
-                        .get(variableName), dataType);
+                YVariable variable = ((YNet) decomposition).getLocalVariables()
+                                        .get(variableName);
+                if (variable == null) {
+                    throw new YDataHandlerException("No variable found with name: " +
+                            variableName);
+                }
+                return setVariableDataType(variable, dataType, variable.getInitialValue());
             }
             else raise("Invalid parameter scope for task decomposition: " +
                     getScopeName(scope));
@@ -358,11 +362,17 @@ public class YDataHandler {
         else {
             if (scope == INPUT || scope == INPUT_OUTPUT) {
                 success = setVariableDataType(
-                        decomposition.getInputParameters().get(variableName), dataType);
+                        decomposition.getInputParameters().get(variableName), dataType, null);
             }
             if (scope == OUTPUT || scope == INPUT_OUTPUT) {
+                YVariable variable = decomposition.getOutputParameters().get(variableName);
+                if (variable == null) {
+                    throw new YDataHandlerException("No variable found with name: " +
+                            variableName);
+                }
                 success = success && setVariableDataType(
-                        decomposition.getOutputParameters().get(variableName), dataType);
+                        decomposition.getOutputParameters().get(variableName), dataType,
+                        variable.getDefaultValue());
             }
         }
         return success;
@@ -1263,12 +1273,17 @@ public class YDataHandler {
      * @param dataType the data type to assign
      * @return true if successful, false if the variable is null
      */
-    private boolean setVariableDataType(YVariable variable, String dataType) {
-        if (variable != null) {
-            variable.setDataTypeAndName(dataType, variable.getPreferredName(),
-                    variable.getDataTypeNameSpace());
+    private boolean setVariableDataType(YVariable variable, String dataType, String value)
+            throws YDataHandlerException {
+        if (variable == null) {
+            throw new YDataHandlerException("No matching variable found");
         }
-        return variable != null;
+        if (! (value.isEmpty() || validate(dataType, value).isEmpty())) {
+            throw new YDataHandlerException("Invalid data type for variable value");
+        }
+        variable.setDataTypeAndName(dataType, variable.getPreferredName(),
+                    variable.getDataTypeNameSpace());
+        return true;
     }
 
 

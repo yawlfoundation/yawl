@@ -44,7 +44,7 @@ public class LayoutRepository extends RepoMap {
      * @return whether the add was successful
      */
     public String add(YSpecificationID specID, String layoutXML) {
-        if (specID != null && layoutXML != null) {
+        if (specID != null && layoutXML != null && ! hasRecord(specID.toKeyString())) {
             RepoRecord record = addRecord(new LayoutRecord(specID, layoutXML));
             if (record != null) return record.getName();
         }
