@@ -35,8 +35,8 @@
               value="org.yawlfoundation.yawl.editor.ui.${root.class.name}" />
     <property name="root.launcher"
               value="org.yawlfoundation.yawl.editor.ui.${root.launcher.name}" />
-    <property name="source.file" value="${package.dir}/ui/${root.source.file}" />
-    <property name="source.release" value="1.6" />
+    <property name="root.source.file.path" value="${package.dir}/ui/${root.source.file}" />
+    <property name="java.target.version" value="1.6" />
 
     <!--
     	Define input & output directories
@@ -44,11 +44,11 @@
 	<property name="tempBuild.dir" value="temp" />
     <property name="source.dir" value="source" />
     <property name="classes.dir" value="classes" />
-    <property name="distribution.dir" value="output" />
+    <property name="output.dir" value="output" />
     <property name="library.dir" value="lib" />
     <property name="tools.dir" value="tools" />
     <property name="manual.dir" value="manual" />
-    <property name="javadoc.dir" value="${distribution.dir}/javadoc" />
+    <property name="javadoc.dir" value="${output.dir}/javadoc" />
     <property name="analyzer.dir" value="${build.dir}/analyzer" />
 
     <!--
@@ -64,6 +64,8 @@
               value="${root.class.name}-core-${editor.release.number}.jar" />
     <property name="analyser.jar.name"
               value="${root.class.name}-analyser-${editor.release.number}.jar" />
+    <property name="configuration.plugin.jar.name"
+              value="${root.class.name}-configuration-${editor.release.number}.jar" />
     <property name="icons.jar.name"
               value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
@@ -129,7 +131,7 @@
 	<!-- ==================MAIN EDITOR BUILD TARGETS======================= -->
 
 	<!--
-		Build Lite Editor with all dependencies in external JARs, which must
+		Build Editor with all dependencies in external JARs, which must
 	    remain in a lib folder relative to the Editor JARs location (as set up
 	    in the output directory). All dependencies are added explicitly to the
 	    manifest's Class-Path, so the Editor can be run simply as java -jar ...
@@ -141,9 +143,9 @@
         <property name="manifestFile" value="${root.class.name}.mf" />
 
     	<manifestclasspath property="manifest_cp"
-    					   jarfile="${distribution.dir}/${ui.jar.name}">
+    					   jarfile="${output.dir}/${ui.jar.name}">
     		<classpath>
-    			<fileset dir="${distribution.dir}/lib" includes="*.jar" />
+    			<fileset dir="${output.dir}/lib" includes="*.jar" />
     		</classpath>
     	</manifestclasspath>
 
@@ -166,12 +168,12 @@
         <copy file="${build.dir}/version.properties"
               tofile="${classes.dir}/version.properties"/>
 
-        <jar jarfile="${distribution.dir}/${ui.jar.name}"
+        <jar jarfile="${output.dir}/${ui.jar.name}"
              basedir="${classes.dir}"
              manifest="${manifestFile}"
              includes="${package.dir}/ui/** version.properties"
              excludes="**/Test*.class ${package.dir}/ui/resources/taskicons/**" />
-        <checksum file="${distribution.dir}/${ui.jar.name}"/>
+        <checksum file="${output.dir}/${ui.jar.name}"/>
         <delete file="${manifestFile}" />
     </target>
 
@@ -180,23 +182,52 @@
             depends="compile,copyLibs"
   	        description="Build the Analyser library">
 
-        <jar jarfile="${distribution.dir}/lib/${analyser.jar.name}"
+        <jar jarfile="${output.dir}/lib/${analyser.jar.name}"
              basedir="${classes.dir}"
              includes="${package.base.dir}/analyser/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${analyser.jar.name}"
-                  toDir="${distribution.dir}"/>
+        <checksum file="${output.dir}/lib/${analyser.jar.name}"
+                  toDir="${output.dir}"/>
     </target>
+
+
+    <target name="buildConfigurationPluginJar"
+            depends="compileConfigurationPlugin"
+  	        description="Build the Configuration plugin">
+
+        <mkdir dir="${output.dir}/plugins" />
+
+        <manifestclasspath property="config_manifest_cp"
+     			jarfile="${output.dir}/plugins/${configuration.plugin.jar.name}">
+     		<classpath>
+     			<fileset dir="${output.dir}/lib" includes="*.jar" />
+                <fileset dir="${output.dir}" includes="${ui.jar.name}"/>
+     		</classpath>
+     	</manifestclasspath>
+        <manifest file="config.mf">
+         	<attribute name="Class-Path" value="${config_manifest_cp}" />
+        </manifest>
+
+        <jar jarfile="${output.dir}/plugins/${configuration.plugin.jar.name}"
+             basedir="${classes.dir}"
+             manifest="config.mf"
+             includes="${package.base.dir}/configuration/**"
+             excludes="**/Test*.class" />
+        <checksum file="${output.dir}/plugins/${configuration.plugin.jar.name}"
+                  toDir="${output.dir}"/>
+        <delete file="config.mf"/>
+    </target>
+
 
     <target name="buildResourcesJar"
             depends="copyLibs"
   	        description="Build the Resources library">
 
-        <jar jarfile="${distribution.dir}/lib/${icons.jar.name}"
+        <jar jarfile="${output.dir}/lib/${icons.jar.name}"
              basedir="${classes.dir}"
              includes="${package.dir}/ui/resources/taskicons/**"/>
-        <checksum file="${distribution.dir}/lib/${icons.jar.name}"
-                  toDir="${distribution.dir}"/>
+        <checksum file="${output.dir}/lib/${icons.jar.name}"
+                  toDir="${output.dir}"/>
     </target>
 
 
@@ -204,12 +235,12 @@
             depends="compile,copyLibs"
   	        description="Build the Editor Core library">
 
-        <jar jarfile="${distribution.dir}/lib/${core.jar.name}"
+        <jar jarfile="${output.dir}/lib/${core.jar.name}"
              basedir="${classes.dir}"
              includes="${package.dir}/core/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${core.jar.name}"
-                  toDir="${distribution.dir}"/>
+        <checksum file="${output.dir}/lib/${core.jar.name}"
+                  toDir="${output.dir}"/>
     </target>
 
 
@@ -217,12 +248,12 @@
             depends="compile,copyLibs"
   	        description="Build the Editor's modified JGraph library">
 
-        <jar jarfile="${distribution.dir}/lib/${jgraph.jar.name}"
+        <jar jarfile="${output.dir}/lib/${jgraph.jar.name}"
              basedir="${classes.dir}"
              includes="org/jgraph/**"
              excludes="**/Test*.class" />
-        <checksum file="${distribution.dir}/lib/${jgraph.jar.name}"
-                  toDir="${distribution.dir}"/>
+        <checksum file="${output.dir}/lib/${jgraph.jar.name}"
+                  toDir="${output.dir}"/>
     </target>
 
 
@@ -230,8 +261,8 @@
             depends="compile"
   	        description="Creates lib folder and copies in required jar libraries">
 
-    	<mkdir dir="${distribution.dir}/lib" />
-    	<copy todir="${distribution.dir}/lib">
+    	<mkdir dir="${output.dir}/lib" />
+    	<copy todir="${output.dir}/lib">
     		<fileset refid="editorOnlyDeps" />
     		<fileset refid="neededEngineDeps" />
     		<fileset file="../${compatible.engine.libJAR.path}" />
@@ -240,7 +271,8 @@
 
 
     <target name="buildJars"
-            depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,buildUIJar"
+            depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,
+                    buildUIJar,buildConfigurationPluginJar"
             description="Builds all jars and copies required libraries"/>
 
     <!--
@@ -250,12 +282,13 @@
    	        depends="buildJars"
    	        description="Generate ZIP file of the editor jar and lib dir (for release)">
 
-   		<zip destfile="${distribution.dir}/${release.zip}">
-            <zipfileset dir="${distribution.dir}" includes="${ui.jar.name}"/>
-   	  	    <zipfileset dir="${distribution.dir}/lib" prefix="lib"/>
+   		<zip destfile="${output.dir}/${release.zip}">
+            <zipfileset dir="${output.dir}" includes="${ui.jar.name}"/>
+   	  	    <zipfileset dir="${output.dir}/lib" prefix="lib"/>
+            <zipfileset dir="${output.dir}/plugins" prefix="plugins"/>
             <zipfileset dir="${manual.dir}" prefix="manual"/>
    		</zip>
-        <checksum file="${distribution.dir}/${release.zip}" />
+        <checksum file="${output.dir}/${release.zip}" />
     </target>
 
 
@@ -270,7 +303,7 @@
 
         <mkdir dir="${javadoc.dir}" />
         <javadoc packagenames="org.yawlfoundation.yawl.editor.*"
-                 source="${source.release}"
+                 source="${java.target.version}"
                  destdir="${javadoc.dir}"
                  author="true"
                  version="true"
@@ -303,15 +336,15 @@
 	        depends="initialize"
 	        description="Generate ZIP file of the source (for release)">
     
-		<zip destfile="${distribution.dir}/${source.zip}">
+		<zip destfile="${output.dir}/${source.zip}">
             <zipfileset dir="${source.dir}" prefix="source"/>
 	  	    <zipfileset dir="${library.dir}" prefix="lib"/>
 		    <zipfileset dir="${tools.dir}" prefix="tools" />
             <zipfileset dir="${build.dir}" prefix="build" />
 		</zip>
-        <checksum file="${distribution.dir}/${source.zip}" />
+        <checksum file="${output.dir}/${source.zip}" />
 
-        <copy todir="${distribution.dir}" filtering="true">
+        <copy todir="${output.dir}" filtering="true">
             <fileset file="${source.dir}/ReleaseNotes.txt"/>
             <fileset file="${source.dir}/ChangeLog.txt"/>
         </copy>
@@ -323,7 +356,7 @@
     <target name="clean">
         <delete dir="${classes.dir}" />
         <delete dir="${javadoc.dir}" />
-        <delete dir="${distribution.dir}" />
+        <delete dir="${output.dir}" />
     </target>
 
 
@@ -336,7 +369,7 @@
         <filter token="BuildDate" value="${buildDate}" />
 
         <!-- Create the distribution dir if it doesn't already exist -->
-        <mkdir dir="${distribution.dir}" />
+        <mkdir dir="${output.dir}" />
     </target>
 
 	<!--
@@ -352,13 +385,34 @@
             </fileset>
         </copy>
 
-        <echo message="Compiling: ${source.file}" />
+        <echo message="Compiling: ${root.source.file.path}" />
         <javac fork="yes"
                debug="yes"
-               source="${source.release}"
+               source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
-            <include name="${source.file}" />
+            <include name="${root.source.file.path}" />
+            <classpath>
+            	<pathelement location="../${compatible.engine.libJAR.path}" />
+        		<fileset refid="editorOnlyDeps" />
+            	<fileset refid="neededEngineDeps" />
+            </classpath>
+        </javac>
+    </target>
+
+
+    <target name="compileConfigurationPlugin" depends="initialize">
+        <property name="base.file"
+                  value="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
+        <mkdir dir="${classes.dir}" />
+
+        <echo message="Compiling: ${base.file}" />
+        <javac fork="yes"
+               debug="yes"
+               source="${java.target.version}"
+               srcdir="${source.dir}"
+               destdir="${classes.dir}">
+            <include name="${base.file}" />
             <classpath>
             	<pathelement location="../${compatible.engine.libJAR.path}" />
         		<fileset refid="editorOnlyDeps" />
@@ -379,10 +433,10 @@
             </classpath>
         </taskdef>
 
-        <copy file="${distribution.dir}/${ui.jar.name}"
-              tofile="${distribution.dir}/lib/${ui.jar.name}"/>
+        <copy file="${output.dir}/${ui.jar.name}"
+              tofile="${output.dir}/lib/${ui.jar.name}"/>
 
-        <jaranalyzer srcdir="${distribution.dir}/lib"
+        <jaranalyzer srcdir="${output.dir}/lib"
                      destfile="${analyzer.dir}/dependencies.xml"
                      summaryclass="com.kirkk.analyzer.textui.XMLUISummary"
                      packageFilter="java.*;javax.*;" />
@@ -448,7 +502,7 @@
         <echo message="Compiling Test: ${package.dir}/Test${root.source.file}" />
         <javac fork="yes"
                debug="yes"
-               source="${source.release}"
+               source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
 

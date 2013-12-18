@@ -80,6 +80,15 @@ public class RepoMap {
 
 
     /**
+     * Checks if the map already has a key of the name passed
+     * @param name the name to check
+     * @return true if key exists
+     */
+    public boolean hasRecord(String name) {
+        return name != null && _map.containsKey(name);
+    }
+
+    /**
      * Removes a named record from the map
      * @param name the name of the record
      * @return the removed record, or null if not found

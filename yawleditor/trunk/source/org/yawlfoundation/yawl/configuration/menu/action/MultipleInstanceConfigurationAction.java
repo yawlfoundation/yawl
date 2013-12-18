@@ -16,7 +16,25 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.configuration.actions;
+/*
+ * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
@@ -29,26 +47,26 @@ import java.awt.event.ActionEvent;
 public class MultipleInstanceConfigurationAction extends ProcessConfigurationAction
         implements TooltipTogglingWidget {
 
-	
+
 	{
 	    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
 	    putValue(Action.NAME, "Multiple Instances...");
-	    putValue(Action.LONG_DESCRIPTION, "Configure the multiple instances for this task."); 
+	    putValue(Action.LONG_DESCRIPTION, "Configure the multiple instances for this task.");
       putValue(Action.SMALL_ICON, getPNGIcon("application_cascade"));
 	  }
-	
+
 
 	public MultipleInstanceConfigurationAction(){
 	}
-	
-	public void actionPerformed(ActionEvent event) { 
+
+	public void actionPerformed(ActionEvent event) {
 		if(task instanceof YAWLMultipleInstanceTask){
 				final YAWLMultipleInstanceTask task = (YAWLMultipleInstanceTask) this.task;
-				java.awt.EventQueue.invokeLater(new Runnable() {
+				EventQueue.invokeLater(new Runnable() {
 		            public void run() {
-		                MultipleInstanceConfigureJDialog dialog = new MultipleInstanceConfigureJDialog(new javax.swing.JFrame(), task);
+		                MultipleInstanceConfigureJDialog dialog = new MultipleInstanceConfigureJDialog(new JFrame(), task);
 		                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-		                    
+
 		                });
 		                dialog.setLocationRelativeTo(YAWLEditor.getInstance());
                     dialog.setResizable(false);
@@ -81,8 +99,8 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	 *
 	 * @author jingxin
 	 */
-	private class MultipleInstanceConfigureJDialog extends javax.swing.JDialog {
-		
+	private class MultipleInstanceConfigureJDialog extends JDialog {
+
 		private final YAWLMultipleInstanceTask task;
 		private long maxInstance;
 		private long minInstance;
@@ -94,7 +112,7 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	        super(parent, true);
 	        this.task = task;
 	        initComponents();
-	        
+
 	    }
 
 	    /** This method is called from within the constructor to
@@ -105,21 +123,21 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	    @SuppressWarnings("unchecked")
 	    // <editor-fold defaultstate="collapsed" desc="Generated Code">
 	    private void initComponents() {
-	    	
+
 	    	this.setTitle("Multiple Instance Task Configuration");
 
-	        reduceMaxLabel = new javax.swing.JLabel();
-	        reduceMaxjTextField = new javax.swing.JTextField();
-	        increaseMinjLabel1 = new javax.swing.JLabel();
-	        IncreaseMinjTextField = new javax.swing.JTextField();
-	        IncreaseThresholdjLabel = new javax.swing.JLabel();
-	        threshholdjTextField = new javax.swing.JTextField();
-	        
-	        ForbidDynamiccheckbox = new java.awt.Checkbox();
-	        donejButton = new javax.swing.JButton();
-	  
+	        reduceMaxLabel = new JLabel();
+	        reduceMaxjTextField = new JTextField();
+	        increaseMinjLabel1 = new JLabel();
+	        IncreaseMinjTextField = new JTextField();
+	        IncreaseThresholdjLabel = new JLabel();
+	        threshholdjTextField = new JTextField();
 
-	        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+	        ForbidDynamiccheckbox = new Checkbox();
+	        donejButton = new JButton();
+
+
+	        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 	        reduceMaxLabel.setText("Reduce maximal number of instances to");
 
@@ -127,14 +145,14 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 
 	        IncreaseThresholdjLabel.setText("Increase Threshold");
 
-	        
-	        
+
+
 	        this.maxInstance = task.getMaximumInstances();
 	        this.minInstance = task.getMinimumInstances();
 	        this.threshhold = task.getContinuationThreshold();
 	        this.createType = task.getInstanceCreationType();
-	        
-	       
+
+
 	        this.reduceMaxjTextField.setText(((Long)task.getConfigurationInfor().getReduceMax()).toString());
 	        this.IncreaseMinjTextField.setText(((Long)task.getConfigurationInfor().getIncreaseMin()).toString());
 	        this.threshholdjTextField.setText(((Long)task.getConfigurationInfor().getIncreaseThreshold()).toString());
@@ -143,12 +161,12 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	        }else {
 	        	this.ForbidDynamiccheckbox.setEnabled(true);
 	        }
-	        	
-	       
+
+
 	        ForbidDynamiccheckbox.setLabel("Forbid dynamic creation of instances");
 	        donejButton.setText("Done");
 	        donejButton.addActionListener(new java.awt.event.ActionListener() {
-	            public void actionPerformed(java.awt.event.ActionEvent evt) {
+	            public void actionPerformed(ActionEvent evt) {
 	                donejButtonActionPerformed(evt);
 	            }
 	        });
@@ -205,12 +223,12 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	        pack();
 	    }// </editor-fold>
 
-	    private void donejButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	    private void donejButtonActionPerformed(ActionEvent evt) {
 	    	long newMax = Long.parseLong(this.reduceMaxjTextField.getText());
 	    	long newMin = Long.parseLong(this.IncreaseMinjTextField.getText());
 	    	long newThreshold = Long.parseLong(this.threshholdjTextField.getText());
-	    	if( (newMax <= this.maxInstance)&&(newMax >= newMin) 
-	    			&&(newMin <= newMax) &&(newMin >= this.minInstance) 
+	    	if( (newMax <= this.maxInstance)&&(newMax >= newMin)
+	    			&&(newMin <= newMax) &&(newMin >= this.minInstance)
 	    			&& (newThreshold >=this.threshhold) && (newThreshold >= newMin)
 	    			&& (newThreshold<= newMax)){
 			    	if(this.ForbidDynamiccheckbox.getState()){
@@ -218,9 +236,9 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 			    	}
 			    	this.task.getConfigurationInfor().setReduceMax(newMax);
 			    	this.task.getConfigurationInfor().setIncreaseMin(newMin);
-			    	this.task.getConfigurationInfor().setIncreaseThreshold(newThreshold); 
+			    	this.task.getConfigurationInfor().setIncreaseThreshold(newThreshold);
 			    	this.setVisible(false);
-			    	
+
 	    	} else {
 	    		 JOptionPane.showMessageDialog(null, "Invalid input parameter!");
 	    	}
@@ -229,15 +247,15 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 
 
 	    // Variables declaration - do not modify
-	    private java.awt.Checkbox ForbidDynamiccheckbox;
-	    private javax.swing.JTextField IncreaseMinjTextField;
-	    private javax.swing.JLabel IncreaseThresholdjLabel;
-	    private javax.swing.JLabel increaseMinjLabel1;
+	    private Checkbox ForbidDynamiccheckbox;
+	    private JTextField IncreaseMinjTextField;
+	    private JLabel IncreaseThresholdjLabel;
+	    private JLabel increaseMinjLabel1;
 	    //private javax.swing.JLabel ForbidDynamicjLabel;
-	    private javax.swing.JLabel reduceMaxLabel;
-	    private javax.swing.JTextField reduceMaxjTextField;
-	    private javax.swing.JTextField threshholdjTextField;
-	    private javax.swing.JButton donejButton;
+	    private JLabel reduceMaxLabel;
+	    private JTextField reduceMaxjTextField;
+	    private JTextField threshholdjTextField;
+	    private JButton donejButton;
 	    // End of variables declaration
 
 	}
