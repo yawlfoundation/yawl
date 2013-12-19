@@ -20,6 +20,8 @@ public class Predicate {
     private Set<String> resourceList;
     private Set<String> caseList;
     private boolean wholeCase;
+    private boolean allCases;
+    private boolean averageFlag;
     private Operator op;
     private double rhs;
 
@@ -52,11 +54,15 @@ public class Predicate {
                         resourceList = parseResourceArgs(content);
                     }
                 }
-                else if (args.startsWith("case(")) {
+                else if (arg.startsWith("case(")) {
                     content = getContent(arg, "case");
                     if (content.length() > 0) {
                         caseList = parseCaseArgs(content);
                     }
+                    else allCases = true;
+                }
+                else if (arg.equalsIgnoreCase("average")) {
+                    averageFlag = true;
                 }
                 else throw new CostPredicateParseException(
                         "Unrecognised argument in cost predicate: " + arg);
@@ -89,10 +95,13 @@ public class Predicate {
 
     public boolean isAllResources() { return ! hasItems(resourceList); }
 
-    public boolean isAllCases() { return ! hasItems(caseList); }
+    public boolean isAllCases() { return allCases; }
 
     public boolean isWholeCase() { return wholeCase; }
 
+    public boolean isCurrentCaseOnly() { return ! (isAllCases() || hasCaseList()); }
+
+    public boolean average() { return averageFlag; }
 
 
     public double getValue() {
@@ -117,7 +126,8 @@ public class Predicate {
 
     private List<String> parseArgs(String args) {
         List<String> argList = new ArrayList<String>();
-        Pattern p = Pattern.compile("(task|resource|case)\\(('|\")*[^\\)]*('|\")*\\)");
+        Pattern p = Pattern.compile(
+                "((task|resource|case)\\(('|\")*[^\\)]*('|\")*\\)|average)");
         Matcher m = p.matcher(args);
         while (m.find()) {
             argList.add(m.group());

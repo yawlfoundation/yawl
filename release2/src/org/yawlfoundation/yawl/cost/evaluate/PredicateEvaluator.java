@@ -21,24 +21,26 @@ public class PredicateEvaluator {
                             DriverMatrix matrix) {
         _timings = new Hashtable<String, ResourceTaskTimings>();
         _taskCosts = new Hashtable<String, TaskCost>();
-        groupAndCalculate(events, matrix);
-
-        return evaluate(predicate);
+        return evaluate(predicate, groupAndCalculate(events, matrix));
     }
 
 
-    private boolean evaluate(Predicate predicate) {
+    private boolean evaluate(Predicate predicate, int caseCount) {
         double cost = 0;
         for (TaskCost taskCost : _taskCosts.values()) {
             if (meetsCriteria(taskCost, predicate)) {
                 cost += taskCost.getCost();
             }
         }
+        if (predicate.average() && cost > 0 && caseCount > 1) {
+            cost /= caseCount;
+        }
         return predicate.evaluate(cost);
     }
 
 
-    private void groupAndCalculate(List<ResourceEvent> events, DriverMatrix matrix) {
+    private int groupAndCalculate(List<ResourceEvent> events, DriverMatrix matrix) {
+        Set<String> uniqueCases = new HashSet<String>();
         for (ResourceEvent event : events) {
             if (event.get_taskID() == null || event.get_taskID().length() == 0) continue;
             if (event.get_event().equals("unknown")) continue;
@@ -50,7 +52,9 @@ public class PredicateEvaluator {
             if (isConcludingEvent(event) && (!timings.isProcessed())) {
                 processDrivers(matrix, event, timings);
             }
+            uniqueCases.add(getRootCaseID(event.get_caseID()));
         }
+        return uniqueCases.size();
     }
 
 
@@ -234,6 +238,13 @@ public class PredicateEvaluator {
     private boolean isConcludingEvent(ResourceEvent event) {
         return event.get_event().equals("complete") ||
                 event.get_event().equals("cancelled");
+    }
+
+
+    private String getRootCaseID(String caseID) {
+        if (caseID == null) return null;
+        int period = caseID.indexOf('.');
+        return (period > -1) ? caseID.substring(0, period) : caseID;
     }
 
 }
