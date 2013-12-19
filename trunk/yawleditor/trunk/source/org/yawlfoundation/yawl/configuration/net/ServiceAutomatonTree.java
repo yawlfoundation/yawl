@@ -16,12 +16,16 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.net;
+package org.yawlfoundation.yawl.configuration.net;
 
+import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
@@ -44,11 +48,13 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
     private AnalysisDialog msgDialog;
     private WendyRunner runner;
     private String path;
+    private NetGraphModel graphModel;
 
     public ServiceAutomatonTree(NetGraph net) {
         init();
         String errMsg = null;
         if (isWendyInstalled()) {
+            graphModel = net.getNetModel();
             PetriNet petri = new PetriNet(net.getNetModel(), path);
             tasks = petri.getTasks();
             if (petri.checkValidate()) {
@@ -253,9 +259,9 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             String taskID = operations.substring(operations.indexOf("block_") +6,
                     operations.indexOf("INPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("INPUT")+5));
-            YAWLTask task = getTheTask(taskID);
-            if (task != null) {
-                task.getInputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
+            TaskConfiguration config = getTheTask(taskID);
+            if (config != null) {
+                config.getInputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
             }
             message = "The Task "+ taskID +"'s input port "+portID+" has been automatically blocked";
         }
@@ -263,9 +269,9 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             String taskID = operations.substring(operations.indexOf("block_")+6,
                     operations.indexOf("OUTPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("OUTPUT")+6));
-            YAWLTask task = getTheTask(taskID);
-            if (task != null) {
-                task.getOutputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
+            TaskConfiguration config = getTheTask(taskID);
+            if (config != null) {
+                config.getOutputCPorts().get(portID).setConfigurationSetting(CPort.BLOCKED);
             }
             message = "The Task "+ taskID +"'s output port "+portID+" has been automatically blocked";
         }
@@ -278,9 +284,9 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             String taskID = operations.substring(operations.indexOf("block_")+6,
                     operations.indexOf("INPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("INPUT")+5));
-            YAWLTask task = getTheTask(taskID);
-            if (task != null) {
-                task.getInputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
+            TaskConfiguration config = getTheTask(taskID);
+            if (config != null) {
+                config.getInputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
             }
             message = "The Task "+ taskID +"'s input port "+portID+" has been automatically activated";
         }
@@ -288,25 +294,25 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
             String taskID = operations.substring(operations.indexOf("block_")+6,
                     operations.indexOf("OUTPUT"));
             int portID = Integer.parseInt(operations.substring(operations.indexOf("OUTPUT")+6));
-            YAWLTask task = getTheTask(taskID);
-            if (task != null) {
-                task.getOutputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
+            TaskConfiguration config = getTheTask(taskID);
+            if (config != null) {
+                config.getOutputCPorts().get(portID).setConfigurationSetting(CPort.ACTIVATED);
             }
             message = "The Task "+ taskID +"'s output port "+portID+" has been automatically activated";
         }
         return message;
     }
 
-    private YAWLTask getTheTask(String taskID){
+    private TaskConfiguration getTheTask(String taskID){
         for (YAWLTask task : tasks) {
             if (task.getDecomposition() == null) {
                 if (task.getID().equals(taskID)) {
-                    return task;
+                    return TaskConfigurationCache.getInstance().get(graphModel, task);
                 }
             }
             else {
                 if (task.getDecomposition().getID().equals(taskID)){
-                    return task;
+                    return TaskConfigurationCache.getInstance().get(graphModel, task);
                 }
             }
         }

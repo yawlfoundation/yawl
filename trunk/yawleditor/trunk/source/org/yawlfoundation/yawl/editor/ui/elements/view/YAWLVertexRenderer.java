@@ -22,6 +22,7 @@ import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.VertexRenderer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.util.IconList;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 
@@ -44,8 +45,9 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
             setBorder(null);
             setOpaque(false);
             selected = false;
+            YPluginHandler.getInstance().preCellRender(g2, view);
             drawIcon(g2, getSize());
-            setStroke(g2);
+//            setStroke(g2);
             drawVertex(g2, getSize());
         }
         finally {
@@ -107,11 +109,11 @@ abstract class YAWLVertexRenderer extends VertexRenderer {
         return (size.height - icon.getIconHeight())/2;
     }
 
-    protected void setStroke(Graphics2D g2) {
-        if ((view.getCell() instanceof YAWLTask) && ((YAWLTask) view.getCell()).isConfigurable()) {
-            g2.setStroke(new BasicStroke(CONFIGURED_TASK_STOKE_WIDTH));
-        }
-    }
+//    protected void setStroke(Graphics2D g2) {
+//        if ((view.getCell() instanceof YAWLTask) && ((YAWLTask) view.getCell()).isConfigurable()) {
+//            g2.setStroke(new BasicStroke(CONFIGURED_TASK_STOKE_WIDTH));
+//        }
+//    }
 
     // these indicator marker graphics are designed to occupy 25% of the width of
     // a task, and 25% of the height, across the top of the task

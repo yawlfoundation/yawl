@@ -20,10 +20,13 @@
  * Created by Jingxin XU on 09/01/2010
  */
 
-package org.yawlfoundation.yawl.editor.ui.net;
+package org.yawlfoundation.yawl.configuration.net;
 
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
 import java.io.Serializable;
 import java.util.*;
@@ -106,8 +109,9 @@ public class ConfigureSet implements Serializable, Cloneable {
 	  YAWLTask[] taskArray = new YAWLTask[this.tasks.size()]; 
 	  taskArray = (YAWLTask[]) this.tasks.toArray(taskArray);
 	  for(YAWLTask task : taskArray){
-		  if(task.isConfigurable()){
-			  List<CPort> outputPorts = task.getOutputCPorts();
+          TaskConfiguration config = TaskConfigurationCache.getInstance().get(model, task);
+		  if(config != null && config.isConfigurable()){
+			  List<CPort> outputPorts = config.getOutputCPorts();
 			  for(CPort port : outputPorts){
 				  if(port.getConfigurationSetting().equals(CPort.BLOCKED)){
 					  port.UnavailableFlows();
@@ -121,8 +125,9 @@ public class ConfigureSet implements Serializable, Cloneable {
 		  }
 	  }
 	  for(YAWLTask task : taskArray){
-		  if(task.isConfigurable()){
-			  List<CPort> inputPorts = task.getInputCPorts();
+          TaskConfiguration config = TaskConfigurationCache.getInstance().get(model, task);
+		  if(config != null && config.isConfigurable()){
+			  List<CPort> inputPorts = config.getInputCPorts();
 			  for(CPort port : inputPorts){
 				  if(port.getConfigurationSetting().equals(CPort.BLOCKED)){
 					  port.UnavailableFlows();
@@ -466,15 +471,15 @@ private int removeTasksWithNoPathsFromStartOrToEnd(HashSet validVertex, int coun
 					  this.changeTaskDecoration.put(task, NO_Split);
 				  }
 			  }
-			  
-			  if(task.isConfigurable() && task.hasSplitDecorator() 
+              TaskConfiguration config = TaskConfigurationCache.getInstance().get(model, task);
+    		  if(config != null && config.isConfigurable() && task.hasSplitDecorator()
 					  && task.getSplitDecorator().getType() == Decorator.OR_TYPE){
 				  
 				  boolean oneFlow = false;
 				  boolean moreFlows = false;
 				 // boolean allFlows = false;
 				  int count = 0;
-				  List<CPort> ports = task.getOutputCPorts();
+				  List<CPort> ports = config.getOutputCPorts();
 				  for(CPort port : ports){
 					 if(port.getFlows().size() == 1 && port.getConfigurationSetting().equals("activated")) {
 						 oneFlow = true;						 

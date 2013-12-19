@@ -36,6 +36,8 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -81,7 +83,12 @@ public class CancellationRegionConfigurationAction extends ProcessConfigurationA
 
 
     public void setEnabled(boolean enable) {
-        super.setEnabled(enable && task != null && task.isConfigurable() &&
+        if (net == null || task == null) {
+            super.setEnabled(false);
+            return;
+        }
+        TaskConfiguration config = TaskConfigurationCache.getInstance().get(net.getNetModel(), task);
+        super.setEnabled(enable && config != null && config.isConfigurable() &&
                 task.hasCancellationSetMembers());
     }
 
@@ -137,7 +144,8 @@ public class CancellationRegionConfigurationAction extends ProcessConfigurationA
         }
 
         public void actionPerformed(ActionEvent e) {
-            task.setCancellationSetEnable(e.getActionCommand().equals("enable"));
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(net.getNetModel(), task);
+            config.setCancellationSetEnable(e.getActionCommand().equals("enable"));
         }
 
     }

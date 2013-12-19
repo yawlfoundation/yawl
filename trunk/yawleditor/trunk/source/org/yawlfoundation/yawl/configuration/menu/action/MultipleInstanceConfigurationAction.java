@@ -36,8 +36,11 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 
 import javax.swing.*;
@@ -77,7 +80,13 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	}
 
     public void setEnabled(boolean enable) {
-        super.setEnabled(enable && task != null && task.isConfigurable() &&
+        if (net == null || task == null) {
+            super.setEnabled(false);
+            return;
+        }
+        TaskConfiguration config = TaskConfigurationCache.getInstance()
+                .get(net.getNetModel(), task);
+        super.setEnabled(enable && config != null && config.isConfigurable() &&
                 (task instanceof YAWLMultipleInstanceTask));
     }
 
@@ -153,10 +162,12 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	        this.createType = task.getInstanceCreationType();
 
 
-	        this.reduceMaxjTextField.setText(((Long)task.getConfigurationInfor().getReduceMax()).toString());
-	        this.IncreaseMinjTextField.setText(((Long)task.getConfigurationInfor().getIncreaseMin()).toString());
-	        this.threshholdjTextField.setText(((Long)task.getConfigurationInfor().getIncreaseThreshold()).toString());
-	        if(task.getConfigurationInfor().isForbidDynamic()){
+            TaskConfiguration config = TaskConfigurationCache.getInstance()
+                    .get(net.getNetModel(), (YAWLTask) task);
+	        this.reduceMaxjTextField.setText(((Long)config.getConfigurationInfor().getReduceMax()).toString());
+	        this.IncreaseMinjTextField.setText(((Long)config.getConfigurationInfor().getIncreaseMin()).toString());
+	        this.threshholdjTextField.setText(((Long)config.getConfigurationInfor().getIncreaseThreshold()).toString());
+	        if(config.getConfigurationInfor().isForbidDynamic()){
 	        	this.ForbidDynamiccheckbox.setEnabled(false);
 	        }else {
 	        	this.ForbidDynamiccheckbox.setEnabled(true);
@@ -234,9 +245,11 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 			    	if(this.ForbidDynamiccheckbox.getState()){
 			    		this.task.setInstanceCreationType(YAWLMultipleInstanceTask.STATIC_INSTANCE_CREATION);
 			    	}
-			    	this.task.getConfigurationInfor().setReduceMax(newMax);
-			    	this.task.getConfigurationInfor().setIncreaseMin(newMin);
-			    	this.task.getConfigurationInfor().setIncreaseThreshold(newThreshold);
+                TaskConfiguration config = TaskConfigurationCache.getInstance()
+                        .get(net.getNetModel(), (YAWLTask) task);
+                config.getConfigurationInfor().setReduceMax(newMax);
+                config.getConfigurationInfor().setIncreaseMin(newMin);
+                config.getConfigurationInfor().setIncreaseThreshold(newThreshold);
 			    	this.setVisible(false);
 
 	    	} else {

@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.configuration.MultipleInstanceTaskConfigSet;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YVariable;
@@ -27,8 +26,6 @@ import java.awt.geom.Point2D;
 
 public class MultipleCompositeTask extends YAWLTask
         implements YAWLMultipleInstanceTask, YAWLCompositeTask {
-
-    private MultipleInstanceTaskConfigSet configureSet;
 
     private long _minimumInstances;
     private long _maximumInstances;
@@ -57,10 +54,6 @@ public class MultipleCompositeTask extends YAWLTask
         setTask(yTask);
     }
 
-
-    public void iniConfigure() {
-        configureSet = new MultipleInstanceTaskConfigSet(this);
-    }
 
     private void initialise() {
         setMinimumInstances(1);
@@ -202,9 +195,4 @@ public class MultipleCompositeTask extends YAWLTask
         return "Multiple Composite Task";
     }
 
-
-    public MultipleInstanceTaskConfigSet getConfigurationInfor() {
-
-        return this.configureSet;
-    }
 }

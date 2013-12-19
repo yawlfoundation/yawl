@@ -25,12 +25,12 @@ import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationImporter;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.CancellationSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.InvalidResourceReferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -129,7 +129,7 @@ public class SpecificationReader {
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
         SpecificationUndoManager.getInstance().discardAllEdits();
         setSelectedCancellationSets();
-        ConfigurationImporter.ApplyConfiguration();
+        YPluginHandler.getInstance().postOpenFile();
         YAWLEditor.getPropertySheet().setVisible(true);
         warnOnInvalidResources();
     }
@@ -235,7 +235,6 @@ public class SpecificationReader {
         YAWLTask editorTask = createEditorTask(yTask);
         addElement(netModel.getGraph(), editorTask);
         setTaskDecorators(yTask, editorTask, netModel);
-        setConfiguration(yTask, editorTask, netModel);
         _elementMap.put(yTask, editorTask);
     }
 
@@ -450,17 +449,6 @@ public class SpecificationReader {
                 null,
                 buttonText,
                 buttonText[0]);
-    }
-
-
-    private void setConfiguration(YTask engineTask, YAWLTask editorTask,
-                                  NetGraphModel netModel) {
-        if (engineTask.getConfigurationElement() != null) {
-            ConfigurationImporter.CTaskList.add(editorTask);
-            ConfigurationImporter.map.put(editorTask,
-                    engineTask.getConfigurationElement());
-            ConfigurationImporter.NetTaskMap.put(editorTask, netModel);
-        }
     }
 
 }

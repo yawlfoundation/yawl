@@ -21,9 +21,9 @@
  * 
  */
 
-package org.yawlfoundation.yawl.editor.ui.net;
+package org.yawlfoundation.yawl.configuration.net;
 
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 public class ConfigurationSettingInfo {

@@ -40,6 +40,8 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
+import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
@@ -168,19 +170,21 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
                                     .addContainerGap())
             );
 
-            if(!this.net.getConfigurationSettings().isAllowBlockingInputPorts()){
+            NetConfiguration netConfiguration =
+                    NetConfigurationCache.getInstance().getOrAdd(net.getNetModel());
+            if(!netConfiguration.getSettings().isAllowBlockingInputPorts()){
                 this.denyblocking.setState(true);
             }
 
-            if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
+            if(netConfiguration.getSettings().isApplyAutoGreyOut()){
                 this.AotGreyOut.setState(true);
             }
 
-            if(this.net.getConfigurationSettings().isNewElementsConfigurable()){
+            if(netConfiguration.getSettings().isNewElementsConfigurable()){
                 this.newElementConfig.setState(true);
             }
 
-            if(this.net.getConfigurationSettings().isAllowChangingDefaultConfiguration()){
+            if(netConfiguration.getSettings().isAllowChangingDefaultConfiguration()){
                 this.changDefault.setState(true);
             }
             pack();
@@ -188,10 +192,13 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
         }// </editor-fold>
 
         private void okButtonActionPerformed(ActionEvent evt) {
-            this.net.getConfigurationSettings().setApplyAutoGreyOut(this.AotGreyOut.getState());
-            this.net.getConfigurationSettings().setAllowBlockingInputPorts(!this.denyblocking.getState());
-            this.net.getConfigurationSettings().setNewElementsConfigurable(this.newElementConfig.getState());
-            this.net.getConfigurationSettings().setAllowChangingDefaultConfiguration(this.changDefault.getState());
+            NetConfiguration netConfiguration =
+                    NetConfigurationCache.getInstance().get(net.getNetModel());
+
+            netConfiguration.getSettings().setApplyAutoGreyOut(this.AotGreyOut.getState());
+            netConfiguration.getSettings().setAllowBlockingInputPorts(!this.denyblocking.getState());
+            netConfiguration.getSettings().setNewElementsConfigurable(this.newElementConfig.getState());
+            netConfiguration.getSettings().setAllowChangingDefaultConfiguration(this.changDefault.getState());
             this.setVisible(false);
         }
 

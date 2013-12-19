@@ -21,22 +21,17 @@ package org.yawlfoundation.yawl.editor.ui.specification.io;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationExporter;
-import org.yawlfoundation.yawl.editor.ui.configuration.DefaultConfigurationExporter;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.DataTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.SpecificationValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationResultsParser;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YExternalNetElement;
 import org.yawlfoundation.yawl.elements.YSpecification;
-import org.yawlfoundation.yawl.elements.YTask;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -86,7 +81,7 @@ public class SpecificationWriter {
     public YSpecification cleanSpecification() {
         _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
         removeUndoneElements();
-        configureTasks();
+        YPluginHandler.getInstance().preSaveFile();
         return _handler.getSpecification();
     }
 
@@ -125,22 +120,6 @@ public class SpecificationWriter {
         }
         YAWLEditor.getInstance().showProblemList(title + " Results",
                 new ValidationResultsParser().parse(results));
-    }
-
-
-     private void configureTasks() {
-        for (NetGraphModel netModel : SpecificationModel.getNets()) {
-            for (YAWLTask task : NetUtilities.getAllTasks(netModel)) {
-                if (task.isConfigurable()) {
-                   YTask yTask = (YTask) task.getYAWLElement();
-                   yTask.setConfiguration(
-                           new ConfigurationExporter().getTaskConfiguration(task));
-                   yTask.setDefaultConfiguration(
-                           new DefaultConfigurationExporter()
-                                   .getTaskDefaultConfiguration(task));
-               }
-            }
-        }
     }
 
 

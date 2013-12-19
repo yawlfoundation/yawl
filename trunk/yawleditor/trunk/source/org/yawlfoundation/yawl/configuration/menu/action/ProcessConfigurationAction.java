@@ -38,6 +38,7 @@ package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
@@ -67,6 +68,9 @@ public class ProcessConfigurationAction extends YAWLSelectedNetAction
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
         if (state == GraphState.OneElementSelected) {
             Object cell = event.getCell();
+            if (cell instanceof VertexContainer) {
+                cell = ((VertexContainer) cell).getVertex();
+            }
             if (cell instanceof YAWLTask) {
                 task = (YAWLTask) cell;
                 net = getGraph();

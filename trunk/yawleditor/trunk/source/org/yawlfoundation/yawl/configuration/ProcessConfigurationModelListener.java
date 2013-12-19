@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
@@ -16,22 +18,13 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.plugin;
+package org.yawlfoundation.yawl.configuration;
 
-import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
 
-/**
- * @author Michael Adams
- * @date 19/06/12
- */
-public class YPluginSelectedNetAction extends YAWLSelectedNetAction {
+public interface ProcessConfigurationModelListener {
 
-    public boolean enabled(YAWLCell cell) {
-        return true;
-    }
-
-    public boolean visible(YAWLCell cell) {
-        return true;
-    }
+    public abstract void processConfigurationModelStateChanged(
+            ProcessConfigurationModel.PreviewState previewState,
+            ProcessConfigurationModel.ApplyState applyState);    
 }
