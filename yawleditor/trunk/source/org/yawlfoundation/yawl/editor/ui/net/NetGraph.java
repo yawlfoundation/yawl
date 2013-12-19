@@ -20,7 +20,10 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.ui.actions.net.*;
+import org.yawlfoundation.yawl.editor.ui.actions.net.AddToVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.RemoveFromVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.SelectAllNetElementsAction;
+import org.yawlfoundation.yawl.editor.ui.actions.net.ViewCancellationSetAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsDownAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsLeftAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsRightAction;
@@ -29,6 +32,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellViewFactory;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionChange;
@@ -56,14 +60,6 @@ public class NetGraph extends JGraph {
   private NetSelectionListener selectionListener;
   private CancellationSetModel cancellationSetModel;
 
-  /**
-   * The following fields are added by Jingxin XU
-   */
-  //stores all editor settings of a net tp steer configuration opportunities
-  private ConfigurationSettingInfo configurationSettings;
-  private ServiceAutomatonTree serviceAutomaton = null;
-
-  /**********/  
 
   public NetGraph() {
     super();
@@ -80,11 +76,6 @@ public class NetGraph extends JGraph {
   
   private void initialize() {
     buildBasicGraphContent();
-    this.configurationSettings = new ConfigurationSettingInfo();
-  }
-
-  public void createServiceAutonomous() {
-	  this.serviceAutomaton = new ServiceAutomatonTree(this);
   }
 
 
@@ -133,9 +124,6 @@ public class NetGraph extends JGraph {
         startUndoableEdits();
     }
   
-  public ConfigurationSettingInfo getConfigurationSettings(){
-        return this.configurationSettings;
-  }
 
   public void buildNewGraphContent(){
     buildNewGraphContent(getDefaultSize());
@@ -237,14 +225,7 @@ public class NetGraph extends JGraph {
   public void addElement(YAWLVertex element) {
     getModel().insert(new Object[] {element}, null, null, null, null);
     NetCellUtilities.scrollNetToShowCells(this, new Object[] { element });
-
-      if(element instanceof YAWLTask){
-    	YAWLTask task = (YAWLTask)element;
-    	if(this.configurationSettings.isNewElementsConfigurable()){
-          task.setConfigurable(! task.isConfigurable());
-  }
-    }
-
+      YPluginHandler.getInstance().elementAdded(getNetModel(), element);
   }
 
   public Dimension getPreferredSize() {
@@ -316,34 +297,13 @@ public class NetGraph extends JGraph {
 
       getNetModel().beginUpdate();
       getModel().insert(new Object[] {flow}, null, cs, null, null);
- //     setFlowPriorityIfNecessary(flow);
       if (flow.connectsTaskToItself()) {
           NetCellUtilities.prettifyLoopingFlow(this, flow,
                   (EdgeView) getViewFor(flow), getViewFor(flow.getSourceTask()));
       }
-      updateCPorts(source, target);
+      YPluginHandler.getInstance().portsConnected(getNetModel(), source, target);
       getNetModel().endUpdate();
    }
-  
-  private void setFlowPriorityIfNecessary(YAWLFlowRelation flow) {
-    YAWLCell sourceCell = getSourceOf(flow);
-    if (sourceCell instanceof SplitDecorator) {
-      Set edges = this.getEdges(new YAWLCell[] { sourceCell} );
-      flow.setPriority(edges.size() - 1);
-    }
-  }
-
-    private void updateCPorts(YAWLPort source, YAWLPort target) {
-        updateCPort(source);
-        updateCPort(target);
-    }
-  
-    private void updateCPort(YAWLPort port) {
-        YAWLTask task = port.getTask();
-        if (task != null && task.isConfigurable()) {
-            task.configureReset();
-        }
-    }
 
 
   /**
@@ -1020,14 +980,6 @@ public class NetGraph extends JGraph {
   public NetMarqueeHandler getNetMarqueeHandler() {
     return (NetMarqueeHandler) getMarqueeHandler();
   }
-
-public ServiceAutomatonTree getServiceAutonomous() {
-	return serviceAutomaton;
-}
-
-public void setServiceAutonomous(ServiceAutomatonTree serviceAutonomous) {
-	this.serviceAutomaton = serviceAutonomous;
-}
 
 
 class NetFocusListener implements FocusListener {

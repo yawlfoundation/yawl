@@ -17,7 +17,7 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.specification;
+package org.yawlfoundation.yawl.configuration;
 
 import java.util.LinkedList;
 

@@ -36,8 +36,8 @@
 
 package org.yawlfoundation.yawl.configuration;
 
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.List;
@@ -49,18 +49,18 @@ public class ConfigurationExporter extends DefaultConfigurationExporter {
     }
 
 
-    public String getTaskConfiguration(YAWLTask task) {
+    public String getTaskConfiguration(TaskConfiguration config) {
         XNode configNode = new XNode("configuration");
-        configNode.addChild(getPortNodes(Direction.input, task.getInputCPorts()));
-        if (task instanceof YAWLMultipleInstanceTask) {
-            configNode.addChild(getMITaskConfig((YAWLMultipleInstanceTask) task));
+        configNode.addChild(getPortNodes(Direction.input, config.getInputCPorts()));
+        if (config instanceof YAWLMultipleInstanceTask) {
+            configNode.addChild(getMITaskConfig(config));
         }
-        if (task.hasCancellationSetMembers()) {
+        if (config.getTask().hasCancellationSetMembers()) {
             XNode rem = configNode.addChild("rem");
-            String value = task.isCancellationSetEnable() ? "activated" : "blocked";
+            String value = config.isCancellationSetEnable() ? "activated" : "blocked";
             rem.addAttribute("value", value);
         }
-        configNode.addChild(getPortNodes(Direction.output, task.getOutputCPorts()));
+        configNode.addChild(getPortNodes(Direction.output, config.getOutputCPorts()));
         return configNode.toString();
     }
 
@@ -76,9 +76,9 @@ public class ConfigurationExporter extends DefaultConfigurationExporter {
     }
 
 
-    private XNode getMITaskConfig(YAWLMultipleInstanceTask task) {
+    private XNode getMITaskConfig(TaskConfiguration taskConfiguration) {
         XNode miNode = new XNode("nofi");
-        MultipleInstanceTaskConfigSet config = task.getConfigurationInfor();
+        MultipleInstanceTaskConfigSet config = taskConfiguration.getConfigurationInfor();
         miNode.addChild("minIncrease", config.getIncreaseMin());
         miNode.addChild("maxDecrease", config.getReduceMax());
         miNode.addChild("thresIncrease", config.getIncreaseThreshold());

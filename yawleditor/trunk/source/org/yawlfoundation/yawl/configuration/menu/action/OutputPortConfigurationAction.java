@@ -36,10 +36,14 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.ConfigurationTableCellRenderer;
+import org.yawlfoundation.yawl.configuration.PortIDRenderer;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
+import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
+import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
-import org.yawlfoundation.yawl.editor.ui.configuration.ConfigurationTableCellRenderer;
-import org.yawlfoundation.yawl.editor.ui.configuration.PortIDRenderer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
@@ -53,7 +57,6 @@ import java.util.List;
 
 public class OutputPortConfigurationAction extends ProcessConfigurationAction
         implements TooltipTogglingWidget {
-
 
 
     {
@@ -86,7 +89,14 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
     }
 
     public void setEnabled(boolean enable) {
-        super.setEnabled(enable && task != null && task.isConfigurable());
+        if (net == null || task == null) {
+            super.setEnabled(false);
+            return;
+        }
+        TaskConfiguration taskConfiguration = TaskConfigurationCache.getInstance()
+                .get(net.getNetModel(), task);
+        super.setEnabled(enable && task != null && taskConfiguration != null &&
+                taskConfiguration.isConfigurable());
     }
 
     public String getDisabledTooltipText() {
@@ -105,6 +115,8 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
     private class OutputConfigurationJDialog extends JDialog {
 
         private List<CPort> OutputPorts;
+        private NetConfiguration netConfiguration;
+        private TaskConfiguration taskConfiguration;
 
         private final YAWLTask task;
 
@@ -122,13 +134,16 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             super(parent, true);
             this.task = task;
             this.net = net;
-            size = this.task.getOutputCPorts().size();
+            netConfiguration = NetConfigurationCache.getInstance().get(net.getNetModel());
+            taskConfiguration = TaskConfigurationCache.getInstance()
+                    .get(net.getNetModel(), task);
+            size = taskConfiguration.getOutputCPorts().size();
             initOutputPorts();
             initComponents();
         }
 
         public void  initOutputPorts(){
-            this.OutputPorts = this.task.getOutputCPorts();
+            this.OutputPorts = taskConfiguration.getOutputCPorts();
         }
         public Object[][] getPortsInformation(){
             Object[][] rowInfor = new Object[size][3];
@@ -272,7 +287,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             );
 
             // bindingGroup.bind();
-            if(this.net.getConfigurationSettings().isAllowChangingDefaultConfiguration()){
+            if(netConfiguration.getSettings().isAllowChangingDefaultConfiguration()){
                 this.SetDefaultButton.setEnabled(true);
             }else{
                 this.SetDefaultButton.setEnabled(false);
@@ -295,7 +310,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             for(int i=0; i<length; i++){
                 ActivateAPort(selectedRows, i);
             }
-            if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
+            if(netConfiguration.getSettings().isApplyAutoGreyOut()){
                 this.simulateAction.actionPerformed(simulateEvent);
             }
             toggleEnabled(ActivateButton);
@@ -305,8 +320,8 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             int portId = (Integer) this.outputPortsConfigurationTable.getValueAt(selectedRows[i], 0);
             this.OutputPorts.get(portId).setConfigurationSetting("activated");
             this.outputPortsConfigurationTable.setValueAt("activated", selectedRows[i], 2);
-            if(this.net.getServiceAutonomous() != null){
-                this.net.getServiceAutonomous().changeCurrentStateAfterActivate(task, "OUTPUT", portId);
+            if(netConfiguration.getServiceAutonomous() != null){
+                netConfiguration.getServiceAutonomous().changeCurrentStateAfterActivate(task, "OUTPUT", portId);
             }
         }
 
@@ -316,7 +331,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             for(int i=0; i<length; i++){
                 BlockAPort(selectedRows, i);
             }
-            if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
+            if(netConfiguration.getSettings().isApplyAutoGreyOut()){
                 this.simulateAction.actionPerformed(simulateEvent);
             }
             toggleEnabled(BlockButton);
@@ -326,8 +341,8 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
             int portId = (Integer) this.outputPortsConfigurationTable.getValueAt(selectedRows[i], 0);
             this.OutputPorts.get(portId).setConfigurationSetting("blocked");
             this.outputPortsConfigurationTable.setValueAt("blocked", selectedRows[i], 2);
-            if(this.net.getServiceAutonomous() != null ){
-                this.net.getServiceAutonomous().changeCurrentStateAfterBlock(task, "OUTPUT", portId);
+            if(netConfiguration.getServiceAutonomous() != null ){
+                netConfiguration.getServiceAutonomous().changeCurrentStateAfterBlock(task, "OUTPUT", portId);
             }
         }
 
@@ -344,7 +359,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                     }
                 }
             }
-            if(this.net.getConfigurationSettings().isApplyAutoGreyOut()){
+            if(netConfiguration.getSettings().isApplyAutoGreyOut()){
                 this.simulateAction.actionPerformed(simulateEvent);
             }
         }
@@ -376,19 +391,19 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
                 if(this.OutputPorts.get(portId).getDefaultValue() != null){
                     DefaultButtonFlag = true;
                 }
-                if(this.net.getServiceAutonomous() != null){
-                    blockFlag = blockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
+                if(netConfiguration.getServiceAutonomous() != null){
+                    blockFlag = blockFlag && (netConfiguration.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
 
                     if(this.OutputPorts.get(portId).getConfigurationSetting().equals(CPort.BLOCKED)){
                         activateFlag = activateFlag
-                                && (this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
+                                && (netConfiguration.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
                     }
                     if(this.OutputPorts.get(portId).getDefaultValue() != null){
                         if(this.OutputPorts.get(portId).getDefaultValue().equals(CPort.BLOCKED)){
-                            defaultBlockFlag = defaultBlockFlag && (this.net.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
+                            defaultBlockFlag = defaultBlockFlag && (netConfiguration.getServiceAutonomous().processCorrectnessCheckingForBlock(task, "OUTPUT", portId));
                         } else if (this.OutputPorts.get(portId).getDefaultValue().equals(CPort.ACTIVATED)){
                             defaultActivateFlag = defaultActivateFlag &&
-                                    (this.net.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
+                                    (netConfiguration.getServiceAutonomous().processCorrectnessCheckingForActivate(task, "OUTPUT", portId));
                         }
                     }
                 }
@@ -430,7 +445,9 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
         private List<CPort> outputPorts;
 
         public void  initOutputPorts(){
-            this.outputPorts = this.task.getOutputCPorts();
+            TaskConfiguration taskConfiguration = TaskConfigurationCache.getInstance()
+                   .get(net.getNetModel(), task);
+            this.outputPorts = taskConfiguration.getOutputCPorts();
             System.out.println(this.outputPorts.size());
         }
         public Object[][] getPortsInformation(){

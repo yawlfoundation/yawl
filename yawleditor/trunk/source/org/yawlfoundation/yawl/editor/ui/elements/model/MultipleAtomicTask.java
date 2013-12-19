@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.elements.model;
 
-import org.yawlfoundation.yawl.editor.ui.configuration.MultipleInstanceTaskConfigSet;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -29,7 +28,6 @@ import java.awt.geom.Point2D;
 public class MultipleAtomicTask extends YAWLTask
         implements YAWLMultipleInstanceTask, YAWLAtomicTask {
 
-    private MultipleInstanceTaskConfigSet configureSet;
     private YMultiInstanceAttributes _miAttributes;
 
     private long _minimumInstances;
@@ -75,10 +73,6 @@ public class MultipleAtomicTask extends YAWLTask
         _miAttributes = shadow.getMultiInstanceAttributes();
     }
 
-
-    public void iniConfigure() {
-        configureSet = new MultipleInstanceTaskConfigSet(this);
-    }
 
     private void initialise() {
         setMinimumInstances(1);
@@ -217,8 +211,4 @@ public class MultipleAtomicTask extends YAWLTask
         return "Multiple Atomic Task";
     }
 
-
-    public MultipleInstanceTaskConfigSet getConfigurationInfor() {
-        return this.configureSet;
-    }
 }

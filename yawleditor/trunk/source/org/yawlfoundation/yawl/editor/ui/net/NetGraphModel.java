@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -115,7 +116,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         );
         cellsAndTheirEdges.addAll(getEdges(this, cells.toArray()));
         removeCellsFromCancellationSets(cellsAndTheirEdges);
-        resetAffectedCPorts(cellsAndTheirEdges);
+        YPluginHandler.getInstance().elementsRemoved(this, cellsAndTheirEdges);
 
         super.remove(cellsAndTheirEdges.toArray());
 
@@ -133,22 +134,6 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         }
     }
 
-    private void resetAffectedCPorts(Set cells) {
-        for (Object cell : cells) {
-            if (cell instanceof YAWLFlowRelation) {
-                YAWLFlowRelation flow = (YAWLFlowRelation) cell;
-                YAWLTask source = flow.getSourceTask();
-                YAWLTask target = flow.getTargetTask();
-                flow.detach();
-                if (source != null && source.isConfigurable()) {
-                    source.configureReset();
-                }
-                if (target != null && target.isConfigurable()) {
-                    target.configureReset();
-                }
-            }
-        }
-    }
 
     private void removeCellsFromCancellationSets(final Set cells) {
         for (YAWLTask taskWithCancellationSet : NetUtilities.getTasksWithCancellationSets(this)) {

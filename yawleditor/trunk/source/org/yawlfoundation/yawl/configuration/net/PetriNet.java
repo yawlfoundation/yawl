@@ -21,10 +21,13 @@
  *
  */
 
-package org.yawlfoundation.yawl.editor.ui.net;
+package org.yawlfoundation.yawl.configuration.net;
 
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -133,7 +136,8 @@ public class PetriNet {
 
     private void generateTransitions() {
         for (YAWLTask task : tasks) {
-            if (!task.isConfigurable()) {
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(model, task);
+            if (!config.isConfigurable()) {
                 Transition t1 = new Transition();
                 for (YAWLFlowRelation flow : task.getIncomingFlows()) {
                     if (flowToSourcePlace.get(flow) != null) {
@@ -149,7 +153,7 @@ public class PetriNet {
             }
             else {
                 places.add(placeID);
-                for (CPort port : task.getInputCPorts()) {
+                for (CPort port : config.getInputCPorts()) {
                     Transition t = new Transition();
                     if (task.getDecomposition() == null) {
                         t.role = task.getID() + "INPUT" + port.getID();
@@ -165,7 +169,7 @@ public class PetriNet {
                     }
                     transitions.add(t);
                 }
-                for (CPort port : task.getOutputCPorts()) {
+                for (CPort port : config.getOutputCPorts()) {
                     Transition t = new Transition();
                     if (task.getDecomposition() == null) {
                         t.role = task.getID() + "OUTPUT" + port.getID();

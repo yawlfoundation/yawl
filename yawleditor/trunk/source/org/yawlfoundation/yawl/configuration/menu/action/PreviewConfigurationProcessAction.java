@@ -46,10 +46,10 @@ import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.net.ConfigureSet;
+import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 import javax.swing.*;

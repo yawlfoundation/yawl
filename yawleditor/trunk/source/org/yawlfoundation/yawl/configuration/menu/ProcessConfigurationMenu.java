@@ -37,8 +37,8 @@
 package org.yawlfoundation.yawl.configuration.menu;
 
 import org.yawlfoundation.yawl.configuration.menu.action.*;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModelListener;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -53,7 +53,6 @@ public class ProcessConfigurationMenu extends JMenu
         implements ProcessConfigurationModelListener, FileStateListener {
 
     private JMenu _netMenu;
-    private JMenu _taskMenu;
 
     public ProcessConfigurationMenu() {
         super("Process Configuration");
@@ -85,14 +84,14 @@ public class ProcessConfigurationMenu extends JMenu
 
 
     private JMenu getTaskMenu() {
-        _taskMenu = new JMenu("Task");
-        _taskMenu.setMnemonic('T');
-        _taskMenu.add(buildConfigurableTaskItem());
-        _taskMenu.add(new YAWLPopupMenuItem(new InputPortConfigurationAction()));
-        _taskMenu.add(new YAWLPopupMenuItem(new OutputPortConfigurationAction()));
-        _taskMenu.add(new YAWLPopupMenuItem(new MultipleInstanceConfigurationAction()));
-        _taskMenu.add(new YAWLPopupMenuItem(new CancellationRegionConfigurationAction()));
-        return _taskMenu;
+        JMenu taskMenu = new JMenu("Task");
+        taskMenu.setMnemonic('T');
+        taskMenu.add(buildConfigurableTaskItem());
+        taskMenu.add(new YAWLPopupMenuItem(new InputPortConfigurationAction()));
+        taskMenu.add(new YAWLPopupMenuItem(new OutputPortConfigurationAction()));
+        taskMenu.add(new YAWLPopupMenuItem(new MultipleInstanceConfigurationAction()));
+        taskMenu.add(new YAWLPopupMenuItem(new CancellationRegionConfigurationAction()));
+        return taskMenu;
     }
 
 

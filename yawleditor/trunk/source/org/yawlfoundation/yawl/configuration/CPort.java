@@ -42,6 +42,7 @@
 
 package org.yawlfoundation.yawl.configuration;
 
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 
 import java.util.HashSet;
@@ -64,21 +65,21 @@ public class CPort implements Cloneable {
 	
 	private int ID;
 	
-	private YAWLTask task;
+	private TaskConfiguration taskConfiguration;
 	
-	public CPort(YAWLTask task, int type) {
+	public CPort(TaskConfiguration taskConfiguration, int type) {
 		this.flows = new HashSet<YAWLFlowRelation>();
 		this.configurationSetting = this.ACTIVATED;
 		ID = -1;
 		this.defaultValue = null;
-		this.task = task;
+		this.taskConfiguration = taskConfiguration;
 		this.type = type;
 	}
 
     public Object clone() {
         try {
             CPort cloned = (CPort) super.clone();
-            cloned.task = this.task;
+            cloned.taskConfiguration = this.taskConfiguration;
             cloned.type = this.type;
             cloned.setConfigurationSetting(this.configurationSetting);
             cloned.setID(this.ID);
@@ -92,8 +93,10 @@ public class CPort implements Cloneable {
     }
 
 	public YAWLTask getTask(){
-		return this.task;
+		return taskConfiguration.getTask();
 	}
+
+    public TaskConfiguration getTaskConfiguration() { return taskConfiguration;}
 	public int getID() {
 		return ID;
 	}

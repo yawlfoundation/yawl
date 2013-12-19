@@ -36,6 +36,8 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
+import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 
 import javax.swing.*;
@@ -54,12 +56,14 @@ public class CheckProcessCorrectness extends YAWLSelectedNetAction {
     private boolean selected = false;
 
     public void actionPerformed(ActionEvent event) {
+        NetConfiguration netConfiguration = NetConfigurationCache.getInstance()
+                .get(getGraph().getNetModel());
         selected = !selected;
         if (selected) {
-            getGraph().createServiceAutonomous();
+            netConfiguration.createServiceAutonomous();
         }
         else {
-            getGraph().setServiceAutonomous(null);
+            netConfiguration.setServiceAutonomous(null);
         }
     }
 

@@ -27,6 +27,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,48 +40,36 @@ import java.util.jar.JarFile;
  */
 public class YPluginLoader extends URLClassLoader {
 
-    private static YPluginLoader INSTANCE;
-    private static Set<YEditorPlugin> plugins;
-
     private static final String PLUGIN_INTERFACE_NAME = YEditorPlugin.class.getName();
 
 
-    private YPluginLoader() {
+    protected YPluginLoader() {
 	    super(new URL[0], YAWLEditor.class.getClassLoader());
-        plugins = new HashSet<YEditorPlugin>();
-	    init(getPluginsPath());
-    }
-
-
-    public static YPluginLoader getInstance() {
-        if (INSTANCE == null) INSTANCE = new YPluginLoader();
-        return INSTANCE;
     }
 
 
     public Set<YEditorPlugin> getPlugins() {
-        return plugins;
-    }
-
-
-    private void init(String path) {
+        String path = getPluginsPath();
         File f = new File(path);
         try {
+            Set<YEditorPlugin> plugins = new HashSet<YEditorPlugin>();
             addURL(f.toURI().toURL());             // add plugin dir to search path
             String[] jarList = f.list(new JarFileFilter());
             if (jarList != null) {
                 for (String jarName : jarList) {
-                    addJAR(new File(path, jarName));
+                    addJAR(plugins, new File(path, jarName));
                 }
             }
+            return plugins;
         }
         catch (IOException e) {
             LogWriter.error("Error loading plugins: " + e);
+            return Collections.emptySet();
         }
     }
 
 
-    private void addJAR(File f) throws IOException {
+    private void addJAR(Set<YEditorPlugin> plugins, File f) throws IOException {
         addURL(f.toURI().toURL());
         JarFile jar = new JarFile(f);
         Enumeration<JarEntry> entries = jar.entries();

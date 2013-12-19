@@ -192,7 +192,7 @@
 
 
     <target name="buildConfigurationPluginJar"
-            depends="compileConfigurationPlugin"
+            depends="compileConfigurationPlugin, copyLibs"
   	        description="Build the Configuration plugin">
 
         <mkdir dir="${output.dir}/plugins" />

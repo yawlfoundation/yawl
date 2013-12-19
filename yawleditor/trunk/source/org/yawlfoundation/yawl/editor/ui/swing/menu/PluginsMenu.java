@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginLoader;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -33,17 +33,16 @@ class PluginsMenu extends JMenu {
 
     protected void buildInterface() {
         setMnemonic(KeyEvent.VK_P);
-//        add(new ProcessConfigurationMenu());
         addPlugins();
     }
 
     private void addPlugins() {
-        for (YEditorPlugin plugin : YPluginLoader.getInstance().getPlugins()) {
-            AbstractAction action = plugin.getPluginMenuAction();
+        for (YEditorPlugin plugin : YPluginHandler.getInstance().getPlugins()) {
             JMenu subMenu = plugin.getPluginMenu();
             if (subMenu != null) {
                 add(subMenu);
             }
+            AbstractAction action = plugin.getPluginMenuAction();
             if (action != null) {
                 add(new YAWLMenuItem(action));
             }

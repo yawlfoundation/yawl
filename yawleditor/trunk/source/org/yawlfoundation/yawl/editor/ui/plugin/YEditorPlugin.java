@@ -18,9 +18,15 @@
 
 package org.yawlfoundation.yawl.editor.ui.plugin;
 
+import org.jgraph.graph.VertexView;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -35,5 +41,31 @@ public interface YEditorPlugin {
     YAWLSelectedNetAction getPluginMenuAction();
 
     JMenu getPluginMenu();
+
+    Set<AbstractButton> getToolbarButtons();
+
+    void performPreFileSaveTasks();
+
+    void performPostFileSaveTasks();
+
+    void performPreFileOpenTasks();
+
+    void performPostFileOpenTasks();
+
+    void performPreCellRenderingTasks(Graphics2D g2, VertexView cell);
+
+    void netElementAdded(NetGraphModel model, YAWLVertex element);
+
+    void netElementsRemoved(NetGraphModel model, Set<Object> cellsAndTheirEdges);
+
+    void portsConnected(NetGraphModel model, YAWLPort source, YAWLPort target);
+
+    void closeSpecification();
+
+    void openSpecification();
+
+    void netAdded(NetGraphModel model);
+
+    void netRemoved(NetGraphModel model);
 
 }

@@ -36,8 +36,8 @@
 
 package org.yawlfoundation.yawl.configuration;
 
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -49,14 +49,14 @@ public class DefaultConfigurationExporter {
 
     public DefaultConfigurationExporter() { }
 
-    public String getTaskDefaultConfiguration(YAWLTask task) {
-        if (task.hasDefaultInputPorts() || task.hasDefaultOutputPorts()) {
+    public String getTaskDefaultConfiguration(TaskConfiguration config) {
+        if (config.hasDefaultInputPorts() || config.hasDefaultOutputPorts()) {
             XNode configNode = new XNode("defaultConfiguration");
-            if (task.hasDefaultInputPorts()) {
-                configNode.addChild(getPortNodes(Direction.input, task.getInputCPorts()));
+            if (config.hasDefaultInputPorts()) {
+                configNode.addChild(getPortNodes(Direction.input, config.getInputCPorts()));
             }
-            if (task.hasDefaultOutputPorts()) {
-                configNode.addChild(getPortNodes(Direction.output, task.getOutputCPorts()));
+            if (config.hasDefaultOutputPorts()) {
+                configNode.addChild(getPortNodes(Direction.output, config.getOutputCPorts()));
             }
             return configNode.toString();
         }

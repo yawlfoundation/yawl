@@ -40,15 +40,23 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.MultipleInstanceTaskConfigSet;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
+import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
+import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
+import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
+import org.yawlfoundation.yawl.configuration.net.ServiceAutomatonTree;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.ui.configuration.CPort;
-import org.yawlfoundation.yawl.editor.ui.configuration.MultipleInstanceTaskConfigSet;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.net.*;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
@@ -114,7 +122,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             net.getNetModel().beginUpdate();
             SpecificationUndoManager.getInstance().undo();
             for (YAWLTask task : configuredTaskCache.keySet()) {
-                task.setConfigurable(true);
+                TaskConfiguration config =
+                        TaskConfigurationCache.getInstance().get(net.getNetModel(), task);
+                if (config != null) config.setConfigurable(true);
                 DeconfiguredTask configured = configuredTaskCache.get(task);
                 if (configured.isDeconfigured()) {
                     configured.restorePorts(task);
@@ -133,9 +143,11 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             if (cell instanceof VertexContainer) {
                 cell = ((VertexContainer) cell).getVertex();
             }
-            if ((cell instanceof YAWLTask) && ((YAWLTask)cell).isConfigurable()) {
+            if (cell instanceof YAWLTask) {
                 YAWLTask task = (YAWLTask) cell;
-                if (task.isConfigurable()) {
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (config != null && config.isConfigurable()) {
                     tasks.put(task, new DeconfiguredTask(task));
                 }
             }
@@ -152,17 +164,21 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             if (cell instanceof VertexContainer) {
                 cell = ((VertexContainer) cell).getVertex();
             }
-            if ((cell instanceof YAWLTask) && ((YAWLTask)cell).isConfigurable()) {
-                if (cell instanceof YAWLMultipleInstanceTask) {
-                    configureMultipleInstanceTask((MultipleAtomicTask) cell);
+            if (cell instanceof YAWLMultipleInstanceTask) {
+                YAWLTask task = (YAWLTask) cell;
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (config != null && config.isConfigurable()) {
+                    configureMultipleInstanceTask((MultipleAtomicTask) cell, config);
                 }
             }
         }
     }
 
 
-    private void configureMultipleInstanceTask(YAWLMultipleInstanceTask task) {
-        MultipleInstanceTaskConfigSet configureSet = task.getConfigurationInfor();
+    private void configureMultipleInstanceTask(YAWLMultipleInstanceTask task,
+                                               TaskConfiguration config) {
+        MultipleInstanceTaskConfigSet configureSet = config.getConfigurationInfor();
         task.setMaximumInstances(configureSet.getReduceMax());
         task.setMinimumInstances(configureSet.getIncreaseMin());
         task.setContinuationThreshold(configureSet.getIncreaseThreshold());
@@ -181,7 +197,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             }
             if (cell instanceof YAWLTask) {
                 YAWLTask task = (YAWLTask) cell;
-                if (task.hasCancellationSetMembers() && (! task.isCancellationSetEnable())) {
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (task.hasCancellationSetMembers() && (! config.isCancellationSetEnable())) {
                     net.clearSelection();
 //                    net.setSelectionCell(task);
                     net.changeCancellationSet(task);
@@ -266,10 +284,14 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             }
             if (cell instanceof YAWLTask) { //This branch handles the situation when the task itself has no decomposition and have some input ports hidden
                 YAWLTask task = (YAWLTask) cell;
-                for (CPort port : task.getInputCPorts()) {
-                    if (port.getConfigurationSetting().equals("hidden")) {
-                        net.setElementLabel(task, "_tau");
-                        break;
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (config != null) {
+                    for (CPort port : config.getInputCPorts()) {
+                        if (port.getConfigurationSetting().equals("hidden")) {
+                            net.setElementLabel(task, "_tau");
+                            break;
+                        }
                     }
                 }
             }
@@ -284,11 +306,13 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 
     private void addSilentTasks(Set<YAWLCell> seletedElements, VertexContainer container) {
         YAWLTask task = (YAWLTask) container.getVertex();
-        if (task.isConfigurable()) {
+        TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                 net.getNetModel(), task);
+        if (config.isConfigurable()) {
             boolean hasHidePorts = false;
             boolean hasNoHidePorts = false;
             List<CPort> hidePorts = new ArrayList<CPort>();
-            for (CPort port : task.getInputCPorts()) {
+            for (CPort port : config.getInputCPorts()) {
                 if (port.getConfigurationSetting().equals("hidden")) {
                     hasHidePorts = true;
                     hidePorts.add(port);
@@ -384,20 +408,22 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             }
             if (cell instanceof YAWLTask){
                 YAWLTask task = (YAWLTask) cell;
-                if (task.isConfigurable()) {
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (config.isConfigurable()) {
                     configuredTaskCache.get(task).setDeconfigured(true);
                     Set<CPort> removeInPorts = new HashSet<CPort>();
                     Set<CPort> removeOutPorts = new HashSet<CPort>();
-                    removeNullPorts(task.getInputCPorts(), removeInPorts);
-                    removeNullPorts(task.getOutputCPorts(), removeOutPorts);
+                    removeNullPorts(config.getInputCPorts(), removeInPorts);
+                    removeNullPorts(config.getOutputCPorts(), removeOutPorts);
 
                     for (CPort port : removeInPorts) {
-                        task.removeInputPort(port);
+                        config.removeInputPort(port);
                     }
                     for (CPort port : removeOutPorts) {
-                        task.removeOutputPort(port);
+                        config.removeOutputPort(port);
                     }
-                    task.resetCPortsID();
+                    config.resetCPortsID();
                 }
             }
         }
@@ -429,8 +455,10 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             }
             if (cell instanceof YAWLTask){
                 YAWLTask task = (YAWLTask) cell;
-                if (task.isConfigurable()) {
-                    task.setConfigurable(false);
+                TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                        net.getNetModel(), task);
+                if (config.isConfigurable()) {
+                    config.setConfigurable(false);
                     net.changeLineWidth(task);
                 }
                 if (task.hasJoinDecorator()) {
@@ -451,7 +479,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         }
         else {
             NetGraph graph = YAWLEditor.getNetsPane().getSelectedGraph();
-            ServiceAutomatonTree automatonTree = graph.getServiceAutonomous();
+            NetConfiguration netConfiguration = NetConfigurationCache.getInstance()
+                    .getOrAdd(graph.getNetModel());
+            ServiceAutomatonTree automatonTree = netConfiguration.getServiceAutonomous();
             setEnabled((automatonTree == null) || automatonTree.canApplyConfiguration());
         }
     }
@@ -470,26 +500,30 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
     class DeconfiguredTask {
 
         final YAWLTask _task;
-        final List<CPort> inPorts;
-        final List<CPort> outPorts;
-        final List<List<String>> sourceNames;
-        final List<List<String>> targetNames;
+        List<CPort> inPorts;
+        List<CPort> outPorts;
+        List<List<String>> sourceNames;
+        List<List<String>> targetNames;
         boolean deconfigured;
 
 
         public DeconfiguredTask(YAWLTask task) {
             _task = task;
-            inPorts = new ArrayList<CPort>();
-            outPorts = new ArrayList<CPort>();
-            sourceNames = new ArrayList<List<String>>();
-            targetNames = new ArrayList<List<String>>();
-            for (CPort port : task.getInputCPorts()) {
-                inPorts.add((CPort) port.clone());
-                sourceNames.add(getSourceList(port.getFlows()));
-            }
-            for (CPort port : task.getOutputCPorts()) {
-                outPorts.add((CPort) port.clone());
-                targetNames.add(getTargetList(port.getFlows()));
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                    net.getNetModel(), task);
+            if (config != null) {
+                inPorts = new ArrayList<CPort>();
+                outPorts = new ArrayList<CPort>();
+                sourceNames = new ArrayList<List<String>>();
+                targetNames = new ArrayList<List<String>>();
+                for (CPort port : config.getInputCPorts()) {
+                    inPorts.add((CPort) port.clone());
+                    sourceNames.add(getSourceList(port.getFlows()));
+                }
+                for (CPort port : config.getOutputCPorts()) {
+                    outPorts.add((CPort) port.clone());
+                    targetNames.add(getTargetList(port.getFlows()));
+                }
             }
         }
 
@@ -498,61 +532,73 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         public boolean isDeconfigured() { return deconfigured; }
 
         public void restorePorts(YAWLTask task) {
-            task.getInputCPorts().clear();
-            task.getOutputCPorts().clear();
-            task.setInputCPorts(inPorts);
-            task.setOutputCPorts(outPorts);
-            regenerateInputCPorts(task);
-            regenerateOutputCPorts(task);
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                    net.getNetModel(), task);
+            if (config != null) {
+                config.getInputCPorts().clear();
+                config.getOutputCPorts().clear();
+                config.setInputCPorts(inPorts);
+                config.setOutputCPorts(outPorts);
+                regenerateInputCPorts(task);
+                regenerateOutputCPorts(task);
+            }
         }
 
 
         public void regenerateInputCPorts(YAWLTask task) {
-            if (hasJoinType(task, Decorator.XOR_TYPE)) {
-                int i=0;
-                for (CPort port: task.getInputCPorts()) {
-                    String sourceID = sourceNames.get(i).get(0);
-                    Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-                    for (YAWLFlowRelation flow : task.getIncomingFlows()) {
-                        if (flow.getSourceVertex().getID().equals(sourceID)) {
-                            flows.add(flow);
-                            port.setFlows(flows);
-                            break;
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                    net.getNetModel(), task);
+            if (config != null) {
+                if (hasJoinType(task, Decorator.XOR_TYPE)) {
+                    int i=0;
+                    for (CPort port: config.getInputCPorts()) {
+                        String sourceID = sourceNames.get(i).get(0);
+                        Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+                        for (YAWLFlowRelation flow : task.getIncomingFlows()) {
+                            if (flow.getSourceVertex().getID().equals(sourceID)) {
+                                flows.add(flow);
+                                port.setFlows(flows);
+                                break;
+                            }
                         }
+                        i++;
                     }
-                    i++;
                 }
-            }
-            else {
-                task.getInputCPorts().get(0).setFlows(task.getIncomingFlows());
+                else {
+                    config.getInputCPorts().get(0).setFlows(task.getIncomingFlows());
+                }
             }
         }
 
 
         public void regenerateOutputCPorts(YAWLTask task) {
-            if ((! task.hasSplitDecorator()) || hasSplitType(task, Decorator.AND_TYPE)) {
-                task.getOutputCPorts().get(0).setFlows(task.getOutgoingFlows());
-            }
-            else if (hasSplitType(task, Decorator.XOR_TYPE)) {
-                int i=0;
-                for (CPort port: task.getOutputCPorts()) {
-                    String targetID = targetNames.get(i).get(0);
-                    Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
-                    for (YAWLFlowRelation flow : task.getOutgoingFlows()) {
-                        if (flow.getTargetVertex().getID().equals(targetID)) {
-                            flows.add(flow);
-                            port.setFlows(flows);
-                            break;
-                        }
-                    }
-                    i++;
+            TaskConfiguration config = TaskConfigurationCache.getInstance().get(
+                    net.getNetModel(), task);
+            if (config != null) {
+                if ((! task.hasSplitDecorator()) || hasSplitType(task, Decorator.AND_TYPE)) {
+                    config.getOutputCPorts().get(0).setFlows(task.getOutgoingFlows());
                 }
-            }
-            else if (hasSplitType(task, Decorator.OR_TYPE)) {
-                int i=0;
-                for (CPort port : task.getOutputCPorts()) {
-                    List<String> targetIDs = targetNames.get(i);
+                else if (hasSplitType(task, Decorator.XOR_TYPE)) {
+                    int i=0;
+                    for (CPort port: config.getOutputCPorts()) {
+                        String targetID = targetNames.get(i).get(0);
+                        Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+                        for (YAWLFlowRelation flow : task.getOutgoingFlows()) {
+                            if (flow.getTargetVertex().getID().equals(targetID)) {
+                                flows.add(flow);
+                                port.setFlows(flows);
+                                break;
+                            }
+                        }
+                        i++;
+                    }
+                }
+                else if (hasSplitType(task, Decorator.OR_TYPE)) {
+                    int i=0;
+                    for (CPort port : config.getOutputCPorts()) {
+                        List<String> targetIDs = targetNames.get(i);
 
+                    }
                 }
             }
         }

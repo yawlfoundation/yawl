@@ -37,6 +37,8 @@
 package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
@@ -74,13 +76,20 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
         super.graphSelectionChange(state, event);
-        getCheckBox().setState(task != null && task.isConfigurable());
+        TaskConfiguration configuration = (net != null) ?
+                TaskConfigurationCache.getInstance().get(net.getNetModel(),task) : null;
+        getCheckBox().setState(task != null && configuration != null &&
+                configuration.isConfigurable());
     }
 
 
     public void actionPerformed(ActionEvent event) {
-        task.setConfigurable(! task.isConfigurable());
-        net.changeLineWidth(task);
+        TaskConfiguration configuration = (net != null) ?
+                TaskConfigurationCache.getInstance().get(net.getNetModel(),task) : null;
+        if (configuration != null) {
+            configuration.setConfigurable(! configuration.isConfigurable());
+            net.changeLineWidth(task);
+        }
     }
 
 

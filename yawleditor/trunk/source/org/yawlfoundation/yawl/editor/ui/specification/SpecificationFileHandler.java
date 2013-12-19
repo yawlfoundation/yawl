@@ -21,7 +21,7 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.OpenRecentSubMenu;
-import org.yawlfoundation.yawl.editor.ui.configuration.actions.PreviewConfigurationProcessAction;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationReader;
 import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationWriter;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -192,15 +192,9 @@ public class SpecificationFileHandler {
 
 
     private void saveSpecification(String fileName) {
-
-        // if the net has configuration preview on, turn it off temporarily
-        ProcessConfigurationModel.PreviewState previewState =
-                ProcessConfigurationModel.getInstance().getPreviewState();
-        if (previewState != ProcessConfigurationModel.PreviewState.OFF) {
-            PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
-        }
-
         if (StringUtil.isNullOrEmpty(fileName)) return;
+
+        YPluginHandler.getInstance().preSaveFile();
 
         try {
             saveToFile(fileName);
@@ -218,10 +212,7 @@ public class SpecificationFileHandler {
             LogWriter.error("Error discovered whilst saving specification", e);
         }
 
-        // put preview state back if necessary
-        if (previewState != ProcessConfigurationModel.PreviewState.OFF) {
-            PreviewConfigurationProcessAction.getInstance().actionPerformed(null);
-        }
+        YPluginHandler.getInstance().postSaveFile();
     }
 
 
@@ -246,7 +237,7 @@ public class SpecificationFileHandler {
     private void doPostSaveClosingWork() {
         YAWLEditor.getNetsPane().closeAllNets();
         SpecificationModel.reset();
-        ProcessConfigurationModel.getInstance().reset();
+        YPluginHandler.getInstance().specificationClosed();
         SpecificationUndoManager.getInstance().discardAllEdits();
         YAWLEditor.getNetsPane().setVisible(true);
     }

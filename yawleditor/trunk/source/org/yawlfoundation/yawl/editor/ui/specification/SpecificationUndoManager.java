@@ -117,9 +117,9 @@ public class SpecificationUndoManager extends GraphUndoManager {
         setDirty(true);
         refreshButtons();
 
-        ProcessConfigurationModel.getInstance().setApplyState(
-                ProcessConfigurationModel.ApplyState.OFF
-        );
+//        ProcessConfigurationModel.getInstance().setApplyState(
+//                ProcessConfigurationModel.ApplyState.OFF
+//        );
     }
 
     /**

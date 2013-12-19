@@ -37,22 +37,22 @@
 package org.yawlfoundation.yawl.configuration;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.editor.ui.configuration.actions.ConfigurableTaskAction;
+import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
+import org.yawlfoundation.yawl.configuration.menu.action.ConfigurableTaskAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLMultipleInstanceTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.editor.ui.specification.ProcessConfigurationModel;
 
 import java.awt.event.ActionEvent;
 import java.util.*;
 
 public class ConfigurationImporter {
 	
-	public static final HashMap map = new HashMap();
-	public static final LinkedList<YAWLTask> CTaskList = new LinkedList();
-	public static final HashMap NetTaskMap = new HashMap();
+	public static final Map<TaskConfiguration, Element> map =
+            new HashMap<TaskConfiguration, Element>();
+	public static final LinkedList<TaskConfiguration> CTaskList =
+            new LinkedList<TaskConfiguration>();
+
 	public ConfigurationImporter(){
 		
 	}
@@ -60,25 +60,25 @@ public class ConfigurationImporter {
 	public static void ApplyConfiguration(){
 
 		while(!CTaskList.isEmpty()){
-			YAWLTask task = CTaskList.removeFirst();
-			NetGraphModel netModel = (NetGraphModel) NetTaskMap.get(task);
-			NetGraph net = netModel.getGraph();
-			Element root = (Element) map.get(task);
+            TaskConfiguration taskConfiguration = CTaskList.removeFirst();
+			NetGraph net = taskConfiguration.getGraphModel().getGraph();
+			Element root = map.get(taskConfiguration);
 			Element configuration = root.getChild("configuration", root.getNamespace());
 			Element defaultConfiguration = root.getChild("defaultConfiguration", root.getNamespace());
 			if(configuration != null){
-				 ConfigurableTaskAction simulateAction = new ConfigurableTaskAction(task,net);
+				 ConfigurableTaskAction simulateAction =
+                         new ConfigurableTaskAction(taskConfiguration.getTask(),net);
 	    		 ActionEvent event = new ActionEvent(net,1001, "Configurable Task");
 	    		 simulateAction.actionPerformed(event);
 	    		 
-	    		 ApplyOutputCPorts(task, configuration);
-	    		 ApplyInputCPorts(task, configuration);
+	    		 ApplyOutputCPorts(taskConfiguration, configuration);
+	    		 ApplyInputCPorts(taskConfiguration, configuration);
 	    		 
-	    		 ApplyCancellationSetConfiguration(task, configuration);
-	    		 MultipleInstanceConfiguration(task, configuration);
+	    		 ApplyCancellationSetConfiguration(taskConfiguration, configuration);
+	    		 MultipleInstanceConfiguration(taskConfiguration, configuration);
 				if(defaultConfiguration != null){
-					ApplyDefaultInputCPorts(task,defaultConfiguration);
-					ApplyDefaultOutputCPorts(task,defaultConfiguration);
+					ApplyDefaultInputCPorts(taskConfiguration,defaultConfiguration);
+					ApplyDefaultOutputCPorts(taskConfiguration,defaultConfiguration);
 				}
 			}
         ProcessConfigurationModel.getInstance().refresh();  
@@ -86,11 +86,12 @@ public class ConfigurationImporter {
 		
 	}
 
-	private static void MultipleInstanceConfiguration(YAWLTask task,
+	private static void MultipleInstanceConfiguration(TaskConfiguration taskConfig,
 			Element configuration) {
 		Element MultipleTask = configuration.getChild("nofi",configuration.getNamespace());
 		 if(MultipleTask != null){
-			 MultipleInstanceTaskConfigSet configSet = new MultipleInstanceTaskConfigSet((YAWLMultipleInstanceTask) task);
+			 MultipleInstanceTaskConfigSet configSet =
+                     new MultipleInstanceTaskConfigSet((YAWLMultipleInstanceTask) taskConfig.getTask());
 			 String value1 = MultipleTask.getChildText("minIncrease");
 			 int min = 0;
 			 if(value1 != null){
@@ -125,35 +126,34 @@ public class ConfigurationImporter {
 		 }
 	}
 
-	private static void ApplyCancellationSetConfiguration(YAWLTask task,
+	private static void ApplyCancellationSetConfiguration(TaskConfiguration taskConfig,
 			Element configuration) {
 		Element cancellation = configuration.getChild("rem",configuration.getNamespace());
 		 if(cancellation != null){
 			 if(cancellation.getAttributeValue("value").equals(CPort.ACTIVATED)){
-				 task.setCancellationSetEnable(true);
+                 taskConfig.setCancellationSetEnable(true);
 			 }else{
-				 task.setCancellationSetEnable(false);
+                 taskConfig.setCancellationSetEnable(false);
 			 }
 		 }
 	}
 
-	private static void ApplyInputCPorts(YAWLTask task, Element configuration) {
-		
-		
-		 YAWLFlowRelation[] inFlows = new YAWLFlowRelation[task.getIncomingFlowCount()];
-		 inFlows = task.getIncomingFlows().toArray(inFlows);
-		 HashMap flowMap = new HashMap();
+	private static void ApplyInputCPorts(TaskConfiguration taskConfig, Element configuration) {
+		 YAWLFlowRelation[] inFlows = new YAWLFlowRelation[
+                 taskConfig.getTask().getIncomingFlowCount()];
+		 inFlows = taskConfig.getTask().getIncomingFlows().toArray(inFlows);
+		 Map<String, YAWLFlowRelation> flowMap = new HashMap<String, YAWLFlowRelation>();
 		 for(YAWLFlowRelation flow : inFlows){
 			 flowMap.put(flow.getSourceVertex().getID(), flow);
 		 }
 		 Element inputConfig = configuration.getChild("join",configuration.getNamespace());
 		 if(inputConfig != null){
 		 List InputPortsElement = inputConfig.getChildren("port",inputConfig.getNamespace());
-		 ArrayList<CPort> InputPorts = new ArrayList<CPort>();
+		 List<CPort> InputPorts = new ArrayList<CPort>();
 		 int i= 0;
 		 for(Object o:InputPortsElement){
 			 Element portElement = (Element) o;
-			 CPort port = new CPort(task, CPort.INPUTPORT);
+			 CPort port = new CPort(taskConfig, CPort.INPUTPORT);
 			 port.setID(i);
 			 port.setConfigurationSetting(portElement.getAttributeValue("value"));
 			 HashSet flowSet = new HashSet();
@@ -166,14 +166,14 @@ public class ConfigurationImporter {
 			 InputPorts.add(port);
 			 i++;
 		 }
-		 task.setInputCPorts(InputPorts);
+             taskConfig.setInputCPorts(InputPorts);
 		 }
 	}
 
 	
-	private static void ApplyDefaultInputCPorts(YAWLTask task, Element defaultConfiguration){
-		 YAWLFlowRelation[] inFlows = new YAWLFlowRelation[task.getIncomingFlowCount()];
-		 inFlows = task.getIncomingFlows().toArray(inFlows);
+	private static void ApplyDefaultInputCPorts(TaskConfiguration taskConfig, Element defaultConfiguration){
+		 YAWLFlowRelation[] inFlows = new YAWLFlowRelation[taskConfig.getTask().getIncomingFlowCount()];
+		 inFlows = taskConfig.getTask().getIncomingFlows().toArray(inFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : inFlows){
 			 flowMap.put(flow.getSourceVertex().getID(), flow);
@@ -190,7 +190,7 @@ public class ConfigurationImporter {
 				 flowSet.add(flowMap.get(flow.getAttributeValue("id")));
 			 }
 			 CPort myPort = null;
-			 for(CPort port: task.getInputCPorts()){
+			 for(CPort port: taskConfig.getInputCPorts()){
 				 if(port.getFlows().equals(flowSet)){
 					 myPort = port;
 					 break;
@@ -203,9 +203,9 @@ public class ConfigurationImporter {
 		 }
 	}
 	
-	private static void ApplyDefaultOutputCPorts(YAWLTask task, Element defaultConfiguration) {
-		 YAWLFlowRelation[] outFlows = new YAWLFlowRelation[task.getOutgoingFlowCount()];
-		 outFlows = task.getOutgoingFlows().toArray(outFlows);
+	private static void ApplyDefaultOutputCPorts(TaskConfiguration taskConfig, Element defaultConfiguration) {
+		 YAWLFlowRelation[] outFlows = new YAWLFlowRelation[taskConfig.getTask().getOutgoingFlowCount()];
+		 outFlows = taskConfig.getTask().getOutgoingFlows().toArray(outFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : outFlows){
 			 flowMap.put(flow.getTargetVertex().getID(), flow);
@@ -222,7 +222,7 @@ public class ConfigurationImporter {
 				 flowSet.add(flowMap.get(flow.getAttributeValue("id")));
 			 }
 			 CPort myPort = null;
-			 for(CPort port: task.getOutputCPorts()){
+			 for(CPort port: taskConfig.getOutputCPorts()){
 				 if(port.getFlows().equals(flowSet)){
 					 myPort = port;
 					 break;
@@ -236,9 +236,10 @@ public class ConfigurationImporter {
 		 }
 	}
 	
-	private static void ApplyOutputCPorts(YAWLTask task, Element configuration) {
-		 YAWLFlowRelation[] outFlows = new YAWLFlowRelation[task.getOutgoingFlowCount()];
-		 outFlows = task.getOutgoingFlows().toArray(outFlows);
+	private static void ApplyOutputCPorts(TaskConfiguration taskConfig, Element configuration) {
+		 YAWLFlowRelation[] outFlows = new YAWLFlowRelation[
+                 taskConfig.getTask().getOutgoingFlowCount()];
+		 outFlows = taskConfig.getTask().getOutgoingFlows().toArray(outFlows);
 		 HashMap flowMap = new HashMap();
 		 for(YAWLFlowRelation flow : outFlows){
 			 flowMap.put(flow.getTargetVertex().getID(), flow);
@@ -250,7 +251,7 @@ public class ConfigurationImporter {
 		 int i= 0;
 		 for(Object o:outputPortsElement){
 			 Element portElement = (Element) o;
-			 CPort port = new CPort(task, CPort.OUTPUTPORT);
+			 CPort port = new CPort(taskConfig, CPort.OUTPUTPORT);
 			 port.setID(i);
 			 port.setConfigurationSetting(portElement.getAttributeValue("value"));
 			 HashSet flowSet = new HashSet();
@@ -263,7 +264,7 @@ public class ConfigurationImporter {
 			 outputPorts.add(port);
 			 i++;
 		 }
-		 task.setOutputCPorts(outputPorts);
+             taskConfig.setOutputCPorts(outputPorts);
 	}
 	}
 
