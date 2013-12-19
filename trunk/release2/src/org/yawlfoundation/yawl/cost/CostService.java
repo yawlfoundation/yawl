@@ -270,7 +270,7 @@ public class CostService implements InterfaceX_Service {
             // verify the predicate
             Predicate costPredicate = new Predicate(predicate);
 
-            // if verified (no exception), get the list of events for the case
+            // if verified (no exception), get the list of events for the predicate
             List<ResourceEvent> eventList = getLogEvents(specID, caseID, costPredicate);
 
             // get cost model(s) and evaluate
