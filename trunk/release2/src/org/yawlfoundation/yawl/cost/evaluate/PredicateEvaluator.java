@@ -12,35 +12,51 @@ import java.util.*;
 public class PredicateEvaluator {
 
     private Map<String, ResourceTaskTimings> _timings;   // timestamp grouping per task
-    private Map<String, TaskCost> _taskCosts;
+    private Map<String, Set<TaskCost>> _taskCosts;
 
     public PredicateEvaluator() { }
 
 
     public boolean evaluate(Predicate predicate, List<ResourceEvent> events,
                             DriverMatrix matrix) {
-        _timings = new Hashtable<String, ResourceTaskTimings>();
-        _taskCosts = new Hashtable<String, TaskCost>();
-        return evaluate(predicate, groupAndCalculate(events, matrix));
+        if (predicate.isSimpleExpression()) {
+            throw new IllegalArgumentException(
+                    "Predicate does not evaluate to a boolean result");
+        }
+        return predicate.evaluate(calculate(predicate, events, matrix));
     }
 
+    public double calculate(Predicate predicate, List<ResourceEvent> events,
+                                DriverMatrix matrix) {
+        _timings = new HashMap<String, ResourceTaskTimings>();
+        _taskCosts = new HashMap<String, Set<TaskCost>>();
+        groupAndCalculate(events, matrix);
+        return calculate(predicate);
+    }
 
-    private boolean evaluate(Predicate predicate, int caseCount) {
+    private double calculate(Predicate predicate) {
         double cost = 0;
-        for (TaskCost taskCost : _taskCosts.values()) {
-            if (meetsCriteria(taskCost, predicate)) {
-                cost += taskCost.getCost();
+        if (predicate.max()) {
+            cost = Collections.max(getCostPerCase(predicate));
+        }
+        else if (predicate.min()) {
+            cost = Collections.min(getCostPerCase(predicate));
+        }
+        else {
+            Set<TaskCost> taskCostSet = new HashSet<TaskCost>();
+            for (Set<TaskCost> taskCosts : _taskCosts.values()) {
+                taskCostSet.addAll(taskCosts);
+            }
+            cost = getTaskCosts(taskCostSet, predicate);
+            if (predicate.average() && cost > 0) {
+                cost /= _taskCosts.size();
             }
         }
-        if (predicate.average() && cost > 0 && caseCount > 1) {
-            cost /= caseCount;
-        }
-        return predicate.evaluate(cost);
+        return cost;
     }
 
 
-    private int groupAndCalculate(List<ResourceEvent> events, DriverMatrix matrix) {
-        Set<String> uniqueCases = new HashSet<String>();
+    private void groupAndCalculate(List<ResourceEvent> events, DriverMatrix matrix) {
         for (ResourceEvent event : events) {
             if (event.get_taskID() == null || event.get_taskID().length() == 0) continue;
             if (event.get_event().equals("unknown")) continue;
@@ -52,9 +68,18 @@ public class PredicateEvaluator {
             if (isConcludingEvent(event) && (!timings.isProcessed())) {
                 processDrivers(matrix, event, timings);
             }
-            uniqueCases.add(getRootCaseID(event.get_caseID()));
         }
-        return uniqueCases.size();
+    }
+
+
+    private double getTaskCosts(Collection<TaskCost> taskCosts, Predicate predicate) {
+        double cost = 0;
+        for (TaskCost taskCost : taskCosts) {
+            if (meetsCriteria(taskCost, predicate)) {
+                cost += taskCost.getCost();
+            }
+        }
+        return cost;
     }
 
 
@@ -133,13 +158,24 @@ public class PredicateEvaluator {
             // if all are satisfied, calculate and save
             if (satisfied) {
                 double cost = calcCost(event, driver, timings);
-                TaskCost taskCost = new TaskCost(event.get_taskID(), cost);
-                _taskCosts.put(event.get_taskID(), taskCost);
+                TaskCost taskCost = addTaskCost(event, cost);
                 if (driver.hasFacetAspect(FacetAspect.resource)) {
                     taskCost.setResourceID(event.get_resourceID());
                 }
             }
         }
+    }
+
+    private TaskCost addTaskCost(ResourceEvent event, double cost) {
+        String caseID = getRootCaseID(event.get_caseID());
+        Set<TaskCost> taskCostSet = _taskCosts.get(caseID);
+        if (taskCostSet == null) {
+            taskCostSet = new HashSet<TaskCost>();
+            _taskCosts.put(caseID, taskCostSet);
+        }
+        TaskCost taskCost = new TaskCost(event.get_taskID(), cost);
+        taskCostSet.add(taskCost);
+        return taskCost;
     }
 
 
@@ -245,6 +281,15 @@ public class PredicateEvaluator {
         if (caseID == null) return null;
         int period = caseID.indexOf('.');
         return (period > -1) ? caseID.substring(0, period) : caseID;
+    }
+
+
+    private List<Double> getCostPerCase(Predicate predicate) {
+        List<Double> caseCosts = new ArrayList<Double>();
+        for (Set<TaskCost> costSet : _taskCosts.values()) {
+             caseCosts.add(getTaskCosts(costSet, predicate));
+        }
+        return caseCosts;
     }
 
 }

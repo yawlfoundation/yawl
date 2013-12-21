@@ -43,7 +43,7 @@ public abstract class AbstractResourceAttribute {
     protected String _notes ;
 
     // the set of resources that have this attribute
-    protected HashSet<AbstractResource> _resources = new HashSet<AbstractResource>();
+    protected Set<AbstractResource> _resources = new HashSet<AbstractResource>();
 
     protected boolean _persisting ;
 

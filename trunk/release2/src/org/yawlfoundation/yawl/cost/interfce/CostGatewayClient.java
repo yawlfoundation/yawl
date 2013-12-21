@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.cost.interfce;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.io.IOException;
@@ -225,6 +226,21 @@ public class CostGatewayClient extends Interface_Client {
         params.put("id", caseID);
         params.put("predicate", predicate);
         return executeGet(_costURI, params).equals("true");
+    }
+
+    public double calculate(YSpecificationID specID, String caseID, String predicate,
+                            String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("calculate", handle);
+        params.putAll(specID.toMap());
+        params.put("id", caseID);
+        params.put("predicate", predicate);
+        String result = executeGet(_costURI, params);
+        try {
+            return Double.parseDouble(result);
+        }
+        catch (NumberFormatException nfe) {
+            return -1;
+        }
     }
 
     /**
