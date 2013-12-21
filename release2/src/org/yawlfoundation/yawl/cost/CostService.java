@@ -286,6 +286,27 @@ public class CostService implements InterfaceX_Service {
         return false;
     }
 
+    public double calculate(YSpecificationID specID, String caseID, String predicate) {
+        try {
+
+            // verify the predicate
+            Predicate costPredicate = new Predicate(predicate);
+
+            // if verified (no exception), get the list of events for the predicate
+            List<ResourceEvent> eventList = getLogEvents(specID, caseID, costPredicate);
+
+            // get cost model(s) and evaluate
+            CostModelCache cache = getModelCache(specID);
+            if (cache != null) {
+                return _evaluator.calculate(costPredicate, eventList, cache.getDriverMatrix());
+            }
+            else throw new IllegalArgumentException("No cost models found for case " + caseID);
+        }
+        catch (Exception e) {
+            _log.error("Failed to evaluate cost predicate: ", e);
+        }
+        return -1;
+    }
 
     /**
      * Resolves an id to a set of participant ids

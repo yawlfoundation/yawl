@@ -22,6 +22,9 @@ public class Predicate {
     private boolean wholeCase;
     private boolean allCases;
     private boolean averageFlag;
+    private boolean minFlag;
+    private boolean maxFlag;
+    private boolean simpleExpression;
     private Operator op;
     private double rhs;
 
@@ -59,10 +62,7 @@ public class Predicate {
                     if (content.length() > 0) {
                         caseList = parseCaseArgs(content);
                     }
-                    else allCases = true;
-                }
-                else if (arg.equalsIgnoreCase("average")) {
-                    averageFlag = true;
+                    if (caseList == null || caseList.isEmpty()) allCases = true;
                 }
                 else throw new CostPredicateParseException(
                         "Unrecognised argument in cost predicate: " + arg);
@@ -101,7 +101,13 @@ public class Predicate {
 
     public boolean isCurrentCaseOnly() { return ! (isAllCases() || hasCaseList()); }
 
+    public boolean isSimpleExpression() { return simpleExpression; }
+
     public boolean average() { return averageFlag; }
+
+    public boolean max() { return maxFlag; }
+
+    public boolean min() { return minFlag; }
 
 
     public double getValue() {
@@ -127,7 +133,7 @@ public class Predicate {
     private List<String> parseArgs(String args) {
         List<String> argList = new ArrayList<String>();
         Pattern p = Pattern.compile(
-                "((task|resource|case)\\(('|\")*[^\\)]*('|\")*\\)|average)");
+                "((task|resource|case)\\(('|\")*[^\\)]*('|\")*\\))");
         Matcher m = p.matcher(args);
         while (m.find()) {
             argList.add(m.group());
@@ -162,7 +168,16 @@ public class Predicate {
             if (item.contains("-")) {
                 caseSet.addAll(parseCaseRange(StringUtil.deQuote(item)));
             }
-            else {
+            else if (item.equalsIgnoreCase("average")) {
+                 averageFlag = true;
+            }
+            else if (item.equalsIgnoreCase("max")) {
+                 maxFlag = true;
+            }
+            else if (item.equalsIgnoreCase("min")) {
+                 minFlag = true;
+            }
+            else {       // plain case id
                 int caseID = StringUtil.strToInt(StringUtil.deQuote(item), -1);
                 if (caseID > 0) {
                     caseSet.add(String.valueOf(caseID));
@@ -170,6 +185,10 @@ public class Predicate {
                 else throw new CostPredicateParseException("Malformed case argument: " +
                         caseID);
             }
+        }
+        if ((averageFlag && maxFlag) || (averageFlag && minFlag) || (minFlag && maxFlag)) {
+            throw new CostPredicateParseException(
+                    "At most one of 'min', 'max' or 'average' should be included");
         }
         return caseSet;
     }
@@ -209,6 +228,10 @@ public class Predicate {
     }
 
     private void parseOpAndValue(String exprSuffix) throws CostPredicateParseException {
+        if (StringUtil.isNullOrEmpty(exprSuffix)) {
+            simpleExpression = true;
+            return;
+        }
         try {
             rhs = Double.parseDouble(parseOp(exprSuffix));
         } catch (NumberFormatException nfe) {

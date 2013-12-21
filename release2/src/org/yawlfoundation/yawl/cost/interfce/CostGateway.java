@@ -136,6 +136,10 @@ public class CostGateway extends HttpServlet {
                 String caseID = req.getParameter("id");
                 String predicate = req.getParameter("predicate");
                 result = String.valueOf(_service.evaluate(specID, caseID, predicate));
+            } else if (action.equals("calculate")) {
+                String caseID = req.getParameter("id");
+                String predicate = req.getParameter("predicate");
+                result = String.valueOf(_service.calculate(specID, caseID, predicate));
             } else if (action.equals("disconnect")) {
                 result = String.valueOf(_sessions.disconnect(handle));
             } else throw new IOException("Unknown Cost Service action: " + action);
