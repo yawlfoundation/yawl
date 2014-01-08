@@ -459,7 +459,7 @@ public class YNetRunner {
             kick(pmgr);
             return newChildIdentifiers;
         }
-        return null;
+        throw new YStateException("Task is not (or no longer) enabled: " + taskID);
     }
 
 
@@ -550,10 +550,10 @@ public class YNetRunner {
             }
             else {
 
-                // if the task is not an enabled transition, and it has been previously
-                // enabled by the engine, then it must be cancelled
+                // if the task is not (or no longer) an enabled transition, and it
+                // has been previously enabled by the engine, then it must be withdrawn
                 if (_enabledTasks.contains(task)) {
-                    cancelEnabledTask(task, pmgr);
+                    withdrawEnabledTask(task, pmgr);
                 }
             }
 
@@ -664,13 +664,13 @@ public class YNetRunner {
     }
 
     
-    private void cancelEnabledTask(YTask task, YPersistenceManager pmgr)
+    private void withdrawEnabledTask(YTask task, YPersistenceManager pmgr)
                       throws YPersistenceException {
 
         _enabledTasks.remove(task);
         _enabledTaskNames.remove(task.getID());
 
-        //  remove the cancelled task from persistence
+        //  remove the withdrawn task from persistence
         YWorkItem wItem = _workItemRepository.get(_caseID, task.getID());
         if (wItem != null) {               //may already have been removed by task.cancel
 
@@ -681,7 +681,7 @@ public class YNetRunner {
 
             // log it
             YEventLogger.getInstance().logWorkItemEvent(pmgr, wItem,
-                    YWorkItemStatus.statusDeleted, null);
+                    YWorkItemStatus.statusWithdrawn, null);
 
             // cancel any live timer
             if (wItem.hasTimerStarted()) {

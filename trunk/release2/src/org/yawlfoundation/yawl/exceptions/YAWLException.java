@@ -121,7 +121,7 @@ public class YAWLException extends Exception {
 
     /**
      * A convenience method that effectively rethrows the exceptions listed.
-     * Caveat: ALL 5 exceptions must appear in the throws clause of any methods that
+     * Caveat: ALL 4 exceptions must appear in the throws clause of any methods that
      * call this method.
      * @throws YStateException
      * @throws YDataStateException
