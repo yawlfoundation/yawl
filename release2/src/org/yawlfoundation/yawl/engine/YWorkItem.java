@@ -367,10 +367,10 @@ public class YWorkItem {
         if (pmgr != null) {
 
             //remove the children first
-            Set children = getChildren();
+            Set<YWorkItem> children = getChildren();
             if (children != null) {
-                for (Object o : getChildren()) {
-                    deleteWorkItem(pmgr, (YWorkItem) o);
+                for (YWorkItem child : children) {
+                    deleteWorkItem(pmgr, child);
                 }
             }
 
