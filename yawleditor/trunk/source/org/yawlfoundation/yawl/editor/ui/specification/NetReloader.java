@@ -27,7 +27,10 @@ import org.yawlfoundation.yawl.elements.*;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -84,8 +87,9 @@ public class NetReloader {
 
 
     private void addCondition(NetGraph graph, YCondition yCondition) {
-        if ((yCondition instanceof YInputCondition) ||
-                (yCondition instanceof YOutputCondition)) return;
+        if (yCondition instanceof YInputCondition ||
+                yCondition instanceof YOutputCondition ||
+                yCondition.isImplicit()) return;
 
         Condition condition = new Condition(new Point2D.Double(), yCondition);
         graph.addElement(condition);
@@ -135,7 +139,6 @@ public class NetReloader {
 
     private Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows, Set<YCondition> conditions) {
         Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
-        Set<YCondition> implicitConditions = new HashSet<YCondition>();
         for (YCondition condition : conditions) {
             if (condition.isImplicit()) {
                 YFlow flowFromSource = condition.getPresetFlows().iterator().next();
@@ -144,10 +147,8 @@ public class NetReloader {
                         new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
                 flows.remove(flowFromSource);
                 flows.remove(flowIntoTarget);
-                implicitConditions.add(condition);
             }
         }
-        conditions.removeAll(implicitConditions);
         for (YFlow flow : flows) {
             compoundFlows.add(new YCompoundFlow(flow));
         }
@@ -157,14 +158,14 @@ public class NetReloader {
 
     private Point2D getInputConditionPoint(Rectangle bounds, NetGraph graph) {
         Dimension size = InputCondition.getVertexSize();
-        return graph.snap(new Point((MARGIN)  - (size.width/2),
+        return graph.snap(new Point((MARGIN) - (size.width/2),
                 (int) (bounds.getHeight()/2) - (size.height/2)));
     }
 
     private Point2D getOutputConditionPoint(Rectangle bounds, NetGraph graph) {
         Dimension size = InputCondition.getVertexSize();
         return graph.snap(new Point((int) (bounds.getWidth()-MARGIN) - (size.width/2),
-                (int) (bounds.getHeight()/2)  - (size.height/2)));
+                (int) (bounds.getHeight()/2) - (size.height/2)));
     }
 
 
@@ -174,7 +175,7 @@ public class NetReloader {
     }
 
     private Rectangle cropRectangle(Rectangle r, int crop) {
-         return new Rectangle(r.x, r.y, r.width - crop, r.height - crop);
-     }
+        return new Rectangle(r.x, r.y, r.width - crop, r.height - crop);
+    }
 
 }

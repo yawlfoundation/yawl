@@ -39,6 +39,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -649,6 +650,39 @@ public class DataVariableDialog extends JDialog
         }
     }
 
+
+    private void updateInputTaskTableOrdering(YDecomposition host)
+            throws YDataHandlerException {
+        int index = 0;
+        for (VariableRow row : getTaskInputTable().getVariables()) {
+            dataHandler.setVariableIndex(host.getID(), row.getName(),
+                    YDataHandler.INPUT, index++);
+        }
+    }
+
+
+    private void updateOutputTaskTableOrdering(YDecomposition host)
+            throws YDataHandlerException {
+        List<VariableRow> inputVariables = getTaskInputTable().getVariables();
+        int index = inputVariables.size();
+        for (VariableRow row : getTaskOutputTable().getVariables()) {
+            int inputIndex = getMatchingInputRowIndex(row);
+            int outputIndex = inputIndex > -1 ? inputIndex : index++;
+            dataHandler.setVariableIndex(host.getID(), row.getName(),
+                    YDataHandler.OUTPUT, outputIndex);
+        }
+    }
+
+    private int getMatchingInputRowIndex(VariableRow outputRow) {
+        for (int i=0; i < getTaskInputTable().getVariables().size(); i++) {
+            VariableRow inputRow = getTaskInputTable().getVariables().get(i);
+            if (inputRow.getName().equals(outputRow.getName()) &&
+                inputRow.getDataType().equals(outputRow.getDataType())) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
 
 
