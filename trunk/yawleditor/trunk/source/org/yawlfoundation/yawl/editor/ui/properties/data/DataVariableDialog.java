@@ -211,14 +211,28 @@ public class DataVariableDialog extends JDialog
     }
 
 
+    protected void mirrorExtendedAttributes(VariableRow row) {
+        VariableTable table = row.isInput() ? getTaskOutputTable() : getTaskInputTable();
+        VariableRow otherRow = getMatchingRow(row, table);
+        if (otherRow != null) {
+            otherRow.setAttributes(row.getAttributes());
+        }
+    }
+
+
     private boolean hasMatchingNetVar(VariableRow taskRow) {
-        for (VariableRow netRow : getNetTable().getVariables()) {
-            if (netRow.getName().equals(taskRow.getName()) &&
-                    netRow.getDataType().equals(taskRow.getDataType())) {
-                return true;
+        return getMatchingRow(taskRow, getNetTable()) != null;
+    }
+
+
+    private VariableRow getMatchingRow(VariableRow row, VariableTable table) {
+        for (VariableRow otherRow : table.getVariables()) {
+            if (otherRow.getName().equals(row.getName()) &&
+                    otherRow.getDataType().equals(row.getDataType())) {
+                return otherRow;
             }
         }
-        return false;
+        return null;
     }
 
 

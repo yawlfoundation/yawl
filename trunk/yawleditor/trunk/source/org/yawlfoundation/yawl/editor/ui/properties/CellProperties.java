@@ -271,10 +271,8 @@ public class CellProperties extends NetProperties {
             }
             try {
                 if (isComposite) {
-                    YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false);
-                    panel.setTitle(newName);
+                    YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false, newName);
                     return panel.getNet().getNetModel().getDecomposition();
-
                 }
                 else {
                     return flowHandler.addTaskDecomposition(newName);
@@ -298,6 +296,9 @@ public class CellProperties extends NetProperties {
             try {
                 newID = specHandler.checkID(newID);
                 specHandler.getDataHandler().renameDecomposition(oldID, newID);
+                if (isComposite) {
+                    YAWLEditor.getNetsPane().renameTab(oldID, newID);
+                }
                 firePropertyChange("Decomposition", newID);
             }
             catch (YDataHandlerException ydhe) {
@@ -333,7 +334,9 @@ public class CellProperties extends NetProperties {
 
 
     private YDecomposition getDecomposition(String name) {
-        return flowHandler.getTaskDecomposition(name);
+        return (vertex instanceof YAWLCompositeTask) ?
+                flowHandler.getNet(name) :
+                flowHandler.getTaskDecomposition(name);
     }
 
 
