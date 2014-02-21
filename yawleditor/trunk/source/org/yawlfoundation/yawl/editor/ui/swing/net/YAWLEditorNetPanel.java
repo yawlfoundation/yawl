@@ -49,10 +49,10 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
 
     // creates a new net
-    public YAWLEditorNetPanel(Rectangle bounds) throws YControlFlowHandlerException {
+    public YAWLEditorNetPanel(Rectangle bounds, String title) throws YControlFlowHandlerException {
         this();
         setBounds(bounds);
-        String title = createTitle();
+        if (title == null) title = createTitle();
         YNet yNet = SpecificationModel.getHandler().getControlFlowHandler().addNet(title);
         NetGraph newGraph = new NetGraph(yNet);
         new SpecificationFactory().populateGraph(yNet, newGraph);

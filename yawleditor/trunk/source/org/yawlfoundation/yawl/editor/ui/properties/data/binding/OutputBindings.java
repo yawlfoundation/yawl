@@ -71,7 +71,7 @@ public class OutputBindings {
 
         // try update cache first, then those in the task
         String binding = getAddedBinding(netVarName);
-        if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName);
+        if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName).trim();
         return unwrap ? unwrapBinding(binding) : binding;
     }
 
@@ -291,9 +291,10 @@ public class OutputBindings {
     }
 
 
+    // removes curly braces and xml tags from start and end of binding
     private String unwrapBinding(String binding) {
-        return binding != null ?
-                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "") : null;
+        return binding != null ? binding.replaceAll(
+                "\\{?\\s*<\\w+>\\s*\\{?\\s*|\\s*\\}?\\s*</\\w+>\\s*\\}?", "") : null;
     }
 
 
@@ -312,8 +313,10 @@ public class OutputBindings {
 
     private String getTarget(Map<String, String> bindings, String taskVarName) {
         String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
+        String varTag = '<' + taskVarName + '>';
         for (String outputQuery : bindings.keySet()) {
-            if (outputQuery.contains(decompKey + taskVarName + '/')) {
+            if (outputQuery.contains(decompKey + taskVarName + '/') ||
+                    outputQuery.startsWith(varTag)) {
                 return bindings.get(outputQuery);
             }
         }

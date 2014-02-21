@@ -47,9 +47,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
 
-    public YAWLEditorNetPanel newNet(boolean select) {
+    public YAWLEditorNetPanel newNet(boolean select, String name) {
         try {
-            YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds());
+            YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds(), name);
             bindFrame(frame, select);
             NetGraph graph = frame.getNet();
             graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
@@ -99,6 +99,15 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             if (getTitleAt(i).equals(caption)) {
                 setSelectedIndex(i);
                 updateState(true);
+                break;
+            }
+        }
+    }
+
+    public void renameTab(String oldCaption, String newCaption) {
+        for (int i=0; i<getTabCount(); i++) {
+            if (getTitleAt(i).equals(oldCaption)) {
+                setTitleAt(i, newCaption);
                 break;
             }
         }

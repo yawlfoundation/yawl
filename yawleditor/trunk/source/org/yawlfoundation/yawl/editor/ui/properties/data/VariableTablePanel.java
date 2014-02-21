@@ -145,6 +145,7 @@ public class VariableTablePanel extends JPanel
                 new ExtendedAttributesDialog(parent, row.getAttributes(), row.getName())
                         .setVisible(true);
                 table.getTableModel().setTableChanged(true);     // to flag update
+                parent.mirrorExtendedAttributes(row);            // make input=output
                 parent.enableApplyButton();
             }
         }
