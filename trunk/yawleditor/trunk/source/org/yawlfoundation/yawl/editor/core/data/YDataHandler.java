@@ -425,13 +425,15 @@ public class YDataHandler {
         YNet net = getNet(netID);
         YTask task = (YTask) net.getNetElement(taskID);
         if (task != null) {
-            if (scope == INPUT) {
+            if (scope == LOCAL) {
+                raise("Invalid scope parameter: " + scope);
+            }
+            if (scope == INPUT || scope == INPUT_OUTPUT) {
                 task.setDataBindingForInputParam(mapping, variableName);
             }
-            else if (scope == OUTPUT) {
+            if (scope == OUTPUT || scope == INPUT_OUTPUT) {
                 task.setDataBindingForOutputExpression(mapping, variableName);
             }
-            else raise("Invalid scope parameter: " + scope);
         }
         else raise("No task found with id: " + taskID);
     }
@@ -457,10 +459,10 @@ public class YDataHandler {
         YTask task = (YTask) net.getNetElement(taskID);
         if (task != null) {
             task.getMultiInstanceAttributes().setMIFormalInputParam(variableName);
-            if (scope == INPUT) {
+            if (scope == INPUT || scope == INPUT_OUTPUT) {
                 task.getMultiInstanceAttributes().setUniqueInputMISplittingQuery(miQuery);
             }
-            else if (scope == OUTPUT) {
+            if (scope == OUTPUT || scope == INPUT_OUTPUT) {
                 task.getMultiInstanceAttributes().setUniqueOutputMIJoiningQuery(miQuery);
             }
             else raise("Invalid scope parameter: " + scope);
@@ -1171,7 +1173,7 @@ public class YDataHandler {
                                     int newType) {
         YParameter outputParam = decomposition.getOutputParameters().get(variableName);
         if (outputParam != null) {
-            if (newType != LOCAL) {
+            if (newType != LOCAL && (decomposition instanceof YNet)) {
                 ((YNet) decomposition).removeLocalVariable(variableName);
                 YParameter inputParam = newParameter(decomposition, outputParam, INPUT);
                 decomposition.addInputParameter(inputParam);

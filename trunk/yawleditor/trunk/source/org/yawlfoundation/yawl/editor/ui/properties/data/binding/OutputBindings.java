@@ -71,7 +71,8 @@ public class OutputBindings {
 
         // try update cache first, then those in the task
         String binding = getAddedBinding(netVarName);
-        if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName).trim();
+        if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName);
+        if (binding != null) binding = binding.trim();
         return unwrap ? unwrapBinding(binding) : binding;
     }
 

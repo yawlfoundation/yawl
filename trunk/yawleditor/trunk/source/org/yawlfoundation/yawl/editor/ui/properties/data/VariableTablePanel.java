@@ -53,7 +53,8 @@ public class VariableTablePanel extends JPanel
     private JButton btnDown;
     private JButton btnAdd;
     private JButton btnDel;
-    private JButton btnMapping;
+    private JButton btnInMapping;
+    private JButton btnOutMapping;
     private JButton btnAutoMapping;
     private JButton btnMIVar;
     private JButton btnExAttributes;
@@ -73,7 +74,8 @@ public class VariableTablePanel extends JPanel
         add(createToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
         if (tableType == TableType.Net) {
-            btnMapping.setVisible(false);
+            btnInMapping.setVisible(false);
+            btnOutMapping.setVisible(false);
             btnAutoMapping.setVisible(false);
             btnMIVar.setVisible(false);
             btnExAttributes.setVisible(false);
@@ -109,6 +111,15 @@ public class VariableTablePanel extends JPanel
     public void showMIButton(boolean show) { btnMIVar.setVisible(show); }
 
 
+    public java.util.List<String> getScopeNames() {
+        java.util.List<String> names = YDataHandler.getScopeNames();
+        if (tableType != TableType.Net) {
+            names.remove("Local");
+        }
+        return names;
+    }
+
+
     public void actionPerformed(ActionEvent event) {
         clearStatus();
         String action = event.getActionCommand();
@@ -118,7 +129,6 @@ public class VariableTablePanel extends JPanel
         }
         else if (action.equals("Del")) {
             table.removeRow();
-            parent.notifyTableChanged(tableType);
             enableButtons(true);
         }
         else if (action.equals("Up")) {
@@ -127,8 +137,11 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Down")) {
             table.moveSelectedRowDown();
         }
-        else if (action.equals("Binding")) {
-            showBindingDialog();
+        else if (action.equals("InBinding")) {
+            showBindingDialog(YDataHandler.INPUT);
+        }
+        else if (action.equals("OutBinding")) {
+            showBindingDialog(YDataHandler.OUTPUT);
         }
         else if (action.equals("Autobind")) {
             autobind();
@@ -145,14 +158,13 @@ public class VariableTablePanel extends JPanel
                 new ExtendedAttributesDialog(parent, row.getAttributes(), row.getName())
                         .setVisible(true);
                 table.getTableModel().setTableChanged(true);     // to flag update
-                parent.mirrorExtendedAttributes(row);            // make input=output
                 parent.enableApplyButton();
             }
         }
     }
 
 
-    private void showBindingDialog() {
+    private void showBindingDialog(int scope) {
         int selectedRow = table.getSelectedRow();
         java.util.List<VariableRow> netVars =
                 parent.getNetTablePanel().getTable().getVariables();
@@ -160,11 +172,11 @@ public class VariableTablePanel extends JPanel
         String taskID = parent.getTask().getID();
         AbstractDataBindingDialog dialog = null;
 
-        if (tableType == TableType.TaskInput) {
+        if (scope == YDataHandler.INPUT) {
             dialog = new InputBindingDialog(taskID, table.getSelectedVariable(),
                     netVars, taskVars);
         }
-        else if (tableType == TableType.TaskOutput) {
+        else if (scope == YDataHandler.OUTPUT) {
             dialog = new OutputBindingDialog(taskID, table.getSelectedVariable(),
                     netVars, taskVars, parent.getOutputBindings());
         }
@@ -229,8 +241,10 @@ public class VariableTablePanel extends JPanel
         toolbar.add(btnUp);
         btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
         toolbar.add(btnDown);
-        btnMapping = createToolBarButton("mapping", "Binding", " Data Bindings Dialog ");
-        toolbar.add(btnMapping);
+        btnInMapping = createToolBarButton("inMapping", "InBinding", " Input Bindings ");
+        toolbar.add(btnInMapping);
+        btnOutMapping = createToolBarButton("outMapping", "OutBinding", " Output Bindings ");
+        toolbar.add(btnOutMapping);
         btnAutoMapping = createToolBarButton("generate", "Autobind", " Smart Data Bindings ");
         toolbar.add(btnAutoMapping);
         btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
@@ -264,12 +278,20 @@ public class VariableTablePanel extends JPanel
 
 
     protected void enableButtons(boolean enable) {
+        VariableRow row = table.getSelectedVariable();
         boolean hasRowSelected = table.getSelectedRow() > -1;
         btnAdd.setEnabled(enable);
         btnDel.setEnabled(enable && hasRowSelected);
         btnUp.setEnabled(enable && hasRowSelected);
         btnDown.setEnabled(enable && hasRowSelected);
-        if (btnMapping.isVisible()) btnMapping.setEnabled(enable && hasRowSelected);
+        if (btnInMapping.isVisible()) {
+            btnInMapping.setEnabled(enable && hasRowSelected &&
+                    (row.isInput() || row.isInputOutput()));
+        }
+        if (btnOutMapping.isVisible()) {
+            btnOutMapping.setEnabled(enable && hasRowSelected &&
+                    (row.isOutput() || row.isInputOutput()));
+        }
         if (btnExAttributes.isVisible()) {
             btnExAttributes.setEnabled(enable && hasRowSelected);
         }

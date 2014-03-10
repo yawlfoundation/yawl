@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,32 +18,22 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+
 /**
-* @author Michael Adams
-* @date 10/08/12
-*/
-public enum TableType {
+ * @author Michael Adams
+ * @date 28/02/2014
+ */
+public class TaskVarTableModel extends NetVarTableModel {
 
-    Net {
-        public VariableTableModel getModel() { return new NetVarTableModel(); }
+    public TaskVarTableModel() {
+        super();
+    }
 
-        public int getPreferredWidth() { return 600; }
+    public String getColumnName(int column) {
+        return column == VALUE_COLUMN ? "Default Value" : super.getColumnName(column);
+    }
 
-        public String getName() { return "Net"; }
-    },
+    public void addRow() { super.addRow(YDataHandler.INPUT_OUTPUT); }
 
-    Task {
-        public VariableTableModel getModel() { return new TaskVarTableModel(); }
-
-        public int getPreferredWidth() { return 600; }
-
-        public String getName() { return "Decomposition"; }
-    };
-
-
-    public abstract VariableTableModel getModel();
-
-    public abstract int getPreferredWidth();
-
-    public abstract String getName();
 }

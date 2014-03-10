@@ -77,6 +77,13 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         setMIEditorText(miHandler.getSplitQuery());
     }
 
+    protected String makeTitle(String taskID) {
+       return super.makeTitle("Input", taskID);
+    }
+
+    protected String getMIPanelTitle() {
+        return "MI Splitting Query";
+    }
 
     protected JPanel buildTargetPanel() {
         _targetPanel = new TaskVariablePanel("Input To", getTaskVarList(), this);

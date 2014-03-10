@@ -36,15 +36,18 @@ public class VariableRowUsageEditor extends AbstractCellEditor
     private final VariableTablePanel tablePanel;
     private final JComboBox usageCombo;
 
+    private static final int SCOPE_COUNT = YDataHandler.getScopeNames().size();
+
+
     public VariableRowUsageEditor(VariableTablePanel panel) {
-        usageCombo = new JComboBox(YDataHandler.getScopeNames().toArray());
-        usageCombo.addActionListener(this);
         tablePanel = panel;
+        usageCombo = new JComboBox(panel.getScopeNames().toArray());
+        usageCombo.addActionListener(this);
     }
 
 
     public Object getCellEditorValue() {
-        return usageCombo.getSelectedIndex() - 1;    // scope values start at -1
+        return usageCombo.getSelectedIndex() + adjustIndex(-1);
     }
 
 
@@ -52,7 +55,7 @@ public class VariableRowUsageEditor extends AbstractCellEditor
                                                  boolean isSelected, int row,
                                                  int column) {
         tablePanel.setEditMode(true);
-        usageCombo.setSelectedItem(((Integer) value) + 1);
+        usageCombo.setSelectedItem(((Integer) value) + adjustIndex(1));
         return usageCombo;
     }
 
@@ -65,6 +68,13 @@ public class VariableRowUsageEditor extends AbstractCellEditor
     public void actionPerformed(ActionEvent actionEvent) {
         tablePanel.setEditMode(false);
         fireEditingStopped();
+    }
+
+
+    private int adjustIndex(int adjustment) {
+
+        // scope values start at -1 for net tables (with 'Local'), 0 for task tables
+        return SCOPE_COUNT == usageCombo.getItemCount() ? adjustment : 0;
     }
 
 }

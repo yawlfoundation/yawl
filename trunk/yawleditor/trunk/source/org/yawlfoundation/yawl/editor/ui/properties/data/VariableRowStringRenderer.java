@@ -86,13 +86,15 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
 
 
     private boolean isTaskTable(JTable table) {
-        return ! (((VariableTable) table).getTableModel() instanceof NetVarTableModel);
+        return (((VariableTable) table).getTableModel() instanceof TaskVarTableModel);
     }
 
 
     private boolean hasBinding(VariableRow row) {
         return (row.isInput() && row.getMapping() != null) ||
-               (row.isOutput() && _outputBindings.hasBinding(row.getName()));
+               (row.isOutput() && _outputBindings.hasBinding(row.getName())) ||
+               (row.isInputOutput() && row.getMapping() != null &&
+                       _outputBindings.hasBinding(row.getName()));
     }
 
 

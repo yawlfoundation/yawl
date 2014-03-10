@@ -29,11 +29,11 @@ class NetVarTableModel extends VariableTableModel {
     private static final String[] COLUMN_LABELS =
             {"", "Name", "Type", "Scope", "Initial Value"};
 
-    private static final int SELECTOR_COLUMN  = 0;
-    private static final int NAME_COLUMN  = 1;
-    private static final int TYPE_COLUMN  = 2;
-    private static final int SCOPE_COLUMN = 3;
-    private static final int VALUE_COLUMN = 4;
+    protected static final int SELECTOR_COLUMN  = 0;
+    protected static final int NAME_COLUMN  = 1;
+    protected static final int TYPE_COLUMN  = 2;
+    protected static final int SCOPE_COLUMN = 3;
+    protected static final int VALUE_COLUMN = 4;
 
     public NetVarTableModel() {
         super();
