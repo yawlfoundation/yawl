@@ -94,6 +94,17 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
         setMIEditorText(miHandler.getJoinQueryUnwrapped());
     }
 
+
+    protected String makeTitle(String taskID) {
+       return super.makeTitle("Output", taskID);
+    }
+
+
+    protected String getMIPanelTitle() {
+        return "MI Joining Query";
+    }
+
+
     protected JPanel buildTargetPanel() {
         _targetPanel = new NetVariablePanel("Output To", getNetVarList(), this);
         return _targetPanel;

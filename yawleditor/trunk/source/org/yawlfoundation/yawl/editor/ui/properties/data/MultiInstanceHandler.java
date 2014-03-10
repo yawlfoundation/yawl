@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
-import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
@@ -61,10 +60,10 @@ public class MultiInstanceHandler {
         _attributes.setUniqueOutputMIJoiningQuery(query);
     }
 
-
     public void setJoinQueryUnwrapped(String query) {
         setJoinQuery(wrapQuery(getOutputTarget(), query));
     }
+
 
     protected String getOutputTarget() {
         if (_netVarTarget != null) return _netVarTarget;
@@ -72,13 +71,13 @@ public class MultiInstanceHandler {
         return target != null ? target : getTaskAttributes().getMIOutputAssignmentVar();
     }
 
-    public String getOutputQuery() {
+    protected String getOutputQuery() {
         String binding = _attributes.getMIFormalOutputQuery();
         return binding != null ? binding : getTaskAttributes().getMIFormalOutputQuery();
     }
 
 
-    public boolean outputQueryBindsFrom(String taskVarName) {
+    protected boolean outputQueryBindsFrom(String taskVarName) {
         String sep = "/";
         String xpath = sep + _task.getDecompositionPrototype().getID() +
                 sep + taskVarName + sep;
@@ -87,44 +86,41 @@ public class MultiInstanceHandler {
     }
 
 
-    protected boolean setupMultiInstanceRow(VariableRow inputRow,
-                                            VariableTable inputTable,
-                                            VariableTable outputTable,
-                                            DataVariableDialog dialog) {
+    protected boolean setupMultiInstanceRow(VariableRow row,
+                                            VariableTable netTable,
+                                            VariableTable taskTable) {
         clear();            // reset params
-        checkValidRow(inputRow);
-        VariableRow outputRow = getCorrespondingOutputRow(outputTable, inputRow);
+        checkValidRow(row);
 
-        if (inputRow.isMultiInstance()) {                // already multi instance
-            VariableRow netVarRow = getReferencedNetVarRow(dialog, inputRow.getName());
-            unsetRowProperties(inputTable, inputRow, netVarRow);
-            unsetRowProperties(outputTable, outputRow, netVarRow);
+        if (row.isMultiInstance()) {                // toggle multi instance
+            VariableRow netVarRow = getReferencedNetVarRow(netTable, row.getName());
+            unsetRowProperties(taskTable, row, netVarRow);
             return true;
         }
 
-        String inputBinding = inputRow.getMapping();
-        String unsplitOutputVarName = outputRow.getName();
-        String[] itemNameAndType = getItemNameAndType(inputRow.getDataType());
+        String inputBinding = row.getMapping();
+        String[] itemNameAndType = getItemNameAndType(row.getDataType());
         _dataItemName = itemNameAndType[0];
-        _netVarTarget = _outputBindings.getTarget(unsplitOutputVarName);
-        inputRow.setMapping(getAdjustedInputBinding(inputBinding));
+        _netVarTarget = _outputBindings.getTarget(row.getName());
+        row.setMapping(getAdjustedInputBinding(inputBinding));
 
-        setRowProperties(inputTable, inputRow, itemNameAndType[1]);
-        setRowProperties(outputTable, outputRow, itemNameAndType[1]);
-
-        setAdjustedOutputBinding(unsplitOutputVarName, outputRow);
-        setFormalInputParam(inputRow.getName());
-        setSplitQuery(assembleSplitQuery(inputRow));
+        String actualRowName = row.getName();
+        setRowProperties(taskTable, row, itemNameAndType[1]);
+        setAdjustedOutputBinding(actualRowName, row);
+        setFormalInputParam(row.getName());
+        setSplitQuery(assembleSplitQuery(row));
         setJoinQuery(assembleJoinQuery());
 
         return true;
     }
+
 
     protected void commit() {
         _task.setMultiInstanceInputDataMappings(getFormalInputParam(), getSplitQuery());
         _task.setMultiInstanceOutputDataMappings(getOutputBinding(), getJoinQuery());
         clear();
     }
+
 
     protected void clear() {
         _attributes = new YMultiInstanceAttributes(_task);
@@ -133,14 +129,20 @@ public class MultiInstanceHandler {
     }
 
 
+    private void setRowProperties(VariableTable table, VariableRow row, String dataType) {
+        row.setName(getUniqueRowName(table, row.getName() + "_Item"));
+        row.setDataType(unprefix(dataType));
+        table.setMultiInstanceRow(row);
+    }
+
+
     private void unsetRowProperties(VariableTable table, VariableRow row,
                                     VariableRow netVarRow) {
         row.setName(row.getName().substring(0, row.getName().lastIndexOf("_Item")));
         row.setDataType(netVarRow.getDataType());
-        if (row.isInput()) {
-            row.setMapping(generateBinding(netVarRow));
-        }
-        else {
+        row.setMapping(generateBinding(netVarRow));
+
+        if (row.isInputOutput()) {
             _outputBindings.removeBindingForTarget(_dataItemName);
             _outputBindings.setBinding(netVarRow.getName(), generateBinding(row));
         }
@@ -167,7 +169,7 @@ public class MultiInstanceHandler {
 
 
     private void checkValidRow(VariableRow row) {
-        if (row == null || ! row.isInput()) {
+        if (row == null || row.isOutput()) {
             throw new IllegalArgumentException("Row is null or not input");
         }
     }
@@ -182,35 +184,6 @@ public class MultiInstanceHandler {
         return itemNameAndType;
     }
 
-
-    private VariableRow getCorrespondingOutputRow(VariableTable outputTable,
-                                                  VariableRow inputRow) {
-        for (VariableRow outputRow : outputTable.getVariables()) {
-            if (outputRow.getName().equals(inputRow.getName()) &&
-                    outputRow.getDataType().equals(inputRow.getDataType())) {
-                return outputRow;
-            }
-        }
-        return createOutputRow(outputTable, inputRow);
-    }
-
-
-    private VariableRow createOutputRow(VariableTable outputTable, VariableRow inputRow) {
-        VariableRow outputRow = new VariableRow(YDataHandler.OUTPUT);
-        outputRow.setName(inputRow.getName());
-        outputRow.setDataType(inputRow.getDataType());
-        outputRow.setDecompositionID(outputTable.getNetElementName());
-        _outputBindings.setBinding(outputRow.getName(), createMapping(outputRow));
-        outputTable.insertRow(outputTable.getRowCount(), outputRow);
-        return outputRow;
-    }
-
-
-    private void setRowProperties(VariableTable table, VariableRow row, String dataType) {
-        row.setName(getUniqueRowName(table, row.getName() + "_Item"));
-        row.setDataType(unprefix(dataType));
-        table.setMultiInstanceRow(row);
-    }
 
 
     private String getUniqueRowName(VariableTable table, String rowName) {
@@ -255,9 +228,9 @@ public class MultiInstanceHandler {
     }
 
 
-    private VariableRow getReferencedNetVarRow(DataVariableDialog dialog, String name) {
+    private VariableRow getReferencedNetVarRow(VariableTable netTable, String name) {
         String target = _outputBindings.getTarget(name);
-        for (VariableRow row : dialog.getNetTablePanel().getTable().getVariables()) {
+        for (VariableRow row : netTable.getVariables()) {
             if (row.getName().equals(target)) {
                 return row;
             }
@@ -294,6 +267,19 @@ public class MultiInstanceHandler {
     }
 
 
+    private String wrapQuery(String tagName, String mapping) {
+        if (StringUtil.isNullOrEmpty(mapping)) return null;
+        boolean isXPath = mapping.trim().startsWith("/");
+        StringBuilder s = new StringBuilder();
+        s.append('<').append(tagName).append(">");
+        if (isXPath) s.append("{");
+        s.append(mapping);
+        if (isXPath) s.append("}");
+        s.append("</").append(tagName).append('>');
+        return s.toString();
+    }
+
+
     private String unwrapQuery(String binding) {
         return binding != null ?
                 binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "").trim() : null;
@@ -308,29 +294,6 @@ public class MultiInstanceHandler {
             }
         }
         return dataType;
-    }
-
-    private String wrapQuery(String tagName, String mapping) {
-        if (StringUtil.isNullOrEmpty(mapping)) return null;
-        boolean isXPath = mapping.trim().startsWith("/");
-        StringBuilder s = new StringBuilder();
-        s.append('<').append(tagName).append(">");
-        if (isXPath) s.append("{");
-        s.append(mapping);
-        if (isXPath) s.append("}");
-        s.append("</").append(tagName).append('>');
-        return s.toString();
-    }
-
-    private String createMapping(VariableRow row) {
-        StringBuilder s = new StringBuilder("/");
-        s.append(row.getDecompositionID())
-         .append("/")
-         .append(row.getName())
-         .append("/")
-         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                 row.getDataType()));
-        return s.toString();
     }
 
 }

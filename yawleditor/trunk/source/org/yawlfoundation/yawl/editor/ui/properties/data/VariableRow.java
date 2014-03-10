@@ -77,7 +77,10 @@ public class VariableRow implements Comparable<VariableRow> {
 
     public boolean isMultiInstance() { return multiInstance; }
 
-    public boolean isOutputOnlyTask() { return outputOnlyTask; }
+    public boolean isOutputOnlyTask() {
+        return endValues.scope == YDataHandler.OUTPUT;
+    //    return outputOnlyTask;
+    }
 
     public boolean isValid() { return hasValidName && hasValidValue; }
 
@@ -156,9 +159,9 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    public String getMapping() { return endValues.mapping; }
+    public String getMapping() { return endValues.inputMapping; }
 
-    public String getStartingMapping() { return startValues.mapping; }
+    public String getStartingMapping() { return startValues.inputMapping; }
 
     public String getFullMapping() {
         return isMultiInstance() || isExternalGateway(getMapping()) ? getMapping() :
@@ -166,16 +169,16 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    public void setMapping(String mapping) { endValues.mapping = mapping; }
+    public void setMapping(String mapping) { endValues.inputMapping = mapping; }
 
 
     public void initMapping(String mapping) {
-        startValues.mapping = mapping;
-        endValues.mapping = mapping;
+        startValues.inputMapping = mapping;
+        endValues.inputMapping = mapping;
     }
 
     public boolean isMappingChange() {
-        return ! startValues.equals(startValues.mapping, endValues.mapping);
+        return ! startValues.equals(startValues.inputMapping, endValues.inputMapping);
     }
 
 
@@ -271,7 +274,8 @@ public class VariableRow implements Comparable<VariableRow> {
         int scope;
         int index;
         String value;
-        String mapping;
+        String inputMapping;
+        String outputMapping;
         YAttributeMap attributes;
 
         public Values copy() {
@@ -281,7 +285,8 @@ public class VariableRow implements Comparable<VariableRow> {
             copy.scope = scope;
             copy.index = index;
             copy.value = value;
-            copy.mapping = mapping;
+            copy.inputMapping = inputMapping;
+            copy.outputMapping = outputMapping;
             copy.attributes = new YAttributeMap(attributes);
             return copy;
         }
@@ -291,7 +296,8 @@ public class VariableRow implements Comparable<VariableRow> {
             Values other = (Values) o;
             return scope == other.scope && equals(name, other.name) &&
                     equals(dataType, other.dataType) && equals(value, other.value) &&
-                    equals(mapping, other.mapping) &&
+                    equals(inputMapping, other.inputMapping) &&
+                    equals(outputMapping, other.outputMapping) &&
                     attributes.equals(other.attributes);
         }
 

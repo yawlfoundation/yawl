@@ -28,7 +28,6 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -38,8 +37,7 @@ import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
-import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -49,8 +47,7 @@ public class DataVariableDialog extends JDialog
         implements ActionListener, TableModelListener {
 
     private VariableTablePanel netTablePanel;
-    private VariableTablePanel taskInputTablePanel;
-    private VariableTablePanel taskOutputTablePanel;
+    private VariableTablePanel taskTablePanel;
     private YNet net;
     private YDecomposition decomposition;          // for task
     private YTask task;
@@ -77,7 +74,7 @@ public class DataVariableDialog extends JDialog
         super();
         initialise(net);
         this.decomposition = decomposition;
-        this.task = task.getTask();
+        this.task = task.getTask();                             // YTask from YAWLTask
         outputBindings = new OutputBindings(this.task);
         if (this.task.isMultiInstance()) {
             _miHandler = new MultiInstanceHandler(this.task, outputBindings);
@@ -85,7 +82,6 @@ public class DataVariableDialog extends JDialog
         setTitle("Data Variables for Decomposition " + decomposition.getID() +
                  " [Task: " + task.getID() + "]");
         add(getContentForTaskLevel());
-        enableDefaultValueEditing();
         setPreferredSize(new Dimension(760, 580));
         pack();
     }
@@ -113,8 +109,8 @@ public class DataVariableDialog extends JDialog
         VariableTableModel model = (VariableTableModel) e.getSource();
         model.setTableChanged(true);
         getTablePanelFromTableModel(model).enableButtons(true);
-        if (! (model instanceof NetVarTableModel)) enableDefaultValueEditing();
     }
+
 
     protected void enableButtonsIfValid() {
         boolean allRowsValid = !isInserting && allRowsValid();
@@ -128,24 +124,13 @@ public class DataVariableDialog extends JDialog
 
     protected boolean allRowsValid() {
         return getNetTable().allRowsValid() &&
-                (getTaskInputTable() == null || getTaskInputTable().allRowsValid()) &&
-                (getTaskOutputTable() == null || getTaskOutputTable().allRowsValid());
+                (getTaskTable() == null || getTaskTable().allRowsValid());
     }
 
 
     protected void enableApplyButton() {
         dirty = true;
         enableButtonsIfValid();
-    }
-
-    // when one task table has changed, refresh the other one
-    protected void notifyTableChanged(TableType tableType) {
-        VariableTableModel model = null;
-        switch (tableType) {
-            case TaskInput: model = getTaskOutputTable().getTableModel(); break;
-            case TaskOutput: model = getTaskInputTable().getTableModel(); break;
-        }
-        if (model != null) model.fireTableDataChanged();
     }
 
 
@@ -156,8 +141,7 @@ public class DataVariableDialog extends JDialog
 
     protected String setMultiInstanceRow(VariableRow row) {
         try {
-             _miHandler.setupMultiInstanceRow(row, getTaskInputTable(),
-                     getTaskOutputTable(), this);
+             _miHandler.setupMultiInstanceRow(row, getNetTable(), getTaskTable());
              return null;
         }
         catch (IllegalArgumentException iae) {
@@ -169,15 +153,16 @@ public class DataVariableDialog extends JDialog
     protected OutputBindings getOutputBindings() { return outputBindings; }
 
 
+    //todo: check logic of this
     protected void updateMappingsOnVarNameChange(VariableRow row, String newName) {
-        if (taskInputTablePanel == null) return;   // only net table is showing
+        if (taskTablePanel == null) return;   // only net table is showing
 
         String oldName = row.getName();
         if (oldName.isEmpty() || oldName.equals(newName)) return;
 
         String id = row.getDecompositionID();
         if (id.equals(net.getID())) {                 // net var name change
-            for (VariableRow taskRow : getTaskInputTable().getVariables()) {
+            for (VariableRow taskRow : getTaskTable().getVariables()) {
                 if (taskRow.getMapping().contains(id + "/" + oldName + "/")) {
                     taskRow.setMapping(createMapping(
                             id, newName, taskRow.getDataType()));
@@ -198,25 +183,16 @@ public class DataVariableDialog extends JDialog
 
     protected boolean createAutoBinding(VariableRow row) {
         if (hasMatchingNetVar(row)) {
-            if (row.isInput()) {
+            if (row.isInput() || row.isInputOutput()) {
                 row.setMapping(createMapping(net.getID(), row.getName(), row.getDataType()));
             }
-            else {
+            if (row.isOutput() || row.isInputOutput()) {
                 outputBindings.setBinding(row.getName(),
                         createMapping(task.getID(), row.getName(), row.getDataType()));
             }
             return true;
         }
         return false;
-    }
-
-
-    protected void mirrorExtendedAttributes(VariableRow row) {
-        VariableTable table = row.isInput() ? getTaskOutputTable() : getTaskInputTable();
-        VariableRow otherRow = getMatchingRow(row, table);
-        if (otherRow != null) {
-            otherRow.setAttributes(row.getAttributes());
-        }
     }
 
 
@@ -270,15 +246,13 @@ public class DataVariableDialog extends JDialog
     private JPanel getContentForTaskLevel() {
         createNetTablePanel();
         netTablePanel.setBorder(new TitledBorder("Net Variables"));
-        getNetTable().setDragEnabled(true);
-        getNetTable().setTransferHandler(
-                new VariableRowTransferHandler(getNetTable(), outputBindings));
+        createTaskPanel();
 
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10, 10, 10, 10));
-        JPanel subContent = new JPanel(new GridLayout(0,1));
+        JPanel subContent = new JPanel(new GridLayout(0, 1, 10, 10));
         subContent.add(netTablePanel);
-        subContent.add(createTaskPanel());
+        subContent.add(taskTablePanel);
         content.add(subContent, BorderLayout.CENTER);
         content.add(createButtonBar(), BorderLayout.SOUTH);
         return content;
@@ -287,16 +261,14 @@ public class DataVariableDialog extends JDialog
     private void createNetTablePanel() {
         netTablePanel = createTablePanel(TableType.Net);
         getNetTable().getModel().addTableModelListener(this);
+        getNetTable().setDragEnabled(true);
+        getNetTable().setTransferHandler(
+                new VariableRowTransferHandler(getNetTable(), outputBindings));
     }
 
-    private JPanel createTaskPanel() {
-        taskInputTablePanel = createTaskTablePanel(TableType.TaskInput);
-        taskOutputTablePanel = createTaskTablePanel(TableType.TaskOutput);
-        JPanel taskPanel = new JPanel(new GridLayout(0,2,20,20));
-        taskPanel.setBorder(new EmptyBorder(20,0,10,0));
-        taskPanel.add(taskInputTablePanel);
-        taskPanel.add(taskOutputTablePanel);
-        return taskPanel;
+    private void createTaskPanel() {
+        taskTablePanel = createTaskTablePanel(TableType.Task);
+        getTaskTable().getModel().addTableModelListener(this);
     }
 
 
@@ -304,7 +276,7 @@ public class DataVariableDialog extends JDialog
         VariableTablePanel taskPanel = createTablePanel(tableType);
         taskPanel.setBorder(new TitledBorder(tableType.getName() + " Variables"));
         setupTableForDropping(taskPanel.getTable());
-        taskPanel.showMIButton(tableType == TableType.TaskInput && task.isMultiInstance());
+        taskPanel.showMIButton(tableType == TableType.Task && task.isMultiInstance());
         return taskPanel;
     }
 
@@ -314,12 +286,12 @@ public class DataVariableDialog extends JDialog
         return new VariableTablePanel(createTableRows(tableType), tableType, name, this);
     }
 
+
     private void setupTableForDropping(VariableTable table) {
-        table.getModel().addTableModelListener(this);
         table.setDropMode(DropMode.INSERT_ROWS);
-        table.setTransferHandler(
-                new VariableRowTransferHandler(table, outputBindings));
+        table.setTransferHandler(new VariableRowTransferHandler(table, outputBindings));
     }
+
 
     private JPanel createButtonBar() {
         JPanel panel = new JPanel();
@@ -346,96 +318,66 @@ public class DataVariableDialog extends JDialog
 
     private VariableTable getNetTable() { return netTablePanel.getTable(); }
 
-    protected VariableTable getTaskInputTable() {
-        return taskInputTablePanel != null ? taskInputTablePanel.getTable() : null;
-    }
 
-    protected VariableTable getTaskOutputTable() {
-        return taskOutputTablePanel != null ? taskOutputTablePanel.getTable() : null; }
+    protected VariableTable getTaskTable() {
+        return taskTablePanel != null ? taskTablePanel.getTable() : null;
+    }
 
 
     protected YTask getTask() { return task; }
 
 
     private VariableTablePanel getTablePanelFromTableModel(VariableTableModel model) {
+        if (model instanceof TaskVarTableModel) return taskTablePanel;
         if (model instanceof NetVarTableModel) return netTablePanel;
-        if (model instanceof TaskInputVarTableModel) return taskInputTablePanel;
-        if (model instanceof TaskOutputVarTableModel) return taskOutputTablePanel;
         return null;
     }
 
 
     private java.util.List<VariableRow> createTableRows(TableType tableType) {
-        switch (tableType) {
-            case Net: return createTableRows(net);
-            case TaskInput: return createTableRows(decomposition.getInputParameters());
-            case TaskOutput: return createTableRows(decomposition.getOutputParameters());
-            default: return null;   // should never happen
+        TableRowFactory rowFactory = new TableRowFactory();
+        if (tableType == TableType.Net) {
+            return rowFactory.createRows(net);
+        }
+        else {
+            java.util.List<VariableRow> rows = rowFactory.createRows(decomposition);
+            initMappings(rows);
+            return rows;
         }
     }
 
-    // for net
-    private java.util.List<VariableRow> createTableRows(YNet net) {
-        String netName = net.getID();
-        Set<String> ioNames = new HashSet<String>();
-        java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
 
-        // join inputs & outputs, then add them, and add input-only parameters too
-        for (String name : net.getInputParameterNames()) {
-            YParameter input = net.getInputParameters().get(name);
-            if (net.getOutputParameterNames().contains(name)) {
-                YParameter output = net.getOutputParameters().get(name);
-                if (input.getDataTypeName().equals(output.getDataTypeName())) {
-                    ioNames.add(name);
-                }
+    private void initMappings(java.util.List<VariableRow> rows) {
+        for (VariableRow row : rows) {
+            if (row.isInput() || row.isInputOutput()) {
+                initMapping(row, YDataHandler.INPUT);
             }
-            rows.add(new VariableRow(input, ioNames.contains(name), netName));
-        }
-
-        // add output only
-        Set<String> dummyLocalNames = new HashSet<String>();
-        for (String name : net.getOutputParameterNames()) {
-            if (! ioNames.contains(name)) {
-                rows.add(new VariableRow(net.getOutputParameters().get(name), netName));
-                dummyLocalNames.add(name);
+            if (row.isOutput() || row.isInputOutput()) {
+                initMapping(row, YDataHandler.OUTPUT);
             }
         }
-
-        // add locals that weren't created to 'shadow' output-only parameters
-        for (YVariable variable : net.getLocalVariables().values()) {
-            if (! dummyLocalNames.contains(variable.getName())) {
-                rows.add(new VariableRow(variable, netName));
-            }
-        }
-
-        Collections.sort(rows);
-        return rows;
     }
 
 
-    // task variables
-    private java.util.List<VariableRow> createTableRows(Map<String, YParameter> parameters) {
-        java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
-        for (YParameter parameter : parameters.values()) {
-            VariableRow row = new VariableRow(parameter, decomposition.getID());
-            initMappings(row, getMapping(parameter));
-            rows.add(row);
+    private void initMapping(VariableRow row, int type) {
+        Map<String, YParameter> parameterMap = type == YDataHandler.INPUT ?
+                decomposition.getInputParameters() : decomposition.getOutputParameters();
+        YParameter parameter = parameterMap.get(row.getName());
+        if (parameter != null) {
+            initMapping(row, getMapping(parameter));
         }
-        Collections.sort(rows);
-        return rows;
     }
 
-
-    private void initMappings(VariableRow row, String mapping) {
+    private void initMapping(VariableRow row, String mapping) {
         if (_miHandler != null) {
-            if (row.isInput()) {
+            if (row.isInput() || row.isInputOutput()) {
                 String miParam = _miHandler.getFormalInputParam();
                 if (miParam != null && row.getName().equals(miParam)) {
                     row.setMultiInstance(true);
                     row.initMapping(mapping);
                 }
             }
-            else {    // output
+            if (row.isOutput() || row.isInputOutput()) {
                 if (_miHandler.outputQueryBindsFrom(row.getName())) {
                     row.setMultiInstance(true);
                 }
@@ -464,30 +406,13 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    private void enableDefaultValueEditing() {
-        boolean modified = false;
-        for (VariableRow outputRow : getTaskOutputTable().getVariables()) {
-            boolean match = false;
-            for (VariableRow inputRow : getTaskInputTable().getVariables()) {
-                if (inputRow.equalsNameAndType(outputRow)) {
-                    match = true;
-                    break;
-                }
-            }
-            outputRow.setOutputOnlyTask(! match);
-            modified = modified || match;
-        }
-        if (modified) getTaskOutputTable().repaint();
-    }
-
 
     private void updateVariables() {
         try {
             updateVariables(getNetTable(), net);
-            updateVariables(getTaskInputTable(), decomposition);
-            updateVariables(getTaskOutputTable(), decomposition);
-            if (outputBindings != null) outputBindings.commit();
+            updateVariables(getTaskTable(), decomposition);
             if (_miHandler != null) _miHandler.commit();
+            if (outputBindings != null) outputBindings.commit();
             dirty = false;
         }
         catch (YDataHandlerException ydhe) {
@@ -511,7 +436,7 @@ public class DataVariableDialog extends JDialog
                     handleNameChange(row, host);
                 }
                 if (row.isUsageChange()) {
-                    handleUsageChange(row, host);     // only net tables can change usage
+                    handleUsageChange(row, host);
                 }
                 if (row.isDataTypeChange()) {
                     handleDataTypeChange(row, host);
@@ -541,7 +466,7 @@ public class DataVariableDialog extends JDialog
 
 
     private boolean isTaskTable(VariableTable table) {
-        return ! (table.getTableModel() instanceof NetVarTableModel);
+        return table.getTableModel() instanceof TaskVarTableModel;
     }
 
 
@@ -590,12 +515,14 @@ public class DataVariableDialog extends JDialog
     }
 
 
+    // only input mappings handled here - outputs done via output bindings
     private void handleMappingChange(VariableRow row) throws YDataHandlerException {
+        if (row.isOutput()) return;
         String mapping = row.getFullMapping();
         if (mapping == null) return;
         String variableName = row.getName();
         dataHandler.setVariableMapping(net.getID(), task.getID(), variableName,
-                mapping, row.getUsage());
+                mapping, YDataHandler.INPUT);
     }
 
 
@@ -632,13 +559,14 @@ public class DataVariableDialog extends JDialog
 
 
     private void refreshTaskMappings() {
-        if (getTaskInputTable() == null) return;            // showing netvars only
-        for (VariableRow row : getTaskInputTable().getVariables()) {
-            String mapping = unwrapBinding(getMapping(row.getName(), YDataHandler.INPUT));
-            row.initMapping(mapping);
+        if (getTaskTable() == null) return;            // showing netvars only
+        for (VariableRow row : getTaskTable().getVariables()) {
+            if (! row.isOutputOnlyTask()) {
+                String mapping = unwrapBinding(getMapping(row.getName(), YDataHandler.INPUT));
+                row.initMapping(mapping);
+            }
         }
-        getTaskInputTable().repaint();
-        getTaskOutputTable().repaint();
+        getTaskTable().repaint();
     }
 
 
@@ -664,39 +592,6 @@ public class DataVariableDialog extends JDialog
         }
     }
 
-
-    private void updateInputTaskTableOrdering(YDecomposition host)
-            throws YDataHandlerException {
-        int index = 0;
-        for (VariableRow row : getTaskInputTable().getVariables()) {
-            dataHandler.setVariableIndex(host.getID(), row.getName(),
-                    YDataHandler.INPUT, index++);
-        }
-    }
-
-
-    private void updateOutputTaskTableOrdering(YDecomposition host)
-            throws YDataHandlerException {
-        List<VariableRow> inputVariables = getTaskInputTable().getVariables();
-        int index = inputVariables.size();
-        for (VariableRow row : getTaskOutputTable().getVariables()) {
-            int inputIndex = getMatchingInputRowIndex(row);
-            int outputIndex = inputIndex > -1 ? inputIndex : index++;
-            dataHandler.setVariableIndex(host.getID(), row.getName(),
-                    YDataHandler.OUTPUT, outputIndex);
-        }
-    }
-
-    private int getMatchingInputRowIndex(VariableRow outputRow) {
-        for (int i=0; i < getTaskInputTable().getVariables().size(); i++) {
-            VariableRow inputRow = getTaskInputTable().getVariables().get(i);
-            if (inputRow.getName().equals(outputRow.getName()) &&
-                inputRow.getDataType().equals(outputRow.getDataType())) {
-                return i;
-            }
-        }
-        return -1;
-    }
 }
 
 

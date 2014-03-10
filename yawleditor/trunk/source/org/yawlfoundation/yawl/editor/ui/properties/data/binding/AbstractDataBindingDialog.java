@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
-import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
@@ -58,12 +57,17 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         _taskVarList = taskVarList;
         _currentRow = row;
         _undoMap = new HashMap<String, String>();
-        setTitle(makeTitle(taskID, row));
+        setTitle(makeTitle(taskID));
         add(getContent(row));
         init();
         setPreferredSize(new Dimension(426, row.isMultiInstance() ? 560 : 440));
         pack();
     }
+
+
+    protected abstract String makeTitle(String taskID);
+
+    protected abstract String getMIPanelTitle();
 
 
     protected boolean isInitialising() { return _initialising; }
@@ -160,6 +164,15 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     }
 
 
+    protected String makeTitle(String bindType, String taskID) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(bindType)
+          .append(" Data Bindings for Task ")
+          .append(taskID);
+        return sb.toString();
+    }
+
+
     private JPanel getContent(VariableRow row) {
         JPanel content = new JPanel();
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
@@ -180,9 +193,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     private JPanel buildMiQueryPanel() {
-        String title = "MI " + (_currentRow.isInput() ? "Splitting" : "Joining")
-                + " Query";
-        _miQueryPanel = new MIQueryPanel(title);
+        _miQueryPanel = new MIQueryPanel(getMIPanelTitle());
         return _miQueryPanel;
     }
 
@@ -192,15 +203,6 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
-    }
-
-
-    private String makeTitle(String taskID, VariableRow row) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(YDataHandler.getScopeName(row.getUsage()))
-          .append(" Data Bindings for Task ")
-          .append(taskID);
-        return sb.toString();
     }
 
 

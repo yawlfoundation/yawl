@@ -52,7 +52,7 @@ public class VariableRowTransferHandler extends TransferHandler {
 
     protected Transferable createTransferable(JComponent c) {
         VariableTable table = (VariableTable) c;
-        return new DataHandler(table.getVariables().get(table.getSelectedRow()),
+        return new DataHandler(table.getSelectedVariable(),
                 _variableRowFlavor.getMimeType());
     }
 
@@ -97,10 +97,7 @@ public class VariableRowTransferHandler extends TransferHandler {
             return false;
         }
 
-        int scope = (_table.getTableModel() instanceof TaskInputVarTableModel) ?
-                YDataHandler.INPUT : YDataHandler.OUTPUT;
-
-        VariableRow newVariableRow = new VariableRow(scope);
+        VariableRow newVariableRow = new VariableRow(YDataHandler.INPUT_OUTPUT);
         newVariableRow.setName(data.getName());
         newVariableRow.setDataType(data.getDataType());
         newVariableRow.setDecompositionID(_table.getNetElementName());
@@ -155,15 +152,15 @@ public class VariableRowTransferHandler extends TransferHandler {
 
 
     private boolean isTaskTable(Component component) {
-        return ! (((VariableTable) component).getTableModel() instanceof NetVarTableModel);
+        return (((VariableTable) component).getTableModel() instanceof TaskVarTableModel);
     }
 
 
     private void createMapping(VariableRow netRow, VariableRow taskRow) {
-        if (taskRow.isInput()) {
+        if (taskRow.isInput() || taskRow.isInputOutput()) {
             taskRow.setMapping(createMapping(netRow));
         }
-        else {
+        if (taskRow.isOutput() || taskRow.isInputOutput()) {
             _outputBindings.setBinding(netRow.getName(), createMapping(taskRow));
         }
     }
