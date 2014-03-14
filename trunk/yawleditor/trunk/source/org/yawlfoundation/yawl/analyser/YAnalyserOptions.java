@@ -66,6 +66,9 @@ public class YAnalyserOptions {
         return allEnabled;
     }
 
+    public boolean hasSelection() {
+        return isResetAnalysis() || isWofAnalysis();
+    }
 
     public boolean isWofAnalysis() {
         return isWofBehavioural() || isWofExtendedCoverabiity() || isWofStructural();

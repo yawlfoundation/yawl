@@ -22,7 +22,10 @@ import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReferenc
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Caches all resource references for each task of the loaded specification
@@ -108,6 +111,7 @@ public class ResourcesCache {
             for (String oldID : updateMap.keySet()) {
                  if (map.containsKey(oldID)) {
                      TaskResourceSet resources = map.remove(oldID);
+                     resources.setTaskXML();
                      map.put(updateMap.get(oldID), resources);
                  }
             }
