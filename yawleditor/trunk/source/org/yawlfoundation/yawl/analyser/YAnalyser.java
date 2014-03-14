@@ -57,6 +57,9 @@ public class YAnalyser {
 
     public String analyse(YSpecification specification, YAnalyserOptions options,
                           int maxMarkings) {
+        if (! options.hasSelection()) {
+            throw new IllegalArgumentException("No options selected");
+        }
         StringBuilder results = new StringBuilder("<analysis_results>");
         if (options.isResetAnalysis()) {
             _resetAnalyser = new YAWLResetAnalyser();

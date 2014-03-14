@@ -28,12 +28,15 @@ import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AnalysisResultsParser {
@@ -75,9 +78,19 @@ public class AnalysisResultsParser {
             JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
                     msg + "\nAnalysis cannot proceed until these issues are resolved.\n" +
                             "Please validate the specification for more detailed information.",
-                    "Error validating specification",
+                    "Error analysing specification",
                     JOptionPane.ERROR_MESSAGE);
-            return "";
+            return "<error>Analysis aborted.</error>";
+        }
+        catch (IllegalArgumentException iae) {
+            messageDlg.setVisible(false);
+            messageDlg.dispose();
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                    "\nNo analysis options selected. Please select at least one option\n" +
+                    "in the analysis preferences list [File->Preferences->Analysis].",
+                    "Error analysing specification",
+                    JOptionPane.ERROR_MESSAGE);
+            return "<error>Analysis aborted.</error>";
         }
         catch (Exception e) {
             messageDlg.setVisible(false);
@@ -86,6 +99,9 @@ public class AnalysisResultsParser {
             return "<error>"+ JDOMUtil.encodeEscapes(e.getMessage()) +"</error>";
         }
         finally {
+            if (messageDlg != null) {
+                messageDlg.finished();
+            }
             _analyser.removeEventListener(messageDlg);
         }
     }
@@ -132,6 +148,12 @@ public class AnalysisResultsParser {
 
 
     protected List<String> parseRawResultsIntoList(String rawAnalysisXML) {
+        if (StringUtil.isNullOrEmpty(rawAnalysisXML)) {
+            return Collections.emptyList();
+        }
+        if (rawAnalysisXML.startsWith("<error>")) {
+            return Arrays.asList(StringUtil.unwrap(rawAnalysisXML));
+        }
         List<String> resultList = new ArrayList<String>();
         XNode parentNode = new XNodeParser().parse(rawAnalysisXML);
         if (parentNode != null) {

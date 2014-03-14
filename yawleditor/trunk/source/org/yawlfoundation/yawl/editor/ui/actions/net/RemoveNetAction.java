@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -41,8 +42,15 @@ public class RemoveNetAction extends YAWLSelectedNetAction
     }
 
     public void actionPerformed(ActionEvent event) {
-        YAWLEditor.getNetsPane().removeActiveNet();
-        SpecificationUndoManager.getInstance().setDirty(true);
+        try {
+            YAWLEditor.getNetsPane().removeActiveNet();
+            SpecificationUndoManager.getInstance().setDirty(true);
+        }
+        catch (YControlFlowHandlerException yche) {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                    "Failed to remove net from specification", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void specificationStateChange(SpecificationState state) {

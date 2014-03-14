@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.swing.net;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -115,8 +116,11 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     }
 
 
-    public void removeFromSpecification() {
-        SpecificationModel.getNets().remove(getNet().getNetModel());
+    public void removeFromSpecification() throws YControlFlowHandlerException {
+        NetGraphModel model = getNet().getNetModel();
+        if (SpecificationModel.getNets().remove(model)) {
+            SpecificationModel.getHandler().getControlFlowHandler().removeNet(model.getName());
+        }
     }
 
 

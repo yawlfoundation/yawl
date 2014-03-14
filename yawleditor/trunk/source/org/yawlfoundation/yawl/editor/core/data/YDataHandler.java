@@ -1280,7 +1280,7 @@ public class YDataHandler {
         if (variable == null) {
             throw new YDataHandlerException("No matching variable found");
         }
-        if (! (value.isEmpty() || validate(dataType, value).isEmpty())) {
+        if (! (StringUtil.isNullOrEmpty(value) || validate(dataType, value).isEmpty())) {
             throw new YDataHandlerException("Invalid data type for variable value");
         }
         variable.setDataTypeAndName(dataType, variable.getPreferredName(),

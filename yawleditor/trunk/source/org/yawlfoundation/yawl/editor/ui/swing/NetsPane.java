@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
@@ -69,7 +70,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
 
-    public void removeActiveNet() {
+    public void removeActiveNet() throws YControlFlowHandlerException {
         YAWLEditorNetPanel frame = (YAWLEditorNetPanel) getSelectedComponent();
         if ((frame != null) && (! frame.getNet().getNetModel().isRootNet())) {
             if (removeNetConfirmed()) {
