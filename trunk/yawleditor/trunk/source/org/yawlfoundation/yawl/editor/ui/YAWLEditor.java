@@ -135,8 +135,8 @@ public class YAWLEditor extends JFrame implements FileStateListener {
                  getInstance().setVisible(true);
                  finishLoading();
                  hideBottomOfSplitPane();
-                 if (fileName != null) FileOperations.open(fileName);
-             }
+                 loadChosenSpecification(fileName);
+              }
         });
     }
 
@@ -189,6 +189,18 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static void finishLoading() {
         splashScreen.close();
         splashScreen = null;
+    }
+
+    private static void loadChosenSpecification(String fileName) {
+        if (fileName != null) {
+            FileOperations.open(fileName);
+        }
+        else if (UserSettings.getReloadLastSpecOnStartup()) {
+            String lastSpec = UserSettings.getMostRecentFileName();
+            if (lastSpec != null) {
+                FileOperations.open(lastSpec);
+            }
+        }
     }
 
 

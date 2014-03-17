@@ -38,6 +38,7 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
     private JCheckBox backupCheckBox;
     private JCheckBox versionCopyCheckBox;
     private JCheckBox showDialogCheckBox;
+    private JCheckBox reloadOnStartCheckBox;
 
 
     public FileOptionsPanel(ActionListener listener) {
@@ -54,6 +55,7 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
         UserSettings.setFileBackupOnSave(backupCheckBox.isSelected());
         UserSettings.setFileVersioningOnSave(versionCopyCheckBox.isSelected());
         UserSettings.setShowFileOptionsDialogOnSave(showDialogCheckBox.isSelected());
+        UserSettings.setReloadLastSpecOnStartup(reloadOnStartCheckBox.isSelected());
     }
 
 
@@ -66,6 +68,7 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
         add(makeBackupCheckBox(listener));
         add(makeVersionCopyCheckBox(listener));
         add(makeShowDialogCheckBox(listener));
+        add(makeReloadOnStartupCheckBox(listener));
     }
 
 
@@ -105,6 +108,11 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
         return showDialogCheckBox;
     }
 
+    private JCheckBox makeReloadOnStartupCheckBox(ActionListener listener) {
+        reloadOnStartCheckBox = makeCheckBox("Reload most recent specification on startup",
+                KeyEvent.VK_R, UserSettings.getReloadLastSpecOnStartup(), listener);
+        return reloadOnStartCheckBox;
+    }
 
 
     private JCheckBox makeCheckBox(String caption, int mnemonic, boolean selected,
