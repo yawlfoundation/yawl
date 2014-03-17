@@ -50,6 +50,7 @@ public class UserSettings {
     private static final String FILE_BACKUP_ON_SAVE = "backupOnExportCheck";
     private static final String FILE_VERSIONING_ON_SAVE = "savePreviousOnExportCheck";
     private static final String FILE_OPTIONS_DIALOG_ON_SAVE = "showFileOptionsDialog";
+    private static final String FILE_OPTIONS_RELOAD_ON_STARTUP = "reloadLastSpecOnStartup";
     private static final String RESET_NET_ANALYSIS = "resetNetAnalysisCheck";
     private static final String SOUNDNESS_ANALYSIS = "resetSoundnessCheck";
     private static final String WEAK_SOUNDNESS_ANALYSIS = "resetWeakSoundnessCheck";
@@ -222,6 +223,14 @@ public class UserSettings {
 
     public static boolean getShowFileOptionsDialogOnSave() {
         return _prefs.getBoolean(FILE_OPTIONS_DIALOG_ON_SAVE, true);
+    }
+
+    public static void setReloadLastSpecOnStartup(boolean show) {
+        setBoolean(FILE_OPTIONS_RELOAD_ON_STARTUP, show);
+    }
+
+    public static boolean getReloadLastSpecOnStartup() {
+        return _prefs.getBoolean(FILE_OPTIONS_RELOAD_ON_STARTUP, false);
     }
 
     public static FileSaveOptions getFileSaveOptions() {
@@ -631,6 +640,10 @@ public class UserSettings {
 
     public static void setMaxRecentFiles(int max) {
         MAX_RECENT_FILES = max;
+    }
+
+    public static String getMostRecentFileName() {
+        return _prefs.get(OPEN_RECENT_FILE_PREFIX + 0, null);
     }
 
     public static java.util.List<String> loadRecentFileList() {
