@@ -270,6 +270,7 @@ public class CellProperties extends NetProperties {
                 break;                 // Cancelled
             }
             try {
+                newName = XMLUtilities.toValidXMLName(newName);
                 if (isComposite) {
                     YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false, newName);
                     return panel.getNet().getNetModel().getDecomposition();
@@ -294,7 +295,7 @@ public class CellProperties extends NetProperties {
                         (isComposite ? "sub net" : "decomposition"), getLabel());
         if (! (newID == null || oldID.equals(newID))) {
             try {
-                newID = specHandler.checkID(newID);
+                newID = specHandler.checkID(XMLUtilities.toValidXMLName(newID));
                 specHandler.getDataHandler().renameDecomposition(oldID, newID);
                 if (isComposite) {
                     YAWLEditor.getNetsPane().renameTab(oldID, newID);
@@ -566,6 +567,9 @@ public class CellProperties extends NetProperties {
             if (! vertex.getID().equals(validID)) {
                 try {
                     validID = flowHandler.replaceID(vertex.getID(), validID);
+                    if (vertex instanceof YAWLTask) {
+                        specHandler.getResourceHandler().replaceID(vertex.getID(), validID);
+                    }
                     vertex.setID(validID);
                     firePropertyChange("id", getId());
                     setDirty();

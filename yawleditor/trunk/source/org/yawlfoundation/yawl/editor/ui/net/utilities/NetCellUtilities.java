@@ -21,6 +21,7 @@ import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.YPortView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -290,9 +291,10 @@ public class NetCellUtilities {
                 Point2D thisPoint = (Point2D) flowPoint;
 
                 // if it's pretty close (within 8 pixels), we're trying to remove a point.
-                if ((Math.abs(thisPoint.getX() - point.getX()) <= 8) &&
-                        (Math.abs(thisPoint.getY() - point.getY()) <= 8)) {
+                if ((Math.abs(thisPoint.getX() - point.getX()) <= 16) &&
+                        (Math.abs(thisPoint.getY() - point.getY()) <= 16)) {
                     pointFoundForDeletion = thisPoint;
+                    break;
                 }
             }
         }
@@ -327,6 +329,19 @@ public class NetCellUtilities {
         }
 
         updateFlowPoints(net, flow, flowPoints);
+    }
+
+
+    public static Point getHalfwayPoint(YPortView port1, YPortView port2) {
+        double x1 = port1.getLocation().getX();
+        double x2 = port2.getLocation().getX();
+        double y1 = port1.getLocation().getY();
+        double y2 = port2.getLocation().getY();
+        double diffX = Math.abs(x1 - x2);
+        double diffY = Math.abs(y1 -y2);
+
+        return new Point((int) (Math.max(x1, x2) - (diffX / 2)),
+                (int) (Math.max(y1, y2) - (diffY / 2)));
     }
 
     private static Point2D getPointFor(NetGraph net, Object object) {

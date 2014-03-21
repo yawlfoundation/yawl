@@ -23,6 +23,7 @@ import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.YPortView;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 
 import javax.swing.*;
@@ -114,6 +115,7 @@ class TogglePointAction extends YAWLSelectedNetAction {
 
     public void actionPerformed(ActionEvent event) {
         NetCellUtilities.togglePointOnFlow(net, flow, marqueePoint);
+        net.setSelectionCell(flow);
     }
 }
 
@@ -199,6 +201,15 @@ abstract class LineStyleAction extends YAWLSelectedNetAction {
 
     public void actionPerformed(ActionEvent event) {
         NetCellUtilities.setFlowStyle(net, flow, getStyle());
+        if (getStyle() != GraphConstants.STYLE_ORTHOGONAL) {
+            java.util.List points = GraphConstants.getPoints(net.getViewFor(flow).getAllAttributes());
+            if (points.size() == 2) {   // only ports, so add a point
+                Point halfway = NetCellUtilities.getHalfwayPoint(
+                        (YPortView) points.get(0), (YPortView) points.get(1));
+                NetCellUtilities.togglePointOnFlow(net, flow, halfway);
+            }
+        }
+        net.setSelectionCell(flow);
     }
 
     abstract public int getStyle();

@@ -63,7 +63,10 @@ public class NetProperties extends YPropertiesBean {
     public void setTitle(String title) { specHandler.setTitle(title); }
 
 
-    public String getDescription() { return specHandler.getDescription(); }
+    public String getDescription() {
+        String description = specHandler.getDescription();
+        return description.equals("No description provided") ? "" : description;
+    }
 
     public void setDescription(String desc) { specHandler.setDescription(desc); }
 
@@ -104,6 +107,11 @@ public class NetProperties extends YPropertiesBean {
             showWarning("Invalid Schema", yse.getMessage());
             firePropertyChange("DataSchema", specHandler.getSchema());
         }
+    }
+
+    private String getDataSchemaLabel() {
+        int udTypes = specHandler.getDataHandler().getUserDefinedTypeNames().size();
+        return udTypes + " user defined types";
     }
 
     /**** NET PROPERTIES ****/

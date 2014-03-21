@@ -126,6 +126,9 @@ public class YResourceHandler {
         _resourcesCache.updateRationalisedReferences(updateMap);
     }
 
+    public void replaceID(String oldID, String newID) {
+        _resourcesCache.replaceID(oldID, newID);
+    }
 
     public boolean hasLoadedResources() { return _resourcesCache.hasLoadedResources(); }
 
