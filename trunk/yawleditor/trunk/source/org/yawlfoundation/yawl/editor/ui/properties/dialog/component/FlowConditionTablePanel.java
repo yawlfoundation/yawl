@@ -31,6 +31,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -137,6 +138,11 @@ public class FlowConditionTablePanel extends JPanel
     public void resetFlowColours() {
         setFlowColours(null, null);
         table.getTableModel().cleanupFlows();
+    }
+
+    public void stopEdits() {
+        TableCellEditor editor = table.getCellEditor();
+        if (editor != null) editor.stopCellEditing();
     }
 
 

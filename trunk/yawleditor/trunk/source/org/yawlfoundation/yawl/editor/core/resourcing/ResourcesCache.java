@@ -91,29 +91,41 @@ public class ResourcesCache {
 
 
     public void updateRationalisedReferences(Map<String, String> updateMap) {
+        for (String oldID : updateMap.keySet()) {
+            replaceID(oldID, updateMap.get(oldID));
+        }
+    }
+
+
+    public void replaceID(String oldID, String newID) {
         for (Map<String, TaskResourceSet> map : _cache.values()) {    // net in spec
-            for (TaskResourceSet resources : map.values()) {          // task in spec
+            for (TaskResourceSet resources : map.values()) {          // task in net
                 BasicOfferInteraction offer = resources.getOffer();
+
+                // update familiar task references
                 String famTaskID = offer.getFamiliarParticipantTask();
-                if (famTaskID != null && updateMap.containsKey(famTaskID)) {
-                    offer.setFamiliarParticipantTask(updateMap.get(famTaskID));
+                if (famTaskID != null && famTaskID.equals(oldID)) {
+                    offer.setFamiliarParticipantTask(newID);
+                    resources.setTaskXML();
                 }
+
+                // update separation of duties references
                 for (AbstractConstraint constraint : offer.getConstraintSet().getAll()) {
                     if (constraint.getName().equals("SeparationOfDuties")) {
                         famTaskID = constraint.getParamValue("familiarTask");
-                        if (famTaskID != null && updateMap.containsKey(famTaskID)) {
-                            constraint.setKeyValue("SeparationOfDuties",
-                                    updateMap.get(famTaskID));
+                        if (famTaskID != null && famTaskID.equals(oldID)) {
+                            constraint.setKeyValue("SeparationOfDuties", newID);
+                            resources.setTaskXML();
                         }
                     }
                 }
             }
-            for (String oldID : updateMap.keySet()) {
-                 if (map.containsKey(oldID)) {
-                     TaskResourceSet resources = map.remove(oldID);
-                     resources.setTaskXML();
-                     map.put(updateMap.get(oldID), resources);
-                 }
+
+            // update cache keys
+            if (map.containsKey(oldID)) {
+                TaskResourceSet resources = map.remove(oldID);
+                resources.setTaskXML();
+                map.put(newID, resources);
             }
         }
     }

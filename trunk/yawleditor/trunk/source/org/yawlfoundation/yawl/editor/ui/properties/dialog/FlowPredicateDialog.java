@@ -55,6 +55,11 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
         pack();
     }
 
+    public void setVisible(boolean visible) {
+        if (visible) _xQueryEditor.requestFocus();
+        super.setVisible(visible);
+    }
+
 
     public void setTypeValidator(BindingTypeValidator validator) {
         _xQueryEditor.setTypeChecker(validator, true);
@@ -71,7 +76,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
 
     protected JPanel getContent() {
         JPanel content = new JPanel(new BorderLayout());
-        content.setBorder(new EmptyBorder(7,7,7,7));
+        content.setBorder(new EmptyBorder(12,7,7,7));
         content.add(createHeadPanel(), BorderLayout.NORTH);
         content.add(createXQueryPane(), BorderLayout.CENTER);
         content.add(getButtonBar(this), BorderLayout.SOUTH);
@@ -150,6 +155,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
                 _xQueryEditor.setText(xQuery);
             }
         });
+        button.setEnabled(combo.getItemCount() > 0);
         JToolBar toolbar = new JToolBar();
         toolbar.setBorder(null);
         toolbar.setFloatable(false);

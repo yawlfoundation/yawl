@@ -18,8 +18,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.jgraph.graph.GraphConstants;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.ui.net.YPortView;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
+
+import java.awt.*;
 
 /**
  * @author Michael Adams
@@ -66,6 +70,17 @@ public class FlowProperties extends NetProperties {
             pos++;
         }
         NetCellUtilities.setFlowStyle(graph, flow, pos);
+
+        // add a waypoint if curved style and no current waypoints
+        if (! style.equals("Orthogonal")) {
+            java.util.List points = GraphConstants.getPoints(
+                    graph.getViewFor(flow).getAllAttributes());
+            if (points.size() == 2) {   // only ports, so add a point
+                Point halfway = NetCellUtilities.getHalfwayPoint(
+                        (YPortView) points.get(0), (YPortView) points.get(1));
+                NetCellUtilities.togglePointOnFlow(graph, flow, halfway);
+            }
+        }
         setDirty();
     }
 }

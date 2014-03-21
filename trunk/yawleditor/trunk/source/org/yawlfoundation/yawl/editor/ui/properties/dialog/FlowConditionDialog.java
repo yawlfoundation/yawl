@@ -73,6 +73,7 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
+        _tablePanel.stopEdits();
         _tablePanel.resetFlowColours();
         setVisible(false);
     }

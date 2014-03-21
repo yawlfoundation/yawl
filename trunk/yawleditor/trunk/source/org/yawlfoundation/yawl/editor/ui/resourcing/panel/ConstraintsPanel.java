@@ -100,15 +100,14 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
 
 
     public void save(BasicOfferInteraction offerInteraction) {
-        offerInteraction.getConstraintSet().clear();
         String famTask = null;
-        String fourEyesTask = null;
         if (chkFamTask.isSelected()) {
             famTask = getSelectedTaskID(cbxFamTask);
-            if (famTask != null) {
-                offerInteraction.setFamiliarParticipantTask(famTask);
-            }
         }
+        offerInteraction.setFamiliarParticipantTask(famTask);
+
+        offerInteraction.getConstraintSet().clear();
+        String fourEyesTask = null;
         if (chkFourEyes.isSelected()) {
             fourEyesTask = getSelectedTaskID(cbxFourEyes);
             if (fourEyesTask != null) {

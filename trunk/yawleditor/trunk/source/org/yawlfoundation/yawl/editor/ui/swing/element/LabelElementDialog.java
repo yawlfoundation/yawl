@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing.element;
 
 import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
+import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -45,10 +46,12 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
                 if (newLabel.length() == 0) newLabel = null;
                 graph.setElementLabel(vertex, newLabel);
                 if (cbxSynch.isSelected()) {
-                    vertex.setName(newLabel);
+                    vertex.setID(newLabel);
                 }
                 graph.clearSelection();
                 SpecificationUndoManager.getInstance().setDirty(true);
+                VertexContainer container = (VertexContainer) vertex.getParent();
+                graph.setSelectionCell(container != null ? container : vertex);
             }
         }
         );
@@ -87,7 +90,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
         gbc.gridwidth = 2 ;
         gbc.insets = new Insets(10,0,0,0);
 
-        cbxSynch = new JCheckBox("Synchronise task name with label");
+        cbxSynch = new JCheckBox("Synchronise task id with label");
         cbxSynch.setSelected(true);                                  // always by default
         panel.add(cbxSynch, gbc);
         pack();
@@ -124,7 +127,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
         super.setVertex(vertex,graph);
         labelField.setText(vertex.getLabel());
         String vType = (getVertex() instanceof Condition) ? "condition" : "task" ;
-        cbxSynch.setText("Synchronise " + vType + " name with label");
+        cbxSynch.setText("Synchronise " + vType + " id with label");
     }
 
     public String getTitlePrefix() {
