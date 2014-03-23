@@ -472,7 +472,7 @@ public class YDataHandler {
 
 
     /**
-     * A static method to convert of scope identifier into its corresponding name
+     * A static method to convert a scope identifier into its corresponding name
      * @param scope the scope identifier
      * @return the name for that scope, or the empty String if 'scope' is invalid
      */
