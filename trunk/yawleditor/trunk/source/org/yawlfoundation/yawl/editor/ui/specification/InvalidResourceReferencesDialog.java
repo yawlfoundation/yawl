@@ -45,8 +45,8 @@ public class InvalidResourceReferencesDialog extends JDialog implements ActionLi
         setTitle("Invalid Resource References Detected");
         initialise();
         add(getContent(invalidSet));
-        setPreferredSize(DETAILS_OFF);
         pack();
+        setSize(DETAILS_OFF);
     }
 
     public void actionPerformed(ActionEvent e) {

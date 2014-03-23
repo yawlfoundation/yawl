@@ -48,8 +48,8 @@ public class AboutEditorAction extends YAWLBaseAction {
 
 class AboutEditorDialog extends JDialog {
 
-    private static final String DEFAULT_VERSION = "3.0 (alpha)";
-    private static final String DEFAULT_YEAR = "2013";
+    private static final String DEFAULT_VERSION = "3.0 (beta)";
+    private static final String DEFAULT_YEAR = "2014";
     private static final Color BACK_COLOUR = new Color(254,254,240);
 
     public AboutEditorDialog() {
