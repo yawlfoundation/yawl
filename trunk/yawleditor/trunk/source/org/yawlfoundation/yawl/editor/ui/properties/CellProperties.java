@@ -80,6 +80,7 @@ public class CellProperties extends NetProperties {
     public String getLabel() { return vertex.getLabel(); }
 
     public void setLabel(String value) {
+        value = XMLUtilities.stripXMLChars(value);
         graph.setElementLabel(vertex, value);
         vertex.setName(value);
         if (idLabelSynch) updateVertexID(value);
