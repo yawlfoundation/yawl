@@ -52,6 +52,17 @@ public class XMLUtilities {
     }
 
 
+    public static String stripXMLChars(String s) {
+        if (StringUtil.isNullOrEmpty(s)) return s;
+
+        StringBuilder sb = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) {
+            if (! isSpecialXMLCharacter(c)) sb.append(c);
+        }
+        return sb.toString();
+    }
+
+
     /**
      * Tests the supplied character to determine whether it is a
      * special XML Character. If so, it returns true.
