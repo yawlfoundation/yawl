@@ -1416,10 +1416,12 @@ public abstract class YTask extends YExternalNetElement {
          * AJH: Check if this task is to perform outbound schema validation. This is currently configured
          *      via the tasks UI MetaData.
          */
-        String attrVal = decomposition.getAttributes().get(PERFORM_OUTBOUND_SCHEMA_VALIDATION);
-
-        if ("TRUE".equalsIgnoreCase(attrVal)) {
-            setSkipOutboundSchemaChecks(true);
+        if (decomposition != null) {
+            String attrVal = decomposition.getAttributes().get(
+                    PERFORM_OUTBOUND_SCHEMA_VALIDATION);
+            if ("TRUE".equalsIgnoreCase(attrVal)) {
+                setSkipOutboundSchemaChecks(true);
+            }
         }
     }
 
