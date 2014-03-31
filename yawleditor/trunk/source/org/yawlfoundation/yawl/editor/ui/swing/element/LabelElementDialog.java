@@ -18,12 +18,16 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.element;
 
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.elements.model.Condition;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.JFormattedSafeXMLCharacterField;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -46,7 +50,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
                 if (newLabel.length() == 0) newLabel = null;
                 graph.setElementLabel(vertex, newLabel);
                 if (cbxSynch.isSelected()) {
-                    vertex.setID(newLabel);
+                    updateVertexID(vertex, newLabel);
                 }
                 graph.clearSelection();
                 SpecificationUndoManager.getInstance().setDirty(true);
@@ -132,5 +136,20 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
 
     public String getTitlePrefix() {
         return "Label ";
+    }
+
+
+    private void updateVertexID(YAWLVertex vertex, String id) {
+        if (id != null) {
+            String validID = XMLUtilities.toValidXMLName(id);
+            if (!vertex.getID().equals(validID)) {
+                YSpecificationHandler handler = SpecificationModel.getHandler();
+                validID = handler.getControlFlowHandler().replaceID(vertex.getID(), validID);
+                if (vertex instanceof YAWLTask) {
+                    handler.getResourceHandler().replaceID(vertex.getID(), validID);
+                }
+                vertex.setID(validID);
+            }
+        }
     }
 }
