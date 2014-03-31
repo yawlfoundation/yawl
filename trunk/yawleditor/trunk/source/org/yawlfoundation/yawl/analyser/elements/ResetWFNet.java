@@ -393,7 +393,7 @@ public final class ResetWFNet {
 
     private boolean checkOptionToComplete(){
         boolean canComplete = false;
-        if (! (_inputPlace == null || _outputPlace != null)) {
+        if (! (_inputPlace == null || _outputPlace == null)) {
             Integer tokenCount = 1;
             Map<String, Integer> iMap = new HashMap<String, Integer>();
             Map<String, Integer> oMap = new HashMap<String, Integer>();
@@ -416,10 +416,10 @@ public final class ResetWFNet {
         Map<String, Integer> iMap = new HashMap<String, Integer>();
         Map<String, Integer> pMap = new HashMap<String, Integer>();
         Set<YTask> deadTasks = new HashSet<YTask>();
+        iMap.put(_inputPlace.getID(), tokenCount);
         RMarking Mi = new RMarking(iMap);
         String msg= "";
         boolean fireableTask = true;
-        iMap.put(_inputPlace.getID(), tokenCount);
 
         for (YTask task : _tasks) {
             RElement element = findResetMapping("p_"+ task.getID());

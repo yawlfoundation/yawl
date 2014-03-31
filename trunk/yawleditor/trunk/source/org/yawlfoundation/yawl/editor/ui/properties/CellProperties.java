@@ -84,8 +84,8 @@ public class CellProperties extends NetProperties {
         graph.setElementLabel(vertex, value);
         vertex.setName(value);
         if (idLabelSynch) updateVertexID(value);
-        graph.setSelectionCell(vertex.getParent());
         vertex.getVertexLabel().refreshLabelView();
+        graph.setSelectionCell(vertex.getParent());
         setDirty();
     }
 

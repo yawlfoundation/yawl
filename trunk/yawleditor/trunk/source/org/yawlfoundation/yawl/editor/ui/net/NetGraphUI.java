@@ -23,6 +23,8 @@ import org.jgraph.plaf.basic.BasicGraphUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
@@ -61,6 +63,12 @@ public class NetGraphUI extends BasicGraphUI {
    		rendererPane.paintComponent(g, component, graph, (int) bounds.getX(),
                 (int) bounds.getY(), (int) bounds.getWidth(),
    			    (int) bounds.getHeight(), true);
+   	}
+
+
+    // overridden to fix selection problem - see below
+    protected MouseListener createMouseListener() {
+   		return new NetMouseHandler();
    	}
 
 
@@ -103,4 +111,26 @@ public class NetGraphUI extends BasicGraphUI {
         }
     }
 
+    /*********************************************************************/
+
+    public class NetMouseHandler extends MouseHandler {
+
+        public NetMouseHandler() { super(); }
+
+        // overridden to ignore 'wasSelected' value, so that a cell can never
+        // be selected inside its vertex container
+        protected void postProcessSelection(MouseEvent e, Object cell,
+                                            boolean wasSelected) {
+            if (graph.isCellSelected(cell) && e.getModifiers() != 0) {
+                Object parent = cell;
+                Object nextParent;
+                while (((nextParent = graphModel.getParent(parent)) != null)
+                        && graphLayoutCache.isVisible(nextParent))
+                    parent = nextParent;
+                selectCellForEvent(parent, e);
+                lastFocus = focus;
+                focus = graphLayoutCache.getMapping(parent, false);
+            }
+        }
+    }
 }

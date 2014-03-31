@@ -340,10 +340,13 @@ public class YAWLEditor extends JFrame implements FileStateListener {
             this.setLocation(pos.x, pos.y);
         }
 
-        // initialise analysis 'off'
-        UserSettings.setAnalyseOnSave(false);
-        initResetNetAnalysisPreferences();
-        initWofYAWLAnalysisPreferences();
+        // initialise analysis 'off' for new installs
+        if (! (UserSettings.getUseResetReductionRules() ||
+              UserSettings.getUseYawlReductionRules())) {
+            UserSettings.setAnalyseOnSave(false);
+            initResetNetAnalysisPreferences();
+            initWofYAWLAnalysisPreferences();
+        }
     }
 
     private void initResetNetAnalysisPreferences() {
