@@ -235,34 +235,97 @@ public class YAWLResetAnalyser {
         String rulesMsg = "";
         int loop = 0;
 
-        do {
-            loop++;
-            for (ResetReductionRuleType ruleType : ResetReductionRuleType.values()) {
-                rule = ruleType.getRule();
-                if (rule != null) {
+        String rules = "FSPR";
+
+        do
+        { loop++;
+            rule	= new FSPRrule();
+            tempReducedNet = rule.reduce(reducedNet);
+
+            if (tempReducedNet == null)
+            { rules = "FSTR";
+                rule = new FSTRrule();
+                tempReducedNet = rule.reduce(reducedNet);
+
+                if (tempReducedNet == null)
+                { rules = "FPPR";
+                    rule = new FPPRrule();
                     tempReducedNet = rule.reduce(reducedNet);
-                    if (tempReducedNet != null) {
-                        rulesMsg += ruleType.name() + ";";
-                        reducedNet = tempReducedNet;
-                        break;
+
+                    if (tempReducedNet == null)
+                    { rules = "FPTR";
+                        rule = new FPTRrule();
+                        tempReducedNet = rule.reduce(reducedNet);
+
+                        if (tempReducedNet == null)
+                        { rules = "DEAR";
+                            rule = new DEARrule();
+                            tempReducedNet = rule.reduce(reducedNet);
+
+                            if (tempReducedNet == null)
+                            { rules = "ELTR";
+                                rule = new ELTRrule();
+                                tempReducedNet = rule.reduce(reducedNet);
+
+                                if (tempReducedNet == null)
+                                { rules = "FESR";
+                                    rule = new FESRrule();
+                                    tempReducedNet = rule.reduce(reducedNet);
+                                }
+
+                            }
+                        }
                     }
                 }
+
+            }//5 endif
+            if (tempReducedNet == null)
+            { if (reducedNet != originalNet)
+            { loop --;
+                announceProgressMessage("Reset Reduced net "+ loop + " rules: "+ rulesMsg);
+                announceProgressMessage("Reduced net size:"+ reducedNet.getNetElements().size());
+                return reducedNet;
             }
-            if (tempReducedNet == null) {
-                if (reducedNet != originalNet) {
-                    loop --;
-                    announceProgressMessage("Reset Reduced net " + loop + " rules: " +
-                            rulesMsg + "\nReduced net size: " +
-                            reducedNet.getNetElements().size());
-                    return reducedNet;
-                }
-                else return null;
+            else
+            {return null;
             }
-            if (_cancelled) {
-                announceProgressEvent(YAnalyserEventType.Cancelled, null, null);
-                return null;
             }
-        } while (true);
+            else
+            { rulesMsg += rules + ";";
+                reducedNet = tempReducedNet;
+            }
+        } while (reducedNet != null);//end while
+        return null;
+
+
+//        do {
+//            loop++;
+//            for (ResetReductionRuleType ruleType : ResetReductionRuleType.values()) {
+//                rule = ruleType.getRule();
+//                if (rule != null) {
+//                    tempReducedNet = rule.reduce(reducedNet);
+//                    if (tempReducedNet != null) {
+//                        rulesMsg += ruleType.name() + ";";
+//                        reducedNet = tempReducedNet;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (tempReducedNet == null) {
+//                if (reducedNet != originalNet) {
+//                    loop --;
+//                    announceProgressMessage("Reset Reduced net " + loop + " rules: " +
+//                            rulesMsg + "\nReduced net size: " +
+//                            reducedNet.getNetElements().size());
+//                    return reducedNet;
+//                }
+//                else return null;
+//            }
+//            if (_cancelled) {
+//                announceProgressEvent(YAnalyserEventType.Cancelled, null, null);
+//                return null;
+//            }
+//        } while (true);
     }
 
 

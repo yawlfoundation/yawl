@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.analyser.elements;
 
-import org.yawlfoundation.yawl.analyser.elements.RElement;
-
 /**
  *
  * Representation of a place in a Reset net.

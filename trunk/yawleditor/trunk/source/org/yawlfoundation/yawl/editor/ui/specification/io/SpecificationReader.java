@@ -317,11 +317,9 @@ public class SpecificationReader {
             CancellationSet cancellationSet = new CancellationSet(editorTask);
 
             for (YExternalNetElement engineSetMember : engineTask.getRemoveSet()) {
-                if (engineSetMember instanceof YCondition) {
-                    YCondition condition = (YCondition) engineSetMember;
-                    if (condition.isImplicit()) {
-                        cancellationSet.add(getFlow(editorFlows, condition));
-                    }
+                if (engineSetMember instanceof YCondition &&
+                        ((YCondition) engineSetMember).isImplicit()) {
+                    cancellationSet.add(getFlow(editorFlows, (YCondition) engineSetMember));
                 }
                 else {
                     cancellationSet.add(_elementMap.get(engineSetMember));
