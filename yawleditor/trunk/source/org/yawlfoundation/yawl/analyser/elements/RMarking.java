@@ -18,7 +18,9 @@
 
 package org.yawlfoundation.yawl.analyser.elements;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *  Data structure for Marking Storage;
@@ -59,15 +61,54 @@ public class RMarking {
     }
 
     public boolean equals(Object oMarking) {
-        return oMarking instanceof RMarking && compare((RMarking) oMarking, Operator.equals);
+        if (! (oMarking instanceof RMarking)) return false;
+        RMarking marking = (RMarking) oMarking;
+        Set<String> myPlaces = getLocations();
+        Map<String, Integer> otherPlaces = marking.getMarkedPlaces();
+        if (myPlaces.equals(otherPlaces.keySet())) {
+            for (String netElement : myPlaces) {
+                if (! _markedPlaces.get(netElement).equals(otherPlaces.get(netElement))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
+
+
     public boolean isBiggerThanOrEqual(RMarking marking) {
-        return compare(marking, Operator.greaterThanOrEquals);
+        Map<String, Integer> otherPlaces = marking.getMarkedPlaces();
+        if (getLocations().containsAll(otherPlaces.keySet())) {
+            for (String netElement : otherPlaces.keySet()) {
+                 if (_markedPlaces.get(netElement) < otherPlaces.get(netElement)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
-    
+
+
     public boolean isBiggerThan(RMarking marking) {
-        return compare(marking, Operator.greaterThan);
+        Map<String, Integer> otherPlaces = marking.getMarkedPlaces();
+        boolean isBigger = false;
+        if (getLocations().containsAll(otherPlaces.keySet())) {
+            for (String netElement : otherPlaces.keySet()) {
+                int myCount = _markedPlaces.get(netElement);
+                int otherCount = otherPlaces.get(netElement);
+                if (myCount < otherCount) {
+                    return false;
+                }
+                else if (myCount > otherCount) {
+                    isBigger = true;
+                }
+            }
+            return isBigger;
+        }
+        return false;
     }
     
      
@@ -75,38 +116,15 @@ public class RMarking {
      * This is used for coverable check: x' <= x
      */
     public boolean isLessThanOrEqual(RMarking marking) {
-        return compare(marking, Operator.lessThanOrEquals);
-    }
-
-
-    private boolean compare(RMarking marking, Operator operator) {
+        Set<String> myPlaces = getLocations();
         Map<String, Integer> otherPlaces = marking.getMarkedPlaces();
-        if (getLocations().containsAll(otherPlaces.keySet())) {
-            for (String netElement : otherPlaces.keySet()) {
-                switch (operator) {
-                    case equals :
-                        if (! _markedPlaces.get(netElement).equals(otherPlaces.get(netElement))) {
-                            return false;
-                        }
-                        break;
-                    case greaterThan :
-                        if (_markedPlaces.get(netElement) <= otherPlaces.get(netElement)) {
-              		        return false;
-              		    }
-                        break;
-                    case lessThanOrEquals :
-                        if (_markedPlaces.get(netElement) > otherPlaces.get(netElement)) {
-                            return false;
-                        }
-                        break;
-                    case greaterThanOrEquals :
-                        if (_markedPlaces.get(netElement) < otherPlaces.get(netElement)) {
-              		        return false;
-              		    }
-                        break;
-                   }
+        if (otherPlaces.keySet().containsAll(myPlaces)) {
+            for (String netElement : myPlaces) {
+                if (_markedPlaces.get(netElement) > otherPlaces.get(netElement)) {
+                    return false;
+                }
             }
-            return true;   // all passed
+            return true;
         }
         return false;
     }

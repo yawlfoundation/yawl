@@ -929,14 +929,18 @@ public final class ResetWFNet {
                 String placeName = element.getID();
 
                 // reset place is marked and reset place is also a postset
-                if (markedPlaces.containsKey(placeName) && postSet.contains(element)) {
+                if (markedPlaces.containsKey(placeName)) {
 
-                    // If the number of tokens in marked reset place > the postset
-                    if (markedPlaces.get(placeName) > 1) return false;
+                    // ...and reset place is also a postset
+                    if (postSet.contains(element)) {
+
+                        // If the number of tokens in marked reset place > the postset
+                        if (markedPlaces.get(placeName) > 1) return false;
+                    }
+
+                    // reset place is marked but it is not in the postset so should not fire.
+                    else return false;
                 }
-
-                // reset place is marked but it is not in the postset so should not fire.
-                else return false;
             }
         }
         return true;
@@ -944,10 +948,11 @@ public final class ResetWFNet {
 
     private RMarking getPreviousRMarking(RMarking currentM, RTransition t) {
 
-        Map<String, Integer> premarkedPlaces  = currentM.getMarkedPlaces();
+        Map<String, Integer> premarkedPlaces = new HashMap<String, Integer>(
+                currentM.getMarkedPlaces());
         Set<RElement> postSet = t.getPostsetElements();
         Set<RElement> preSet = t.getPresetElements();
-        Set<RElement> removeSet = t.getRemoveSet();
+        Set<RElement> removeSet = new HashSet<RElement>(t.getRemoveSet());
 
         // Remove the marked postSet elements from marking
         // We need to make sure that only one token is removed and not all tokens.
