@@ -90,17 +90,17 @@ public class DEARrule extends ResetReductionRule {
                            prenext.addToResetMappings(t.getResetMappings());
 
                            for (RElement postnext : postSetOft) {
-                               prenext.setPostset(new RFlow(prenext,postnext));
+                               prenext.setPostset(new RFlow(prenext, postnext));
                                postnext.addToResetMappings(s.getResetMappings());
                                postnext.addToResetMappings(t.getResetMappings());
                            }
                        }
-                   }
 
-                   //remove s and t
-                   net.removeNetElement(s);
-                   net.removeNetElement(t);
-                   return net;
+                       //remove s and t
+                       net.removeNetElement(s);
+                       net.removeNetElement(t);
+                       return net;
+                   }
                }
            }
        }
