@@ -40,6 +40,7 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
         setPreferredSize(new Dimension(420, 280));
         getOKButton().setEnabled(true);
         pack();
+        _textArea.requestFocus();
     }
 
 

@@ -34,6 +34,7 @@ class PluginsMenu extends JMenu {
     protected void buildInterface() {
         setMnemonic(KeyEvent.VK_P);
         addPlugins();
+        if (getItemCount() == 0) setEnabled(false);    // no plugins found
     }
 
     private void addPlugins() {

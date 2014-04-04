@@ -250,7 +250,7 @@ public class YAWLResetAnalyser {
             }
             if (tempReducedNet == null) {
                 if (reducedNet != originalNet) {
-                    loop --;
+                    loop--;
                     announceProgressMessage("Reset Reduced net " + loop + " rules: " +
                             rulesMsg + "\nReduced net size: " +
                             reducedNet.getNetElements().size());
