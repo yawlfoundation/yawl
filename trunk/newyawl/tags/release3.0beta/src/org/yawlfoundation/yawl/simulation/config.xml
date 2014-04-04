@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Config file for YSimulator. All times are expressed as msecs.
+    Attributes: view - one of workitem, resource or process
+                instances - number of instances to run
+                interval - how long to pause between each case start (ms)
+-->
+<simulation view="workitem" instances="5" interval="1500">
+
+    <!-- host name, e.g. example.com, defaults to localhost -->
+    <host>localhost</host>
+
+    <!-- id of spec to use - MUST already be loaded in the engine -->
+    <specification>
+        <id>UID_709f0e9a-fb78-4780-bd22-7b8a6978c78e</id>
+        <version>0.2</version>
+        <name>SSS</name>
+    </specification>
+
+    <!-- all the tasks of the spec -->
+    <tasks>
+
+        <!-- Attribute id: task name -->
+        <task id="A">
+
+            <!-- Can use either userid or role name as attribute value.. -->
+            <!-- Times can be expressed as an attribute or a set of elements. -->
+            <!-- If a set of times is given, one is chosen at random for each task instance. -->
+            <!-- Concurrent (optional attribute) is how many items the resource can
+                 execute concurrently. The default is "1" -->
+            <resource userid="th" concurrent="3">
+                <time>3000</time>
+                <time>5000</time>
+                <time>1000</time>
+            </resource>
+            <resource userid="BlackB" time="1000"/>
+        </task>
+        <task id="B">
+            <resource userid="th" time="6000"/>
+
+            <!-- When 'role' is used, all members of that role have their queue polled
+                 and execute a task for the same period. -->
+            <!-- If a resource is specified as an individual userid AND is a member of
+                 a role, the individual setting takes precedence -->
+            <resource role="CRO" time="2000"/>
+        </task>
+    </tasks>
+
+    <!-- Total time a resource can spend executing work items in this simulation run. -->
+    <!-- Any resources not listed are assigned the default; a value of -1 means no limit -->
+    <limits default="15000">
+        <resource userid="th" limit="5000"/>
+        <resource role="CRO" limit="5000"/>
+    </limits>
+</simulation>

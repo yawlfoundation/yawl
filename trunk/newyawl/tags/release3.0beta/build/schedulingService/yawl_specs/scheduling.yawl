@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.1" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema2.1.xsd">
+  <specification uri="scheduling.yawl">
+    <metaData>
+      <title>scheduling</title>
+      <creator>jku</creator>
+      <description>Sample specification to test the custom service #schedulingService#</description>
+      <version>0.15</version>
+      <persistent>false</persistent>
+      <identifier>UID_22c3b7b0-7712-4d15-a362-50a1dc4d7051</identifier>
+    </metaData>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- planning graph light-->
+      <xs:complexType name="_ResourceUtilisationPlan_light">
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="Activity" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:choice maxOccurs="unbounded">
+                <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+                <xs:element name="ActivityType" type="xs:string" minOccurs="0" maxOccurs="1" />
+                <xs:element name="UtilisationRelation" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="ThisUtilisationType" type="_UtilisationType" minOccurs="1" maxOccurs="1" />
+                      <xs:element name="OtherUtilisationType" type="_UtilisationType" minOccurs="1" maxOccurs="1" />
+                      <xs:element name="OtherActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+                      <xs:element name="Min" type="xs:duration" minOccurs="1" maxOccurs="1" />
+                      <xs:element name="Max" type="xs:duration" minOccurs="1" maxOccurs="1" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+      <!-- messages to send -->
+      <xs:element name="Messages" type="_Messages" />
+      <!-- pull message send -->
+      <xs:element name="Message" type="_Message" />
+      <!-- push message send -->
+      <xs:element name="MessagePush" type="_MessagePush" />
+      <!-- message receive -->
+      <xs:element name="Event" type="_Event" />
+      <!-- utilisation -->
+      <xs:element name="Utilisation" type="_Utilisation" />
+      <!-- rescheduling -->
+      <xs:element name="Rescheduling" type="_Rescheduling" />
+      <xs:complexType name="_Messages">
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="Message" type="_Message" />
+          <xs:element name="MessagePush" type="_MessagePush" />
+        </xs:choice>
+      </xs:complexType>
+      <xs:complexType name="_Message">
+        <xs:all>
+          <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Channel" type="xs:string" minOccurs="1" maxOccurs="1" />
+          <xs:element name="CaseId" type="xs:string" minOccurs="0" maxOccurs="1" />
+          <xs:element name="ActivityName" type="xs:string" minOccurs="0" maxOccurs="1" />
+          <xs:element name="UtilisationType" type="xs:string" minOccurs="0" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="_MessagePush">
+        <xs:all>
+          <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
+          <xs:element name="AddressType" type="_AddressType" minOccurs="1" maxOccurs="1" />
+          <xs:element name="Address" type="xs:string" minOccurs="1" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="_Event">
+        <xs:all>
+          <xs:element name="FilterModel" type="xs:string" minOccurs="1" maxOccurs="1" />
+          <xs:element name="CaseId" type="xs:string" minOccurs="0" maxOccurs="1" />
+          <xs:element name="ActivityName" type="xs:string" minOccurs="0" maxOccurs="1" />
+          <xs:element name="UtilisationType" type="xs:string" minOccurs="0" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="_Utilisation">
+        <xs:all>
+          <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
+          <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+          <xs:element name="UtilisationType" type="xs:string" minOccurs="1" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="_Rescheduling">
+        <xs:all>
+          <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
+          <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:simpleType name="_UtilisationType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="SOU" />
+          <xs:enumeration value="EOU" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="_MsgRel">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="before" />
+          <xs:enumeration value="after" />
+        </xs:restriction>
+      </xs:simpleType>
+      <!-- addresses for message send from custom form message transfer -->
+      <xs:simpleType name="_MsgTo">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="OPManager" />
+        </xs:restriction>
+      </xs:simpleType>
+      <!-- reservation state -->
+      <xs:simpleType name="_StatusToBe">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="unchecked" />
+          <xs:enumeration value="requested" />
+          <xs:enumeration value="reserved" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="_RequestType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="POU" />
+          <xs:enumeration value="SOU" />
+          <xs:enumeration value="EOU" />
+        </xs:restriction>
+      </xs:simpleType>
+      <!-- resource state -->
+      <xs:simpleType name="_Status">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="unknown" />
+          <xs:enumeration value="unavailable" />
+          <xs:enumeration value="available" />
+          <xs:enumeration value="requested" />
+          <xs:enumeration value="reserved" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="_AddressType">
+        <xs:restriction base="xs:string">
+          <xs:pattern value="IP|EMail|SMS|PROPERTY.([a-zA-Z])*" />
+        </xs:restriction>
+      </xs:simpleType>
+      <!-- primitive data types -->
+      <xs:complexType name="_Payload">
+        <xs:all>
+          <!--xs:any processContents="lax" minOccurs="0"/-->
+          <xs:element name="Text" type="xs:string" minOccurs="0" maxOccurs="1" />
+          <xs:element name="TimeStamp" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Duration" type="xs:duration" minOccurs="0" maxOccurs="1" />
+          <xs:element name="From" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
+          <xs:element name="To" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="YTimerType">
+        <xs:sequence>
+          <xs:element name="trigger">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="OnEnabled" />
+                <xs:enumeration value="OnExecuting" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="expiry" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+    <decomposition id="scheduling" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>caseNo</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <localVariable>
+        <index>2</index>
+        <name>Payload</name>
+        <type>_Payload</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <index>1</index>
+        <name>patientID</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="schedule_3" />
+          </flowsInto>
+        </inputCondition>
+        <task id="schedule_3">
+          <name>schedule</name>
+          <flowsInto>
+            <nextElementRef id="Activity1_24" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;shortForm&gt;false&lt;/shortForm&gt;" />
+              <mapsTo>shortForm</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;canConfirmReservations&gt;false&lt;/canConfirmReservations&gt;" />
+              <mapsTo>canConfirmReservations</mapsTo>
+            </mapping>
+          </startingMappings>
+          <resourcing>
+            <offer initiator="system">
+              <distributionSet>
+                <initialSet />
+              </distributionSet>
+            </offer>
+            <allocate initiator="system">
+              <allocator>
+                <name>RandomChoice</name>
+              </allocator>
+            </allocate>
+            <start initiator="system" />
+            <privileges>
+              <privilege>
+                <name>canSuspend</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canReallocateStateless</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canReallocateStateful</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canDeallocate</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canDelegate</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canSkip</name>
+                <allowall>true</allowall>
+              </privilege>
+            </privileges>
+          </resourcing>
+          <customForm>http://localhost:8080/schedulingService/SchedulingServiceJSP.jsp</customForm>
+          <decomposesTo id="test" />
+        </task>
+        <task id="Activity1_24">
+          <name>Activity1</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;ActivityName&gt;Activity1&lt;/ActivityName&gt;" />
+              <mapsTo>ActivityName</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="Activity" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="begin_utilisation" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>Utilisation</name>
+        <type>_Utilisation</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <yawlService id="http://localhost:8080/schedulingService/ib" />
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Activity" xsi:type="NetFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>ActivityName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <localVariable>
+        <index>1</index>
+        <name>ConfirmEvent</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <index>3</index>
+        <name>Payload</name>
+        <type>_Payload</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <localVariable>
+        <index>2</index>
+        <name>UtilisationType</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue />
+      </localVariable>
+      <processControlElements>
+        <inputCondition id="InputCondition_14">
+          <flowsInto>
+            <nextElementRef id="SOU_event_16" />
+          </flowsInto>
+        </inputCondition>
+        <task id="SOU_event_16">
+          <name>SOU event</name>
+          <flowsInto>
+            <nextElementRef id="begin_utilisation_17" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;ConfirmEvent&gt;{/SOU_event/StartOfUtilisation/text()}&lt;/ConfirmEvent&gt;" />
+              <mapsTo>ConfirmEvent</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;UtilisationType&gt;SOU&lt;/UtilisationType&gt;" />
+              <mapsTo>UtilisationType</mapsTo>
+            </mapping>
+          </completedMappings>
+          <resourcing>
+            <offer initiator="system">
+              <distributionSet>
+                <initialSet />
+              </distributionSet>
+            </offer>
+            <allocate initiator="system">
+              <allocator>
+                <name>RandomChoice</name>
+              </allocator>
+            </allocate>
+            <start initiator="system" />
+            <privileges>
+              <privilege>
+                <name>canSuspend</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canReallocateStateless</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canReallocateStateful</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canDeallocate</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canDelegate</name>
+                <allowall>true</allowall>
+              </privilege>
+              <privilege>
+                <name>canSkip</name>
+                <allowall>true</allowall>
+              </privilege>
+            </privileges>
+          </resourcing>
+          <decomposesTo id="SOU_event" />
+        </task>
+        <task id="begin_utilisation_17">
+          <name>begin utilisation</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_15" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Utilisation&gt;{/Activity/ActivityName} {/Activity/Payload} {/Activity/UtilisationType}&lt;/Utilisation&gt;" />
+              <mapsTo>Utilisation</mapsTo>
+            </mapping>
+          </startingMappings>
+          <decomposesTo id="begin_utilisation" />
+        </task>
+        <outputCondition id="OutputCondition_15" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="test" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>shortForm</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>canConfirmReservations</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="SOU_event" xsi:type="WebServiceGatewayFactsType">
+      <outputParam>
+        <index>0</index>
+        <name>StartOfUtilisation</name>
+        <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>UtilisationType</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Payload</name>
+        <type>_Payload</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+  </specification>
+  <layout>
+    <locale language="de" country="DE" />
+    <specification id="scheduling.yawl">
+      <size w="108" h="28" />
+      <net id="scheduling">
+        <bounds x="0" y="0" w="1124" h="610" />
+        <frame x="2" y="25" w="1127" h="613" />
+        <viewport x="0" y="0" w="1127" h="613" />
+        <vertex id="InputCondition_1">
+          <attributes>
+            <bounds x="184,0" y="172,0" w="32,0" h="32,0" />
+          </attributes>
+        </vertex>
+        <vertex id="OutputCondition_2">
+          <attributes>
+            <bounds x="708,0" y="172,0" w="32,0" h="32,0" />
+          </attributes>
+        </vertex>
+        <container id="schedule_3">
+          <vertex>
+            <attributes>
+              <bounds x="332,0" y="172,0" w="32,0" h="32,0" />
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="300,0" y="204,0" w="97,0" h="21,0" />
+            </attributes>
+          </label>
+        </container>
+        <container id="Activity1_24">
+          <vertex>
+            <attributes>
+              <bounds x="536,0" y="172,0" w="32,0" h="32,0" />
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="504,0" y="204,0" w="96,0" h="20,0" />
+            </attributes>
+          </label>
+        </container>
+        <flow source="Activity1_24" target="OutputCondition_2">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="InputCondition_1" target="schedule_3">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="schedule_3" target="Activity1_24">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="427,0" y="187,5" />
+              <value x="524,0" y="227,5" />
+            </points>
+          </attributes>
+        </flow>
+      </net>
+      <net id="Activity">
+        <bounds x="0" y="0" w="1124" h="610" />
+        <frame x="2" y="25" w="1127" h="613" />
+        <viewport x="0" y="0" w="1127" h="613" />
+        <vertex id="InputCondition_14">
+          <attributes>
+            <bounds x="80,0" y="172,0" w="32,0" h="32,0" />
+          </attributes>
+        </vertex>
+        <vertex id="OutputCondition_15">
+          <attributes>
+            <bounds x="676,0" y="172,0" w="32,0" h="32,0" />
+          </attributes>
+        </vertex>
+        <container id="begin_utilisation_17">
+          <vertex>
+            <attributes>
+              <bounds x="452,0" y="172,0" w="32,0" h="32,0" />
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="420,0" y="204,0" w="96,0" h="40,0" />
+            </attributes>
+          </label>
+        </container>
+        <container id="SOU_event_16">
+          <vertex>
+            <attributes>
+              <bounds x="240,0" y="172,0" w="32,0" h="32,0" />
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="208,0" y="204,0" w="96,0" h="20,0" />
+            </attributes>
+          </label>
+        </container>
+        <flow source="begin_utilisation_17" target="OutputCondition_15">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="571,0" y="199,5" />
+              <value x="1016,0" y="195,5" />
+            </points>
+          </attributes>
+        </flow>
+        <flow source="InputCondition_14" target="SOU_event_16">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="111,0" y="187,5" />
+              <value x="168,0" y="191,5" />
+            </points>
+          </attributes>
+        </flow>
+        <flow source="SOU_event_16" target="begin_utilisation_17">
+          <ports in="13" out="12" />
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="199,0" y="191,5" />
+              <value x="540,0" y="199,5" />
+            </points>
+          </attributes>
+        </flow>
+      </net>
+    </specification>
+  </layout>
+</specificationSet>
+
+
