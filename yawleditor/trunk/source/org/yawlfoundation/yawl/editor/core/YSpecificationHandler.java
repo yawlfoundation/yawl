@@ -32,10 +32,8 @@ import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -137,48 +135,33 @@ public class YSpecificationHandler {
 
 
     public void setTitle(String title) {
-        getMetaData().setTitle(JDOMUtil.encodeEscapes(title));
+        getMetaData().setTitle(title);
     }
 
     public String getTitle() {
-        return JDOMUtil.decodeEscapes(getMetaData().getTitle());
+        return getMetaData().getTitle();
     }
 
     public void setDescription(String desc) {
-        getMetaData().setDescription(JDOMUtil.encodeEscapes(desc));
+        getMetaData().setDescription(desc);
     }
 
     public String getDescription() {
-        return JDOMUtil.decodeEscapes(getMetaData().getDescription());
+        return getMetaData().getDescription();
     }
 
     public void setAuthors(List<String> authors) {
-        if (authors != null) {
-            List<String> encoded = new ArrayList<String>();
-            for (String author : authors) {
-                encoded.add(JDOMUtil.encodeEscapes(author));
-            }
-            authors = encoded;
-        }
         getMetaData().setCreators(authors);
     }
 
     public List<String> getAuthors() {
-        List<String> authors = getMetaData().getCreators();
-        if (authors != null) {
-            List<String> decoded = new ArrayList<String>();
-            for (String author : authors) {
-                decoded.add(JDOMUtil.decodeEscapes(author));
-            }
-            authors = decoded;
-        }
-        return authors;
+        return getMetaData().getCreators();
     }
 
     public void addAuthor(String author) {
         if (author != null) {
             List<String> authors = getAuthors();
-            authors.add(JDOMUtil.decodeEscapes(author));
+            authors.add(author);
             getMetaData().setCreators(authors);
         }
     }
