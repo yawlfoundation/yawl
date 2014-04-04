@@ -1,0 +1,17 @@
+Follow the following steps to set-up the database "SCHEDULING" for PostgreSQL.
+
+1. 	Make sure you have a PostgreSQL 8.3 database server up and running
+2. 	Logon to the database as user "postgres"  
+3. 	Run the following scripts in the specified order 
+							
+	#	script			comment
+	-------------------------------------------------------------------------------------------------------
+	1	database.sql			creates the database that contains all required objects of the scheduling service 
+	2	language.sql			installs the procedural language plpgsql in the database server 	
+	3	type.sql				creates object types
+	4	schema.sql				creates two schemas as package-like environments for stored functions
+	5	tables.sql				creates the required tables that are not automatically generated
+	6	tables_quartz-1.8.5.sql	creates tables required by the quartz api 1.8.5
+	7	functions.sql			creates stored functions in the schemas pkg_mapping, pkg_utilisationplan, pkg_util
+	
+ 
