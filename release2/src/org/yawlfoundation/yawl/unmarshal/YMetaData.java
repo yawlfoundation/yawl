@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.unmarshal;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.DateFormat;
@@ -176,22 +177,22 @@ public class YMetaData {
         StringBuilder mds = new StringBuilder();
         mds.append("<metaData>");
         if (this.title != null) {
-            mds.append(StringUtil.wrap(title, "title"));
+            mds.append(StringUtil.wrapEscaped(title, "title"));
         }
         for (String creator : creators) {
-            mds.append(StringUtil.wrap(creator, "creator"));
+            mds.append(StringUtil.wrapEscaped(creator, "creator"));
         }
         for (String subject : subjects) {
-            mds.append(StringUtil.wrap(subject, "subject"));
+            mds.append(StringUtil.wrapEscaped(subject, "subject"));
         }
         if (description != null) {
-            mds.append(StringUtil.wrap(description, "description"));
+            mds.append(StringUtil.wrapEscaped(description, "description"));
         }
         for (String contributor : contributors) {
-            mds.append(StringUtil.wrap(contributor, "contributor"));
+            mds.append(StringUtil.wrapEscaped(contributor, "contributor"));
         }
         if (coverage != null) {
-            mds.append(StringUtil.wrap(coverage, "coverage"));
+            mds.append(StringUtil.wrapEscaped(coverage, "coverage"));
         }
         if (validFrom != null) {
             mds.append(StringUtil.wrap(dateFormat.format(validFrom), "validFrom"));

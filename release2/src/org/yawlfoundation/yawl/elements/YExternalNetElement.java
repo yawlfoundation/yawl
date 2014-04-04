@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YNetElementDocoParser;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
@@ -352,9 +353,9 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
 
     public String toXML() {
         StringBuilder xml = new StringBuilder();
-        if (_name != null) xml.append(StringUtil.wrap(_name, "name"));
+        if (_name != null) xml.append(StringUtil.wrapEscaped(_name, "name"));
         if (_documentation != null)
-            xml.append(StringUtil.wrap(_documentation, "documentation"));
+            xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
 
         for (YFlow flow : _postsetFlows.values()) {
             String flowsToXML = flow.toXML();
