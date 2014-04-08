@@ -225,6 +225,7 @@ public class YPropertySheet extends PropertySheetPanel {
 
         public YPropertySheetTableModel() {
             super();
+            setRestoreToggleStates(true);
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {

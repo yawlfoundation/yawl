@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XMLSchemaEditorPane;
+import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 
 import javax.swing.*;
@@ -29,7 +29,8 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
 
-public class DataDefinitionDialog extends AbstractDoneDialog implements CaretListener {
+public class DataDefinitionDialog extends AbstractDoneDialog
+        implements CaretListener {
 
     private XMLSchemaEditorPane editorPane;
 

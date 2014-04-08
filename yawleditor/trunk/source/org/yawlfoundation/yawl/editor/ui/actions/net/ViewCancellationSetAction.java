@@ -107,6 +107,9 @@ public class ViewCancellationSetAction extends YAWLSelectedNetAction
         if (state == FileState.Busy && isSelected && task != null) {
             task.getCancellationSet().save();
         }
+        else if (state == FileState.Closed && toolBarButton != null) {
+            toolBarButton.setSelected(false);
+        }
     }
 
     public String getEnabledTooltipText() {
