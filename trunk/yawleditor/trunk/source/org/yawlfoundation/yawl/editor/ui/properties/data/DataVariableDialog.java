@@ -352,9 +352,6 @@ public class DataVariableDialog extends JDialog
             if (row.isInput() || row.isInputOutput()) {
                 initMapping(row, YDataHandler.INPUT);
             }
-            if (row.isOutput() || row.isInputOutput()) {
-                initMapping(row, YDataHandler.OUTPUT);
-            }
         }
     }
 
