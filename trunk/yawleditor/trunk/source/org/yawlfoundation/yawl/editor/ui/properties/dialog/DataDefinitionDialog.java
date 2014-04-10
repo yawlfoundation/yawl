@@ -27,7 +27,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.FocusEvent;
 
 public class DataDefinitionDialog extends AbstractDoneDialog
         implements CaretListener {
@@ -55,8 +57,7 @@ public class DataDefinitionDialog extends AbstractDoneDialog
 
 
     public void caretUpdate(CaretEvent caretEvent) {
-        editorPane.getEditor().validateContent();
-        getDoneButton().setEnabled(editorPane.isContentValid());
+        getDoneButton().setEnabled(editorPane.getEditor().checkValidity());
     }
 
     protected void makeLastAdjustments() {
@@ -67,6 +68,7 @@ public class DataDefinitionDialog extends AbstractDoneDialog
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new EmptyBorder(12,12,0,11));
         editorPane = new XMLSchemaEditorPane(true);
+        editorPane.getEditor().setCaret(new ExtendedCaret());
         panel.add(editorPane, BorderLayout.CENTER);
         return panel;
     }
@@ -78,6 +80,23 @@ public class DataDefinitionDialog extends AbstractDoneDialog
         toolbarMenuPanel.add(new DataTypeDialogToolBarMenu(this, editorPane));
         toolbarMenuPanel.add(Box.createVerticalGlue());
         return toolbarMenuPanel;
+    }
+
+    /*******************************************************************/
+
+    /** keeps selection highlighted when editor focus is lost **/
+    protected class ExtendedCaret extends DefaultCaret {
+
+        public void focusGained(FocusEvent e) {
+            setSelectionVisible(false);
+            super.focusGained(e);
+        }
+
+        public void focusLost(FocusEvent e) {
+            super.focusLost(e);
+            setSelectionVisible(true);
+        }
+
     }
 
 }

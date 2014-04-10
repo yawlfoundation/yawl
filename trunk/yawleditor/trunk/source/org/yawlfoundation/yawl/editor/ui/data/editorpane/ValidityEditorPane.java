@@ -66,6 +66,11 @@ public class ValidityEditorPane extends JEditorPane
         getXMLStyledDocument().publishValidity();
     }
 
+    public boolean checkValidity() {
+        getXMLStyledDocument().checkValidity();
+        return isContentValid();
+    }
+
     protected AbstractXMLStyledDocument getXMLStyledDocument() {
         return (AbstractXMLStyledDocument) getDocument();
     }

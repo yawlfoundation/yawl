@@ -51,7 +51,7 @@ public class YPropertySheet extends PropertySheetPanel {
         setDescriptionVisible(true);
         setSortingCategories(true);
         setSortingProperties(true);
-        setRestoreToggleStates(false);
+        setRestoreToggleStates(true);
         setToolBarVisible(false);
         setMinimumSize(new Dimension(100, 250));
         setPreferredSize(new Dimension(250, 250));
@@ -225,7 +225,6 @@ public class YPropertySheet extends PropertySheetPanel {
 
         public YPropertySheetTableModel() {
             super();
-            setRestoreToggleStates(true);
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {

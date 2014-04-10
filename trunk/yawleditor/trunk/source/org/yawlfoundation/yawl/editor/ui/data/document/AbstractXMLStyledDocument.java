@@ -97,7 +97,7 @@ public abstract class AbstractXMLStyledDocument extends DefaultStyledDocument {
 
     /******************************************************************/
 
-    protected abstract void checkValidity();
+    public abstract void checkValidity();
 
     public abstract void setPreAndPostEditorText(String preText, String postText);
 
