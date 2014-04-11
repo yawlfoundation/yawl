@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.editor.ui.specification.validation;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -19,14 +20,14 @@ import java.util.*;
 public class DataTypeValidator {
 
     private static Map<String, Boolean> _checkedDataTypes;
-    private static List<String> _validDataTypeNames;
+    private static List<String> _validUserDefinedTypeNames;
 
     public DataTypeValidator() { }
 
 
     public List<String> validate() {
         YSpecificationHandler handler = SpecificationModel.getHandler();
-        _validDataTypeNames = handler.getDataHandler().getUserDefinedTypeNames();
+        _validUserDefinedTypeNames = getUserDefinedTypeNames();
         _checkedDataTypes = new HashMap<String, Boolean>();
         List<String> problemList = new ArrayList<String>();
         for (YNet net : handler.getControlFlowHandler().getNets()) {
@@ -62,6 +63,16 @@ public class DataTypeValidator {
     }
 
 
+    private List<String> getUserDefinedTypeNames() {
+        try {
+           return SpecificationModel.getHandler().getDataHandler().getUserDefinedTypeNames();
+        }
+        catch (YDataHandlerException ydhe) {
+            return Collections.emptyList();
+        }
+    }
+
+
     private void checkUserDefinedDataTypes(List<String> problemList,
                                            Set<YVariable> varSet,
                                            String netName, String taskID) {
@@ -80,7 +91,7 @@ public class DataTypeValidator {
                 valid = _checkedDataTypes.get(dataType);
             }
             else {
-                valid = _validDataTypeNames.contains(dataType);
+                valid = _validUserDefinedTypeNames.contains(dataType);
                 _checkedDataTypes.put(dataType, valid) ;
             }
 

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.data.document.AbstractXMLStyledDocument;
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -45,8 +46,13 @@ public class InstanceStyledDocument extends AbstractXMLStyledDocument {
     }
 
     public void checkValidity() {
-        _errorList = DATA_HANDLER.validate(_dataType, getEditor().getText());
-        setContentValidity(_errorList.isEmpty() ? Validity.VALID : Validity.INVALID);
+        try {
+             _errorList = DATA_HANDLER.validate(_dataType, getEditor().getText());
+             setContentValidity(_errorList.isEmpty() ? Validity.VALID : Validity.INVALID);
+        }
+        catch (YDataHandlerException yde) {
+            // do nothing, will only happen if no specification is loaded
+        }
     }
 
     public List<String> getProblemList() { return _errorList; }

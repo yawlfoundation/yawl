@@ -66,7 +66,7 @@ public class FileOperations {
 
 
     public YSpecification load(String specXML, String layoutXML)
-            throws IOException, YLayoutParseException {
+            throws YSyntaxException, YLayoutParseException {
         parse(specXML);
         if (layoutXML != null) {
             YLayout layout = new YLayout(_specification);
@@ -77,7 +77,7 @@ public class FileOperations {
     }
 
 
-    public YSpecification load(String fileName) throws IOException {
+    public YSpecification load(String fileName) throws IOException, YSyntaxException {
         parse(FileUtil.load(fileName));
         _fileName = fileName;
         return _specification;
@@ -144,17 +144,12 @@ public class FileOperations {
         _layoutHandler = null;
     }
 
-    private YSpecification parse(String specXML) throws IOException {
-        try {
-            List<YSpecification> specifications =
-                    YMarshal.unmarshalSpecifications(specXML, false);
-            _specification = specifications.get(0);
-            _layoutHandler = new LayoutHandler(_specification, specXML);
-            nullifyUnlabelledTaskNames();
-        }
-        catch (YSyntaxException yse) {
-            throw new IOException(yse.getMessage());
-        }
+    private YSpecification parse(String specXML) throws YSyntaxException {
+        List<YSpecification> specifications =
+                YMarshal.unmarshalSpecifications(specXML, false);
+        _specification = specifications.get(0);
+        _layoutHandler = new LayoutHandler(_specification, specXML);
+        nullifyUnlabelledTaskNames();
         return _specification;
     }
 

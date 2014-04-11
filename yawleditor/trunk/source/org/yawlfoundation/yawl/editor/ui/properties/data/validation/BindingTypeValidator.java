@@ -5,6 +5,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -111,7 +112,7 @@ public class BindingTypeValidator {
                     }
                 }
             }
-            catch (SaxonApiException e) {
+            catch (Exception e) {
                 return Arrays.asList(e.getMessage());
             }
         }
@@ -275,12 +276,20 @@ public class BindingTypeValidator {
      * @return a corresponding FormParameter
      */
     private FormParameter getParameter(VariableRow row) {
-        FormParameter param = new FormParameter();
-        param.setInitialValue(row.getValue());
-        param.setDataTypeAndName(row.getDataType(), row.getName(),
-                getDataHandler().getDataSchemaNamespace().toString());
-        param.setAttributes(row.getAttributes());
-        return param;
+        try {
+
+            // exception here if no current specification (should never occur)
+            String ns = getDataHandler().getDataSchemaNamespace().toString();
+
+            FormParameter param = new FormParameter();
+            param.setInitialValue(row.getValue());
+            param.setDataTypeAndName(row.getDataType(), row.getName(), ns);
+            param.setAttributes(row.getAttributes());
+            return param;
+        }
+        catch (YDataHandlerException ydhe) {
+            return null;
+        }
     }
 
 

@@ -52,6 +52,11 @@ public class YResourceHandler {
         parseResources();
     }
 
+    public void close() {
+        _specification = null;
+        resetCache();
+    }
+
     public void resetCache() {
         ResourceDataSet.reset();
     }
@@ -133,6 +138,7 @@ public class YResourceHandler {
     public boolean hasLoadedResources() { return _resourcesCache.hasLoadedResources(); }
 
 
+    // pre: _specification != null
     private void parseResources() {
         _resourcesCache.clear();
         for (YDecomposition decomposition : _specification.getDecompositions()) {
@@ -149,6 +155,8 @@ public class YResourceHandler {
 
 
     private YAtomicTask getAtomicTask(String netID, String taskID) {
+        if (_specification == null) return null;
+
         for (YDecomposition decomposition : _specification.getDecompositions()) {
             if ((decomposition instanceof YNet) && decomposition.getID().equals(netID)) {
                 for (YTask task : ((YNet) decomposition).getNetTasks()) {

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.apache.xerces.util.XMLChar;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.VariableValueDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -50,8 +51,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     public VariableRowStringEditor() {
         nameField = new JTextField();
-        dataTypeCombo = new JComboBox(new Vector<String>(
-                SpecificationModel.getHandler().getDataHandler().getDataTypeNames()));
+        dataTypeCombo = new JComboBox(getDataTypeNames());
         dataTypeCombo.addActionListener(this);
         valuePanel = createValueField();
     }
@@ -198,12 +198,18 @@ public class VariableRowStringEditor extends AbstractCellEditor
     private boolean validate(String dataType, String value) {
         if (StringUtil.isNullOrEmpty(value)) return true;
 
-        java.util.List<String> errors = SpecificationModel.getHandler().getDataHandler()
-                    .validate(dataType, value);
-        if (! errors.isEmpty()) {
-            tablePanel.showErrorStatus("Invalid value for data type", errors);
+        try {
+            java.util.List<String> errors = SpecificationModel.getHandler()
+                    .getDataHandler().validate(dataType, value);
+            if (!errors.isEmpty()) {
+                tablePanel.showErrorStatus("Invalid value for data type", errors);
+            }
+            return (errors.isEmpty());
         }
-        return (errors.isEmpty());
+        catch (YDataHandlerException ydhe) {
+            tablePanel.showErrorStatus(ydhe.getMessage(), null);
+            return false;
+        }
     }
 
 
@@ -215,6 +221,17 @@ public class VariableRowStringEditor extends AbstractCellEditor
             }
         }
         return true;
+    }
+
+
+    private Vector<String> getDataTypeNames() {
+        try {
+            return new Vector<String>(
+                    SpecificationModel.getHandler().getDataHandler().getDataTypeNames());
+        }
+        catch (YDataHandlerException ydhe) {
+            return new Vector<String>();
+        }
     }
 
 }

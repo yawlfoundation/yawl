@@ -18,13 +18,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -103,15 +103,20 @@ public class NetProperties extends YPropertiesBean {
         try {
             specHandler.setSchema(schema);
         }
-        catch (YSyntaxException yse) {
+        catch (Exception yse) {
             showWarning("Invalid Schema", yse.getMessage());
             firePropertyChange("DataSchema", specHandler.getSchema());
         }
     }
 
     private String getDataSchemaLabel() {
-        int udTypes = specHandler.getDataHandler().getUserDefinedTypeNames().size();
-        return udTypes + " user defined types";
+        try {
+            int udTypes = specHandler.getDataHandler().getUserDefinedTypeNames().size();
+            return udTypes + " user defined types";
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
     }
 
     /**** NET PROPERTIES ****/

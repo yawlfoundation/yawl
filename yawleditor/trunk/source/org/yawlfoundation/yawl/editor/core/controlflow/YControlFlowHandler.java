@@ -44,6 +44,11 @@ public class YControlFlowHandler {
         setSpecification(specification);
     }
 
+    public void close() {
+        _specification = null;
+        _identifiers.clear();
+    }
+
 
     public void setSpecification(YSpecification specification) {
         _specification = specification;
@@ -93,25 +98,30 @@ public class YControlFlowHandler {
 
     public YNet createRootNet(String netName)
             throws YControlFlowHandlerException, IllegalIdentifierException {
-        if (_specification == null) raise("No specification is loaded");
+        checkSpecificationExists();
         YNet root = addNet(netName);
         setRootNet(root);
         return root;
     }
 
-    public YNet getRootNet() { return _specification.getRootNet(); }
+    public YNet getRootNet() {
+        return _specification != null ? _specification.getRootNet() : null; }
 
-    public void setRootNet(YNet net) { _specification.setRootNet(net); }
+    public void setRootNet(YNet net) throws YControlFlowHandlerException {
+        checkSpecificationExists();
+        _specification.setRootNet(net);
+    }
 
     public YNet addNet(String netName)
             throws YControlFlowHandlerException, IllegalIdentifierException {
-        if (_specification == null) raise("No specification is loaded");
+        checkSpecificationExists();
         YNet net = createNet(netName);
         _specification.addDecomposition(net);
         return net;
     }
 
-    public String addNet(YNet net) {
+    public String addNet(YNet net) throws YControlFlowHandlerException{
+        checkSpecificationExists();
         String uniqueID = checkID(net.getID());
         if (! uniqueID.equals(net.getID())) net.setID(uniqueID);
         _specification.addDecomposition(net);
@@ -119,6 +129,7 @@ public class YControlFlowHandler {
     }
 
     public YNet getNet(String netName) {
+        if (_specification == null) return null;
         YDecomposition decomposition = _specification.getDecomposition(netName);
         return (decomposition instanceof YNet) ? (YNet) decomposition : null;
     }
@@ -134,6 +145,8 @@ public class YControlFlowHandler {
         return null;
     }
 
+
+    // pre: specification exists (already checked through #addNet)
     private YNet createNet(String netName) throws IllegalIdentifierException {
         if (netName == null) netName = "Net";
         YNet net = new YNet(checkID(netName), _specification);
@@ -146,7 +159,8 @@ public class YControlFlowHandler {
     /*** task decomposition CRUD ***/
 
     public YAWLServiceGateway addTaskDecomposition(String name)
-            throws IllegalIdentifierException {
+            throws YControlFlowHandlerException, IllegalIdentifierException {
+        checkSpecificationExists();
         YAWLServiceGateway gateway = new YAWLServiceGateway(
                 checkDecompositionID(name), _specification);
         _specification.addDecomposition(gateway);
@@ -154,7 +168,9 @@ public class YControlFlowHandler {
     }
 
 
-    public String addTaskDecomposition(YAWLServiceGateway decomposition) {
+    public String addTaskDecomposition(YAWLServiceGateway decomposition)
+            throws YControlFlowHandlerException {
+        checkSpecificationExists();
         String uniqueID = checkID(decomposition.getID());
         if (! uniqueID.equals(decomposition.getID())) decomposition.setID(uniqueID);
         _specification.addDecomposition(decomposition);
@@ -162,30 +178,47 @@ public class YControlFlowHandler {
     }
 
 
-    public YAWLServiceGateway getTaskDecomposition(String name) {
-        YDecomposition decomposition = _specification.getDecomposition(name);
-        return (decomposition instanceof YAWLServiceGateway) ?
-                (YAWLServiceGateway) decomposition : null;
+    public YAWLServiceGateway getTaskDecomposition(String name)  {
+        try {
+            checkSpecificationExists();
+            YDecomposition decomposition = _specification.getDecomposition(name);
+            return (decomposition instanceof YAWLServiceGateway) ?
+                    (YAWLServiceGateway) decomposition : null;
+        }
+        catch (YControlFlowHandlerException ycfhe) {
+            return null;
+        }
     }
 
 
     public List<YAWLServiceGateway> getTaskDecompositions() {
-        List<YAWLServiceGateway> decompositionList = new ArrayList<YAWLServiceGateway>();
-        for (YDecomposition decomposition : _specification.getDecompositions()) {
-             if (decomposition instanceof YAWLServiceGateway) {
-                 decompositionList.add((YAWLServiceGateway) decomposition);
-             }
+        try {
+            checkSpecificationExists();
+            List<YAWLServiceGateway> decompositionList = new ArrayList<YAWLServiceGateway>();
+            for (YDecomposition decomposition : _specification.getDecompositions()) {
+                if (decomposition instanceof YAWLServiceGateway) {
+                    decompositionList.add((YAWLServiceGateway) decomposition);
+                }
+            }
+            return decompositionList;
         }
-        return decompositionList;
+        catch (YControlFlowHandlerException ycfhe) {
+            return Collections.emptyList();
+        }
     }
 
 
     public YAWLServiceGateway removeTaskDecomposition(String name) {
-        return (YAWLServiceGateway) _specification.removeDecomposition(name);
+        if (_specification != null) {
+            return (YAWLServiceGateway) _specification.removeDecomposition(name);
+        }
+        return null;
     }
 
 
     public void removeOrphanTaskDecompositions() {
+        if (_specification == null) return;
+
         Set<YDecomposition> orphans = new HashSet<YDecomposition>();
         Set<YAtomicTask> allTasks = getAllAtomicTasks();
         for (YDecomposition decomposition : getTaskDecompositions()) {
@@ -583,6 +616,10 @@ public class YControlFlowHandler {
          return true;    // no task references the decomposition
      }
 
+
+    private void checkSpecificationExists() throws YControlFlowHandlerException {
+        if (_specification == null) raise("No specification is loaded");
+    }
 
     private void raise(String msg) throws YControlFlowHandlerException {
         throw new YControlFlowHandlerException(msg);
