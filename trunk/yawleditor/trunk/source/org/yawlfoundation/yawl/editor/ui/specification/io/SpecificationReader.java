@@ -40,7 +40,6 @@ import org.yawlfoundation.yawl.elements.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -97,8 +96,8 @@ public class SpecificationReader {
             SpecificationModel.reset();
             _handler.load(fileName);
         }
-        catch (IOException ioe) {
-            showLoadError(ioe.getMessage());
+        catch (Exception e) {
+            showLoadError(e.getMessage());
             return false;
         }
         return true;

@@ -19,11 +19,9 @@
 package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
-import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 public class SpecificationModel {
 
@@ -34,21 +32,12 @@ public class SpecificationModel {
 
 
     public static NetGraph newSpecification() {
-        try {
-            reset();
-            _specificationHandler.newSpecification();
-            YNet net = _specificationHandler.getControlFlowHandler().getRootNet();
-            NetGraph graph = new NetGraph(net);
-            _nets.addRootNet(graph.getNetModel());
-            return graph;
-        }
-        catch (YControlFlowHandlerException ycfhe) {
-            // would only occur if we forgot to call handler.newSpecification first
-        }
-        catch (YSyntaxException yse) {
-            // only thrown on bad data schema - which won't be the case here
-        }
-        return null;
+        reset();
+        _specificationHandler.newSpecification();
+        YNet net = _specificationHandler.getControlFlowHandler().getRootNet();
+        NetGraph graph = new NetGraph(net);
+        _nets.addRootNet(graph.getNetModel());
+        return graph;
     }
 
 

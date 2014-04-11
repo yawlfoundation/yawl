@@ -283,6 +283,9 @@ public class CellProperties extends NetProperties {
             catch (IllegalIdentifierException iie) {
                 showWarning("Identifier Name Error", iie.getMessage());
             }
+            catch (YControlFlowHandlerException ycfhe) {
+                // do nothing, only occurs if no spec is loaded
+            }
         }
         return current;
     }

@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
@@ -176,10 +177,16 @@ public class MultiInstanceHandler {
 
 
     private String[] getItemNameAndType(String complexType) {
-        String[] itemNameAndType = SpecificationModel.getHandler().getDataHandler()
-                .getMultiInstanceItemNameAndType(complexType);
-        if (itemNameAndType == null) {
-            throw new IllegalArgumentException("Invalid MI data type");
+        String[] itemNameAndType;
+        try {
+            itemNameAndType = SpecificationModel.getHandler().getDataHandler()
+                    .getMultiInstanceItemNameAndType(complexType);
+            if (itemNameAndType == null) {
+                throw new IllegalArgumentException("Invalid MI data type");
+            }
+        }
+        catch (YDataHandlerException ydhe) {
+            throw new IllegalArgumentException(ydhe.getMessage());
         }
         return itemNameAndType;
     }
@@ -252,8 +259,13 @@ public class MultiInstanceHandler {
 
 
     private String getXQuerySuffix(VariableRow row) {
-        return SpecificationModel.getHandler().getDataHandler()
-                        .getXQuerySuffix(row.getDataType());
+        try {
+            return SpecificationModel.getHandler().getDataHandler()
+                    .getXQuerySuffix(row.getDataType());
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
     }
 
 

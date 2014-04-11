@@ -218,11 +218,20 @@ public class DataVariableDialog extends JDialog
          .append("/")
          .append(varName)
          .append("/")
-         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                 dataType));
+         .append(getXQuerySuffix(dataType));
         return s.toString();
     }
 
+
+    private String getXQuerySuffix(String dataType) {
+        try {
+            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                             dataType);
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
+    }
 
     private void initialise(YNet net) {
         this.net = net;

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
@@ -172,9 +173,18 @@ public class VariableRowTransferHandler extends TransferHandler {
          .append("/")
          .append(row.getName())
          .append("/")
-         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                 row.getDataType()));
+         .append(getXQuerySuffix(row.getDataType()));
         return s.toString();
+    }
+
+    private String getXQuerySuffix(String dataType) {
+        try {
+            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                             dataType);
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
     }
 
 }

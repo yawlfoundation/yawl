@@ -38,8 +38,13 @@ public class UndoableNetAddition extends AbstractUndoableEdit {
         SpecificationModel.getNets().addNoUndo(addedNet);
         addedNet.getGraph().getFrame().setVisible(true);
         YAWLEditor.getNetsPane().add(addedNet.getName(), addedNet.getGraph().getFrame());
-        SpecificationModel.getHandler().getControlFlowHandler().addNet(
-                (YNet) addedNet.getDecomposition());
+        try {
+            SpecificationModel.getHandler().getControlFlowHandler().addNet(
+                    (YNet) addedNet.getDecomposition());
+        }
+        catch (YControlFlowHandlerException ycfhe) {
+            // do nothing, will only happen if no spec loaded
+        }
     }
 
     public void undo() {

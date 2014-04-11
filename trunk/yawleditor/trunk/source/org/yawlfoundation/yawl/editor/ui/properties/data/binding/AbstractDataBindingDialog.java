@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
@@ -159,8 +160,13 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     protected String getXQuerySuffix(VariableRow row) {
-        return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                row.getDataType());
+        try {
+            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                    row.getDataType());
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
     }
 
 

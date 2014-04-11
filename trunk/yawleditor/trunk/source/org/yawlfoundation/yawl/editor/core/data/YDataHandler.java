@@ -72,7 +72,18 @@ public class YDataHandler {
      */
     public void setSpecification(YSpecification specification) {
         _specification = specification;
-        _utils = new DataUtil(_specification.getDataSchema());
+        if (_specification != null) {
+            _utils = new DataUtil(_specification.getDataSchema());
+        }
+    }
+
+
+    /**
+     * Disassociates this object from a specification
+     */
+    public void close() {
+        _specification = null;
+        _utils = null;
     }
 
 
@@ -981,10 +992,6 @@ public class YDataHandler {
      */
     private String xpathDelimit(String label) { return '/' + label + '/'; }
 
-    private String xmlDelimit(String label, boolean opening) {
-        return (opening ? '<' : "</") + label + '>';
-    }
-
 
     /**
      * Renames a variable
@@ -1007,6 +1014,14 @@ public class YDataHandler {
         return StringUtil.wrap(StringUtil.unwrap(element), newName);
     }
 
+
+    /**
+     * Replaces the tag name of an XML element string with a new name, within a query
+     * @param query the query to update
+     * @param oldName the old name for the element's tags
+     * @param newName the new name for the element's tags
+     * @return the updated XML element string
+     */
     private String replaceTags(String query, String oldName, String newName) {
         return query.replaceFirst('<' + oldName + '>', '<' + newName + '>')
                 .replaceFirst("</" + oldName + '>', "</" + newName + '>');
@@ -1053,34 +1068,54 @@ public class YDataHandler {
     }
 
 
-    private void replaceDecompositionIdInMIJoinerQuery(YTask task, String oldName,
-                                                          String newName) {
+    /**
+     * Updates the decomposition id in an MI join query
+     * @param task the MI task
+     * @param oldID the old decomposition id
+     * @param newID the new decomposition id
+     */
+    private void replaceDecompositionIdInMIJoinerQuery(YTask task, String oldID,
+                                                          String newID) {
         if (! task.isMultiInstance()) return;
 
         YMultiInstanceAttributes attributes = task.getMultiInstanceAttributes();
         String query = attributes.getMIJoiningQuery();
         if (query != null) {
-            query = query.replaceFirst(' ' + xpathDelimit(oldName),
-                    ' ' + xpathDelimit(newName));
+            query = query.replaceFirst(' ' + xpathDelimit(oldID),
+                    ' ' + xpathDelimit(newID));
             attributes.setUniqueOutputMIJoiningQuery(query);
         }
     }
 
 
-    private void replaceTaskVariableInMISplitterQuery(YTask task, String oldName,
-                                                      String newName) {
+    /**
+     * Updates the decomposition id in an MI splitter query
+     * @param task the MI task
+     * @param oldID the old decomposition id
+     * @param newID the new decomposition id
+     */
+    private void replaceTaskVariableInMISplitterQuery(YTask task, String oldID,
+                                                      String newID) {
         if (! task.isMultiInstance()) return;
 
         YMultiInstanceAttributes attributes = task.getMultiInstanceAttributes();
-        if (oldName.equals(attributes.getMIFormalInputParam())) {
+        if (oldID.equals(attributes.getMIFormalInputParam())) {
             String query = attributes.getMISplittingQuery();
             if (query != null) {
                 attributes.setUniqueInputMISplittingQuery(
-                        replaceTags(query, oldName, newName));
+                        replaceTags(query, oldID, newID));
             }
         }
     }
 
+
+
+    /**
+     * Updates a net variable name in the MI queries of a task
+     * @param task the MI task
+     * @param oldName the old decomposition id
+     * @param newName the new decomposition id
+     */
     private void replaceNetVariableInMIQueries(YTask task, String oldName,
                                                       String newName) {
         if (! task.isMultiInstance()) return;
@@ -1450,28 +1485,102 @@ public class YDataHandler {
 
     // DataUtil passthroughs
 
-    public List<String> validate(String dataType, String value) {
-        return _utils.getInstanceValidator().validate(dataType, value);
+    /**
+     * Validates a value against type
+     * @param dataType the type to validate against
+     * @param value the value to validate
+     * @return true id value is valid for the type passed
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<String> validate(String dataType, String value) throws YDataHandlerException {
+        return getUtils().getInstanceValidator().validate(dataType, value);
     }
 
-    public void setSchema(String schema) { _utils.setSpecificationSchema(schema); }
 
-    public List<String> getDataTypeNames() { return _utils.getDataTypeNames(); }
-
-    public List<String> getBuiltInTypeNames() { return _utils.getBuiltInTypeNames(); }
-
-    public List<String> getInternalTypeNames() { return _utils.getInternalTypeNames(); }
-
-    public List<String> getUserDefinedTypeNames() { return _utils.getUserDefinedTypeNames(); }
-
-    public Namespace getDataSchemaNamespace() { return _utils.getDataSchemaNamespace(); }
-
-    public String[] getMultiInstanceItemNameAndType(String dataType) {
-        return _utils.getMultiInstanceItemNameAndType(dataType);
+    /**
+     * Sets the data schema for subsequent validation activities
+     * @param schema the specification's data schema
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public void setSchema(String schema) throws YDataHandlerException {
+        getUtils().setSpecificationSchema(schema);
     }
 
-    public String getXQuerySuffix(String dataType) {
-        return _utils.getXQuerySuffix(dataType);
+
+    /**
+     * @return a list of all the data type names in the current schema, plus name for
+     * internal types and all XSD types
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<String> getDataTypeNames() throws YDataHandlerException {
+        return getUtils().getDataTypeNames();
+    }
+
+
+    /**
+     * @return a list of all built-in XSD data type names
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<String> getBuiltInTypeNames() throws YDataHandlerException {
+        return getUtils().getBuiltInTypeNames();
+    }
+
+
+    /**
+     * @return a list of all YAWL internal data type names
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<String> getInternalTypeNames() throws YDataHandlerException {
+        return getUtils().getInternalTypeNames();
+    }
+
+
+    /**
+     * @return a list of all user-defined data type names in the current schema
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<String> getUserDefinedTypeNames() throws YDataHandlerException {
+        return getUtils().getUserDefinedTypeNames();
+    }
+
+
+    /**
+     * @return the namespace of the current data schema
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public Namespace getDataSchemaNamespace() throws YDataHandlerException {
+        return getUtils().getDataSchemaNamespace();
+    }
+
+
+    /**
+     * Gets the data type and name of the inner element of a list type used as the
+     * formal parameter of an MI task
+     * @param dataType the MI (list) data type
+     * @return the inner element name and data type
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public String[] getMultiInstanceItemNameAndType(String dataType)
+            throws YDataHandlerException {
+        return getUtils().getMultiInstanceItemNameAndType(dataType);
+    }
+
+
+    /**
+     * Gets the appropriate-for-type suffix for an XQuery
+     * @param dataType the type to get the suffix for
+     * @return the appropriate suffix
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public String getXQuerySuffix(String dataType) throws YDataHandlerException {
+        return getUtils().getXQuerySuffix(dataType);
+    }
+
+
+
+    private DataUtil getUtils() throws YDataHandlerException {
+        checkSpecificationExists();
+        return _utils;
     }
 
 }

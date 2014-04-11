@@ -102,7 +102,7 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                 getHandler().addTaskDecomposition(gateway);
             }
         }
-        catch (YSyntaxException yse) {
+        catch (Exception e) {
             // ?
         }
     }
@@ -130,7 +130,7 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                 YAWLEditor.getNetsPane().openNet(graph);
             }
         }
-        catch (YSyntaxException yse) {
+        catch (Exception e) {
             // ?
         }
     }

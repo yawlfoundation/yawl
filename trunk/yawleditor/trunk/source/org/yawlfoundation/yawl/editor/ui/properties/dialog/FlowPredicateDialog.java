@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryEditorPane;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
@@ -180,9 +181,19 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
          .append("/")
          .append(varID)
          .append("/")
-         .append(SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                 net.getLocalOrInputVariable(varID).getDataTypeName()));
+         .append(getXQuerySuffix(net.getLocalOrInputVariable(varID).getDataTypeName()));
         return s.toString();
+    }
+
+
+    private String getXQuerySuffix(String dataType) {
+        try {
+            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                             dataType);
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
     }
 
 }

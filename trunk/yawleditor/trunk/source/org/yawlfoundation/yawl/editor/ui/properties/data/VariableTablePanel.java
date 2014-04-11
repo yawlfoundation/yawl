@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
@@ -304,13 +305,11 @@ public class VariableTablePanel extends JPanel
 
     private boolean shouldEnableMIButton() {
         VariableRow row = table.getSelectedVariable();
-        YDataHandler handler = SpecificationModel.getHandler().getDataHandler();
 
         // MI button can enable if the row is already MI (to allow toggling) or
         // there's no current MI row AND the row's data type is MI valid
         return row != null && (row.isMultiInstance() ||
-                ( ! table.hasMultiInstanceRow() &&
-                handler.getMultiInstanceItemNameAndType(row.getDataType()) != null));
+                ( ! table.hasMultiInstanceRow() && isValidMIType(row.getDataType())));
     }
 
 
@@ -326,6 +325,17 @@ public class VariableTablePanel extends JPanel
     private boolean hasBinding(VariableRow row) {
         return (row.isInput() && row.getMapping() != null) ||
                (row.isOutput() && parent.getOutputBindings().hasBinding(row.getName()));
+    }
+
+
+    private boolean isValidMIType(String dataType) {
+        try {
+            YDataHandler handler = SpecificationModel.getHandler().getDataHandler();
+            return handler.getMultiInstanceItemNameAndType(dataType) != null;
+        }
+        catch (YDataHandlerException ydhe) {
+            return false;
+        }
     }
 
 

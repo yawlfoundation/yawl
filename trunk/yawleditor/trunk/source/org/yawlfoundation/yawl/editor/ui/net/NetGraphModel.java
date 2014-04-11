@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.net;
 import org.jgraph.graph.*;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
@@ -57,10 +58,16 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     }
 
     public void setIsRootNet(boolean isRootNet) {
-        if (isRootNet) {
-            _specificationHandler.getControlFlowHandler().setRootNet((YNet) _decomposition);
+        try {
+            if (isRootNet) {
+                _specificationHandler.getControlFlowHandler().setRootNet(
+                        (YNet) _decomposition);
+            }
+            YAWLEditor.getNetsPane().resetRootNet();
         }
-        YAWLEditor.getNetsPane().resetRootNet();
+        catch (YControlFlowHandlerException ycfhe) {
+            // do nothing, since no spec is loaded
+        }
     }
 
     public boolean isRootNet() {
