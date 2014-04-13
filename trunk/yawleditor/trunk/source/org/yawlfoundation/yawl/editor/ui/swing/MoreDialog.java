@@ -34,13 +34,11 @@ public class MoreDialog extends JDialog {
     private static final int HEIGHT = 80;
 
     private final AWTEventListener _appWideMouseListener = new AWTEventListener() {
-        int count = 0;       // ignore the click that opened the dialog
         public void eventDispatched(AWTEvent event) {
             if (event instanceof MouseEvent) {
                 MouseEvent evt = (MouseEvent) event;
-                if (evt.getID() == MouseEvent.MOUSE_CLICKED) {
-                    if (count > 0) setVisible(false);
-                    count++;
+                if (evt.getID() == MouseEvent.MOUSE_RELEASED) {
+                    setVisible(false);
                 }
             }
         }
@@ -78,11 +76,11 @@ public class MoreDialog extends JDialog {
 
 
     public void setVisible(boolean visible) {
+        super.setVisible(visible);
         if (visible) {
             Toolkit.getDefaultToolkit().addAWTEventListener(
                     _appWideMouseListener, AWTEvent.MOUSE_EVENT_MASK);
         }
-        super.setVisible(visible);
     }
 
 
