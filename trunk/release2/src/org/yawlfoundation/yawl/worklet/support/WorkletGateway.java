@@ -161,6 +161,8 @@ public class WorkletGateway extends YHttpServlet {
                     result = response(evaluate(req));
                 } else if (action.equalsIgnoreCase("process")) {
                     result = response(process(req));
+                } else if (action.equalsIgnoreCase("execute")) {
+                    result = response(execute(req));
                 } else if (action.equalsIgnoreCase("addNode")) {
                     result = response(addNode(req));
                 } else if (action.equalsIgnoreCase("getNode")) {
@@ -297,6 +299,42 @@ public class WorkletGateway extends YHttpServlet {
         } else return fail("Invalid rule type '" + rType.toLongString() +
                 "'. This method can only be used for workitem constraint violation" +
                 " and workitem abort exception types");
+    }
+
+
+    private String execute(HttpServletRequest req) {
+        if (!_ws.isExceptionServiceEnabled()) {
+            return fail("Exception handling is currently disabled. Please enable in it " +
+                    "Worklet Service's web.xml");
+        }
+
+        String concStr = req.getParameter("conclusion");
+        if (concStr == null) return fail("RdrConclusion value is null");
+        Element eConclusion = JDOMUtil.stringToElement(concStr);
+        if (eConclusion == null) return fail("Invalid RdrConclusion value");
+        RdrConclusion conclusion = new RdrConclusion(eConclusion);
+
+        String rTypeStr = req.getParameter("rtype");
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        if (rTypeStr.contains("Case")) {
+            return fail("Case-level exception types cannot be executed using this method");
+        }
+        RuleType rType = RuleType.valueOf(rTypeStr);
+
+        String wirStr = req.getParameter("wir");
+        if (wirStr == null) return fail("Work item has null value");
+        WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+
+        try {
+            WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+            if (refreshedWir == null) return fail("Work item '" + wir.getID() +
+                    "' is unknown to the Engine");
+            wir = refreshedWir;
+        }
+        catch (IOException ioe) {
+            return fail(ioe.getMessage());
+        }
+        return ExceptionService.getInst().raiseException(wir, rType, conclusion);
     }
 
 

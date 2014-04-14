@@ -1745,6 +1745,25 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     }
 
 
+    /**
+     * Raises an exception (triggered via the API) using the conclusion passed in
+     * @param wir the wir to raise the exception for
+     * @param ruleType the exception rule type
+     * @param conclusion a populated conclusion object
+     */
+    public String raiseException(WorkItemRecord wir, RuleType ruleType,
+                               RdrConclusion conclusion) {
+        String caseID = wir.getRootCaseID();
+        CaseMonitor monitor = _monitoredCases.get(caseID);
+        if (monitor == null) {
+            monitor = new CaseMonitor(new YSpecificationID(wir), caseID, null);
+        }
+        raiseException(monitor, conclusion, wir, ruleType);
+        return StringUtil.wrap(ruleType.toLongString() +
+                " exception raised for work item: " + wir.getID(), "result");
+    }
+
+
 //***************************************************************************//
 
     /**
