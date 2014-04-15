@@ -375,6 +375,14 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String getStartingDataSnapshot(String workItemID, String sessionHandle)
+                throws IOException {
+        Map<String, String> params = prepareParamMap("getStartingDataSnapshot", sessionHandle);
+        params.put("workItemID", workItemID);
+        return executePost(_backEndURIStr, params);
+    }
+
+
     /**
      * Gets an XML representation of information the task declaration.
      * This can be parsed into a copy of a YTask
