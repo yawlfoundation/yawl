@@ -367,6 +367,14 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Rejects the announcement of an enabled work item to a service, and passes the
+     * the work item back to the engine for processing by the default work list
+     * @param workItemID the workitem id.
+     * @param sessionHandle the sessionhandle
+     * @return a success or error message
+     * @throws IOException if the engine can't be found.
+     */
     public String rejectAnnouncedEnabledTask(String workItemID, String sessionHandle) 
             throws IOException {
         Map<String, String> params = prepareParamMap("rejectAnnouncedEnabledTask", sessionHandle);
@@ -375,6 +383,15 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets a snapshot of data values that would be assigned to an enabled work item
+     * IF that work item was started at the moment the method is called. Note that
+     * the work item must have Enabled status only.
+     * @param workItemID the workitem id
+     * @param sessionHandle the sessionhandle
+     * @return an XML string of the data snapshot, or an error message.
+     * @throws IOException if the engine can't be found.
+     */
     public String getStartingDataSnapshot(String workItemID, String sessionHandle)
                 throws IOException {
         Map<String, String> params = prepareParamMap("getStartingDataSnapshot", sessionHandle);
@@ -606,6 +623,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      *    &lt;/data&gt;
      * </pre>
      * If there are no case params then null should be passed.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
      * @param sessionHandle the session handle
      * @return returns a diagnostic message in case of failure
      * @throws IOException if engine can't be found
@@ -646,6 +665,8 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
      * for the Case-Completion event
      * @param specID the specification id
      * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
      * @param sessionHandle the session handle
      * @param completionObserverURI the URI of the IB service that will listen
      *        for a case-completed event
@@ -662,6 +683,20 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
     
     
+    /**
+     * Override of launchCase to provide the ability to delay the launch for
+     * a period
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param mSec the number of milliseconds to wait before launching the case
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI, long mSec) throws IOException {
@@ -671,6 +706,21 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         return executePost(_backEndURIStr, params);
     }
 
+
+    /**
+     * Override of launchCase to provide the ability to delay the launch until a
+     * specific date and time
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param start the date and time when the case is to be launched
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
                              String completionObserverURI, Date start) throws IOException {
@@ -679,6 +729,23 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
         params.put("start", String.valueOf(start.getTime()));
         return executePost(_backEndURIStr, params);
     }
+
+
+    /**
+     * Override of launchCase to provide the ability to delay the launch for
+     * a period
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @param wait a Duration object that specifies a period to to wait before l
+     *             aunching the case
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
 
     public String launchCase(YSpecificationID specID, String caseParams,
                              String sessionHandle, YLogDataItemList logData,
@@ -690,6 +757,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    // builds a parameter map for a launchCase call
     private Map<String, String> buildLaunchCaseParamMap(YSpecificationID specID,
                                  String caseParams, String sessionHandle,
                                  YLogDataItemList logData, String completionObserverURI) {
@@ -734,6 +802,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets a complete list of all running case ids from the engine
+     * @param sessionHandle the session handle
+     * @return an XML list of case ids that are currently executing
+     * @throws IOException if engine cannot be found
+     */
     public String getAllRunningCases(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getAllRunningCases",
                                                       sessionHandle);
@@ -933,6 +1007,11 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    /**
+     * Removes the outermost set of xml tags from a string, if any
+     * @param xml the xml string to strip
+     * @return the stripped xml string
+     */
     public String stripOuterElement(String xml) {
         return super.stripOuterElement(xml);
     }
