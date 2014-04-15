@@ -999,11 +999,20 @@ public abstract class YTask extends YExternalNetElement {
             throws YDataStateException, YStateException, YQueryException {
 
         logger.debug("--> prepareDataForInstanceStarting" + childInstanceID);
+        if (null != getDecompositionPrototype()) {
+            _caseToDataMap.put(childInstanceID, getStartingDataSnapshot());
+        }
+        logger.debug("<-- prepareDataForInstanceStarting");
+    }
 
-        if (null == getDecompositionPrototype()) return;
+
+    public Element getStartingDataSnapshot()
+            throws YDataStateException, YStateException, YQueryException {
+
+        logger.debug("--> getStartingDataSnapshot");
+        if (null == getDecompositionPrototype()) return null;
 
         Element dataForChildCase = produceDataRootElement();
-
         List<YParameter> inputParams =
                 new ArrayList<YParameter>(_decompositionPrototype.getInputParameters().values());
         Collections.sort(inputParams);
@@ -1052,8 +1061,8 @@ public abstract class YTask extends YExternalNetElement {
                 }
             }
         }
-        _caseToDataMap.put(childInstanceID, dataForChildCase);
-        logger.debug("<-- prepareDataForInstanceStarting");
+        logger.debug("<-- getStartingDataSnapshot");
+        return dataForChildCase;
     }
 
 

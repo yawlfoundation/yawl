@@ -105,6 +105,8 @@ public interface EngineGateway extends Remote {
 
     String skipWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 
+    String getStartingDataSnapshot(String workItemID, String sessionHandle) throws RemoteException;
+
     String createNewInstance(String workItemID, String paramValueForMICreation, String sessionHandle) throws RemoteException;
 
     String describeAllWorkItems(String sessionHandle) throws RemoteException;

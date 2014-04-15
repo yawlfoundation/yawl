@@ -396,6 +396,9 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 else if (action.equals("skip")) {
                     msg.append(_engine.skipWorkItem(workItemID, sessionHandle));
                 }
+                else if (action.equals("getStartingDataSnapshot")) {
+                    msg.append(_engine.getStartingDataSnapshot(workItemID, sessionHandle));
+                }
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));

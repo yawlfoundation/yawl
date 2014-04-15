@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
+import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -1023,7 +1024,11 @@ public class userWorkQueues extends AbstractPageBean {
             // set view & complete buttons
             boolean emptyItem = getApplicationBean().isEmptyWorkItem(wir);
             btnView.setDisabled(emptyItem && (wir.getCustomFormURL() == null));
-            btnComplete.setDisabled(!(emptyItem || (wir.getUpdatedData() != null)));
+
+            // complete button can enable if the item has no parameters OR
+            // it has updated data and that data can validate
+            btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null &&
+                     ((DynFormFactory) getBean("DynFormFactory")).validateInputs())));
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
             String niAllowed = wir.getAllowsDynamicCreation();

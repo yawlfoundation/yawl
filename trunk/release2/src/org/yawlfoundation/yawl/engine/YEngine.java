@@ -1365,6 +1365,27 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    public Element getStartingDataSnapshot(String itemID) throws YStateException,
+            YEngineStateException, YDataStateException, YQueryException {
+        checkEngineRunning();
+        YWorkItem workItem = getWorkItem(itemID);
+        if (workItem != null) {
+            if (workItem.getStatus() != YWorkItemStatus.statusEnabled) {
+                throw new YStateException(
+                        "This method only accepts work items with 'Enabled' status");
+            }
+            YNetRunner netRunner = getNetRunner(workItem.getCaseID());
+            YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
+            if (task != null) {
+                return task.getStartingDataSnapshot();
+            }
+            throw new YStateException("No current task found with id = " +
+                    workItem.getTaskID());
+        }
+        throw new YStateException("No work item found with id = " + itemID);
+    }
+
+
     /**
      * Starts a work item.  If the workitem param is enabled this method fires the task
      * and returns the first of its child instances in the executing state.

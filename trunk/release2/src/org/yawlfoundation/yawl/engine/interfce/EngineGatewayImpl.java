@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 
 import org.apache.log4j.Logger;
 import org.jdom2.Document;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.*;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
@@ -453,6 +454,23 @@ public class EngineGatewayImpl implements EngineGateway {
         }
     }
 
+
+    public String getStartingDataSnapshot(String workItemID, String sessionHandle)
+            throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            Element data = _engine.getStartingDataSnapshot(workItemID);
+            if (data == null) {
+                return failureMessage("Work item has no decomposition");
+            }
+            return successMessage(JDOMUtil.elementToString(data));
+        }
+        catch (YAWLException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
 
     /**
      *
