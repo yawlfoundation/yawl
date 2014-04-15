@@ -195,7 +195,6 @@ public class Marshaller {
                         specData.setAuthors(authorElem.getText());
                     }
                 }
-
             }
         }
         return specSummaryList;

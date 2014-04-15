@@ -43,6 +43,8 @@ import java.util.*;
  */
 public class ResourceMarshaller {
 
+    private static final String SPEC_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
     /** Constructor */
     public ResourceMarshaller() { }
 
@@ -164,42 +166,47 @@ public class ResourceMarshaller {
         xml.append(StringUtil.wrap(specData.getID().getIdentifier(), "id"));
         xml.append(StringUtil.wrap(specData.getID().getUri(), "uri"));
 
-            if (specData.getName() != null) {
-                xml.append(StringUtil.wrap(specData.getName(), "name"));
-            }
-            if (specData.getDocumentation() != null) {
-                xml.append(StringUtil.wrap(specData.getDocumentation(), "documentation"));
-            }
+        if (specData.getName() != null) {
+            xml.append(StringUtil.wrap(specData.getName(), "name"));
+        }
+        if (specData.getDocumentation() != null) {
+            xml.append(StringUtil.wrap(specData.getDocumentation(), "documentation"));
+        }
 
-            Iterator inputParams = specData.getInputParams().iterator();
-            if (inputParams.hasNext()) {
-                xml.append("<params>");
-                while (inputParams.hasNext()) {
-                    YParameter inputParam = (YParameter) inputParams.next();
-                    xml.append(inputParam.toSummaryXML());
-                }
-                xml.append("</params>");
+        Iterator inputParams = specData.getInputParams().iterator();
+        if (inputParams.hasNext()) {
+            xml.append("<params>");
+            while (inputParams.hasNext()) {
+                YParameter inputParam = (YParameter) inputParams.next();
+                xml.append(inputParam.toSummaryXML());
             }
-            xml.append(StringUtil.wrap(specData.getRootNetID(), "rootNetID"));
-            xml.append(StringUtil.wrap(specData.getSchemaVersion().toString(), "version"));
-            xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
-            xml.append(StringUtil.wrap(specData.getStatus(), "status"));
+            xml.append("</params>");
+        }
+        xml.append(StringUtil.wrap(specData.getRootNetID(), "rootNetID"));
+        xml.append(StringUtil.wrap(specData.getSchemaVersion().toString(), "version"));
+        xml.append(StringUtil.wrap(specData.getSpecVersion(), "specversion"));
+        xml.append(StringUtil.wrap(specData.getStatus(), "status"));
 
-            String metaTitle = specData.getMetaTitle();
-            if (metaTitle != null) xml.append(StringUtil.wrap(metaTitle, "metaTitle"));
+        String metaTitle = specData.getMetaTitle();
+        if (metaTitle != null) xml.append(StringUtil.wrap(metaTitle, "metaTitle"));
 
-            String authors = specData.getAuthors();
-            if (authors != null) {
-                xml.append("<authors>");
-                for (String author : authors.split(",")) {
-                    xml.append(StringUtil.wrap(author.trim(), "author"));
-                }
-                xml.append("</authors>");
+        String authors = specData.getAuthors();
+        if (authors != null) {
+            xml.append("<authors>");
+            for (String author : authors.split(",")) {
+                xml.append(StringUtil.wrap(author.trim(), "author"));
             }
-            String gateway = specData.getExternalDataGateway();
-            if (gateway != null) {
-                xml.append(StringUtil.wrap(gateway, "externalDataGateway"));
-            }
+            xml.append("</authors>");
+        }
+        String gateway = specData.getExternalDataGateway();
+        if (gateway != null) {
+            xml.append(StringUtil.wrap(gateway, "externalDataGateway"));
+        }
+        String specXML = specData.getAsXML();
+        if (specXML != null) {
+            xml.append(StringUtil.wrap(
+                    specXML.substring(SPEC_HEADER.length()), "specAsXML"));
+        }
         xml.append("</specificationData>");
         return xml.toString() ;
     }
@@ -254,7 +261,14 @@ public class ResourceMarshaller {
                         result.addAuthor(authorElem.getText());
                     }
                 }
-
+                Element specAsXML = specElement.getChild("specAsXML");
+                if (specAsXML != null) {
+                    List<Element> specSet = specAsXML.getChildren();
+                    if (! specSet.isEmpty()) {
+                        result.setSpecAsXML(SPEC_HEADER +
+                                JDOMUtil.elementToString(specSet.get(0)));
+                    }
+                }
             }
         }
         return result;
