@@ -43,20 +43,19 @@ import java.util.Set;
 
 public class DynAttributeFactory {
 
-    static String pkg = "org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes." ;
-    static Logger _log = Logger.getLogger(DynAttributeFactory.class) ;
+    private static final String pkg = "org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes." ;
+    private static final Logger _log = Logger.getLogger(DynAttributeFactory.class) ;
 
+    private static Set<AbstractDynAttribute> _instances;
 
     public static void applyAttributes(PanelLayout parentPanel, WorkItemRecord wir, Participant p) {
-        Set<AbstractDynAttribute> classes = getInstances();
-        for (AbstractDynAttribute attributeClass : classes) {
+        for (AbstractDynAttribute attributeClass : getInstances()) {
             attributeClass.applyAttributes(parentPanel, wir, p);
         }
     }
 
     public static void adjustFields(List<DynFormField> fieldList, WorkItemRecord wir, Participant p) {
-        Set<AbstractDynAttribute> classes = getInstances();
-        for (AbstractDynAttribute attributeClass : classes) {
+        for (AbstractDynAttribute attributeClass : getInstances()) {
             attributeClass.adjustFields(fieldList, wir, p);
         }
     }
@@ -101,21 +100,23 @@ public class DynAttributeFactory {
      * @return a List of instantiated allocator objects
      */
     public static Set<AbstractDynAttribute> getInstances() {
+        if (_instances != null) return _instances;
 
-        HashSet<AbstractDynAttribute> result = new HashSet<AbstractDynAttribute>();
+        _instances = new HashSet<AbstractDynAttribute>();
 
         // retrieve a list of (filtered) class names in this package
         String pkgPath = Docket.getPackageFileDir("jsf/dynform/dynattributes") ;
         String[] classes = new File(pkgPath).list(new DynAttributeClassFileFilter());
+        if (classes != null) {
+            for (String aClass : classes) {
 
-        for (String aClass : classes) {
-
-            // strip off the file extension
-            String sansExtn = aClass.substring(0, aClass.lastIndexOf('.'));
-            AbstractDynAttribute temp = getInstance(sansExtn);
-            if (temp != null) result.add(temp);
+                // strip off the file extension
+                String sansExtn = aClass.substring(0, aClass.lastIndexOf('.'));
+                AbstractDynAttribute temp = getInstance(sansExtn);
+                if (temp != null) _instances.add(temp);
+            }
         }
-        return result;
+        return _instances;
     }
 
 

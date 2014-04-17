@@ -855,8 +855,12 @@
             <fileset dir="${schema.dir}" includes="*.xsd"/>
         </copy>
 
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}" includes="**/*.hbm.xml"/>
+        </copy>
+
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
-            <fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd"
+            <fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
                      excludes="org/yawlfoundation/yawl/engine/gui"/>
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
