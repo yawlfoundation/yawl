@@ -18,13 +18,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 
-import java.io.Serializable;
-
 /**
  * Author: Michael Adams
  * Creation Date: 23/06/2008
  */
-public class CodeletData implements Serializable, Cloneable {
+public class CodeletData {
 
     private String name ;
     private String description ;
@@ -33,8 +31,6 @@ public class CodeletData implements Serializable, Cloneable {
         this.name = name;
         this.description = description;
     }
-
-    public CodeletData() { }
 
     public String getName() {
         return name;
@@ -55,4 +51,13 @@ public class CodeletData implements Serializable, Cloneable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public boolean equals(Object o) {
+        if (! (o instanceof CodeletData)) return false;
+        CodeletData other = (CodeletData) o;
+        return (name == null && other.name == null) ||
+                (name != null && name.equals(other.name));
+    }
+
+    public String toString() { return getSimpleName(); }
 }

@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletData;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ServicesPropertyEditor;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -154,24 +155,30 @@ public class DecompositionProperties extends CellProperties {
     }
 
 
-    public String getCodelet() {
+    public CodeletData getCodelet() {
         if (_decomposition != null) {
-            String codelet = _decomposition.getCodelet();
-            if (codelet != null) return codelet;
+            String codeletName = _decomposition.getCodelet();
+            if (codeletName != null) {
+                return new CodeletData(codeletName, null);
+            }
         }
         return null;
     }
 
-    public void setCodelet(String codelet) {
+    public void setCodelet(CodeletData codelet) {
         if (_decomposition != null) {
-            if (codelet != null && codelet.equals("None")) codelet = null;
-            _decomposition.setCodelet(codelet);
-            try {
-                addParameters(YConnector.getCodeletParameters(codelet));
-            }
-            catch (IOException ioe) {
-                showWarning("Codelet Parameter Error",
-                        "Failed to load required parameters from codelet");
+            if (codelet != null) {
+                if (codelet.getName().equals("None")) {
+                    codelet.setName(null);
+                }
+                _decomposition.setCodelet(codelet.getName());
+                try {
+                    addParameters(YConnector.getCodeletParameters(codelet.getName()));
+                }
+                catch (IOException ioe) {
+                    showWarning("Codelet Parameter Error",
+                            "Failed to load required parameters from codelet");
+                }
             }
             refreshCellView(vertex);
             setDirty();

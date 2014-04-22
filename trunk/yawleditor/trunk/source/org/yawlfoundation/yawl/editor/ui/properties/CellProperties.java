@@ -271,14 +271,19 @@ public class CellProperties extends NetProperties {
                 break;                 // Cancelled
             }
             try {
-                newName = XMLUtilities.toValidXMLName(newName);
+                YDecomposition decomposition;
+                String id = XMLUtilities.toValidXMLName(newName);
                 if (isComposite) {
-                    YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false, newName);
-                    return panel.getNet().getNetModel().getDecomposition();
+                    YAWLEditorNetPanel panel = YAWLEditor.getNetsPane().newNet(false, id);
+                    decomposition = panel.getNet().getNetModel().getDecomposition();
                 }
                 else {
-                    return flowHandler.addTaskDecomposition(newName);
+                    decomposition = flowHandler.addTaskDecomposition(id);
                 }
+                if (! id.equals(newName)) {
+                    decomposition.setName(newName);
+                }
+                return decomposition;
             }
             catch (IllegalIdentifierException iie) {
                 showWarning("Identifier Name Error", iie.getMessage());
@@ -333,7 +338,11 @@ public class CellProperties extends NetProperties {
         String label = getLabel();
         if (decomposition != null && (label == null || ! label.equals(getId()))) {
             firePropertyChange("id", decomposition.getID());
-            if (label == null) firePropertyChange("Label", decomposition.getID());
+            if (label == null) {
+                String newLabel = decomposition.getName();
+                if (newLabel == null) newLabel = decomposition.getID();
+                firePropertyChange("Label", newLabel);
+            }
         }
     }
 
