@@ -76,20 +76,6 @@ public abstract class AbstractConstraint extends AbstractSelector {
         return result.toString();
     }
 
-    /**
-     * Creates a runtime instance of this class from an XML description of it
-     *
-     * @param elConstraint a JDOM Element describing the class
-     * @return the instantiated object
-     */
-    public static AbstractConstraint unmarshal(Element elConstraint) {
-        AbstractConstraint constraint =
-                ConstraintFactory.getInstance(elConstraint.getChildText("name"));
-        Element eParams = elConstraint.getChild("params");
-        if (eParams != null)
-            constraint.setParams(unmarshalParams(eParams));
-        return constraint;
-    }
 
     /*******************************************************************************/
 

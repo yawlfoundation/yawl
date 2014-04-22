@@ -24,7 +24,7 @@ public class TestResourceSpecXML extends TestCase {
         ResourceManager rm = ResourceManager.getInstance();
 
         // get full set of resource selectors (ie. filters, constraints, allocators)
-        String xml = rm.getAllSelectors() ;
+        String xml = rm.getPluginHandler().getAllSelectors() ;
         Element eSelectors = JDOMUtil.stringToElement(xml);
         Element eFilters = eSelectors.getChild("filters");
         Element eConstraints = eSelectors.getChild("constraints");

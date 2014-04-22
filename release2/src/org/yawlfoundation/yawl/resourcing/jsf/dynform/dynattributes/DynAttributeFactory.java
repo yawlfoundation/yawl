@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -33,7 +34,7 @@ import java.util.Set;
 
 /**
  * This factory class creates and instantiates instances of the various dynamic form
- * attribute classes found in this package.
+ * attribute classes found in this package or on external classpaths.
  *
  * Create Date: 18/05/2009.
  *
@@ -42,9 +43,6 @@ import java.util.Set;
  */
 
 public class DynAttributeFactory {
-
-    private static final String pkg = "org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes." ;
-    private static final Logger _log = Logger.getLogger(DynAttributeFactory.class) ;
 
     private static Set<AbstractDynAttribute> _instances;
 
@@ -62,77 +60,16 @@ public class DynAttributeFactory {
 
 
     /**
-     * Instantiates a class of the name passed.
-     *
-     * @pre 'allocatorName' must be the name of a class in this package
-     * @param classname the name of the class to instantiate
-     * @return the instantiated class, or null if there was a problem
-     */
-    public static AbstractDynAttribute getInstance(String classname) {
-        try {
-            return (AbstractDynAttribute) Class.forName(pkg + classname).newInstance();
-        }
-        catch (ClassNotFoundException cnfe) {
-            _log.error("DynAttributeFactory ClassNotFoundException: class '" + classname +
-                       "' could not be found - class ignored.");
-        }
-        catch (IllegalAccessException iae) {
-            _log.error("DynAttributeFactory IllegalAccessException: class '" + classname +
-                       "' could not be accessed - class ignored.");
-	    	}
-        catch (InstantiationException ie) {
-            _log.error("DynAttributeFactory InstantiationException: class '" + classname +
-                       "' could not be instantiated - class ignored.");
-		    }
-        catch (ClassCastException cce) {
-            _log.error("DynAttributeFactory ClassCastException: class '" + classname +
-                       "' does not extend AbstractDynAttribute - class ignored.");
-        }
-
-        return null ;
-    }
-
-
-    /**
      * Constructs and returns a list of instantiated dynAttribute objects, one for each
      * of the different dynAttribute classes available in this package
      *
      * @return a List of instantiated allocator objects
      */
-    public static Set<AbstractDynAttribute> getInstances() {
-        if (_instances != null) return _instances;
-
-        _instances = new HashSet<AbstractDynAttribute>();
-
-        // retrieve a list of (filtered) class names in this package
-        String pkgPath = Docket.getPackageFileDir("jsf/dynform/dynattributes") ;
-        String[] classes = new File(pkgPath).list(new DynAttributeClassFileFilter());
-        if (classes != null) {
-            for (String aClass : classes) {
-
-                // strip off the file extension
-                String sansExtn = aClass.substring(0, aClass.lastIndexOf('.'));
-                AbstractDynAttribute temp = getInstance(sansExtn);
-                if (temp != null) _instances.add(temp);
-            }
+    private static Set<AbstractDynAttribute> getInstances() {
+        if (_instances == null) {
+            _instances = PluginFactory.getDynAttributes();
         }
         return _instances;
     }
 
-
-    /**
-     * This class is used by the File.list call in 'getAllocators' so that only
-     * valid class files of this package are included
-     */
-    private static class DynAttributeClassFileFilter implements FilenameFilter {
-
-        public boolean accept(File dir, String name) {
-            if (( new File(dir, name).isDirectory() ) ||        // ignore dirs
-                (name.startsWith("DynAttributeFactory")) ||     // and this class
-                (name.startsWith("AbstractDynAttribute")))      // and the base classes
-                return false;
-
-            return name.toLowerCase().endsWith( ".class" );     // only want .class files
-        }
-    }
 }

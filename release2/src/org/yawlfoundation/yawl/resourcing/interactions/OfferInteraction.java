@@ -25,11 +25,10 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
-import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
-import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -414,7 +413,7 @@ public class OfferInteraction extends AbstractInteraction {
             for (Element eFilter : filters) {
                 String filterClassName = eFilter.getChildText("name", nsYawl);
                 if (filterClassName != null) {
-                    AbstractFilter filter = FilterFactory.getInstance(filterClassName);
+                    AbstractFilter filter = PluginFactory.newFilterInstance(filterClassName);
                     if (filter != null) {
                         filter.setParams(parseParams(eFilter, nsYawl));
                         _filters.add(filter);
@@ -441,7 +440,7 @@ public class OfferInteraction extends AbstractInteraction {
                 String constraintClassName = eConstraint.getChildText("name", nsYawl);
                 if (constraintClassName != null) {
                     AbstractConstraint constraint =
-                            ConstraintFactory.getInstance(constraintClassName);
+                            PluginFactory.newConstraintInstance(constraintClassName);
                     if (constraint != null) {
                         constraint.setParams(parseParams(eConstraint, nsYawl));
                         _constraints.add(constraint);

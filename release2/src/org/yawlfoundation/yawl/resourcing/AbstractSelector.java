@@ -350,7 +350,7 @@ public abstract class AbstractSelector implements Comparable<AbstractSelector> {
      * @return an XML String describing this object
      * @see #reconstitute(Element)
      */
-    protected String getInformation(String outerTag) {
+    public String getInformation(String outerTag) {
         StringBuilder xml = new StringBuilder();
         xml.append("<").append(outerTag).append(">");
 

@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -28,6 +27,7 @@ import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.util.Docket;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.XNode;
 
 import javax.servlet.ServletContext;
@@ -36,11 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Map;
 
 
@@ -77,9 +73,8 @@ public class ResourceGateway extends YHttpServlet {
                         context.getInitParameter("DocStore_BackEnd"));
 
                 // set the path to external plugin classes (if any)
-                String pluginDir = context.getInitParameter("ExternalPluginsDir");
-                if (! (pluginDir == null || pluginDir.length() == 0))
-                    Docket.setExternalPluginsDir(pluginDir);
+                String pluginPath = context.getInitParameter("ExternalPluginsPath");
+                PluginFactory.setExternalPaths(pluginPath);
 
                 // enable/or disable persistence
                 String persist = context.getInitParameter("EnablePersistence");
@@ -632,16 +627,16 @@ public class ResourceGateway extends YHttpServlet {
         String name = req.getParameter("name");
 
         if (action.equalsIgnoreCase("getResourceConstraints")) {
-            result = _rm.getConstraintsAsXML() ;
+            result = PluginFactory.getConstraintsAsXML() ;
         }
         else if (action.equalsIgnoreCase("getResourceFilters")) {
-            result = _rm.getFiltersAsXML() ;
+            result = PluginFactory.getFiltersAsXML() ;
         }
         else if (action.equalsIgnoreCase("getResourceAllocators")) {
-            result = _rm.getAllocatorsAsXML() ;
+            result = PluginFactory.getAllocatorsAsXML() ;
         }
         else if (action.equalsIgnoreCase("getAllSelectors")) {
-            result = _rm.getAllSelectors() ;
+            result = PluginFactory.getAllSelectors() ;
         }
         else if (action.equalsIgnoreCase("getParticipants")) {
             result = getOrgDataSet().getParticipantsAsXML();
@@ -704,10 +699,10 @@ public class ResourceGateway extends YHttpServlet {
             result = _rm.getActiveParticipantsAsXML();
         }
         else if (action.equalsIgnoreCase("getCodelets")) {
-            result = _rm.getCodeletsAsXML();
+            result = PluginFactory.getCodeletsAsXML();
         }
         else if (action.equalsIgnoreCase("getCodeletParameters")) {
-            result = _rm.getCodeletParametersAsXML(name);
+            result = PluginFactory.getCodeletParametersAsXML(name);
         }
         else if (action.equalsIgnoreCase("getParticipantFromUserID")) {
             Participant p = _rm.getParticipantFromUserID(id);

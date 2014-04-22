@@ -19,11 +19,14 @@
 package org.yawlfoundation.yawl.util;
 
 import org.apache.log4j.Logger;
+import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -59,9 +62,12 @@ public class YPluginLoader extends URLClassLoader {
      * @param <T>
      * @return the set of matching classes
      */
-    public <T> Set<T> load(Class<T> mask) {
+    public <T> Set<Class<T>> load(Class<T> mask) {
         try {
-            Set<T> plugins = new HashSet<T>();
+            Set<Class<T>> plugins = new HashSet<Class<T>>();
+            loadPackageMatches(mask, plugins);   // load internal package classes
+
+            // now add external matching classes, if any
             for (String path : _pathList) {
                 if (! path.endsWith(File.separator)) path += File.separator;
                 File f = new File(path);
@@ -86,12 +92,86 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
+    public <T> Map<String, Class<T>> loadAsMap(Class<T> mask) {
+        Map<String, Class<T>> map = new HashMap<String, Class<T>>();
+        for (Class<T> clazz : load(mask)) {
+            map.put(clazz.getName(), clazz);
+        }
+        return map;
+    }
+
+
+    /**
+     * Loads the set of classes that implement or subclass a specified class that are
+     * members of the same package as that class
+     * @param mask the interface or super class to use as the basis of the load
+     * @param <T>
+     * @return the set of matching classes
+     */
+    public <T> Set<Class<T>> loadInternal(Class<T> mask) {
+        try {
+            Set<Class<T>> plugins = new HashSet<Class<T>>();
+            loadPackageMatches(mask, plugins);
+            return plugins;
+        }
+        catch (IOException e) {
+            _log.error("Error loading classes: " + e);
+            return Collections.emptySet();
+        }
+    }
+
+
+    /**
+     * Loads a class that implements or subclasses a specified class and matches a
+     * specific name
+     * @param mask the interface or super class to use as the basis of the load
+     * @param instanceName the name of the class to load an instance of
+     * @param <T>
+     * @return the loaded instance, or null if a matching class isn't found
+     */
+    public <T> T getInstance(Class<T> mask, String instanceName) {
+        try {
+            for (Class<T> clazz : load(mask)) {
+                if (clazz.getName().equals(instanceName)) {
+                    return clazz.newInstance();
+                }
+            }
+        }
+        catch (Throwable t) {
+            // fall through
+        }
+        return null ;
+    }
+
+
     /******************************************************************************/
 
-    // walks a jar file and checks each internal file for a match
-    private <T> void processJAR(Class<T> mask, Set<T> plugins, File f) throws IOException {
+    private <T> void processJAR(Class<T> mask, Set<Class<T>> plugins, File f)
+            throws IOException {
         addURL(f.toURI().toURL());
-        JarFile jar = new JarFile(f);
+        processJAR(mask, plugins, new JarFile(f));
+    }
+
+
+    private <T> void processJAR(Class<T> mask, Set<Class<T>> plugins,
+                                JarURLConnection connection) throws IOException {
+        JarFile jar = connection.getJarFile();
+        JarEntry baseEntry = connection.getJarEntry();
+        String base = baseEntry.getName();
+        Enumeration<JarEntry> entries = jar.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (! entry.isDirectory() && entry.getName().startsWith(base)) {
+                addIfMatch(mask, plugins, entry.getName());
+            }
+        }
+
+    }
+
+
+    // walks a jar file and checks each internal file for a match
+    private <T> void processJAR(Class<T> mask, Set<Class<T>> plugins, JarFile jar)
+            throws IOException {
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -102,9 +182,9 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
-    private <T> void addIfMatch(Class<T> mask, Set<T> plugins, String fileName) {
+    private <T> void addIfMatch(Class<T> mask, Set<Class<T>> plugins, String fileName) {
         if (fileName.endsWith(".class")) {
-            T plugin = loadIfMatch(mask, fileName);
+            Class<T> plugin = loadIfMatch(mask, fileName);
             if (plugin != null) {
                 plugins.add(plugin);
             }
@@ -112,14 +192,14 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
-    private <T> T loadIfMatch(Class<T> mask, String name) {
+    private <T> Class<T> loadIfMatch(Class<T> mask, String name) {
         try {
             Class<?> c = loadClass(pathToPackage(name));      // may throw NoClassDef
             if (mask.isInterface())  {
-                return (T) loadIfImplementer(c, mask);
+                return (Class<T>) loadIfImplementer(c, mask);
             }
             else {
-                return (T) loadIfSubclass(c, mask);
+                return (Class<T>) loadIfSubclass(c, mask);
             }
         }
         catch (Throwable e) {
@@ -129,10 +209,11 @@ public class YPluginLoader extends URLClassLoader {
     }
 
     // returns an instance of c if c implements the specified interface
-    private <T> T loadIfImplementer(Class<T> c, Class<?> interfaceToMatch) throws Throwable {
+    private <T> Class<T> loadIfImplementer(Class<T> c, Class<?> interfaceToMatch)
+            throws Throwable {
         for (Class<?> iface : c.getInterfaces()) {
             if (iface.getName().equals(interfaceToMatch.getName())) {
-                return (T) c.newInstance();
+                return (Class<T>) c;
             }
         }
         return null;
@@ -140,11 +221,12 @@ public class YPluginLoader extends URLClassLoader {
 
 
     // returns an instance of c if c (or its ancestors) extend from the specified superclass
-    private <T> T loadIfSubclass(Class<?> c, Class<T> superclassToMatch) throws Throwable {
+    private <T> Class<T> loadIfSubclass(Class<?> c, Class<T> superclassToMatch)
+            throws Throwable {
         Class<?> superClass = c.getSuperclass();
         if (superClass == Object.class) return null;
         if (superClass.getName().equals(superclassToMatch.getName())) {
-            return (T) c.newInstance();
+            return (Class<T>) c;
         }
         return loadIfSubclass(superClass, superclassToMatch);
     }
@@ -173,6 +255,31 @@ public class YPluginLoader extends URLClassLoader {
             else fileTree.addAll(getFileSet(entry));
         }
         return fileTree;
+    }
+
+
+    // loads the matching classes in the same package as 'mask'
+    private <T> void loadPackageMatches(Class<T> mask, Set<Class<T>> plugins)
+            throws IOException {
+        String pkg = mask.getPackage().getName();
+        String pkgPath = pkg.replace('.', '/');
+        Enumeration<URL> e = getResources(pkgPath);
+        while (e.hasMoreElements()) {
+            URL url = e.nextElement();
+            URLConnection connection = url.openConnection();
+            if (connection instanceof JarURLConnection) {
+                processJAR(mask, plugins, (JarURLConnection) connection);
+            }
+            else if (connection instanceof FileURLConnection) {
+                String[] fileList = new File(url.getPath()).list();
+                if (fileList != null) {
+                    for (String file : fileList) {
+                        String fileName = new File(pkgPath, file).getPath();
+                        addIfMatch(mask, plugins, fileName);
+                    }
+                }
+            }
+        }
     }
 
 }

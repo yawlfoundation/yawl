@@ -16,7 +16,7 @@ public class TestGetSelectors extends TestCase {
     public void testGetSelectors() {
 
         ResourceManager rm = ResourceManager.getInstance();
-        String xml = rm.getAllSelectors() ;
+        String xml = rm.getPluginHandler().getAllSelectors() ;
         Document doc = JDOMUtil.stringToDocument(xml);
         JDOMUtil.documentToFile(doc, "c:/temp/selectors.xml");
     }
