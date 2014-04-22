@@ -291,7 +291,7 @@ public class DataVariableDialog extends JDialog
 
 
     private VariableTablePanel createTablePanel(TableType tableType) {
-        String name = tableType == TableType.Net ? net.getID() : task.getName();
+        String name = tableType == TableType.Net ? net.getID() : task.getID();
         return new VariableTablePanel(createTableRows(tableType), tableType, name, this);
     }
 

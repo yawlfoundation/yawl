@@ -19,8 +19,9 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletData;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletSelectTable;
+import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -45,16 +46,14 @@ public class CodeletDialog extends AbstractDoneDialog {
     }
 
 
-    public String getSelection() {
-        return cancelButtonSelected() ? null : codeletTable.getSelectedCodeletName();
+    public CodeletData getSelection() {
+        return cancelButtonSelected() ? null : codeletTable.getSelectedCodelet();
     }
 
 
-    public void setSelection(String codeletName) {
-        if (codeletName != null) {
-            int lastDot = codeletName.lastIndexOf('.');
-            if (lastDot > -1) codeletName = codeletName.substring(lastDot + 1);
-            codeletTable.setSelectedRowWithName(codeletName);
+    public void setSelection(CodeletData codelet) {
+        if (codelet != null) {
+            codeletTable.setSelectedCodelet(codelet);
         }
     }
 
