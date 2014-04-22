@@ -35,27 +35,18 @@ import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
-import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
-import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
-import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
-import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
-import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
-import org.yawlfoundation.yawl.resourcing.constraints.ConstraintFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
-import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSourceFactory;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.util.OrgDataRefresher;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
-import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
-import org.yawlfoundation.yawl.resourcing.filters.FilterFactory;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
@@ -168,7 +159,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         _log.info("Loading org data...");
 
         // get correct ref to org data backend
-        _orgdb = DataSourceFactory.getInstance(dataSourceClassName);
+        _orgdb = PluginFactory.newDataSourceInstance(dataSourceClassName);
 
         if (_orgdb != null) {
 
@@ -550,92 +541,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             _cache.cancelCodeletRunner(wir.getID());                    // if any
         }
         return (removed != null);
-    }
-
-
-    /*********************************************************************************/
-    /**
-     * *****************************************************************************
-     */
-
-    // GET SELECTOR METHODS - USED PRIMARILY BY THE RESOURCE GATEWAY //
-    public Set<AbstractConstraint> getConstraints() {
-        return ConstraintFactory.getInstances();
-    }
-
-    public Set<AbstractFilter> getFilters() {
-        return FilterFactory.getInstances();
-    }
-
-    public Set<AbstractAllocator> getAllocators() {
-        return AllocatorFactory.getInstances();
-    }
-
-    public String getConstraintsAsXML() {
-        Set constraints = getConstraints();
-        StringBuilder result = new StringBuilder("<constraints>");
-        result.append(getSelectors(constraints, "constraint"));
-        result.append("</constraints>");
-        return result.toString();
-    }
-
-    public String getFiltersAsXML() {
-        Set filters = getFilters();
-        StringBuilder result = new StringBuilder("<filters>");
-        result.append(getSelectors(filters, "filter"));
-        result.append("</filters>");
-        return result.toString();
-    }
-
-    public String getAllocatorsAsXML() {
-        Set allocators = getAllocators();
-        StringBuilder result = new StringBuilder("<allocators>");
-        result.append(getSelectors(allocators, "allocator"));
-        result.append("</allocators>");
-        return result.toString();
-    }
-
-    public String getAllSelectors() {
-        StringBuilder xml = new StringBuilder("<selectors>");
-        xml.append(getConstraintsAsXML());
-        xml.append(getFiltersAsXML());
-        xml.append(getAllocatorsAsXML());
-        xml.append("</selectors>");
-        return xml.toString();
-    }
-
-    public String getSelectors(Set items, String tag) {
-        StringBuilder result = new StringBuilder();
-        for (Object item : items) {
-            result.append(((AbstractSelector) item).getInformation(tag));
-        }
-        return result.toString();
-    }
-
-    public String getCodeletsAsXML() {
-        Set<AbstractCodelet> codelets = getCodelets();
-        StringBuilder result = new StringBuilder("<codelets>");
-        for (AbstractCodelet codelet : codelets) result.append(codelet.toXML());
-        result.append("</codelets>");
-        return result.toString();
-
-    }
-
-    public Set<AbstractCodelet> getCodelets() {
-        return CodeletFactory.getInstances();
-    }
-
-
-    public List<YParameter> getCodeletParameters(String codeletName) {
-        AbstractCodelet codelet = CodeletFactory.getInstance(codeletName);
-        return (codelet != null) ? codelet.getRequiredParams() : null;
-    }
-
-
-    public String getCodeletParametersAsXML(String codeletName) {
-        AbstractCodelet codelet = CodeletFactory.getInstance(codeletName);
-        return (codelet != null) ? codelet.getRequiredParamsToXML() :
-                fail("Could not locate codelet: '" + codeletName + "'.");
     }
 
 

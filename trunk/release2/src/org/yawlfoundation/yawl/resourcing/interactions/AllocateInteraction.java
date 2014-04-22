@@ -22,8 +22,8 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
-import org.yawlfoundation.yawl.resourcing.allocators.AllocatorFactory;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
 import java.util.Set;
 
@@ -68,7 +68,7 @@ public class AllocateInteraction extends AbstractInteraction {
         if (eAllocator != null) {
             String allocatorClassName = eAllocator.getChildText("name", nsYawl);
             if (allocatorClassName != null) {
-                _allocator = AllocatorFactory.getInstance(allocatorClassName);
+                _allocator = PluginFactory.newAllocatorInstance(allocatorClassName);
                 if (_allocator != null)
                     _allocator.setParams(parseParams(eAllocator, nsYawl));
                 else

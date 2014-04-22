@@ -92,19 +92,6 @@ public abstract class AbstractFilter extends AbstractSelector {
         return result.toString();
     }
 
-    /**
-     * Instantiates a filter object (extending from this base class)
-     *
-     * @param elFilter the xml extracted from a spec file describing this filter
-     * @return an instantiated object of 'name' type
-     */
-    public static AbstractFilter unmarshal(Element elFilter) {
-        AbstractFilter filter = FilterFactory.getInstance(elFilter.getChildText("name"));
-        Element eParams = elFilter.getChild("params");
-        if (eParams != null) filter.setParams(unmarshalParams(eParams));
-        return filter;
-    }
-
 
     /******************************************************************************/
 

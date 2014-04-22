@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
-import org.yawlfoundation.yawl.resourcing.codelets.CodeletFactory;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -59,6 +58,7 @@ public class CodeletRunner implements Runnable {
     public void run() {
         String codeletName = _wir.getCodelet();
         Element result = null;
+        ResourceManager rm = ResourceManager.getInstance();
 
         try {
 
@@ -69,7 +69,7 @@ public class CodeletRunner implements Runnable {
             List<YParameter> outputs = _taskInfo.getParamSchema().getOutputParams();
 
             // get class instance
-            _codelet = CodeletFactory.getInstance(codeletName);
+            _codelet = PluginFactory.newCodeletInstance(codeletName);
             if (_codelet != null) {
                 _codelet.setWorkItem(_wir);
                 if (_init)
@@ -89,7 +89,7 @@ public class CodeletRunner implements Runnable {
         }
 
         // tell the RM we're done
-        ResourceManager.getInstance().handleCodeletCompletion(_wir, result);
+        rm.handleCodeletCompletion(_wir, result);
     }
 
 

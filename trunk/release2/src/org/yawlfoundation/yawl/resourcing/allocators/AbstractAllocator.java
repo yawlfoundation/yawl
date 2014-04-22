@@ -85,20 +85,6 @@ public abstract class AbstractAllocator extends AbstractSelector {
         return result.toString();
     }
 
-    /**
-     * Creates a runtime instance of this class from an XML description of it
-     * @param elAllocator a JDOM Element describing the class
-     * @return the instantiated object
-     */
-    public static AbstractAllocator unmarshal(Element elAllocator) {
-        AbstractAllocator allocator =
-                AllocatorFactory.getInstance(elAllocator.getChildText("name")) ;
-        Element eParams = elAllocator.getChild("params");
-        if (eParams != null)
-            allocator.setParams(unmarshalParams(eParams));
-        return allocator ;
-    }
-
 
     /**
      * Gets a list of all resource log rows for a given specification + task + event

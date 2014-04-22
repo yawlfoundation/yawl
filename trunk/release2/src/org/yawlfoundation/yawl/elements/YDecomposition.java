@@ -226,9 +226,9 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
         // just do the decomposition facts (not the surrounding element) - to keep life simple
         StringBuilder xml = new StringBuilder();
         if (_name != null)
-            xml.append(StringUtil.wrap(_name, "name"));
+            xml.append(StringUtil.wrapEscaped(_name, "name"));
         if (_documentation != null)
-            xml.append(StringUtil.wrap(_documentation, "documentation"));
+            xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
 
         xml.append(paramMapToXML(_inputParameters));
 
