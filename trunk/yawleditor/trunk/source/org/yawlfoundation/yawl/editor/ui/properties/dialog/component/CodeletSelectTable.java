@@ -189,7 +189,7 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             Component c = super.getTableCellRendererComponent(table, value, isSelected,
                     hasFocus, row, column);
-            int height = c.getPreferredSize().height;
+            int height = c.getPreferredSize().height + 10;
             if (height > table.getRowHeight(row)) {
                 table.setRowHeight(row, height);
             }

@@ -44,7 +44,8 @@ public class CodeletSelectTableModel extends AbstractOrderedRowTableModel {
     public void setCodeletDataList(List<CodeletData> codeletDataList) {
         this.codeletDataList = codeletDataList;
         if (codeletDataList != null) {
-            codeletDataList.add(0, new CodeletData("None", "Remove a previously selected codelet"));
+            codeletDataList.add(0, new CodeletData("None",
+                    "<html>Remove a previously selected codelet</html>"));
             setOrderedRows(codeletDataList);
         }
     }

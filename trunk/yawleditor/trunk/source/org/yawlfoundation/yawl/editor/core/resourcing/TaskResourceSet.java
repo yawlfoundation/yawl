@@ -38,7 +38,7 @@ public class TaskResourceSet {
     private final YAtomicTask _task;
 
     private final BasicOfferInteraction _offer;
-    private final AllocateInteraction _allocate;
+    private final ClientAllocateInteraction _allocate;
     private final StartInteraction _start;
     private final BasicSecondaryResources _secondary;
 
@@ -49,7 +49,7 @@ public class TaskResourceSet {
     public TaskResourceSet(YAtomicTask task) {
         _task = task;
         _offer = new BasicOfferInteraction(_task) ;
-        _allocate = new AllocateInteraction(_task.getID());
+        _allocate = new ClientAllocateInteraction(_task.getID());
         _start = new StartInteraction(_task.getID()) ;
         _secondary = new BasicSecondaryResources(_task);
         _privileges = new TaskPrivileges();
