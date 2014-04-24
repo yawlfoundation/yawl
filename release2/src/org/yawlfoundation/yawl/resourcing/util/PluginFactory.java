@@ -8,6 +8,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.AbstractDynAttribute;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
+import org.yawlfoundation.yawl.util.AbstractPluginFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YPluginLoader;
 
@@ -17,21 +18,16 @@ import java.util.*;
  * @author Michael Adams
  * @date 19/04/2014
  */
-public class PluginFactory {
+public class PluginFactory extends AbstractPluginFactory {
 
     private static Map<String, Class<AbstractFilter>> _filters;
     private static Map<String, Class<AbstractConstraint>> _constraints;
     private static Map<String, Class<AbstractAllocator>> _allocators;
     private static Map<String, Class<AbstractCodelet>> _codelets;
 
-    private static String _externalPaths;
+    private final static String BASE_PACKAGE = "org.yawlfoundation.yawl.resourcing.";
 
     private PluginFactory() { }
-
-
-    public static void setExternalPaths(String externalPaths) {
-        _externalPaths = externalPaths;
-    }
 
 
     public static Set<AbstractConstraint> getConstraints() {
@@ -184,44 +180,9 @@ public class PluginFactory {
         return _allocators;
     }
 
-    private static <T> Map<String, Class<T>> load(Class<T> clazz) {
-        return new YPluginLoader(_externalPaths).loadAsMap(clazz);
-    }
-
-
-    private static <T> T loadInstance(Class<T> clazz, String instanceName) {
-        return new YPluginLoader(_externalPaths).getInstance(clazz, instanceName);
-    }
-
-
-    private static <T> T newInstance(Class<T> clazz) {
-        try {
-            return clazz.newInstance();
-        }
-        catch (Throwable t) {
-            return null;
-        }
-    }
-
-
-    private static <T> Set<T> toInstanceSet(Collection<Class<T>> clazzSet) {
-        Set<T> instanceSet = new HashSet<T>();
-        for (Class<T> clazz : clazzSet) {
-            try {
-                instanceSet.add(clazz.newInstance());
-            }
-            catch (Throwable t) {
-                // do nothing
-            }
-        }
-        return instanceSet;
-    }
-
-
     private static String qualify(String className, String pkg) {
         return (! (className == null || className.contains("."))) ?
-            "org.yawlfoundation.yawl.resourcing." + pkg + className : className;
+            BASE_PACKAGE + pkg + className : className;
     }
-
 
 }

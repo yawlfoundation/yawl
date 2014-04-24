@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
 import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
@@ -27,6 +28,7 @@ import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletContext;
@@ -97,6 +99,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             if ((allowAdminID != null) && allowAdminID.equalsIgnoreCase("true")) {
                 _engine.setAllowAdminID(true);
             }
+
+            // set the path to external db gateway plugin classes (if any)
+            String pluginPath = context.getInitParameter("ExternalPluginsPath");
+            ExternalDBGatewayFactory.setExternalPaths(pluginPath);
 
             // override the max time that initialisation events wait for between
             // final engine init and server start completion

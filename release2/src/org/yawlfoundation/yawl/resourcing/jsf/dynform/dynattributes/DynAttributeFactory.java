@@ -41,6 +41,9 @@ public class DynAttributeFactory {
 
     private static Set<AbstractDynAttribute> _instances;
 
+    private DynAttributeFactory() { }   // block initialisation - static methods only
+
+
     public static void applyAttributes(PanelLayout parentPanel, WorkItemRecord wir, Participant p) {
         for (AbstractDynAttribute attributeClass : getInstances()) {
             attributeClass.applyAttributes(parentPanel, wir, p);
