@@ -64,6 +64,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.Duration;
 import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -473,17 +474,19 @@ public class ResourceManager extends InterfaceBWebsideController {
             throws IOException, ServletException {
         response.setContentType("text/html");
         ServletOutputStream outStream = response.getOutputStream();
-        String root = Docket.getServiceRootDir();
-        String fileName = root + "welcome.htm";
+        String fileName = System.getenv("CATALINA_HOME") +
+                "/webapps/resourceService/welcome.htm";
 
         // convert htm file to a byte array
-        FileInputStream fStream = new FileInputStream(fileName);
-        byte[] b = new byte[fStream.available()];
-        fStream.read(b);
-        fStream.close();
+        if (new File(fileName).exists()) {
+            FileInputStream fStream = new FileInputStream(fileName);
+            byte[] b = new byte[fStream.available()];
+            fStream.read(b);
+            fStream.close();
 
-        // load the full welcome page if possible
-        if (b.length > 0) outStream.write(b);
+            // load the full welcome page if possible
+            outStream.write(b);
+        }
         else {
             // otherwise load a boring default
             StringBuilder output = new StringBuilder();

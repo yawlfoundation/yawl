@@ -26,7 +26,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -61,9 +60,6 @@ public class ResourceGateway extends YHttpServlet {
         if (! ResourceManager.serviceInitialised) {
             try {
                 ServletContext context = getServletContext();
-
-                // set the actual root file path of the service
-                Docket.setServiceRootDir(context.getRealPath("/")) ;
 
                 // set the engine uri and the exception service uri (if enabled)
                 _rm.getClients().initClients(context.getInitParameter("InterfaceB_BackEnd"),

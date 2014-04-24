@@ -19,16 +19,11 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes;
 
 import com.sun.rave.web.ui.component.PanelLayout;
-import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

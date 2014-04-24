@@ -23,15 +23,17 @@ import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
-import org.yawlfoundation.yawl.resourcing.util.Docket;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import javax.naming.*;
 import javax.naming.directory.*;
 import javax.naming.ldap.*;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Author: Michael Adams
@@ -56,8 +58,10 @@ public class LDAPSource extends DataSource {
     private void loadProperties() {
         try {
             _props = new Properties();
-            String path = Docket.getPropertiesDir();
-            _props.load(new FileInputStream(path + "LDAPSource.properties"));
+            InputStream is = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("LDAPSource.properties");
+            if (is == null) throw new Exception("LDAPSource.properties not found.");
+            _props.load(is);
         }
         catch (Exception e) {
             _log.error("Exception thrown when loading LDAP properties.", e);
