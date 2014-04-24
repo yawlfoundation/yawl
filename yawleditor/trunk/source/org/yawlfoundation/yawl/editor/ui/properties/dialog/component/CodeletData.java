@@ -41,7 +41,8 @@ public class CodeletData {
     }
 
     public String getSimpleName() {
-        return name.contains(".") ? name.substring(name.lastIndexOf('.') +1) : name;        
+        if (name == null) return "";
+        return name.contains(".") ? name.substring(name.lastIndexOf('.') +1) : name;
     }
 
     public String getDescription() {
