@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.util;
 
 import net.sf.saxon.s9api.*;
+import org.apache.log4j.Logger;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -40,6 +41,8 @@ public class SaxonUtil {
     private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
     private static final DOMOutputter _domOutputter = new DOMOutputter();
 
+    private static final Logger _log = Logger.getLogger(SaxonUtil.class);
+
     static {
         _compiler.setErrorListener(new SaxonErrorListener());
     }
@@ -54,6 +57,7 @@ public class SaxonUtil {
      */
     public static String evaluateQuery(String query, Document dataDoc)
             throws SaxonApiException {
+        log(query, dataDoc);
 
         // initialise, compile & load the evaluator
         XQueryEvaluator evaluator = initEvaluator(query, dataDoc);
@@ -64,7 +68,9 @@ public class SaxonUtil {
 
         // evaluate the query & return the result as a string
         evaluator.run(_output);
-        return removeHeader(writer.toString());
+        String result = writer.toString();
+        log(result, null);
+        return removeHeader(result);
     }
 
 
@@ -154,6 +160,16 @@ public class SaxonUtil {
             }
         }
         return xml;
+    }
+
+
+    private static void log(String query, Document doc) {
+        if (_log.isInfoEnabled()) {
+            if (doc != null)
+                _log.info("Evaluating query: '" + query + "' ...using data document:" +
+                        JDOMUtil.documentToStringDump(doc));
+            else _log.info("Query result: " + query);
+        }
     }
 }
 

@@ -53,7 +53,7 @@ public class RdrNode {
 
     private int nodeId;   
     private String condition;
-    private Element conclusion;
+    private RdrConclusion conclusion;
     private Element cornerstone;
     private String description;
 
@@ -89,7 +89,7 @@ public class RdrNode {
        trueChild     = pTrueChild;
        falseChild    = pFalseChild;
        condition     = pCondition;
-       conclusion    = pConclusion;
+       conclusion    = new RdrConclusion(pConclusion);
        cornerstone   = pCornerStone;
     }
 
@@ -145,7 +145,7 @@ public class RdrNode {
     // GETTERS //
     
     public int getNodeId(){
-        return (nodeId);
+        return nodeId;
     }
     
     public String getNodeIdAsString() {
@@ -153,31 +153,31 @@ public class RdrNode {
     }
 
     public String getCondition() {
-        return (condition);
+        return condition;
     }
 
-    public Element getConclusion() {
-        return (conclusion);
+    public RdrConclusion getConclusion() {
+        return conclusion;
     }
 
     public Element getCornerStone() {
-        return (cornerstone);
+        return cornerstone;
     }
 
     public RdrNode getFalseChild(){
-        return (falseChild);
+        return falseChild;
     }
 
     public RdrNode getTrueChild(){
-        return (trueChild);
+        return trueChild;
     }
     
     public RdrNode getParent() {
-    	return (parent);
+    	return parent;
     }
     
     public String getDescription() {
-        return (description);
+        return description;
     }
     
 
@@ -198,7 +198,7 @@ public class RdrNode {
         condition = newCondition;
     }
 
-    public void setConclusion(Element newConclusion) {
+    public void setConclusion(RdrConclusion newConclusion) {
         conclusion = newConclusion;
     }
 
@@ -236,7 +236,7 @@ public class RdrNode {
      */
     public boolean hasIdenticalContent(RdrNode other) {
         return other != null && condition.equals(other.getCondition()) &&
-                equalContent(conclusion, other.getConclusion()) &&
+                conclusion.equals(other.getConclusion()) &&
                 equalContent(cornerstone, other.getCornerStone());
     }
 
@@ -317,8 +317,7 @@ public class RdrNode {
         node.addChild("falseChild", falseChild != null ? falseChild.getNodeId() : -1);
         node.addChild("condition", condition, true);                // escape contents
         if (conclusion != null) {
-            RdrConclusion temp = new RdrConclusion(conclusion);    // parse to v2
-            node.addChild(temp.toXNode());
+            node.addChild(conclusion.toXNode());
         }
         if (cornerstone != null) node.addContent(JDOMUtil.elementToString(cornerstone));
         if (description != null) node.addChild("description", description);
@@ -343,7 +342,7 @@ public class RdrNode {
             falseChild = null;
             condition = xNode.getChildText("condition", true);     // decode escapes
             XNode concNode = xNode.getChild("conclusion");
-            if (concNode != null) conclusion = concNode.toElement();
+            if (concNode != null) conclusion = new RdrConclusion(concNode.toElement());
             XNode cornNode = xNode.getChild("cornerstone");
             if (cornNode != null) cornerstone = cornNode.toElement();
             description = xNode.getChildText("description");

@@ -144,51 +144,6 @@ public class Library {
             return split[0];                           // return name before the '_'
     }
 
-    //===========================================================================//
-
-    /**
-     * returns a string of characters of length 'len'
-     */
-    public static String getSepChars(int len) {
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) sb.append('/');
-        return sb.toString();
-    }
-
-    //===========================================================================//
-
-    /**
-     * converts the contents of a file to a String
-     *
-     * @param fName the name of the file
-     * @return the String representing the file's contents
-     */
-    public static String FileToString(String fName) {
-        String fLine;
-        StringBuilder result = new StringBuilder();
-
-        try {
-            if (!fileExists(fName)) return null;     // don't go further if no file
-
-            FileReader fread = new FileReader(fName);
-            BufferedReader bufread = new BufferedReader(fread);
-
-            fLine = bufread.readLine();        // read first line
-            while (fLine != null) {
-                result.append(fLine);
-                fLine = bufread.readLine();     // read next line
-            }
-            bufread.close();
-            fread.close();
-            return result.toString();
-        } catch (FileNotFoundException fnfe) {
-            _log.error("File not found! - " + fName, fnfe);
-            return null;
-        } catch (IOException ioe) {
-            _log.error("IO Exception when reading file - " + fName, ioe);
-            return null;
-        }
-    }
 
     //===========================================================================//
 
@@ -200,19 +155,6 @@ public class Library {
         return f.exists();
     }
 
-    //===========================================================================//
-
-    /**
-     * returns a list of objects as a String of csv's
-     */
-    public static String listItems(List l) {
-        String s = "";
-        Iterator itr = l.iterator();
-        while (itr.hasNext()) {
-            s += itr.next() + ", ";
-        }
-        return s;
-    }
 
     //===========================================================================//
 
@@ -226,25 +168,6 @@ public class Library {
         s.append(": ");
         s.append(item);
         s.append(newline);
-        return s;
-    }
-
-    //===========================================================================//
-
-    /**
-     * appends an XML formatted line with the passed tag and value to the StringBuilder
-     */
-    public static StringBuilder appendXML(StringBuilder s, String tag, String value) {
-        String open = '<' + tag + '>';
-        String close = "</" + tag + '>';
-
-        // replace all <'s and &'s with unmarkedup equivalents
-        if (value.indexOf('&') > -1) value = value.replaceAll("&", "&amp;");
-        if (value.indexOf('<') > -1) value = value.replaceAll("<", "&lt;");
-
-        s.append(open);
-        s.append(value);
-        s.append(close);
         return s;
     }
 

@@ -244,9 +244,11 @@ public class Rdr {
 
     private RdrConclusion getConclusion(RdrTree tree, Element data) {
         if (tree != null) {
-            RdrConclusion conc = new RdrConclusion(tree.search(data));
-            conc.setLastPair(tree.getLastPair());
-            return conc ;
+            RdrConclusion conc = tree.search(data);
+            if (conc != null) {
+                conc.setLastPair(tree.getLastPair());
+                return conc;
+            }
         }
         return null ;
     }

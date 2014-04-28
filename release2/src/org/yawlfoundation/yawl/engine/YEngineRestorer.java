@@ -74,14 +74,14 @@ public class YEngineRestorer {
      * @throws YPersistenceException if there's a problem reading from the tables
      */
     protected void restoreYAWLServices() throws YPersistenceException {
-        _log.info("Restoring Services - Starts");
+        _log.debug("Restoring Services - Starts");
         Query query = _pmgr.createQuery("from YAWLServiceReference");
         Iterator it = query.iterate();
         _hasServices = it.hasNext();
         while (it.hasNext()) {
             _engine.addYawlService((YAWLServiceReference) it.next());
         }
-        _log.info("Restoring Services - Ends");
+        _log.debug("Restoring Services - Ends");
     }
 
 
@@ -91,7 +91,7 @@ public class YEngineRestorer {
      * @throws YPersistenceException if there's a problem reading from the tables
      */
     protected void restoreExternalClients() throws YPersistenceException {
-        _log.info("Restoring External Clients - Starts");
+        _log.debug("Restoring External Clients - Starts");
         Query query = _pmgr.createQuery("from YExternalClient");
         Iterator it = query.iterate();
         if (it.hasNext()) {
@@ -106,7 +106,7 @@ public class YEngineRestorer {
                 _addedDefaultClients = _engine.loadDefaultClients();
             }
         }
-        _log.info("Restoring External Clients - Ends");
+        _log.debug("Restoring External Clients - Ends");
     }
 
 
@@ -116,12 +116,12 @@ public class YEngineRestorer {
      * @throws YPersistenceException if there's a problem reading from the tables
      */
     protected void restoreSpecifications() throws YPersistenceException {
-        _log.info("Restoring Specifications - Starts");
+        _log.debug("Restoring Specifications - Starts");
         Query query = _pmgr.createQuery("from YSpecification");
         for (Iterator it = query.iterate(); it.hasNext(); ) {
             loadSpecification((YSpecification) it.next());
         }
-        _log.info("Restoring Specifications - Ends");
+        _log.debug("Restoring Specifications - Ends");
     }
 
 
@@ -162,7 +162,7 @@ public class YEngineRestorer {
 
 
     protected void restoreProcessInstances() throws YPersistenceException {
-        _log.info("Restoring process instances - Starts");
+        _log.debug("Restoring process instances - Starts");
         Query query = _pmgr.createQuery("from YNetRunner order by case_id");
 
         _runners = new Vector<YNetRunner>();
@@ -172,12 +172,12 @@ public class YEngineRestorer {
 
         _runners = removeDeadRunners(_runners);
         restoreRunners(_runners);
-        _log.info("Restoring process instances - Ends");
+        _log.debug("Restoring process instances - Ends");
     }
 
 
     protected void restoreWorkItems() throws YPersistenceException {
-        _log.info("Restoring work items - Starts");
+        _log.debug("Restoring work items - Starts");
         List<YWorkItem> toBeRestored = new ArrayList<YWorkItem>();
         List<YWorkItem> toBeRemoved = new ArrayList<YWorkItem>();
 
@@ -227,7 +227,7 @@ public class YEngineRestorer {
 
         removeWorkItems(toBeRemoved);
 
-        _log.info("Restoring work items - Ends");
+        _log.debug("Restoring work items - Ends");
     }
 
 
@@ -239,7 +239,7 @@ public class YEngineRestorer {
 
 
     protected Set<YTimedObject> restoreWorkItemTimers() throws YPersistenceException {
-        _log.info("Restoring work item timers - Starts");
+        _log.debug("Restoring work item timers - Starts");
         Set<YTimedObject> expiredTimers = new HashSet<YTimedObject>();
         Set<YWorkItemTimer> orphanedTimers = new HashSet<YWorkItemTimer>();
         Query query = _pmgr.createQuery("from YWorkItemTimer");
@@ -269,13 +269,13 @@ public class YEngineRestorer {
             _pmgr.deleteObject(orphan);                   // remove from persistence
         }
 
-        _log.info("Restoring work item timers - Ends");
+        _log.debug("Restoring work item timers - Ends");
         return expiredTimers;
     }
 
 
     protected Set<YTimedObject> restoreDelayedLaunches() throws YPersistenceException {
-        _log.info("Restoring delayed launch timers - Starts");
+        _log.debug("Restoring delayed launch timers - Starts");
         Set<YTimedObject> expiredTimers = new HashSet<YTimedObject>();
         Query query = _pmgr.createQuery("from YLaunchDelayer");
         for (Iterator it = query.iterate(); it.hasNext(); ) {
@@ -293,7 +293,7 @@ public class YEngineRestorer {
             }
         }
 
-        _log.info("Restoring delayed launch timers - Ends");
+        _log.debug("Restoring delayed launch timers - Ends");
         return expiredTimers;
     }
 
@@ -304,7 +304,7 @@ public class YEngineRestorer {
           therefore the net runner should not create any new work items, if they
           have already been created.
          */
-        _log.info("Restarting restored process instances - Starts");
+        _log.debug("Restarting restored process instances - Starts");
 
         for (YNetRunner runner : _runners) {
             _log.debug("Restarting " + runner.get_caseID());
@@ -314,7 +314,7 @@ public class YEngineRestorer {
                 throw new YPersistenceException(e.getMessage());
             }
         }
-        _log.info("Restarting restored process instances - Ends");
+        _log.debug("Restarting restored process instances - Ends");
     }
 
 

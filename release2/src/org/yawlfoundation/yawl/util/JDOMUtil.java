@@ -64,6 +64,14 @@ public class JDOMUtil {
 
     /****************************************************************************/
 
+    public static String documentToStringDump(Document doc) {
+        if (doc == null) return null;
+        XMLOutputter out = new XMLOutputter(Format.getCompactFormat());
+        return out.outputString(doc);
+    }
+
+    /****************************************************************************/
+
     public static String elementToString(Element e) {
         if (e == null) return null ;
         XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
