@@ -173,10 +173,15 @@ public class WorkletGateway extends YHttpServlet {
                     result = getRdrSet(req);
                 }
             }
+            else {
+                result = "<failure>Invalid or disconnected session handle</failure>";
+            }
+
             // generate the output
             OutputStreamWriter outputWriter = ServletUtils.prepareResponse(res);
             ServletUtils.finalizeResponse(outputWriter, result);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             _log.error("Exception in doPost()", e);
         }
     }
@@ -334,6 +339,8 @@ public class WorkletGateway extends YHttpServlet {
         catch (IOException ioe) {
             return fail(ioe.getMessage());
         }
+
+        loadWorklets(req.getParameter("workletset"));
         return ExceptionService.getInst().raiseException(wir, rType, conclusion);
     }
 
@@ -401,6 +408,23 @@ public class WorkletGateway extends YHttpServlet {
         } else return fail("No specification or process name provided for set");
 
         return set.toXML();
+    }
+
+
+    private void loadWorklets(String worklets) {
+        if (worklets != null) {
+            for (String worklet : StringUtil.xmlToSet(worklets)) {
+                String result = _ws.uploadWorklet(worklet);
+                if (result != null) {
+                    if (result.startsWith("<fail")) {
+                        _log.warn(StringUtil.unwrap(result));
+                    }
+                    else {
+                        _log.info("Worklet successfully uploaded");
+                    }
+                }
+            }
+        }
     }
 
 }

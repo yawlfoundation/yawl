@@ -469,7 +469,7 @@ public class RdrSet {
         // populate the node
         rNode.setNodeId(xNode.getChildText("id")) ;
         rNode.setCondition(xNode.getChildText("condition"));
-        rNode.setConclusion(xNode.getChild("conclusion"));
+        rNode.setConclusion(new RdrConclusion(xNode.getChild("conclusion")));
         rNode.setCornerStone(xNode.getChild("cornerstone"));
 
         // do true branch recursively

@@ -212,7 +212,8 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void setExceptionServiceEnabled(boolean enable) {
         _exceptionServiceEnabled = enable;
-        _log.info("Exception handling is " + (enable ? "enabled" : "disabled"));
+        _log.info("Exception monitoring and handling is " +
+                (enable ? "enabled" : "disabled"));
     }
 
     public boolean isExceptionServiceEnabled() { return _exceptionServiceEnabled; }
@@ -245,6 +246,17 @@ public class WorkletService extends InterfaceBWebsideController {
         if (_dbMgr != null) _dbMgr.closeFactory();
         _server.shutdownListeners();
     }
+
+    public String uploadWorklet(String workletXML) {
+        try {
+            return _interfaceAClient.uploadSpecification(workletXML, _sessionHandle);
+        }
+        catch (IOException ioe) {
+            return "<failure>Unsuccessful worklet specification upload : "
+                    + ioe.getMessage() + "</failure>";
+        }
+    }
+
 
     //***************************************************************************//
 
@@ -619,10 +631,10 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("Processing worklet substitution for workitem: " + childId);
 
         // select appropriate worklet
-        RdrConclusion result = new RdrConclusion(tree.search(coChild.getSearchData()));
+        RdrConclusion result = tree.search(coChild.getSearchData());
 
         // null result means no rule matched context
-        if (!result.nullConclusion()) {
+        if (! (result == null || result.nullConclusion())) {
             String wSelected = result.getTarget(1);
 
             _log.info("Rule search returned worklet(s): " + wSelected);
@@ -644,8 +656,10 @@ public class WorkletService extends InterfaceBWebsideController {
                     }
                 }
                 _server.announceSelection(coChild, result.getLastTrueNode());
-            } else _log.warn("Could not launch worklet(s): " + wSelected);
-        } else {
+            }
+            else _log.warn("Could not launch worklet(s): " + wSelected);
+        }
+        else {
             _log.warn("Rule search did not find a worklet to select " +
                     "for workitem: " + childId + ". Passing workitem back to engine.");
             _log.warn("Workitem record dump: " + coChild.getItem().toXML());

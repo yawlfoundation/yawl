@@ -168,7 +168,7 @@ public class RdrTree {
     *         expressions
     *  @return the conclusion of the last node satisfied
     */ 
-    public Element search(Element caseData) {
+    public RdrConclusion search(Element caseData) {
     	
     	// recursively search each node in the tree    	
         _lastPair = _rootNode.recursiveSearch(caseData, _rootNode);
@@ -256,7 +256,7 @@ public class RdrTree {
            s.append(n) ;
            
            s.append("Conclusion: ");
-           s.append(JDOMUtil.elementToStringDump(root.getConclusion()));
+           s.append(root.getConclusion().toString());
            s.append(n) ;
            
            if (root.getTrueChild() != null) {

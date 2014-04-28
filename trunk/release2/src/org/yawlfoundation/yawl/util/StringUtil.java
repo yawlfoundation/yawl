@@ -700,4 +700,24 @@ public class StringUtil {
         return s.split("\\s")[0];
     }
 
+
+    public static String setToXML(Set<String> set) {
+        if (set == null) return null;
+        StringBuilder sb = new StringBuilder("<set>");
+        for (String s : set) sb.append(wrap(s, "item"));
+        sb.append("</set>");
+        return sb.toString();
+    }
+
+    public static Set<String> xmlToSet(String xml) {
+        Set<String> set = new HashSet<String>();
+        XNode setNode = new XNodeParser(true).parse(xml);
+        if (setNode != null) {
+            for (XNode item : setNode.getChildren()) {
+                set.add(item.getText());
+            }
+        }
+        return set;
+    }
+
 }

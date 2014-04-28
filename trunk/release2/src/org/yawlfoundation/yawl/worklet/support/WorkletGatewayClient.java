@@ -24,12 +24,15 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An API to be used by clients that want to interact with the worklet service.
@@ -262,6 +265,52 @@ public class WorkletGatewayClient extends Interface_Client {
         return executePost(_wsURI, params);
     }
 
+
+    /**
+     * Raises an exception and executes the exception handler defined in an RdrConclusion.
+     * A raised exception will be announced to listeners as a byproduct of this method call.
+     * @param wir the workitem containing specification and task identifiers. PRE: the
+     *            workitem must currently exist in the engine
+     * @param rType the type of rule tree to evaluate. NOTE: Case-level exception types
+     *              cannot be used with this method
+     * @param conclusion the RdrConclusion object that defines the exlet to execute
+     * @param workletSet a set of worklet specifications to be loaded into the engine
+     *                   for use as compensation handlers during the exception handling
+     * @param handle a current sessionhandle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String execute(WorkItemRecord wir, RuleType rType, RdrConclusion conclusion,
+                          Set<String> workletSet, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("process", handle);
+        params.put("wir", wir.toXML());
+        params.put("rtype", rType.name());
+        params.put("workletset", StringUtil.setToXML(workletSet));
+        params.put("conclusion", conclusion.toXML());
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Raises an exception and executes the exception handler defined in an RdrConclusion.
+     * A raised exception will be announced to listeners as a byproduct of this method call.
+     * @param wir the workitem containing specification and task identifiers. PRE: the
+     *            workitem must currently exist in the engine
+     * @param rType the type of rule tree to evaluate. NOTE: Case-level exception types
+     *              cannot be used with this method
+     * @param conclusion the RdrConclusion object that defines the exlet to execute
+     * @param workletXML a worklet specification to be loaded into the engine
+     *                   for use as a compensation handler during the exception handling
+     * @param handle a current sessionhandle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String execute(WorkItemRecord wir, RuleType rType, RdrConclusion conclusion,
+                          String workletXML, String handle) throws IOException {
+        Set<String> workletSet = new HashSet<String>();
+        workletSet.add(workletXML);
+        return execute(wir, rType, conclusion, workletSet, handle);
+    }
 
     /**
      * Adds a node to a ruleSet. If the appropriate rule tree exists, the node is added
