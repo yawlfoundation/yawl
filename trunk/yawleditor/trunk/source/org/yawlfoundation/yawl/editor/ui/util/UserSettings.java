@@ -576,7 +576,8 @@ public class UserSettings {
     }
 
     public static String getLastSaveOrLoadPath() {
-        return getString(LAST_SAVE_OR_LOAD_PATH);
+        String path = getString(LAST_SAVE_OR_LOAD_PATH);
+        return path != null ? path : System.getProperty("user.home");
     }
 
 
