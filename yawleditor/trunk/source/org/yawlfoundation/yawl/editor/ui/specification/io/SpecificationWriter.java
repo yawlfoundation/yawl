@@ -58,8 +58,9 @@ public class SpecificationWriter {
             }
         }
         catch (Exception e) {
-            showError("The attempt to save this specification to file failed.\n " +
-                    "Please see the log for details", "Save File Error");
+            showError("The attempt to save this specification to file failed.\n\n" +
+                    "Error message: " + e.getMessage() + "\n ",
+                    "Save File Error");
             LogWriter.error("Error saving specification to file.", e);
         }
         return success;

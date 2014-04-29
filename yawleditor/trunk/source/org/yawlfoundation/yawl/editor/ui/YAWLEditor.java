@@ -92,9 +92,16 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     public static ToolBarMenu getToolBar() { return toolBarMenu; }
 
 
+    public void markTitleAsDirty() {
+        String title = getTitle();
+        if (! (title == null || title.endsWith("*"))) {
+            super.setTitle(title + " *");
+        }
+    }
+
     public void setTitle(String title) {
         String titleSeparator = title.equals("") ? "" : " - ";
-        super.setTitle("YAWL Editor" + titleSeparator + title);
+        super.setTitle("YAWL Editor 3.0" + titleSeparator + title);
     }
 
 
