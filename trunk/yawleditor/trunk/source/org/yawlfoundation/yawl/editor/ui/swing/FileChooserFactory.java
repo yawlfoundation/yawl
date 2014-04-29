@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
 import java.io.File;
 
 public class FileChooserFactory {
@@ -33,12 +32,6 @@ public class FileChooserFactory {
 
         JFileChooser fileChooser = new JFileChooser() {
 
-            public int showDialog(Component parent, String approveButtonText)
-                    throws HeadlessException {
-                setLastPath();
-                return super.showDialog(parent, approveButtonText);
-            }
-
             public File getSelectedFile() {
 
                 // remember the last directory used for next time.
@@ -47,14 +40,6 @@ public class FileChooserFactory {
                     UserSettings.setLastSaveOrLoadPath(selectedFile.getAbsolutePath());
                 }
                 return selectedFile;
-            }
-
-
-            // point the dialog at the last directory used.
-            private void setLastPath() {
-                String lastPath = UserSettings.getLastSaveOrLoadPath();
-                setCurrentDirectory(new File(lastPath != null ? lastPath :
-                        System.getProperty("user.dir")));
             }
 
         };
@@ -89,6 +74,13 @@ public class FileChooserFactory {
 
         }  // class
 
+
+        // if no previous file save by editor, set to OS's user dir
+        String lastPath = UserSettings.getLastSaveOrLoadPath();
+        if (lastPath == null) {
+            fileChooser.setCurrentDirectory(null);
+            UserSettings.setLastSaveOrLoadPath(fileChooser.getCurrentDirectory().getPath());
+        }
 
         fileChooser.setDialogTitle(title);
         fileChooser.setAcceptAllFileFilterUsed(false);   // don't show 'all files' choice

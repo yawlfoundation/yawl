@@ -98,14 +98,21 @@ public class FileOperations {
 
     public void saveAs(String file, YMetaData metaData, FileSaveOptions saveOptions)
             throws IOException {
-        if (StringUtil.isNullOrEmpty(_fileName) || ! _fileName.equals(file)) {
-            _fileName = file;
-            metaData.setUniqueID(generateSpecificationIdentifier());
-            metaData.setVersion(new YSpecVersion(0,1));
-            setURIOnSaveAs();
-            saveOptions.setAutoIncVersion(false);    // don't auto inc on save as
+        String previousFileName = _fileName;
+        try {
+            if (StringUtil.isNullOrEmpty(_fileName) || !_fileName.equals(file)) {
+                _fileName = file;
+                metaData.setUniqueID(generateSpecificationIdentifier());
+                metaData.setVersion(new YSpecVersion(0, 1));
+                setURIOnSaveAs();
+                saveOptions.setAutoIncVersion(false);    // don't auto inc on save as
+            }
+            save(saveOptions);
         }
-        save(saveOptions);
+        catch (IOException ioe) {
+            _fileName = previousFileName;
+            throw ioe;
+        }
     }
 
     public void close() {

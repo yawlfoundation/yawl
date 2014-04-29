@@ -27,7 +27,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationWriter;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.FileChooserFactory;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -150,6 +149,12 @@ public class SpecificationFileHandler {
      * @return the suggested file name to save the specification to
      */
     private File getSuggestedFileName() {
+        String fileName = _handler.getFileName();
+        if (fileName != null) {
+            return new File(fileName);
+        }
+
+        // no existing filename, so build one from last known path and spec uri
         String path = UserSettings.getLastSaveOrLoadPath();
         if (! path.endsWith(File.separator)) {
             path = path.substring(0, path.lastIndexOf(File.separator));
@@ -161,6 +166,7 @@ public class SpecificationFileHandler {
     private String promptForSaveFileName() {
         JFileChooser dialog = FileChooserFactory.build(EXTENSION, "YAWL Specification",
                         "Save specification");
+
         dialog.setSelectedFile(getSuggestedFileName());
         int response = dialog.showDialog(YAWLEditor.getInstance(), "Save");
         if (response == JFileChooser.CANCEL_OPTION) {
@@ -195,23 +201,9 @@ public class SpecificationFileHandler {
         if (StringUtil.isNullOrEmpty(fileName)) return;
 
         YPluginHandler.getInstance().preSaveFile();
-
-        try {
-            saveToFile(fileName);
+        if (saveToFile(fileName)) {
             OpenRecentSubMenu.getInstance().addRecentFile(fileName);
-
         }
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    YAWLEditor.getInstance(),
-                    "Error discovered whilst writing YAWL Editor save file.\n" +
-                    "Save has not been performed.\n",
-                    "Editor File Save Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            LogWriter.error("Error discovered whilst saving specification", e);
-        }
-
         YPluginHandler.getInstance().postSaveFile();
     }
 
@@ -264,26 +256,28 @@ public class SpecificationFileHandler {
     }
 
 
-    private void saveToFile(String fileName) {
+    private boolean saveToFile(String fileName) {
         if (StringUtil.isNullOrEmpty(fileName)) {
 
             // rollback version number if auto-incrementing
             if (UserSettings.getAutoIncrementVersionOnSave()) {
                 _handler.getVersion().minorRollback();
             }
-            return;     // user-cancelled save or no file name selected
+            return false;     // user-cancelled save or no file name selected
         }
 
         _statusBar.setText("Saving Specification...");
         _statusBar.progressOverSeconds(2);
 
-        if (new SpecificationWriter().writeToFile(fileName)) {
+        boolean success = new SpecificationWriter().writeToFile(fileName);
+        if (success) {
             SpecificationUndoManager.getInstance().setDirty(false);
             _statusBar.setText("Saved to file: " + fileName);
         }
         else _statusBar.setTextToPrevious();
 
         _statusBar.resetProgress();
+        return success;
     }
 
 

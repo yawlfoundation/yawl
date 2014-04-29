@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphUndoManager;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
@@ -251,11 +252,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
     }
 
     private void showFrameOfModel(NetGraphModel model) {
-        try {
-            //      model.getGraph().getFrame().setIcon(false);
-            //      model.getGraph().getFrame().toFront();
-            //      model.getGraph().getFrame().requestFocus();
-        } catch (Exception e) {}
+        YAWLEditor.getNetsPane().setSelectedTab(model.getName());
     }
 
 
@@ -287,6 +284,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void setDirty(boolean newValue) {
         dirty = newValue;
+        if (dirty) YAWLEditor.getInstance().markTitleAsDirty();
     }
 
     public void removeLastUndoableEdit() {
