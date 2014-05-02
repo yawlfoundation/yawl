@@ -113,7 +113,7 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
 
             oldElements.clear();
             for (YAWLCell cell: removeSet){
-                setColour(net, cell, Color.gray);
+                setColour(net, cell, Color.lightGray);
                 oldElements.add(cell);
             }
         }

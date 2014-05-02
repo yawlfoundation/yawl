@@ -304,7 +304,8 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
             YFlow nominatedFlow = null;
             int lowestPriority = -1;
             for (YFlow flow : task.getPostsetFlows()) {
-                if (lowestPriority < flow.getEvalOrdering()) {
+                Integer ordering = flow.getEvalOrdering();
+                if (ordering != null && lowestPriority < ordering) {
                     lowestPriority = flow.getEvalOrdering();
                     nominatedFlow = flow;
                 }

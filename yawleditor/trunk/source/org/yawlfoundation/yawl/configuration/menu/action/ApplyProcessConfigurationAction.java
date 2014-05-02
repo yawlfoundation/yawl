@@ -49,6 +49,9 @@ import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
 import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
 import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.configuration.net.ServiceAutomatonTree;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
@@ -57,8 +60,12 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
+import org.yawlfoundation.yawl.elements.YExternalNetElement;
+import org.yawlfoundation.yawl.elements.YTask;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,6 +87,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
     private ConfigureSet configuredElements;
     private List<VertexContainer> vertexContainersAfterDelete;
     private Set<YAWLFlowRelation> deletedflows;
+    private Set<YCompoundFlow> removedFlows;
     private Map<YAWLTask, DeconfiguredTask> configuredTaskCache;
     private static ApplyProcessConfigurationAction INSTANCE;
     private boolean selected;
@@ -106,21 +114,29 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             cancellationSetConfiguration();
             vertexContainersAfterDelete = new ArrayList<VertexContainer>();
             deletedflows = new HashSet<YAWLFlowRelation>();
+            removedFlows = new HashSet<YCompoundFlow>();
             configuredElements = new ConfigureSet(net.getNetModel());
             configuredTaskCache = cacheConfiguredTasks();
             removeElements();
-  //          removeNullPorts();
-            changeDecorators();
+            try {
+                changeDecorators();
+            }
+            catch (YControlFlowHandlerException e) {
+                // do nothing
+            }
             applyHideOperation();
             removeNullPorts();
             modificationAfterAddSilentTask();
             makeTasksNonConfig();
             net.getNetModel().endUpdate();
+            ProcessConfigurationModel.getInstance().setApplyState(
+                            ProcessConfigurationModel.ApplyState.OFF);
             SpecificationUndoManager.getInstance().disableButtons();
         }
         else {
             net.getNetModel().beginUpdate();
             SpecificationUndoManager.getInstance().undo();
+//            restoreFlows();
             for (YAWLTask task : configuredTaskCache.keySet()) {
                 TaskConfiguration config =
                         TaskConfigurationCache.getInstance().get(net.getNetModel(), task);
@@ -134,8 +150,23 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
             net.getNetModel().endUpdate();
         }
         publishState();
+        FileOperations.validate();   // do a validation after each apply toggle
     }
 
+
+    private void restoreFlows() {
+        for (Object cell : NetGraphModel.getRoots(net.getModel())) {
+            if (cell instanceof YAWLFlowRelation) {
+                YAWLFlowRelation flow = (YAWLFlowRelation) cell;
+                for (YCompoundFlow compoundFlow : removedFlows) {
+                    if (compoundFlow.getSource().getID().equals(flow.getSourceID()) &&
+                            compoundFlow.getTarget().getID().equals(flow.getTargetID())) {
+                        flow.setYFlow(compoundFlow);
+                    }
+                }
+            }
+        }
+    }
 
     private Map<YAWLTask, DeconfiguredTask> cacheConfiguredTasks() {
         Map<YAWLTask, DeconfiguredTask> tasks = new HashMap<YAWLTask, DeconfiguredTask>();
@@ -240,6 +271,26 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
 
         if (net != null) {
             net.removeCellsAndTheirEdges(removeSet.toArray());
+
+            Set<YExternalNetElement> removed =
+                    SpecificationUndoManager.getInstance().getRemovedYNetElements();
+            for (YAWLCell cell : removeSet) {
+                if (cell instanceof YAWLFlowRelation) {
+                    removedFlows.add(((YAWLFlowRelation) cell).getYFlow());
+                }
+                else {
+                    YAWLVertex vertex = null;
+                    if (cell instanceof VertexContainer) {
+                        vertex = ((VertexContainer) cell).getVertex();
+                    }
+                    if (cell instanceof YAWLVertex) {
+                        vertex = (YAWLVertex) cell;
+                    }
+                    if (vertex != null) {
+                        removed.add(vertex.getYAWLElement());
+                    }
+                }
+            }
         }
     }
 
@@ -247,28 +298,33 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
     /**
      * This method handles the change of the decorators
      */
-    private void changeDecorators(){
+    private void changeDecorators() throws YControlFlowHandlerException {
+        YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
         Map<YAWLTask, Integer> decoratorChanges = configuredElements.getChangedDecorators();
         for (YAWLTask task : decoratorChanges.keySet()) {
+            YTask yTask = (YTask) task.getYAWLElement();
             int decoratorType = decoratorChanges.get(task);
             if (decoratorType == ConfigureSet.NO_Join) {
                 int position = task.getJoinDecorator().getCardinalPosition();
                 net.setJoinDecorator(task, Decorator.NO_TYPE, position);
+                handler.setJoin(yTask, YTask._XOR);
             }
             else {
                 int position = task.getSplitDecorator().getCardinalPosition();
                 if (decoratorType == ConfigureSet.NO_Split) {
                     net.setSplitDecorator(task, Decorator.NO_TYPE, position);
+                    handler.setSplit(yTask, YTask._AND);
                 }
-                if (decoratorType == ConfigureSet.AND_Split) {
+                else if (decoratorType == ConfigureSet.AND_Split) {
                     net.setSplitDecorator(task, Decorator.AND_TYPE, position);
+                    handler.setSplit(yTask, YTask._AND);
                 }
-                if (decoratorType == ConfigureSet.XOR_Split) {
+                else if (decoratorType == ConfigureSet.XOR_Split) {
                     net.setSplitDecorator(task, Decorator.XOR_TYPE, position);
+                    handler.setSplit(yTask, YTask._XOR);
                 }
             }
         }
-
     }
 
     /**
@@ -308,7 +364,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         YAWLTask task = (YAWLTask) container.getVertex();
         TaskConfiguration config = TaskConfigurationCache.getInstance().get(
                  net.getNetModel(), task);
-        if (config.isConfigurable()) {
+        if (config != null && config.isConfigurable()) {
             boolean hasHidePorts = false;
             boolean hasNoHidePorts = false;
             List<CPort> hidePorts = new ArrayList<CPort>();
@@ -410,7 +466,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                 YAWLTask task = (YAWLTask) cell;
                 TaskConfiguration config = TaskConfigurationCache.getInstance().get(
                         net.getNetModel(), task);
-                if (config.isConfigurable()) {
+                if (config != null && config.isConfigurable()) {
                     configuredTaskCache.get(task).setDeconfigured(true);
                     Set<CPort> removeInPorts = new HashSet<CPort>();
                     Set<CPort> removeOutPorts = new HashSet<CPort>();
@@ -457,7 +513,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                 YAWLTask task = (YAWLTask) cell;
                 TaskConfiguration config = TaskConfigurationCache.getInstance().get(
                         net.getNetModel(), task);
-                if (config.isConfigurable()) {
+                if (config != null && config.isConfigurable()) {
                     config.setConfigurable(false);
                     net.changeLineWidth(task);
                 }

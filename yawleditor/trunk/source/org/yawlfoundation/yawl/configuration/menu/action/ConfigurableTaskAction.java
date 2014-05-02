@@ -75,6 +75,7 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
+        if (getCheckBox() == null) return;
         super.graphSelectionChange(state, event);
         TaskConfiguration configuration = (net != null) ?
                 TaskConfigurationCache.getInstance().get(net.getNetModel(),task) : null;
@@ -85,7 +86,8 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
     public void actionPerformed(ActionEvent event) {
         TaskConfiguration configuration = (net != null) ?
-                TaskConfigurationCache.getInstance().get(net.getNetModel(),task) : null;
+                TaskConfigurationCache.getInstance().getOrAdd(net.getNetModel(),task) :
+                null;
         if (configuration != null) {
             configuration.setConfigurable(! configuration.isConfigurable());
             net.changeLineWidth(task);
