@@ -1213,7 +1213,7 @@ public class SessionBean extends AbstractSessionBean {
             throws CloneNotSupportedException, ResourceGatewayException {
         String actualID = cloned.getID().substring(7);
         Participant p = getParticipantMap().get(actualID);
-        p.merge(cloned);
+        p.setValues(cloned);
         p.save();
  //       setEditedParticipant(p.getID()) ;             // reset
     }

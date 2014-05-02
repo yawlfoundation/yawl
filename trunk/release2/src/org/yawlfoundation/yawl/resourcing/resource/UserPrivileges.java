@@ -88,7 +88,7 @@ public class UserPrivileges implements Serializable {
     }
 
     // copies values from up to this (does NOT change id)   
-    public void merge(UserPrivileges up) {
+    public void setValues(UserPrivileges up) {
         setCanChooseItemToStart(up.canChooseItemToStart()) ;
         setCanStartConcurrent(up.canStartConcurrent()) ;
         setCanReorder(up.canReorder()) ;
