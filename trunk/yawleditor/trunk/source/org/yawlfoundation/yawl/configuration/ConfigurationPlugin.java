@@ -27,10 +27,7 @@ import org.yawlfoundation.yawl.configuration.menu.action.PreviewConfigurationPro
 import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
 import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
@@ -49,7 +46,7 @@ public class ConfigurationPlugin implements YEditorPlugin {
 
     private ProcessConfigurationModel.PreviewState previewState;
 
-    private static final int CONFIGURED_TASK_STOKE_WIDTH = 4;
+    private static final int CONFIGURED_TASK_STOKE_WIDTH = 3;
 
 
 
@@ -105,8 +102,15 @@ public class ConfigurationPlugin implements YEditorPlugin {
 
 
     public void performPreCellRenderingTasks(Graphics2D g2, VertexView view) {
+        YAWLTask task = null;
         if (view.getCell() instanceof YAWLTask) {
-            TaskConfiguration configuration = getConfiguration((YAWLTask) view.getCell());
+            task = (YAWLTask) view.getCell();
+        }
+        else if (view.getCell() instanceof Decorator) {
+            task = ((Decorator) view.getCell()).getTask();
+        }
+        if (task != null) {
+            TaskConfiguration configuration = getConfiguration(task);
             if (configuration != null && configuration.isConfigurable()) {
                 g2.setStroke(new BasicStroke(CONFIGURED_TASK_STOKE_WIDTH));
             }

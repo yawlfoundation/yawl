@@ -107,20 +107,17 @@ public class SpecificationUndoManager extends GraphUndoManager {
      */
 
     public void undoableEditHappened(UndoableEditEvent event) {
+        UndoableEdit edit = event.getEdit();
         if (acceptingEdits()) {
             if (compoundingEdits) {
-                compoundEdit.addEdit(event.getEdit());
+                compoundEdit.addEdit(edit);
             }
             else {
-                addEdit(event.getEdit());
+                addEdit(edit);
             }
         }
         setDirty(true);
         refreshButtons();
-
-//        ProcessConfigurationModel.getInstance().setApplyState(
-//                ProcessConfigurationModel.ApplyState.OFF
-//        );
     }
 
     /**
@@ -166,6 +163,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void discardAllEdits() {
         super.discardAllEdits();
+        clearYNetElementSet();
         setDirty(false);
         refreshButtons();
     }

@@ -137,7 +137,7 @@ public class PetriNet {
     private void generateTransitions() {
         for (YAWLTask task : tasks) {
             TaskConfiguration config = TaskConfigurationCache.getInstance().get(model, task);
-            if (!config.isConfigurable()) {
+            if (! (config == null || config.isConfigurable())) {
                 Transition t1 = new Transition();
                 for (YAWLFlowRelation flow : task.getIncomingFlows()) {
                     if (flowToSourcePlace.get(flow) != null) {

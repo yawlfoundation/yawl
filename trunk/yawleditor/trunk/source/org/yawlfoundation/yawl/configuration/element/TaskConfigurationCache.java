@@ -63,6 +63,13 @@ public class TaskConfigurationCache {
         return map != null ? map.get(task) : null;
     }
 
+
+    public TaskConfiguration getOrAdd(NetGraphModel model, YAWLTask task) {
+        TaskConfiguration configuration = get(model, task);
+        return configuration != null ? configuration : add(model, task);
+    }
+
+
     public TaskConfiguration remove(NetGraphModel model, YAWLTask task) {
         if (model == null || task == null) return null;
         Map<YAWLTask, TaskConfiguration> map = _cache.get(model);
