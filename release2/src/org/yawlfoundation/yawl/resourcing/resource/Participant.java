@@ -115,25 +115,25 @@ public class Participant extends AbstractResource implements Cloneable {
 
     public Participant clone() {
         Participant clone = new Participant("_CLONE_" + _resourceID);
-        clone.merge(this);
+        clone.setValues(this);
         return clone;
     }
 
 
     // copies values from p to this (does NOT change id)
-    public void merge(Participant p) {
+    public void setValues(Participant p) {
         super.merge(p);
         _lastname = p.getLastName();
         _firstname = p.getFirstName();
         setUserID(p.getUserID());
         _isAdministrator = p.isAdministrator();
         _password = p.getPassword();
-        mergeRoles(p.getRoles());
-        mergePositions(p.getPositions());
-        mergeCapabilities(p.getCapabilities());
+        setRoles(p.getRoles());
+        setPositions(p.getPositions());
+        setCapabilities(p.getCapabilities());
 
         if (_privileges == null) _privileges = new UserPrivileges(_resourceID) ; 
-         _privileges.merge(p.getUserPrivileges());
+         _privileges.setValues(p.getUserPrivileges());
     }
 
 
