@@ -703,7 +703,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         for (Participant p : _orgDataSet.getParticipants()) {
             UserPrivileges up = (UserPrivileges) upMap.get(p.getID());
             if (up != null) p.setUserPrivileges(up);
-            else p.setUserPrivileges(new UserPrivileges(p.getID()));
         }
     }
 
