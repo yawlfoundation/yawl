@@ -32,12 +32,6 @@ import java.util.Set;
 
 public abstract class YAWLTask extends YAWLVertex {
 
-//    private boolean _configurable;
-//    private boolean _hasBeenConfigureInitialised;
-//    private List<CPort> inputCPorts = new ArrayList<CPort>();
-//    private List<CPort> outputCPorts = new ArrayList<CPort>();
-//    private boolean _cancellationSetEnable = true;
-
     private CancellationSet _cancellationSet;
 
     private String _iconPath;
@@ -49,8 +43,6 @@ public abstract class YAWLTask extends YAWLVertex {
      */
     public YAWLTask() {
         this(null, null);
-//        _configurable = false;
-//        _cancellationSetEnable = true;
     }
 
     /**

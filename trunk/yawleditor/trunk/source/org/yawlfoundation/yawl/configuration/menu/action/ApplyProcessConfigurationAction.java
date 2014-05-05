@@ -145,6 +145,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                 if (configured.isDeconfigured()) {
                     configured.restorePorts(task);
                 }
+                setDecorator(task);
                 net.changeLineWidth(task);
             }
             net.getNetModel().endUpdate();
@@ -165,6 +166,42 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                     }
                 }
             }
+        }
+    }
+
+    private void setDecorator(YAWLTask task) {
+        YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
+        YTask yTask = task.getTask();
+        try {
+            if (task.hasSplitDecorator()) {
+                switch (task.getSplitDecorator().getType()) {
+                    case Decorator.AND_TYPE:
+                        handler.setSplit(yTask, YTask._AND);
+                        break;
+                    case Decorator.XOR_TYPE:
+                        handler.setSplit(yTask, YTask._XOR);
+                        break;
+                    case Decorator.OR_TYPE:
+                        handler.setSplit(yTask, YTask._OR);
+                        break;
+                }
+            }
+            if (task.hasJoinDecorator()) {
+                switch (task.getJoinDecorator().getType()) {
+                    case Decorator.AND_TYPE:
+                        handler.setJoin(yTask, YTask._AND);
+                        break;
+                    case Decorator.XOR_TYPE:
+                        handler.setJoin(yTask, YTask._XOR);
+                        break;
+                    case Decorator.OR_TYPE:
+                        handler.setJoin(yTask, YTask._OR);
+                        break;
+                }
+            }
+        }
+        catch (YControlFlowHandlerException e) {
+            // do nothing
         }
     }
 
