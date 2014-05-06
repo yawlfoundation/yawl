@@ -20,21 +20,19 @@ package org.yawlfoundation.yawl.editor.ui;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import org.yawlfoundation.yawl.editor.core.YConnector;
-import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.PaletteBar;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.ToolBarMenu;
-import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.*;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
 import org.yawlfoundation.yawl.editor.ui.util.*;
 
@@ -91,6 +89,21 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     public static ToolBarMenu getToolBar() { return toolBarMenu; }
 
+
+    public void setPluginToolBarVisible(JToolBar bar, boolean show) {
+        Container container = toolBarMenu.getParent();
+        for (Component c : container.getComponents()) {
+            if ((c instanceof JToolBar) && c.getName().equals(bar.getName())) {
+                if (! show) container.remove(c);
+                return;
+            }
+        }
+        if (show) {
+            container.add(bar);
+        }
+        validate();
+        repaint();
+    }
 
     public void markTitleAsDirty() {
         String title = getTitle();
@@ -295,9 +308,17 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private JPanel getToolbarMenuPanel() {
         JPanel toolbarMenuPanel = new JPanel();
-        toolbarMenuPanel.setLayout(new GridLayout(1,0));
+        toolbarMenuPanel.setLayout(new GridLayout(0,1));
         toolBarMenu = new ToolBarMenu();
         toolbarMenuPanel.add(toolBarMenu);
+
+        PluginsMenu pluginsMenu = (PluginsMenu) getJMenu("Plugins");
+        if (pluginsMenu != null) {
+            for (JToolBar bar : YPluginHandler.getInstance().getToolBars()) {
+                JMenuItem item = pluginsMenu.addToolBarMenuItem(bar);
+                if (item.isSelected()) toolbarMenuPanel.add(bar);
+            }
+        }
         return toolbarMenuPanel;
     }
 
@@ -390,4 +411,15 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         }
     }
 
+
+    private JMenu getJMenu(String name) {
+        JMenuBar menuBar = getJMenuBar();
+        for (int i=0; i < menuBar.getMenuCount(); i++) {
+            JMenu menu = menuBar.getMenu(i);
+            if (menu.getText().equals(name)) return menu;
+        }
+        return null;
+    }
+
 }
+                                   ;

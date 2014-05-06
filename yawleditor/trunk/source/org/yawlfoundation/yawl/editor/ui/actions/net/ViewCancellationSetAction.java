@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.net.CancellationSetModelListener;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLCheckBoxMenuItem;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToggleToolBarButton;
 
 import javax.swing.*;
@@ -41,17 +42,18 @@ public class ViewCancellationSetAction extends YAWLSelectedNetAction
         TooltipTogglingWidget  {
 
     {
-        putValue(Action.SHORT_DESCRIPTION, " Add selected items to visible cancellation set ");
-        putValue(Action.NAME, "Add to Cancellation Set");
-        putValue(Action.LONG_DESCRIPTION, " Add selected items to visible cancellation set ");
+        putValue(Action.SHORT_DESCRIPTION, " View cancellation set of selected task ");
+        putValue(Action.NAME, "View Cancellation Set");
+        putValue(Action.LONG_DESCRIPTION, " View cancellation set of selected task ");
         putValue(Action.SMALL_ICON, getPNGIcon("cancel"));
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,InputEvent.CTRL_MASK));
+        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V,InputEvent.CTRL_MASK));
     }
 
     private YAWLTask task;
     private boolean isSelected;
     private YAWLToggleToolBarButton toolBarButton;
+    private YAWLCheckBoxMenuItem menuItem;
 
     private static final ViewCancellationSetAction INSTANCE =
             new ViewCancellationSetAction();
@@ -79,11 +81,18 @@ public class ViewCancellationSetAction extends YAWLSelectedNetAction
     public void actionPerformed(ActionEvent event) {
         NetGraph graph = getGraph();
         if (graph != null) {
-            toolBarButton = (YAWLToggleToolBarButton) event.getSource();
-            isSelected = toolBarButton.isSelected();
+            if (event.getSource() instanceof YAWLToggleToolBarButton) {
+                toolBarButton = (YAWLToggleToolBarButton) event.getSource();
+                isSelected = toolBarButton.isSelected();
+                if (menuItem != null) menuItem.setSelected(isSelected);
+            }
+            else {
+                menuItem = (YAWLCheckBoxMenuItem) event.getSource();
+                isSelected = menuItem.isSelected();
+                if (toolBarButton != null) toolBarButton.isSelected();
+            }
             saveChangesToCancellationSet();
             setTask(isSelected ? (YAWLCell) graph.getSelectionCell() : null);
-            toolBarButton.setToolTipText(getEnabledTooltipText());
             graph.changeCancellationSet(task);
             setEnabled(isTaskSelected());
         }

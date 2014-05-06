@@ -290,6 +290,7 @@ public class SpecificationFileHandler {
         YAWLEditor.getNetsPane().setVisible(true);
         _statusBar.resetProgress();
         OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+        YPluginHandler.getInstance().specificationLoaded();
     }
 
 

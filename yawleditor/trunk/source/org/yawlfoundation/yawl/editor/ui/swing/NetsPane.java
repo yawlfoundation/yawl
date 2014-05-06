@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerExcept
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.PropertiesLoader;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -54,7 +55,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             bindFrame(frame, select);
             NetGraph graph = frame.getNet();
             graph.getSelectionListener().publishState(graph.getSelectionModel(), null);
-
+            YPluginHandler.getInstance().netAdded(graph.getNetModel());
             return frame;
         }
         catch (Exception e) {
@@ -76,6 +77,8 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             if (removeNetConfirmed()) {
                 frame.removeFromSpecification();
                 remove(frame);
+                YPluginHandler.getInstance().netRemoved(frame.getNet().getNetModel());
+
             }
         }
     }
@@ -205,6 +208,5 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
                 }
         });
     }
-
 
 }

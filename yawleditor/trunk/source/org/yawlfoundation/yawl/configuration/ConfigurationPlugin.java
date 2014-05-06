@@ -21,8 +21,8 @@ package org.yawlfoundation.yawl.configuration;
 import org.jgraph.graph.VertexView;
 import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
+import org.yawlfoundation.yawl.configuration.menu.ConfigurationToolBar;
 import org.yawlfoundation.yawl.configuration.menu.ProcessConfigurationMenu;
-import org.yawlfoundation.yawl.configuration.menu.ToolbarButtonSet;
 import org.yawlfoundation.yawl.configuration.menu.action.PreviewConfigurationProcessAction;
 import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
 import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
@@ -66,8 +66,8 @@ public class ConfigurationPlugin implements YEditorPlugin {
         return new ProcessConfigurationMenu();
     }
 
-    public Set<AbstractButton> getToolbarButtons() {
-        return new ToolbarButtonSet().getButtons();
+    public JToolBar getToolbar() {
+        return new ConfigurationToolBar();
     }
 
     public void performPreFileSaveTasks() {

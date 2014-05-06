@@ -43,6 +43,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToggleToolBarButton;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -52,6 +53,7 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
     private boolean selected;
     private JCheckBoxMenuItem checkBox = null;
+    private YAWLToggleToolBarButton toolBarButton = null;
 
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
@@ -75,12 +77,14 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
-        if (getCheckBox() == null) return;
+        if (getCheckBox() == null && toolBarButton == null) return;
         super.graphSelectionChange(state, event);
         TaskConfiguration configuration = (net != null) ?
                 TaskConfigurationCache.getInstance().get(net.getNetModel(),task) : null;
-        getCheckBox().setState(task != null && configuration != null &&
-                configuration.isConfigurable());
+        boolean newState = task != null && configuration != null &&
+                        configuration.isConfigurable();
+        if (getCheckBox() != null) getCheckBox().setState(newState);
+        if (toolBarButton != null) toolBarButton.setSelected(newState);
     }
 
 
@@ -105,6 +109,10 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
 
     public void setCheckBox(JCheckBoxMenuItem checkBox) {
         this.checkBox = checkBox;
+    }
+
+    public void setToolBarButton(YAWLToggleToolBarButton button) {
+        toolBarButton = button;
     }
 
     public JCheckBoxMenuItem getCheckBox(){

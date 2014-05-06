@@ -80,7 +80,7 @@ public class SpecificationReader {
 
     private boolean loadFromXML(String specXML, String layoutXML) {
         try {
-            SpecificationModel.reset();
+            preLoad();
             _handler.load(specXML, layoutXML);
         }
         catch (Exception e) {
@@ -93,7 +93,7 @@ public class SpecificationReader {
 
     private boolean loadFile(String fileName) {
         try {
-            SpecificationModel.reset();
+            preLoad();
             _handler.load(fileName);
         }
         catch (Exception e) {
@@ -106,7 +106,6 @@ public class SpecificationReader {
 
     private boolean layoutElements() {
         return layoutElements(_handler.getLayout());
-
     }
 
     private boolean layoutElements(YLayout layout) {
@@ -119,6 +118,12 @@ public class SpecificationReader {
         removeUnnecessaryDecorators();
         new DefaultLayoutArranger().layoutSpecification();
         return false;
+    }
+
+
+    private void preLoad() {
+        SpecificationModel.reset();
+        YPluginHandler.getInstance().preOpenFile();
     }
 
 

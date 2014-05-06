@@ -42,7 +42,7 @@ public interface YEditorPlugin {
 
     JMenu getPluginMenu();
 
-    Set<AbstractButton> getToolbarButtons();
+    JToolBar getToolbar();
 
     void performPreFileSaveTasks();
 

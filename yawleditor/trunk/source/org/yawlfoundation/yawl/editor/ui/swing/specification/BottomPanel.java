@@ -81,7 +81,9 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
                 }
 
                 setEnabledAt(NOTES_PANEL_INDEX, true);
-                setTitleAt(NOTES_PANEL_INDEX, "Notes (" + vertex.getName()  + ")");
+                String name = vertex.getName();
+                if (name == null) name = vertex.getID();
+                setTitleAt(NOTES_PANEL_INDEX, "Notes (" + name + ")");
                 notesPanel.setVertex(vertex);
                 selectNotesTab();
                 break;

@@ -23,8 +23,8 @@
 
 package org.yawlfoundation.yawl.configuration.net;
 
+import org.yawlfoundation.yawl.configuration.ConfigurationSettings;
 import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
-import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 public class ConfigurationSettingInfo {
 
@@ -34,11 +34,12 @@ public class ConfigurationSettingInfo {
 	private boolean allowChangingDefaultConfiguration;
 	
 	public ConfigurationSettingInfo() {
-		newElementsConfigurable = UserSettings.getConfigurableNewElements();
-		applyAutoGreyOut = UserSettings.getConfigurableAutoGreyout();
-		allowBlockingInputPorts = UserSettings.getConfigurableBlockingInputPorts();
-		allowChangingDefaultConfiguration = UserSettings.getConfigurableAllowDefaultChanges();
-    publishState(applyAutoGreyOut);
+		newElementsConfigurable = ConfigurationSettings.getConfigurableNewElements();
+		applyAutoGreyOut = ConfigurationSettings.getConfigurableAutoGreyout();
+		allowBlockingInputPorts = ConfigurationSettings.getConfigurableBlockingInputPorts();
+		allowChangingDefaultConfiguration =
+                ConfigurationSettings.getConfigurableAllowDefaultChanges();
+        publishState(applyAutoGreyOut);
   }
 
 
@@ -48,7 +49,7 @@ public class ConfigurationSettingInfo {
 
 	public void setNewElementsConfigurable(boolean setting) {
 		newElementsConfigurable = setting;
-        UserSettings.setConfigurableNewElements(setting);
+        ConfigurationSettings.setConfigurableNewElements(setting);
 	}
 
 
@@ -59,7 +60,7 @@ public class ConfigurationSettingInfo {
     public void setApplyAutoGreyOut(boolean selected) {
         if (applyAutoGreyOut != selected) {
             applyAutoGreyOut = selected;
-            UserSettings.setConfigurableAutoGreyout(selected);
+            ConfigurationSettings.setConfigurableAutoGreyout(selected);
             publishState(selected);
         }
     }
@@ -71,7 +72,7 @@ public class ConfigurationSettingInfo {
 
 	public void setAllowBlockingInputPorts(boolean setting) {
 		allowBlockingInputPorts = setting;
-        UserSettings.setConfigurableBlockingInputPorts(setting);
+        ConfigurationSettings.setConfigurableBlockingInputPorts(setting);
 	}
 
 
@@ -81,7 +82,7 @@ public class ConfigurationSettingInfo {
 
 	public void setAllowChangingDefaultConfiguration(boolean setting) {
 		allowChangingDefaultConfiguration = setting;
-        UserSettings.setConfigurableAllowDefaultChanges(setting);
+        ConfigurationSettings.setConfigurableAllowDefaultChanges(setting);
 	}
 
 
