@@ -20,38 +20,48 @@ package org.yawlfoundation.yawl.configuration.menu;
 
 import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.configuration.ProcessConfigurationModelListener;
-import org.yawlfoundation.yawl.configuration.menu.action.ApplyProcessConfigurationAction;
-import org.yawlfoundation.yawl.configuration.menu.action.PreviewConfigurationProcessAction;
+import org.yawlfoundation.yawl.configuration.menu.action.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToggleToolBarButton;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToolBarButton;
 
 import javax.swing.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Michael Adams
  * @date 19/12/2013
  */
-public class ToolbarButtonSet implements ProcessConfigurationModelListener {
+public class ConfigurationToolBar extends JToolBar implements ProcessConfigurationModelListener {
 
-    YAWLToggleToolBarButton previewProcessConfigurationButton;
-    YAWLToggleToolBarButton applyProcessConfigurationButton;
+    private YAWLToggleToolBarButton previewProcessConfigurationButton;
+    private YAWLToggleToolBarButton applyProcessConfigurationButton;
 
 
-    public ToolbarButtonSet() {
+    public ConfigurationToolBar() {
+        super("Process Configuration", JToolBar.HORIZONTAL);
+        setRollover(true);
         previewProcessConfigurationButton =
                 new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
         applyProcessConfigurationButton =
                 new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
         ProcessConfigurationModel.getInstance().subscribe(this);
+        addContent();
     }
 
 
-    public Set<AbstractButton> getButtons() {
-        Set<AbstractButton> buttons = new HashSet<AbstractButton>();
-        buttons.add(previewProcessConfigurationButton);
-        buttons.add(applyProcessConfigurationButton);
-        return buttons;
+    public void addContent() {
+        add(buildConfigurableTaskItem());
+        add(new YAWLToolBarButton(new InputPortConfigurationAction()));
+        add(new YAWLToolBarButton(new OutputPortConfigurationAction()));
+        add(new YAWLToolBarButton(new MultipleInstanceConfigurationAction()));
+        add(new YAWLToolBarButton(new CancellationRegionConfigurationAction()));
+        addSeparator();
+
+        add(new YAWLToolBarButton(new CheckProcessCorrectness()));
+        add(previewProcessConfigurationButton);
+        add(applyProcessConfigurationButton);
+        addSeparator();
+
+        add(new YAWLToolBarButton(new ConfigurationSettingsAction()));
     }
 
     public void processConfigurationModelStateChanged(
@@ -63,6 +73,14 @@ public class ToolbarButtonSet implements ProcessConfigurationModelListener {
 
         applyProcessConfigurationButton.setSelected(
                 applyState == ProcessConfigurationModel.ApplyState.ON);
+    }
+
+    private YAWLToggleToolBarButton buildConfigurableTaskItem() {
+        ConfigurableTaskAction action = new ConfigurableTaskAction();
+        YAWLToggleToolBarButton configurableTaskToggle =
+                new YAWLToggleToolBarButton(action);
+        action.setToolBarButton(configurableTaskToggle);
+        return configurableTaskToggle;
     }
 
 }

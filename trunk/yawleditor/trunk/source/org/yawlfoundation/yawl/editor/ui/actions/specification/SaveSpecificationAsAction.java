@@ -34,7 +34,7 @@ public class SaveSpecificationAsAction extends YAWLOpenSpecificationAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Save As...");
     putValue(Action.LONG_DESCRIPTION, "Save this specification to a different filename ");
-    putValue(Action.SMALL_ICON, getPNGIcon("disk_multiple"));
+    putValue(Action.SMALL_ICON, getPNGIcon("save_as"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_A));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift S"));
   }

@@ -26,8 +26,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -44,8 +43,8 @@ public abstract class YEditorPluginAdapter implements YEditorPlugin {
     public abstract JMenu getPluginMenu();
 
 
-    public Set<AbstractButton> getToolbarButtons() {
-        return Collections.emptySet();
+    public JToolBar getToolbar() {
+        return null;
     }
 
     public void performPreFileSaveTasks() {

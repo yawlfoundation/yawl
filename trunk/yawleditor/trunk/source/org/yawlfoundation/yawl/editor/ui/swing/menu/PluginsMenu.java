@@ -18,24 +18,38 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
+import org.yawlfoundation.yawl.editor.ui.actions.view.TogglePluginToolbarViewAction;
 import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-class PluginsMenu extends JMenu {
+public class PluginsMenu extends JMenu {
+
+    private JMenu _toolBarMenu;
 
     public PluginsMenu() {
         super("Plugins");
         buildInterface();
     }
 
+
+    public JMenuItem addToolBarMenuItem(JToolBar toolBar) {
+        return _toolBarMenu.add(new YAWLCheckBoxMenuItem(
+                new TogglePluginToolbarViewAction(toolBar)));
+    }
+
+
     protected void buildInterface() {
         setMnemonic(KeyEvent.VK_P);
+        _toolBarMenu = new JMenu("Toolbars");
+        add(_toolBarMenu);
+        addSeparator();
         addPlugins();
         if (getItemCount() == 0) setEnabled(false);    // no plugins found
     }
+
 
     private void addPlugins() {
         for (YEditorPlugin plugin : YPluginHandler.getInstance().getPlugins()) {

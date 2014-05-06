@@ -56,7 +56,7 @@ public class CancellationRegionConfigurationAction extends ProcessConfigurationA
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Cancellation Region...");
         putValue(Action.LONG_DESCRIPTION, "Configure the cancellation region for this task.");
-        putValue(Action.SMALL_ICON, getPNGIcon("comment_delete"));
+        putValue(Action.SMALL_ICON, getPNGIcon("lasso"));
 
     }
 

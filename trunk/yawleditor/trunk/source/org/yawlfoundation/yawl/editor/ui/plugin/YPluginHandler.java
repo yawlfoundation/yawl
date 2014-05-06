@@ -24,7 +24,9 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -191,6 +193,27 @@ public class YPluginHandler {
         }
     }
 
+
+    public Set<JToolBar> getToolBars() {
+        Set<JToolBar> barSet = new HashSet<JToolBar>();
+        for (YEditorPlugin plugin : getPlugins()) {
+            try {
+                JToolBar bar = plugin.getToolbar();
+                if (bar != null) {
+                    if (bar.getName() == null) {
+                        throw new IllegalArgumentException(
+                                "Cannot import unnamed toolbar - please provide a name.");
+                    }
+                    bar.setOrientation(JToolBar.HORIZONTAL);
+                    barSet.add(bar);
+                }
+            }
+            catch (Exception e) {
+                warn(plugin, e);
+            }
+        }
+        return barSet;
+    }
 
     private void warn(YEditorPlugin plugin, Exception e) {
         _log.warn("Plugin " + plugin.getName() + " threw an Exception", e);

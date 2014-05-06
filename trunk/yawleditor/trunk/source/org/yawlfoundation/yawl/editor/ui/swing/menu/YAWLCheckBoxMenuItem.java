@@ -24,9 +24,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class YAWLPopupMenuCheckBoxItem extends JCheckBoxMenuItem {
+public class YAWLCheckBoxMenuItem extends JCheckBoxMenuItem {
 
-    public YAWLPopupMenuCheckBoxItem(Action a) {
+    public YAWLCheckBoxMenuItem(Action a) {
         super(a);
     }
 

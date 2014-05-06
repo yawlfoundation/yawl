@@ -46,6 +46,7 @@ public class ElementsMenu extends YAWLOpenSpecificationMenu {
         add(new YAWLMenuItem(DecreaseSizeAction.getInstance()));
 
         addSeparator();
+        add(new YAWLCheckBoxMenuItem(ViewCancellationSetAction.getInstance()));
         add(new YAWLMenuItem(AddToVisibleCancellationSetAction.getInstance()));
         add(new YAWLMenuItem(RemoveFromVisibleCancellationSetAction.getInstance()));
     }

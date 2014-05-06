@@ -29,22 +29,15 @@ import org.yawlfoundation.yawl.editor.ui.actions.net.zoom.ZoomSelectedElementsAc
 import org.yawlfoundation.yawl.editor.ui.actions.specification.*;
 import org.yawlfoundation.yawl.editor.ui.actions.view.ToolbarGridToggleAction;
 import org.yawlfoundation.yawl.editor.ui.actions.view.ToolbarTipToggleAction;
-import org.yawlfoundation.yawl.editor.ui.plugin.YEditorPlugin;
-import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ToolBarMenu extends YToolBar { //} implements ProcessConfigurationModelListener {
-
-//    private YAWLToggleToolBarButton previewProcessConfigurationButton;
-//    private YAWLToggleToolBarButton applyProcessConfigurationButton;
-
+public class ToolBarMenu extends YToolBar {
 
     public ToolBarMenu() {
         super("YAWLEditor ToolBar");
-//        ProcessConfigurationModel.getInstance().subscribe(this);
     }
 
 
@@ -62,7 +55,7 @@ public class ToolBarMenu extends YToolBar { //} implements ProcessConfigurationM
 
 
     protected void buildInterface() {
-        setMargin(new Insets(3,2,2,0));
+        setMargin(new Insets(3, 2, 2, 0));
         add(new YAWLToolBarButton(new CreateSpecificationAction()));
         add(new YAWLToolBarButton(new OpenSpecificationAction()));
         add(new YAWLToolBarButton(new SaveSpecificationAction()));
@@ -85,6 +78,11 @@ public class ToolBarMenu extends YToolBar { //} implements ProcessConfigurationM
         addSeparator();
         add(new YAWLToolBarButton(new CreateNetAction()));
         add(new YAWLToolBarButton(new RemoveNetAction()));
+
+        addSeparator();
+        add(new YAWLToggleToolBarButton(ViewCancellationSetAction.getInstance()));
+        add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
+        add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
 
         addSeparator();
         add(new YAWLToolBarButton(AlignTopAction.getInstance()));
@@ -114,37 +112,6 @@ public class ToolBarMenu extends YToolBar { //} implements ProcessConfigurationM
                 new ToolbarTipToggleAction());
         tipButton.setSelected(UserSettings.getShowToolTips());
         add(tipButton);
-
-        addSeparator();
-        add(new YAWLToggleToolBarButton(ViewCancellationSetAction.getInstance()));
-        add(new YAWLToolBarButton(AddToVisibleCancellationSetAction.getInstance()));
-        add(new YAWLToolBarButton(RemoveFromVisibleCancellationSetAction.getInstance()));
-
-        addSeparator();
-
-        for (YEditorPlugin plugin : YPluginHandler.getInstance().getPlugins()) {
-            for (AbstractButton button : plugin.getToolbarButtons()) {
-                add(button);
-            }
-        }
-
-//        previewProcessConfigurationButton =
-//                new YAWLToggleToolBarButton(PreviewConfigurationProcessAction.getInstance());
-//        add(previewProcessConfigurationButton);
-//        applyProcessConfigurationButton =
-//                new YAWLToggleToolBarButton(ApplyProcessConfigurationAction.getInstance());
-//        add(applyProcessConfigurationButton);
     }
 
-
-//    public void processConfigurationModelStateChanged(
-//            ProcessConfigurationModel.PreviewState previewState,
-//            ProcessConfigurationModel.ApplyState applyState) {
-//
-//        previewProcessConfigurationButton.setSelected(
-//                previewState != ProcessConfigurationModel.PreviewState.OFF);
-//
-//        applyProcessConfigurationButton.setSelected(
-//                applyState == ProcessConfigurationModel.ApplyState.ON);
-//    }
 }

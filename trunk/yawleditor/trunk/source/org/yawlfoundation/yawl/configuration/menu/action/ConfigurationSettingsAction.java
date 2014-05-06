@@ -65,6 +65,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
         putValue(Action.SHORT_DESCRIPTION, "Process Configuration Settings");
         putValue(Action.NAME, "Preferences...");
         putValue(Action.LONG_DESCRIPTION, "Process Configuration Settings");
+        putValue(Action.SMALL_ICON, getPNGIcon("settings"));
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
     }
 

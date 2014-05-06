@@ -122,15 +122,8 @@ public class UserSettings {
     private static final String ON_UPLOAD_CANCEL_CASES = "onUploadCancelCases";
     private static final String ON_UPLOAD_LAUNCH_CASE = "onUploadLaunchCase";
 
-    // process configuration settings
-    private static final String CONFIGURABLE_NEW_ELEMENTS =
-            "ProcessConfigNewElementsConfigurable";
-    private static final String CONFIGURABLE_AUTO_GREYOUT = "ProcessConfigAutoGrayout";
-    private static final String CONFIGURABLE_BLOCKING_INPUT_PORTS =
-            "ProcessConfigBlockingInputPorts";
-    private static final String CONFIGURABLE_ALLOW_DEFAULT_CHANGES =
-            "ProcessConfigAllowDefaultConfigChanges";
-
+    // plugin settings
+    private static final String VIEW_PLUGIN_TOOLBAR = "viewPluginToolbar:";
 
     public static Preferences getSettings() { return _prefs; }
 
@@ -605,36 +598,12 @@ public class UserSettings {
     }
 
 
-    public static void setConfigurableAllowDefaultChanges(boolean allow) {
-        setBoolean(CONFIGURABLE_ALLOW_DEFAULT_CHANGES, allow);
+    public static boolean getViewPluginToolbar(String barName) {
+        return getBoolean(VIEW_PLUGIN_TOOLBAR + barName);
     }
 
-    public static boolean getConfigurableAllowDefaultChanges() {
-        return getBoolean(CONFIGURABLE_ALLOW_DEFAULT_CHANGES);
-    }
-
-    public static void setConfigurableNewElements(boolean allow) {
-        setBoolean(CONFIGURABLE_NEW_ELEMENTS, allow);
-    }
-
-    public static boolean getConfigurableNewElements() {
-        return getBoolean(CONFIGURABLE_NEW_ELEMENTS);
-    }
-
-    public static void setConfigurableAutoGreyout(boolean allow) {
-        setBoolean(CONFIGURABLE_AUTO_GREYOUT, allow);
-    }
-
-    public static boolean getConfigurableAutoGreyout() {
-        return getBoolean(CONFIGURABLE_AUTO_GREYOUT);
-    }
-
-    public static void setConfigurableBlockingInputPorts(boolean allow) {
-        setBoolean(CONFIGURABLE_BLOCKING_INPUT_PORTS, allow);
-    }
-
-    public static boolean getConfigurableBlockingInputPorts() {
-        return getBoolean(CONFIGURABLE_BLOCKING_INPUT_PORTS);
+    public static void setViewPluginToolbar(String barName, boolean view) {
+        setBoolean(VIEW_PLUGIN_TOOLBAR + barName, view);
     }
 
 

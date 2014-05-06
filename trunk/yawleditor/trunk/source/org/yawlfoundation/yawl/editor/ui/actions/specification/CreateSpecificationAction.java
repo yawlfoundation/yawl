@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.specification;
 
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFactory;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
@@ -44,6 +45,7 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
         new SpecificationFactory().newSpecification();
         Publisher.getInstance().publishOpenFileEvent();
         SpecificationUndoManager.getInstance().discardAllEdits();
+        YPluginHandler.getInstance().specificationLoaded();
     }
 
     public String getEnabledTooltipText() {
