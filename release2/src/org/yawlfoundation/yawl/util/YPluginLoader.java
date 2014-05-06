@@ -234,7 +234,7 @@ public class YPluginLoader extends URLClassLoader {
 
     // transforms a path string to a package name
     private String pathToPackage(String path) {
-        return path.replaceAll(File.separator, ".").substring(0, path.lastIndexOf('.'));
+        return path.replace(File.separatorChar, '.').substring(0, path.lastIndexOf('.'));
     }
 
 
