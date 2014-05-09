@@ -20,12 +20,17 @@ package org.yawlfoundation.yawl.editor.ui.plugin;
 
 import org.apache.log4j.Logger;
 import org.jgraph.graph.VertexView;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.PluginsMenu;
+import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -205,6 +210,7 @@ public class YPluginHandler {
                                 "Cannot import unnamed toolbar - please provide a name.");
                     }
                     bar.setOrientation(JToolBar.HORIZONTAL);
+                    bar.setComponentPopupMenu(new PluginToolBarPopupMenu(bar));
                     barSet.add(bar);
                 }
             }
@@ -217,6 +223,35 @@ public class YPluginHandler {
 
     private void warn(YEditorPlugin plugin, Exception e) {
         _log.warn("Plugin " + plugin.getName() + " threw an Exception", e);
+    }
+
+
+    /**************************************************************************/
+
+    class PluginToolBarPopupMenu extends JPopupMenu {
+
+        JToolBar bar;
+
+        PluginToolBarPopupMenu(final JToolBar bar) {
+            this.bar = bar;
+            add(new YAWLBaseAction() {
+
+                { putValue(Action.NAME, "Hide"); }
+
+                public void actionPerformed(ActionEvent e) {
+
+                    // remove toolbar
+                    YAWLEditor.getInstance().setPluginToolBarVisible(bar, false);
+
+                    // deselect menu item for toolbar
+                    YAWLMenuBar menuBar = (YAWLMenuBar) YAWLEditor.getInstance().getJMenuBar();
+                    PluginsMenu pluginsMenu = (PluginsMenu) menuBar.getMenu("Plugins");
+                    if (pluginsMenu != null) {
+                        pluginsMenu.setToolBarSelected(bar.getName(), false);
+                    }
+                }
+            });
+        }
     }
 
 }
