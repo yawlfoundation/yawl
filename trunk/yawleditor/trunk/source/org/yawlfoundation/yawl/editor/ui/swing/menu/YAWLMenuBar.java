@@ -43,4 +43,13 @@ public class YAWLMenuBar extends JMenuBar {
         add(new PluginsMenu());
         add(new HelpMenu());
     }
+
+    public JMenu getMenu(String name) {
+        for (int i=0; i < getMenuCount(); i++) {
+            JMenu menu = getMenu(i);
+            if (menu.getText().equals(name)) return menu;
+        }
+        return null;
+    }
+
 }

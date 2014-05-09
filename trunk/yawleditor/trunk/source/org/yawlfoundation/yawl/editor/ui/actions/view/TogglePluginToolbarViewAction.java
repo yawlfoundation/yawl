@@ -38,14 +38,18 @@ public class TogglePluginToolbarViewAction extends YAWLBaseAction {
         toolbar = bar;
         putValue(Action.NAME, bar.getName());
         selected = UserSettings.getViewPluginToolbar(bar.getName());
+        if (selected) {
+            YAWLEditor.getToolBar().getParent().add(bar);
+        }
     }
 
     public void actionPerformed(ActionEvent event) {
         selected = !selected;
-        toolbar.setVisible(selected);
         UserSettings.setViewPluginToolbar(toolbar.getName(), selected);
         YAWLEditor.getInstance().setPluginToolBarVisible(toolbar, selected);
     }
+
+    public void setSelected(boolean select) { selected = select; }
 
     public boolean isSelected() {
         return selected;

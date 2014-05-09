@@ -92,18 +92,21 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     public void setPluginToolBarVisible(JToolBar bar, boolean show) {
         Container container = toolBarMenu.getParent();
-        for (Component c : container.getComponents()) {
-            if ((c instanceof JToolBar) && c.getName().equals(bar.getName())) {
-                if (! show) container.remove(c);
-                return;
-            }
-        }
         if (show) {
             container.add(bar);
+        }
+        else {
+            for (Component c : container.getComponents()) {
+                if ((c instanceof JToolBar) && c.getName().equals(bar.getName())) {
+                    container.remove(c);
+                    break;
+                }
+            }
         }
         validate();
         repaint();
     }
+
 
     public void markTitleAsDirty() {
         String title = getTitle();
@@ -312,7 +315,8 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         toolBarMenu = new ToolBarMenu();
         toolbarMenuPanel.add(toolBarMenu);
 
-        PluginsMenu pluginsMenu = (PluginsMenu) getJMenu("Plugins");
+        YAWLMenuBar menuBar = (YAWLMenuBar) getJMenuBar();
+        PluginsMenu pluginsMenu = (PluginsMenu) menuBar.getMenu("Plugins");
         if (pluginsMenu != null) {
             for (JToolBar bar : YPluginHandler.getInstance().getToolBars()) {
                 JMenuItem item = pluginsMenu.addToolBarMenuItem(bar);
@@ -411,15 +415,4 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         }
     }
 
-
-    private JMenu getJMenu(String name) {
-        JMenuBar menuBar = getJMenuBar();
-        for (int i=0; i < menuBar.getMenuCount(); i++) {
-            JMenu menu = menuBar.getMenu(i);
-            if (menu.getText().equals(name)) return menu;
-        }
-        return null;
-    }
-
 }
-                                   ;

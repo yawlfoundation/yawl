@@ -36,8 +36,20 @@ public class PluginsMenu extends JMenu {
 
 
     public JMenuItem addToolBarMenuItem(JToolBar toolBar) {
-        return _toolBarMenu.add(new YAWLCheckBoxMenuItem(
-                new TogglePluginToolbarViewAction(toolBar)));
+        TogglePluginToolbarViewAction action = new TogglePluginToolbarViewAction(toolBar);
+        YAWLCheckBoxMenuItem item = new YAWLCheckBoxMenuItem(action);
+        item.setSelected(action.isSelected());
+        return _toolBarMenu.add(item);
+    }
+
+    public void setToolBarSelected(String name, boolean selected) {
+        for (int i=0; i < _toolBarMenu.getItemCount(); i++) {
+            JMenuItem item = _toolBarMenu.getItem(i);
+            if (item.getText().equals(name)) {
+                item.setSelected(selected);
+                ((TogglePluginToolbarViewAction) item.getAction()).setSelected(selected);
+            }
+        }
     }
 
 
