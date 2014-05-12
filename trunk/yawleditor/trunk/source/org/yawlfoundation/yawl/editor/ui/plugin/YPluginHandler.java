@@ -31,8 +31,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -199,8 +198,8 @@ public class YPluginHandler {
     }
 
 
-    public Set<JToolBar> getToolBars() {
-        Set<JToolBar> barSet = new HashSet<JToolBar>();
+    public java.util.List<JToolBar> getToolBars() {
+        java.util.List<JToolBar> barSet = new ArrayList<JToolBar>();
         for (YEditorPlugin plugin : getPlugins()) {
             try {
                 JToolBar bar = plugin.getToolbar();
@@ -218,6 +217,11 @@ public class YPluginHandler {
                 warn(plugin, e);
             }
         }
+        Collections.sort(barSet, new Comparator<JToolBar>() {
+            public int compare(JToolBar bar1, JToolBar bar2) {
+                return bar1.getName().compareTo(bar2.getName());
+            }
+        });
         return barSet;
     }
 

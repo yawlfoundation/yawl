@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import junit.framework.*;
 
+import org.yawlfoundation.yawl.configuration.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLPort;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;

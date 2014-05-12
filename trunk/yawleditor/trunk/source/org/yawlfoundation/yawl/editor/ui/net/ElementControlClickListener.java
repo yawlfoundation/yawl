@@ -28,47 +28,42 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ElementControlClickListener extends MouseAdapter {
-  private final NetGraph net;
+    private final NetGraph net;
 
-  public ElementControlClickListener(NetGraph net) {
-    this.net = net;
-  }
-  
-  public void mouseClicked(MouseEvent e) {
-    if (e.getClickCount() != 1) {
-      return;
+    public ElementControlClickListener(NetGraph net) {
+        this.net = net;
     }
-    
-    if ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK) {
-      Object selectedCell = net.getFirstCellForLocation(e.getPoint().getX(), e.getPoint().getY());
 
-      if (selectedCell instanceof VertexContainer) {
-        selectedCell = ((VertexContainer) selectedCell).getVertex();
-      }
-      
-      if (selectedCell instanceof YAWLCompositeTask) {
-        doCompositeTaskCtrlClickProcessing(
-            (YAWLCompositeTask) selectedCell
-        );
-      }
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() != 1) {
+            return;
+        }
+
+        if ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK) {
+            Object selectedCell = net.getFirstCellForLocation(e.getPoint().getX(), e.getPoint().getY());
+
+            if (selectedCell instanceof VertexContainer) {
+                selectedCell = ((VertexContainer) selectedCell).getVertex();
+            }
+
+            if (selectedCell instanceof YAWLCompositeTask) {
+                doCompositeTaskCtrlClickProcessing(
+                        (YAWLCompositeTask) selectedCell
+                );
+            }
+        }
+
     }
-    
-  }
 
     private void doCompositeTaskCtrlClickProcessing(YAWLCompositeTask compositeTask) {
-      NetGraphModel unfoldingNet = SpecificationModel.getNets()
-              .getNetModelFromName(compositeTask.getUnfoldingNetName());
+        NetGraphModel unfoldingNet = SpecificationModel.getNets()
+                .getNetModelFromName(compositeTask.getUnfoldingNetName());
 
         if (unfoldingNet != null) {
 
-          YAWLEditor.getNetsPane().setSelectedComponent(
-                  unfoldingNet.getGraph().getFrame());
-//        try {
-//          unfoldingNet.getGraph().getFrame().setIcon(true);  // this tricks the frame into taking focus.
-//          unfoldingNet.getGraph().getFrame().setIcon(false);
-//        } catch (Exception e) {}
-//        unfoldingNet.getGraph().getFrame().moveToFront();
-//        unfoldingNet.getGraph().getFrame().requestFocus();
-      }
-    }  
+            YAWLEditor.getNetsPane().setSelectedComponent(
+                    unfoldingNet.getGraph().getFrame());
+
+        }
+    }
 }

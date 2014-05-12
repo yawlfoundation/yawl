@@ -32,7 +32,6 @@ public class ExitAction extends YAWLOpenSpecificationAction implements TooltipTo
         putValue(Action.SHORT_DESCRIPTION, getEnabledTooltipText());
         putValue(Action.NAME, "Exit");
         putValue(Action.LONG_DESCRIPTION, "Exit the application.");
-        putValue(Action.SMALL_ICON, getIconByName("Blank"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_X));
     }
 

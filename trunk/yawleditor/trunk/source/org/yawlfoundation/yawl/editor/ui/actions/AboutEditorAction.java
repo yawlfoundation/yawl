@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions;
 
-import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
@@ -53,14 +53,15 @@ class AboutEditorDialog extends JDialog {
     private static final Color BACK_COLOUR = new Color(254,254,240);
 
     public AboutEditorDialog() {
-        super();
+        super(YAWLEditor.getInstance());
         setUndecorated(true);
         setModal(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setContentPane(getAboutPanel());
         setSize(430, 160);
         addKeyListener(this);
-        JUtilities.centerWindow(this);
+        pack();
+        setLocationRelativeTo(YAWLEditor.getInstance());
     }
 
     private JPanel getAboutPanel() {

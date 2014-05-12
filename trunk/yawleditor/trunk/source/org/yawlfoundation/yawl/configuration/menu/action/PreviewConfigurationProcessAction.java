@@ -42,14 +42,15 @@
 package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.jgraph.graph.GraphCell;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
+import org.yawlfoundation.yawl.configuration.ProcessConfigurationModelListener;
+import org.yawlfoundation.yawl.configuration.menu.ResourceLoader;
+import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.Decorator;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLCell;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
-import org.yawlfoundation.yawl.configuration.ProcessConfigurationModelListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 
 import javax.swing.*;
@@ -125,6 +126,10 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
         net.getModel().endUpdate();
         net.startUndoableEdits();
         publishState();
+    }
+
+    protected ImageIcon getPNGIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 
     private void setColour(NetGraph net, YAWLCell cell, Color colour) {

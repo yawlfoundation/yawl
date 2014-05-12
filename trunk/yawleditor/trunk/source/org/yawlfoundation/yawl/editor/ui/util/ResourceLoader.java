@@ -38,6 +38,8 @@ public class ResourceLoader {
             in.close();
             return new ImageIcon(imageByteBuffer);
         } catch (Exception e) {
+            LogWriter.warn("Unable to load icon from file: " + imageFile + ": " +
+                            e.getMessage());
             return null;
         }
     }

@@ -66,6 +66,8 @@
               value="${root.class.name}-analyser-${editor.release.number}.jar" />
     <property name="configuration.plugin.jar.name"
               value="${root.class.name}-configuration-${editor.release.number}.jar" />
+    <property name="decoratortoolbar.plugin.jar.name"
+              value="${root.class.name}-decobar-${editor.release.number}.jar" />
     <property name="icons.jar.name"
               value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
@@ -208,12 +210,47 @@
          	<attribute name="Class-Path" value="${config_manifest_cp}" />
         </manifest>
 
+        <copy toDir="${classes.dir}/${package.base.dir}/configuration/menu/icon">
+            <fileset dir="${source.dir}/${package.base.dir}/configuration/menu/icon"/>
+        </copy>
+
         <jar jarfile="${output.dir}/plugins/${configuration.plugin.jar.name}"
              basedir="${classes.dir}"
              manifest="config.mf"
              includes="${package.base.dir}/configuration/**"
              excludes="**/Test*.class" />
         <checksum file="${output.dir}/plugins/${configuration.plugin.jar.name}"
+                  toDir="${output.dir}"/>
+        <delete file="config.mf"/>
+    </target>
+
+
+    <target name="buildDecoratorToolBarPluginJar"
+            depends="compileDecoratorToolBarPlugin, copyLibs"
+  	        description="Build the Decorator ToolBar plugin">
+
+        <mkdir dir="${output.dir}/plugins" />
+
+        <manifestclasspath property="decobar_manifest_cp"
+     			jarfile="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}">
+     		<classpath>
+     			<fileset dir="${output.dir}/lib" includes="*.jar" />
+                <fileset dir="${output.dir}" includes="${ui.jar.name}"/>
+     		</classpath>
+     	</manifestclasspath>
+        <manifest file="config.mf">
+         	<attribute name="Class-Path" value="${decobar_manifest_cp}" />
+        </manifest>
+
+        <copy toDir="${classes.dir}/${package.base.dir}/decobar/icon">
+            <fileset dir="${source.dir}/${package.base.dir}/decobar/icon"/>
+        </copy>
+
+        <jar jarfile="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}"
+             basedir="${classes.dir}"
+             manifest="config.mf"
+             includes="${package.base.dir}/decobar/**" />
+        <checksum file="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}"
                   toDir="${output.dir}"/>
         <delete file="config.mf"/>
     </target>
@@ -272,7 +309,7 @@
 
     <target name="buildJars"
             depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,
-                    buildUIJar,buildConfigurationPluginJar"
+                    buildUIJar,buildDecoratorToolBarPluginJar,buildConfigurationPluginJar"
             description="Builds all jars and copies required libraries"/>
 
     <!--
@@ -354,13 +391,14 @@
 		Environment clean/initialisation tasks.
 	-->
     <target name="clean">
+        <echo message="Cleaning..."/>
         <delete dir="${classes.dir}" />
         <delete dir="${javadoc.dir}" />
         <delete dir="${output.dir}" />
     </target>
 
 
-    <target name="initialize" depends="clean">
+    <target name="initialize" depends="clean" unless="initialized">
 
         <!-- Create the time stamp & filter token for 'about' box -->
         <tstamp>
@@ -370,6 +408,8 @@
 
         <!-- Create the distribution dir if it doesn't already exist -->
         <mkdir dir="${output.dir}" />
+        <mkdir dir="${classes.dir}" />
+        <property name="initialized" value="true"/>
     </target>
 
 	<!--
@@ -377,7 +417,6 @@
 	     tokenized values (using build.properties supplied values)
 	-->
     <target name="compile" depends="initialize">
-        <mkdir dir="${classes.dir}" />
         <copy todir="${classes.dir}/${package.dir}/ui/resources">
             <fileset dir="${source.dir}/${package.dir}/ui/resources">
                 <include name="**/*" />
@@ -392,6 +431,7 @@
                srcdir="${source.dir}"
                destdir="${classes.dir}">
             <include name="${root.source.file.path}" />
+            <include name="${package.dir}/ui/plugin/YEditorPluginAdapter.java" />
             <classpath>
             	<pathelement location="../${compatible.engine.libJAR.path}" />
         		<fileset refid="editorOnlyDeps" />
@@ -402,17 +442,35 @@
 
 
     <target name="compileConfigurationPlugin" depends="initialize">
-        <property name="base.file"
+        <property name="base.file.configuration"
                   value="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
-        <mkdir dir="${classes.dir}" />
 
-        <echo message="Compiling: ${base.file}" />
+        <echo message="Compiling: ${base.file.configuration}" />
         <javac fork="yes"
                debug="yes"
                source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
-            <include name="${base.file}" />
+            <include name="${base.file.configuration}" />
+            <classpath>
+            	<pathelement location="../${compatible.engine.libJAR.path}" />
+        		<fileset refid="editorOnlyDeps" />
+            	<fileset refid="neededEngineDeps" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compileDecoratorToolBarPlugin" depends="initialize">
+        <property name="base.file.decorator"
+                  value="${package.base.dir}/decobar/DecoratorToolbarPlugin.java"/>
+
+        <echo message="Compiling: ${base.file.decorator}" />
+        <javac fork="yes"
+               debug="yes"
+               source="${java.target.version}"
+               srcdir="${source.dir}"
+               destdir="${classes.dir}">
+            <include name="${base.file.decorator}" />
             <classpath>
             	<pathelement location="../${compatible.engine.libJAR.path}" />
         		<fileset refid="editorOnlyDeps" />

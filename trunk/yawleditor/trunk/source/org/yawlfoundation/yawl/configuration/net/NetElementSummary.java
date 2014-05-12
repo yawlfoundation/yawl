@@ -16,9 +16,10 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
  
-package org.yawlfoundation.yawl.editor.ui.net;
+package org.yawlfoundation.yawl.configuration.net;
 
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 
 import java.util.HashSet;
 import java.util.Set;
