@@ -37,6 +37,7 @@
 package org.yawlfoundation.yawl.configuration.menu.action;
 
 import org.jgraph.event.GraphSelectionEvent;
+import org.yawlfoundation.yawl.configuration.menu.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
@@ -45,6 +46,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
+import javax.swing.*;
 import java.util.Arrays;
 
 /**
@@ -79,6 +81,10 @@ public class ProcessConfigurationAction extends YAWLSelectedNetAction
             }
         }
         setEnabled(false);
+    }
+
+    protected ImageIcon getPNGIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 
 }

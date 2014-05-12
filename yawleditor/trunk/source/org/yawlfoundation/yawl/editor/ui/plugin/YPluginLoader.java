@@ -40,7 +40,7 @@ import java.util.jar.JarFile;
  */
 public class YPluginLoader extends URLClassLoader {
 
-    private static final String PLUGIN_INTERFACE_NAME = YEditorPlugin.class.getName();
+    private static final Class PLUGIN_INTERFACE_CLASS = YEditorPlugin.class;
 
 
     protected YPluginLoader() {
@@ -88,16 +88,25 @@ public class YPluginLoader extends URLClassLoader {
     private YEditorPlugin loadIfPlugin(String name) {
         try {
             Class<?> c = loadClass(pathToPackage(name));
-            for (Class<?> iface : c.getInterfaces()) {
-                if (iface.getName().equals(PLUGIN_INTERFACE_NAME)) {
-                    return (YEditorPlugin) c.newInstance();
-                }
+            if (implementsPluginInterface(c)) {
+                return (YEditorPlugin) c.newInstance();
             }
         }
         catch (Exception e) {
             // fall through to null
         }
         return null;
+    }
+
+
+    private boolean implementsPluginInterface(Class<?> c) {
+        if (c == null) return false;
+        for (Class<?> iface : c.getInterfaces()) {
+            if (iface.getName().equals(PLUGIN_INTERFACE_CLASS.getName())) {
+                return true;
+            }
+        }
+        return implementsPluginInterface(c.getSuperclass());
     }
 
 

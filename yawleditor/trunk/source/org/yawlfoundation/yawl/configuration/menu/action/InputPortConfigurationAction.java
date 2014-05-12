@@ -109,6 +109,7 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
     public String getEnabledTooltipText() {
         return "Configure the input ports for this task.";
     }
+
     /**
      *
      * @author jingxin

@@ -40,6 +40,7 @@
 
 package org.yawlfoundation.yawl.configuration.menu.action;
 
+import org.yawlfoundation.yawl.configuration.menu.ResourceLoader;
 import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
 import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -88,6 +89,12 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
     public void specificationFileStateChange(FileState state) {
         setEnabled(state == FileState.Open);
     }
+
+
+    protected ImageIcon getPNGIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconName + ".png");
+    }
+
 
     /**
      *

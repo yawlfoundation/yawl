@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.swing.NetsPane;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -47,7 +48,8 @@ public abstract class YAWLBaseAction extends AbstractAction {
     }
 
     public NetGraph getGraph() {
-        return YAWLEditor.getNetsPane().getSelectedGraph();
+        NetsPane pane = YAWLEditor.getNetsPane();
+        return pane != null ? pane.getSelectedGraph() : null;
     }
 
     public boolean shouldBeEnabled() {

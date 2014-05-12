@@ -45,10 +45,8 @@ import org.yawlfoundation.yawl.configuration.MultipleInstanceTaskConfigSet;
 import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
-import org.yawlfoundation.yawl.configuration.net.ConfigureSet;
-import org.yawlfoundation.yawl.configuration.net.NetConfiguration;
-import org.yawlfoundation.yawl.configuration.net.NetConfigurationCache;
-import org.yawlfoundation.yawl.configuration.net.ServiceAutomatonTree;
+import org.yawlfoundation.yawl.configuration.menu.ResourceLoader;
+import org.yawlfoundation.yawl.configuration.net.*;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
@@ -57,7 +55,6 @@ import org.yawlfoundation.yawl.editor.ui.actions.CopyAction;
 import org.yawlfoundation.yawl.editor.ui.actions.PasteAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.YAWLSelectedNetAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
-import org.yawlfoundation.yawl.editor.ui.net.NetElementSummary;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
@@ -152,6 +149,11 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         }
         publishState();
         FileOperations.validate();   // do a validation after each apply toggle
+    }
+
+
+    protected ImageIcon getPNGIcon(String iconName) {
+        return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 
 
