@@ -228,7 +228,15 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
 
     private YCompoundFlow moveTo(YExternalNetElement source, YExternalNetElement target) {
-        removeImplicitCondition();
+        if (isCompound()) {
+            removeImplicitCondition();
+        }
+        else {
+
+            // source or target is explicit condition
+            source.removePostsetFlow(_flowFromSource);
+            target.removePresetFlow(_flowFromSource);
+        }
         YCompoundFlow flow = new YCompoundFlow(source, target);
         setPropertiesOnMove(flow);
         return flow;

@@ -49,6 +49,7 @@ public class LabelElementDialog extends AbstractVertexDoneDialog {
                 String newLabel = labelField.getText();
                 if (newLabel.length() == 0) newLabel = null;
                 graph.setElementLabel(vertex, newLabel);
+                vertex.setName(newLabel);
                 if (cbxSynch.isSelected()) {
                     updateVertexID(vertex, newLabel);
                 }
