@@ -41,7 +41,7 @@ public class PresetWalker {
     public Set<YAtomicTask> getAtomicTasks(YAtomicTask task) {
         Set<YAtomicTask> precedingTasks = new HashSet<YAtomicTask>();
         for (YAtomicTask priorTask : getAllPrecedingAtomicTasks(task)) {
-            YDecomposition decomposition = task.getDecompositionPrototype();
+            YDecomposition decomposition = priorTask.getDecompositionPrototype();
             if (isResourcedDecomposition(decomposition)) {
                 precedingTasks.add(priorTask);
             }

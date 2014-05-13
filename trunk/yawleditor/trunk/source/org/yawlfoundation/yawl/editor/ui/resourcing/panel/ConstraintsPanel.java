@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 
 import org.yawlfoundation.yawl.editor.core.resourcing.BasicOfferInteraction;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
 import org.yawlfoundation.yawl.elements.YAtomicTask;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
@@ -172,9 +173,13 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
 
 
     private void addItems(JComboBox combo, Set<YAtomicTask> preTasks) {
+        String currentNetID = YAWLEditor.getNetsPane().getSelectedYNet().getID();
         java.util.List<String> items = new ArrayList<String>();
         for (YAtomicTask preTask : preTasks) {
-            items.add(preTask.getID() + " (" + preTask.getNet().getID() + ")");
+            String taskNetID = preTask.getNet().getID();
+            String suffix = taskNetID.equals(currentNetID) ? "" :
+                    " (" + preTask.getNet().getID() + ")";
+            items.add(preTask.getID() + suffix);
         }
         Collections.sort(items);
         for (String item : items) combo.addItem(item);
@@ -195,6 +200,8 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
 
     private void enableCombo(JComboBox combo, boolean enable) {
         combo.setEnabled(enable && combo.getItemCount() > 0);
+        combo.setToolTipText(enable && ! combo.isEnabled() ?
+            "Only those prior tasks with resourced decompositions are listed here" : null);
     }
 
 
