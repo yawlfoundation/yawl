@@ -89,6 +89,10 @@ public class YPropertySheet extends PropertySheetPanel {
         }
     }
 
+    public void refresh() {
+        validate();
+        repaint();
+    }
 
     private void registerGlobalEditors() {
         PropertyEditorRegistry editorFactory = (PropertyEditorRegistry) getEditorFactory();
