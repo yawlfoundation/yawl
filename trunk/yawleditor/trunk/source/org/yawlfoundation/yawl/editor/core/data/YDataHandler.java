@@ -423,6 +423,7 @@ public class YDataHandler {
      * @param netID the id of the task's containing net
      * @param taskID the id of the task
      * @param variableName the name of the variable to set the mapping for
+     *                     (task variable name for INPUT, net variable name for OUTPUT)
      * @param mapping the mapping to set
      * @param scope one of INPUT or OUTPUT
      * @throws YDataHandlerException if there is no specification associated with this

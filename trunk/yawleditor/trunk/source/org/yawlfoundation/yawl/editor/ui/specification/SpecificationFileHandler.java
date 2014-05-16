@@ -156,7 +156,10 @@ public class SpecificationFileHandler {
 
         // no existing filename, so build one from last known path and spec uri
         String path = UserSettings.getLastSaveOrLoadPath();
-        if (! path.endsWith(File.separator)) {
+        if (path == null) {
+            path = System.getProperty("user.home");
+        }
+        else if (! path.endsWith(File.separator)) {
             path = path.substring(0, path.lastIndexOf(File.separator));
         }
         return new File(path, _handler.getID().getUri() + EXTENSION);

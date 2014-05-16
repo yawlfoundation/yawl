@@ -216,6 +216,12 @@ public class YControlFlowHandler {
     }
 
 
+    public boolean isOrphanTaskDecomposition(YDecomposition decomposition) {
+        return ! (decomposition == null || decomposition instanceof YNet) &&
+                isOrphan(decomposition, getAllAtomicTasks());
+    }
+
+
     public void removeOrphanTaskDecompositions() {
         if (_specification == null) return;
 

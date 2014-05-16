@@ -19,7 +19,13 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.DataDefinitionDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+
+import javax.swing.*;
 
 /**
  * @author Michael Adams
@@ -27,33 +33,59 @@ import org.yawlfoundation.yawl.editor.ui.properties.dialog.DataDefinitionDialog;
  */
 public class DataDefinitionPropertyEditor extends DialogPropertyEditor {
 
-    private String currentDefinition;
+    private YSpecificationHandler _handler = SpecificationModel.getHandler();
 
     public DataDefinitionPropertyEditor() {
         super(new DefaultCellRenderer());
     }
 
     public Object getValue() {
-        return currentDefinition;
+        return getLabelValue();
     }
 
     public void setValue(Object value) {
-        currentDefinition = (String) value;
-        ((DefaultCellRenderer) label).setValue(currentDefinition);
+        ((DefaultCellRenderer) label).setValue(getLabelValue());
     }
 
 
     protected void showDialog() {
+        String oldContent = _handler.getSchema();
         DataDefinitionDialog dialog = new DataDefinitionDialog();
-        dialog.setContent(currentDefinition);
+        dialog.setContent(oldContent);
         dialog.setVisible(true);
         String newContent = dialog.getContent();
-        if (! (newContent == null || newContent.equals(currentDefinition))) {
-            String oldContent = currentDefinition;
+        if (! (newContent == null || newContent.equals(oldContent))) {
             setValue(newContent);
+            setSchema(newContent);
             firePropertyChange(oldContent, newContent);
         }
+    }
 
+
+    private String getLabelValue() {
+        try {
+            int typeCount = _handler.getDataHandler().getUserDefinedTypeNames().size();
+            return typeCount + " defined type" + (typeCount != 1 ? "s" : "");
+        }
+        catch (YDataHandlerException ydhe) {
+            return null;
+        }
+    }
+
+
+    private void setSchema(String schema) {
+        try {
+            _handler.setSchema(schema);
+        }
+        catch (Exception yse) {
+            showWarning("Invalid Schema", yse.getMessage());
+        }
+    }
+
+
+    protected void showWarning(String title, String message) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
+                JOptionPane.WARNING_MESSAGE);
     }
 
 }

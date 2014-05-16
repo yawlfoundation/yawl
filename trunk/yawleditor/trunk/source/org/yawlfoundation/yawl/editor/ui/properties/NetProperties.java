@@ -96,28 +96,19 @@ public class NetProperties extends YPropertiesBean {
 
 
     public String getDataSchema() {
-        return specHandler.getSchema();
+        try {
+            int typeCount = specHandler.getDataHandler().getUserDefinedTypeNames().size();
+            return typeCount + " defined type" + (typeCount != 1 ? "s" : "");
+        }
+        catch (YDataHandlerException ydhe) {
+            return null;
+        }
     }
 
     public void setDataSchema(String schema) {
-        try {
-            specHandler.setSchema(schema);
-        }
-        catch (Exception yse) {
-            showWarning("Invalid Schema", yse.getMessage());
-            firePropertyChange("DataSchema", specHandler.getSchema());
-        }
+        // nothing to do - updates handled by dialog
     }
 
-    private String getDataSchemaLabel() {
-        try {
-            int udTypes = specHandler.getDataHandler().getUserDefinedTypeNames().size();
-            return udTypes + " user defined types";
-        }
-        catch (YDataHandlerException ydhe) {
-            return "";
-        }
-    }
 
     /**** NET PROPERTIES ****/
 
