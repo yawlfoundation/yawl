@@ -29,13 +29,13 @@ public class ConditionAction extends PaletteAction implements TooltipTogglingWid
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Condition");
-        putValue(Action.LONG_DESCRIPTION, "Add a new Condition");
+        putValue(Action.LONG_DESCRIPTION, "Condition");
         putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
     }
 
     public ConditionAction() { super(); }
 
-    public String getEnabledTooltipText() { return " Add a Condition "; }
+    public String getEnabledTooltipText() { return " Condition "; }
 
 
     public String getButtonStatusText() {

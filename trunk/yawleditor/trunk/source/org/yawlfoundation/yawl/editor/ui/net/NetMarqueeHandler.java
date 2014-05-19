@@ -116,7 +116,6 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     private int getCursorFromPaletteState() {
         switch (paletteBar.getState()) {
             case MARQUEE   : return CursorFactory.SELECTION;
-            case DRAG      : return CursorFactory.DRAG;
             case CONDITION : return CursorFactory.CONDITION;
             case ATOMIC_TASK : return CursorFactory.ATOMIC_TASK;
             case COMPOSITE_TASK: return CursorFactory.COMPOSITE_TASK;

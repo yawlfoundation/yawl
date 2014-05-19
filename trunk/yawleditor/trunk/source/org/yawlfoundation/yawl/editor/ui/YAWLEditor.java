@@ -38,10 +38,7 @@ import org.yawlfoundation.yawl.editor.ui.util.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.net.MalformedURLException;
 import java.util.List;
 

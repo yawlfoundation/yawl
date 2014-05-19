@@ -45,7 +45,7 @@ public abstract class PaletteAction extends AbstractAction {
     }
 
     public String getDisabledTooltipText() {
-        return " You must have an open specification, and selected net to use the palette ";
+        return " You must have an open specification to use the palette ";
     }
 
 

@@ -41,6 +41,5 @@ public class PalettePopupMenu extends JPopupMenu {
         add(new MultipleCompositeTaskAction());
         add(new ConditionAction());
         add(new MarqueeAction());
-        add(new NetDragAction());
     }
 }
