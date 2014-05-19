@@ -28,17 +28,17 @@ public class MultipleCompositeTaskAction extends PaletteAction implements Toolti
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Multiple Composite Task");
-        putValue(Action.LONG_DESCRIPTION, "Add a new Multiple Composite Task");
+        putValue(Action.LONG_DESCRIPTION, "Multiple Instance Composite Task");
         putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleCompositeTask"));
     }
 
     public MultipleCompositeTaskAction() { super(); }
 
-    public String getEnabledTooltipText() { return " Add multiple Composite Tasks "; }
+    public String getEnabledTooltipText() { return " Multiple Instance Composite Task "; }
 
 
     public String getButtonStatusText() {
-        return getClickAnywhereText() + "multiple composite task.";
+        return getClickAnywhereText() + "multiple instance composite task.";
     }
 
     public Palette.SelectionState getSelectionID() {

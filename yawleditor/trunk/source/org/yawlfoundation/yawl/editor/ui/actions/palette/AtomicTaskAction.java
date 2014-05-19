@@ -29,14 +29,14 @@ public class AtomicTaskAction extends PaletteAction implements TooltipTogglingWi
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Atomic Task");
-        putValue(Action.LONG_DESCRIPTION, "Add a new Atomic Task");
+        putValue(Action.LONG_DESCRIPTION, "Atomic Task");
         putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteAtomicTask"));
     }
 
 
     public AtomicTaskAction() { super(); }
 
-    public String getEnabledTooltipText() { return " Add a new Atomic Task "; }
+    public String getEnabledTooltipText() { return " Atomic Task "; }
 
 
     public String getButtonStatusText() {

@@ -116,6 +116,7 @@ public class UserSettings {
     private static final String FONT_STYLE = "fontStyle";
     private static final int DEFAULT_FONT_STYLE = Font.PLAIN;
     private static final String DEFAULT_TEXT_COLOUR = "defaultTextColor";
+    private static final String SHOW_PROPERTY_DESCRIPTIONS = "showPropertyDescriptions";
 
     // specification upload settings
     private static final String ON_UPLOAD_UNLOAD_PREVIOUS = "onUploadUnloadPrevious";
@@ -494,6 +495,14 @@ public class UserSettings {
 
     public static boolean getShowToolTips() {
         return _prefs.getBoolean(SHOW_TOOL_TIPS, true);
+    }
+
+    public static void setShowPropertyDescriptions(boolean show) {
+        setBoolean(SHOW_PROPERTY_DESCRIPTIONS, show);
+    }
+
+    public static boolean getShowPropertyDescriptions() {
+        return _prefs.getBoolean(SHOW_PROPERTY_DESCRIPTIONS, true);
     }
 
     public static void setJoinFillColour(Color colour) {

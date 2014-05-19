@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.properties.editor.ColorPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.DecompositionNameEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.FontPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.SubNetNameEditor;
+import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -48,13 +49,13 @@ public class YPropertySheet extends PropertySheetPanel {
         setTable(new YPropertySheetTable());
         _readOnlyProperties = new HashSet<String>();
         setMode(PropertySheet.VIEW_AS_CATEGORIES);
-        setDescriptionVisible(true);
+        setDescriptionVisible(UserSettings.getShowPropertyDescriptions());
         setSortingCategories(true);
         setSortingProperties(true);
         setRestoreToggleStates(true);
         setToolBarVisible(false);
         setMinimumSize(new Dimension(100, 250));
-        setPreferredSize(new Dimension(250, 250));
+        setPreferredSize(new Dimension(200, 250));
         setPropertySortingComparator(new PropertySorter());
         setCategorySortingComparator(new CategorySorter());
         registerGlobalEditors();
@@ -93,6 +94,7 @@ public class YPropertySheet extends PropertySheetPanel {
         validate();
         repaint();
     }
+
 
     private void registerGlobalEditors() {
         PropertyEditorRegistry editorFactory = (PropertyEditorRegistry) getEditorFactory();

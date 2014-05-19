@@ -36,6 +36,7 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
     private SwatchPanel _netSwatch;
     private SwatchPanel _elementSwatch;
     private FontPanel _fontPanel;
+    private DescriptionTogglePanel _descriptionTogglePanel;
     private final ActionListener _listener;
 
 
@@ -50,6 +51,7 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
         UserSettings.setNetBackgroundColour(_netSwatch.getBackground());
         UserSettings.setVertexBackgroundColour(_elementSwatch.getBackground());
         _fontPanel.applyChanges();
+        _descriptionTogglePanel.applyChanges();
     }
 
 
@@ -62,6 +64,8 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
         content.add(buildColourPanel(_elementSwatch, "Default Element Background Colour"));
         _fontPanel = new FontPanel(_listener);
         content.add(_fontPanel);
+        _descriptionTogglePanel = new DescriptionTogglePanel(_listener);
+        content.add(_descriptionTogglePanel);
         add(content);
     }
 

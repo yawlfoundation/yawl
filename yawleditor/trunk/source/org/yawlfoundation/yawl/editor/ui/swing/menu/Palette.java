@@ -35,7 +35,6 @@ public class Palette extends JPanel {
         COMPOSITE_TASK,
         MULTIPLE_COMPOSITE_TASK,
         CONDITION,
-        DRAG,
         MARQUEE
     }
 
@@ -47,8 +46,7 @@ public class Palette extends JPanel {
         new PaletteButton(this, new ConditionAction(), KeyEvent.VK_3),
         new PaletteButton(this, new CompositeTaskAction(), KeyEvent.VK_4),
         new PaletteButton(this, new MultipleCompositeTaskAction(), KeyEvent.VK_5),
-        new PaletteButton(this, new MarqueeAction(), KeyEvent.VK_6),
-        new PaletteButton(this, new NetDragAction(), KeyEvent.VK_7)
+        new PaletteButton(this, new MarqueeAction(), KeyEvent.VK_6)
     };
 
 

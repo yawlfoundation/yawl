@@ -28,13 +28,13 @@ public class CompositeTaskAction extends PaletteAction implements TooltipTogglin
     {
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Composite Task");
-        putValue(Action.LONG_DESCRIPTION, "Add a new Composite Task");
+        putValue(Action.LONG_DESCRIPTION, "Composite Task");
         putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCompositeTask"));
     }
 
     public CompositeTaskAction() { super(); }
 
-    public String getEnabledTooltipText() { return " Add a new Composite Task "; }
+    public String getEnabledTooltipText() { return " Composite Task "; }
 
 
     public String getButtonStatusText() {
