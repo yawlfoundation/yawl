@@ -446,6 +446,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
                 }
                 else { // all input ports are hidden
                     net.setTaskDecomposition(task, null);
+                    task.setDecomposition(null);
                     net.clearSelection();
                     net.setElementLabel(task, "_tau");
                 }

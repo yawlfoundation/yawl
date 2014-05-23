@@ -38,7 +38,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     private final NetGraph _graph;
     private YDecomposition _decomposition;        // the YNet
     private final YSpecificationHandler _specificationHandler = SpecificationModel.getHandler();
-
+    private List<Object> _lastClonedCells;
 
     public NetGraphModel(NetGraph graph) {
         super();
@@ -164,24 +164,24 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     
 
     public Map cloneCells(Object[] cells) {
-        LinkedList clones = new LinkedList();
+        List<Object> clones = new ArrayList<Object>();
 
-        int j = 0;
-
-        for (int i = 0; i < cells.length; i++) {
-            if (cells[i] instanceof YAWLCell) {
-                YAWLCell cell = (YAWLCell) cells[i];
-                if (cell.isCopyable()) {
-                    clones.add(cells[i]);
+        for (Object cell : cells) {
+            if (cell instanceof YAWLCell) {
+                YAWLCell yCell = (YAWLCell) cell;
+                if (yCell.isCopyable()) {
+                    clones.add(cell);
                 }
             } else {
-                clones.add(cells[i]);
+                clones.add(cell);
             }
         }
-
-        Map clonedCells = super.cloneCells(clones.toArray());
-        return clonedCells;
+        Map map = super.cloneCells(clones.toArray());
+        _lastClonedCells = new ArrayList<Object>(map.values());
+        return map;
     }
+
+    public List<Object> getLastClonedCells() { return _lastClonedCells; }
 
     public boolean acceptsTarget(Object edge, Object port) {
         return connectionAllowable((Port) ((Edge) edge).getSource(), (Port) port, (Edge) edge);

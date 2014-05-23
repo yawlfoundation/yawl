@@ -31,7 +31,6 @@ import java.awt.geom.Point2D;
 /**
  * A Factory class, responsible for creating new net elements and inserting
  * them into a specified net.
- * @author Lindsay Bradford
  */
 
 public class NetCellFactory {

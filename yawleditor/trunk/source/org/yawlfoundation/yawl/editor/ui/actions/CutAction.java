@@ -19,11 +19,12 @@
 package org.yawlfoundation.yawl.editor.ui.actions;
 
 import org.jgraph.event.GraphSelectionEvent;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.swing.TooltipTogglingWidget;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
@@ -31,6 +32,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author Lindsay Bradford
@@ -65,9 +67,10 @@ public class CutAction extends YAWLBaseAction
         NetGraph graph = getGraph();
         YAWLTask task = graph.viewingCancellationSetOf();
         boolean cutCellsIncludeCancellationTask = false;
-
         Object[] selectedCells = graph.getSelectionCells();    // can return null
-        if (selectedCells != null) {
+        Set connectingFlows = graph.getNetModel().getConnectingFlows(selectedCells);
+
+        if (! (task == null || selectedCells == null)) {
             for (Object o : selectedCells) {
                 if (o instanceof VertexContainer) {
                     o = ((VertexContainer) o).getVertex();
@@ -76,17 +79,20 @@ public class CutAction extends YAWLBaseAction
                     cutCellsIncludeCancellationTask = true;
                 }
             }
+
+            graph.stopUndoableEdits();
+            graph.changeCancellationSet(null);
+            graph.startUndoableEdits();
         }
 
-        graph.stopUndoableEdits();
-        graph.changeCancellationSet(null);
-        graph.startUndoableEdits();
+        removeNetElements(selectedCells);
 
         TransferHandler.getCutAction().actionPerformed(
                 new ActionEvent(getGraph(), event.getID(), event.getActionCommand()));
         PasteAction.getInstance().setEnabled(true);
+        removeConnectingFlows(connectingFlows);
 
-        if (! cutCellsIncludeCancellationTask) {
+        if (! (task == null || cutCellsIncludeCancellationTask)) {
             graph.stopUndoableEdits();
             graph.changeCancellationSet(task);
             graph.startUndoableEdits();
@@ -104,5 +110,48 @@ public class CutAction extends YAWLBaseAction
 
     public void graphSelectionChange(GraphState state, GraphSelectionEvent event) {
         setEnabled(state == GraphState.DeletableElementSelected);
+    }
+
+
+    private void removeConnectingFlows(Set connectingFlows) {
+        NetGraph graph = getGraph();
+        if (graph != null) {
+            YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
+            for (Object o : connectingFlows) {
+                YAWLFlowRelation flow = (YAWLFlowRelation) o;
+                handler.removeFlow(graph.getName(), flow.getSourceID(), flow.getTargetID());
+            }
+            graph.getNetModel().removeCells(connectingFlows.toArray());
+        }
+    }
+
+
+    private void removeNetElements(Object[] selectedCells) {
+        NetGraph graph = getGraph();
+        if (! (graph == null || selectedCells == null)) {
+            YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
+
+            for (Object o : selectedCells) {
+                if (o instanceof Condition) {
+                    handler.removeCondition(graph.getName(), ((Condition) o).getID());
+                }
+                else if (o instanceof AtomicTask)  {
+                    handler.removeAtomicTask(graph.getName(), ((AtomicTask) o).getID());
+                }
+                else if (o instanceof MultipleAtomicTask) {
+                    handler.removeAtomicTask(graph.getName(), ((MultipleAtomicTask) o).getID());
+                }
+                else if (o instanceof CompositeTask) {
+                    handler.removeCompositeTask(graph.getName(), ((CompositeTask) o).getID());
+                }
+                else if (o instanceof MultipleCompositeTask) {
+                    handler.removeCompositeTask(graph.getName(), ((MultipleCompositeTask) o).getID());
+                }
+                else if (o instanceof YAWLFlowRelation) {
+                    YAWLFlowRelation flow = (YAWLFlowRelation) o;
+                    handler.removeFlow(graph.getName(), flow.getSourceID(), flow.getTargetID());
+                }
+            }
+        }
     }
 }

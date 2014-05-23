@@ -577,7 +577,9 @@ public class CellProperties extends NetProperties {
     private void updateVertexID(String id) {
         if (id != null) {
             String validID = XMLUtilities.toValidXMLName(id);
-            if (validID.isEmpty()) validID = "T";                 // default
+            if (validID.isEmpty()) {
+                validID = (vertex instanceof YAWLTask) ? "T" : "C";      // default
+            }
             if (! vertex.getID().equals(validID)) {
                 try {
                     validID = flowHandler.replaceID(vertex.getID(), validID);
