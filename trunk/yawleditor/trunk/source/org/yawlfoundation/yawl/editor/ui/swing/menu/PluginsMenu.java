@@ -59,7 +59,7 @@ public class PluginsMenu extends JMenu {
         add(_toolBarMenu);
         addSeparator();
         addPlugins();
-        if (getItemCount() == 0) setEnabled(false);    // no plugins found
+        setEnabled(getItemCount() > 2);    // plugins found
     }
 
 

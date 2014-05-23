@@ -214,6 +214,12 @@ public class SpecificationUndoManager extends GraphUndoManager {
     }
 
 
+    public UndoableEdit getLastEdit() {
+        return compoundEdit == null ? null :
+                ((SpecificationCompoundEdit) compoundEdit).getLastEdit();
+    }
+
+
     public Set<YExternalNetElement> getRemovedYNetElements() {
         return removedYNetElements;
     }
@@ -292,7 +298,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     /******************************************************************/
 
-    class SpecificationCompoundEdit extends CompoundEdit {
+    public class SpecificationCompoundEdit extends CompoundEdit {
         private final NetGraphModel model;
 
         public SpecificationCompoundEdit(NetGraphModel model) {
@@ -303,5 +309,7 @@ public class SpecificationUndoManager extends GraphUndoManager {
         public NetGraphModel getModel() {
             return this.model;
         }
+
+        public UndoableEdit getLastEdit() { return lastEdit(); }
     }
 }
