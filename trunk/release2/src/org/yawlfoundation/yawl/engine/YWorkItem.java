@@ -852,7 +852,8 @@ public class YWorkItem {
             if (trigger != null) {
                 String triggerName = trigger.name();
                 xml.append(StringUtil.wrap(triggerName, "timertrigger"));
-                xml.append(StringUtil.wrap(String.valueOf(_timerExpiry), "timerexpiry"));
+                long expiry = _timerExpiry > 0 ? _timerExpiry : _parent.getTimerExpiry();
+                xml.append(StringUtil.wrap(String.valueOf(expiry), "timerexpiry"));
             }    
         }
         if (_customFormURL != null) {

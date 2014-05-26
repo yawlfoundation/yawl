@@ -532,8 +532,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean cleanupWorkItemReferences(WorkItemRecord wir) {
         WorkItemRecord removed = null;
         if (_serviceEnabled) {
-            removeFromAll(wir);                                      // workqueues
-            removed = _workItemCache.remove(wir);
+            if (!removeFromAll(wir)) return false;                    // workqueues
+        //    removed = _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {
                 rMap.removeIgnoreList(wir);
@@ -543,7 +543,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
             _cache.cancelCodeletRunner(wir.getID());                    // if any
         }
-        return (removed != null);
+     //   return (removed != null);
+        return true;
     }
 
 
@@ -576,8 +577,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _cache.addUserKey(p);
             }
 
-            _resAdmin.createWorkQueues(_persisting);   // ... and the administrator
-        } else {
+            // ... and the administrator (only on initial load)
+            if (! _orgDataRefreshing) _resAdmin.createWorkQueues(_persisting);
+        }
+        else {
             _orgDataSet = new EmptyDataSource().getDataSource();
         }
     }
@@ -585,7 +588,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void refreshOrgData() {
         new OrgDataRefresher(this).refresh();
-        _resMapCache.clear();   // reset static resource sets
+        _resMapCache.clear();   // reset static resource maps
         sanitiseCaches();
     }
 
@@ -648,21 +651,13 @@ public class ResourceManager extends InterfaceBWebsideController {
                 missingIDs.add(cachedID);
         }
         for (String missingID : missingIDs) {
+            WorkItemRecord deadWir = _workItemCache.get(missingID);
 
-            // check engine for each remaining item - may have been redirected
-            try {
-                if (getEngineStoredWorkItem(missingID, getEngineSessionHandle()) == null) {
-                    WorkItemRecord deadWir = _workItemCache.get(missingID);
-
-                    // remove from queues first to avoid a db foreign key violation
-                    removeFromAll(deadWir);
-                    _workItemCache.remove(deadWir);
-                    _log.warn("Cached workitem '" + missingID +
-                            "' did not exist in the Engine and was removed.");
-                }
-            } catch (IOException ioe) {
-                // err on the side of caution and keep item in cache - ie. do nothing
-            }
+            // remove from queues first to avoid a db foreign key violation
+         //   if (removeFromAll(deadWir)) _workItemCache.remove(deadWir);
+            removeFromAll(deadWir);
+            _log.warn("Cached workitem '" + missingID +
+                    "' did not exist in the Engine and was removed.");
         }
     }
 
@@ -921,7 +916,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (_orgDataSet.getParticipantCount() > 0) {
             _workItemCache.updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
             for (Participant p : _orgDataSet.getParticipants()) {
-                p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                QueueSet qSet = p.getWorkQueues();
+                if (qSet == null) qSet = p.createQueueSet(_persisting);
+                qSet.addToQueue(wir, WorkQueue.OFFERED);
                 announceModifiedQueue(p.getID());
             }
         } else _resAdmin.addToUnoffered(wir);
@@ -932,25 +929,34 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void withdrawOfferFromAll(WorkItemRecord wir) {
         for (Participant p : _orgDataSet.getParticipants()) {
-            p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);
-            announceModifiedQueue(p.getID());
+            QueueSet qSet = p.getWorkQueues();
+            if (qSet != null) {
+                qSet.removeFromQueue(wir, WorkQueue.OFFERED);
+                announceModifiedQueue(p.getID());
+            }
         }
     }
 
 
-    public void removeFromAll(WorkItemRecord wir) {
+    public boolean removeFromAll(WorkItemRecord wir) {
         for (Participant p : _orgDataSet.getParticipants()) {
-            p.getWorkQueues().removeFromAllQueues(wir);
-            announceModifiedQueue(p.getID());
+            QueueSet qSet = p.getWorkQueues();
+            if (qSet != null) {
+                qSet.removeFromAllQueues(wir);
+                announceModifiedQueue(p.getID());
+            }
         }
-        _resAdmin.removeFromAllQueues(wir);
+        return _resAdmin.removeFromAllQueues(wir);
     }
 
 
     public void removeCaseFromAllQueues(String caseID) {
         for (Participant p : _orgDataSet.getParticipants()) {
-            p.getWorkQueues().removeCaseFromAllQueues(caseID);
-            announceModifiedQueue(p.getID());
+            QueueSet qSet = p.getWorkQueues();
+            if (qSet != null) {
+                qSet.removeCaseFromAllQueues(caseID);
+                announceModifiedQueue(p.getID());
+            }
         }
         _resAdmin.removeCaseFromAllQueues(caseID);
     }
@@ -981,7 +987,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // either start is user-initiated or there's no resource map (beta spec) 
             wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
-            p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
+            QueueSet qSet = p.getWorkQueues();
+            if (qSet == null) qSet = p.createQueueSet(_persisting);
+            qSet.addToQueue(wir, WorkQueue.ALLOCATED);
         }
 
         // remove other wirs if this was a member of a deferred choice group
@@ -1017,7 +1025,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                     else
                         withdrawOfferFromAll(wir);        // beta version spec
 
-                    _workItemCache.remove(wirID);
+            //        _workItemCache.remove(wirID);
                 }
             }
             _cache.removeDeferredItemGroup(itemGroup);
@@ -1582,9 +1590,9 @@ public class ResourceManager extends InterfaceBWebsideController {
             for (String id : _cache.getChainedCaseIDs()) {
                 if (!liveCases.contains(id)) _cache.removeChainedCase(id);
             }
-            for (WorkItemRecord wir : _workItemCache.values()) {
-                if (!liveCases.contains(wir.getRootCaseID())) _workItemCache.remove(wir);
-            }
+//            for (WorkItemRecord wir : _workItemCache.values()) {
+//                if (!liveCases.contains(wir.getRootCaseID())) _workItemCache.remove(wir);
+//            }
         }
     }
 
@@ -1874,7 +1882,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                         }
                     }
                     freeSecondaryResources(wir);
-                    _workItemCache.remove(wir);
+            //        _workItemCache.remove(wir);
                 } else {
                     _cache.removeTaskCompleter(p, wir);
 
@@ -2107,6 +2115,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             _cache.shutdown();
             _persister.closeDB();
             if (_orgDataRefresher != null) _orgDataRefresher.cancel();
+            _workItemCache.stopCleanserThread();
         } catch (Exception e) {
             _log.error("Unsuccessful audit log update on shutdown.");
         }
@@ -2197,9 +2206,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (liveItems != null) {
                     for (WorkItemRecord wir : liveItems) {
                         if (specID == null) specID = new YSpecificationID(wir);
-                        removeFromAll(wir);
-                        freeSecondaryResources(wir);
-                        _workItemCache.remove(wir);
+                        if (removeFromAll(wir)) {
+                            freeSecondaryResources(wir);
+        //                    _workItemCache.remove(wir);
+                        }
                         EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
                     }
                     _cache.removeChainedCase(caseID);
@@ -2816,8 +2826,10 @@ public class ResourceManager extends InterfaceBWebsideController {
      */
     public String redirectWorkItemToYawlService(String itemID, String serviceName) {
         WorkItemRecord wir = getWorkItemRecord(itemID);
+        if (wir == null) return fail("Unknown work item: " + itemID);
         String result = _services.redirectWorkItemToYawlService(wir, serviceName);
         if (successful(result)) {
+        //    if (removeFromAll(wir)) _workItemCache.remove(wir);
             removeFromAll(wir);
         } else if (result.startsWith(WORKITEM_ERR)) {
             result += ": " + itemID;

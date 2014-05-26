@@ -18,12 +18,15 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
+import org.hibernate.Transaction;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -206,7 +209,7 @@ public class QueueSet {
     }
 
     public Set<WorkItemRecord> getQueuedWorkItems(int queue) {
-        if (isNullQueue(queue)) return null ;
+        if (isNullQueue(queue)) return Collections.emptySet() ;
         else return getQueue(queue).getAll();
     }
 
@@ -238,7 +241,7 @@ public class QueueSet {
     }
 
     public void removeFromAllQueues(WorkItemRecord wir) {
-        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++) 
+        for (int queue = getStartQueue(); queue <= getEndQueue(); queue++)
             removeFromQueue(wir, queue);
     }
 

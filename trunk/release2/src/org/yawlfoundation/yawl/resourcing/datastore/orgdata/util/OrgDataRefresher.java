@@ -44,7 +44,7 @@ public class OrgDataRefresher {
     private final ScheduledExecutorService _scheduler;
     private final ResourceManager _rm;
     private ScheduledFuture<?> _refresherTask;
-    private boolean _modified;
+
 
     /**
      * Constructs an instance to be used for 'manual' refreshing (via a call to refresh())

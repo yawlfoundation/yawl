@@ -61,9 +61,10 @@ public class ResourceAdministrator {
     }
 
 
-    public void removeFromAllQueues(WorkItemRecord wir) {
+    public boolean removeFromAllQueues(WorkItemRecord wir) {
         _qSet.removeFromQueue(wir, WorkQueue.UNOFFERED);
         _qSet.removeFromQueue(wir, WorkQueue.WORKLISTED);
+        return true;
     }
 
     public void removeCaseFromAllQueues(String caseID) {

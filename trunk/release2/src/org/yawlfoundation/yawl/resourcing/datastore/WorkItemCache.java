@@ -19,12 +19,15 @@
 package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.QueueSet;
+import org.yawlfoundation.yawl.resourcing.ResourceAdministrator;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 
 /**
@@ -37,29 +40,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
 
     private Persister _persister;
-    private static WorkItemCache _me ;
-    private boolean _persistOn = false ;
+    private Cleanser _cleanser;
+    private boolean _persistOn = false;
+
+    private static WorkItemCache INSTANCE = new WorkItemCache();
+
 
     private WorkItemCache() {
         super();
-        _me = this ;
     }
 
 
     public static WorkItemCache getInstance() {
-        if (_me == null) _me = new WorkItemCache() ;
-        return _me ;
+        return INSTANCE;
     }
 
     public static WorkItemCache getInstance(boolean persist) {
-        if (_me == null) _me = new WorkItemCache();
-        _me.setPersist(persist);
-        return _me ;
+        INSTANCE.setPersist(persist);
+        return INSTANCE;
     }
 
     public void setPersist(boolean persist) {
-        _persistOn = persist ;
-        _persister = _persistOn ? Persister.getInstance() : null ;
+        _persistOn = persist;
+        if (persist) {
+            _persister = Persister.getInstance();
+            _cleanser = new Cleanser();                    // start scheduled cleanse
+        }
     }
 
     public boolean isPersistOn() { return _persistOn ; }
@@ -106,6 +112,10 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         return this.put(wir.getID(), wir);
     }
 
+    public void stopCleanserThread() {
+        if (_cleanser != null) _cleanser.cancel();
+    }
+
     public void restore() {
         if (_persistOn) {
             List wirList = _persister.select("WorkItemRecord") ;
@@ -150,6 +160,53 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
            return super.remove(id);
         }
         else return null ;
+    }
+
+
+    /*****************************************************************************/
+
+    // removes unreferenced items from the cache on a regular basis
+    class Cleanser {
+
+        final ScheduledExecutorService _scheduler;
+        ScheduledFuture<?> _cleanseTask;
+
+        final static int INTERVAL = 5;                           // run every 5 minutes
+
+        Cleanser() {
+            _scheduler = Executors.newScheduledThreadPool(1);
+            _cleanseTask = _scheduler.scheduleAtFixedRate(new CleanseRunnable(),
+                    INTERVAL, INTERVAL, TimeUnit.MINUTES);
+        }
+
+        public void cancel() {
+            if (_cleanseTask != null) _cleanseTask.cancel(true);
+        }
+
+        class CleanseRunnable implements Runnable {
+            public void run() {
+                Set<String> referencedIDs = getReferencedIDs();
+                for (String id : new HashSet<String>(INSTANCE.keySet())) {
+                    if (! referencedIDs.contains(id)) {
+                        remove(id);
+                    }
+                }
+            }
+
+            Set<String> getReferencedIDs() {
+                Set<String> idSet = new HashSet<String>();
+                ResourceAdministrator ra = ResourceAdministrator.getInstance();
+                QueueSet qSet = ra.getWorkQueues();
+                for (WorkItemRecord wir : qSet.getQueuedWorkItems(WorkQueue.UNOFFERED)) {
+                     idSet.add(wir.getID());
+                }
+                for (WorkItemRecord wir : qSet.getQueuedWorkItems(WorkQueue.WORKLISTED)) {
+                     idSet.add(wir.getID());
+                }
+                return idSet;
+            }
+        }
+
     }
 
 }

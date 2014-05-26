@@ -1617,7 +1617,7 @@ public class YEngine implements InterfaceADesign,
 
         // map data values to params
         Element itemData = JDOMUtil.stringToElement(data);
-        Element outputData = itemData.clone();
+        Element outputData = itemData != null ? itemData.clone() : new Element(taskID);
 
         // remove the input-only params from output data
         for (String name : inputs.keySet())
@@ -1628,31 +1628,28 @@ public class YEngine implements InterfaceADesign,
         //   2. else if matching input param, use its value
         //   3. else if default value specified, use its value
         //   4. else use default value for the param's data type
-        for (String name : outputs.keySet()) {
+        List<YParameter> outParamList = new ArrayList<YParameter>(outputs.values());
+        Collections.sort(outParamList);                        // get in right order
+        for (YParameter outParam : outParamList) {
+            String name = outParam.getName();
+            if (outputData.getChild(name) != null) continue;   // matching I/O element
 
-            if (outputData.getChild(name) != null) continue;   // matching element
-
-            // if the output param has no corresponding input param, add an element
-            if (inputs.get(name) == null) {
-                Element outData = new Element(name) ;
-                YParameter outParam = outputs.get(name);
-                String defaultValue = outParam.getDefaultValue();
-                if (defaultValue != null) {
-                    String value = StringUtil.wrap(defaultValue, name);
-                    outData = JDOMUtil.stringToElement(value);
+            // the output param has no corresponding input param, so add an element
+            String defaultValue = outParam.getDefaultValue();
+            if (defaultValue == null) {
+                String typeName = outParam.getDataTypeName();
+                if (!XSDType.isBuiltInType(typeName)) {
+                    throw new YStateException(String.format(
+                            "Could not skip work item [%s]: Output-Only parameter [%s]" +
+                                    " requires a default value.", workItem.getIDString(), name));
                 }
-                else {
-                    String typeName = outParam.getDataTypeName();
-                    if (!XSDType.isBuiltInType(typeName)) {
-                        throw new YStateException(String.format(
-                                "Could not skip work item [%s]: Output-Only parameter [%s]" +
-                                " requires a default value.", workItem.getIDString(), name));
-                    }
-                    outData.setText(JDOMUtil.getDefaultValueForType(outParam.getDataTypeName()));
-                }
-                outputData.addContent(outData);
+                defaultValue = JDOMUtil.getDefaultValueForType(typeName);
             }
+            Element outData = new Element(name) ;
+            outData.setText(defaultValue);
+            outputData.addContent(outData);
         }
+
         return JDOMUtil.elementToStringDump(outputData);
     }
 
