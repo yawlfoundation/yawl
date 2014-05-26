@@ -6,7 +6,7 @@ import org.simplericity.macify.eawt.Application;
 import org.simplericity.macify.eawt.ApplicationAdapter;
 import org.simplericity.macify.eawt.ApplicationEvent;
 import org.simplericity.macify.eawt.DefaultApplication;
-import org.yawlfoundation.yawl.editor.ui.actions.AboutEditorAction;
+import org.yawlfoundation.yawl.editor.ui.actions.help.AboutEditorAction;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.PrintSpecificationAction;
 import org.yawlfoundation.yawl.editor.ui.preferences.PreferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;

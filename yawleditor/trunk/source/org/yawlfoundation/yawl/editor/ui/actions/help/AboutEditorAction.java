@@ -16,10 +16,12 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.actions;
+package org.yawlfoundation.yawl.editor.ui.actions.help;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.VersionProperties;
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
@@ -29,7 +31,6 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -105,7 +106,7 @@ class AboutEditorDialog extends JDialog {
         addMouseListener(nameLabel);
         panel.add(nameLabel);
 
-        YBuildProperties buildProperties = loadBuildProperties();
+        YBuildProperties buildProperties = new VersionProperties().load();
 
         JLabel versionLabel = new JLabel(getVersionText(buildProperties));
         versionLabel.setForeground(Color.DARK_GRAY);
@@ -127,17 +128,6 @@ class AboutEditorDialog extends JDialog {
 
         addMouseListener(panel);
         return panel;
-    }
-
-
-    private YBuildProperties loadBuildProperties() {
-        YBuildProperties buildProperties = null;
-        InputStream is = getClass().getResourceAsStream("/version.properties");
-        if (is != null) {
-            buildProperties = new YBuildProperties();
-            buildProperties.load(is);
-        }
-        return buildProperties;
     }
 
 
