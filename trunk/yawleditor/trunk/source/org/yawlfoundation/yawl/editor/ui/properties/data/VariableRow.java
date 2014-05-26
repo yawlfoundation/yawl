@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -35,7 +36,6 @@ public class VariableRow implements Comparable<VariableRow> {
     private Values endValues;
 
     private String decompositionID;
-    private boolean outputOnlyTask;                        // used only for tasks
     private boolean hasValidName;
     private boolean hasValidValue;
     private boolean multiInstance;
@@ -97,8 +97,6 @@ public class VariableRow implements Comparable<VariableRow> {
         multiInstance = isMultiInstance;
     }
 
-    public void setOutputOnlyTask(boolean isOutputOnly) { outputOnlyTask = isOutputOnly; }
-
 
     public String getName() { return endValues.name; }
 
@@ -121,10 +119,17 @@ public class VariableRow implements Comparable<VariableRow> {
         return startValues != null ? startValues.dataType : null;
     }
 
-    public void setDataType(String dataType) { endValues.dataType = dataType; }
+    public void setDataType(String dataType) {
+        endValues.dataType = dataType;
+        if (isLocal()) initialiseValue(dataType);
+    }
 
     public boolean isDataTypeChange() {
         return ! startValues.equals(startValues.dataType, endValues.dataType);
+    }
+
+    public boolean isDataTypeAndValueChange() {      // double change
+        return isDataTypeChange() && isValueChange();
     }
 
 
@@ -248,6 +253,18 @@ public class VariableRow implements Comparable<VariableRow> {
     private void initialiseValidity() {
         hasValidName = true;
         hasValidValue = true;
+    }
+
+    private void initialiseValue(String dataType) {
+        if (dataType.equals("boolean")) {
+
+            // if its a string of 'true' or 'false', use it to set the boolean value
+            setValue(Boolean.valueOf(getValue()).toString());
+        }
+        else if (XSDType.isNumericType(dataType)) {
+            setValue("0");
+        }
+        else if (! dataType.equals("string")) setValue("");
     }
 
     private String getWrappedMapping(String tagName, String mapping) {

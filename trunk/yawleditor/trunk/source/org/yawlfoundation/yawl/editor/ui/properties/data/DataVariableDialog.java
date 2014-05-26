@@ -90,8 +90,8 @@ public class DataVariableDialog extends JDialog
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
         if (! action.equals("Cancel") && dirty && allRowsValid()) {
-            updateVariables();
-            dirty = false;
+            stopCellEditing();
+            if (! updateVariables()) return;                       // abort on error
             btnApply.setEnabled(false);
             SpecificationUndoManager.getInstance().setDirty(true);
         }
@@ -131,6 +131,15 @@ public class DataVariableDialog extends JDialog
     protected void enableApplyButton() {
         dirty = true;
         enableButtonsIfValid();
+    }
+
+    protected void stopCellEditing() {
+        stopCellEditing(getNetTable());
+        stopCellEditing(getTaskTable());
+    }
+
+    protected void stopCellEditing(JTable table) {
+        if (table != null && table.isEditing()) table.getCellEditor().stopCellEditing();
     }
 
 
@@ -413,17 +422,19 @@ public class DataVariableDialog extends JDialog
 
 
 
-    private void updateVariables() {
+    private boolean updateVariables() {
         try {
             updateVariables(getNetTable(), net);
             updateVariables(getTaskTable(), decomposition);
             if (_miHandler != null) _miHandler.commit();
             if (outputBindings != null) outputBindings.commit();
             dirty = false;
+            return true;
         }
         catch (YDataHandlerException ydhe) {
             JOptionPane.showMessageDialog(this, ydhe.getMessage(),
                     "Failed to update data", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
@@ -444,12 +455,17 @@ public class DataVariableDialog extends JDialog
                 if (row.isUsageChange()) {
                     handleUsageChange(row, host);
                 }
-                if (row.isDataTypeChange()) {
+
+                if (row.isDataTypeAndValueChange()) {
+                    handleDataTypeAndValueChange(row, host);
+                }
+                else if (row.isDataTypeChange()) {
                     handleDataTypeChange(row, host);
                 }
-                if (row.isValueChange()) {
+                else if (row.isValueChange()) {
                     handleValueChange(row, host);
                 }
+
                 if (isTaskTable(table) && row.isMappingChange()) {
                     handleMappingChange(row);         // only task tables have mappings
                 }
@@ -507,6 +523,13 @@ public class DataVariableDialog extends JDialog
             throws YDataHandlerException {
         dataHandler.setVariableDataType(host.getID(), row.getName(), row.getDataType(),
                 row.getUsage());
+    }
+
+
+    private void handleDataTypeAndValueChange(VariableRow row, YDecomposition host)
+            throws YDataHandlerException {
+        dataHandler.setVariableDataTypeAndValue(host.getID(), row.getName(),
+                row.getDataType(), row.getValue(), row.getUsage());
     }
 
 

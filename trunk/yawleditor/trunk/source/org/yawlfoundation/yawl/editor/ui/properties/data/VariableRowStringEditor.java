@@ -25,6 +25,8 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -36,7 +38,7 @@ import java.util.Vector;
  * @date 8/08/12
  */
 public class VariableRowStringEditor extends AbstractCellEditor
-        implements TableCellEditor, ActionListener {
+        implements TableCellEditor, ActionListener, CaretListener {
 
     private final JTextField nameField;
     private final JComboBox dataTypeCombo;
@@ -51,9 +53,12 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     public VariableRowStringEditor() {
         nameField = new JTextField();
+        nameField.addCaretListener(this);
         dataTypeCombo = new JComboBox(getDataTypeNames());
         dataTypeCombo.addActionListener(this);
         valuePanel = createValueField();
+        checkBox = new JCheckBox();
+        checkBox.addActionListener(this);
     }
 
     public VariableRowStringEditor(VariableTablePanel panel) {
@@ -68,7 +73,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
     public Object getCellEditorValue() {
         if (editingColumnName.equals("Type")) return dataTypeCombo.getSelectedItem();
         if (editingColumnName.endsWith("Value")) {
-            return checkBox != null ? String.valueOf(checkBox.isSelected())
+            return isBooleanValueRow() ? String.valueOf(checkBox.isSelected())
                     : valueField.getText();
         }
         if (editingColumnName.equals("Name")) return nameField.getText();
@@ -88,9 +93,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
             return dataTypeCombo;
         }
         else if (editingColumnName.endsWith("Value")) {
-            VariableRow varRow = tablePanel.getVariableAtRow(row);
-            if (varRow.getDataType().equals("boolean")) {
-                checkBox = new JCheckBox();
+            if (isBooleanValueRow()) {
                 checkBox.setSelected(Boolean.valueOf((String) value));
                 return checkBox;
             }
@@ -122,8 +125,13 @@ public class VariableRowStringEditor extends AbstractCellEditor
     }
 
 
+    public void caretUpdate(CaretEvent caretEvent) {
+        tablePanel.setTableChanged();
+    }
+
     private JPanel createValueField() {
         valueField = new JTextField();
+        valueField.addCaretListener(this);
         JButton btnExpand = new JButton("...");
         btnExpand.setPreferredSize(new Dimension(20, 20));
         btnExpand.addActionListener(this);
@@ -146,6 +154,11 @@ public class VariableRowStringEditor extends AbstractCellEditor
     }
 
 
+    private boolean isBooleanValueRow() {
+        VariableRow varRow = tablePanel.getVariableAtRow(editingRow);
+        return varRow.getDataType().equals("boolean");
+    }
+
     private boolean isValid() {
         String value = (String) getCellEditorValue();
         VariableRow row = tablePanel.getVariableAtRow(editingRow);
@@ -155,8 +168,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
             tablePanel.getVariableDialog().updateMappingsOnVarNameChange(row, value);
         }
         else if (editingColumnName.equals("Type")) {
-            row.setValidValue(validateType(value));
-            if (! row.isValidValue()) return false;
+            row.setValidValue(true);                 // varrow will re-initialise value
         }
         else if (editingColumnName.endsWith("Value")) {
             row.setValidValue(validateValue(value));
@@ -188,10 +200,6 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     private boolean validateValue(String value) {
         return validate(tablePanel.getVariableAtRow(editingRow).getDataType(), value);
-    }
-
-    private boolean validateType(String dataType) {
-        return validate(dataType, tablePanel.getVariableAtRow(editingRow).getValue());
     }
 
 
