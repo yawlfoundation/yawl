@@ -224,7 +224,7 @@ public class HibernateEngine {
         }
         catch (Exception e) {
               session.merge(obj);
-       }
+        }
     }
 
 
@@ -237,6 +237,12 @@ public class HibernateEngine {
             _log.error("Caught Exception: Error creating or getting transaction", he);
             return null;
         }        
+    }
+
+
+    public Transaction getTransaction() {
+        Transaction tx = _factory.getCurrentSession().getTransaction();
+        return ((tx != null) && tx.isActive()) ? tx : null;
     }
 
 

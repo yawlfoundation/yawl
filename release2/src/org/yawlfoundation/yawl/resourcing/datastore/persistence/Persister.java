@@ -116,6 +116,8 @@ public final class Persister implements Serializable {
 
     public Transaction beginTransaction() { return _db.beginTransaction(); }
 
+    public Transaction getTransaction() { return _db.getTransaction(); }
+
     public Transaction getOrBeginTransaction() { return _db.getOrBeginTransaction(); }
 
     public Object load(Class claz, Serializable key) { return _db.load(claz, key); }
@@ -145,22 +147,34 @@ public final class Persister implements Serializable {
        return retObj ;
     }
 
-    public void update(Object obj) { _db.exec(obj, _UPDATE); }
+    public boolean update(Object obj) { return _db.exec(obj, _UPDATE); }
 
-    public void delete(Object obj) { _db.exec(obj, _DELETE); }
+    public boolean delete(Object obj) { return _db.exec(obj, _DELETE); }
 
-    public void insert(Object obj) { _db.exec(obj, _INSERT); }
+    public boolean insert(Object obj) { return _db.exec(obj, _INSERT); }
 
-    public void update(Object obj, Transaction tx) { _db.exec(obj, _UPDATE, tx); }
+    public boolean update(Object obj, Transaction tx) {
+        return (tx != null) ? _db.exec(obj, _UPDATE, tx) : update(obj);
+    }
 
-    public void delete(Object obj, Transaction tx) { _db.exec(obj, _DELETE, tx); }
+    public boolean delete(Object obj, Transaction tx) {
+        return (tx != null) ? _db.exec(obj, _DELETE, tx) : delete(obj);
+    }
 
-    public void insert(Object obj, Transaction tx) { _db.exec(obj, _INSERT, tx); }
+    public boolean insert(Object obj, Transaction tx) {
+        return (tx != null) ? _db.exec(obj, _INSERT, tx): insert(obj);
+    }
 
-    public void update(Object obj, boolean commit) { _db.exec(obj, _UPDATE, commit); }
+    public boolean update(Object obj, boolean commit) {
+        return _db.exec(obj, _UPDATE, commit);
+    }
 
-    public void delete(Object obj, boolean commit) { _db.exec(obj, _DELETE, commit); }
+    public boolean delete(Object obj, boolean commit) {
+        return _db.exec(obj, _DELETE, commit);
+    }
 
-    public void insert(Object obj, boolean commit) { _db.exec(obj, _INSERT, commit); }
+    public boolean insert(Object obj, boolean commit) {
+        return _db.exec(obj, _INSERT, commit);
+    }
 
 }

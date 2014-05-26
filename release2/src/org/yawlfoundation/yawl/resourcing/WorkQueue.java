@@ -220,7 +220,7 @@ public class WorkQueue {
      * @param item the workitem to remove
      */
     public void remove(WorkItemRecord item) {
-        if (_workitems.containsKey(item.getID())) {
+        if (item != null && _workitems.containsKey(item.getID())) {
             _workitems.remove(item.getID());
             persistThis();
         }    
