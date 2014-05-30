@@ -35,6 +35,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.*;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
 import org.yawlfoundation.yawl.editor.ui.util.*;
+import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import java.awt.*;
@@ -147,7 +148,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     /****************************************************************************/
 
-    private static void showGUI(final String fileName) {
+    private static void showGUI(final String arg) {
         SwingUtilities.invokeLater(new Runnable() {
              public void run() {
                  setLookAndFeel();
@@ -155,7 +156,11 @@ public class YAWLEditor extends JFrame implements FileStateListener {
                  getInstance().setVisible(true);
                  finishLoading();
                  hideBottomOfSplitPane();
-                 loadChosenSpecification(fileName);
+                 if (arg != null && arg.equals("-updated")) {
+                     showUpdateSuccess();
+                     loadChosenSpecification(null);
+                 }
+                 else loadChosenSpecification(arg);
               }
         });
     }
@@ -410,6 +415,14 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         catch (MalformedURLException mue) {
             //
         }
+    }
+
+
+    private static void showUpdateSuccess() {
+        YBuildProperties bp = new VersionProperties().load();
+        JOptionPane.showMessageDialog(getInstance(),
+                "Updated successfully to version " + bp.getFullVersion(),
+                "Update Completed", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }

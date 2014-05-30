@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.util;
 
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +36,8 @@ public class VersionProperties {
     }
 
 
-    public YBuildProperties load(String fileName) throws IOException {
-        return load(new FileInputStream(fileName));
+    public YBuildProperties load(File f) throws IOException {
+        return load(new FileInputStream(f));
     }
 
 

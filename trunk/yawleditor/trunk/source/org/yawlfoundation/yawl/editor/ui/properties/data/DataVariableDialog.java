@@ -483,6 +483,8 @@ public class DataVariableDialog extends JDialog
             updateVariableIndex(table, host);
         }
 
+        if (isTaskTable(table)) updateMappingsForUsage();
+
         table.updatesApplied();
     }
 
@@ -596,6 +598,20 @@ public class DataVariableDialog extends JDialog
             }
         }
         getTaskTable().repaint();
+    }
+
+
+    private void updateMappingsForUsage() {
+        if (getTaskTable() == null) return;            // showing netvars only
+        Map<String, String> inputMap = task.getDataMappingsForTaskStarting();
+        for (VariableRow row : getTaskTable().getVariables()) {
+            if (row.isInput()) {
+                outputBindings.removeBindingForSource(row.getName());
+            }
+            else if (row.isOutput()) {
+                inputMap.remove(row.getName());
+            }
+        }
     }
 
 
