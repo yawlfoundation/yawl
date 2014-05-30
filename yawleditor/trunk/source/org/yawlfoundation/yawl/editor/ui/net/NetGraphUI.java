@@ -127,9 +127,9 @@ public class NetGraphUI extends BasicGraphUI {
                 while (((nextParent = graphModel.getParent(parent)) != null)
                         && graphLayoutCache.isVisible(nextParent))
                     parent = nextParent;
-                if (! SwingUtilities.isRightMouseButton(e)) {
+            //    if (! SwingUtilities.isRightMouseButton(e)) {
                     selectCellForEvent(parent, e);
-                }
+            //    }
                 lastFocus = focus;
                 focus = graphLayoutCache.getMapping(parent, false);
             }

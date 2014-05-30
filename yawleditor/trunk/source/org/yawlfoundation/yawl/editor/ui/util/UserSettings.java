@@ -100,6 +100,7 @@ public class UserSettings {
 
     // last file dialog path setting
     private static final String LAST_SAVE_OR_LOAD_PATH = "lastUsedSaveLoadDirectory";
+    private static final String LAST_DOWNLOAD_TO_PATH = "lastDownloadToPath";
 
     // canvas view settings
     private static final String SHOW_ANTI_ALIASING = "showAntiAliasing";
@@ -577,10 +578,17 @@ public class UserSettings {
         setString(LAST_SAVE_OR_LOAD_PATH, path);
     }
 
+    public static String getLastDownloadedToPath() {
+        return getString(LAST_DOWNLOAD_TO_PATH);
+    }
+
+    public static void setLastDownloadedToPath(String path) {
+        setString(LAST_DOWNLOAD_TO_PATH, path);
+    }
+
     public static String getLastSaveOrLoadPath() {
         return getString(LAST_SAVE_OR_LOAD_PATH);
     }
-
 
     public static boolean getUnloadPreviousOnUpload() {
         return getBoolean(ON_UPLOAD_UNLOAD_PREVIOUS);

@@ -188,6 +188,12 @@ public class OutputBindings {
         }
     }
 
+
+    public void removeBindingForSource(String taskVarName) {
+        String netVarName = getTarget(taskVarName);
+        if (netVarName != null) removeBindingForTarget(netVarName);
+    }
+
     public void removeBinding(String binding) {
         if (_netVarBindings.remove(binding) == null) {
             _task.getDataMappingsForTaskCompletion().remove(binding);
