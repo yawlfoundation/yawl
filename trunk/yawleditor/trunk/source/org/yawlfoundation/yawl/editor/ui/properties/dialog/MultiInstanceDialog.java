@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -51,7 +52,7 @@ public class MultiInstanceDialog extends JDialog
     private MIAttributePanel thresholdPanel;
     private JCheckBox chkDynamic;
     private JLabel statusLabel;
-    private JButton btnOK;
+    private ButtonBar _buttonBar;
 
     private String strValue;
     private Vector<String> integralVars;
@@ -110,7 +111,9 @@ public class MultiInstanceDialog extends JDialog
         subPanel.add(miPanel, BorderLayout.CENTER);
         subPanel.add(createLowerPanel(), BorderLayout.SOUTH);
         content.add(subPanel);
-        content.add(createButtonBar());
+        _buttonBar = new ButtonBar(this);
+        _buttonBar.setOKEnabled(true);
+        content.add(_buttonBar);
         return content;
     }
 
@@ -124,23 +127,6 @@ public class MultiInstanceDialog extends JDialog
         statusLabel.setForeground(Color.RED);
         panel.add(statusLabel, BorderLayout.EAST);
         return panel;
-    }
-
-    private JPanel createButtonBar() {
-        JPanel panel = new JPanel(new GridLayout(0,2,5,5));
-        panel.setBorder(new EmptyBorder(10,0,0,0));
-        panel.add(createButton("Cancel"));
-        btnOK = createButton("OK");
-        panel.add(btnOK);
-        return panel;
-    }
-
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
-        button.addActionListener(this);
-        return button;
     }
 
 
@@ -183,7 +169,7 @@ public class MultiInstanceDialog extends JDialog
 
     private void setStatusText(String text) {
         statusLabel.setText(text);
-        btnOK.setEnabled(text.isEmpty());
+        _buttonBar.setOKEnabled(text.isEmpty());
     }
 
 

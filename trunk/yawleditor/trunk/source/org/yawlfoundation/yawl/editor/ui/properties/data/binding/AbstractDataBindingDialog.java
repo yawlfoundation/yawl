@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
@@ -44,8 +45,8 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     private VariableRow _currentRow;
     private QueryPanel _queryPanel;
     private MIQueryPanel _miQueryPanel;
-    private JButton _btnOK;
     private MultiInstanceHandler _miHandler;
+    private ButtonBar _buttonBar;
     protected boolean _initialising;
 
 
@@ -72,8 +73,6 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     protected boolean isInitialising() { return _initialising; }
-
-    protected JButton getButtonOK() { return _btnOK; }
 
     protected java.util.List<VariableRow> getNetVarList() { return _netVarList; }
 
@@ -108,11 +107,11 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     protected MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
 
     protected boolean isValidBinding(String binding) {
-        return ! binding.isEmpty() && _btnOK.isEnabled();
+        return ! binding.isEmpty() && _buttonBar.isOKEnabled();
     }
 
     protected void initContent(VariableRow row) {
-        _queryPanel.setParentDialogOKButton(_btnOK);
+        _queryPanel.setParentDialogOKButton(_buttonBar.getOK());
     }
 
     protected void setEditorText(String binding) {
@@ -186,7 +185,9 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         content.add(buildGeneratePanel());
         content.add(buildQueryPanel());
         if (row.isMultiInstance()) content.add(buildMiQueryPanel());
-        content.add(buildButtonBar());
+        _buttonBar = new ButtonBar(this);
+        _buttonBar.setOKEnabled(true);
+        content.add(_buttonBar);
         initContent(row);
         return content;
     }
@@ -209,25 +210,6 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
-    }
-
-
-    private JPanel buildButtonBar() {
-        JPanel panel = new JPanel(new GridLayout(0,2,5,5));
-        panel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        panel.add(createButton("Cancel"));
-        _btnOK = createButton("OK");
-        panel.add(_btnOK);
-        return panel;
-    }
-
-
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
-        button.addActionListener(this);
-        return button;
     }
 
 

@@ -173,7 +173,7 @@ public class UserDefinedAttributesBinder {
             return value.toString();
         }
         if (type.equalsIgnoreCase("color")) {
-            return colorToHex((Color) value);
+            return PropertyUtil.colorToHex((Color) value);
         }
         if (type.equalsIgnoreCase("font")) {
             Font font = (Font) value;
@@ -200,7 +200,7 @@ public class UserDefinedAttributesBinder {
         }
         if (type.equalsIgnoreCase("color")) {
             if (value == null) return null;
-            return hexToColor(value);
+            return PropertyUtil.hexToColor(value);
         }
         if (type.equalsIgnoreCase("font")) {
             if (value == null) return null;
@@ -237,39 +237,6 @@ public class UserDefinedAttributesBinder {
         String key =  _sheet.getPropertyBeingRead();
         if (key == null) key = _sheet.getSelectedPropertyName();
         return key;
-    }
-
-
-    protected Color hexToColor(String hexStr) {
-
-        // expects the format #123456
-        if ((hexStr == null) || (hexStr.length() < 7)) {
-            return Color.WHITE;
-        }
-
-        try {
-            int r = Integer.valueOf(hexStr.substring(1, 3), 16);
-            int g = Integer.valueOf(hexStr.substring(3, 5), 16);
-            int b = Integer.valueOf(hexStr.substring(5, 7), 16);
-            return new Color(r, g, b);
-        }
-        catch (NumberFormatException nfe) {
-            return Color.WHITE;
-        }
-    }
-
-    protected String colorToHex(Color color) {
-        String hex = "#";
-        hex += intToHex(color.getRed());
-        hex += intToHex(color.getGreen());
-        hex += intToHex(color.getBlue());
-        return hex;
-    }
-
-    private String intToHex(int i) {
-        String hex = Integer.toHexString(i).toUpperCase();
-        if (hex.length() == 1) hex = "0" + hex;
-        return hex;
     }
 
 

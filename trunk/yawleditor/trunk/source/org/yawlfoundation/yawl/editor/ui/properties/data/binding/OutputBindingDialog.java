@@ -150,7 +150,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
     private void setTypeValidator() {
         if (! getCurrentRow().isMultiInstance()) {
-            setTypeValidator(new BindingTypeValidator(getTaskVarList(), getCurrentRow(),
+            setTypeValidator(new BindingTypeValidator(getTaskVarList(),
                    getTargetDataType()));
         }
     }
@@ -265,7 +265,6 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
     private void updateValidator(VariableRow row) {
         BindingTypeValidator validator = getTypeValidator();
         if (validator != null) {
-            validator.setRootElementName(row != null ? row.getName() : "foo_bar");
             validator.setDataType(row != null ? row.getDataType() : "string");
         }
     }

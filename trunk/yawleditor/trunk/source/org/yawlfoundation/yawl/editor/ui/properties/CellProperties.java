@@ -32,7 +32,6 @@ import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.*;
-import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -533,19 +532,9 @@ public class CellProperties extends NetProperties {
         YResourceHandler handler = specHandler.getResourceHandler();
         TaskResourceSet resources = handler.getTaskResources(
                 pair.getNet().getID(), pair.getTask().getID());
-        if (resources != null) {
-            StringBuilder s = new StringBuilder(3);
-            s.append(getInitiatorChar(resources.getOffer().getInitiator()));
-            s.append(getInitiatorChar(resources.getAllocate().getInitiator()));
-            s.append(getInitiatorChar(resources.getStart().getInitiator()));
-            pair.setSimpleText(s.toString());
-        }
-        else pair.setSimpleText("None");
+        pair.setSimpleText(resources != null ? resources.getInitiatorChars() : "None");
     }
 
-    private char getInitiatorChar(int initiator) {
-        return initiator == AbstractInteraction.USER_INITIATED ? 'U' : 'S';
-    }
 
     private boolean requiresResourcing(YDecomposition decomposition) {
         if (! (decomposition instanceof YAWLServiceGateway)) return false;

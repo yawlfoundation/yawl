@@ -89,17 +89,9 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
 
     public String getInteractionString() {
         TaskResourceSet resources = getTaskResources();
-        StringBuilder s = new StringBuilder(3);
-        s.append(getInitiatorChar(resources.getOffer().getInitiator()));
-        s.append(getInitiatorChar(resources.getAllocate().getInitiator()));
-        s.append(getInitiatorChar(resources.getStart().getInitiator()));
-        return s.toString();
+        return resources != null ? resources.getInitiatorChars() : "";
     }
 
-
-    private char getInitiatorChar(int initiator) {
-        return initiator == AbstractInteraction.USER_INITIATED ? 'U' : 'S';
-    }
 
     private void createContent(ResourceDialog owner) {
         add(createOfferPanel(owner));

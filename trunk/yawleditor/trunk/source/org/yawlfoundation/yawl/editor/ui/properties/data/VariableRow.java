@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.schema.XSDType;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * @author Michael Adams
@@ -170,7 +169,7 @@ public class VariableRow implements Comparable<VariableRow> {
 
     public String getFullMapping() {
         return isMultiInstance() || isExternalGateway(getMapping()) ? getMapping() :
-                getWrappedMapping(getName(), getMapping());
+                DataUtils.wrapBinding(getName(), getMapping());
     }
 
 
@@ -265,18 +264,6 @@ public class VariableRow implements Comparable<VariableRow> {
             setValue("0");
         }
         else if (! dataType.equals("string")) setValue("");
-    }
-
-    private String getWrappedMapping(String tagName, String mapping) {
-        if (StringUtil.isNullOrEmpty(mapping)) return null;
-        boolean isXPath = mapping.trim().startsWith("/");
-        StringBuilder s = new StringBuilder();
-        s.append('<').append(tagName).append(">");
-        if (isXPath) s.append("{");
-        s.append(mapping);
-        if (isXPath) s.append("}");
-        s.append("</").append(tagName).append('>');
-        return s.toString();
     }
 
 

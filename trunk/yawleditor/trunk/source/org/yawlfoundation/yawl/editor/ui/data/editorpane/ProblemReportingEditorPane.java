@@ -86,6 +86,13 @@ public class ProblemReportingEditorPane extends JPanel
         int caretPos = editor.getCaretPosition();
         int foundPos = StringUtil.find(textToSearch, textToFind, caretPos, true);
 
+        if (foundPos == -1 && JOptionPane.showConfirmDialog(this,
+                    "'" + textToFind + "' not found (fowards). Try from start?",
+                    "Text not found", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+            foundPos = StringUtil.find(textToSearch, textToFind, 0, true);
+        }
+
         if (foundPos > -1) {
             editor.select(foundPos, foundPos + textToFind.length());
             try {
@@ -94,6 +101,10 @@ public class ProblemReportingEditorPane extends JPanel
             } catch (BadLocationException e) {
                 // just don't highlight!
             }
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "'" + textToFind + "' not found.",
+                                "Text not found", JOptionPane.WARNING_MESSAGE);
         }
         editor.requestFocusInWindow();
     }

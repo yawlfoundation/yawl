@@ -35,15 +35,13 @@ import java.awt.event.ActionListener;
 public class FlowConditionEditor extends AbstractCellEditor
         implements TableCellEditor, ActionListener {
 
-    private JTextField valueField;
-
-    private final JPanel valuePanel;
+    private final ValueField valuePanel;
     private FlowConditionTablePanel tablePanel;
     private BindingTypeValidator _validator;
 
 
     public FlowConditionEditor() {
-        valuePanel = createValueField();
+        valuePanel = new ValueField(this, null);
     }
 
     public FlowConditionEditor(FlowConditionTablePanel panel,
@@ -58,14 +56,14 @@ public class FlowConditionEditor extends AbstractCellEditor
 
 
     public Object getCellEditorValue() {
-        return valueField.getText();
+        return valuePanel.getText();
     }
 
 
     public Component getTableCellEditorComponent(JTable table, Object value,
                                                  boolean isSelected, int row,
                                                  int column) {
-        valueField.setText((String) value);
+        valuePanel.setText((String) value);
         return valuePanel;
     }
 
@@ -86,18 +84,6 @@ public class FlowConditionEditor extends AbstractCellEditor
     }
 
 
-    private JPanel createValueField() {
-        valueField = new JTextField();
-        JButton btnExpand = new JButton("...");
-        btnExpand.setPreferredSize(new Dimension(20, 20));
-        btnExpand.addActionListener(this);
-        btnExpand.setActionCommand("ShowDialog");
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(btnExpand, BorderLayout.EAST);
-        panel.add(valueField, BorderLayout.CENTER);
-        return panel;
-    }
-
 
     private void showValueDialog(String value) {
         FlowConditionTable table = tablePanel.getTable();
@@ -108,7 +94,7 @@ public class FlowConditionEditor extends AbstractCellEditor
         dialog.setVisible(true);
         String text = dialog.getText();
         if (text != null) {
-            valueField.setText(text);
+            valuePanel.setText(text);
         }
     }
 

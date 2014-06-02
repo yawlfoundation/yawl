@@ -22,6 +22,7 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.elements.YAtomicTask;
+import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
@@ -86,6 +87,18 @@ public class TaskResourceSet {
     public boolean hasAnyResourceReferences() {
         return hasResources() || ! getInvalidReferences().isEmpty();
     }
+
+    public String getInitiatorChars() {
+        StringBuilder s = new StringBuilder(3);
+        s.append(getInitiatorChar(getOffer().getInitiator()));
+        s.append(getInitiatorChar(getAllocate().getInitiator()));
+        s.append(getInitiatorChar(getStart().getInitiator()));
+        return s.toString();
+    }
+
+     private static char getInitiatorChar(int initiator) {
+         return initiator == AbstractInteraction.USER_INITIATED ? 'U' : 'S';
+     }
 
     private void parse() {
         if (_task != null) {

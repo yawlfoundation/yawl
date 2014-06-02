@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 import org.apache.xerces.util.XMLChar;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.VariableValueDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ValueField;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -42,10 +43,9 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
     private final JTextField nameField;
     private final JComboBox dataTypeCombo;
-    private JTextField valueField;
     private JCheckBox checkBox;
 
-    private final JPanel valuePanel;
+    private final ValueField valuePanel;
     private VariableTablePanel tablePanel;
     private String editingColumnName;
     private int editingRow;
@@ -56,7 +56,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
         nameField.addCaretListener(this);
         dataTypeCombo = new JComboBox(getDataTypeNames());
         dataTypeCombo.addActionListener(this);
-        valuePanel = createValueField();
+        valuePanel = new ValueField(this, this);
         checkBox = new JCheckBox();
         checkBox.addActionListener(this);
     }
@@ -74,7 +74,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
         if (editingColumnName.equals("Type")) return dataTypeCombo.getSelectedItem();
         if (editingColumnName.endsWith("Value")) {
             return isBooleanValueRow() ? String.valueOf(checkBox.isSelected())
-                    : valueField.getText();
+                    : valuePanel.getText();
         }
         if (editingColumnName.equals("Name")) return nameField.getText();
         return null;
@@ -97,7 +97,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
                 checkBox.setSelected(Boolean.valueOf((String) value));
                 return checkBox;
             }
-            valueField.setText((String) value);
+            valuePanel.setText((String) value);
             return valuePanel;
         }
         else {
@@ -129,19 +129,6 @@ public class VariableRowStringEditor extends AbstractCellEditor
         tablePanel.setTableChanged();
     }
 
-    private JPanel createValueField() {
-        valueField = new JTextField();
-        valueField.addCaretListener(this);
-        JButton btnExpand = new JButton("...");
-        btnExpand.setPreferredSize(new Dimension(20, 20));
-        btnExpand.addActionListener(this);
-        btnExpand.setActionCommand("ShowDialog");
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(btnExpand, BorderLayout.EAST);
-        panel.add(valueField, BorderLayout.CENTER);
-        return panel;
-    }
-
 
     private void showValueDialog(String value) {
         String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
@@ -149,7 +136,7 @@ public class VariableRowStringEditor extends AbstractCellEditor
                 tablePanel.getVariableDialog(), nameField.getText(), dataType, value);
         String text = dialog.showDialog();
         if (text != null) {
-            valueField.setText(text);
+            valuePanel.setText(text);
         }
     }
 

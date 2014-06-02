@@ -30,7 +30,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author Michael Adams
@@ -94,36 +93,4 @@ public abstract class YPropertiesBean {
                 JOptionPane.WARNING_MESSAGE);
     }
 
-
-    protected Color hexToColor(String hexStr) {
-
-        // expects the format #123456
-        if ((hexStr == null) || (hexStr.length() < 7)) {
-            return Color.WHITE;
-        }
-
-        try {
-            int r = Integer.valueOf(hexStr.substring(1, 3), 16);
-            int g = Integer.valueOf(hexStr.substring(3, 5), 16);
-            int b = Integer.valueOf(hexStr.substring(5, 7), 16);
-            return new Color(r, g, b);
-        }
-        catch (NumberFormatException nfe) {
-            return Color.WHITE;
-        }
-    }
-
-    protected String colorToHex(Color color) {
-        String hex = "#";
-        hex += intToHex(color.getRed());
-        hex += intToHex(color.getGreen());
-        hex += intToHex(color.getBlue());
-        return hex;
-    }
-
-    private String intToHex(int i) {
-        String hex = Integer.toHexString(i).toUpperCase();
-        if (hex.length() == 1) hex = "0" + hex;
-        return hex;
-    }
 }

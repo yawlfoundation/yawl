@@ -320,7 +320,7 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     private Color getColour(String key) {
         String colourStr = get(key);
-        return colourStr != null ? hexToColor(colourStr) : Color.WHITE;
+        return colourStr != null ? PropertyUtil.hexToColor(colourStr) : Color.WHITE;
     }
 
     private File getFile(String key) {
@@ -343,7 +343,7 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     }
 
     private void set(String key, Color colour) {
-        set(key, colour != null ? colorToHex(colour) : null);
+        set(key, colour != null ? PropertyUtil.colorToHex(colour) : null);
     }
 
     private void set(String key, File file) {
@@ -387,7 +387,7 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
         String colourStr = get(prefix + "-color");
         Color colour = StringUtil.isNullOrEmpty(colourStr) ? Color.BLACK
-                : hexToColor(colourStr);
+                : PropertyUtil.hexToColor(colourStr);
         return new FontColor(new Font(family, style, size), colour);
     }
 

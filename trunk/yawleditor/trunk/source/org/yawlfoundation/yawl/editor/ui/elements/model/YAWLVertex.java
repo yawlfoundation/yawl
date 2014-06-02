@@ -196,27 +196,21 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     }
 
     public int getPositionOfIncomingFlow() {
-        for (Object o : getChildren()) {
-            if (o instanceof YAWLPort) {
-                YAWLPort port = (YAWLPort) o;
-                if (port.getEdges().size() == 1) {
-                    Edge edge = (Edge) port.getEdges().toArray()[0];
-                    if (edge.getTarget() == port) {
-                        return port.getPosition();
-                    }
-                }
-            }
-        }
-        return NOWHERE;
+        return getPositionOfFlow(false);
     }
 
     public int getPositionOfOutgoingFlow() {
+        return getPositionOfFlow(true);
+    }
+
+    private int getPositionOfFlow(boolean outgoing) {
         for (Object o : getChildren()) {
             if (o instanceof YAWLPort) {
                 YAWLPort port = (YAWLPort) o;
                 if (port.getEdges().size() == 1) {
                     Edge edge = (Edge) port.getEdges().toArray()[0];
-                    if (edge.getSource() == port) {
+                    Object edgePort = outgoing ? edge.getSource() : edge.getTarget();
+                    if (edgePort == port) {
                         return port.getPosition();
                     }
                 }

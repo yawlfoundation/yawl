@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class JSingleSelectTable extends JAlternatingRowColorTable {
 
@@ -70,5 +71,31 @@ public class JSingleSelectTable extends JAlternatingRowColorTable {
                 viewport.scrollRectToVisible(rowRectangle);
             }
         } catch (Exception e) {}
+    }
+
+    /**
+     * This method adds a custom action to prevent wrapping to the first table row
+     * when the enter key is pressed while on the last table row - that is, it
+     * overrides default enter key behaviour and stays on the last row.
+     *
+     * Based on code sourced from stackoverflow.com
+     */
+    protected void consumeEnterKeyWraps() {
+        Object key = getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+            .get(KeyStroke.getKeyStroke("ENTER"));
+        final Action action = getActionMap().get(key);
+
+        Action custom = new AbstractAction("wrap") {
+            public void actionPerformed(ActionEvent e) {
+                int row = getSelectionModel().getLeadSelectionIndex();
+                if (row == getRowCount() - 1) {
+                    if (isEditing()) getCellEditor().stopCellEditing();
+                    return;     // stop wrapping to top of table
+                }
+                action.actionPerformed(e);
+            }
+
+        };
+        getActionMap().put(key, custom);
     }
 }
