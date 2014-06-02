@@ -399,7 +399,7 @@ public class DataVariableDialog extends JDialog
             }
         }
         else {
-            row.initMapping(unwrapBinding(mapping));
+            row.initMapping(DataUtils.unwrapBinding(mapping));
         }
     }
 
@@ -413,13 +413,6 @@ public class DataVariableDialog extends JDialog
                 task.getDataBindingForInputParam(variableName) :
                 outputBindings.getBinding(variableName);
     }
-
-
-    private String unwrapBinding(String binding) {
-        return binding != null ?
-                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "") : null;
-    }
-
 
 
     private boolean updateVariables() {
@@ -593,7 +586,8 @@ public class DataVariableDialog extends JDialog
         if (getTaskTable() == null) return;            // showing netvars only
         for (VariableRow row : getTaskTable().getVariables()) {
             if (! row.isOutputOnlyTask()) {
-                String mapping = unwrapBinding(getMapping(row.getName(), YDataHandler.INPUT));
+                String mapping = DataUtils.unwrapBinding(
+                        getMapping(row.getName(), YDataHandler.INPUT));
                 row.initMapping(mapping);
             }
         }

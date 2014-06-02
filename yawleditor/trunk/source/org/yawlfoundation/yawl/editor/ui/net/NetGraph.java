@@ -354,36 +354,34 @@ public class NetGraph extends JGraph {
   }
 
     public void setJoinDecorator(YAWLTask task, int type, int position) {
-        if (task.getJoinDecorator() == null &&
-                (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
+        setDecorator(task, type, position, true);
+    }
+
+    public void setSplitDecorator(YAWLTask task, int type, int position) {
+        setDecorator(task, type, position, false);
+    }
+
+
+    private void setDecorator(YAWLTask task, int type, int position, boolean isJoin) {
+        Decorator dec = isJoin ? task.getJoinDecorator() : task.getSplitDecorator();
+        if (dec == null && (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
             return;
         }
 
         getNetModel().beginUpdate();
         String label = getElementLabel(task);
         setElementLabelInsideUpdate(task, null);
-        getNetModel().setJoinDecorator(task, type, position);
+
+        if (isJoin) getNetModel().setJoinDecorator(task, type, position);
+        else getNetModel().setSplitDecorator(task, type, position);
+
         setElementLabelInsideUpdate(task, label);
         getNetModel().endUpdate();
         NetCellUtilities.scrollNetToShowCells(this, new Object[] { task });
         getGraphLayoutCache().reload();
     }
 
-    public void setSplitDecorator(YAWLTask task, int type, int position) {
-        if(task.getSplitDecorator() == null &&
-                (type == Decorator.NO_TYPE || position == YAWLTask.NOWHERE)) {
-            return;
-        }
 
-        getNetModel().beginUpdate();
-        String label = getElementLabel(task);
-        setElementLabelInsideUpdate(task, null);
-        getNetModel().setSplitDecorator(task, type, position);
-        setElementLabelInsideUpdate(task, label);
-        getNetModel().endUpdate();
-        NetCellUtilities.scrollNetToShowCells(this, new Object[]{task });
-        getGraphLayoutCache().reload();
-    }
 
     public Set<Object> removeCellsAndTheirEdges(Object[] cells) {
         return getNetModel().removeCells(cells);

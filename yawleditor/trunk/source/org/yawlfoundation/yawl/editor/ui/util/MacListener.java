@@ -91,11 +91,12 @@ public class MacListener extends ApplicationAdapter {
 
 
     private static void resetClipboardMasks() {
-        InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
-        im = (InputMap) UIManager.get("EditorPane.focusInputMap");
+        resetClipboardMasks((InputMap) UIManager.get("TextField.focusInputMap"));
+        resetClipboardMasks((InputMap) UIManager.get("EditorPane.focusInputMap"));
+    }
+
+
+    private static void resetClipboardMasks(InputMap im) {
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);

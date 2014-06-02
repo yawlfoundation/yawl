@@ -25,13 +25,13 @@ import org.yawlfoundation.yawl.util.XNode;
 import java.util.*;
 
 /**
- * This class validates that a variable binding from net-task or task-net is, or will
+ * This class validates that a variable binding from net->task or task->net is, or will
  * evaluate to, a value of the same data type as the target net or task variable. It
  * co-ops the dynamic form classes of the resource service to build a data schema and
  * then a data document filled with sample data that is correct for each element,
  * including restrictions and enumerations. The binding is first evaluated to sample
- * values where necessary by converted XPath/XQuery expressions to values, then
- * compares the evaluated binding to the relevant data type.
+ * values where necessary by transforming XPath/XQuery expressions to literal values,
+ * the compares the evaluated binding to the relevant data type.
  *
  * @author Michael Adams
  * @date 1/11/2013
@@ -42,32 +42,34 @@ public class BindingTypeValidator {
     private Map<String, DynFormField> _fieldMap;
     private String _dataTypeName;
     private String _rootName;
+    private String _taskDecompositionID;
     private Document _dataDocument;
 
 
     /**
-     * The constructor. Builds a schema from the complete set of net-level vars (for
-     * and input variable) or of task-level vars (for an output variable). Next it
-     * generates a set of simple type fields corresponding to the elements of the schema.
-     * Then, it build a data document of sample values corresponding to each of the
-     * simple type element, which can be used to evaluate queries and then compare
-     * data types. All of this is done only when the class is first constructed, and
-     * these objects are then used in all future calls to this class.
+     * The constructor. Builds a schema from the complete set of net-level and task-level
+     * variables. Next it generates a set of simple type fields corresponding to the
+     * elements of the schema. Then, it builds a data document of sample values
+     * corresponding to each of the simple type elements, which can be used to evaluate
+     * queries and then compare data types. All of this is done only when the class is
+     * first constructed, and these objects are then used in all future calls to this
+     * class.
      *
      * @param varList the list of net-level variables if validating a task input
      *                binding, or the list of task-level output variables if
      *                validating a task output binding
-     * @param row the row representing the input task variable being bound to, or
-     *            the output task variable being bound from
      * @param dataTypeName the name of the target data type (the data type of the
      *                     task-level variable for input bindings, or the data type
-     *                     of the net-level variable for output bindings
+     *                     of the net-level variable for output bindings)
      */
-    public BindingTypeValidator(List<VariableRow> varList, VariableRow row,
-                                String dataTypeName) {
-        _rootName = getRootElementName(row);
+    public BindingTypeValidator(List<VariableRow> varList, String dataTypeName) {
+        YNet net = getNet();
+        _rootName = net.getRootDataElementName();
         _dataTypeName = dataTypeName;
-        init(getParamMap(varList));
+        setTaskDecompositionID(varList);
+        Map<String, FormParameter> paramMap = getParamMap(net);
+        paramMap.putAll(getParamMap(varList));
+        init(paramMap);
     }
 
 
@@ -77,33 +79,31 @@ public class BindingTypeValidator {
      *
      */
     public BindingTypeValidator(YNet net) {
-        _rootName = "foo_bar";
+        _rootName = net.getRootDataElementName();
         _dataTypeName = "boolean";
         init(getParamMap(net));
     }
 
 
     /**
-     * Sets the target data type to validate against. Used for output bindings when
-     * a different target net-level variable is chosen
+     * Sets the target data type to validate against. Called by the binding dialogs when
+     * a different target variable is chosen
      * @param dataType the data type of the variable being bound to
      */
     public void setDataType(String dataType) { _dataTypeName = dataType; }
 
 
-    public void setRootElementName(String rootName) { _rootName = rootName; }
-
-
     /**
      * Validates that the binding matches the data type of the target variable
      * @param binding the binding to validate
-     * @return a list of error messages, or an empty list if the binding is valid in
+     * @return a list of error messages, or an empty list if the binding is valid with
      * respect to its target data type
      */
     public List<String> validate(String binding) {
         if (shouldValidate(binding)) {
             try {
-                String query = evaluateQuery(binding.trim(), _dataDocument);
+                String query = evaluateQuery(maskDecompositionID(binding),
+                        _dataDocument);
                 if (! query.isEmpty()) {
                     List<String> errors = getDataHandler().validate(_dataTypeName, query);
                     if (! errors.isEmpty()) {
@@ -132,7 +132,8 @@ public class BindingTypeValidator {
             public void run() {
               _schema = getDataSchema(paramMap);
               _fieldMap = getFieldMap(paramMap);
-              _dataDocument = getDataDocument(new ArrayList<DynFormField>(_fieldMap.values()));
+              _dataDocument = getDataDocument(
+                      new ArrayList<DynFormField>(_fieldMap.values()));
             }
         }).start();
     }
@@ -201,22 +202,8 @@ public class BindingTypeValidator {
 
 
     /**
-     * Gets the name for the root of the data schema and document.
-     * @param row the row representing the input task variable being bound to, or
-     *            the output task variable being bound from
-     * @return the name of the net for input bindings, or of the task for output
-     *         bindings
-     */
-    private String getRootElementName(VariableRow row) {
-        if (row == null) return "foo_bar";
-        return row.isInput() ? getNet().getRootDataElementName() :
-               row.getDecompositionID();
-    }
-
-
-    /**
      * Builds a map of complex data types and their names from the specification schema,
-     * required for the build of the data schema
+     * required for the building of the data schema
      * @param schema the data definition schema of the specification
      * @return a map of name to data type definition
      */
@@ -392,6 +379,33 @@ public class BindingTypeValidator {
             return XSDType.getSampleValue(field.getDataTypeUnprefixed());
         }
         return "";
+    }
+
+
+    /**
+     * Sets the decompositionID from a list of variable rows, for task variable
+     * evaluations only
+     * @param varList the list of task-level variables for validation
+     */
+    private void setTaskDecompositionID(List<VariableRow> varList) {
+        if (varList != null) {
+            _taskDecompositionID = varList.get(0).getDecompositionID();
+        }
+    }
+
+
+    /**
+     * Replaces all references to a decomposition in a binding query with the name of
+     * the net (since that is the root name of the constructed data document)
+     * @param binding the binding to transform as required
+     * @return the transformed binding
+     */
+    private String maskDecompositionID(String binding) {
+        if (_taskDecompositionID != null) {
+            return binding.replaceAll("/" + _taskDecompositionID + "/",
+                    "/" + _rootName + "/").trim();
+        }
+        return binding.trim();
     }
 
 

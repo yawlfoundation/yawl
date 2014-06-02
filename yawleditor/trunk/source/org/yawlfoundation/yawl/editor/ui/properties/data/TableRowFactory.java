@@ -72,16 +72,4 @@ public class TableRowFactory {
         return rows;
     }
 
-
-//    // task variables
-//    private java.util.List<VariableRow> createTableRows(Map<String, YParameter> parameters) {
-//        java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
-//        for (YParameter parameter : parameters.values()) {
-//            VariableRow row = new VariableRow(parameter, decomposition.getID());
-//            initMappings(row, getMapping(parameter));
-//            rows.add(row);
-//        }
-//        Collections.sort(rows);
-//        return rows;
-//    }
 }

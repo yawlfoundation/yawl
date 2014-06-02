@@ -5,7 +5,6 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YTask;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
  * @author Michael Adams
@@ -54,7 +53,7 @@ public class MultiInstanceHandler {
     }
 
     public String getJoinQueryUnwrapped() {
-        return unwrapQuery(getJoinQuery());
+        return DataUtils.unwrapBinding(getJoinQuery());
     }
 
     public void setJoinQuery(String query) {
@@ -62,7 +61,7 @@ public class MultiInstanceHandler {
     }
 
     public void setJoinQueryUnwrapped(String query) {
-        setJoinQuery(wrapQuery(getOutputTarget(), query));
+        setJoinQuery(DataUtils.wrapBinding(getOutputTarget(), query));
     }
 
 
@@ -83,7 +82,7 @@ public class MultiInstanceHandler {
         String xpath = sep + _task.getDecompositionPrototype().getID() +
                 sep + taskVarName + sep;
         String binding = getOutputQuery();
-        return binding != null && unwrapQuery(binding).startsWith(xpath);
+        return binding != null && DataUtils.unwrapBinding(binding).startsWith(xpath);
     }
 
 
@@ -229,8 +228,8 @@ public class MultiInstanceHandler {
 
         // need to replace binding key first, to enable the set call to succeed
         _outputBindings.replaceBinding(unsplitName, oldBinding, newBinding);
-        _outputBindings.setBinding(unsplitName, wrapQuery(_dataItemName, newBinding),
-                false);
+        _outputBindings.setBinding(unsplitName, DataUtils.wrapBinding(_dataItemName,
+                        newBinding), false);
         return newBinding;
     }
 
@@ -276,25 +275,6 @@ public class MultiInstanceHandler {
         s.append(">{for $j in /").append(_task.getID()).append("/");
         s.append(_dataItemName).append(" return $j}</").append(tag).append('>');
         return s.toString();
-    }
-
-
-    private String wrapQuery(String tagName, String mapping) {
-        if (StringUtil.isNullOrEmpty(mapping)) return null;
-        boolean isXPath = mapping.trim().startsWith("/");
-        StringBuilder s = new StringBuilder();
-        s.append('<').append(tagName).append(">");
-        if (isXPath) s.append("{");
-        s.append(mapping);
-        if (isXPath) s.append("}");
-        s.append("</").append(tagName).append('>');
-        return s.toString();
-    }
-
-
-    private String unwrapQuery(String binding) {
-        return binding != null ?
-                binding.replaceAll("\\{*<\\w+>\\{*|\\}*</\\w*>\\}*", "").trim() : null;
     }
 
 

@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.repository.dialog;
 
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
 import org.yawlfoundation.yawl.editor.ui.repository.listModel.RepositoryListModel;
 
 import javax.swing.*;
@@ -39,7 +40,7 @@ import java.awt.event.MouseEvent;
  */
 public class DescriptorListDialog extends JDialog implements ActionListener, CaretListener {
 
-    private JButton btnOK;
+    private ButtonBar _buttonBar;
     private JList listBox;
     private JTextField filterField;
     private JTextArea txtDescription;
@@ -75,7 +76,7 @@ public class DescriptorListDialog extends JDialog implements ActionListener, Car
     }
 
     public void caretUpdate(CaretEvent caretEvent) {
-        btnOK.setEnabled(false);
+        if (_buttonBar != null) _buttonBar.setOKEnabled(false);
         listBox.clearSelection();
         txtDescription.setEditable(true);
         txtDescription.setText("");
@@ -105,7 +106,8 @@ public class DescriptorListDialog extends JDialog implements ActionListener, Car
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(5,5,5,5));
         content.add(createMainContentPanel(), BorderLayout.CENTER);
-        content.add(createButtonBar(), BorderLayout.SOUTH);
+        _buttonBar = new ButtonBar(this);
+        content.add(_buttonBar, BorderLayout.SOUTH);
         return content;
     }
 
@@ -143,7 +145,7 @@ public class DescriptorListDialog extends JDialog implements ActionListener, Car
                         txtDescription.setEditable(true);
                         txtDescription.setText( getListModel().getDescriptionAt(index));
                         txtDescription.setEditable(false);
-                        btnOK.setEnabled(true);
+                        _buttonBar.setOKEnabled(true);
                         listBox.grabFocus();
                         listBox.setSelectedIndex(index);
                     }
@@ -172,26 +174,5 @@ public class DescriptorListDialog extends JDialog implements ActionListener, Car
         panel.add(pane, BorderLayout.CENTER);
         return panel;
     }
-
-    private JPanel createButtonBar() {
-        JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        panel.add(createButton("Cancel"));
-        btnOK = createButton("OK");
-        btnOK.setEnabled(false);
-        panel.add(btnOK);
-        return panel;
-    }
-
-
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(70,25));
-        button.addActionListener(this);
-        return button;
-    }
-
 
 }

@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
@@ -309,13 +310,13 @@ public class LayoutImporter {
                 else if (o instanceof YAWLFlowRelation) {
                     YAWLFlowRelation flow = (YAWLFlowRelation) o;
                     String id = String.format("%s::%s",
-                            getPortID((YAWLPort) flow.getSource()),
-                            getPortID((YAWLPort) flow.getTarget()));
+                            NetUtilities.getPortID((YAWLPort) flow.getSource()),
+                            NetUtilities.getPortID((YAWLPort) flow.getTarget()));
                     _flowMap.put(id, flow);
                 }
                 else if (o instanceof VertexContainer) {
                     VertexContainer container = (VertexContainer) o;
-                    String id = getContainerID(container);
+                    String id = NetUtilities.getContainerID(container);
                     for (Object child : container.getChildren()) {
                         if (child instanceof VertexLabel) {
                             VertexLabel label = (VertexLabel) child;
@@ -356,28 +357,6 @@ public class LayoutImporter {
             if (id == null) return null;
             return _labelMap.get(id);
         }
-
-        private String getContainerID(VertexContainer container) {
-            if (container != null) {
-                for (Object o : container.getChildren()) {
-                    if (o instanceof YAWLVertex)
-                        return ((YAWLVertex) o).getID();
-                }
-            }
-            return "null";
-        }
-
-        private String getPortID(YAWLPort port) {
-            YAWLCell cell = (YAWLCell) port.getParent();
-            if (cell instanceof Decorator) {
-                Decorator decorator = (Decorator) cell;
-                return (getContainerID((VertexContainer) decorator.getParent()));
-            }
-            else {
-                return ((YAWLVertex) cell).getID();
-            }
-        }
-
 
         private String unspace(String s) { return s.replaceAll(" ", "_"); }
 

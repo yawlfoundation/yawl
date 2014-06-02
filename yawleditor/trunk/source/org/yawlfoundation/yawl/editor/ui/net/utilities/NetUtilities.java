@@ -18,9 +18,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.net.utilities;
 
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.elements.YCondition;
+import org.yawlfoundation.yawl.elements.YFlow;
 
 import javax.swing.*;
 import java.util.Collections;
@@ -127,6 +130,51 @@ public final class NetUtilities {
         }
         return tasks;
     }
+
+
+    public static Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows,
+                                                      Set<YCondition> conditions) {
+        Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
+        for (YCondition condition : conditions) {
+            if (condition.isImplicit()) {
+                YFlow flowFromSource = condition.getPresetFlows().iterator().next();
+                YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();
+                compoundFlows.add(
+                        new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
+                flows.remove(flowFromSource);
+                flows.remove(flowIntoTarget);
+            }
+        }
+        for (YFlow flow : flows) {
+            compoundFlows.add(new YCompoundFlow(flow));
+        }
+        return compoundFlows;
+    }
+
+
+    public static String getPortID(YAWLPort port) {
+        YAWLCell cell = (YAWLCell) port.getParent();
+        if (cell instanceof Decorator) {
+            Decorator decorator = (Decorator) cell;
+            return (getContainerID((VertexContainer) decorator.getParent()));
+         }
+        else {
+            return ((YAWLVertex) cell).getID();
+        }
+    }
+
+
+    public static String getContainerID(VertexContainer container) {
+        if (container != null) {
+            for (Object o : container.getChildren()) {
+                if (o instanceof YAWLVertex)
+                    return ((YAWLVertex) o).getID();
+            }
+        }
+        return "null";
+    }
+
+
 
     /**
      * This should only be called by the PasteAction class as a cleanup. Trying to

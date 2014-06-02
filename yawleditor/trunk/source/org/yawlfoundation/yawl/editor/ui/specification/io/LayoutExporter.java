@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YSpecification;
@@ -121,7 +122,7 @@ public class LayoutExporter {
 
     private void addContainerLayout(VertexContainer container, YNetLayout netLayout) {
         YNetElementNode layout = getLayoutForVertex(container.getVertex(), netLayout,
-                getContainerID(container));
+                NetUtilities.getContainerID(container));
 
         for (Object o : container.getChildren()) {
             if (o instanceof VertexLabel) {
@@ -139,8 +140,8 @@ public class LayoutExporter {
 
 
     private void addFlowLayout(YAWLFlowRelation flow, YNetLayout netLayout) {
-        String sourceID = getPortID((YAWLPort) flow.getSource());
-        String targetID = getPortID((YAWLPort) flow.getTarget());
+        String sourceID = NetUtilities.getPortID((YAWLPort) flow.getSource());
+        String targetID = NetUtilities.getPortID((YAWLPort) flow.getTarget());
         YFlowLayout layout = netLayout.newFlowLayoutInstance(sourceID, targetID);
 
         layout.setSourcePort(getFlowPortPosition(flow, true));
@@ -184,29 +185,6 @@ public class LayoutExporter {
         layout.setPosition(decorator.getCardinalPosition());
         getNodeAttributes(decorator, layout);
         taskLayout.addDecoratorLayout(layout);
-    }
-
-
-    private String getContainerID(VertexContainer container) {
-        if (container != null) {
-            for (Object o : container.getChildren()) {
-                if (o instanceof YAWLVertex)
-                    return ((YAWLVertex) o).getID();
-            }
-        }
-        return "null";
-    }
-
-
-    private String getPortID(YAWLPort port) {
-        YAWLCell cell = (YAWLCell) port.getParent();
-        if (cell instanceof Decorator) {
-            Decorator decorator = (Decorator) cell;
-            return (getContainerID((VertexContainer) decorator.getParent()));
-         }
-        else {
-            return ((YAWLVertex) cell).getID();
-        }
     }
 
 

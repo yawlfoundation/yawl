@@ -285,7 +285,7 @@ public class SpecificationReader {
                                            Set<YCondition> implicitConditions,
                                            NetGraph netGraph) {
         Set<YAWLFlowRelation> editorFlows = new HashSet<YAWLFlowRelation>();
-        for (YCompoundFlow engineFlow : rationaliseFlows(flows, implicitConditions)) {
+        for (YCompoundFlow engineFlow : NetUtilities.rationaliseFlows(flows, implicitConditions)) {
             YAWLVertex sourceVertex = _elementMap.get(engineFlow.getSource());
             YAWLVertex targetVertex = _elementMap.get(engineFlow.getTarget());
             YAWLFlowRelation flow = new YAWLFlowRelation(engineFlow);
@@ -293,24 +293,6 @@ public class SpecificationReader {
             editorFlows.add(flow);
         }
         return editorFlows;
-    }
-
-
-    private Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows,
-                                                Set<YCondition> implicitConditions) {
-        Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
-        for (YCondition condition : implicitConditions) {
-            YFlow flowFromSource = condition.getPresetFlows().iterator().next();
-            YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();
-            compoundFlows.add(
-                    new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
-            flows.remove(flowFromSource);
-            flows.remove(flowIntoTarget);
-        }
-        for (YFlow flow : flows) {
-            compoundFlows.add(new YCompoundFlow(flow));
-        }
-        return compoundFlows;
     }
 
 

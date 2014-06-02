@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.repository.dialog;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -34,10 +36,9 @@ import java.awt.event.ActionListener;
  */
 public class AddDialog extends JDialog implements ActionListener, CaretListener {
 
-    private JButton btnOK;
-
     private JTextField txtName;
     private JTextArea txtDescription;
+    private ButtonBar _buttonBar;
 
     public AddDialog(JDialog owner, String defaultText) {
         super(owner);
@@ -62,7 +63,7 @@ public class AddDialog extends JDialog implements ActionListener, CaretListener 
     }
 
     public void caretUpdate(CaretEvent caretEvent) {
-        btnOK.setEnabled(! (txtName.getText().length() == 0 ||
+        _buttonBar.setOKEnabled(! (txtName.getText().length() == 0 ||
                 txtDescription.getText().length() == 0));
     }
 
@@ -80,7 +81,8 @@ public class AddDialog extends JDialog implements ActionListener, CaretListener 
         content.setBorder(new EmptyBorder(5,5,5,5));
         content.add(createNamePanel(), BorderLayout.NORTH);
         content.add(createDescriptionPanel(), BorderLayout.CENTER);
-        content.add(createButtonBar(), BorderLayout.SOUTH);
+        _buttonBar = new ButtonBar(this);
+        content.add(_buttonBar, BorderLayout.SOUTH);
         return content;
     }
 
@@ -109,26 +111,6 @@ public class AddDialog extends JDialog implements ActionListener, CaretListener 
         pane.setPreferredSize(new Dimension(300, 150));
         panel.add(pane, BorderLayout.CENTER);
         return panel;
-    }
-
-    private JPanel createButtonBar() {
-        JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        panel.add(createButton("Cancel"));
-        btnOK = createButton("OK");
-        btnOK.setEnabled(false);
-        panel.add(btnOK);
-        return panel;
-    }
-
-
-    private JButton createButton(String label) {
-        JButton button = new JButton(label);
-        button.setActionCommand(label);
-        button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(70,25));
-        button.addActionListener(this);
-        return button;
     }
 
 }

@@ -18,9 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataUtils;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,7 +73,7 @@ public class OutputBindings {
         String binding = getAddedBinding(netVarName);
         if (binding == null) binding = _task.getDataBindingForOutputParam(netVarName);
         if (binding != null) binding = binding.trim();
-        return unwrap ? unwrapBinding(binding) : binding;
+        return unwrap ? DataUtils.unwrapBinding(binding) : binding;
     }
 
 
@@ -97,7 +97,8 @@ public class OutputBindings {
     public void setBinding(String netVarName, String binding, boolean wrap) {
         if (! (binding == null || netVarName == null)) {
             removeAddedBinding(netVarName);
-            String adjustedBinding = wrap ? wrapBinding(netVarName, binding) : binding;
+            String adjustedBinding = wrap ?
+                    DataUtils.wrapBinding(netVarName, binding) : binding;
             _netVarBindings.put(adjustedBinding, netVarName);
         }
     }
@@ -171,7 +172,7 @@ public class OutputBindings {
     public void replaceBinding(String taskName, String oldBinding, String newBinding) {
         String netVar = getTarget(taskName);
         if (! (netVar == null || isGateway(netVar))) {
-            _netVarBindings.remove(wrapBinding(netVar, oldBinding));
+            _netVarBindings.remove(DataUtils.wrapBinding(netVar, oldBinding));
             setBinding(netVar, newBinding);
         }
     }
@@ -210,7 +211,7 @@ public class OutputBindings {
         String binding = getBinding(oldName, false);
         if (binding != null) {
             _orphanedBindings.add(binding);
-            setBinding(newName, unwrapBinding(binding));
+            setBinding(newName, DataUtils.unwrapBinding(binding));
         }
         return binding != null;
     }
@@ -295,26 +296,6 @@ public class OutputBindings {
     private String removeAddedBinding(String netVarName) {
         String binding = getAddedBinding(netVarName);
         return binding != null ? _netVarBindings.remove(binding) : null;
-    }
-
-
-    // removes curly braces and xml tags from start and end of binding
-    private String unwrapBinding(String binding) {
-        return binding != null ? binding.replaceAll(
-                "\\{?\\s*<\\w+>\\s*\\{?\\s*|\\s*\\}?\\s*</\\w+>\\s*\\}?", "") : null;
-    }
-
-
-    private String wrapBinding(String tagName, String binding) {
-        if (StringUtil.isNullOrEmpty(binding)) return null;
-        boolean isXPath = binding.trim().startsWith("/");
-        StringBuilder s = new StringBuilder();
-        s.append('<').append(tagName).append(">");
-        if (isXPath) s.append("{");
-        s.append(binding);
-        if (isXPath) s.append("}");
-        s.append("</").append(tagName).append('>');
-        return s.toString();
     }
 
 

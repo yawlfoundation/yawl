@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.elements.*;
 
@@ -128,31 +129,11 @@ public class NetReloader {
 
 
     private void addFlows(NetGraph graph, Set<YFlow> flows, Set<YCondition> conditions) {
-        for (YCompoundFlow compoundFlow : rationaliseFlows(flows, conditions)) {
+        for (YCompoundFlow compoundFlow : NetUtilities.rationaliseFlows(flows, conditions)) {
             YAWLFlowRelation flow = new YAWLFlowRelation(compoundFlow);
             graph.connect(flow, vertices.get(flow.getSourceID()),
                     vertices.get(flow.getTargetID()));
-
         }
-    }
-
-
-    private Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows, Set<YCondition> conditions) {
-        Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
-        for (YCondition condition : conditions) {
-            if (condition.isImplicit()) {
-                YFlow flowFromSource = condition.getPresetFlows().iterator().next();
-                YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();
-                compoundFlows.add(
-                        new YCompoundFlow(flowFromSource, condition, flowIntoTarget));
-                flows.remove(flowFromSource);
-                flows.remove(flowIntoTarget);
-            }
-        }
-        for (YFlow flow : flows) {
-            compoundFlows.add(new YCompoundFlow(flow));
-        }
-        return compoundFlows;
     }
 
 
