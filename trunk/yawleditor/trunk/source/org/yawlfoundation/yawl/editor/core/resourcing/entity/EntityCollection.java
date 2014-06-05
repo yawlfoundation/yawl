@@ -54,10 +54,7 @@ public abstract class EntityCollection<E> {
 
 
     public boolean add(E e) {
-        if (e != null) {
-            _entities.add(e);
-        }
-        return e != null;
+        return e != null && _entities.add(e);
     }
 
 

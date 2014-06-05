@@ -290,11 +290,11 @@ public class VariableTablePanel extends JPanel
         btnUp.setEnabled(enable && hasRowSelected);
         btnDown.setEnabled(enable && hasRowSelected);
         if (btnInMapping.isVisible()) {
-            btnInMapping.setEnabled(enable && hasRowSelected &&
+            btnInMapping.setEnabled(enable && hasRowSelected && row != null &&
                     (row.isInput() || row.isInputOutput()));
         }
         if (btnOutMapping.isVisible()) {
-            btnOutMapping.setEnabled(enable && hasRowSelected &&
+            btnOutMapping.setEnabled(enable && hasRowSelected && row != null &&
                     (row.isOutput() || row.isInputOutput()));
         }
         if (btnExAttributes.isVisible()) {

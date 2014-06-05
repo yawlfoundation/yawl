@@ -23,6 +23,8 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 
+import java.util.Set;
+
 /**
  * @author Michael Adams
  * @date 23/07/12
@@ -88,16 +90,24 @@ public class NetTaskPair {
                 s.append("Local(").append(locals).append(") ");
             }
         }
-        int inputs = decomposition.getInputParameters().size();
-        if (inputs > 0) {
-            s.append("Input(").append(inputs).append(") ");
-        }
-        int outputs = decomposition.getOutputParameters().size();
-        if (outputs > 0) {
-            s.append("Output(").append(outputs).append(")");
-        }
-        if (s.length() == 0) s.append("None");
+        s.append(getIOText(decomposition));
         return s.toString();
+    }
+
+
+    private String getIOText(YDecomposition decomposition) {
+        Set<String> inputs = decomposition.getInputParameters().keySet();
+        Set<String> outputs = decomposition.getOutputParameters().keySet();
+        int io = 0;
+        int i = inputs.size();
+        int o = outputs.size();
+
+        for (String input : inputs) if (outputs.contains(input)) io++;
+        StringBuilder s = new StringBuilder();
+        if (i - io > 0) s.append("In(").append(i - io).append(") ");
+        if (io > 0) s.append("I/O(").append(io).append(") ");
+        if (o - io > 0) s.append("Out(").append(o - io).append(")");
+        return s.toString().trim();
     }
 
 }

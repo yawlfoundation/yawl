@@ -39,8 +39,8 @@ public class DynParamSet extends EntityCollection<DynParam> {
 
     public boolean add(String name, DynParam.Refers refers) {
         DynParam exists = get(name);
-        if (exists != null) add(new DynParam(name, refers));
-        return exists != null;
+        if (exists == null) add(new DynParam(name, refers));
+        return exists == null;
     }
 
 

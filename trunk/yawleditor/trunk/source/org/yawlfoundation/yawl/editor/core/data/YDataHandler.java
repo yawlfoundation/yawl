@@ -1268,6 +1268,8 @@ public class YDataHandler {
         if (outputParam != null) {
             if (newType != LOCAL && (decomposition instanceof YNet)) {
                 ((YNet) decomposition).removeLocalVariable(variableName);
+            }
+            if (newType == INPUT_OUTPUT || newType == INPUT) {
                 YParameter inputParam = newParameter(decomposition, outputParam, INPUT);
                 decomposition.addInputParameter(inputParam);
             }

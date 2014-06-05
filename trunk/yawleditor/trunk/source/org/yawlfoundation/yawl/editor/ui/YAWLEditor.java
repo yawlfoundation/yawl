@@ -39,7 +39,10 @@ import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -241,7 +244,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         pane.add(getVerticalSplitPane(), BorderLayout.CENTER);
         pane.add(getStatusBar(),BorderLayout.SOUTH);
         setTitle("");
-
+        setMinimumSize(new Dimension(900,450));
         setIconImage(
                 ResourceLoader.getImageAsIcon(
                         "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.png"

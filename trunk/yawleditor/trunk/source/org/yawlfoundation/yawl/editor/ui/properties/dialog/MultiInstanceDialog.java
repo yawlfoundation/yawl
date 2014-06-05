@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -157,6 +158,7 @@ public class MultiInstanceDialog extends JDialog
     private void updateTask() {
         task.getMultiInstanceAttributes().setProperties(minPanel.getContent(),
                 maxPanel.getContent(), thresholdPanel.getContent(), getCreationMode());
+        SpecificationUndoManager.getInstance().setDirty(true);
         setCurrentValueString();
     }
 

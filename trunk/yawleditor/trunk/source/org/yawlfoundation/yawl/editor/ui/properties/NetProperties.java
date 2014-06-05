@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -115,20 +116,21 @@ public class NetProperties extends YPropertiesBean {
 
     public String getName() { return graph.getName(); }
 
-    public void setName(String value) {
-        String oldValue = getName();
-        if (oldValue.equals(value)) return;
+    public void setName(String name) {
+        String oldName = getName();
+        if (oldName.equals(name)) return;
         try {
-            flowHandler.checkDecompositionID(value);      // throws exception if invalid
-            specHandler.getDataHandler().renameDecomposition(oldValue, value);
-            graph.setName(value);
+            String newName = XMLUtilities.toValidXMLName(name);
+            flowHandler.checkDecompositionID(newName);  // throws exception if invalid
+            specHandler.getDataHandler().renameDecomposition(oldName, newName);
+            graph.setName(newName);
             SpecificationModel.getNets().propagateDecompositionNameChange(
-                    model.getDecomposition(), oldValue);
+                    model.getDecomposition(), oldName);
             setDirty();
         }
         catch (Exception e) {
             showWarning("Net Rename Error", e.getMessage());
-            firePropertyChange("Name", oldValue);
+            firePropertyChange("Name", oldName);
         }
     }
 
