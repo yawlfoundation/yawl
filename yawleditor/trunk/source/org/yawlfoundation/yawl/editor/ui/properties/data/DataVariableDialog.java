@@ -67,6 +67,7 @@ public class DataVariableDialog extends JDialog
         setTitle("Data Variables for Net " + net.getID());
         add(getContentForNetLevel());
         setPreferredSize(new Dimension(620, 290));
+        setMinimumSize(new Dimension(400, 200));
         pack();
     }
 
@@ -83,6 +84,7 @@ public class DataVariableDialog extends JDialog
                  " [Task: " + task.getID() + "]");
         add(getContentForTaskLevel());
         setPreferredSize(new Dimension(760, 580));
+        setMinimumSize(new Dimension(400, 420));
         pack();
     }
 

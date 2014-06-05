@@ -210,7 +210,12 @@ public class YControlFlowHandler {
 
     public YAWLServiceGateway removeTaskDecomposition(String name) {
         if (_specification != null) {
-            return (YAWLServiceGateway) _specification.removeDecomposition(name);
+            YAWLServiceGateway gateway = (YAWLServiceGateway)
+                    _specification.removeDecomposition(name);
+            if (gateway != null) {
+                _identifiers.removeIdentifier(gateway.getID());
+                return gateway;
+            }
         }
         return null;
     }
@@ -233,7 +238,9 @@ public class YControlFlowHandler {
             }
         }
         for (YDecomposition orphan : orphans) {
-            _specification.removeDecomposition(orphan.getID());
+            if (_specification.removeDecomposition(orphan.getID()) != null) {
+                _identifiers.removeIdentifier(orphan.getID());
+            }
         }
     }
 

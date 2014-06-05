@@ -23,6 +23,8 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class DeleteOrphanDecompositionDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        buttonOK.setEnabled(false);
         pack();
 
         buttonOK.addActionListener(new ActionListener() {
@@ -51,6 +54,12 @@ public class DeleteOrphanDecompositionDialog extends JDialog {
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
+            }
+        });
+
+        lbxOrphans.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                buttonOK.setEnabled(true);
             }
         });
 
@@ -90,7 +99,6 @@ public class DeleteOrphanDecompositionDialog extends JDialog {
 
     public void setItems(Vector<String> items) {
         lbxOrphans.setListData(items);
-        buttonOK.setEnabled(items.size() > 0);
     }
 
     public java.util.List<String> getSelectedItems() {

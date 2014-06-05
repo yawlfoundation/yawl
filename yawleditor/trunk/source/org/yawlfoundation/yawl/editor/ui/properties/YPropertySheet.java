@@ -54,8 +54,8 @@ public class YPropertySheet extends PropertySheetPanel {
         setSortingProperties(true);
         setRestoreToggleStates(true);
         setToolBarVisible(false);
-        setMinimumSize(new Dimension(100, 250));
-        setPreferredSize(new Dimension(200, 250));
+        setMinimumSize(new Dimension(100, 200));
+        setPreferredSize(new Dimension(200, 200));
         setPropertySortingComparator(new PropertySorter());
         setCategorySortingComparator(new CategorySorter());
         registerGlobalEditors();

@@ -370,13 +370,13 @@ public class NetCellUtilities {
     public static void scrollNetToShowCells(NetGraph net, Object[] cells) {
         final int ELEMENT_BUFFER = 10;
 
-        if (net.getFrame() == null) {
-            return;
+        if (net.getFrame() == null) return;
+        Rectangle2D cellBounds = net.getCellBounds(cells);
+        if (cellBounds != null) {
+            Rectangle bufferedCellBounds = (Rectangle) cellBounds.getBounds().clone();
+            bufferedCellBounds.grow(ELEMENT_BUFFER, ELEMENT_BUFFER);
+            ((JViewport) net.getParent()).scrollRectToVisible(bufferedCellBounds);
         }
-
-        Rectangle bufferedCellBounds = (Rectangle) net.getCellBounds(cells).getBounds().clone();
-        bufferedCellBounds.grow(ELEMENT_BUFFER, ELEMENT_BUFFER);
-        ((JViewport) net.getParent()).scrollRectToVisible(bufferedCellBounds);
     }
 
     /**

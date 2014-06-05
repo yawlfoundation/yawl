@@ -180,11 +180,15 @@ public class OutputBindings {
 
     public void removeBindingForTarget(String netVarName) {
         if (removeAddedBinding(netVarName) == null) {
+            Set<String> toBeRemoved = new HashSet<String>();
             for (String binding : _task.getDataMappingsForTaskCompletion().keySet()) {
                 String varName = _task.getDataMappingsForTaskCompletion().get(binding);
                 if (varName.equals(netVarName)) {
-                    _task.getDataMappingsForTaskCompletion().remove(binding);
+                    toBeRemoved.add(binding);
                 }
+            }
+            for (String binding : toBeRemoved) {
+                _task.getDataMappingsForTaskCompletion().remove(binding);
             }
         }
     }

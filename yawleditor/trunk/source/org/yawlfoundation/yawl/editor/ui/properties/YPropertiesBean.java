@@ -68,7 +68,6 @@ public abstract class YPropertiesBean {
     }
 
 
-
     protected void setDirty() {
         SpecificationUndoManager.getInstance().setDirty(true);
     }

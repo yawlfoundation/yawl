@@ -263,9 +263,7 @@ public class CellProperties extends NetProperties {
     private YDecomposition createDecomposition(YDecomposition current) {
         boolean isComposite = (vertex instanceof YAWLCompositeTask);
         while (true) {
-            String newName = JOptionPane.showInputDialog(YAWLEditor.getInstance(),
-                    "Please enter a name for the new " +
-                            (isComposite ? "sub-net" : "decomposition"), getLabel());
+            String newName = getDecompositionNameInput("New", isComposite);
             if (newName == null) {
                 break;                 // Cancelled
             }
@@ -298,9 +296,7 @@ public class CellProperties extends NetProperties {
     private void renameDecomposition(YDecomposition current) {
         String oldID = current.getID();
         boolean isComposite = (vertex instanceof YAWLCompositeTask);
-        String newID = JOptionPane.showInputDialog(getSheet(),
-                "Please enter a new name for the "  +
-                        (isComposite ? "sub net" : "decomposition"), getLabel());
+        String newID = getDecompositionNameInput("Rename", isComposite);
         if (! (newID == null || oldID.equals(newID))) {
             try {
                 newID = specHandler.checkID(XMLUtilities.toValidXMLName(newID));
@@ -584,6 +580,18 @@ public class CellProperties extends NetProperties {
                 }
             }
         }
+    }
+
+
+    private String getDecompositionNameInput(String title, boolean isComposite) {
+        return (String) JOptionPane.showInputDialog(YAWLEditor.getInstance(),
+                "Please enter a name for the new " +
+                        (isComposite ? "sub-net" : "decomposition") + ":",
+                title + " Decomposition",
+                JOptionPane.QUESTION_MESSAGE,
+                null, null,
+                getLabel());
+
     }
 
 
