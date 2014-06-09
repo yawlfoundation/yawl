@@ -76,11 +76,6 @@ public class VariableRow implements Comparable<VariableRow> {
 
     public boolean isMultiInstance() { return multiInstance; }
 
-    public boolean isOutputOnlyTask() {
-        return endValues.scope == YDataHandler.OUTPUT;
-    //    return outputOnlyTask;
-    }
-
     public boolean isValid() { return hasValidName && hasValidValue; }
 
     public boolean isValidName() { return hasValidName; }

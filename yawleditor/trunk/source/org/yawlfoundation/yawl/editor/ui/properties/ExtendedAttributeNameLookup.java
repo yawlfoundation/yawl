@@ -66,7 +66,6 @@ public class ExtendedAttributeNameLookup {
         _attributeToPropertyMap.put("line-below", "lineBelow");
         _attributeToPropertyMap.put("text-above", "textAbove");
         _attributeToPropertyMap.put("text-below", "textBelow");
-        _attributeToPropertyMap.put("text-area", "textArea");
 
         _propertyToAttributeMap = new HashMap<String, String>();
         for (String key : _attributeToPropertyMap.keySet()) {

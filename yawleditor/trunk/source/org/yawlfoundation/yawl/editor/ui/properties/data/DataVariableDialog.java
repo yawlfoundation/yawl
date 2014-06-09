@@ -193,11 +193,19 @@ public class DataVariableDialog extends JDialog
 
 
     protected boolean createAutoBinding(VariableRow row) {
+        return createBinding(row, row.getUsage());
+    }
+
+
+    protected boolean createBinding(VariableRow row, int usage) {
         if (hasMatchingNetVar(row)) {
-            if (row.isInput() || row.isInputOutput()) {
-                row.setMapping(createMapping(net.getID(), row.getName(), row.getDataType()));
+            if ((usage == YDataHandler.INPUT || usage == YDataHandler.INPUT_OUTPUT)
+                    && row.getMapping() == null) {
+                row.setMapping(createMapping(net.getID(), row.getName(),
+                       row.getDataType()));
             }
-            if (row.isOutput() || row.isInputOutput()) {
+            if ((usage == YDataHandler.OUTPUT  || usage == YDataHandler.INPUT_OUTPUT)
+                    && outputBindings.getBinding(row.getName()) == null) {
                 outputBindings.setBinding(row.getName(),
                         createMapping(task.getID(), row.getName(), row.getDataType()));
             }
@@ -587,7 +595,7 @@ public class DataVariableDialog extends JDialog
     private void refreshTaskMappings() {
         if (getTaskTable() == null) return;            // showing netvars only
         for (VariableRow row : getTaskTable().getVariables()) {
-            if (! row.isOutputOnlyTask()) {
+            if (! row.isOutput()) {
                 String mapping = DataUtils.unwrapBinding(
                         getMapping(row.getName(), YDataHandler.INPUT));
                 row.initMapping(mapping);
