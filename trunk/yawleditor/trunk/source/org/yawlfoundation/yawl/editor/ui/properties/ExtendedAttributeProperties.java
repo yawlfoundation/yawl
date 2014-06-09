@@ -271,9 +271,9 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setTextBelow(String value) { set("text-below", value); }
 
 
-    public boolean isTextArea() { return getBoolean("text-area"); }
+    public boolean isTextArea() { return getBoolean("textarea"); }
 
-    public void setTextArea(boolean value) { set("text-area", value); }
+    public void setTextArea(boolean value) { set("textarea", value); }
 
 
     public String getTooltip() { return get("tooltip"); }

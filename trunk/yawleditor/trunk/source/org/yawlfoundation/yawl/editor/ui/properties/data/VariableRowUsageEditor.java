@@ -67,6 +67,7 @@ public class VariableRowUsageEditor extends AbstractCellEditor
 
     public void actionPerformed(ActionEvent actionEvent) {
         tablePanel.setEditMode(false);
+        tablePanel.notifyUsageChange((Integer) getCellEditorValue());
         fireEditingStopped();
     }
 

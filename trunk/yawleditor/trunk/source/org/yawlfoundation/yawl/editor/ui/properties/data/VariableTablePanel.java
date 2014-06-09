@@ -360,4 +360,16 @@ public class VariableTablePanel extends JPanel
         enableButtons(!editing);
     }
 
+
+    protected void notifyUsageChange(int usage) {
+        if (tableType == TableType.Net) return;
+
+        VariableRow row = table.getSelectedVariable();
+        int oldUsage = row.getUsage();
+        if (oldUsage == YDataHandler.INPUT_OUTPUT || oldUsage == usage) return;
+
+        // now, old != new and old is INPUT ONLY or OUTPUT ONLY
+        parent.createBinding(row, usage);
+    }
+
 }

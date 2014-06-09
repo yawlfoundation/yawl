@@ -35,6 +35,7 @@ import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -57,7 +58,6 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
     private RoleTableModel roleTableModel;
     private NetParamTableModel netParamTableModel;
     private FiltersPanel filtersPanel;
-
     private ConstraintsPanel constraintsPanel;
     private JPanel offerPanelContent;
     private JPanel allocatePanelContent;
@@ -83,6 +83,57 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         }
         else if (source == chkAllocate) {
             enablePanelContent(allocatePanelContent, selected);
+        }
+    }
+
+
+    public void load() {
+        enablePanelContent(offerPanelContent, false);
+        enablePanelContent(allocatePanelContent, false);
+
+        TaskResourceSet resources = getTaskResources();
+        BasicOfferInteraction offerResources = resources.getOffer();
+
+        populateInitiators(resources);
+
+        participantTableModel.setValues(new ArrayList<Participant>(
+                offerResources.getParticipantSet().getAll()));
+        roleTableModel.setValues(new ArrayList<Role>(
+                offerResources.getRoleSet().getAll()));
+        netParamTableModel.setValues(new ArrayList<DynParam>(
+                offerResources.getDynParamSet().getAll()));
+        filtersPanel.load(offerResources);
+        constraintsPanel.load(offerResources);
+
+        populateAllocators(resources);
+
+        enablePanelContent(offerPanelContent, chkOffer.isSelected());
+        if (chkOffer.isSelected()) constraintsPanel.enableCombos();
+        enablePanelContent(allocatePanelContent, chkAllocate.isSelected());
+    }
+
+
+    public void save() {
+        TaskResourceSet resources = getTaskResources();
+        BasicOfferInteraction offerResources = resources.getOffer();
+
+        offerResources.getParticipantSet().set(
+                new ArrayList<Participant>(participantTableModel.getValues()));
+        offerResources.getRoleSet().set(
+                new ArrayList<Role>(roleTableModel.getValues()));
+        offerResources.getDynParamSet().set(
+                new ArrayList<DynParam>(netParamTableModel.getValues()));
+        filtersPanel.save(offerResources);
+        constraintsPanel.save(offerResources);
+
+        setInitiators(resources);
+
+        if (chkAllocate.isSelected()) {
+            resources.getAllocate().setAllocator(
+                    (AbstractAllocator) cbxAllocations.getSelectedItem());
+        }
+        else {
+            resources.getAllocate().clearAllocator();
         }
     }
 
@@ -115,7 +166,6 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         panel.add(checkBox, BorderLayout.PAGE_START);
         return panel;
     }
-
 
 
     private JPanel createAllocatePanel(ResourceDialog owner) {
@@ -193,32 +243,6 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
     }
 
 
-    public void load() {
-        enablePanelContent(offerPanelContent, false);
-        enablePanelContent(allocatePanelContent, false);
-
-        TaskResourceSet resources = getTaskResources();
-        BasicOfferInteraction offerResources = resources.getOffer();
-
-        populateInitiators(resources);
-
-        participantTableModel.setValues(new ArrayList<Participant>(
-                offerResources.getParticipantSet().getAll()));
-        roleTableModel.setValues(new ArrayList<Role>(
-                offerResources.getRoleSet().getAll()));
-        netParamTableModel.setValues(new ArrayList<DynParam>(
-                offerResources.getDynParamSet().getAll()));
-        filtersPanel.load(offerResources);
-        constraintsPanel.load(offerResources);
-
-        populateAllocators(resources);
-
-        enablePanelContent(offerPanelContent, chkOffer.isSelected());
-        if (chkOffer.isSelected()) constraintsPanel.enableCombos();
-        enablePanelContent(allocatePanelContent, chkAllocate.isSelected());
-    }
-
-
     private void populateInitiators(TaskResourceSet resources) {
         chkOffer.setSelected(isSystemInitiated(resources.getOffer().getInitiator()));
         chkAllocate.setSelected(isSystemInitiated(resources.getAllocate().getInitiator()));
@@ -228,12 +252,20 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
 
     private void populateAllocators(TaskResourceSet resources) {
         try {
+            AbstractSelector defaultAllocator = null;
             java.util.List<AbstractSelector> allocators = YConnector.getAllocators();
             Collections.sort(allocators);
             for (AbstractSelector allocator : allocators) {
-                cbxAllocations.addItem(allocator);
+                if (! StringUtil.isNullOrEmpty(allocator.getDisplayName())) {
+                    cbxAllocations.addItem(allocator);
+                }
+                if (allocator.getDisplayName().equals("Random Choice")) {
+                    defaultAllocator = allocator;
+                }
             }
-            cbxAllocations.setSelectedItem(resources.getAllocate().getAllocator());
+            AbstractSelector allocator = resources.getAllocate().getAllocator();
+            if (allocator == null) allocator = defaultAllocator;
+            cbxAllocations.setSelectedItem(allocator);
         }
         catch (IOException ioe) {
             getLog().warn(ioe.getMessage());
@@ -245,30 +277,6 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         return initiator == AbstractInteraction.SYSTEM_INITIATED;
     }
 
-
-    public void save() {
-        TaskResourceSet resources = getTaskResources();
-        BasicOfferInteraction offerResources = resources.getOffer();
-
-        offerResources.getParticipantSet().set(
-                new ArrayList<Participant>(participantTableModel.getValues()));
-        offerResources.getRoleSet().set(
-                new ArrayList<Role>(roleTableModel.getValues()));
-        offerResources.getDynParamSet().set(
-                new ArrayList<DynParam>(netParamTableModel.getValues()));
-        filtersPanel.save(offerResources);
-        constraintsPanel.save(offerResources);
-
-        setInitiators(resources);
-
-        if (chkAllocate.isSelected()) {
-            resources.getAllocate().setAllocator(
-                    (AbstractAllocator) cbxAllocations.getSelectedItem());
-        }
-        else {
-            resources.getAllocate().clearAllocator();
-        }
-    }
 
     private void setInitiators(TaskResourceSet resources) {
         resources.getOffer().setInitiator(getInitiatorValue(chkOffer));
