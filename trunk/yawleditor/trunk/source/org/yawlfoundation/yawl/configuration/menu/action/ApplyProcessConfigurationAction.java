@@ -77,7 +77,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         putValue(Action.SHORT_DESCRIPTION, "Apply Process Configuration");
         putValue(Action.NAME, "Apply Process Configuration");
         putValue(Action.LONG_DESCRIPTION, "Apply Process Configuration");
-        putValue(Action.SMALL_ICON, getPNGIcon("asterisk_yellow"));
+        putValue(Action.SMALL_ICON, getMenuIcon("asterisk_yellow"));
     }
 
     private NetGraph net;
@@ -152,7 +152,7 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
     }
 
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

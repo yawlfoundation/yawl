@@ -34,7 +34,6 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,7 +50,7 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
         putValue(Action.SHORT_DESCRIPTION, "Load From Repository");
         putValue(Action.NAME, "Load From Repository...");
         putValue(Action.LONG_DESCRIPTION, "Load From Repository");
-        putValue(Action.SMALL_ICON, getPNGIcon("repo_get"));
+        putValue(Action.SMALL_ICON, getMenuIcon("repo_get"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt L"));
     }

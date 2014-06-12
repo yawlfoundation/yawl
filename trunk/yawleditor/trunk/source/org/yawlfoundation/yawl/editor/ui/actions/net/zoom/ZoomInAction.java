@@ -32,7 +32,7 @@ public class ZoomInAction extends YAWLSelectedNetAction {
         putValue(Action.SHORT_DESCRIPTION, " Zoom in ");
         putValue(Action.NAME, "Zoom In");
         putValue(Action.LONG_DESCRIPTION, "Zoom in on this net.");
-        putValue(Action.SMALL_ICON, getPNGIcon("magnifier_zoom_in"));
+        putValue(Action.SMALL_ICON, getMenuIcon("magnifier_zoom_in"));
     }
 
     private ZoomInAction() {}

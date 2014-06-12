@@ -122,9 +122,7 @@ class QueryPanel extends AbstractBindingPanel {
 
 
     private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/" +
-                        iconName + ".png");
+        return ResourceLoader.getMiniToolIcon(iconName);
     }
 
 }

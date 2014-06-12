@@ -38,7 +38,7 @@ public class ExportNetToPngAction extends YAWLSelectedNetAction {
         putValue(Action.SHORT_DESCRIPTION, " Export the currently active net to a PNG image");
         putValue(Action.NAME, "Export to PNG Image...");
         putValue(Action.LONG_DESCRIPTION, "Export the currently active net to a PNG image");
-        putValue(Action.SMALL_ICON, getPNGIcon("photo"));
+        putValue(Action.SMALL_ICON, getMenuIcon("photo"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_E));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("E"));
     }

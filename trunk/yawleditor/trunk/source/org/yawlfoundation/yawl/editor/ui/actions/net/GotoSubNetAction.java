@@ -38,7 +38,7 @@ public class GotoSubNetAction extends YAWLSelectedNetAction
        putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
        putValue(Action.NAME, "Go to sub-net");
        putValue(Action.LONG_DESCRIPTION, "Show the sub-net that this task unfolds to");
-       putValue(Action.SMALL_ICON, getPNGIcon("shape_ungroup"));
+       putValue(Action.SMALL_ICON, getMenuIcon("shape_ungroup"));
        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_G));
     }
 

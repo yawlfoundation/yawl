@@ -29,7 +29,7 @@ public class OpenRecentSpecificationAction extends YAWLSpecificationAction imple
 
     {
         putValue(Action.LONG_DESCRIPTION, "Open a recently loaded specification");
-        putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
+        putValue(Action.SMALL_ICON, getMenuIcon("folder_page"));
     }
 
     private String _fullFileName = null;

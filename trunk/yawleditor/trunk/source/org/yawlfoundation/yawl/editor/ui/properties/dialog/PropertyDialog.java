@@ -34,9 +34,6 @@ public abstract class PropertyDialog extends JDialog {
     private JButton btnOK;
     private JButton btnCancel;
 
-    protected static final String MENU_ICON_PATH =
-            "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
-
 
     public PropertyDialog(Window parent) {
         this(parent, true);
@@ -83,7 +80,11 @@ public abstract class PropertyDialog extends JDialog {
 
 
     protected ImageIcon getMenuIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(MENU_ICON_PATH + iconName + ".png");
+        return ResourceLoader.getMenuIcon(iconName);
+    }
+
+    protected ImageIcon getToolbarIcon(String iconName) {
+        return ResourceLoader.getMiniToolIcon(iconName);
     }
 
 }

@@ -180,7 +180,7 @@ public class NetProperties extends YPropertiesBean {
     public void setBackgroundImage(File file) {
         if (file != null) {
             String path = file.getAbsolutePath();
-            ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path, -1);
+            ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path);
             if (bgImage != null) {
                 bgImage.setDescription(path);   // store path
                 graph.setBackgroundImage(bgImage);

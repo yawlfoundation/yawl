@@ -62,8 +62,7 @@ public class ProcessConfigurationMenu extends JMenu
 
         Publisher.getInstance().subscribe(this);
         ProcessConfigurationModel.getInstance().subscribe(this);
-        setIcon(ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/wrench.png"));
+        setIcon(ResourceLoader.getMenuIcon("wrench"));
     }
 
     public void specificationFileStateChange(FileState state) {

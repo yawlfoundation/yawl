@@ -83,7 +83,7 @@ public class ProcessConfigurationAction extends YAWLSelectedNetAction
         setEnabled(false);
     }
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

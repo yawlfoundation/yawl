@@ -63,7 +63,7 @@ public class OutputPortConfigurationAction extends ProcessConfigurationAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Output Ports...");
         putValue(Action.LONG_DESCRIPTION, "Configure the output ports for this task.");
-        putValue(Action.SMALL_ICON, getPNGIcon("arrow_out"));
+        putValue(Action.SMALL_ICON, getMenuIcon("arrow_out"));
     }
 
 

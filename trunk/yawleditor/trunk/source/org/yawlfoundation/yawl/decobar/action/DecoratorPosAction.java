@@ -87,7 +87,7 @@ public class DecoratorPosAction extends YAWLBaseAction implements DecoratorActio
         _pos = pos;
         _isJoin = isJoin;
         putValue(Action.SHORT_DESCRIPTION, getToolTipText());
-        putValue(Action.SMALL_ICON, getPNGIcon(iconName));
+        putValue(Action.SMALL_ICON, getMenuIcon(iconName));
     }
 
 
@@ -116,7 +116,7 @@ public class DecoratorPosAction extends YAWLBaseAction implements DecoratorActio
         return _pos + " position";
     }
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

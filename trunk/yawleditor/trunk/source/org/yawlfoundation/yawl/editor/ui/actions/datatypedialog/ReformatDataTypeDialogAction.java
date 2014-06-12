@@ -32,7 +32,7 @@ public class ReformatDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.SHORT_DESCRIPTION, " (Re)format text");
         putValue(Action.NAME, "ReformatText");
         putValue(Action.LONG_DESCRIPTION, "Reformat Text");
-        putValue(Action.SMALL_ICON, getPNGIcon("autoFormat"));
+        putValue(Action.SMALL_ICON, getMenuIcon("autoFormat"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
     }
 

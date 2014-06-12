@@ -55,7 +55,7 @@ public class DownloadSpecificationAction extends YAWLSpecificationAction
       putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
       putValue(Action.NAME, "Download");
       putValue(Action.LONG_DESCRIPTION, "Download a specification.");
-      putValue(Action.SMALL_ICON, getPNGIcon("download-server-icon"));
+      putValue(Action.SMALL_ICON, getMenuIcon("download-server-icon"));
       putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
       putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift D"));
     }

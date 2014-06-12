@@ -51,16 +51,10 @@ public class OpenRecentSubMenu extends JMenu implements FileStateListener {
     private OpenRecentSubMenu() {
         super("Open Recent");
         setMnemonic(KeyEvent.VK_R);
-        setIcon(getImageAsIcon());
+        setIcon(ResourceLoader.getMenuIcon("open_recent"));
         createMenuItems();
         loadMenuItems();
         Publisher.getInstance().subscribe(this);
-    }
-
-
-    private ImageIcon getImageAsIcon() {
-        return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/open_recent.png");
     }
 
     

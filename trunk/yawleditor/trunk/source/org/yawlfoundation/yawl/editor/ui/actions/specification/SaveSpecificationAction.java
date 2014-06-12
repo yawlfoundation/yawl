@@ -33,7 +33,7 @@ public class SaveSpecificationAction extends YAWLOpenSpecificationAction impleme
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Save");
         putValue(Action.LONG_DESCRIPTION, "Save this specification");
-        putValue(Action.SMALL_ICON, getPNGIcon("disk"));
+        putValue(Action.SMALL_ICON, getMenuIcon("disk"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_S));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("S"));
     }

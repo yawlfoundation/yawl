@@ -36,7 +36,7 @@ public class RemoveNetAction extends YAWLSelectedNetAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Remove Net");
         putValue(Action.LONG_DESCRIPTION, "Remove the selected net ");
-        putValue(Action.SMALL_ICON, getPNGIcon("application_delete"));
+        putValue(Action.SMALL_ICON, getMenuIcon("application_delete"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("R"));
     }

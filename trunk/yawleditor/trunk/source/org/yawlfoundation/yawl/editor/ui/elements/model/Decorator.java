@@ -20,9 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -320,12 +318,6 @@ public abstract class Decorator extends DefaultGraphCell
         port.getAttributes().applyMap(map);
     }
 
-
-    protected static ImageIcon getIconByName(String iconName) {
-        return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/elements/decorators/"
-                + iconName + ".gif");
-    }
 
     public boolean isRemovable() {
         return true;

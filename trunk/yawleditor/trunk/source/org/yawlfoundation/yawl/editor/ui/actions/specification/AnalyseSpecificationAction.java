@@ -32,7 +32,7 @@ public class AnalyseSpecificationAction extends YAWLOpenSpecificationAction
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Analyse");
     putValue(Action.LONG_DESCRIPTION, "Analyse this specification.");
-    putValue(Action.SMALL_ICON, getPNGIcon("analyse"));
+    putValue(Action.SMALL_ICON, getMenuIcon("analyse"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_Y));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift A"));
   }

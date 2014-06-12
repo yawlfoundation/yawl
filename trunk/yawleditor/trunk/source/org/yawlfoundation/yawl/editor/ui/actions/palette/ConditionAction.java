@@ -30,7 +30,7 @@ public class ConditionAction extends PaletteAction implements TooltipTogglingWid
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Condition");
         putValue(Action.LONG_DESCRIPTION, "Condition");
-        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteCondition"));
+        putValue(Action.SMALL_ICON, getPaletteIcon("PaletteCondition"));
     }
 
     public ConditionAction() { super(); }

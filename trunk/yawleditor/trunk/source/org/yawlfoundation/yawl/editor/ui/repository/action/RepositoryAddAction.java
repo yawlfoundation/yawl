@@ -47,7 +47,7 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
         putValue(Action.SHORT_DESCRIPTION, "Store in Repository");
         putValue(Action.NAME, "Store in Repository...");
         putValue(Action.LONG_DESCRIPTION, "Store in Repository");
-        putValue(Action.SMALL_ICON, getPNGIcon("repo_add"));
+        putValue(Action.SMALL_ICON, getMenuIcon("repo_add"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt T"));
     }

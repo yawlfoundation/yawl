@@ -55,7 +55,7 @@ public class MultipleInstanceConfigurationAction extends ProcessConfigurationAct
 	    putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
 	    putValue(Action.NAME, "Multiple Instances...");
 	    putValue(Action.LONG_DESCRIPTION, "Configure the multiple instances for this task.");
-        putValue(Action.SMALL_ICON, getPNGIcon("application_cascade"));
+        putValue(Action.SMALL_ICON, getMenuIcon("application_cascade"));
 	  }
 
 

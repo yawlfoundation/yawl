@@ -31,7 +31,7 @@ public class CutDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.SHORT_DESCRIPTION, " Cut the selected text to the Clipboard");
         putValue(Action.NAME, "Cut");
         putValue(Action.LONG_DESCRIPTION, "Cut the selected text");
-        putValue(Action.SMALL_ICON, getPNGIcon("cut"));
+        putValue(Action.SMALL_ICON, getMenuIcon("cut"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("X"));
     }

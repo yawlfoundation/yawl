@@ -47,7 +47,7 @@ public class CutAction extends YAWLBaseAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Cut");
         putValue(Action.LONG_DESCRIPTION, "Cut the selected elements");
-        putValue(Action.SMALL_ICON, getPNGIcon("cut"));
+        putValue(Action.SMALL_ICON, getMenuIcon("cut"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_T));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("X"));
     }

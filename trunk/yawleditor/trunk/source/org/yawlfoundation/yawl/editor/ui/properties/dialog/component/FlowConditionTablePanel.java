@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.data.StatusPanel;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowConditionDialog;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+import org.yawlfoundation.yawl.editor.ui.resourcing.panel.MiniToolBar;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -56,9 +56,6 @@ public class FlowConditionTablePanel extends JPanel
     private JButton btnUp;
     private JButton btnDown;
     private StatusPanel status;
-
-    private static final String iconPath =
-            "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
 
 
     public FlowConditionTablePanel(FlowConditionDialog parent, YAWLTask task,
@@ -161,31 +158,12 @@ public class FlowConditionTablePanel extends JPanel
 
 
     private JToolBar createToolBar(Window parent) {
-        JToolBar toolbar = new JToolBar();
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-        btnUp = createToolBarButton("arrow_up", "Up", " Move up ");
-        toolbar.add(btnUp);
-        btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
-        toolbar.add(btnDown);
+        MiniToolBar toolBar = new MiniToolBar(this);
+        btnUp = toolBar.addButton("arrow_up", "Up", " Move up ");
+        btnDown = toolBar.addButton("arrow_down", "Down", " Move down ");
         status = new StatusPanel(parent);
-        toolbar.add(status);
-        return toolbar;
-    }
-
-
-    private JButton createToolBarButton(String iconName, String action, String tip) {
-        JButton button = new JButton(getIcon(iconName));
-        button.setActionCommand(action);
-        button.setToolTipText(tip);
-        button.addActionListener(this);
-        return button;
-    }
-
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+        toolBar.add(status);
+        return toolBar;
     }
 
 

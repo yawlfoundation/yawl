@@ -99,9 +99,11 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         if (item == null) {
             if (_varsCombo.getItemCount() > 0) {
                 _netVarsButton.setSelected(true);
+                _gatewayCombo.setEnabled(false);
             }
             else if (_gatewayCombo.getItemCount() > 0) {
                 _gatewayButton.setSelected(true);
+                _varsCombo.setEnabled(false);
             }
         }
         else if (ExternalDBGatewayFactory.isExternalDBMappingExpression(item)) {

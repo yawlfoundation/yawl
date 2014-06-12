@@ -31,7 +31,7 @@ public class CloseSpecificationAction extends YAWLOpenSpecificationAction implem
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
     putValue(Action.NAME, "Close");
     putValue(Action.LONG_DESCRIPTION, "Clise this specification ");
-    putValue(Action.SMALL_ICON, getPNGIcon("page_delete"));
+    putValue(Action.SMALL_ICON, getMenuIcon("page_delete"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("W"));
   }

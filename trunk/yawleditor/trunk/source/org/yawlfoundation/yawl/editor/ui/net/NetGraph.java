@@ -20,14 +20,14 @@ package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.jgraph.JGraph;
 import org.jgraph.graph.*;
-import org.yawlfoundation.yawl.editor.ui.actions.net.AddToVisibleCancellationSetAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.RemoveFromVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.AddToVisibleCancellationSetAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.RemoveFromVisibleCancellationSetAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.SelectAllNetElementsAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.ViewCancellationSetAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsDownAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsLeftAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsRightAction;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.MoveElementsUpAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.ViewCancellationSetAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.MoveElementsDownAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.MoveElementsLeftAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.MoveElementsRightAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.MoveElementsUpAction;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellFactory;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
@@ -37,7 +37,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.net.YAWLEditorNetPanel;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskDecompositionChange;
 import org.yawlfoundation.yawl.editor.ui.swing.undo.UndoableTaskIconChange;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 
@@ -275,11 +274,6 @@ public class NetGraph extends JGraph {
                           (getHeight()/2)  - (size.height/2)));
   }
 
-  protected ImageIcon getIconByName(String iconName) {
-    return ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/ui/resources/yawlElements/"
-            + iconName + ".gif");
-  }
-  
   public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
       YAWLFlowRelation flow = NetCellFactory.insertFlow(this,
               source.getVertexID(), target.getVertexID());

@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorP
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 import org.yawlfoundation.yawl.elements.YNet;
 
@@ -147,7 +146,7 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
     private JPanel createToolBar(final JComboBox combo) {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(5,20,0,0));
-        JButton button = new JButton(getIcon("generate"));
+        JButton button = new JButton(getToolbarIcon("generate"));
         button.setToolTipText(" Insert variable query ");
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -164,13 +163,6 @@ public class FlowPredicateDialog extends PropertyDialog implements ActionListene
         toolbar.add(button);
         content.add(toolbar, BorderLayout.EAST);
         return content;
-    }
-
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/" +
-                        iconName + ".png");
     }
 
 

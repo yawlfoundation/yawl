@@ -34,10 +34,8 @@ public abstract class PaletteAction extends AbstractAction {
         YAWLEditor.getPalette().getPalette().setSelectedState(getSelectionID());
     }
 
-    protected ImageIcon getPaletteIconByName(String iconName) {
-        return ResourceLoader.getImageAsIcon(
-                "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/"
-                + iconName + "24.gif");
+    protected ImageIcon getPaletteIcon(String iconName) {
+        return ResourceLoader.getPaletteIcon(iconName);
     }
 
     protected String getClickAnywhereText() {

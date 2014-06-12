@@ -41,7 +41,7 @@ public class DeleteAction extends YAWLSelectedNetAction implements TooltipToggli
     putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
     putValue(Action.NAME, "Delete");
     putValue(Action.LONG_DESCRIPTION, "Deletes currently selected net elements.");
-    putValue(Action.SMALL_ICON, getPNGIcon("bin_empty"));
+    putValue(Action.SMALL_ICON, getMenuIcon("bin_empty"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,0));
   }

@@ -34,7 +34,7 @@ public class ToolbarGridToggleAction extends YAWLBaseAction {
     {
         putValue(Action.SHORT_DESCRIPTION, " Toggle grid on net canvas ");
         putValue(Action.NAME, "Show Grid");
-        putValue(Action.SMALL_ICON, getPNGIcon("grid"));
+        putValue(Action.SMALL_ICON, getMenuIcon("grid"));
         putValue(Action.LONG_DESCRIPTION, "Toggle grid on net canvas");
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_G);
     }

@@ -31,7 +31,7 @@ public class OpenSpecificationAction extends YAWLSpecificationAction implements 
     putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
     putValue(Action.NAME, "Open...");
     putValue(Action.LONG_DESCRIPTION, "Open an existing specification");
-    putValue(Action.SMALL_ICON, getPNGIcon("folder_page"));
+    putValue(Action.SMALL_ICON, getMenuIcon("folder_page"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("O"));
   }

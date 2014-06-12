@@ -32,7 +32,7 @@ public class FindTextDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.SHORT_DESCRIPTION, " Find text");
         putValue(Action.NAME, "FindText");
         putValue(Action.LONG_DESCRIPTION, "Find Text");
-        putValue(Action.SMALL_ICON, getPNGIcon("find"));
+        putValue(Action.SMALL_ICON, getMenuIcon("find"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
     }
 

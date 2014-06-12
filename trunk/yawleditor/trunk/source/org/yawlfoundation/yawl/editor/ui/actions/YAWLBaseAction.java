@@ -28,14 +28,8 @@ import java.awt.event.ActionEvent;
 
 public abstract class YAWLBaseAction extends AbstractAction {
 
-    private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
-
-    protected ImageIcon getIconByName(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + "16.gif");
-    }
-
-    protected ImageIcon getPNGIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+    protected ImageIcon getMenuIcon(String iconName) {
+        return ResourceLoader.getMenuIcon(iconName);
     }
 
 

@@ -31,7 +31,7 @@ public class ZoomOutAction extends YAWLSelectedNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Zoom out ");
     putValue(Action.NAME, "Zoom Out");
     putValue(Action.LONG_DESCRIPTION, "Zoom out on this net.");
-    putValue(Action.SMALL_ICON, getPNGIcon("magnifier_zoom_out"));
+    putValue(Action.SMALL_ICON, getMenuIcon("magnifier_zoom_out"));
   }
   
   private ZoomOutAction() {};  

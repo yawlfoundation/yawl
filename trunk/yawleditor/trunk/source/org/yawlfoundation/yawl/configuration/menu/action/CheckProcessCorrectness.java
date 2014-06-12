@@ -50,7 +50,7 @@ public class CheckProcessCorrectness extends YAWLSelectedNetAction {
         putValue(Action.SHORT_DESCRIPTION, "Check Configuration Correctness");
         putValue(Action.NAME, "Check Configuration Correctness");
         putValue(Action.LONG_DESCRIPTION, "Check Configuration Correctness");
-        putValue(Action.SMALL_ICON, getPNGIcon("tick"));
+        putValue(Action.SMALL_ICON, getMenuIcon("tick"));
 
     }
 
@@ -68,7 +68,7 @@ public class CheckProcessCorrectness extends YAWLSelectedNetAction {
         }
     }
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

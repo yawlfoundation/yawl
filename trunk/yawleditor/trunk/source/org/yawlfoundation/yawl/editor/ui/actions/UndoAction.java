@@ -34,7 +34,7 @@ public class UndoAction extends YAWLActiveOpenSpecificationAction {
         putValue(Action.SHORT_DESCRIPTION, " Undo the last action ");
         putValue(Action.NAME, "Undo");
         putValue(Action.LONG_DESCRIPTION, "Undo the last action");
-        putValue(Action.SMALL_ICON, getPNGIcon("arrow_undo"));
+        putValue(Action.SMALL_ICON, getMenuIcon("arrow_undo"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("Z"));
     }

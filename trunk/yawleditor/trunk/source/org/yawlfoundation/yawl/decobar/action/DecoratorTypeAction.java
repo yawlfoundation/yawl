@@ -67,7 +67,7 @@ public class DecoratorTypeAction extends YAWLBaseAction implements DecoratorActi
         _type = type;
         _isJoin = isJoin;
         putValue(Action.SHORT_DESCRIPTION, getToolTipText());
-        putValue(Action.SMALL_ICON, getPNGIcon(iconName));
+        putValue(Action.SMALL_ICON, getMenuIcon(iconName));
     }
 
 
@@ -96,7 +96,7 @@ public class DecoratorTypeAction extends YAWLBaseAction implements DecoratorActi
         return _type + (_isJoin ? " join" : " split");
     }
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

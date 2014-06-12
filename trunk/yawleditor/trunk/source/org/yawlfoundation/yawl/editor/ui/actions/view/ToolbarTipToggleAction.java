@@ -32,7 +32,7 @@ public class ToolbarTipToggleAction extends YAWLBaseAction {
     {
         putValue(Action.SHORT_DESCRIPTION, "Show Tooltips");
         putValue(Action.NAME, "Show Tooltips");
-        putValue(Action.SMALL_ICON, getPNGIcon("balloon"));
+        putValue(Action.SMALL_ICON, getMenuIcon("balloon"));
         putValue(Action.LONG_DESCRIPTION, "Show Tooltips");
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
     }
