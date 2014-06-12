@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class JConnectionStatus extends JPanel {
 
-    private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/";
-    private static final ImageIcon onlineIcon = getIconByName("online") ;
-    private static final ImageIcon offlineIcon = getIconByName("offline") ;
+    private static final ImageIcon onlineIcon = ResourceLoader.getIcon("online.png");
+    private static final ImageIcon offlineIcon = ResourceLoader.getIcon("offline.png");
+
     private JIndicator engineIndicator;
     private JIndicator resourceIndicator;
 
@@ -54,11 +54,6 @@ public class JConnectionStatus extends JPanel {
         addIndicators();
         addMouseListener(new PreferencesLauncher());
         startHeartbeat();
-    }
-
-
-    private static ImageIcon getIconByName(String iconName) {
-      return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
     }
 
 

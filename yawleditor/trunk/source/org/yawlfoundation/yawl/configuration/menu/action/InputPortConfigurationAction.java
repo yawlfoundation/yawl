@@ -62,7 +62,7 @@ public class InputPortConfigurationAction extends ProcessConfigurationAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Input Ports...");
         putValue(Action.LONG_DESCRIPTION, "Configure the input ports for this task.");
-        putValue(Action.SMALL_ICON, getPNGIcon("arrow_in"));
+        putValue(Action.SMALL_ICON, getMenuIcon("arrow_in"));
 
     }
 

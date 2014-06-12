@@ -35,7 +35,7 @@ public class PreferencesAction extends YAWLBaseAction {
         putValue(Action.SHORT_DESCRIPTION, "Set Preferences");
         putValue(Action.NAME, "Preferences...");
         putValue(Action.LONG_DESCRIPTION, "Set Preferences");
-        putValue(Action.SMALL_ICON, getPNGIcon("page_white_gear"));
+        putValue(Action.SMALL_ICON, getMenuIcon("page_white_gear"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_F));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("F"));
       }

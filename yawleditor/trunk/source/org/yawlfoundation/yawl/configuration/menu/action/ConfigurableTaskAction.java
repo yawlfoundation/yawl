@@ -60,7 +60,7 @@ public class ConfigurableTaskAction extends ProcessConfigurationAction
         putValue(Action.NAME, "Set Task Configurable");
         putValue(Action.LONG_DESCRIPTION, "Set the task to be configurable");
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
-        putValue(Action.SMALL_ICON, getPNGIcon("sitemap_color"));        
+        putValue(Action.SMALL_ICON, getMenuIcon("sitemap_color"));
 
     }
 

@@ -83,7 +83,7 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
 
 
     private String makeTitle(YAWLTask task) {
-        return String.format("Split Conditions for Task '%s'", task.getID());
+        return String.format("Split Predicates for Task '%s'", task.getID());
     }
 
 }

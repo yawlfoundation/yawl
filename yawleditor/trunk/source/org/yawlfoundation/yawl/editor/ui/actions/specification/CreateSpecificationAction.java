@@ -35,7 +35,7 @@ public class CreateSpecificationAction extends YAWLSpecificationAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "New");
         putValue(Action.LONG_DESCRIPTION, "Create a new specification");
-        putValue(Action.SMALL_ICON, getPNGIcon("page_add"));
+        putValue(Action.SMALL_ICON, getMenuIcon("page_add"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_N));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("N"));
     }

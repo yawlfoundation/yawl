@@ -29,7 +29,7 @@ public class MultipleAtomicTaskAction extends PaletteAction implements TooltipTo
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Multiple Atomic Task");
         putValue(Action.LONG_DESCRIPTION, "Multiple Instance Atomic Task");
-        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMultipleAtomicTask"));
+        putValue(Action.SMALL_ICON, getPaletteIcon("PaletteMultipleAtomicTask"));
     }
 
     public MultipleAtomicTaskAction() { super(); }

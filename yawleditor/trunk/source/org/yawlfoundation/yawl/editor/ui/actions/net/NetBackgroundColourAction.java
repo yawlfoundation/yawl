@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 
 import javax.swing.*;
@@ -27,28 +27,28 @@ import java.awt.event.ActionEvent;
 
 public class NetBackgroundColourAction extends YAWLSelectedNetAction {
 
+    {
+        putValue(Action.SHORT_DESCRIPTION, " Set the net background colour. ");
+        putValue(Action.NAME, "Set Net Background Colour...");
+        putValue(Action.LONG_DESCRIPTION, "Set the net background colour.");
+        putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
+        putValue(Action.SMALL_ICON, getMenuIcon("color_swatch"));
+        putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("B"));
 
-  {
-    putValue(Action.SHORT_DESCRIPTION, " Set the net background colour. ");
-    putValue(Action.NAME, "Set Net Background Colour...");
-    putValue(Action.LONG_DESCRIPTION, "Set the net background colour.");
-    putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_B));
-    putValue(Action.SMALL_ICON, getPNGIcon("color_swatch"));
-    putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("B"));
-
-  }
-
-  public NetBackgroundColourAction() {}
- 
-  public void actionPerformed(ActionEvent event) {
-    Color newColor = JColorChooser.showDialog(
-        getGraph(),
-        "Select Net Background Color",
-        getGraph().getBackground()
-    );
-    if (newColor != null) {
-      getGraph().setBackground(newColor);
-      SpecificationUndoManager.getInstance().setDirty(true);              
     }
-  }
+
+
+    public NetBackgroundColourAction() {}
+
+
+    public void actionPerformed(ActionEvent event) {
+        Color newColor = JColorChooser.showDialog(
+                getGraph(),
+                "Select Net Background Color",
+                getGraph().getBackground()
+        );
+        if (newColor != null) {
+            YAWLEditor.getPropertySheet().firePropertyChange("NetFillColor", newColor);
+        }
+    }
 }

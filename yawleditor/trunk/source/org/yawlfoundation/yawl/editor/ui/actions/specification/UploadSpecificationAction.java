@@ -37,7 +37,7 @@ public class UploadSpecificationAction extends YAWLOpenSpecificationAction
       putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
       putValue(Action.NAME, "Upload");
       putValue(Action.LONG_DESCRIPTION, "Upload this specification.");
-      putValue(Action.SMALL_ICON, getPNGIcon("upload-server-icon"));
+      putValue(Action.SMALL_ICON, getMenuIcon("upload-server-icon"));
       putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_U));
       putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift U"));
     }

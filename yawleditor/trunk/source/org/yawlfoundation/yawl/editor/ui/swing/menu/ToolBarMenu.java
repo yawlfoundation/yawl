@@ -20,8 +20,9 @@ package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.ui.actions.element.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.*;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.zoom.ZoomActualSizeAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.zoom.ZoomInAction;
 import org.yawlfoundation.yawl.editor.ui.actions.net.zoom.ZoomOutAction;

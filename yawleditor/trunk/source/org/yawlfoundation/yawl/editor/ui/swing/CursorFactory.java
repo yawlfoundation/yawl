@@ -18,12 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing;
 
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
+
+import java.awt.*;
 
 public class CursorFactory {
   public static final int SELECTION               = 0;
@@ -56,9 +53,7 @@ public class CursorFactory {
   }
 
   private static Cursor buildCustomCursor(String cursorFileName, Point hotspot, String name) {
-    Image image = 
-      ResourceLoader.getImageAsIcon("/org/yawlfoundation/yawl/editor/ui/resources/cursors/" +
-      cursorFileName + ".gif").getImage();
+    Image image = ResourceLoader.getCursorIcon(cursorFileName);
     assert image != null : "Image is null!";
     return Toolkit.getDefaultToolkit().createCustomCursor(image, hotspot, name);  
   }

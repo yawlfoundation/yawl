@@ -24,8 +24,8 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBin
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
+import org.yawlfoundation.yawl.editor.ui.resourcing.panel.MiniToolBar;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -45,7 +45,7 @@ public class VariableTablePanel extends JPanel
 
     private VariableTable table;
     private final DataVariableDialog parent;
-    private JToolBar toolbar;
+    private MiniToolBar toolbar;
     private final TableType tableType;
     private boolean isEditing;
 
@@ -61,8 +61,6 @@ public class VariableTablePanel extends JPanel
     private JButton btnExAttributes;
     private StatusPanel status;
 
-    private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
-
 
     public VariableTablePanel(java.util.List<VariableRow> rows, TableType tableType,
                               String netElementName, DataVariableDialog parent) {
@@ -72,7 +70,7 @@ public class VariableTablePanel extends JPanel
         setBorder(new EmptyBorder(10,10,0,10));
         JScrollPane scrollPane = new JScrollPane(createTable(rows, tableType, netElementName));
         scrollPane.setSize(new Dimension(tableType.getPreferredWidth(), 180));
-        add(createToolBar(), BorderLayout.SOUTH);
+        add(populateToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
         if (tableType == TableType.Net) {
             btnInMapping.setVisible(false);
@@ -233,52 +231,28 @@ public class VariableTablePanel extends JPanel
     }
 
 
-    private JToolBar createToolBar() {
-        toolbar = new JToolBar();
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-        btnAdd = createToolBarButton("plus", "Add", " Add ");
-        toolbar.add(btnAdd);
-        btnDel = createToolBarButton("minus", "Del", " Remove ");
-        toolbar.add(btnDel);
-        btnUp = createToolBarButton("arrow_up", "Up", " Move up ");
-        toolbar.add(btnUp);
-        btnDown = createToolBarButton("arrow_down", "Down", " Move down ");
-        toolbar.add(btnDown);
-        btnInMapping = createToolBarButton("inMapping", "InBinding", " Input Bindings ");
-        toolbar.add(btnInMapping);
-        btnOutMapping = createToolBarButton("outMapping", "OutBinding", " Output Bindings ");
-        toolbar.add(btnOutMapping);
-        btnAutoMapping = createToolBarButton("generate", "Autobind", " Smart Data Bindings ");
-        toolbar.add(btnAutoMapping);
-        btnExAttributes = createToolBarButton("exat", "ExAt", " Ext. Attributes ");
-        toolbar.add(btnExAttributes);
-        btnMIVar = createToolBarButton("miVar", "MarkMI", " Mark as MI ");
-        toolbar.add(btnMIVar);
+    private JToolBar populateToolBar() {
+        toolbar = new MiniToolBar(this);
+        btnAdd = toolbar.addButton("plus", "Add", " Add ");
+        btnDel = toolbar.addButton("minus", "Del", " Remove ");
+        btnUp = toolbar.addButton("arrow_up", "Up", " Move up ");
+        btnDown = toolbar.addButton("arrow_down", "Down", " Move down ");
+        btnInMapping = toolbar.addButton("inMapping", "InBinding", " Input Bindings ");
+        btnOutMapping = toolbar.addButton("outMapping", "OutBinding", " Output Bindings ");
+        btnAutoMapping = toolbar.addButton("generate", "Autobind", " Smart Data Bindings ");
+        btnExAttributes = toolbar.addButton("exat", "ExAt", " Ext. Attributes ");
+        btnMIVar = toolbar.addButton("miVar", "MarkMI", " Mark as MI ");
         status = new StatusPanel(parent);
         toolbar.add(status);
         return toolbar;
     }
 
 
-    private JButton createToolBarButton(String iconName, String action, String tip) {
-        JButton button = new JButton(getIcon(iconName));
-        button.setActionCommand(action);
-        button.setToolTipText(tip);
-        button.addActionListener(this);
-        return button;
-    }
-
     private void fixSelectorColumn(JTable table) {
         TableColumn column = table.getColumnModel().getColumn(0);
         column.setPreferredWidth(15);
         column.setMaxWidth(15);
         column.setResizable(false);
-    }
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
     }
 
 

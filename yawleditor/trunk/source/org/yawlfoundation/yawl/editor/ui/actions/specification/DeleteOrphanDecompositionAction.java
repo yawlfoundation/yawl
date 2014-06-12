@@ -39,7 +39,7 @@ public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
         putValue(Action.SHORT_DESCRIPTION,getDisabledTooltipText());
         putValue(Action.NAME, "Delete Orphaned Decompositions...");
         putValue(Action.LONG_DESCRIPTION, "Delete Orphaned Decompositions");
-        putValue(Action.SMALL_ICON, getPNGIcon("chart_organisation_delete"));
+        putValue(Action.SMALL_ICON, getMenuIcon("chart_organisation_delete"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_O));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("O"));
     }

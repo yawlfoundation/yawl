@@ -66,7 +66,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
         putValue(Action.SHORT_DESCRIPTION, "Process Configuration Settings");
         putValue(Action.NAME, "Preferences...");
         putValue(Action.LONG_DESCRIPTION, "Process Configuration Settings");
-        putValue(Action.SMALL_ICON, getPNGIcon("settings"));
+        putValue(Action.SMALL_ICON, getMenuIcon("settings"));
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
     }
 
@@ -91,7 +91,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
     }
 
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

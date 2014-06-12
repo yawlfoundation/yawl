@@ -245,11 +245,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         pane.add(getStatusBar(),BorderLayout.SOUTH);
         setTitle("");
         setMinimumSize(new Dimension(900,450));
-        setIconImage(
-                ResourceLoader.getImageAsIcon(
-                        "/org/yawlfoundation/yawl/editor/ui/resources/applicationIcon.png"
-                ).getImage()
-        );
+        setIconImage(ResourceLoader.getApplicationIcon().getImage());
 
         updateLoadProgress(90);
         processPreferences();

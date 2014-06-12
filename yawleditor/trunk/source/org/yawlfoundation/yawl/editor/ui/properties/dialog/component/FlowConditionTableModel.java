@@ -33,7 +33,7 @@ class FlowConditionTableModel extends AbstractTableModel {
     private List<YAWLFlowRelation> flows;
     protected boolean editable;
 
-    private static final String[] COLUMN_LABELS = {"Target", "Condition"};
+    private static final String[] COLUMN_LABELS = {"Target", "Predicate"};
     private static final int NAME_COLUMN  = 0;
     private static final int CONDITION_COLUMN  = 1;
 

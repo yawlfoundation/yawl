@@ -19,13 +19,10 @@
 package org.yawlfoundation.yawl.editor.ui.actions.net;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 
 public class NetBackgroundImageAction extends YAWLSelectedNetAction {
 
@@ -34,7 +31,7 @@ public class NetBackgroundImageAction extends YAWLSelectedNetAction {
     putValue(Action.NAME, "Set Net Background Image...");
     putValue(Action.LONG_DESCRIPTION, "Set the net background image.");
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_I));
-    putValue(Action.SMALL_ICON, getPNGIcon("picture"));
+    putValue(Action.SMALL_ICON, getMenuIcon("picture"));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift B"));
   }
 
@@ -45,18 +42,8 @@ public class NetBackgroundImageAction extends YAWLSelectedNetAction {
       chooser.setFileFilter(new ImageFilter());
       int result = chooser.showOpenDialog(YAWLEditor.getInstance());
       if (result == JFileChooser.APPROVE_OPTION) {
-          try {
-              String path = chooser.getSelectedFile().getCanonicalPath();
-              ImageIcon bgImage = ResourceLoader.getExternalImageAsIcon(path);
-              if (bgImage != null) {
-                  bgImage.setDescription(path);   // store path
-                  getGraph().setBackgroundImage(bgImage);
-                  SpecificationUndoManager.getInstance().setDirty(true);
-              }
-          }
-          catch (IOException ioe) {
-              // ignore
-          }
+          YAWLEditor.getPropertySheet().firePropertyChange("BackgroundImage",
+                  chooser.getSelectedFile());
       }
   }
 

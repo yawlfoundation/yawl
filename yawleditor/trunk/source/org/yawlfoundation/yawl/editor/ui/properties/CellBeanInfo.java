@@ -178,9 +178,7 @@ public class CellBeanInfo extends NetBeanInfo {
         }
 
         private Icon getIcon(String name) {
-           return ResourceLoader.getImageAsIcon(
-               "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/Palette"
-               + name + "16.gif");
+           return ResourceLoader.getMenuIcon(name);
        }
 
     }

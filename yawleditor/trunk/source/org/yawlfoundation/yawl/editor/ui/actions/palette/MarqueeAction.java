@@ -29,7 +29,7 @@ public class MarqueeAction extends PaletteAction implements TooltipTogglingWidge
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Marquee");
         putValue(Action.LONG_DESCRIPTION, "Select Element Mode");
-        putValue(Action.SMALL_ICON, getPaletteIconByName("PaletteMarquee"));
+        putValue(Action.SMALL_ICON, getPaletteIcon("PaletteMarquee"));
     }
 
     public MarqueeAction() { super(); }

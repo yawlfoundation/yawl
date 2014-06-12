@@ -44,10 +44,6 @@ public class PreferencesDialog extends JDialog
     private JButton _btnApply;
     private java.util.List<PreferencePanel> _contentPanels;
 
-    private static final String MENU_ICON_PATH =
-            "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/";
-
-
 
     public PreferencesDialog() {
         super(YAWLEditor.getInstance());
@@ -169,7 +165,7 @@ public class PreferencesDialog extends JDialog
     private JToggleButton makeButton(String caption, String iconName,
                                      final JPanel content) {
         JToggleButton button = new JToggleButton(caption);
-        button.setIcon(getMenuIcon(iconName));
+        button.setIcon(ResourceLoader.getMenuIcon(iconName));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 showContent(content);
@@ -196,11 +192,6 @@ public class PreferencesDialog extends JDialog
         btn.setPreferredSize(new Dimension(75,25));
         btn.addActionListener(listener);
         return btn;
-    }
-
-
-    protected ImageIcon getMenuIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(MENU_ICON_PATH + iconName + ".png");
     }
 
 }

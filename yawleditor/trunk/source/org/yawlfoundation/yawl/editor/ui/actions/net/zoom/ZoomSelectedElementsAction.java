@@ -39,7 +39,7 @@ public class ZoomSelectedElementsAction extends YAWLSelectedNetAction implements
     putValue(Action.SHORT_DESCRIPTION, " Zoom to selected elements ");
     putValue(Action.NAME, "Zoom to selected elements");
     putValue(Action.LONG_DESCRIPTION, "Zoom to selected elements.");
-    putValue(Action.SMALL_ICON, getPNGIcon("magnifier"));
+    putValue(Action.SMALL_ICON, getMenuIcon("magnifier"));
   }
   
   private ZoomSelectedElementsAction() {

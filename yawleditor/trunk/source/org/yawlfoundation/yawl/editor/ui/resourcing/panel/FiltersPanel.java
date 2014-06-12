@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 import org.yawlfoundation.yawl.editor.core.resourcing.BasicOfferInteraction;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
 import org.yawlfoundation.yawl.editor.ui.resourcing.subdialog.FilterDialog;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.filters.CapabilityFilter;
 import org.yawlfoundation.yawl.resourcing.filters.OrgFilter;
@@ -47,9 +46,6 @@ public class FiltersPanel extends JPanel implements ActionListener {
 
     private AbstractFilter capabilityFilter;
     private AbstractFilter orgFilter;
-
-    private static final String iconPath =
-            "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
 
 
     public FiltersPanel(ResourceDialog owner) {
@@ -113,17 +109,6 @@ public class FiltersPanel extends JPanel implements ActionListener {
     }
 
 
-    private void enableComponents(Container c, boolean enable) {
-        for (Component child : c.getComponents()) {
-            if (child instanceof Container) {
-                enableComponents((Container) child, enable);
-            }
-            child.setEnabled(enable);
-        }
-
-    }
-
-
     private void addContent() {
         setLayout(new BorderLayout());
         txtCapability = new JTextArea();
@@ -161,22 +146,19 @@ public class FiltersPanel extends JPanel implements ActionListener {
 
 
     private JToolBar createEditButton(String action) {
-        JToolBar toolbar = new JToolBar();
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-
-        JButton button = new JButton(getIcon("pencil"));
-        button.setActionCommand(action);
-        button.setToolTipText(" Add/Edit ");
-        button.addActionListener(this);
-        toolbar.add(button);
-        return toolbar;
+        MiniToolBar toolBar = new MiniToolBar(this);
+        toolBar.addButton("pencil", action, " Add/Edit ");
+        return toolBar;
     }
 
 
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+    protected void enableComponents(Container c, boolean enable) {
+        for (Component child : c.getComponents()) {
+            if (child instanceof Container) {
+                enableComponents((Container) child, enable);
+            }
+            child.setEnabled(enable);
+        }
     }
 
 
@@ -214,7 +196,5 @@ public class FiltersPanel extends JPanel implements ActionListener {
         textArea.setEditable(false);
         textArea.setBackground(Color.WHITE);
     }
-
-
 
 }

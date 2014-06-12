@@ -40,7 +40,7 @@ public class RepositoryRemoveAction extends YAWLOpenSpecificationAction {
         putValue(Action.SHORT_DESCRIPTION, "Remove From Repository");
         putValue(Action.NAME, "Remove From Repository...");
         putValue(Action.LONG_DESCRIPTION, "Remove From Repository");
-        putValue(Action.SMALL_ICON, getPNGIcon("repo_remove"));
+        putValue(Action.SMALL_ICON, getMenuIcon("repo_remove"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_R));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("alt R"));
     }

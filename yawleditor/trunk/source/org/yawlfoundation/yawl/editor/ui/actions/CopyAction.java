@@ -43,7 +43,7 @@ public class CopyAction extends YAWLBaseAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Copy");
         putValue(Action.LONG_DESCRIPTION, "Copy the selected elements");
-        putValue(Action.SMALL_ICON, getPNGIcon("page_copy"));
+        putValue(Action.SMALL_ICON, getMenuIcon("page_copy"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_C));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("C"));
     }

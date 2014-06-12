@@ -47,7 +47,7 @@ public class PrintNetAction extends YAWLSelectedNetAction {
     putValue(Action.SHORT_DESCRIPTION, " Print the current net ");
     putValue(Action.NAME, "Print Net...");
     putValue(Action.LONG_DESCRIPTION, "Prints the currently active net");
-    putValue(Action.SMALL_ICON, getPNGIcon("printer"));
+    putValue(Action.SMALL_ICON, getMenuIcon("printer"));
     putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_P));
     putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift P"));
   }

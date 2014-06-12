@@ -32,7 +32,7 @@ public class ZoomActualSizeAction extends YAWLSelectedNetAction {
         putValue(Action.SHORT_DESCRIPTION, " Zoom to actual size ");
         putValue(Action.NAME, "Zoom to actual size");
         putValue(Action.LONG_DESCRIPTION, "Zoom to on this net.");
-        putValue(Action.SMALL_ICON, getIconByName("ZoomActual"));
+        putValue(Action.SMALL_ICON, getMenuIcon("ZoomActual"));
     }
 
     private ZoomActualSizeAction() {}

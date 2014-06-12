@@ -19,8 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
-import org.yawlfoundation.yawl.editor.ui.actions.net.*;
-import org.yawlfoundation.yawl.editor.ui.actions.net.align.*;
+import org.yawlfoundation.yawl.editor.ui.actions.element.*;
+import org.yawlfoundation.yawl.editor.ui.actions.element.align.*;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;

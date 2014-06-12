@@ -246,20 +246,12 @@ public final class NetUtilities {
      * @return
      */
     public static ImageIcon getRootNetIcon() {
-        return ResourceLoader.getImageAsIcon(getStartingNetIconPath());
+        return ResourceLoader.getMenuIcon("rootnet");
     }
 
-
-    public static String getStartingNetIconPath() {
-        return "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/StartingNetInternalFrame.gif";
-    }
 
     public static ImageIcon getSubNetIcon() {
-        return ResourceLoader.getImageAsIcon(getSubNetIconPath());
-    }
-
-    public static String getSubNetIconPath() {
-        return "/org/yawlfoundation/yawl/editor/ui/resources/menuicons/SubNetInternalFrame.gif";
+        return ResourceLoader.getMenuIcon("subnet");
     }
 
     public static ImageIcon getIconForNetModel(NetGraphModel model) {

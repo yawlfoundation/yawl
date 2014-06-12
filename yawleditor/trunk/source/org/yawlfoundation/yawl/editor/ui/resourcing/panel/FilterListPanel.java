@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -39,10 +38,6 @@ import java.util.Vector;
 public class FilterListPanel extends JPanel implements ActionListener {
 
     private JTextArea txtExpression;
-
-    private static final String iconPath =
-            "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
-
 
 
     public FilterListPanel(String title, Vector<String> items) {
@@ -130,29 +125,12 @@ public class FilterListPanel extends JPanel implements ActionListener {
 
 
     private JToolBar createToolBar() {
-        JToolBar toolbar = new JToolBar();
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-        toolbar.add(createToolBarButton("and", "And", " And "));
-        toolbar.add(createToolBarButton("or", "Or", " Or "));
-        toolbar.add(createToolBarButton("undo", "Undo", " Undo "));
-        toolbar.add(createToolBarButton("cross", "Clear", " Clear "));
-        return toolbar;
-    }
-
-
-    private JButton createToolBarButton(String iconName, String action, String tip) {
-        JButton button = new JButton(getIcon(iconName));
-        button.setActionCommand(action);
-        button.setToolTipText(tip);
-        button.addActionListener(this);
-        return button;
-    }
-
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
+        MiniToolBar toolBar = new MiniToolBar(this);
+        toolBar.addButton("and", "And", " And ");
+        toolBar.addButton("or", "Or", " Or ");
+        toolBar.addButton("undo", "Undo", " Undo ");
+        toolBar.addButton("cross", "Clear", " Clear ");
+        return toolBar;
     }
 
 

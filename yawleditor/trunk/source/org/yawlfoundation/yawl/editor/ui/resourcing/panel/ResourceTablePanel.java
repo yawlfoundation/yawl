@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTable;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTableType;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.AbstractResourceTableModel;
-import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -41,15 +40,13 @@ public class ResourceTablePanel extends JPanel
         implements ActionListener, ListSelectionListener, TableModelListener {
 
     private ResourceTable table;
-    private JToolBar toolbar;
+    private MiniToolBar toolbar;
 
     // toolbar buttons
     private JButton btnAdd;
     private JButton btnDel;
     private JButton btnEdit;
     private JLabel status;
-
-    private static final String iconPath = "/org/yawlfoundation/yawl/editor/ui/resources/miscicons/";
 
 
     public ResourceTablePanel(ResourceTableType tableType) {
@@ -138,7 +135,6 @@ public class ResourceTablePanel extends JPanel
         getLayout().addLayoutComponent(location, toolbar);
     }
 
-
     private JTable createTable(ResourceTableType tableType) {
         table = new ResourceTable(tableType.getModel());
         table.getSelectionModel().addListSelectionListener(this);
@@ -148,33 +144,14 @@ public class ResourceTablePanel extends JPanel
 
 
     private JToolBar createToolBar() {
-        toolbar = new JToolBar();
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-        btnAdd = createToolBarButton("plus", "Add", " Add ");
-        toolbar.add(btnAdd);
-        btnDel = createToolBarButton("minus", "Del", " Remove ");
-        toolbar.add(btnDel);
-        btnEdit = createToolBarButton("pencil", "Edit", " Edit ");
-        toolbar.add(btnEdit);
+        toolbar = new MiniToolBar(this);
+        btnAdd = toolbar.addButton("plus", "Add", " Add ");
+        btnDel = toolbar.addButton("minus", "Del", " Remove ");
+        btnEdit = toolbar.addButton("pencil", "Edit", " Edit ");
+
         status = new JLabel();
         toolbar.add(status);
         return toolbar;
-    }
-
-
-    private JButton createToolBarButton(String iconName, String action, String tip) {
-        JButton button = new JButton(getIcon(iconName));
-        button.setActionCommand(action);
-        button.setToolTipText(tip);
-        button.addActionListener(this);
-        return button;
-    }
-
-
-    private ImageIcon getIcon(String iconName) {
-        return ResourceLoader.getImageAsIcon(iconPath + iconName + ".png");
     }
 
 

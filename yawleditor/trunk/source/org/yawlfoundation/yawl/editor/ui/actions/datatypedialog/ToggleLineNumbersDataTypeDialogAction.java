@@ -30,7 +30,7 @@ public class ToggleLineNumbersDataTypeDialogAction extends YAWLBaseAction {
         putValue(Action.SHORT_DESCRIPTION, " Show or hide line numbers");
         putValue(Action.NAME, "ToggleLineNumbers");
         putValue(Action.LONG_DESCRIPTION, "Show or hide line numbers");
-        putValue(Action.SMALL_ICON, getPNGIcon("linenumbers"));
+        putValue(Action.SMALL_ICON, getMenuIcon("linenumbers"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_L));
     }
 

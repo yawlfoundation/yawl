@@ -65,7 +65,7 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
         putValue(Action.SHORT_DESCRIPTION, "Preview Process Configuration");
         putValue(Action.NAME, "Preview Process Configuration");
         putValue(Action.LONG_DESCRIPTION, "Preview Process Configuration");
-        putValue(Action.SMALL_ICON, getPNGIcon("preview"));
+        putValue(Action.SMALL_ICON, getMenuIcon("preview"));
 
     }
 
@@ -128,7 +128,7 @@ public class PreviewConfigurationProcessAction extends YAWLSelectedNetAction
         publishState();
     }
 
-    protected ImageIcon getPNGIcon(String iconName) {
+    protected ImageIcon getMenuIcon(String iconName) {
         return ResourceLoader.getImageAsIcon(iconName + ".png");
     }
 

@@ -36,10 +36,10 @@ public class PalettePopupMenu extends JPopupMenu {
 
     private void addMenuItems() {
         add(new AtomicTaskAction());
-        add(new CompositeTaskAction());
         add(new MultipleAtomicTaskAction());
-        add(new MultipleCompositeTaskAction());
         add(new ConditionAction());
+        add(new CompositeTaskAction());
+        add(new MultipleCompositeTaskAction());
         add(new MarqueeAction());
     }
 }

@@ -32,7 +32,7 @@ public class ValidateSpecificationAction extends YAWLOpenSpecificationAction
         putValue(Action.SHORT_DESCRIPTION, getDisabledTooltipText());
         putValue(Action.NAME, "Validate");
         putValue(Action.LONG_DESCRIPTION, "Validate this specification.");
-        putValue(Action.SMALL_ICON, getPNGIcon("tick"));
+        putValue(Action.SMALL_ICON, getMenuIcon("tick"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_V));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("shift V"));
     }

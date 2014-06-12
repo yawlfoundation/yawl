@@ -388,7 +388,7 @@ public class BindingTypeValidator {
      * @param varList the list of task-level variables for validation
      */
     private void setTaskDecompositionID(List<VariableRow> varList) {
-        if (varList != null) {
+        if (! (varList == null || varList.isEmpty())) {
             _taskDecompositionID = varList.get(0).getDecompositionID();
         }
     }

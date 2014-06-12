@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.DataDefinitionDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -34,7 +33,7 @@ public class DataTypeDefinitionsAction extends YAWLOpenSpecificationAction {
         putValue(Action.SHORT_DESCRIPTION, " Update Data Type Definitions. ");
         putValue(Action.NAME, "Data Types...");
         putValue(Action.LONG_DESCRIPTION, "Update Data Type Definitions.");
-        putValue(Action.SMALL_ICON, getPNGIcon("page_white_code"));
+        putValue(Action.SMALL_ICON, getMenuIcon("page_white_code"));
         putValue(Action.MNEMONIC_KEY, new Integer(java.awt.event.KeyEvent.VK_D));
         putValue(Action.ACCELERATOR_KEY, MenuUtilities.getAcceleratorKeyStroke("D"));
     }
