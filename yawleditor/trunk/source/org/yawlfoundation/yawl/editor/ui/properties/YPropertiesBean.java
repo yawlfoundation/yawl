@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.jgraph.graph.CellView;
 import org.jgraph.graph.GraphCell;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
@@ -30,6 +31,9 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YNet;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -74,6 +78,15 @@ public abstract class YPropertiesBean {
 
     protected void refreshCellView(GraphCell cell) {
         NetCellUtilities.applyViewChange(graph, graph.getViewFor(cell));
+    }
+
+
+    protected void refreshCellViews(Set<? extends GraphCell> cells) {
+        List<CellView> views = new ArrayList<CellView>();
+        for (GraphCell cell: cells) {
+             views.add(graph.getViewFor(cell));
+        }
+        NetCellUtilities.applyViewChange(graph, views.toArray(new CellView[views.size()]));
     }
 
 

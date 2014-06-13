@@ -30,7 +30,6 @@ import java.util.Set;
 /**
  * A Data variable combo-box that shows only variables in the given
  * decomposition scope and usage type that are of the XMLSchema 'duration' type.
- * @author bradforl
  *
  */
 

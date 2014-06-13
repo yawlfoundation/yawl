@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.properties.NetTaskPair;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.TimerDialog;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -49,16 +50,24 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
 
 
     protected void showDialog() {
-        YTimerParameters oldDetail = getTimerParameters();
+        YTimerParameters oldParameters = getTimerParameters();
         TimerDialog dialog = new TimerDialog();
-        dialog.setContent(oldDetail, getNet());
+        dialog.setContent(oldParameters, getNet());
         dialog.setVisible(true);
 
         YTimerParameters newDetail = dialog.getContent();
         if (newDetail != null) {
             NetTaskPair oldPair = pair;
-            pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
-            ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
+            if (oldPair.hasMultipleTasks()) {
+                pair = new NetTaskPair(oldPair.getNet(), oldPair.getVertexSet());
+                for (YAWLVertex vertex : pair.getVertexSet()) {
+                    ((AtomicTask) vertex).setTimerParameters(newDetail);
+                }
+            }
+            else {
+                pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
+                ((AtomicTask) pair.getTask()).setTimerParameters(newDetail);
+            }
             pair.setSimpleText(newDetail.toString());
             firePropertyChange(oldPair, pair);
         }
@@ -66,8 +75,23 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
 
 
     private YTimerParameters getTimerParameters() {
-        return pair != null ? ((AtomicTask) pair.getTask()).getTimerParameters() : null;
+        if (pair == null) return null;
+        if (pair.hasMultipleTasks()) {
+            YTimerParameters parameters = null;
+            for (YAWLVertex vertex : pair.getVertexSet()) {
+                YTimerParameters theseParameters = ((AtomicTask) vertex).getTimerParameters();
+                if (theseParameters == null) return null;
+                if (parameters == null) parameters = theseParameters;
+                else if (! parameters.toString().equals(theseParameters.toString())) {
+                    return null;
+                }
+            }
+            return parameters;
+        }
+
+        return ((AtomicTask) pair.getTask()).getTimerParameters();
     }
+
 
     private YNet getNet() {
         return pair != null ? pair.getNet() : null;

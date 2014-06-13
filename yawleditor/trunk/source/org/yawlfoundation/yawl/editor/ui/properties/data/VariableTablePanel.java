@@ -24,7 +24,7 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBin
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
-import org.yawlfoundation.yawl.editor.ui.resourcing.panel.MiniToolBar;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 import javax.swing.*;

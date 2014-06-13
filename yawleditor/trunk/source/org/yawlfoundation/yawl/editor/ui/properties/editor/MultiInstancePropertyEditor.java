@@ -29,31 +29,38 @@ import org.yawlfoundation.yawl.editor.ui.properties.dialog.MultiInstanceDialog;
 public class MultiInstancePropertyEditor extends DialogPropertyEditor {
 
     private String currentText;
-    private NetTaskPair netTaskPair;
+    private NetTaskPair pair;
 
     public MultiInstancePropertyEditor() {
         super(new DefaultCellRenderer());
     }
 
     public Object getValue() {
-        return netTaskPair;
+        return pair;
     }
 
     public void setValue(Object value) {
-        netTaskPair = (NetTaskPair) value;
-        currentText = netTaskPair.getSimpleText();
+        pair = (NetTaskPair) value;
+        currentText = pair.getSimpleText();
         ((DefaultCellRenderer) label).setValue(currentText);
     }
 
 
     protected void showDialog() {
-        MultiInstanceDialog dialog = new MultiInstanceDialog(netTaskPair.getNet(),
-                    netTaskPair.getTask().getID());
+        NetTaskPair oldPair = pair;
+        MultiInstanceDialog dialog;
+        if (pair.hasMultipleTasks()) {
+            pair = new NetTaskPair(oldPair.getNet(), oldPair.getVertexSet());
+            dialog = new MultiInstanceDialog(pair.getNet(), pair.getVertexSet());
+        }
+        else {
+            pair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
+            dialog = new MultiInstanceDialog(pair.getNet(), pair.getTask().getID());
+        }
         dialog.setVisible(true);
-        NetTaskPair oldPair = netTaskPair;
-        netTaskPair = new NetTaskPair(oldPair.getNet(), null, oldPair.getTask());
-        netTaskPair.setSimpleText(dialog.getCurrentStringValue());
-        firePropertyChange(oldPair, netTaskPair);
+
+        pair.setSimpleText(dialog.getCurrentStringValue());
+        firePropertyChange(oldPair, pair);
     }
 
 }

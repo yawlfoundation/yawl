@@ -38,7 +38,7 @@ public class MarqueeAction extends PaletteAction implements TooltipTogglingWidge
 
 
     public String getButtonStatusText() {
-        return "Select a number of net elements to manipulate.";
+        return "Select one or more net elements to manipulate.";
     }
 
     public Palette.SelectionState getSelectionID() {

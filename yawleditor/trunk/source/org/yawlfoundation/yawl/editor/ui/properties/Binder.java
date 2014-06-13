@@ -36,7 +36,6 @@ public class Binder implements PropertyChangeListener {
     private final YPropertiesBean _bean;
     private YBeanInfo _beanInfo;
     private final YPropertySheet _sheet;
-    private boolean v;
 
 
     public Binder(YPropertiesBean bean, YBeanInfo beanInfo) {

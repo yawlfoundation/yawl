@@ -38,6 +38,9 @@ import java.io.File;
  */
 public class NetProperties extends YPropertiesBean {
 
+    protected boolean idLabelSynch;       // set by Cell & MultiCell Properties
+
+
     public NetProperties() {
         super(YAWLEditor.getPropertySheet());
     }

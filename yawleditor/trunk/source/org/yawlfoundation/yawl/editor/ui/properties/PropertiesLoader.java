@@ -20,13 +20,11 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import java.util.Arrays;
 
@@ -43,6 +41,9 @@ public class PropertiesLoader
     private final CellProperties _cellProperties;
     private final FlowProperties _flowProperties;
     private final DecompositionProperties _decompositionProperties;
+    private final MultiFlowProperties _multiFlowProperties;
+    private final MultiCellProperties _multiCellProperties;
+    private final MultiDecompositionProperties _multiDecompositionProperties;
     private FileState _lastFileState;
 
 
@@ -51,6 +52,9 @@ public class PropertiesLoader
         _cellProperties = new CellProperties();
         _flowProperties = new FlowProperties();
         _decompositionProperties = new DecompositionProperties();
+        _multiFlowProperties = new MultiFlowProperties();
+        _multiCellProperties = new MultiCellProperties();
+        _multiDecompositionProperties = new MultiDecompositionProperties();
         subscribe();
         _lastFileState = FileState.Closed;
     }
@@ -64,6 +68,9 @@ public class PropertiesLoader
                 _cellProperties.setGraph(graph);
                 _flowProperties.setGraph(graph);
                 _decompositionProperties.setGraph(graph);
+                _multiFlowProperties.setGraph(graph);
+                _multiCellProperties.setGraph(graph);
+                _multiDecompositionProperties.setGraph(graph);
             }
             showNetProperties();
         }
@@ -99,7 +106,12 @@ public class PropertiesLoader
                 break;
             }
             case ElementsSelected: {
-                Object cell = event.getCell();
+                Object[] cells = _graph.getSelectionCells();
+                if (cells.length > 1) {
+                    showMultiCellProperties(cells);
+                    break;
+                }
+                Object cell = cells[0];
                 if (cell instanceof YAWLFlowRelation) {
                     showFlowProperties((YAWLFlowRelation) cell);
                 }
@@ -134,10 +146,8 @@ public class PropertiesLoader
         switch(state) {
             case Open: {
                 if (_lastFileState == FileState.Busy) {
-                    if (_netProperties != null) {
-                        _netProperties.firePropertyChange("Version",
-                                SpecificationModel.getHandler().getVersion().toDouble());
-                    }
+                    _netProperties.firePropertyChange("Version",
+                            SpecificationModel.getHandler().getVersion().toDouble());
                 }
                 _lastFileState = FileState.Open;
                 break;
@@ -191,8 +201,42 @@ public class PropertiesLoader
     }
 
 
+    private void showMultiCellProperties(Object[] cells) {
+        int flows = 0;
+        for (Object o : cells) {
+            if (o instanceof YAWLFlowRelation) flows++;
+        }
+        if (flows == cells.length) showMultiFlowProperties(cells);  // all flows
+        else if (flows > 0) showNetProperties();   // flows + elements, so no props
+        else showMultiVertexProperties(cells);
+
+    }
+
+
+    private void showMultiFlowProperties(Object[] cells) {
+        unbind();
+        _multiFlowProperties.setFlows(cells);
+        bind(_multiFlowProperties, new MultiFlowBeanInfo());
+    }
+
+
+    private void showMultiVertexProperties(Object[] cells) {
+        unbind();
+        YDecomposition decomposition = PropertyUtil.getCommonDecomposition(cells);
+        if (decomposition != null) {
+            _multiDecompositionProperties.setCells(cells);
+            bind(_multiDecompositionProperties, new MultiDecompositionBeanInfo(cells));
+        }
+        else {
+            _multiCellProperties.setCells(cells);
+            bind(_multiCellProperties, new MultiCellBeanInfo(cells));
+        }
+    }
+
+
     private boolean isTaskDecomposition(Object cell) {
         return (cell instanceof YAWLTask) && ((YAWLTask) cell).getDecomposition() != null;
     }
+
 
 }

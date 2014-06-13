@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 
 import org.yawlfoundation.yawl.editor.core.resourcing.BasicOfferInteraction;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
 import org.yawlfoundation.yawl.editor.ui.resourcing.subdialog.FilterDialog;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;

@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTable;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTableType;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.AbstractResourceTableModel;
