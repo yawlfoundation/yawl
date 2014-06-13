@@ -18,7 +18,12 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.elements.YDecomposition;
+
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -27,6 +32,36 @@ import java.awt.*;
 public class PropertyUtil {
 
 
+    protected static YDecomposition getCommonDecomposition(Object[] cells) {
+        YDecomposition common = null;
+        for (Object cell : cells) {
+            if (cell instanceof VertexContainer) {
+                cell = ((VertexContainer) cell).getVertex();
+            }
+            if (! (cell instanceof YAWLTask)) return null;
+            YDecomposition decomposition = ((YAWLTask) cell).getDecomposition();
+            if (decomposition == null) return null;
+            if (common == null) common = decomposition;
+            else if (! common.equals(decomposition)) return null;
+        }
+        return common;
+    }
+
+
+    protected static Set<YAWLVertex> makeVertexSet(Object[] cells) {
+        Set<YAWLVertex> set = new HashSet<YAWLVertex>();
+        if (cells != null) {
+            for (Object o : cells) {
+                if (o instanceof VertexContainer) {
+                    set.add(((VertexContainer) o).getVertex());
+                }
+                else if (o instanceof YAWLVertex) {
+                    set.add((YAWLVertex) o);
+                }
+            }
+        }
+        return set;
+    }
 
 
     protected static Color hexToColor(String hexStr) {

@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YMultiInstanceAttributes;
@@ -60,16 +61,14 @@ public class MultiInstanceDialog extends JDialog
     private boolean initialising;
 
     private final YNet net;
-    private final YTask task;
+    private YTask _task;
+    private Set<YTask> _taskSet;
 
 
-    public MultiInstanceDialog(YNet net, String taskID) {
+    private MultiInstanceDialog(YNet net) {
         super();
         this.net = net;
-        task = (YTask) net.getNetElement(taskID);
-        setTitle("Multiple Instance Attributes for Task: " + taskID);
         add(createContent());
-        initValues();
         setModal(true);
         setResizable(false);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -79,9 +78,25 @@ public class MultiInstanceDialog extends JDialog
     }
 
 
+    public MultiInstanceDialog(YNet net, String taskID) {
+        this(net);
+        _task = (YTask) net.getNetElement(taskID);
+        setTitle("Multiple Instance Attributes for Task: " + taskID);
+        initValues();
+    }
+
+
+    public MultiInstanceDialog(YNet net, Set<YAWLVertex> vertexSet) {
+        this(net);
+        _taskSet = makeTaskSet(vertexSet);
+        setTitle("Multiple Instance Attributes for Multiple Tasks");
+        initValues();
+    }
+
+
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("OK")) {
-            updateTask();
+            saveChanges();
         }
         setVisible(false);
     }
@@ -131,15 +146,39 @@ public class MultiInstanceDialog extends JDialog
     }
 
 
+    private Set<YTask> makeTaskSet(Set<YAWLVertex> vertexSet) {
+        Set<YTask> set = new HashSet<YTask>();
+        for (YAWLVertex vertex : vertexSet) {
+             set.add((YTask) vertex.getYAWLElement());
+        }
+        return set;
+    }
+
+
     private void initValues() {
         initialising = true;
-        YMultiInstanceAttributes miAttributes = task.getMultiInstanceAttributes();
+        YMultiInstanceAttributes miAttributes = getAttributes();
         initContent(minPanel, miAttributes.getMinInstancesQuery(), 1);
         initContent(maxPanel, miAttributes.getMaxInstancesQuery(), 2);
         initContent(thresholdPanel, miAttributes.getThresholdQuery(), 1);
         setCreationMode(miAttributes.getCreationMode());
         setCurrentValueString();
         initialising = false;
+    }
+
+
+    private YMultiInstanceAttributes getAttributes() {
+        YMultiInstanceAttributes attributes = null;
+        if (_taskSet != null) {
+            for (YTask task : _taskSet) {
+                if (attributes == null) attributes = task.getMultiInstanceAttributes();
+                else if (! attributes.toXML().equals(task.getMultiInstanceAttributes().toXML())) {
+                    return new YMultiInstanceAttributes(task);
+                }
+            }
+            return attributes;
+        }
+        else return _task.getMultiInstanceAttributes();
     }
 
 
@@ -155,11 +194,22 @@ public class MultiInstanceDialog extends JDialog
     }
 
 
-    private void updateTask() {
-        task.getMultiInstanceAttributes().setProperties(minPanel.getContent(),
-                maxPanel.getContent(), thresholdPanel.getContent(), getCreationMode());
+    private void saveChanges() {
+        if (_taskSet != null) {
+            for (YTask task : _taskSet) {
+                updateTask(task);
+            }
+        }
+        else updateTask(_task);
+
         SpecificationUndoManager.getInstance().setDirty(true);
         setCurrentValueString();
+    }
+
+
+    private void updateTask(YTask task) {
+        task.getMultiInstanceAttributes().setProperties(minPanel.getContent(),
+                maxPanel.getContent(), thresholdPanel.getContent(), getCreationMode());
     }
 
 

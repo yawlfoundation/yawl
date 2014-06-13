@@ -16,7 +16,7 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
+package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 

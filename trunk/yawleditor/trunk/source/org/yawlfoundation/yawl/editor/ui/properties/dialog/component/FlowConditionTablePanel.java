@@ -25,7 +25,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.data.StatusPanel;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.FlowConditionDialog;
-import org.yawlfoundation.yawl.editor.ui.resourcing.panel.MiniToolBar;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -293,8 +293,9 @@ public class YPropertySheet extends PropertySheetPanel {
      */
     public class CategorySorter implements Comparator<String> {
 
-        final java.util.List<String> categories = Arrays.asList("Specification", "Net", "Task",
-                "Condition", "Flow", "Decomposition", "Ext. Attributes");
+        final java.util.List<String> categories = Arrays.asList("Specification",
+                "Net", "Task", "Tasks", "Condition", "Conditions", "Elements",
+                "Flow", "Flows", "Decomposition");
 
         public int compare(String s1, String s2) {
             if (s1 == null) return s2 == null ? 0 : -1;

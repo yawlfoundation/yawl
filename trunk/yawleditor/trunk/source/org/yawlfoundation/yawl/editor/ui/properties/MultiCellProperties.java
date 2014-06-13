@@ -1,4 +1,22 @@
 /*
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
+ * The YAWL Foundation is a collaboration of individuals and
+ * organisations who are committed to improving workflow technology.
+ *
+ * This file is part of YAWL. YAWL is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation.
+ *
+ * YAWL is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
@@ -35,19 +53,20 @@ import org.yawlfoundation.yawl.elements.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
  * @date 2/07/12
  */
-public class CellProperties extends NetProperties {
+public class MultiCellProperties extends NetProperties {
 
-    protected YAWLVertex vertex;
+    protected Set<YAWLVertex> vertexSet;
 
     protected static final String[] DECORATOR = new String[] {"AND", "OR", "XOR", "None"};
     protected static final String[] DECORATOR_POS =
@@ -60,38 +79,52 @@ public class CellProperties extends NetProperties {
     private String currentJoinType;
 
 
-    public CellProperties() {
+    public MultiCellProperties() {
         super();
         idLabelSynch = true;
     }
 
 
-    protected void setVertex(YAWLVertex v) { vertex = v; }
-
-    protected YAWLVertex getVertex() { return vertex; }
-
-
-    public String getId() { return vertex.getID(); }         // read only
-
-
-    public String getLabel() { return vertex.getLabel(); }
-
-    public void setLabel(String value) {
-        value = XMLUtilities.stripXMLChars(value);
-        graph.setElementLabel(vertex, value);
-        vertex.setName(value);
-        if (idLabelSynch) updateVertexID(value);
-        vertex.getVertexLabel().refreshLabelView();
-        graph.setSelectionCell(vertex.getParent());
-        setDirty();
+    protected void setCells(Object[] cells) {
+        vertexSet = PropertyUtil.makeVertexSet(cells);
     }
 
 
-    public String getDocumentation() { return vertex.getDocumentation(); }
+    public String getLabel() {
+        String label = null;
+        for (YAWLVertex vertex : vertexSet) {
+            if (label == null) label = vertex.getLabel();
+            else if (! label.equals(vertex.getLabel())) return "";
+        }
+        return label;    // all match
+    }
+
+    public void setLabel(String value) {
+        for (YAWLVertex vertex : vertexSet) {
+            value = XMLUtilities.stripXMLChars(value);
+            graph.setElementLabel(vertex, value);
+            vertex.setName(value);
+            if (idLabelSynch) updateVertexID(vertex, value);
+            vertex.getVertexLabel().refreshLabelView();
+            setDirty();
+        }
+    }
+
+
+    public String getDocumentation() {
+        String doco = null;
+        for (YAWLVertex vertex : vertexSet) {
+            if (doco == null) doco = vertex.getDocumentation();
+            else if (! doco.equals(vertex.getDocumentation())) return "";
+        }
+        return doco;    // all match
+    }
 
     public void setDocumentation(String value) {
-        vertex.setDocumentation(value);
-        setDirty();
+        for (YAWLVertex vertex : vertexSet) {
+            vertex.setDocumentation(value);
+            setDirty();
+        }
     }
 
 
@@ -99,114 +132,156 @@ public class CellProperties extends NetProperties {
 
     public void setIdLabelSynch(boolean value) {
         idLabelSynch = value;
-        if (idLabelSynch) updateVertexID(getLabel());
+        if (idLabelSynch) for (YAWLVertex vertex : vertexSet) {
+            updateVertexID(vertex, getLabel());
+        }
     }
 
 
-    public Color getCellFillColor() { return vertex.getBackgroundColor(); }
+    public Color getCellFillColor() {
+        Color colour = null;
+        for (YAWLVertex vertex : vertexSet) {
+            if (colour == null) colour = vertex.getBackgroundColor();
+            else if (!colour.equals(vertex.getBackgroundColor())) {
+                return Color.WHITE;
+            }
+        }
+        return colour;    // all match
+    }
 
     public void setCellFillColor(Color value) {
-        vertex.setBackgroundColor(value);
-        graph.changeVertexBackground(vertex, value);
-        graph.resetCancellationSet();
-        setDirty();
-    }
-
-
-    public Point getLocation() {
-        Rectangle2D rect = vertex.getBounds();
-        Point point = new Point();
-        point.setLocation(rect.getX(), rect.getY());
-        return point;
-    }
-
-    public void setLocation(Point p) {
-        VertexContainer container = (VertexContainer) vertex.getParent();
-        if (container != null) {
-            graph.moveElementTo(container, p.getX(), p.getY());
+        for (YAWLVertex vertex : vertexSet) {
+            vertex.setBackgroundColor(value);
+            graph.changeVertexBackground(vertex, value);
+            graph.resetCancellationSet();
+            setDirty();
         }
-        else {
-            graph.moveElementTo(vertex, p.getX(), p.getY());
-        }
-        graph.repaint();
-        setDirty();
     }
 
 
     public FontColor getFont() {
-        VertexLabel label = vertex.getVertexLabel();
-        Font font = label != null ? label.getFont() : UserSettings.getDefaultFont();
-        Color colour = label != null ? label.getForeground() :
-                UserSettings.getDefaultTextColour();
+        Font font = null;
+        for (YAWLVertex vertex : vertexSet) {
+            VertexLabel label = vertex.getVertexLabel();
+            if (label == null) continue;
+            if (font == null) font = label.getFont();
+            else if (!font.equals(label.getFont())) {
+                font = UserSettings.getDefaultFont();
+                break;
+            }
+        }
+        Color colour = null;
+        for (YAWLVertex vertex : vertexSet) {
+            VertexLabel label = vertex.getVertexLabel();
+            if (label == null) continue;
+            if (colour == null) colour = label.getForeground();
+            else if (!colour.equals(label.getForeground())) {
+                colour = UserSettings.getDefaultTextColour();
+            }
+        }
+
+        if (font == null) font = UserSettings.getDefaultFont();
+        if (colour == null) colour = UserSettings.getDefaultTextColour();
         return new FontColor(font, colour);
     }
 
     public void setFont(FontColor fontColor) {
-        VertexLabel label = vertex.getVertexLabel();
-        if (label != null) {
-            label.setFont(fontColor.getFont());
-            label.setForeground(fontColor.getColour());
-            graph.setElementLabel(vertex, label.getText());
+        for (YAWLVertex vertex : vertexSet) {
+            VertexLabel label = vertex.getVertexLabel();
+            if (label != null) {
+                label.setFont(fontColor.getFont());
+                label.setForeground(fontColor.getColour());
+                graph.setElementLabel(vertex, label.getText());
+            }
         }
     }
 
 
     public String getCustomForm() {
-        URL customFormURL = ((YAWLTask) vertex).getCustomFormURL();
-        return customFormURL != null ? customFormURL.toExternalForm() : null;
+        String urlStr = null;
+        for (YAWLVertex vertex : vertexSet) {
+            URL customFormURL = ((YAWLTask) vertex).getCustomFormURL();
+            if (customFormURL == null) {
+                return null;
+            }
+            else {
+                if (urlStr == null) urlStr = customFormURL.toExternalForm();
+                else if (! urlStr.equals(customFormURL.toExternalForm())) {
+                    return null;
+                }
+            }
+        }
+        return urlStr;
     }
 
     public void setCustomForm(String url) {
-        try {
-            ((YAWLTask) vertex).setCustomFormURL(url);
-            setDirty();
-        }
-        catch (MalformedURLException mue) {
-            // nothing to do - dialog checks url for wellformedness
+        for (YAWLVertex vertex : vertexSet) {
+            try {
+                ((YAWLTask) vertex).setCustomFormURL(url);
+                setDirty();
+            }
+            catch(MalformedURLException mue){
+                // nothing to do - dialog checks url for wellformedness
+            }
         }
     }
 
 
     public NetTaskPair getTimer() {
-        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (AtomicTask) vertex);
-        YTimerParameters parameters = ((AtomicTask) vertex).getTimerParameters();
-        pair.setSimpleText(parameters != null ? parameters.toString(): "None");
+        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), vertexSet);
+        pair.setSimpleText("");
         return pair;
     }
 
     public void setTimer(NetTaskPair pair) {
-        YTimerParameters parameters = ((AtomicTask) vertex).getTimerParameters();
-        pair.setSimpleText(parameters != null ? parameters.toString(): "None");
         setDirty();
-        refreshCellView(vertex);
+        refreshCellViews(vertexSet);
     }
 
-    public NetTaskPair getResourcing() {
-        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (YAWLTask) vertex);
-        setResourcingString(pair);
-        return pair;
-    }
-
-    public void setResourcing(NetTaskPair pair) {
-        setResourcingString(pair);
-        setDirty();
-    }
+//    public NetTaskPair getResourcing() {
+//        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), vertexSet);
+//        setResourcingString(pair);
+//        return pair;
+//    }
+//
+//    public void setResourcing(NetTaskPair pair) {
+//        setResourcingString(pair);
+//        setDirty();
+//    }
 
 
     public String getIcon() {
-        return ((YAWLTask) vertex).getIconPath();
+        String path = null;
+        for (YAWLVertex vertex : vertexSet) {
+            String thisPath = ((YAWLTask) vertex).getIconPath();
+            if (thisPath == null) return null;
+            if (path == null) path = thisPath;
+            else if (! thisPath.equals(path)) return  null;
+        }
+        return path;
     }
 
     public void setIcon(String path) {
-        graph.setVertexIcon(vertex, path);
-        refreshCellView(vertex);
+        for (YAWLVertex vertex : vertexSet) {
+            graph.setVertexIcon(vertex, path);
+        }
+        refreshCellViews(vertexSet);
         setDirty();
     }
 
 
     public NetTaskPair getMiAttributes() {
-        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), null, (YAWLTask) vertex);
-        pair.setSimpleText(getMIShortString(((YAWLTask) vertex).getTask()));
+        NetTaskPair pair = new NetTaskPair(getSelectedYNet(), vertexSet);
+        String shortString = null;
+        for (YAWLVertex vertex : vertexSet) {
+            String thisString = getMIShortString(((YAWLTask) vertex).getTask());
+            if (shortString == null) shortString = thisString;
+            else if (! thisString.equals(shortString)) {
+                shortString = "";
+                break;
+            }
+        }
+        pair.setSimpleText(shortString);
         return pair;
     }
 
@@ -218,23 +293,22 @@ public class CellProperties extends NetProperties {
     /***********************************************************************/
 
     public String getDecomposition() {
-        YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
+        YDecomposition decomposition = getCommonDecomposition();
         String label = decomposition != null ? decomposition.getID() : "None";
         setReadOnly("miAttributes", label.equals("None"));
         if (decomposition instanceof YAWLServiceGateway) {
             boolean isReadOnly = ! requiresResourcing(decomposition);
             setReadOnly("Timer", isReadOnly);
             setReadOnly("CustomForm", isReadOnly);
-            setReadOnly("Resourcing", isReadOnly);
+        //    setReadOnly("Resourcing", isReadOnly);
         }
         return label;
     }
 
 
     public void setDecomposition(String name) {
-        YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
+        YDecomposition decomposition = getCommonDecomposition();
         if (name.equals("None")) {
-            if (decomposition == null) return;             // no change so get out
             decomposition = null;                          // drop current
         }
         else if (name.equals("New...")) {                  // create
@@ -258,8 +332,19 @@ public class CellProperties extends NetProperties {
     }
 
 
+    protected YDecomposition getCommonDecomposition() {
+        YDecomposition common = null;
+        for (YAWLVertex vertex : vertexSet) {
+            YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
+            if (decomposition == null) return null;
+            if (common == null) common = decomposition;
+            else if (! common.equals(decomposition)) return null;
+        }
+        return common;
+    }
+
     private YDecomposition createDecomposition(YDecomposition current) {
-        boolean isComposite = (vertex instanceof YAWLCompositeTask);
+        boolean isComposite = allInstanceOf(YAWLCompositeTask.class);
         while (true) {
             String newName = getDecompositionNameInput("New", isComposite);
             if (newName == null) {
@@ -293,7 +378,7 @@ public class CellProperties extends NetProperties {
 
     private void renameDecomposition(YDecomposition current) {
         String oldID = current.getID();
-        boolean isComposite = (vertex instanceof YAWLCompositeTask);
+        boolean isComposite = allInstanceOf(YAWLCompositeTask.class);
         String newID = getDecompositionNameInput("Rename", isComposite);
         if (! (newID == null || oldID.equals(newID))) {
             try {
@@ -315,33 +400,54 @@ public class CellProperties extends NetProperties {
 
 
     private void updateDecomposition(YDecomposition decomposition) {
-        ((YAWLTask) vertex).setDecomposition(decomposition);
-        if (decomposition instanceof YAWLServiceGateway) {
-            graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
-        }
-        else if (decomposition instanceof YNet) {
-            graph.setElementLabel(vertex, decomposition.getID());
+        String label = null;
+        for (YAWLVertex vertex : vertexSet) {
+            ((YAWLTask) vertex).setDecomposition(decomposition);
+            if (decomposition instanceof YAWLServiceGateway) {
+                graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
+            } else if (decomposition instanceof YNet) {
+                graph.setElementLabel(vertex, decomposition.getID());
+            }
+            label = updateLabel(vertex);
         }
         setDirty();
-        graph.setSelectionCell(vertex.getParent());
-        Publisher.getInstance().publishState(GraphState.ElementsSelected,
-                new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
+        firePropertyChange("Label", label);
 
-        // update id if not tied to label
-        String label = getLabel();
-        if (decomposition != null && (label == null || ! label.equals(getId()))) {
-            firePropertyChange("id", decomposition.getID());
-            if (label == null) {
-                String newLabel = decomposition.getName();
-                if (newLabel == null) newLabel = decomposition.getID();
-                firePropertyChange("Label", newLabel);
-            }
+        Object[] containers = getParents();
+        graph.setSelectionCells(containers);
+        Publisher.getInstance().publishState(GraphState.ElementsSelected,
+                new GraphSelectionEvent(this, containers,
+                        new boolean[] {false}));
+
+    }
+
+    private Object[] getParents() {
+        Set<Object> parents = new HashSet<Object>();
+        for (YAWLVertex vertex : vertexSet) {
+            if (vertex.getParent() != null) parents.add(vertex.getParent());
         }
+        return parents.toArray();
     }
 
 
+    // update id if not tied to label
+    private String updateLabel(YAWLVertex vertex) {
+        YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
+        String label = vertex.getLabel();
+        if (decomposition != null && (label == null || !label.equals(vertex.getID()))) {
+            if (idLabelSynch) vertex.setID(flowHandler.checkID(decomposition.getID()));
+            if (label == null) {
+                String newLabel = decomposition.getName();
+                if (newLabel == null) newLabel = decomposition.getID();
+                vertex.setName(newLabel);
+                return newLabel;
+            }
+        }
+        return label;
+    }
+
     private YDecomposition getDecomposition(String name) {
-        return (vertex instanceof YAWLCompositeTask) ?
+        return allInstanceOf(YAWLCompositeTask.class) ?
                 flowHandler.getNet(name) :
                 flowHandler.getTaskDecomposition(name);
     }
@@ -350,15 +456,14 @@ public class CellProperties extends NetProperties {
     /***********************************************************************/
 
     public String getSplit() {
-        Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
+        Decorator decorator = getDecorator(true);
         setReadOnly("splitPosition", decorator == null);
-        setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
         currentSplitType = decorator != null ? DECORATOR[decorator.getType()] : "None";
         return currentSplitType;
     }
 
     public String getJoin() {
-        Decorator decorator = ((YAWLTask) vertex).getJoinDecorator();
+        Decorator decorator = getDecorator(false);
         setReadOnly("joinPosition", decorator == null);
         currentJoinType = decorator != null ? DECORATOR[decorator.getType()] : "None";
         return currentJoinType;
@@ -366,86 +471,74 @@ public class CellProperties extends NetProperties {
 
 
     public String getSplitPosition() {
-        Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
+        Decorator decorator = getDecorator(true);
         return (decorator != null) ?
                 DECORATOR_POS[decorator.getCardinalPosition() - DECORATOR_POS_OFFSET] :
                 "None";
     }
 
     public String getJoinPosition() {
-        Decorator decorator = ((YAWLTask) vertex).getJoinDecorator();
+        Decorator decorator = getDecorator(false);
         return decorator != null ?
                 DECORATOR_POS[decorator.getCardinalPosition() - DECORATOR_POS_OFFSET] :
                 "None";
     }
 
-    public NetTaskPair getSplitConditions() {
-        YAWLTask task = (YAWLTask) vertex;
-        NetTaskPair pair = new NetTaskPair(task, graph);
-        if (! task.hasSplitDecorator() ||
-                task.getSplitDecorator().getType() == Decorator.AND_TYPE) {
-            pair.setSimpleText("n/a");
-        }
-        else {
-            int flowCount = task.getOutgoingFlowCount();
-            pair.setSimpleText(flowCount < 2 ? "None" : flowCount + " flows");
-        }
-        return pair;
-    }
-
-    public void setSplitConditions(NetTaskPair pair) {
-        pair.setSimpleText(((YAWLTask) vertex).getOutgoingFlowCount() + " flows");
-    }
-
 
     public void setSplit(String value) {
+        int type = -1;
+        int pos = -1;
         if (! value.equals(currentSplitType)) {
-            try {
-                flowHandler.setSplit((YTask) vertex.getYAWLElement(),
-                        getYTaskSplitType(value));
-                currentSplitType = value;
-                int type = getDecoratorIndex(value);
-                int pos = getDecoratorPosIndex(getSplitPosition());
-                if (pos == 14 && type > -1) pos = DEFAULT_SPLIT_POS;
-                graph.setSplitDecorator((YAWLTask) vertex, type, pos);
-                setDirty();
-                setReadOnly("SplitConditions", ! shouldEnableSplitConditions());
-                graph.setSelectionCell(vertex.getParent());
-                fireDecoratorPositionChange("split", type > -1 ? pos : 14);
-            }
-            catch (YControlFlowHandlerException ycfhe) {
-                YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+            for (YAWLVertex vertex : vertexSet) {
+                try {
+                    flowHandler.setSplit((YTask) vertex.getYAWLElement(),
+                            getYTaskSplitType(value));
+                    type = getDecoratorIndex(value);
+                    pos = getDecoratorPosIndex(getSplitPosition());
+                    if (pos == 14 && type > -1) pos = DEFAULT_SPLIT_POS;
+                    graph.setSplitDecorator((YAWLTask) vertex, type, pos);
+                }
+                catch (YControlFlowHandlerException ycfhe) {
+                    YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+                }
             }
         }
+        currentSplitType = value;
+        fireDecoratorPositionChange("split", type > -1 ? pos : 14);
+        setDirty();
     }
 
     public void setJoin(String value) {
+        int type = -1;
+        int pos = -1;
         if (! value.equals(currentJoinType)) {
-            try {
-                flowHandler.setJoin((YTask) vertex.getYAWLElement(),
-                        getYTaskJoinType(value));
-                currentJoinType = value;
-                int type = getDecoratorIndex(value);
-                int pos = getDecoratorPosIndex(getJoinPosition());
-                if (pos == 14 && type > -1) pos = DEFAULT_JOIN_POS;
-                graph.setJoinDecorator((YAWLTask) vertex, type, pos);
-                setDirty();
-                graph.setSelectionCell(vertex.getParent());
-                fireDecoratorPositionChange("join", type > -1 ? pos : 14);
-            }
-            catch (YControlFlowHandlerException ycfhe) {
-                YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+            for (YAWLVertex vertex : vertexSet) {
+                try {
+                    flowHandler.setJoin((YTask) vertex.getYAWLElement(),
+                            getYTaskJoinType(value));
+                    type = getDecoratorIndex(value);
+                    pos = getDecoratorPosIndex(getJoinPosition());
+                    if (pos == 14 && type > -1) pos = DEFAULT_JOIN_POS;
+                    graph.setJoinDecorator((YAWLTask) vertex, type, pos);
+                }
+                catch(YControlFlowHandlerException ycfhe){
+                    YAWLEditor.getStatusBar().setText("Error: " + ycfhe.getMessage());
+                }
             }
         }
+        currentJoinType = value;
+        fireDecoratorPositionChange("join", type > -1 ? pos : 14);
+        setDirty();
     }
 
     public void setSplitPosition(String value) throws PropertyVetoException {
         if (! value.equals(getSplitPosition())) {
             validateDecoratorPosition("splitPos", getSplitPosition(), value);
-            int type = getDecoratorIndex(getSplit());
-            int pos = getDecoratorPosIndex(value);
-            graph.setSplitDecorator((YAWLTask) vertex, type, pos);
-            graph.setSelectionCell(vertex.getParent());
+            for (YAWLVertex vertex : vertexSet) {
+                int type = getDecoratorIndex(getSplit());
+                int pos = getDecoratorPosIndex(value);
+                graph.setSplitDecorator((YAWLTask) vertex, type, pos);
+            }
             setDirty();
         }
     }
@@ -453,22 +546,15 @@ public class CellProperties extends NetProperties {
     public void setJoinPosition(String value) throws PropertyVetoException {
         if (! value.equals(getJoinPosition())) {
             validateDecoratorPosition("joinPos", getJoinPosition(), value);
-            int type = getDecoratorIndex(getJoin());
-            int pos = getDecoratorPosIndex(value);
-            graph.setJoinDecorator((YAWLTask) vertex, type, pos);
-            graph.setSelectionCell(vertex.getParent());
+            for (YAWLVertex vertex : vertexSet) {
+                int type = getDecoratorIndex(getJoin());
+                int pos = getDecoratorPosIndex(value);
+                graph.setJoinDecorator((YAWLTask) vertex, type, pos);
+            }
             setDirty();
         }
     }
 
-
-    public NetTaskPair getSplitPredicates() {
-        return new NetTaskPair((YAWLTask) vertex, graph);
-    }
-
-    public void setSplitPredicates(NetTaskPair pair) {
-        // nothing to do - predicates set by dialog
-    }
 
     private int getDecoratorIndex(String type) {
         for (int i=0; i < 3; i++) {
@@ -524,9 +610,21 @@ public class CellProperties extends NetProperties {
 
     private void setResourcingString(NetTaskPair pair) {
         YResourceHandler handler = specHandler.getResourceHandler();
-        TaskResourceSet resources = handler.getTaskResources(
-                pair.getNet().getID(), pair.getTask().getID());
-        pair.setSimpleText(resources != null ? resources.getInitiatorChars() : "None");
+        String text = null;
+        for (YAWLVertex vertex : pair.getVertexSet()) {
+            TaskResourceSet resources = handler.getTaskResources(
+                    pair.getNet().getID(), vertex.getID());
+            if (resources == null) {
+                text = "None";
+                break;
+            }
+            if (text == null) text = resources.getInitiatorChars();
+            else if (! text.equals(resources.getInitiatorChars())) {
+                text = "None";
+                break;
+            }
+        }
+        pair.setSimpleText(text != null ? text : "None");
     }
 
 
@@ -557,7 +655,7 @@ public class CellProperties extends NetProperties {
                 String.valueOf(value);
     }
 
-    private void updateVertexID(String id) {
+    private void updateVertexID(YAWLVertex vertex, String id) {
         if (id != null) {
             String validID = XMLUtilities.toValidXMLName(id);
             if (validID.isEmpty()) {
@@ -570,12 +668,11 @@ public class CellProperties extends NetProperties {
                         specHandler.getResourceHandler().replaceID(vertex.getID(), validID);
                     }
                     vertex.setID(validID);
-                    firePropertyChange("id", getId());
                     setDirty();
                 }
                 catch (IllegalIdentifierException iie) {
                     showWarning("Element Identifier Update Failed",
-                            "Could not synch element identifier - " + iie.getMessage());
+                             "Could not synch element identifier - " + iie.getMessage());
                 }
             }
         }
@@ -594,11 +691,27 @@ public class CellProperties extends NetProperties {
     }
 
 
-    private boolean shouldEnableSplitConditions() {
-        Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
-        return ! (decorator == null || decorator.getType() == SplitDecorator.AND_TYPE);
-//                ||
-//                decorator.getFlowCount() < 2);  // can't trigger after adding new flow
-
+    private boolean allInstanceOf(Class<?> c) {
+        for (YAWLVertex vertex : vertexSet) {
+            if (! c.isInstance(vertex)) return false;
+        }
+        return true;
     }
+
+
+    private Decorator getDecorator(boolean isSplit) {
+        Decorator decorator = null;
+        for (YAWLVertex vertex : vertexSet) {
+            YAWLTask task = (YAWLTask) vertex;
+            Decorator thisDecorator = isSplit ? task.getSplitDecorator() :
+                    task.getJoinDecorator();
+            if (thisDecorator == null) return null;
+            if (decorator == null) decorator = thisDecorator;
+            else if (decorator.getType() != thisDecorator.getType()) {
+                return null;
+            }
+        }
+        return decorator;
+    }
+
 }

@@ -72,11 +72,11 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
 
     public void setContent(YTimerParameters timerParameters, YNet net) {
+        timerVariableComboBox.setNet(net);
         if (timerParameters == null) {
             performAction(neverButton, "never");
         }
         else {
-            timerVariableComboBox.setNet(net);
             YWorkItemTimer.Trigger trigger = timerParameters.getTrigger();
             if (trigger != null) {
                 setTrigger(trigger);

@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;

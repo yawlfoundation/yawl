@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
@@ -31,6 +32,7 @@ import java.util.Set;
  */
 public class NetTaskPair {
 
+    private Set<YAWLVertex> _vertexSet;
     private YAWLTask _task;
     private NetGraph _graph;
     private YNet _net;
@@ -49,10 +51,22 @@ public class NetTaskPair {
         _simpleText = (_decomposition != null) ? getText(decomposition) : getText(net);
     }
 
+    public NetTaskPair(YNet net, Set<YAWLVertex> vertexSet) {
+        _net = net;
+        _vertexSet = vertexSet;
+        _simpleText = getText(net);
+    }
 
     public YAWLTask getTask() { return _task; }
 
     public void setTask(YAWLTask task) { _task = task; }
+
+
+    public Set<YAWLVertex> getVertexSet() { return _vertexSet; }
+
+    public void setVertexSet(Set<YAWLVertex> set) { _vertexSet = set; }
+
+    public boolean hasMultipleTasks() { return _vertexSet != null; }
 
 
     public NetGraph getGraph() { return _graph; }

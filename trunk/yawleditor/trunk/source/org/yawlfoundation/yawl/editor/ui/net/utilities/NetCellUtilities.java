@@ -155,7 +155,7 @@ public class NetCellUtilities {
     }
 
 
-    private static void applyViewChange(NetGraph net, CellView[] views) {
+    public static void applyViewChange(NetGraph net, CellView[] views) {
         CellView[] allViews = VertexView.getDescendantViews(views);
         Map attributes = GraphConstants.createAttributes(allViews, null);
         net.getNetModel().edit(attributes, null, null, null);
