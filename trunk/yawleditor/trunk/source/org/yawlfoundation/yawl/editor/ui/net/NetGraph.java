@@ -94,7 +94,7 @@ public class NetGraph extends JGraph {
         setBackground(UserSettings.getNetBackgroundColour());
         setFont(UserSettings.getDefaultFont());
         setForeground(UserSettings.getDefaultTextColour());
-        setAntiAliased(UserSettings.getShowAntiAliasing());
+        setAntiAliased(true);
         setPortsVisible(false);
         setCloneable(false);
         setTolerance(5);

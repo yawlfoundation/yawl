@@ -92,7 +92,6 @@ public class UserSettings {
             "ExtendedAttributeVariableFilePath";
     private static final String TASK_ICONS_FILE_PATH = "TaskIconsFilePath";
     private static final String WOFYAWL_FILE_PATH = "WofyawlFilePath";
-    private static final String WENDY_FILE_PATH = "WendyFilePath";
 
     // recently opened file list settings
     private static final String OPEN_RECENT_FILE_PREFIX = "openRecent";
@@ -103,7 +102,6 @@ public class UserSettings {
     private static final String LAST_DOWNLOAD_TO_PATH = "lastDownloadToPath";
 
     // canvas view settings
-    private static final String SHOW_ANTI_ALIASING = "showAntiAliasing";
     private static final String SHOW_GRID = "showNetGrid";
     private static final String SHOW_TOOL_TIPS = "showToolTips";
     private static final String JOIN_FILL_COLOUR = "joinFillColor";
@@ -126,6 +124,9 @@ public class UserSettings {
 
     // plugin settings
     private static final String VIEW_PLUGIN_TOOLBAR = "viewPluginToolbar:";
+
+    // 'other' settings
+    private static final String CHECK_FOR_UPDATES_ON_START = "checkUpdatesOnStart";
 
     public static Preferences getSettings() { return _prefs; }
 
@@ -466,21 +467,6 @@ public class UserSettings {
         return getString(WOFYAWL_FILE_PATH);
     }
 
-    public static void setWendyFilePath(String path) {
-        setString(WENDY_FILE_PATH, path);
-    }
-
-    public static String getWendyFilePath() {
-        return getString(WENDY_FILE_PATH);
-    }
-
-    public static void setShowAntiAliasing(boolean show) {
-        setBoolean(SHOW_ANTI_ALIASING, show);
-    }
-
-    public static boolean getShowAntiAliasing() {
-        return getBoolean(SHOW_ANTI_ALIASING);
-    }
 
     public static void setShowGrid(boolean show) {
         setBoolean(SHOW_GRID, show);
@@ -623,6 +609,13 @@ public class UserSettings {
         setBoolean(VIEW_PLUGIN_TOOLBAR + barName, view);
     }
 
+    public static void setCheckForUpdatesOnStart(boolean check) {
+        setBoolean(CHECK_FOR_UPDATES_ON_START, check);
+    }
+
+    public static boolean getCheckForUpdatesOnStart() {
+        return getBoolean(CHECK_FOR_UPDATES_ON_START);
+    }
 
     public static void setMaxRecentFiles(int max) {
         MAX_RECENT_FILES = max;

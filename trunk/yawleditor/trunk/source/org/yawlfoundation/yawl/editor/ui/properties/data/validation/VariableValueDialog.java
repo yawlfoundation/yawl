@@ -18,6 +18,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
+import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -31,24 +36,21 @@ import java.awt.event.ActionListener;
 public class VariableValueDialog extends JDialog implements ActionListener {
 
     private InstanceEditorPane _editorPane;
-    private final String _varName;
-    private final String _dataType;
+    private final VariableRow _row;
     private String _value;
+    private ButtonBar _buttonBar;
 
-
-    public VariableValueDialog(Window parent, String varName,
-                               String dataType, String value) {
+    public VariableValueDialog(Window parent, VariableRow row, String value) {
         super(parent);
-        _varName = varName;
-        _dataType = dataType;
-        _value = value;
+        _row = row;
+        _value = format(value);
         setModal(true);
-        setTitle("Edit Value for Variable " + varName);
-        setResizable(false);
+        setTitle("Edit Value for Variable " + row.getName());
+        setResizable(true);
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         add(getContent());
-        setPreferredSize(new Dimension(420, 270));
+        setMinimumSize(new Dimension(420, 270));
         pack();
     }
 
@@ -61,41 +63,72 @@ public class VariableValueDialog extends JDialog implements ActionListener {
 
     public String getText() { return _value; }
 
-    public void setText(String text) { _value = text; }
-
 
     public void actionPerformed(ActionEvent event) {
-        if (event.getActionCommand().equals("OK")) {
-            _value = _editorPane.getText();
+        String action = event.getActionCommand();
+        if (action.equals("OK")) {
+            setValueAndClose(_editorPane.getText());
+        }
+        else if (action.equals("generate")) {
+            generateDefaultValue();
+        }
+        else if (action.equals("reset")) {
+            _editorPane.getEditor().setText(_value);
+        }
+        else if (action.equals("format")) {
+            _editorPane.getEditor().setText(format(_editorPane.getText()));
         }
         else {                                               // cancel
-            _value = null;
+            setValueAndClose(null);
         }
+    }
+
+
+    private void setValueAndClose(String value) {
+        _value = value;
         setVisible(false);
     }
 
 
     private JPanel getContent() {
         JPanel content = new JPanel(new BorderLayout());
-        content.setBorder(new EmptyBorder(5,10,5,10));
-        _editorPane = new InstanceEditorPane(_dataType, _value);
+        content.setBorder(new EmptyBorder(5, 10, 5, 10));
+        content.add(createToolBar(), BorderLayout.NORTH);
+        _editorPane = new InstanceEditorPane(_row.getDataType(), _value);
         content.add(_editorPane, BorderLayout.CENTER);
         content.add(createButtonBar(), BorderLayout.SOUTH);
         return content;
     }
 
 
-    private JPanel createButtonBar() {
-        JPanel panel = new JPanel();
-        JButton btnOK = new JButton("OK");
-        btnOK.setActionCommand("OK");
-        btnOK.addActionListener(this);
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.setActionCommand("Cancel");
-        btnCancel.addActionListener(this);
-        panel.add(btnCancel);
-        panel.add(btnOK);
+    private JPanel createToolBar() {
+        MiniToolBar toolBar = new MiniToolBar(this);
+        toolBar.addButton("generate", "generate", " Generate sample value ");
+        toolBar.addButton("reset", "reset", " Reset to original value ");
+        toolBar.addButton("format", "format", " Format text ");
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(toolBar, BorderLayout.EAST);
+        panel.add(new JLabel(), BorderLayout.CENTER);
         return panel;
+    }
+
+
+    private JPanel createButtonBar() {
+        _buttonBar = new ButtonBar(this);
+        _buttonBar.setOKEnabled(true);
+        _editorPane.setParentOKButton(_buttonBar.getOK());
+        return _buttonBar;
+    }
+
+
+    private void generateDefaultValue() {
+        String value = new SampleValueGenerator().generate(_row);
+        if (value != null) _editorPane.getEditor().setText(format(value));
+    }
+
+
+    private String format(String text) {
+        return XMLUtilities.formatXML(text, true, true);
     }
 
 }

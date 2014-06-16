@@ -55,6 +55,7 @@ public class ConfigurationSettings {
     private static final String CONFIGURABLE_BLOCKING_INPUT_PORTS = "BlockingInputPorts";
     private static final String CONFIGURABLE_ALLOW_DEFAULT_CHANGES =
             "AllowDefaultConfigChanges";
+    private static final String WENDY_FILE_PATH = "WendyFilePath";
 
 
     public static Preferences getSettings() { return _prefs; }
@@ -92,6 +93,13 @@ public class ConfigurationSettings {
         return getBoolean(CONFIGURABLE_BLOCKING_INPUT_PORTS);
     }
 
+    public static void setWendyFilePath(String path) {
+        setString(WENDY_FILE_PATH, path);
+    }
+
+    public static String getWendyFilePath() {
+        return getString(WENDY_FILE_PATH);
+    }
 
 
     private static boolean getBoolean(String key) {
@@ -101,5 +109,15 @@ public class ConfigurationSettings {
     private static void setBoolean(String key, boolean value) {
         _prefs.putBoolean(key, value);
     }
+
+    private static String getString(String key) {
+        return _prefs.get(key, null);
+    }
+
+    private static void setString(String key, String value) {
+        _prefs.put(key, value);
+    }
+
+
 
 }

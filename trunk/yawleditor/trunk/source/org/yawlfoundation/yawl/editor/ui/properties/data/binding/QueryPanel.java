@@ -91,7 +91,7 @@ class QueryPanel extends AbstractBindingPanel {
         _toolbar.add(createToolBarButton("generate", "insertBinding",
                 " Generate and insert binding ", listener));
         _toolbar.add(createToolBarButton("reset", "resetBinding",
-                " Reset binding to original ", listener));
+                " Reset to original binding ", listener));
         _toolbar.add(createFormatButton());
         content.add(_toolbar, BorderLayout.EAST);
         return content;

@@ -37,6 +37,7 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
     private SwatchPanel _elementSwatch;
     private FontPanel _fontPanel;
     private DescriptionTogglePanel _descriptionTogglePanel;
+    private CheckUpdatesPanel _checkUpdatesPanel;
     private final ActionListener _listener;
 
 
@@ -52,12 +53,13 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
         UserSettings.setVertexBackgroundColour(_elementSwatch.getBackground());
         _fontPanel.applyChanges();
         _descriptionTogglePanel.applyChanges();
+        _checkUpdatesPanel.applyChanges();
     }
 
 
     private void addContent() {
-        JPanel content = new JPanel(new GridLayout(0,1,15,15));
-        content.setBorder(new EmptyBorder(20, 0, 0, 0));
+        JPanel content = new JPanel(new GridLayout(0,1,5,5));
+        content.setBorder(new EmptyBorder(20, 0, 0, 200));
         _netSwatch = new SwatchPanel(UserSettings.getNetBackgroundColour());
         content.add(buildColourPanel(_netSwatch, "Default Net Background Colour"));
         _elementSwatch = new SwatchPanel(UserSettings.getVertexBackgroundColour());
@@ -66,6 +68,8 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
         content.add(_fontPanel);
         _descriptionTogglePanel = new DescriptionTogglePanel(_listener);
         content.add(_descriptionTogglePanel);
+        _checkUpdatesPanel = new CheckUpdatesPanel(_listener);
+        content.add(_checkUpdatesPanel);
         add(content);
     }
 
@@ -73,17 +77,18 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
     private JPanel buildColourPanel(SwatchPanel swatchPanel, String caption) {
         JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.add(buildCaptionPanel(caption), BorderLayout.WEST);
-        panel.add(swatchPanel, BorderLayout.CENTER);
-        panel.add(buildColourButton(caption, swatchPanel), BorderLayout.EAST);
-        panel.setPreferredSize(new Dimension(350, 25));
+        JPanel subPanel = new JPanel(new GridLayout(1,0,10,10));
+        subPanel.add(swatchPanel);
+        subPanel.add(buildColourButton(caption, swatchPanel));
+        subPanel.setPreferredSize(new Dimension(60, 25));
+        panel.add(subPanel, BorderLayout.EAST);
         return panel;
     }
 
 
     private JPanel buildCaptionPanel(String caption) {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel panel = new JPanel();
         panel.add(new JLabel(caption + ":"));
-        panel.setPreferredSize(new Dimension(250, 25));
         return panel;
     }
 

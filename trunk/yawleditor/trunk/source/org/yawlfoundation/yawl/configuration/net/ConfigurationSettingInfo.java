@@ -32,6 +32,7 @@ public class ConfigurationSettingInfo {
 	private boolean applyAutoGreyOut;
 	private boolean allowBlockingInputPorts;
 	private boolean allowChangingDefaultConfiguration;
+    private String wendyPath;
 	
 	public ConfigurationSettingInfo() {
 		newElementsConfigurable = ConfigurationSettings.getConfigurableNewElements();
@@ -39,6 +40,7 @@ public class ConfigurationSettingInfo {
 		allowBlockingInputPorts = ConfigurationSettings.getConfigurableBlockingInputPorts();
 		allowChangingDefaultConfiguration =
                 ConfigurationSettings.getConfigurableAllowDefaultChanges();
+        wendyPath = ConfigurationSettings.getWendyFilePath();
         publishState(applyAutoGreyOut);
   }
 
@@ -84,6 +86,13 @@ public class ConfigurationSettingInfo {
 		allowChangingDefaultConfiguration = setting;
         ConfigurationSettings.setConfigurableAllowDefaultChanges(setting);
 	}
+
+    public void setWendyPath(String path) {
+        wendyPath = path;
+        ConfigurationSettings.setWendyFilePath(path);
+    }
+
+    public String getWendyPath() { return wendyPath; }
 
 
     private void publishState(boolean selected) {

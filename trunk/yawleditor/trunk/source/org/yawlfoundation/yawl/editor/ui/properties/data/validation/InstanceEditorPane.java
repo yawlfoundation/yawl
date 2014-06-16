@@ -18,7 +18,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 
+import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.ProblemReportingEditorPane;
+
+import javax.swing.*;
 
 /**
  * @author Michael Adams
@@ -26,7 +29,20 @@ import org.yawlfoundation.yawl.editor.ui.data.editorpane.ProblemReportingEditorP
  */
 public class InstanceEditorPane extends ProblemReportingEditorPane {
 
+    private JButton parentOKButton;
+
     public InstanceEditorPane(String dataType, String value) {
         super(new InstanceEditor(dataType, value));
+    }
+
+    public void setParentOKButton(JButton okButton) {
+        parentOKButton = okButton;
+    }
+
+    public void documentValidityChanged(Validity documentValid) {
+        super.documentValidityChanged(documentValid);
+        if (parentOKButton != null) {
+            parentOKButton.setEnabled(documentValid == Validity.VALID || getText().isEmpty());
+        }
     }
 }

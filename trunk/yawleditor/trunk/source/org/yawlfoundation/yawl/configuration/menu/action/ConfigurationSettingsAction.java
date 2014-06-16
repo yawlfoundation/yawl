@@ -49,11 +49,16 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
 public class ConfigurationSettingsAction extends YAWLBaseAction
         implements FileStateListener {
@@ -125,6 +130,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
             denyblocking = new Checkbox();
             changDefault = new Checkbox();
             okButton = new JButton();
+            fldWendy = new JTextField();
 
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             setTitle("Process Configuration Settings");
@@ -144,6 +150,8 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
                 }
             });
 
+            JPanel wendyPanel = getWendyPanel();
+
             GroupLayout layout = new GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
             layout.setHorizontalGroup(
@@ -156,9 +164,10 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
                                                             .addComponent(denyblocking, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                                             .addComponent(newElementConfig, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                                             .addComponent(AotGreyOut, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                                            .addComponent(changDefault, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                                                            .addComponent(changDefault, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                            .addComponent(wendyPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
                                             .addGroup(layout.createSequentialGroup()
-                                                    .addGap(105, 105, 105)
+                                                    .addGap(175, 175, 175)
                                                     .addComponent(okButton, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)))
                                     .addContainerGap(19, Short.MAX_VALUE))
             );
@@ -173,7 +182,9 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
                                     .addComponent(denyblocking, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(changDefault, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(wendyPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
                                     .addComponent(okButton)
                                     .addContainerGap())
             );
@@ -195,6 +206,9 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
             if(netConfiguration.getSettings().isAllowChangingDefaultConfiguration()){
                 this.changDefault.setState(true);
             }
+
+            fldWendy.setText(getWendyPath(netConfiguration));
+
             pack();
             setResizable(false);
         }// </editor-fold>
@@ -207,8 +221,69 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
             netConfiguration.getSettings().setAllowBlockingInputPorts(!this.denyblocking.getState());
             netConfiguration.getSettings().setNewElementsConfigurable(this.newElementConfig.getState());
             netConfiguration.getSettings().setAllowChangingDefaultConfiguration(this.changDefault.getState());
+            netConfiguration.getSettings().setWendyPath(checkPath(fldWendy.getText()));
             this.setVisible(false);
         }
+
+        private String getWendyPath(NetConfiguration netConfiguration) {
+            String path = netConfiguration.getSettings().getWendyPath();
+            return path != null ? path : FileUtilities.getHomeDir() + "wendy";
+        }
+
+
+        private JPanel getWendyPanel() {
+            JPanel panel = new JPanel(new BorderLayout(5, 5));
+            panel.setBorder(new TitledBorder("Wendy (Process Configuration) Folder"));
+            panel.add(buildFileButton(), BorderLayout.EAST);
+            fldWendy.setPreferredSize(new Dimension(350, 25));
+            panel.add(fldWendy, BorderLayout.CENTER);
+            return panel;
+        }
+
+        private JButton buildFileButton() {
+            JButton button = new JButton("...");
+            button.setPreferredSize(new Dimension(25, 15));
+            button.setToolTipText(" Select File Dialog ");
+
+            final JDialog thisPanel = this;
+            button.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    JFileChooser fileChooser = new JFileChooser(getInitialDir());
+                    fileChooser.setDialogTitle("Select Wendy (Process Configuration) Folder");
+                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    if (fileChooser.showOpenDialog(thisPanel) == JFileChooser.APPROVE_OPTION) {
+                        File file = fileChooser.getSelectedFile();
+                        if (file != null) {
+                            setPath(file);
+                        }
+                    }
+                }
+            });
+            return button;
+        }
+
+
+        private String getInitialDir() {
+            String path = fldWendy.getText();
+            return (path != null) ? path.substring(0, path.lastIndexOf(File.separator)) : null;
+        }
+
+        private void setPath(File file) {
+            try {
+                fldWendy.setText(file.getCanonicalPath());
+            }
+            catch (IOException ioe) {
+                fldWendy.setText(file.getAbsolutePath());
+            }
+        }
+
+        private String checkPath(String path) {
+            if (path.endsWith("/") || path.endsWith("\\")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return path;
+        }
+
 
 
         // Variables declaration - do not modify
@@ -216,6 +291,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
         private Checkbox changDefault;
         private Checkbox denyblocking;
         private Checkbox newElementConfig;
+        private JTextField fldWendy;
         private JButton okButton;
         // End of variables declaration
 

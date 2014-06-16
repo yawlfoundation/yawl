@@ -34,6 +34,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.YSplashScreen;
 import org.yawlfoundation.yawl.editor.ui.swing.YStatusBar;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.*;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
+import org.yawlfoundation.yawl.editor.ui.update.BackgroundUpdateChecker;
 import org.yawlfoundation.yawl.editor.ui.util.*;
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
@@ -217,6 +218,9 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static void finishLoading() {
         splashScreen.close();
         splashScreen = null;
+        if (UserSettings.getCheckForUpdatesOnStart()) {
+            new BackgroundUpdateChecker().execute();
+        }
     }
 
     private static void loadChosenSpecification(String fileName) {

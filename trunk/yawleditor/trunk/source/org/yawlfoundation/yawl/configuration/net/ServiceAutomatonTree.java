@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.configuration.net;
 
 import org.yawlfoundation.yawl.configuration.CPort;
+import org.yawlfoundation.yawl.configuration.ConfigurationSettings;
 import org.yawlfoundation.yawl.configuration.ProcessConfigurationModel;
 import org.yawlfoundation.yawl.configuration.element.TaskConfiguration;
 import org.yawlfoundation.yawl.configuration.element.TaskConfigurationCache;
@@ -28,7 +29,6 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
 import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
-import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -89,7 +89,7 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
         nodes = new ArrayList<Node>();
         tasks = new ArrayList<YAWLTask>();
         currentState = "";
-        String savedPath = UserSettings.getWendyFilePath();
+        String savedPath = ConfigurationSettings.getWendyFilePath();
         path = savedPath != null ? savedPath : FileUtilities.getHomeDir() + "wendy";
     }
 
