@@ -3,24 +3,14 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 import net.sf.saxon.s9api.SaxonApiException;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
-import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
-import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormException;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFieldAssembler;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
-import org.yawlfoundation.yawl.schema.XSDType;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.*;
 
@@ -36,9 +26,8 @@ import java.util.*;
  * @author Michael Adams
  * @date 1/11/2013
  */
-public class BindingTypeValidator {
+public class BindingTypeValidator extends TypeValueBuilder {
 
-    private String _schema;
     private Map<String, DynFormField> _fieldMap;
     private String _dataTypeName;
     private String _rootName;
@@ -130,10 +119,9 @@ public class BindingTypeValidator {
     private void init(final Map<String, FormParameter> paramMap) {
         new Thread(new Runnable() {
             public void run() {
-              _schema = getDataSchema(paramMap);
-              _fieldMap = getFieldMap(paramMap);
+              _fieldMap = getFieldMap(paramMap, _rootName, getDataSchema(paramMap));
               _dataDocument = getDataDocument(
-                      new ArrayList<DynFormField>(_fieldMap.values()));
+                      new ArrayList<DynFormField>(_fieldMap.values()), _rootName);
             }
         }).start();
     }
@@ -152,42 +140,6 @@ public class BindingTypeValidator {
 
 
     /**
-     * Builds a map of dynamic form fields from a set of variables, each field
-     * representing a simple type variable or a hierarchy of simple type elements
-     * of a complex type variable.
-     * @param paramMap a map of variable names to FormParameters (an extension of
-     *                 YVariable required for dynamic forms)
-     * @return the composed map of field names to fields
-     */
-    private Map<String, DynFormField> getFieldMap(Map<String, FormParameter> paramMap) {
-        String data = "<" + _rootName + "/>";
-        try {
-            DynFormFieldAssembler fieldAssembler = new DynFormFieldAssembler(
-                   _schema, data, paramMap);
-            return buildFieldMap(fieldAssembler.getFieldList());
-        }
-        catch (DynFormException dfe) {
-            // fall through;
-        }
-        return Collections.emptyMap();
-    }
-
-
-    /**
-     * Builds a map of dynamic form fields from a list of them
-     * @param fieldList a list of dynamic form fields
-     * @return the composed map of field names to fields
-     */
-    private Map<String, DynFormField> buildFieldMap(List<DynFormField> fieldList) {
-        Map<String, DynFormField> fieldMap = new HashMap<String, DynFormField>();
-        for (DynFormField field : fieldList) {
-            fieldMap.put(field.getName(), field);
-        }
-        return fieldMap;
-    }
-
-
-    /**
      * Builds a schema from a set of parameters. The schema is composed only of
      * simple types, with complex types decomposed into their simple type equivalents.
      * @param paramMap a map of variable names to FormParameters (an extension of
@@ -198,27 +150,6 @@ public class BindingTypeValidator {
         Map<String, Element> elementMap = assembleMap(getSpecHandler().getSchema());
         return new DataSchemaBuilder(elementMap).buildSchema(
                     _rootName, new ArrayList<FormParameter>(paramMap.values()));
-    }
-
-
-    /**
-     * Builds a map of complex data types and their names from the specification schema,
-     * required for the building of the data schema
-     * @param schema the data definition schema of the specification
-     * @return a map of name to data type definition
-     */
-    private Map<String, Element> assembleMap(String schema) {
-        Map<String, Element> map = new HashMap<String, Element>();
-        if (schema != null) {
-            Element dataSchema = JDOMUtil.stringToElement(schema);
-            for (Element child : dataSchema.getChildren()) {
-                String name = child.getAttributeValue("name");
-                if (name != null) {
-                    map.put(name, child);
-                }
-            }
-        }
-        return map;
     }
 
 
@@ -258,29 +189,6 @@ public class BindingTypeValidator {
 
 
     /**
-     * Creates a FormParameter object from the data contained in a variable row
-     * @param row the row to use
-     * @return a corresponding FormParameter
-     */
-    private FormParameter getParameter(VariableRow row) {
-        try {
-
-            // exception here if no current specification (should never occur)
-            String ns = getDataHandler().getDataSchemaNamespace().toString();
-
-            FormParameter param = new FormParameter();
-            param.setInitialValue(row.getValue());
-            param.setDataTypeAndName(row.getDataType(), row.getName(), ns);
-            param.setAttributes(row.getAttributes());
-            return param;
-        }
-        catch (YDataHandlerException ydhe) {
-            return null;
-        }
-    }
-
-
-    /**
      * Creates a FormParameter object from the data contained in a variable
      * @param variable the variable to use
      * @return a corresponding FormParameter
@@ -308,43 +216,6 @@ public class BindingTypeValidator {
 
 
     /**
-     * Creates a data document filled with sample values from a list of dynamic
-     * form fields.
-     * @param fieldList a list of dynamic form fields
-     * @return a corresponding data document
-     */
-    private Document getDataDocument(List<DynFormField> fieldList) {
-        XNode root = new XNode(_rootName);
-        for (DynFormField field : fieldList) {
-            root.addChild(expandField(field));
-        }
-        return root.toDocument();
-    }
-
-
-    /**
-     * Recursively builds a hierarchical data document for a field, until its simple
-     * type leaf is reached, which is added with a sample value for its data type
-     * inserted
-     * @param field the field to build from
-     * @return a node containing the field breakdown
-     */
-    private XNode expandField(DynFormField field) {
-        XNode fieldNode = new XNode(field.getName());
-        if (field.isSimpleField()) {
-            fieldNode.setText(getSampleValue(field), true);
-        }
-        else {
-            for (DynFormField subField : field.getSubFieldList()) {
-                fieldNode.addChild(expandField(subField));
-                if (subField.isChoiceField()) break;              // only want one choice
-            }
-        }
-        return fieldNode;
-    }
-
-
-    /**
      * Evaluates the XPath/XQuery parts of a binding to a simple data equivalent
      * @param query the binding
      * @param dataDocument the document of sample data
@@ -359,26 +230,6 @@ public class BindingTypeValidator {
         }
         String evaluated = SaxonUtil.evaluateQuery(query, dataDocument);
         return wrapped ? StringUtil.unwrap(evaluated) : evaluated;
-    }
-
-
-    /**
-     * Gets the sample value based on the data type of the field
-     * @param field the field to get a value for
-     * @return the sample data value
-     */
-    private String getSampleValue(DynFormField field) {
-        if (field.isSimpleField()) {
-            if (field.hasEnumeratedValues()) {
-                return field.getEnumeratedValues().get(0);
-            }
-            if (field.hasRestriction()) {
-                return new RestrictionSampleValueGenerator(field.getRestriction())
-                        .generateValue();
-            }
-            return XSDType.getSampleValue(field.getDataTypeUnprefixed());
-        }
-        return "";
     }
 
 
@@ -406,24 +257,6 @@ public class BindingTypeValidator {
                     "/" + _rootName + "/").trim();
         }
         return binding.trim();
-    }
-
-
-    // gets the currently selected net
-    private YNet getNet() {
-        return YAWLEditor.getNetsPane().getSelectedYNet();
-    }
-
-
-    // gets the core data handler
-    private YDataHandler getDataHandler() {
-        return getSpecHandler().getDataHandler();
-    }
-
-
-    // gets the core specification handler
-    private YSpecificationHandler getSpecHandler() {
-        return SpecificationModel.getHandler();
     }
 
 }

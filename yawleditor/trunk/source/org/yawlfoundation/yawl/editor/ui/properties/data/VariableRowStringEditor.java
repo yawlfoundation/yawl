@@ -131,9 +131,9 @@ public class VariableRowStringEditor extends AbstractCellEditor
 
 
     private void showValueDialog(String value) {
-        String dataType = tablePanel.getVariableAtRow(editingRow).getDataType();
+        VariableRow row = tablePanel.getVariableAtRow(editingRow);
         VariableValueDialog dialog = new VariableValueDialog(
-                tablePanel.getVariableDialog(), nameField.getText(), dataType, value);
+                tablePanel.getVariableDialog(), row, value);
         String text = dialog.showDialog();
         if (text != null) {
             valuePanel.setText(text);

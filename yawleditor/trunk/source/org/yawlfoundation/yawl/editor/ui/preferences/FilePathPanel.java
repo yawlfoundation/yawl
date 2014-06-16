@@ -41,7 +41,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
     private JTextField _fldVariable;
     private JTextField _fldIcons;
     private JTextField _fldWofyawl;
-    private JTextField _fldWendy;
 
     private static final String PROPERTY_LOCATION =
             FileUtilities.getDecompositionAttributePath();
@@ -59,7 +58,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         UserSettings.setVariableAttributesFilePath(_fldVariable.getText());
         UserSettings.setTaskIconsFilePath(checkPath(_fldIcons.getText()));
         UserSettings.setWofyawlFilePath(_fldWofyawl.getText());
-        UserSettings.setWendyFilePath(checkPath(_fldWendy.getText()));
     }
 
 
@@ -68,7 +66,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         _fldDecomposition = new JTextField(getDecompositionPath());
         _fldIcons = new JTextField(getTaskIconsPath());
         _fldWofyawl = new JTextField(getWofyawlPath());
-        _fldWendy = new JTextField(getWendyPath());
 
         JPanel contentPanel = new JPanel(new GridLayout(0, 1, 10, 10));
         contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -80,8 +77,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
                 "Task Icons Folder", listener));
         contentPanel.add(buildFileEntryPanel(_fldWofyawl,
                 "WofYAWL Analysis File", listener));
-        contentPanel.add(buildFileEntryPanel(_fldWendy,
-                "Wendy (Process Configuration) Folder", listener));
         add(contentPanel);
     }
 
@@ -109,7 +104,7 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
                 String cmd = e.getActionCommand();
                 JFileChooser fileChooser = new JFileChooser(getInitialDir(cmd));
                 fileChooser.setDialogTitle("Select " + getDialogTitle(cmd));
-                if (cmd.equals("Task") || cmd.equals("Wendy")) {
+                if (cmd.equals("Task")) {
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 }
                 if (fileChooser.showOpenDialog(thisPanel) == JFileChooser.APPROVE_OPTION) {
@@ -124,10 +119,7 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
     }
 
     private String getDialogTitle(String cmd) {
-        if (cmd.equals("Wendy")) {
-            return "Wendy (Process Configuration) Folder";
-        }
-        else if (cmd.equals("WofYAWL")) {
+        if (cmd.equals("WofYAWL")) {
             return "WofYAWL File";
         }
         else return cmd + (cmd.equals("Task") ? " Icons Folder" : " Extended Attributes File");
@@ -168,10 +160,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         return path != null ? path : FileUtilities.getHomeDir();
     }
 
-    private String getWendyPath() {
-        String path = UserSettings.getWendyFilePath();
-        return path != null ? path : FileUtilities.getHomeDir() + "wendy";
-    }
 
     private String getInitialDir(String cmd) {
         String path = getField(cmd).getText();
@@ -190,9 +178,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         }
         else if (cmd.equals("WofYAWL")) {
             return _fldWofyawl;
-        }
-        else if (cmd.equals("Wendy")) {
-            return _fldWendy;
         }
         return null;
     }

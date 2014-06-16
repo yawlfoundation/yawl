@@ -48,7 +48,6 @@ public class FontPanel extends JPanel {
                 UserSettings.getFontSize());
         _textColour = UserSettings.getDefaultTextColour();
         addContent();
-        setPreferredSize(new Dimension(350, 25));
     }
 
 
@@ -69,16 +68,16 @@ public class FontPanel extends JPanel {
         _fontLabel = new JLabel(getFontLabelText());
         _fontLabel.setForeground(_textColour);
         _fontLabel.setToolTipText("Current Font");
-        add(_fontLabel, BorderLayout.CENTER);
-        add(buildFontButton(), BorderLayout.EAST);
-        setPreferredSize(new Dimension(450, 25));
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.add(_fontLabel, BorderLayout.CENTER);
+        panel.add(buildFontButton(), BorderLayout.EAST);
+        add(panel, BorderLayout.EAST);
     }
 
 
     private JPanel buildCaptionPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.add(new JLabel("Default Font:"));
-        panel.setPreferredSize(new Dimension(100, 25));
         return panel;
     }
 

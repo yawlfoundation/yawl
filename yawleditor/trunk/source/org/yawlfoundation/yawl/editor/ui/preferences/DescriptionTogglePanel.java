@@ -21,9 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.preferences;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -31,44 +28,19 @@ import java.awt.event.KeyEvent;
  * @author Michael Adams
  * @date 19/05/2014
  */
-public class DescriptionTogglePanel extends JPanel implements PreferencePanel {
+public class DescriptionTogglePanel extends DefaultsCheckBoxPanel implements PreferencePanel {
 
-    private final ActionListener _listener;
-    private final JCheckBox _checkBox;
 
     public DescriptionTogglePanel(ActionListener listener) {
-        super();
-        _listener = listener;
-        _checkBox = createCheckBox();
-        add(_checkBox);
+        super("Show Description panel in Properties pane", KeyEvent.VK_D,
+                UserSettings.getShowPropertyDescriptions(), listener);
     }
 
 
     public void applyChanges() {
-        YAWLEditor.getPropertySheet().setDescriptionVisible(_checkBox.isSelected());
+        YAWLEditor.getPropertySheet().setDescriptionVisible(isSelected());
         YAWLEditor.getPropertySheet().refresh();
-        UserSettings.setShowPropertyDescriptions(_checkBox.isSelected());
-    }
-
-
-    private JCheckBox createCheckBox() {
-        JCheckBox checkBox = new JCheckBox("Show Description panel in Properties pane");
-        checkBox.setBorder(new EmptyBorder(5, 0, 5, 0));
-        checkBox.setMnemonic(KeyEvent.VK_D);
-        checkBox.setSelected(UserSettings.getShowPropertyDescriptions());
-        checkBox.setAlignmentX(LEFT_ALIGNMENT);
-        checkBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                announceChange();
-            }
-        });
-        return checkBox;
-    }
-
-
-    private void announceChange() {
-        _listener.actionPerformed(
-                new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
+        UserSettings.setShowPropertyDescriptions(isSelected());
     }
 
 }

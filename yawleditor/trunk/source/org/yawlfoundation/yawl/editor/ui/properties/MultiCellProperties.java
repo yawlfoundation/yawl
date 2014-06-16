@@ -106,8 +106,9 @@ public class MultiCellProperties extends NetProperties {
             vertex.setName(value);
             if (idLabelSynch) updateVertexID(vertex, value);
             vertex.getVertexLabel().refreshLabelView();
-            setDirty();
         }
+        graph.setSelectionCells(getParents());
+        setDirty();
     }
 
 
@@ -504,6 +505,7 @@ public class MultiCellProperties extends NetProperties {
             }
         }
         currentSplitType = value;
+        graph.setSelectionCells(getParents());
         fireDecoratorPositionChange("split", type > -1 ? pos : 14);
         setDirty();
     }
@@ -527,6 +529,7 @@ public class MultiCellProperties extends NetProperties {
             }
         }
         currentJoinType = value;
+        graph.setSelectionCells(getParents());
         fireDecoratorPositionChange("join", type > -1 ? pos : 14);
         setDirty();
     }
@@ -539,6 +542,7 @@ public class MultiCellProperties extends NetProperties {
                 int pos = getDecoratorPosIndex(value);
                 graph.setSplitDecorator((YAWLTask) vertex, type, pos);
             }
+            graph.setSelectionCells(getParents());
             setDirty();
         }
     }
@@ -551,6 +555,7 @@ public class MultiCellProperties extends NetProperties {
                 int pos = getDecoratorPosIndex(value);
                 graph.setJoinDecorator((YAWLTask) vertex, type, pos);
             }
+            graph.setSelectionCells(getParents());
             setDirty();
         }
     }
