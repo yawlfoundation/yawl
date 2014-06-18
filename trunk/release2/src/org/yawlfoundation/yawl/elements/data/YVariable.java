@@ -348,7 +348,12 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
     }
 
     public void setOptional(boolean option) {
-        addAttribute("optional", String.valueOf(option));
+        if (option) {                                 // only set attribute if true
+            addAttribute("optional", String.valueOf(option));
+        }
+        else {
+            getAttributes().remove("optional");      // no attribute means not optional
+        }
     }
 
 

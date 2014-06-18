@@ -1094,7 +1094,7 @@ public class SessionBean extends AbstractSessionBean {
 
 
     private Option[] orgDataParticipantList ;
-    private HashMap<String, Participant> participantMap ;
+    private Map<String, Participant> participantMap ;
 
 
     public Option[] getOrgDataParticipantList() {
@@ -1105,7 +1105,7 @@ public class SessionBean extends AbstractSessionBean {
         return orgDataParticipantList;
     }
 
-    private HashMap<String, Participant> getParticipantMap() {
+    private Map<String, Participant> getParticipantMap() {
         participantMap = _rm.getOrgDataSet().getParticipantMap();
         return participantMap;
     }
@@ -1135,7 +1135,7 @@ public class SessionBean extends AbstractSessionBean {
 
     
     public void refreshOrgDataParticipantList() {
-        HashMap<String, Participant> pMap = getParticipantMap();
+        Map<String, Participant> pMap = getParticipantMap();
 
         if (pMap != null) {
             int i = 0 ;
@@ -1289,7 +1289,7 @@ public class SessionBean extends AbstractSessionBean {
         return options;
     }
 
-    private Option[] getRoleList(HashMap<String, Role> roleMap) {
+    private Option[] getRoleList(Map<String, Role> roleMap) {
         if (roleMap != null) {
             Option[] result = new Option[roleMap.size()];
             int i = 0 ;
@@ -1303,7 +1303,7 @@ public class SessionBean extends AbstractSessionBean {
 
     }
 
-    private Option[] getPositionList(HashMap<String, Position> positionMap) {
+    private Option[] getPositionList(Map<String, Position> positionMap) {
         if (positionMap != null) {
             Option[] result = new Option[positionMap.size()];
             int i = 0 ;
@@ -1316,7 +1316,7 @@ public class SessionBean extends AbstractSessionBean {
         else return null ;
     }
 
-    private Option[] getCapabilityList(HashMap<String, Capability> capabilityMap) {
+    private Option[] getCapabilityList(Map<String, Capability> capabilityMap) {
         if (capabilityMap != null) {
             Option[] result = new Option[capabilityMap.size()];
             int i = 0 ;
@@ -1329,7 +1329,7 @@ public class SessionBean extends AbstractSessionBean {
         else return null ;
     }
 
-    private Option[] getOrgGroupList(HashMap<String, OrgGroup> orgGroupMap) {
+    private Option[] getOrgGroupList(Map<String, OrgGroup> orgGroupMap) {
         if (orgGroupMap != null) {
             Option[] result = new Option[orgGroupMap.size()];
             int i = 0 ;

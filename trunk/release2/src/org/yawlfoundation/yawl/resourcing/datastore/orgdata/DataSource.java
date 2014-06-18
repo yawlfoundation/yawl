@@ -48,7 +48,8 @@ public abstract class DataSource {
      * @return a unique String identifier
      */
     protected String getNextID(String prefix) {
-        return String.format("%s-%s", prefix, UUID.randomUUID().toString()) ;
+        String id = UUID.randomUUID().toString();
+        return prefix != null ? prefix + "-" + id : id;
     }
 
     /********************************************************************************/

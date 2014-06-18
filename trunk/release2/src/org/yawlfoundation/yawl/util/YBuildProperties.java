@@ -56,6 +56,10 @@ public class YBuildProperties {
         return _buildProps.getProperty("BuildDate");
     }
 
+    public String getFullVersion() {
+        return getVersion() + " (b." + getBuildNumber() + ")";
+    }
+
 
     public String toXML() {
         XNode root = new XNode("buildproperties");

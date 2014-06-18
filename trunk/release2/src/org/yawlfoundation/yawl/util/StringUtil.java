@@ -606,8 +606,8 @@ public class StringUtil {
                     int j = i - 1;
                     int index = i - toFind.length() + 1;
                     for (int k = lastCharToFindIndex - 1;
-                         j > index && toSearch.charAt(j) == toFind.charAt(k); j--, k--)
-                        ;
+                         j > index && toSearch.charAt(j) == toFind.charAt(k);
+                         j--, k--);
 
                     if (j == index) return index;
                 } else break;

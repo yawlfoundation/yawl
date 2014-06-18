@@ -91,7 +91,6 @@ public class PluginFactory extends AbstractPluginFactory {
     }
 
 
-
     public static String getConstraintsAsXML() {
         StringBuilder result = new StringBuilder("<constraints>");
         for (AbstractConstraint constraint : getConstraints()) {

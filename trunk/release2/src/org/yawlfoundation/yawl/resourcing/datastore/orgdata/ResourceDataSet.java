@@ -43,13 +43,13 @@ public class ResourceDataSet {
     public enum Identifier { FullName, ReverseFullName, LastName, Userid }
 
     // Data maps [id, object] for each of the seven resource entities
-    private HashMap<String, Participant> participantMap ;
-    private HashMap<String, Role> roleMap ;
-    private HashMap<String, Capability> capabilityMap;
-    private HashMap<String, Position> positionMap;
-    private HashMap<String, OrgGroup> orgGroupMap;
-    private HashMap<String, NonHumanResource> nonHumanMap;
-    private HashMap<String, NonHumanCategory> nonHumanCategoryMap;
+    private Map<String, Participant> participantMap ;
+    private Map<String, Role> roleMap ;
+    private Map<String, Capability> capabilityMap;
+    private Map<String, Position> positionMap;
+    private Map<String, OrgGroup> orgGroupMap;
+    private Map<String, NonHumanResource> nonHumanMap;
+    private Map<String, NonHumanCategory> nonHumanCategoryMap;
 
     // if true, overrides read-only setting of external data sources (set from web.xml)
     private boolean _allowExternalOrgDataMods = true;
@@ -111,7 +111,7 @@ public class ResourceDataSet {
     }
 
 
-    private ArrayList<Participant> sortFullParticipantListByName() {
+    private List<Participant> sortFullParticipantListByName() {
         ArrayList<Participant> pList = new ArrayList<Participant>(participantMap.values());
         Collections.sort(pList, new ParticipantNameComparator());
         return pList ;
@@ -195,38 +195,38 @@ public class ResourceDataSet {
 
     /************************************/
 
-    public void setParticipants(HashMap<String, Participant> participants, DataSource source) {
+    public void setParticipants(Map<String, Participant> participants, DataSource source) {
         participantMap = participants;
         setDataSource(ResUnit.Participant, source);
     }
 
-    public void setRoles(HashMap<String, Role> roles, DataSource source) {
+    public void setRoles(Map<String, Role> roles, DataSource source) {
         roleMap = roles;
         setDataSource(ResUnit.Role, source);
     }
 
-    public void setCapabilities(HashMap<String, Capability> capabilities, DataSource source) {
+    public void setCapabilities(Map<String, Capability> capabilities, DataSource source) {
         capabilityMap = capabilities;
         setDataSource(ResUnit.Capability, source);
     }
 
-    public void setPositions(HashMap<String, Position> positions, DataSource source) {
+    public void setPositions(Map<String, Position> positions, DataSource source) {
         positionMap = positions;
         setDataSource(ResUnit.Position, source);
     }
 
-    public void setOrgGroups(HashMap<String, OrgGroup> groups, DataSource source) {
+    public void setOrgGroups(Map<String, OrgGroup> groups, DataSource source) {
         orgGroupMap = groups;
         setDataSource(ResUnit.OrgGroup, source);
     }
 
-    public void setNonHumanResources(HashMap<String, NonHumanResource> resources,
+    public void setNonHumanResources(Map<String, NonHumanResource> resources,
                                      DataSource source) {
         nonHumanMap = resources;
         setDataSource(ResUnit.NonHumanResource, source);
     }
 
-    public void setNonHumanCategories(HashMap<String, NonHumanCategory> resources,
+    public void setNonHumanCategories(Map<String, NonHumanCategory> resources,
                                       DataSource source) {
         nonHumanCategoryMap = resources;
         setDataSource(ResUnit.NonHumanCategory, source);
@@ -715,31 +715,31 @@ public class ResourceDataSet {
         return (cid != null) ? nonHumanCategoryMap.get(cid) : null;
     }
 
-    public HashSet<Participant> getParticipants() {
+    public Set<Participant> getParticipants() {
         return new HashSet<Participant>(participantMap.values()) ;
     }
 
-    public HashSet<Role> getRoles() {
+    public Set<Role> getRoles() {
         return new HashSet<Role>(roleMap.values()) ;
     }
 
-    public HashSet<Position> getPositions() {
+    public Set<Position> getPositions() {
         return new HashSet<Position>(positionMap.values()) ;
     }
 
-    public HashSet<Capability> getCapabilities() {
+    public Set<Capability> getCapabilities() {
         return new HashSet<Capability>(capabilityMap.values()) ;
     }
 
-    public HashSet<OrgGroup> getOrgGroups() {
+    public Set<OrgGroup> getOrgGroups() {
         return new HashSet<OrgGroup>(orgGroupMap.values()) ;
     }
 
-    public HashSet<NonHumanResource> getNonHumanResources() {
+    public Set<NonHumanResource> getNonHumanResources() {
         return new HashSet<NonHumanResource>(nonHumanMap.values()) ;
     }
 
-    public HashSet<NonHumanCategory> getNonHumanCategories() {
+    public Set<NonHumanCategory> getNonHumanCategories() {
         return new HashSet<NonHumanCategory>(nonHumanCategoryMap.values()) ;
     }
 
@@ -752,31 +752,31 @@ public class ResourceDataSet {
     }
 
 
-    public HashMap<String, Participant> getParticipantMap() {
+    public Map<String, Participant> getParticipantMap() {
         return participantMap ;
     }
 
-    public HashMap<String, Role> getRoleMap() {
+    public Map<String, Role> getRoleMap() {
         return roleMap ;
     }
 
-    public HashMap<String, Position> getPositionMap() {
+    public Map<String, Position> getPositionMap() {
         return positionMap ;
     }
 
-    public HashMap<String, Capability> getCapabilityMap() {
+    public Map<String, Capability> getCapabilityMap() {
         return capabilityMap ;
     }
 
-    public HashMap<String, OrgGroup> getOrgGroupMap() {
+    public Map<String, OrgGroup> getOrgGroupMap() {
         return orgGroupMap ;
     }
 
-    public HashMap<String, NonHumanResource> getNonHumanResourceMap() {
+    public Map<String, NonHumanResource> getNonHumanResourceMap() {
         return nonHumanMap ;
     }
 
-    public HashMap<String, NonHumanCategory> getNonHumanCategoryMap() {
+    public Map<String, NonHumanCategory> getNonHumanCategoryMap() {
         return nonHumanCategoryMap ;
     }
 
@@ -1025,7 +1025,7 @@ public class ResourceDataSet {
 
     // @return a csv listing of the full name of each participant
     public String getParticipantNames() {
-        ArrayList<Participant> pList = sortFullParticipantListByName();
+        List<Participant> pList = sortFullParticipantListByName();
         StringBuilder csvList = new StringBuilder() ;
         for  (Participant p : pList) {
             if (csvList.length() > 0) csvList.append(",");
@@ -1334,7 +1334,7 @@ public class ResourceDataSet {
 
 
     public String getParticipantsAsXML() {
-        ArrayList<Participant> pList = sortFullParticipantListByName();
+        List<Participant> pList = sortFullParticipantListByName();
 
         StringBuilder xml = new StringBuilder("<participants>") ;
         for (Participant p : pList) xml.append(p.toXML()) ;

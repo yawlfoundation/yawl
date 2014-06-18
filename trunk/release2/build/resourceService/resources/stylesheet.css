@@ -593,14 +593,14 @@
 .dynformInputReadOnly {
     position: absolute;
     font-style: italic;
-    background-color: #e0e0e0;
+    background-color: #efefef;
     color: black;
 }
 
 
 .dynformReadOnlyPanel {
     border: 2px inset rgb(204, 204, 255);
-    background-color: #e0e0e0;
+    background-color: #efefef;
     height: 14px;
     left: 100px;
     position: absolute;
