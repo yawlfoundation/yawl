@@ -78,7 +78,7 @@ public class YPluginLoader extends URLClassLoader {
                         processJAR(mask, plugins, file);
                     }
                     else {
-                        String fileName = file.getAbsolutePath().replaceFirst(path, "");
+                        String fileName = file.getAbsolutePath().replace(path, "");
                         addIfMatch(mask, plugins, fileName);
                     }
                 }
@@ -224,7 +224,7 @@ public class YPluginLoader extends URLClassLoader {
     private <T> Class<T> loadIfSubclass(Class<?> c, Class<T> superclassToMatch)
             throws Throwable {
         Class<?> superClass = c.getSuperclass();
-        if (superClass == Object.class) return null;
+        if (superClass == null || superClass == Object.class) return null;
         if (superClass.getName().equals(superclassToMatch.getName())) {
             return (Class<T>) c;
         }
@@ -234,25 +234,28 @@ public class YPluginLoader extends URLClassLoader {
 
     // transforms a path string to a package name
     private String pathToPackage(String path) {
-        return path.replace(File.separatorChar, '.').substring(0, path.lastIndexOf('.'));
+        return path.replace('/', '.').substring(0, path.lastIndexOf('.'));
     }
 
 
-    // splits a path string on ';' to a list of paths
+    // splits a path string on ';' to a list of paths (also fixes file separators)
     private List<String> setPath(String pathStr) {
         if (pathStr == null || pathStr.isEmpty()) {
             return Collections.emptyList();
         }
-        return Arrays.asList(pathStr.split(";"));
+        return Arrays.asList(pathStr.replace('\\', '/').split(";"));
     }
 
 
     // walks the tree from 'dir' to build a set of files found (no dirs included)
     private Set<File> getFileSet(File dir) {
         Set<File> fileTree = new HashSet<File>();
-        for (File entry : dir.listFiles()) {
-            if (entry.isFile()) fileTree.add(entry);
-            else fileTree.addAll(getFileSet(entry));
+        File[] entries = dir.listFiles();
+        if (entries != null) {
+            for (File entry : entries) {
+                if (entry.isFile()) fileTree.add(entry);
+                else fileTree.addAll(getFileSet(entry));
+            }
         }
         return fileTree;
     }
