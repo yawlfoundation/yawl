@@ -34,9 +34,9 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -86,7 +86,7 @@ public class DataBackupEngine {
 
 
     private String exportParticipants() {
-        HashSet<Participant> pSet = orgDataSet.getParticipants();
+        Set<Participant> pSet = orgDataSet.getParticipants();
         if (pSet != null) {
             StringBuilder xml = new StringBuilder("<participants>");
             for (Participant p : pSet) {

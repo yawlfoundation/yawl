@@ -173,9 +173,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // set refresh rate if required
             if (refreshRate > 0) startOrgDataRefreshTimer(refreshRate);
-        } else
+        }
+        else {
             _log.warn("Invalid Datasource: No dataset loaded. " +
                     "Check datasource settings in 'web.xml'");
+            _orgDataSet = new EmptyDataSource().getDataSource();
+        }
     }
 
 

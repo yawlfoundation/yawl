@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.resourcing;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides resource administration capabilties to authorised participants
@@ -112,7 +112,7 @@ public class ResourceAdministrator {
         if (_qSet == null) createWorkQueues(false) ;
         _qSet.purgeQueue(WorkQueue.WORKLISTED);
 
-        HashSet<Participant> pSet = ResourceManager.getInstance().getOrgDataSet().getParticipants();
+        Set<Participant> pSet = ResourceManager.getInstance().getOrgDataSet().getParticipants();
         for (Participant p : pSet)
             _qSet.addToQueue(WorkQueue.WORKLISTED, p.getWorkQueues().getWorklistedQueues());
     }

@@ -122,7 +122,7 @@ public class DataSchemaBuilder {
         Element sequence = createPreamble(rootName, defNS);
 
         // build an appropriate element for the data type
-        createDataTypeElement(varName, dataType, defNS);
+        sequence.addContent(createDataTypeElement(varName, dataType, defNS));
 
         return completeSchema(sequence.getDocument());
     }

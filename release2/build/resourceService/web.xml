@@ -104,10 +104,11 @@
 	    <param-name>OrgDataSource</param-name>
     	<param-value>HibernateImpl</param-value>
     	<description>
-    		The name of the class (an extension of 'DataSource') which is used to
+    		The name of the class (an extension of 'DataSource') which is used
             as the 'data translation layer' between the ResourceService and a source
             of organisational data. The default YAWL implementation is the
-            'HibernateImpl' class.
+            'HibernateImpl' class. NOTE: For external data sources, the fully qualified
+            name of the class is required (e.g. com.example.myDataSource)
         </description>
     </context-param>
 
