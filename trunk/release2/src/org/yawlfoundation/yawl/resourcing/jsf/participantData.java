@@ -478,6 +478,8 @@ public class participantData extends AbstractPageBean {
 
         // set active page and show any pending messages to user
         _sb.setBlankStartOfParticipantList(true);
+
+        checkDataModsEnabled();
     }
 
 
@@ -884,7 +886,20 @@ public class participantData extends AbstractPageBean {
         _sb.showMessagePanel();
     }
 
+    private void checkDataModsEnabled() {
+        if (! getApplicationBean().getResourceManager().getOrgDataSet()
+                .isExternalOrgDataModsAllowed()) {
+            disableButton(btnAdd);
+            disableButton(btnRemove);
+            disableButton(btnSave);
+            disableButton(btnReset);
+        }
+    }
 
+    private void disableButton(Button b) {
+       b.setToolTip("External data modifications are disabled");
+       b.setDisabled(true);
+    }
 
 }
 

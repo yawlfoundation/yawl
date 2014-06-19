@@ -369,6 +369,7 @@ public class orgDataMgt extends AbstractPageBean {
             btnReset_action();
             _sb.setOrgDataItemRemovedFlag(false) ;
         }
+        checkDataModsEnabled();
     }
 
 
@@ -672,6 +673,21 @@ public class orgDataMgt extends AbstractPageBean {
         body1.setFocus(msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
                 "form1:pfOrgData:txtName");
         _sb.showMessagePanel();
-    }    
+    }
+
+
+    private void checkDataModsEnabled() {
+        if (! orgDataSet.isExternalOrgDataModsAllowed()) {
+            disableButton(btnAdd);
+            disableButton(btnRemove);
+            disableButton(btnSave);
+            disableButton(btnReset);
+        }
+    }
+
+    private void disableButton(Button b) {
+       b.setToolTip("External data modifications are disabled");
+       b.setDisabled(true);
+    }
 
 }
