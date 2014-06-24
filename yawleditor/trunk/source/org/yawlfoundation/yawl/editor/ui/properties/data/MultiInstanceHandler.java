@@ -64,6 +64,10 @@ public class MultiInstanceHandler {
         setJoinQuery(DataUtils.wrapBinding(getOutputTarget(), query));
     }
 
+    public void renameItem(VariableRow row, String newName) {
+        setFormalInputParam(newName);
+        setSplitQuery(assembleSplitQuery(row, newName));
+    }
 
     protected String getOutputTarget() {
         if (_netVarTarget != null) return _netVarTarget;
@@ -228,7 +232,7 @@ public class MultiInstanceHandler {
 
         // need to replace binding key first, to enable the set call to succeed
         _outputBindings.replaceBinding(unsplitName, oldBinding, newBinding);
-        _outputBindings.setBinding(unsplitName, DataUtils.wrapBinding(_dataItemName,
+        _outputBindings.setBinding(_netVarTarget, DataUtils.wrapBinding(_dataItemName,
                         newBinding), false);
         return newBinding;
     }
@@ -246,13 +250,17 @@ public class MultiInstanceHandler {
 
 
     private String assembleSplitQuery(VariableRow inputRow) {
+        return assembleSplitQuery(inputRow, inputRow.getName());
+    }
+
+    private String assembleSplitQuery(VariableRow inputRow, String itemName) {
         String binding = inputRow.getMapping();
         StringBuilder s = new StringBuilder();
         s.append("for $s in ");
         s.append(binding.substring(binding.lastIndexOf('/')));
-        s.append("/* return <").append(inputRow.getName());
+        s.append("/*\nreturn <").append(itemName);
         s.append(">{$s/").append(getXQuerySuffix(inputRow)).append("}</");
-        s.append(inputRow.getName()).append('>');
+        s.append(itemName).append('>');
         return s.toString();
     }
 
@@ -273,7 +281,7 @@ public class MultiInstanceHandler {
         StringBuilder s = new StringBuilder();
         s.append('<').append(tag);
         s.append(">{for $j in /").append(_task.getID()).append("/");
-        s.append(_dataItemName).append(" return $j}</").append(tag).append('>');
+        s.append(_dataItemName).append("\nreturn $j}</").append(tag).append('>');
         return s.toString();
     }
 
