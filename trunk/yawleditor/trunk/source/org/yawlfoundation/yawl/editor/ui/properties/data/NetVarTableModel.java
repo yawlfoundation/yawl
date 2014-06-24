@@ -52,8 +52,10 @@ class NetVarTableModel extends VariableTableModel {
     }
 
     public boolean isCellEditable(int row, int column) {
+        VariableRow varRow = getVariableAtRow(row);
         return column != SELECTOR_COLUMN && editable &&
-               (column != VALUE_COLUMN || getVariableAtRow(row).mayUpdateValue());
+               (column != VALUE_COLUMN || varRow.mayUpdateValue()) &&
+               (column != TYPE_COLUMN || varRow.mayModifyType());
     }
 
     public Object getValueAt(int row, int col) {

@@ -164,7 +164,6 @@ public class DataVariableDialog extends JDialog
     protected OutputBindings getOutputBindings() { return outputBindings; }
 
 
-    //todo: check logic of this
     protected void updateMappingsOnVarNameChange(VariableRow row, String newName) {
         if (taskTablePanel == null) return;   // only net table is showing
 
@@ -181,13 +180,17 @@ public class DataVariableDialog extends JDialog
             }
             outputBindings.renameNetVarTarget(oldName, newName);
         }
-        else if (row.isOutput()) {                 // task output var name change
+        else if (row.isOutput() || row.isInputOutput()) { // task output var name change
             String oldBinding = createMapping(row.getDecompositionID(),
                     oldName, row.getDataType());
             String newBinding = createMapping(row.getDecompositionID(),
                     newName, row.getDataType());
             outputBindings.replaceBinding(oldName, oldBinding, newBinding);
             outputBindings.renameExternalTarget(oldName, newName);
+
+            if (row.isMultiInstance()) {
+                _miHandler.renameItem(row, newName);
+            }
         }
     }
 

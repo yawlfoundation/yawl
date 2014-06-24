@@ -183,7 +183,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
         content.add(buildTargetPanel());
         content.add(buildGeneratePanel());
-        content.add(buildQueryPanel());
+        content.add(buildQueryPanel(row.isMultiInstance()));
         if (row.isMultiInstance()) content.add(buildMiQueryPanel());
         _buttonBar = new ButtonBar(this);
         _buttonBar.setOKEnabled(true);
@@ -193,8 +193,8 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
     }
 
 
-    private JPanel buildQueryPanel() {
-        _queryPanel = new QueryPanel(this);
+    private JPanel buildQueryPanel(boolean isMultiInstance) {
+        _queryPanel = new QueryPanel(this, ! isMultiInstance);
         return _queryPanel;
     }
 

@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.XQueryValidatingEditorPane;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -41,11 +42,11 @@ class QueryPanel extends AbstractBindingPanel {
     }
 
 
-    QueryPanel(ActionListener listener) {
+    QueryPanel(ActionListener listener, boolean enableTooBar) {
         super();
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("Binding"));
-        add(createToolBar(listener), BorderLayout.NORTH);
+        add(createToolBar(listener, enableTooBar), BorderLayout.NORTH);
         add(createXQueryEditor(), BorderLayout.CENTER);
     }
 
@@ -82,18 +83,14 @@ class QueryPanel extends AbstractBindingPanel {
     }
 
 
-    private JPanel createToolBar(ActionListener listener) {
+    private JPanel createToolBar(ActionListener listener, boolean enableButtons) {
         JPanel content = new JPanel(new BorderLayout());
-        JToolBar _toolbar = new JToolBar();
-        _toolbar.setBorder(null);
-        _toolbar.setFloatable(false);
-        _toolbar.setRollover(true);
-        _toolbar.add(createToolBarButton("generate", "insertBinding",
-                " Generate and insert binding ", listener));
-        _toolbar.add(createToolBarButton("reset", "resetBinding",
-                " Reset to original binding ", listener));
-        _toolbar.add(createFormatButton());
-        content.add(_toolbar, BorderLayout.EAST);
+        MiniToolBar toolbar = new MiniToolBar(listener);
+        toolbar.addButton("generate", "insertBinding", " Generate and insert binding ");
+        toolbar.addButton("reset", "resetBinding", " Reset to original binding ");
+        toolbar.add(createFormatButton());
+        toolbar.enableComponents(enableButtons);
+        content.add(toolbar, BorderLayout.EAST);
         return content;
     }
 
@@ -108,16 +105,6 @@ class QueryPanel extends AbstractBindingPanel {
             }
         });
         return btnFormat;
-    }
-
-
-    private JButton createToolBarButton(String iconName, String action, String tip,
-                                        ActionListener listener) {
-        JButton button = new JButton(getIcon(iconName));
-        button.setActionCommand(action);
-        button.setToolTipText(tip);
-        button.addActionListener(listener);
-        return button;
     }
 
 

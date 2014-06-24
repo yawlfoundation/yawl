@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 
 /**
@@ -46,6 +47,11 @@ public class MiniToolBar extends JToolBar {
         button.addActionListener(_btnListener);
         add(button);
         return button;
+    }
+
+
+    public void enableComponents(boolean enable) {
+        for (Component c : getComponents()) c.setEnabled(enable);
     }
 
 

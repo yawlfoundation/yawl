@@ -70,6 +70,8 @@ public class VariableRow implements Comparable<VariableRow> {
 
     public boolean mayUpdateValue() { return isLocal() || isOutput(); }
 
+    public boolean mayModifyType() { return ! isMultiInstance(); }
+
     public boolean isModified() { return ! (isNew() || startValues.equals(endValues)); }
 
     public boolean isNew() { return startValues.name == null; }
