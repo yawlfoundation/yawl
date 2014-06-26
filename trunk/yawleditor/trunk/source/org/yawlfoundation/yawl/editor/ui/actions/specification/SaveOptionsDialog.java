@@ -97,8 +97,8 @@ class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JCheckBox getVerifyCheckBox() {
         verificationCheckBox = new JCheckBox();
-        verificationCheckBox.setText("Verify on save");
-        verificationCheckBox.setToolTipText(" Check the model for errors ");
+        verificationCheckBox.setText("Verify specification");
+        verificationCheckBox.setToolTipText(" Check the specification for errors ");
         verificationCheckBox.setMnemonic(KeyEvent.VK_V);
         verificationCheckBox.setSelected(UserSettings.getVerifyOnSave());
         return verificationCheckBox;
@@ -106,8 +106,8 @@ class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JCheckBox getAnalysisCheckBox() {
         analysisCheckBox = new JCheckBox();
-        analysisCheckBox.setText("Analyse on save");
-        analysisCheckBox.setToolTipText(" Perform a full analysis of the model ");
+        analysisCheckBox.setText("Analyse specification");
+        analysisCheckBox.setToolTipText(" Perform a full analysis of the specification ");
         analysisCheckBox.setMnemonic(KeyEvent.VK_A);
         analysisCheckBox.setSelected(UserSettings.getAnalyseOnSave());
         return analysisCheckBox;
@@ -115,7 +115,7 @@ class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JCheckBox getAutoIncVersionCheckBox() {
         autoIncVersionCheckBox = new JCheckBox();
-        autoIncVersionCheckBox.setText("Auto Increment Minor Version Number");
+        autoIncVersionCheckBox.setText("Auto increment minor version number");
         autoIncVersionCheckBox.setToolTipText(" Increment version number for each save ");
         autoIncVersionCheckBox.setMnemonic(KeyEvent.VK_I);
         autoIncVersionCheckBox.setSelected(UserSettings.getAutoIncrementVersionOnSave());
@@ -124,8 +124,8 @@ class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JCheckBox getBackupCheckBox() {
         backupCheckBox = new JCheckBox();
-        backupCheckBox.setText("Create backup");
-        backupCheckBox.setToolTipText(" Keep the previous copy of this file ");
+        backupCheckBox.setText("Backup previous version");
+        backupCheckBox.setToolTipText(" Keep the previous version of this file ");
         backupCheckBox.setMnemonic(KeyEvent.VK_B);
         backupCheckBox.setSelected(UserSettings.getFileBackupOnSave());
         return backupCheckBox;
@@ -133,9 +133,9 @@ class SaveOptionsDialog extends AbstractDoneDialog {
 
     private JCheckBox getVersionCopyCheckBox() {
         versionCopyCheckBox = new JCheckBox();
-        versionCopyCheckBox.setText("File Versioning");
-        versionCopyCheckBox.setToolTipText(" Save all previous versions of this file ");
-        versionCopyCheckBox.setMnemonic(KeyEvent.VK_P);
+        versionCopyCheckBox.setText("Keep all previous versions");
+        versionCopyCheckBox.setToolTipText(" Keep all previous versions of this file ");
+        versionCopyCheckBox.setMnemonic(KeyEvent.VK_K);
         versionCopyCheckBox.setSelected(UserSettings.getFileVersioningOnSave());
         return versionCopyCheckBox;
     }

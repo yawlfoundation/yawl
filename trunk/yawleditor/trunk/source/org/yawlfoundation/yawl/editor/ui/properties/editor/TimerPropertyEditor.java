@@ -53,6 +53,7 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
         YTimerParameters oldParameters = getTimerParameters();
         TimerDialog dialog = new TimerDialog();
         dialog.setContent(oldParameters, getNet());
+        dialog.setTitle(getTitle());
         dialog.setVisible(true);
 
         YTimerParameters newDetail = dialog.getContent();
@@ -90,6 +91,12 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
         }
 
         return ((AtomicTask) pair.getTask()).getTimerParameters();
+    }
+
+
+    private String getTitle() {
+        return pair.hasMultipleTasks() ? "Set Timers for Multiple Tasks" :
+                "Set Timer for Task " + pair.getTask().getID();
     }
 
 

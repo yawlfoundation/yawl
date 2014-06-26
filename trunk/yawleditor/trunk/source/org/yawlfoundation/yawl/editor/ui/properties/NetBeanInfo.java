@@ -19,10 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.ComboPropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.DataDefinitionPropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.DataVariablePropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.ImageFilePropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,6 +66,9 @@ public class NetBeanInfo extends YBeanInfo {
         addProperty("DataGateway", category, "Data Gateway",
                 "The name of an external data gateway to use for net-level data")
                 .setPropertyEditorClass(DataGatewayEditor.class);
+        addProperty("LogPredicate", category, "Log Entries",
+                "Logs the specified text when the net starts and/or completes at runtime")
+                .setPropertyEditorClass(LogPredicatePropertyEditor.class);
         addProperty("NetFillColor", category, "Fill Colour",
                 "The background colour of this net");
         addProperty("Name", category, null, "Name of this net");

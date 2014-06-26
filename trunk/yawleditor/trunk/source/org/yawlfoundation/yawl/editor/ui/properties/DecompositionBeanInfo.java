@@ -36,12 +36,9 @@ public class DecompositionBeanInfo extends CellBeanInfo {
 
     private void addProperties(YAWLVertex vertex) {
         String category = "Decomposition";
-        addProperty("startLogPredicate", category, "Log Entry on Start",
-                "Logs the specified entry text when the task starts at runtime")
-                .setPropertyEditorClass(TextPropertyEditor.class);
-        addProperty("completionLogPredicate", category, "Log Entry on Completion",
-                "Logs the specified entry text when the task completes at runtime")
-                .setPropertyEditorClass(TextPropertyEditor.class);
+        addProperty("LogPredicate", category, "Log Entries",
+                "Logs the specified text when the task starts and/or completes at runtime")
+                .setPropertyEditorClass(LogPredicatePropertyEditor.class);
         addProperty("TaskDataVariables", category, "Data Variables",
                 "Set data variables and mappings for the currently selected task")
                 .setPropertyEditorClass(DataVariablePropertyEditor.class);

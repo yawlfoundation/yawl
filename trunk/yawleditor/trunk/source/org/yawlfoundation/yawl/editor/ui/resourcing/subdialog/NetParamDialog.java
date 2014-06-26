@@ -120,7 +120,7 @@ public class NetParamDialog extends JDialog implements ActionListener {
         _varCombo.setPreferredSize(new Dimension(175, 25));
         addItems(task);
         _varCombo.setEnabled(_varCombo.getItemCount() > 0);
-        panel.add(new JLabel("Parameter: "), BorderLayout.WEST);
+        panel.add(new JLabel("Variable: "), BorderLayout.WEST);
         panel.add(_varCombo, BorderLayout.CENTER);
         panel.setSize(410, 25);
         return panel;

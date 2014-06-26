@@ -22,6 +22,7 @@ import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -472,6 +473,34 @@ public class YDataHandler {
                     decomposition.getOutputParameters().get(variableName), attributes);
         }
         return success;
+    }
+
+
+    /**
+      * Sets or updates the log predicate of a task-level variable.
+      * @param decompositionID the id of the net or task decomposition
+      * @param variableName the name of the variable to change
+      * @param predicate the log predicate to set for the variable
+      * @param scope one of INPUT, OUTPUT or INPUT_OUTPUT
+      * @return true if successful, false if a task-level variable of that name doesn't exist
+      * @throws YDataHandlerException if there is no specification associated with this
+      * handler, or it has no net or task decomposition with the specified id, or the
+      * 'scope' parameter is invalid
+      */
+    public boolean setVariableLogPredicate(String decompositionID, String variableName,
+                       YLogPredicate predicate, int scope) throws YDataHandlerException {
+         checkParameterType(scope);
+         YDecomposition decomposition = getDecomposition(decompositionID);
+         boolean success = true;
+         if (scope == INPUT || scope == INPUT_OUTPUT) {
+             success = setVariableLogPredicate(
+                     decomposition.getInputParameters().get(variableName), predicate);
+         }
+         if (scope == OUTPUT || scope == INPUT_OUTPUT) {
+             success = success && setVariableLogPredicate(
+                     decomposition.getOutputParameters().get(variableName), predicate);
+         }
+         return success;
     }
 
 
@@ -1393,6 +1422,14 @@ public class YDataHandler {
     private boolean setVariableAttributes(YVariable variable, YAttributeMap attributes) {
          if (variable != null) {
              variable.setAttributes(attributes);
+         }
+         return variable != null;
+     }
+
+
+    private boolean setVariableLogPredicate(YVariable variable, YLogPredicate predicate) {
+         if (variable != null) {
+             variable.setLogPredicate(predicate);
          }
          return variable != null;
      }

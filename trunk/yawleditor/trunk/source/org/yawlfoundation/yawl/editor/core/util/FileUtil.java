@@ -25,6 +25,11 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.security.CodeSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Generic File Utilities
@@ -65,13 +70,19 @@ public class FileUtil {
      * @param targetFile
      * @throws IOException
      */
-    public static void copy(String sourceFile, String targetFile) throws IOException {
+
+    public static void copy(File sourceFile, File targetFile) throws IOException {
         FileChannel sourceChannel = new FileInputStream(sourceFile).getChannel();
         FileChannel targetChannel = new FileOutputStream(targetFile).getChannel();
         targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
 
         sourceChannel.close();
         targetChannel.close();
+    }
+
+
+    public static void copy(String sourceFile, String targetFile) throws IOException {
+        copy(new File(sourceFile), new File(targetFile));
     }
 
 
@@ -95,6 +106,92 @@ public class FileUtil {
     public static String stripFileExtension(String fileName) {
         int lastDotPos = fileName.lastIndexOf('.');
         return (lastDotPos > -1) ? fileName.substring(0, lastDotPos) : fileName;
+    }
+
+
+    public static void purgeDir(File dir) {
+        if (dir != null) {
+            File[] fileList = dir.listFiles();
+            if (fileList != null) {
+                for (File file : fileList) {
+                    if (file.isDirectory()) purgeDir(file);
+                    file.delete();
+                }
+            }
+        }
+    }
+
+
+    public static void copyDir(File sourceDir, File targetDir) throws IOException {
+        if (sourceDir != null && sourceDir.exists()) {
+            File[] fileList = sourceDir.listFiles();
+            if (fileList != null) {
+                if (! targetDir.exists()) targetDir.mkdir();
+                for (File file : fileList) {
+                    copy(file, new File(targetDir, file.getName()));
+                }
+            }
+        }
+    }
+
+
+    public static void unzip(File zipFile, File targetDir) throws IOException {
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+        ZipEntry ze = zis.getNextEntry();
+        while (ze != null) {
+            if (! ze.isDirectory()) {
+                File f = new File(targetDir, ze.getName());
+                f.getParentFile().mkdirs();                // create subdirs as required
+                FileOutputStream fos = new FileOutputStream(f);
+                int len;
+                byte buffer[] = new byte[1024];
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+            ze = zis.getNextEntry();
+        }
+        zis.close();
+    }
+
+
+    public static void zip(File zipFile, File source) throws IOException {
+        if (source != null) {
+            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
+            int relativePathOffset = source.getAbsolutePath().length() + 1;
+            for (String path : getFilePaths(source)) {
+                ZipEntry ze = new ZipEntry(path.substring(relativePathOffset));
+                zos.putNextEntry(ze);
+                FileInputStream fis = new FileInputStream(path);
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = fis.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
+                }
+                zos.closeEntry();
+                fis.close();
+            }
+            zos.close();
+        }
+    }
+
+
+    public static List<String> getFilePaths(File f) {
+        List<String> paths = new ArrayList<String>();
+        if (! f.isDirectory()) {
+            paths.add(f.getAbsolutePath());
+        }
+        else {
+            File[] files = f.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) paths.add(file.getAbsolutePath());
+                    else paths.addAll(getFilePaths(file));
+                }
+            }
+        }
+        return paths;
     }
 
 

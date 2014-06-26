@@ -66,7 +66,7 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
         getColumn("Name").setMinWidth(maxNameColWidth);
         getColumn("Name").setPreferredWidth(maxNameColWidth);
 
-        getColumn("Description").setMinWidth(preferredTableWidth - maxNameColWidth);
+        getColumn("Description").setMinWidth(preferredTableWidth - maxNameColWidth - 15);
 
     }
 

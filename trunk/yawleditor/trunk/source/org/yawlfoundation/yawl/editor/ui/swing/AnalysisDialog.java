@@ -54,7 +54,7 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
         getRootPane().setDefaultButton(btnClose);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setKeepOpenCheckbox();
-
+        setMinimumSize(new Dimension(385, 160));
         btnClose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onClose();

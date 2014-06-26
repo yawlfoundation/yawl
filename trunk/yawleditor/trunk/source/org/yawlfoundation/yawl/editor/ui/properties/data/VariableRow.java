@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.logging.YLogPredicate;
 import org.yawlfoundation.yawl.schema.XSDType;
 
 /**
@@ -160,6 +161,18 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
+    public YLogPredicate getLogPredicate() { return endValues.logPredicate; }
+
+    public  void setLogPredicate(YLogPredicate predicate) {
+        endValues.logPredicate = predicate;
+    }
+
+    public boolean isLogPredicateChange() {
+        return endValues != null &&
+                ! endValues.logPredicate.equals(startValues.logPredicate);
+    }
+
+
     public String getMapping() { return endValues.inputMapping; }
 
     public String getStartingMapping() { return startValues.inputMapping; }
@@ -222,6 +235,7 @@ public class VariableRow implements Comparable<VariableRow> {
         startValues.dataType = variable.getDataTypeName();
         startValues.index = variable.getOrdering();
         startValues.attributes = variable.getAttributes();
+        startValues.logPredicate = variable.getLogPredicate();
         startValues.value = null;
         if (isInputOutput) {
             startValues.scope = YDataHandler.INPUT_OUTPUT;
@@ -278,6 +292,7 @@ public class VariableRow implements Comparable<VariableRow> {
         String inputMapping;
         String outputMapping;
         YAttributeMap attributes;
+        YLogPredicate logPredicate;
 
         public Values copy() {
             Values copy = new Values();
@@ -289,6 +304,7 @@ public class VariableRow implements Comparable<VariableRow> {
             copy.inputMapping = inputMapping;
             copy.outputMapping = outputMapping;
             copy.attributes = new YAttributeMap(attributes);
+            copy.logPredicate = cloneLogPredicate();
             return copy;
         }
 
@@ -299,7 +315,8 @@ public class VariableRow implements Comparable<VariableRow> {
                     equals(dataType, other.dataType) && equals(value, other.value) &&
                     equals(inputMapping, other.inputMapping) &&
                     equals(outputMapping, other.outputMapping) &&
-                    attributes.equals(other.attributes);
+                    attributes.equals(other.attributes) &&
+                    logPredicateEquals(other);
         }
 
         public int hashCode() {
@@ -308,7 +325,20 @@ public class VariableRow implements Comparable<VariableRow> {
 
         public boolean equals(String s1, String s2) {
            return (s1 == null && s2 == null) || (s1 != null && s1.equals(s2));
-       }
+        }
+
+        private YLogPredicate cloneLogPredicate() {
+            if (logPredicate == null) return null;
+            YLogPredicate clone = new YLogPredicate();
+            clone.setStartPredicate(logPredicate.getStartPredicate());
+            clone.setCompletionPredicate(logPredicate.getCompletionPredicate());
+            return clone;
+        }
+
+        private boolean logPredicateEquals(Values other) {
+            return (logPredicate == null && other.logPredicate == null) ||
+                   (logPredicate != null && logPredicate.equals(other.logPredicate));
+        }
 
     }
 

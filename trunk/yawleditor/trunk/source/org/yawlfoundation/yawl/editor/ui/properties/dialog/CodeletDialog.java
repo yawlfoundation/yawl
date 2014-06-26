@@ -41,8 +41,8 @@ public class CodeletDialog extends AbstractDoneDialog {
     }
 
     protected void makeLastAdjustments() {
-        setSize(600, 400);
-        setResizable(false);
+        setSize(630, 400);
+        setResizable(true);
     }
 
 

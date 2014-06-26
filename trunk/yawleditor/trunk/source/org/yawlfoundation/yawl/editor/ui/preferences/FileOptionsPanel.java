@@ -85,7 +85,7 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
     }
 
     private JCheckBox makeAutoIncVersionCheckBox(ActionListener listener) {
-        autoIncVersionCheckBox = makeCheckBox("Auto Increment minor version number",
+        autoIncVersionCheckBox = makeCheckBox("Auto increment minor version number",
                 KeyEvent.VK_I, UserSettings.getAutoIncrementVersionOnSave(), listener);
         return autoIncVersionCheckBox;
     }
