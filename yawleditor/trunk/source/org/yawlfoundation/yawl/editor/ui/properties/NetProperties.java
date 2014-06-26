@@ -166,6 +166,16 @@ public class NetProperties extends YPropertiesBean {
     }
 
 
+    public LogPredicateTransport getLogPredicate() {
+        return model.getDecomposition() != null ?
+                new LogPredicateTransport(model.getDecomposition()) : null;
+    }
+
+    public void setLogPredicate(LogPredicateTransport lpt) {
+        setDirty();     // all updates done in dialog
+    }
+
+
     public NetTaskPair getDataVariables() {
         return new NetTaskPair((YNet) model.getDecomposition(), null, null);
     }

@@ -52,24 +52,13 @@ public class DecompositionProperties extends CellProperties {
     }
 
 
-    public String getStartLogPredicate() {
-        if (_decomposition != null) {
-            YLogPredicate predicate = _decomposition.getLogPredicate();
-            return predicate != null ? predicate.getStartPredicate() : "";
-        }
-        return "";
+    public LogPredicateTransport getLogPredicate() {
+        return _decomposition != null ? new LogPredicateTransport(_decomposition) :
+                null;
     }
 
-    public void setStartLogPredicate(String predicate) {
-        if (_decomposition != null) {
-            YLogPredicate logPredicate = _decomposition.getLogPredicate();
-            if (logPredicate == null) {
-                logPredicate = new YLogPredicate();
-                _decomposition.setLogPredicate(logPredicate);
-            }
-            logPredicate.setStartPredicate(predicate);
-            setDirty();
-        }
+    public void setLogPredicate(LogPredicateTransport lpt) {
+        setDirty();     // all updates done in dialog
     }
 
 

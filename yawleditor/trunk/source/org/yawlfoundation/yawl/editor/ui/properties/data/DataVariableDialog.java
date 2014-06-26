@@ -478,6 +478,9 @@ public class DataVariableDialog extends JDialog
                 if (isTaskTable(table) && row.isAttributeChange()) {
                     handleAttributeChange(row, host);
                 }
+                if (isTaskTable(table) && row.isLogPredicateChange()) {
+                    handleLogPredicateChange(row, host);
+                }
             }
             else if (row.isNew()) {
                 handleNewRow(row, host);
@@ -568,6 +571,14 @@ public class DataVariableDialog extends JDialog
         dataHandler.setVariableAttributes(host.getID(), row.getName(),
                 row.getAttributes(), row.getUsage());
     }
+
+
+    private void handleLogPredicateChange(VariableRow row, YDecomposition host)
+            throws YDataHandlerException {
+        dataHandler.setVariableLogPredicate(host.getID(), row.getName(),
+                row.getLogPredicate(), row.getUsage());
+    }
+
 
     private void handleNewRow(VariableRow row, YDecomposition host)
             throws YDataHandlerException {

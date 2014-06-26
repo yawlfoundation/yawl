@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.update;
 
+import org.yawlfoundation.yawl.editor.core.util.FileUtil;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileHandler;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
@@ -30,14 +31,10 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author Michael Adams
@@ -278,8 +275,12 @@ public class UpdateDialog extends JDialog
 
     private void replaceApp() throws URISyntaxException, IOException {
         File editorDir = getJarFile().getParentFile();
-        removeCurrentVersion(editorDir);
-        unzip(_downloader.getFileTo(), editorDir);
+        File repoDir = new File(editorDir, "lib/repository");
+        File tmpRepoDir = new File(getTmpDir(), "repository");
+        FileUtil.copyDir(repoDir, tmpRepoDir);
+        FileUtil.purgeDir(editorDir);
+        FileUtil.unzip(_downloader.getFileTo(), editorDir);
+        FileUtil.copyDir(tmpRepoDir, repoDir);
     }
 
 
@@ -304,40 +305,6 @@ public class UpdateDialog extends JDialog
     private File getJarFile() throws URISyntaxException {
         return new File(this.getClass().getProtectionDomain()
                         .getCodeSource().getLocation().toURI());
-    }
-
-
-    private void removeCurrentVersion(File dir) {
-        if (dir != null) {
-            File[] fileList = dir.listFiles();
-            if (fileList != null) {
-                for (File file : fileList) {
-                    if (file.isDirectory()) removeCurrentVersion(file);
-                    file.delete();
-                }
-            }
-        }
-    }
-
-
-    private void unzip(File zipFile, File targetDir) throws IOException {
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-        ZipEntry ze = zis.getNextEntry();
-        while (ze != null) {
-            if (! ze.isDirectory()) {
-                File f = new File(targetDir, ze.getName());
-                f.getParentFile().mkdirs();                // create subdirs as required
-                FileOutputStream fos = new FileOutputStream(f);
-                int len;
-                byte buffer[] = new byte[1024];
-                while ((len = zis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
-                fos.close();
-            }
-            ze = zis.getNextEntry();
-        }
-        zis.close();
     }
 
 }
