@@ -315,7 +315,15 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     private Integer getInt(String key) {
         String value = get(key);
-        return value != null ? StringUtil.strToInt(value, 0) : null;
+        if (value != null) {
+            try {
+                return Integer.parseInt(value);
+            }
+            catch (NumberFormatException nfe) {
+                // fall through
+            }
+        }
+        return null;
     }
 
     private Color getColour(String key) {

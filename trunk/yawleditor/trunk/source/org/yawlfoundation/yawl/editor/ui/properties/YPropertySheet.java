@@ -19,10 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import com.l2fprod.common.propertysheet.*;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.ColorPropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.DecompositionNameEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.FontPropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.SubNetNameEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;

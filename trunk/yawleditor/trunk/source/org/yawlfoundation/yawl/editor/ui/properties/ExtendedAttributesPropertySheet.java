@@ -20,7 +20,9 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 
 import com.l2fprod.common.propertysheet.CellEditorAdapter;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
 import com.l2fprod.common.propertysheet.PropertySheetTableModel;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.IntegerPropertyEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.UserDefinedListPropertyEditor;
 
 import javax.swing.*;
@@ -50,6 +52,8 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
         setTable(new UDAPropertySheetTable());
         setSortingProperties(true);
         setPropertySortingComparator(new PropertySorter());
+        ((PropertyEditorRegistry) getEditorFactory()).registerEditor(
+                Integer.class, new IntegerPropertyEditor());
     }
 
     public void setUserDefinedAttributes(UserDefinedAttributesBinder attributes) {
