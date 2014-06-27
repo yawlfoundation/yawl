@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicateScope;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
@@ -29,9 +30,11 @@ import org.yawlfoundation.yawl.logging.YLogPredicate;
 public class LogPredicateTransport {
 
     private YDecomposition _decomposition;
+    private LogPredicateScope _scope;
 
-    public LogPredicateTransport(YDecomposition decomposition) {
+    public LogPredicateTransport(YDecomposition decomposition, LogPredicateScope scope) {
         _decomposition = decomposition;
+        _scope = scope;
     }
 
     public YLogPredicate newLogPredicate() {
@@ -40,13 +43,16 @@ public class LogPredicateTransport {
     }
 
     public LogPredicateTransport newInstance() {
-        return new LogPredicateTransport(_decomposition);
+        return new LogPredicateTransport(_decomposition, _scope);
     }
 
     public String getTitle() {
         String pre = _decomposition instanceof YNet ? "Net " : "";
         return pre + _decomposition.getID();
     }
+
+
+    public LogPredicateScope getScope() { return _scope; }
 
 
     public void setStartPredicate(String predicate) {

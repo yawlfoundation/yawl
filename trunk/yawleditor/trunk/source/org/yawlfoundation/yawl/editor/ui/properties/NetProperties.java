@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicateScope;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
@@ -168,7 +169,8 @@ public class NetProperties extends YPropertiesBean {
 
     public LogPredicateTransport getLogPredicate() {
         return model.getDecomposition() != null ?
-                new LogPredicateTransport(model.getDecomposition()) : null;
+             new LogPredicateTransport(model.getDecomposition(), LogPredicateScope.Net) :
+             null;
     }
 
     public void setLogPredicate(LogPredicateTransport lpt) {

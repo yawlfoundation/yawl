@@ -18,36 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog.component;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-
 /**
- * @author Michael Adams
- * @date 26/06/2014
- */
-public class LogPredicatePanel extends JPanel {
-
-    private JTextPane _textPane;
-
-
-    public LogPredicatePanel(String title) {
-        _textPane = new JTextPane(new LogPredicateStyledDocument());
-        JScrollPane scrollPane = new JScrollPane(_textPane);
-        scrollPane.setPreferredSize(new Dimension(350, 100));
-        add(scrollPane);
-        setBorder(new TitledBorder(title));
-    }
-
-
-    public void setScope(LogPredicateScope scope) {
-        ((LogPredicateStyledDocument) _textPane.getDocument()).setPredicateScope(scope);
-    }
-
-    public void setFocus() { _textPane.requestFocus(); }
-
-    public String getText() { return _textPane.getText(); }
-
-    public void setText(String text) { _textPane.setText(text); }
-
-}
+* @author Michael Adams
+* @date 27/06/2014
+*/
+public enum LogPredicateScope { Net, Task, Variable }
