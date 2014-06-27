@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletData;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicateScope;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.ServicesPropertyEditor;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -53,7 +54,8 @@ public class DecompositionProperties extends CellProperties {
 
 
     public LogPredicateTransport getLogPredicate() {
-        return _decomposition != null ? new LogPredicateTransport(_decomposition) :
+        return _decomposition != null ?
+                new LogPredicateTransport(_decomposition, LogPredicateScope.Task) :
                 null;
     }
 

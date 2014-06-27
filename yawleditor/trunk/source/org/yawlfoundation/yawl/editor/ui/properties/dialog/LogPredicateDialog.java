@@ -40,6 +40,7 @@ import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.LogPredicateTransport;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicatePanel;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicateScope;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
 
 import javax.swing.*;
@@ -70,7 +71,9 @@ public class LogPredicateDialog extends PropertyDialog implements ActionListener
         this();
         setTitle("Log Entries for " + transport.getTitle());
         _onStartPanel.setText(transport.getStartPredicate());
+        _onStartPanel.setScope(transport.getScope());
         _onCompletionPanel.setText(transport.getCompletionPredicate());
+        _onCompletionPanel.setScope(transport.getScope());
     }
 
     public LogPredicateDialog(VariableRow row) {
@@ -79,7 +82,9 @@ public class LogPredicateDialog extends PropertyDialog implements ActionListener
         YLogPredicate predicate = row.getLogPredicate();
         if (predicate != null) {
             _onStartPanel.setText(predicate.getStartPredicate());
+            _onStartPanel.setScope(LogPredicateScope.Variable);
             _onCompletionPanel.setText(predicate.getCompletionPredicate());
+            _onCompletionPanel.setScope(LogPredicateScope.Variable);
         }
     }
 
