@@ -65,7 +65,7 @@ public class DataDefinitionRepository extends RepoMap {
    public String remove(String name) {
         RepoRecord record = removeRecord(name);
         return record != null ? record.getValue() : null;
-    }
+   }
 
 
     /**

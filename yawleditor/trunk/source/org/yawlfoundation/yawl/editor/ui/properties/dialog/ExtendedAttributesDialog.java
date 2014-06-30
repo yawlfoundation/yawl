@@ -23,9 +23,11 @@ import com.l2fprod.common.propertysheet.PropertySheet;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.*;
+import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryAddAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryGetAction;
 import org.yawlfoundation.yawl.editor.ui.repository.action.RepositoryRemoveAction;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToolBarButton;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -50,6 +52,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         implements ActionListener, ListSelectionListener {
 
     private JButton btnDel;
+    private JLabel statusBar;
     private ExtendedAttributesPropertySheet propertySheet;
     private ExtendedAttributesBeanInfo attributesBeanInfo;
     private ExtendedAttributeProperties properties;
@@ -66,11 +69,10 @@ public class ExtendedAttributesDialog extends PropertyDialog
         completeInitialisation();
     }
 
-    public ExtendedAttributesDialog(JDialog owner, YAttributeMap attributes,
-                                    String varName) {
+    public ExtendedAttributesDialog(JDialog owner, VariableRow row) {
         super(owner);
         initialise();
-        setUp(attributes, varName);
+        setUp(row);
         completeInitialisation();
     }
 
@@ -111,6 +113,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         String action = event.getActionCommand();
         if (action.equals("OK")) {
             propertySheet.getTable().commitEditing();        // save any pending edits
+            SpecificationUndoManager.getInstance().setDirty(true);
             setVisible(false);
         }
         else if (action.equals("Add")) {
@@ -132,6 +135,9 @@ public class ExtendedAttributesDialog extends PropertyDialog
     }
 
 
+    public void setStatus(String status) { statusBar.setText(status); }
+
+
     /********************************************************************************/
 
     private void initialise() {
@@ -145,27 +151,27 @@ public class ExtendedAttributesDialog extends PropertyDialog
         udAttributes = new UserDefinedAttributesBinder(propertySheet, decomposition);
         properties = new ExtendedAttributeProperties(propertySheet, udAttributes,
                 decomposition);
-        bind(properties, udAttributes);
+        bind(properties, udAttributes, null);
         setTitle("Attributes for Decomposition: " + decomposition.getID());
     }
 
 
     // setup for variable attributes
-    private void setUp(YAttributeMap attributes, String varName) {
-        this.attributes = attributes;
+    private void setUp(VariableRow row) {
+        attributes = row.getAttributes();
         udAttributes = new UserDefinedAttributesBinder(propertySheet, attributes);
         properties = new ExtendedAttributeProperties(propertySheet, udAttributes,
-                attributes);
-        bind(properties, udAttributes);
-        setTitle("Attributes for Variable: " + varName);
+                row);
+        bind(properties, udAttributes, row.getDataType());
+        setTitle("Attributes for Variable: " + row.getName());
     }
 
 
     // binds the properties class with the bean class (augmented with the
     // appropriate user-defined attributes)
     private void bind(ExtendedAttributeProperties properties,
-                      UserDefinedAttributesBinder udAttributes) {
-        attributesBeanInfo = new ExtendedAttributesBeanInfo(udAttributes);
+                      UserDefinedAttributesBinder udAttributes, String dataType) {
+        attributesBeanInfo = new ExtendedAttributesBeanInfo(udAttributes, dataType);
         new Binder(properties, attributesBeanInfo);
     }
 
@@ -178,7 +184,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
     }
 
     protected JPanel getContent() {
-        propertySheet = new ExtendedAttributesPropertySheet();  // must be created first up
+        propertySheet = new ExtendedAttributesPropertySheet(this);  // must be created first up
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(5,5,5,5));
         content.add(createToolbar(), BorderLayout.NORTH);
@@ -204,6 +210,12 @@ public class ExtendedAttributesDialog extends PropertyDialog
                 new RepositoryGetAction(this, Repo.ExtendedAttributes)));
         toolbar.add(new YAWLToolBarButton(
                 new RepositoryRemoveAction(this, Repo.ExtendedAttributes)));
+
+        toolbar.addSeparator();
+        statusBar = new JLabel();
+        statusBar.setForeground(Color.RED);
+        statusBar.setFont(statusBar.getFont().deriveFont(11f));
+        toolbar.add(statusBar);
         return toolbar;
     }
 

@@ -19,12 +19,15 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.XQueryDialog;
 
 /**
  * @author Michael Adams
  * @date 12/07/12
  */
-public abstract class XQueryPropertyEditor extends DialogPropertyEditor {
+public class XQueryPropertyEditor extends DialogPropertyEditor {
 
     private String currentQuery;
 
@@ -42,14 +45,20 @@ public abstract class XQueryPropertyEditor extends DialogPropertyEditor {
     }
 
     protected void showDialog() {
-  //      XQueryUpdateDialog xqDialog = new XQueryUpdateDialog(editor, mode);
-     //   xqDialog.setExtendedAttribute(this);                 //todo
-//        String newQuery = xqDialog.showDialog();
-//        if (! (newQuery == null || newQuery.equals(currentQuery))) {
-//            String oldQuery = currentQuery;
-//            setValue(newQuery);
-//            firePropertyChange(oldQuery, newQuery);
-//        }
+        XQueryDialog xqDialog = new XQueryDialog(YAWLEditor.getInstance());
+        xqDialog.setTitle("Edit XQuery");
+        xqDialog.setTypeValidator(new BindingTypeValidator(
+                YAWLEditor.getNetsPane().getSelectedYNet()));
+        xqDialog.setText(currentQuery);
+        xqDialog.setVisible(true);
+        if (! xqDialog.cancelled()) {
+            String query = xqDialog.getText();
+            if (! query.equals(currentQuery)) {
+                String oldQuery = currentQuery;
+                setValue(query);
+                firePropertyChange(oldQuery, query);
+            }
+        }
     }
 
 }

@@ -149,8 +149,7 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("ExAt")) {
             VariableRow row = table.getSelectedVariable();
             if (row != null) {
-                new ExtendedAttributesDialog(parent, row.getAttributes(), row.getName())
-                        .setVisible(true);
+                new ExtendedAttributesDialog(parent, row).setVisible(true);
                 setTableChanged();                  // to flag update
             }
         }
