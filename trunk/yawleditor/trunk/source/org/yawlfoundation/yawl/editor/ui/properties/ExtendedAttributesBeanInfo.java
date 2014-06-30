@@ -19,10 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import com.l2fprod.common.beans.ExtendedPropertyDescriptor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.ImageFilePropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.JustifyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.TextPropertyEditor;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.XQueryPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
+import org.yawlfoundation.yawl.schema.XSDType;
 
 /**
  * @author Michael Adams
@@ -33,11 +31,12 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     private static final String CATEGORY = "Ext. Attributes";
 
 
-    public ExtendedAttributesBeanInfo(UserDefinedAttributesBinder udAttributes) {
+    public ExtendedAttributesBeanInfo(UserDefinedAttributesBinder udAttributes,
+                                      String datatype) {
         super(ExtendedAttributeProperties.class);
         switch (udAttributes.getOwnerClass()) {
             case Decomposition: addDecompositionProperties(); break;
-            case Parameter: addVariableProperties(); break;
+            case Parameter: addVariableProperties(datatype); break;
 
         }
         addUserDefinedAttributes(udAttributes);
@@ -47,12 +46,12 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     private void addCommonProperties(String effect) {
         addProperty("backgroundColour", CATEGORY, "Background Colour",
                 "Set the background colour of the dynamically generated " + effect);
-        addProperty("font", CATEGORY, null, "Set the default font for labels and" +
+        addProperty("font", CATEGORY, "Font", "Set the default font for labels and" +
                 "text on the dynamically generated " + effect);
-        addProperty("justify", CATEGORY, null,
+        addProperty("justify", CATEGORY, "Justify",
                 "Justify text display on the dynamically generated " + effect)
                 .setPropertyEditorClass(JustifyEditor.class);
-        addProperty("label", CATEGORY, null,
+        addProperty("label", CATEGORY, "Label",
                 "Set the label for the default prompt on the dynamically generated " + effect);
         addProperty("readOnly", CATEGORY, "Read Only",
                 "Set data fields to be uneditable on the dynamically generated " + effect);
@@ -72,21 +71,19 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
         addProperty("pageBackgroundImage", CATEGORY, "Page Background Image",
                 "Choose an image to display as a background on the page behind the dynamically generated form")
                 .setPropertyEditorClass(ImageFilePropertyEditor.class);
-        addProperty("title", CATEGORY, null,
+        addProperty("title", CATEGORY, "Title",
                 "Set the Title for the top of the dynamically generated form")
                 .setPropertyEditorClass(TextPropertyEditor.class);
     }
 
-    private void addVariableProperties() {
+    private void addVariableProperties(String dataType) {
         addCommonProperties("field");
-        addProperty("alert", CATEGORY, null,
+        addProperty("alert", CATEGORY, "Alert",
                 "Set a tailored validation error message for the field");
-        addProperty("blackout", CATEGORY, null,
+        addProperty("blackout", CATEGORY, "Blackout",
                 "Show the field as blacked out (unviewable)");
-        addProperty("fractionDigits", CATEGORY, null,
-                "Set the number of digits to show after the decimal point for the field");
-        addProperty("hide", CATEGORY, null, "Hide (remove) the field from view");
-        addProperty("hideIf", CATEGORY, null, "Hide (remove) the field from view, " +
+        addProperty("hide", CATEGORY, "Hide", "Hide (remove) the field from view");
+        addProperty("hideIf", CATEGORY, "Hide If", "Hide (remove) the field from view, " +
                 "if the XQuery expression provided evaluates to true")
                 .setPropertyEditorClass(XQueryPropertyEditor.class);
         addProperty("imageAbove", CATEGORY, "Image Above",
@@ -101,25 +98,9 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
                 .setPropertyEditorClass(JustifyEditor.class);
         addProperty("lineAbove", CATEGORY, "Line Above",
                 "Draw a horizontal line above the field");
-        addProperty("length", CATEGORY, null,
-                "Set the exact number of characters required by the field");
         addProperty("lineBelow", CATEGORY, "Line Below",
                 "Draw a horizontal line below the field");
-        addProperty("maxExclusive", CATEGORY, "Max Exclusive",
-                "One less than the upper range of valid numeric values accepted");
-        addProperty("maxInclusive", CATEGORY, "Max Inclusive",
-                "The upper range of valid numeric values accepted");
-        addProperty("maxLength", CATEGORY, "Max Length",
-                "Set the maximum number of characters accepted by the field");
-        addProperty("minExclusive", CATEGORY, "Min Exclusive",
-                "One more than the lower range of valid numeric values accepted");
-        addProperty("minInclusive", CATEGORY, "Min Inclusive",
-                "The lower range of valid numeric values accepted");
-        addProperty("minLength", CATEGORY, "Min Length",
-                "Set the minimum number of characters accepted by the field");
-        addProperty("optional", CATEGORY, null, "Set the field to not require a value");
-        addProperty("pattern", CATEGORY, null,
-                "Set regular expression that the field value must match");
+        addProperty("optional", CATEGORY, "Optional", "Set the field to not require a value");
         addProperty("skipValidation", CATEGORY, "Skip Validation",
                 "Set to not validate the field's value against its data schema");
         addProperty("textAbove", CATEGORY, "Text Above", "Insert text above the field");
@@ -128,10 +109,40 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
                 "Render the field as a text area instead of a one-line field");
         addProperty("tooltip", CATEGORY, "Tool Tip",
                 "Set a tip to show when the mouse hovers over the field");
-        addProperty("totalDigits", CATEGORY, "Total Digits",
-                "Set the total number of digits expected in a numeric field");
-        addProperty("whitespace", CATEGORY, null,
-                "Normalise any whitespace characters in the field's value");
+        if (XSDType.isBuiltInType(dataType)) {
+            addProperty("fractionDigits", CATEGORY, "Fraction Digits",
+                   "Set the number of digits to show after the decimal point for the field")
+                   .setPropertyEditorClass(NonNegativeIntegerPropertyEditor.class);
+            addProperty("length", CATEGORY, "Length",
+                   "Set the exact number of characters required by the field")
+                   .setPropertyEditorClass(NonNegativeIntegerPropertyEditor.class);
+            addProperty("maxExclusive", CATEGORY, "Max Exclusive",
+                    "One less than the upper range of valid values accepted")
+                    .setPropertyEditorClass(TypeValuePropertyEditor.class);
+            addProperty("maxInclusive", CATEGORY, "Max Inclusive",
+                    "The upper range of valid values accepted")
+                    .setPropertyEditorClass(TypeValuePropertyEditor.class);
+            addProperty("maxLength", CATEGORY, "Max Length",
+                    "Set the maximum number of characters accepted by the field")
+                    .setPropertyEditorClass(NonNegativeIntegerPropertyEditor.class);
+            addProperty("minExclusive", CATEGORY, "Min Exclusive",
+                    "One more than the lower range of valid values accepted")
+                    .setPropertyEditorClass(TypeValuePropertyEditor.class);
+            addProperty("minInclusive", CATEGORY, "Min Inclusive",
+                    "The lower range of valid values accepted")
+                    .setPropertyEditorClass(TypeValuePropertyEditor.class);
+            addProperty("minLength", CATEGORY, "Min Length",
+                    "Set the minimum number of characters accepted by the field")
+                    .setPropertyEditorClass(NonNegativeIntegerPropertyEditor.class);
+            addProperty("pattern", CATEGORY, "Pattern",
+                    "Set regular expression that the field value must match")
+                    .setPropertyEditorClass(RegexPropertyEditor.class);
+            addProperty("totalDigits", CATEGORY, "Total Digits",
+                    "Set the total number of digits expected in a numeric field")
+                    .setPropertyEditorClass(PositiveIntegerPropertyEditor.class);
+            addProperty("whitespace", CATEGORY, "Whitespace",
+                    "Normalise any whitespace characters in the field's value");
+        }
     }
 
 

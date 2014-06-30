@@ -20,13 +20,16 @@ package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
+import org.yawlfoundation.yawl.editor.ui.properties.NonNegativeInteger;
 
 import javax.swing.*;
 
 
-public class IntegerPropertyEditor extends AbstractPropertyEditor {
+public class NonNegativeIntegerPropertyEditor extends AbstractPropertyEditor {
 
-    public IntegerPropertyEditor() {
+    protected NonNegativeInteger currentValue;
+
+    public NonNegativeIntegerPropertyEditor() {
         editor = new JTextField();
         ((JTextField) editor).setText(null);
         ((JTextField) editor).setBorder(LookAndFeelTweaks.EMPTY_BORDER);
@@ -34,22 +37,30 @@ public class IntegerPropertyEditor extends AbstractPropertyEditor {
 
 
     public Object getValue() {
-        try {
-            return Integer.parseInt(((JTextField) editor).getText());
+        String text = ((JTextField) editor).getText();
+        if (validate(text)) {
+            currentValue = new NonNegativeInteger(text);
         }
-        catch (NumberFormatException nfe) {
-            return null;
-        }
+        return currentValue;
     }
 
 
     public void setValue(Object value) {
-        if (value instanceof Integer) {
-            ((JTextField)editor).setText(value.toString());
+        currentValue = (NonNegativeInteger) value;
+        ((JTextField) editor).setText(currentValue.getValue());
+    }
+
+
+    protected boolean validate(String value) {
+        if (value == null || value.isEmpty()) return true;
+        for (char c : value.toCharArray()) {
+            if (! Character.isDigit(c)) {
+                currentValue = currentValue.newInstance();
+                currentValue.setError("Invalid value, expecting nonNegative integer");
+                return false;
+            }
         }
-        else {
-            ((JTextField) editor).setText(null);
-        }
+        return true;
     }
 
 }

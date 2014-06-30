@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -35,6 +36,7 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     private final UserDefinedAttributesBinder _udAttributes;
     private YAttributeMap _attributes;
+    private String _varDataType;
 
     private ExtendedAttributeProperties(YPropertySheet sheet,
                                         UserDefinedAttributesBinder udAttributes) {
@@ -53,9 +55,10 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     public ExtendedAttributeProperties(YPropertySheet sheet,
                                        UserDefinedAttributesBinder udAttributes,
-                                       YAttributeMap attributes) {
+                                       VariableRow row) {
         this(sheet, udAttributes);
-        _attributes = attributes;
+        _attributes = row.getAttributes();
+        _varDataType = row.getDataType();
     }
 
 
@@ -156,11 +159,6 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setBlackout(String blackout) { set("blackout", blackout); }
 
 
-    public Integer getFractionDigits() { return getInt("fractionDigits"); }
-
-    public void setFractionDigits(Integer digits) { set("fractionDigits", digits); }
-
-
     public boolean isHide() { return getBoolean("hide"); }
 
     public void setHide(boolean value) { set("hide", value); }
@@ -211,49 +209,9 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setLineBelow(boolean value) { set("line-below", value); }
 
 
-    public Integer getLength() { return getInt("length"); }
-
-    public void setLength(Integer value) { set("length", value); }
-
-
-    public Integer getMaxExclusive() { return getInt("maxExclusive"); }
-
-    public void setMaxExclusive(Integer value) { set("maxExclusive", value); }
-
-
-    public Integer getMinExclusive() { return getInt("minExclusive"); }
-
-    public void setMinExclusive(Integer value) { set("minExclusive", value); }
-
-
-    public Integer getMaxInclusive() { return getInt("maxExclusive"); }
-
-    public void setMaxInclusive(Integer value) { set("maxExclusive", value); }
-
-
-    public Integer getMinInclusive() { return getInt("minInclusive"); }
-
-    public void setMinInclusive(Integer value) { set("minInclusive", value); }
-
-
-    public Integer getMaxLength() { return getInt("maxLength"); }
-
-    public void setMaxLength(Integer value) { set("maxLength", value); }
-
-
-    public Integer getMinLength() { return getInt("minLength"); }
-
-    public void setMinLength(Integer value) { set("minLength", value); }
-
-
     public boolean isOptional() { return getBoolean("optional"); }
 
     public void setOptional(boolean value) { set("optional", value); }
-
-
-    public String getPattern() { return get("pattern"); }
-
-    public void setPattern(String value) { set("pattern", value); }
 
 
     public boolean isSkipValidation() { return getBoolean("skipValidation"); }
@@ -281,16 +239,110 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setTooltip(String value) { set("tooltip", value); }
 
 
-    public Integer getTotalDigits() { return getInt("totalDigits"); }
+    /***************************************************************************/
+    /** VARIABLE FACET PROPERTIES - FOR SIMPLE TYPES ONLY **/
 
-    public void setTotalDigits(Integer digits) { set("totalDigits", digits); }
+    public NonNegativeInteger getFractionDigits() {
+        return new NonNegativeInteger(get("fractionDigits"));
+    }
+
+    public void setFractionDigits(NonNegativeInteger digits) {
+        showError(digits);
+        set("fractionDigits", digits.getValue());
+    }
+
+
+    public NonNegativeInteger getLength() {
+        return new NonNegativeInteger(get("length"));
+    }
+
+    public void setLength(NonNegativeInteger value) {
+        showError(value);
+        set("length", value.getValue());
+    }
+
+
+    public TypeValuePair getMaxExclusive() {
+        return new TypeValuePair(_varDataType, get("maxExclusive"));
+    }
+
+    public void setMaxExclusive(TypeValuePair pair) {
+        showError(pair);
+        set("maxExclusive", pair.getValue());
+    }
+
+
+    public TypeValuePair getMinExclusive() {
+        return new TypeValuePair(_varDataType, get("minExclusive"));
+    }
+
+    public void setMinExclusive(TypeValuePair pair) {
+        showError(pair);
+        set("minExclusive", pair.getValue());
+    }
+
+
+    public TypeValuePair getMaxInclusive() {
+        return new TypeValuePair(_varDataType, get("maxExclusive"));
+    }
+
+    public void setMaxInclusive(TypeValuePair pair) {
+        showError(pair);
+        set("maxExclusive", pair.getValue());
+    }
+
+
+    public TypeValuePair getMinInclusive() {
+        return new TypeValuePair(_varDataType, get("minInclusive"));
+    }
+
+    public void setMinInclusive(TypeValuePair pair) {
+        showError(pair);
+        set("minInclusive", pair.getValue());
+    }
+
+
+    public NonNegativeInteger getMaxLength() {
+        return new NonNegativeInteger(get("maxLength"));
+    }
+
+    public void setMaxLength(NonNegativeInteger value) {
+        showError(value);
+        set("maxLength", value.getValue());
+    }
+
+
+    public NonNegativeInteger getMinLength() {
+        return new NonNegativeInteger(get("minLength"));
+    }
+
+    public void setMinLength(NonNegativeInteger value) {
+        showError(value);
+        set("minLength", value.getValue());
+    }
+
+
+    public RegexString getPattern() { return new RegexString(get("pattern")); }
+
+    public void setPattern(RegexString pattern) {
+        showError(pattern);
+        set("pattern", pattern.getValue());
+    }
+
+
+    public NonNegativeInteger getTotalDigits() {
+        return new NonNegativeInteger(get("totalDigits"));
+    }
+
+    public void setTotalDigits(NonNegativeInteger digits) {
+        showError(digits);
+        set("totalDigits", digits.getValue());
+    }
 
 
     public boolean isWhitespace() { return getBoolean("whitespace"); }
 
     public void setWhitespace(boolean value) { set("whitespace", value); }
-
-
 
 
     /**************************************************************************/
@@ -415,6 +467,13 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
             case Font.ITALIC : return "italic";
             case Font.BOLD | Font.ITALIC : return "bold,italic";
             default : return null;
+        }
+    }
+
+
+    private void showError(NonNegativeInteger value) {
+        if (value != null && value.hasError()) {
+            ((ExtendedAttributesPropertySheet) getSheet()).showStatus(value.getError());
         }
     }
 

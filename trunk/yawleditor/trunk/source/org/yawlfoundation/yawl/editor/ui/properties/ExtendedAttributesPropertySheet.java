@@ -20,9 +20,8 @@ package org.yawlfoundation.yawl.editor.ui.properties;
 
 import com.l2fprod.common.propertysheet.CellEditorAdapter;
 import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
 import com.l2fprod.common.propertysheet.PropertySheetTableModel;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.IntegerPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.UserDefinedListPropertyEditor;
 
 import javax.swing.*;
@@ -42,18 +41,18 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     private UserDefinedAttributesBinder udAttributes;
     private ExtendedAttributeNameLookup nameLookup;
+    private ExtendedAttributesDialog dialog;
     private String propertyBeingRead;
 
     private static final String UDA_PROPERTY_NAME = "UdAttributeValue";
 
 
-    public ExtendedAttributesPropertySheet() {
+    public ExtendedAttributesPropertySheet(ExtendedAttributesDialog dialog) {
         super();
+        this.dialog = dialog;
         setTable(new UDAPropertySheetTable());
         setSortingProperties(true);
         setPropertySortingComparator(new PropertySorter());
-        ((PropertyEditorRegistry) getEditorFactory()).registerEditor(
-                Integer.class, new IntegerPropertyEditor());
     }
 
     public void setUserDefinedAttributes(UserDefinedAttributesBinder attributes) {
@@ -124,6 +123,9 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
     }
 
 
+    public void showStatus(String status) { dialog.setStatus(status); }
+
+
     private PropertySheetTableModel.Item getSelectedItem() {
         return getTableModel().getPropertySheetElement(getTable().getSelectedRow());
     }
@@ -182,6 +184,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
                             udAttributes.getListItems(property.getDisplayName()));
                 }
             }
+            showStatus(null);
             return result;
         }
     }
