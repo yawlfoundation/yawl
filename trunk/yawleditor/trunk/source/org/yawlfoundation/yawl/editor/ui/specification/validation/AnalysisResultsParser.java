@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.analyser.YAnalyserOptions;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationWriter;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
@@ -138,7 +138,7 @@ public class AnalysisResultsParser {
 
     private static String getWofYawlExecutableFilePath() {
         String path = UserSettings.getWofyawlFilePath();
-        return path != null ? path : FileUtilities.getHomeDir() + WOF_YAWL_BINARY;
+        return path != null ? path : FileLocations.getHomeDir() + WOF_YAWL_BINARY;
     }
 
     public static boolean wofYawlAvailable() {

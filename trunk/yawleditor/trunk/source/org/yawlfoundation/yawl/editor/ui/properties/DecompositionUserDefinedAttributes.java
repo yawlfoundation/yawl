@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 /**
@@ -42,7 +42,7 @@ public class DecompositionUserDefinedAttributes extends UserDefinedAttributes {
         if (_filePath == null) {
             _filePath = UserSettings.getDecompositionAttributesFilePath();
             if (_filePath == null) {
-                _filePath = FileUtilities.getDecompositionAttributePath();
+                _filePath = FileLocations.getDefaultDecompositionAttributePath();
             }
         }
         return _filePath;

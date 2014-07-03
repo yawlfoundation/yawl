@@ -23,61 +23,52 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
 
-public class FileUtilities {
+public class FileLocations {
 
-  private static final String HOME_DIR = setHomeDir();
-  private static final String RELATIVE_PLUGIN_PATH = "YAWLEditorPlugins";
+    private static final String HOME_DIR = setHomeDir();
 
-  private static final String TASK_ICON_PATH = "TaskIcons";
-
-  private static final String RELATIVE_TASK_ICON_PATH = 
-    RELATIVE_PLUGIN_PATH +
-    System.getProperty("file.separator") + 
-    TASK_ICON_PATH;
-  
-  private static final String ABSOLUTE_TASK_ICON_PATH =
-    HOME_DIR + RELATIVE_TASK_ICON_PATH;
+    private static final String ABSOLUTE_TASK_ICON_PATH =
+            HOME_DIR + File.separator + "icons";
+    private static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH =
+            HOME_DIR + File.separator + "attributes";
+    private static final String DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES =
+            "decomposition.properties";
+    private static final String VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES =
+            "variable.properties";
 
 
-  public static String getAbsoluteTaskIconPath() {
-      String path = UserSettings.getTaskIconsFilePath();
-      return path != null ? path : ABSOLUTE_TASK_ICON_PATH;
-  }
+
+    /**
+     * @return the absolute path of the default task icon path
+     */
+    public static String getDefaultTaskIconPath() {
+        String path = UserSettings.getTaskIconsFilePath();
+        return path != null ? path : ABSOLUTE_TASK_ICON_PATH;
+    }
+
+    /**
+     * @return the absolute path of the default decomposition extended attribute
+     * properties file
+     */
+    public static String getDefaultDecompositionAttributePath() {
+        return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + File.separator +
+                DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES;
+    }
+
+    /**
+     * @return the absolute path of the default variable extended attribute
+     * properties plugin file
+     */
+    public static String getDefaultVariableAttributePath() {
+        return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + File.separator +
+                VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;
+    }
 
 
-  // Extended Attribute Plugin Utilities
-  
-  private static final String EXTENDED_ATTRIBUTE_PATH = "ExtendedAttributeProperties";
-  private static final String DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES = "DecompositionProperties";
-  private static final String VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES = "VariableProperties";
-  
-  private static final String RELATIVE_EXTENDED_ATTRIBUTE_PATH = 
-    RELATIVE_PLUGIN_PATH +
-    System.getProperty("file.separator") + 
-    EXTENDED_ATTRIBUTE_PATH;
-
-  private static final String ABSOLUTE_EXTENDED_ATTRIBUTE_PATH =
-    HOME_DIR + RELATIVE_EXTENDED_ATTRIBUTE_PATH;
-
-  /**
-   * Returns the absolute path of the decomposition extended attribute properties plugin file
-   * @return
-   */
-  public static String getDecompositionAttributePath() {
-    return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
-           System.getProperty("file.separator") + 
-           DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES;
-  }
-
-  /**
-   * Returns the absolute path of the variable extended attribute properties plugin file
-   * @return
-   */
-  public static String getVariableAttributePath() {
-    return ABSOLUTE_EXTENDED_ATTRIBUTE_PATH + 
-           System.getProperty("file.separator") + 
-           VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES;
-  }
+    /**
+     * @return the absolute path of the location the editor was loaded
+     */
+    public static String getHomeDir() { return HOME_DIR; }
 
 
     // returns the path from which the editor was loaded (ie. the location of the editor jar)
@@ -102,8 +93,5 @@ public class FileUtilities {
         }
         return result;
     }
-
-
-    public static String getHomeDir() { return HOME_DIR; }
 
 }

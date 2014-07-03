@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,43 +18,24 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
+import com.l2fprod.common.swing.renderer.ColorCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.FontColor;
+
 import javax.swing.*;
-import java.awt.*;
 
 /**
- * Author: Michael Adams
- * Creation Date: 4/09/2009
+ * @author Michael Adams
+ * @date 1/07/2014
  */
-public class CustomFormDialogPanel extends JPanel {
+public class FontColorRenderer extends ColorCellRenderer {
 
-    private final JTextArea textArea;
-
-    public CustomFormDialogPanel() {
-        setLayout(new BorderLayout(5, 5));
-        setMinimumSize(new Dimension(300, 100));
-        setPreferredSize(new Dimension(300, 100));
-        JLabel label = new JLabel("Please enter a URI for the Custom Form:");
-        add(label, BorderLayout.NORTH);
-        textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        add(scrollPane);
+    protected String convertToString(Object value) {
+        return (value instanceof FontColor) ? value.toString() : null;
     }
 
-    public void setURI(String text) {
-        textArea.setText(text);
+    protected Icon convertToIcon(Object value) {
+        return (value instanceof FontColor) ?
+                new PaintIcon(((FontColor) value).getColour()) : null;
     }
 
-    public String getURI() {
-        return textArea.getText();
-    }
-
-
-
-
-
-
-
-
-    
 }

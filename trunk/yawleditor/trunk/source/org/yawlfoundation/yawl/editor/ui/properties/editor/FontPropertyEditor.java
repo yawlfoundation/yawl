@@ -34,7 +34,7 @@ public class FontPropertyEditor extends DialogPropertyEditor {
     private Color colour;
 
     public FontPropertyEditor() {
-        super(new FontPropertyRenderer());
+        super(new FontColorRenderer());
     }
 
     public Object getValue() {
@@ -42,8 +42,9 @@ public class FontPropertyEditor extends DialogPropertyEditor {
     }
 
     public void setValue(Object value) {
+        FontColor fontColor = null;
         if (value instanceof FontColor) {
-            FontColor fontColor = (FontColor) value;
+            fontColor = (FontColor) value;
             currentFont = fontColor.getFont();
             colour = fontColor.getColour();
         }
@@ -51,7 +52,8 @@ public class FontPropertyEditor extends DialogPropertyEditor {
             currentFont = (Font) value;
             colour = null;
         }
-        ((FontPropertyRenderer) label).setValue(currentFont);
+        ((FontColorRenderer) label).setValue(fontColor != null ? fontColor :
+                new FontColor(currentFont, null));
     }
 
 

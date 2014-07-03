@@ -98,6 +98,11 @@ public class YPropertySheet extends PropertySheetPanel {
         editorFactory.registerEditor(Color.class, new ColorPropertyEditor());
         editorFactory.registerEditor(Font.class, new FontPropertyEditor());
         editorFactory.registerEditor(FontColor.class, new FontPropertyEditor());
+
+        PropertyRendererRegistry rendererFactory =
+                (PropertyRendererRegistry) getRendererFactory();
+        rendererFactory.registerRenderer(Color.class, new ColorPropertyRenderer());
+        rendererFactory.registerRenderer(FontColor.class, new FontColorRenderer());
     }
 
     protected void pause(long milliseconds) {

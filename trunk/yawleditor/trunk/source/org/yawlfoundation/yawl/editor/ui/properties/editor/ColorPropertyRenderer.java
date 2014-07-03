@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -18,19 +18,24 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
+import com.l2fprod.common.swing.renderer.ColorCellRenderer;
+
+import java.awt.*;
+
 /**
  * @author Michael Adams
- * @date 12/07/12
+ * @date 1/07/2014
  */
-public class CustomFormPropertyEditor extends URIPropertyEditor {
+public class ColorPropertyRenderer extends ColorCellRenderer {
 
-    public CustomFormPropertyEditor() {
-        super();
-    }
+    protected String convertToString(Object value) {
+        if (value instanceof Integer) {
+            value = new Color((Integer) value);
+        }
+        if (! (value instanceof Color)) { return null; }
 
-    protected void showDialog() {
-        showDialog("Set Custom Form URI", "Please enter a valid Custom Form URI:");
+        Color color = (Color) value;
+        return toHex(color);
     }
 
 }
-

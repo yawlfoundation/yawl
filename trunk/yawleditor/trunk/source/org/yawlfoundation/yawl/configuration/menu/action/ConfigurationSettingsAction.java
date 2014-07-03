@@ -49,7 +49,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -227,7 +227,7 @@ public class ConfigurationSettingsAction extends YAWLBaseAction
 
         private String getWendyPath(NetConfiguration netConfiguration) {
             String path = netConfiguration.getSettings().getWendyPath();
-            return path != null ? path : FileUtilities.getHomeDir() + "wendy";
+            return path != null ? path : FileLocations.getHomeDir() + "wendy";
         }
 
 

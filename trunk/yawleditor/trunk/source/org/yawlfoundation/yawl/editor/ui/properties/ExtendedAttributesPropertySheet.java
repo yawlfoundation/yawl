@@ -18,11 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties;
 
-import com.l2fprod.common.propertysheet.CellEditorAdapter;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetTableModel;
+import com.l2fprod.common.propertysheet.*;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.UserDefinedListPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -53,6 +51,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
         setTable(new UDAPropertySheetTable());
         setSortingProperties(true);
         setPropertySortingComparator(new PropertySorter());
+        registerGlobalEditors();
     }
 
     public void setUserDefinedAttributes(UserDefinedAttributesBinder attributes) {
@@ -127,7 +126,9 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
 
     private PropertySheetTableModel.Item getSelectedItem() {
-        return getTableModel().getPropertySheetElement(getTable().getSelectedRow());
+        int selectedRow = getTable().getSelectedRow();
+        return selectedRow > -1 ?
+                getTableModel().getPropertySheetElement(selectedRow) : null;
     }
 
     private PropertySheetTableModel getTableModel() {
@@ -137,6 +138,19 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     private boolean isUdaProperty(Property property) {
         return property.getName().equals(UDA_PROPERTY_NAME);
+    }
+
+
+    private void registerGlobalEditors() {
+        PropertyEditorRegistry editorFactory = (PropertyEditorRegistry) getEditorFactory();
+        editorFactory.registerEditor(Color.class, new ColorPropertyEditor());
+        editorFactory.registerEditor(Font.class, new FontPropertyEditor());
+        editorFactory.registerEditor(FontColor.class, new FontPropertyEditor());
+
+        PropertyRendererRegistry rendererFactory =
+                (PropertyRendererRegistry) getRendererFactory();
+        rendererFactory.registerRenderer(Color.class, new ColorPropertyRenderer());
+        rendererFactory.registerRenderer(FontColor.class, new FontColorRenderer());
     }
 
 
