@@ -93,7 +93,7 @@ public class Role extends AbstractResourceAttribute implements Comparable {
 
     public int compareTo(Object o) {
         if ((o == null) || (! (o instanceof Role))) return 1;
-        return this.getName().compareTo(((Role) o).getName());
+        return this.getName().toUpperCase().compareTo(((Role) o).getName().toUpperCase());
     }
    
 

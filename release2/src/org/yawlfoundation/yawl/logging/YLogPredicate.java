@@ -109,4 +109,24 @@ public class YLogPredicate {
         return xml.toString();
     }
 
+
+    public boolean equals(Object o) {
+        if (o instanceof YLogPredicate) {
+            YLogPredicate other = (YLogPredicate) o;
+            return ((_startPredicate == null && other._startPredicate == null) ||
+                    (_startPredicate != null &&
+                            _startPredicate.equals(other._startPredicate)) &&
+                   ((_completionPredicate == null && other._completionPredicate == null) ||
+                    (_completionPredicate != null &&
+                            _completionPredicate.equals(other._completionPredicate))));
+        }
+        return false;
+    }
+
+
+    public int hashCode() {
+        return 17 * (_startPredicate != null ? _startPredicate.hashCode() : 17) *
+                (_completionPredicate != null ? _completionPredicate.hashCode() : 33);
+    }
+
 }
