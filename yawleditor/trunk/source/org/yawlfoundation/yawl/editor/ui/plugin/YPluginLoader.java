@@ -19,7 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.plugin;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import java.io.File;
@@ -116,7 +116,7 @@ public class YPluginLoader extends URLClassLoader {
 
 
     private static String getPluginsPath() {
-        return FileUtilities.getHomeDir() + "plugins";
+        return FileLocations.getHomeDir() + "plugins";
     }
 
 

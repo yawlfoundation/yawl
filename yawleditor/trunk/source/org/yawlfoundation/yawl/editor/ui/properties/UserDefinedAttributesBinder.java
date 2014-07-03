@@ -23,7 +23,6 @@ import com.l2fprod.common.beans.editor.DoublePropertyEditor;
 import com.l2fprod.common.beans.editor.IntegerPropertyEditor;
 import com.l2fprod.common.beans.editor.StringPropertyEditor;
 import com.l2fprod.common.swing.renderer.BooleanCellRenderer;
-import com.l2fprod.common.swing.renderer.ColorCellRenderer;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
@@ -148,10 +147,10 @@ public class UserDefinedAttributesBinder {
                 return BooleanCellRenderer.class;
             }
             if (type.equalsIgnoreCase("color")) {
-                return ColorCellRenderer.class;
+                return ColorPropertyRenderer.class;
             }
             if (type.equalsIgnoreCase("font")) {
-                return FontPropertyRenderer.class;
+                return FontColorRenderer.class;
             }
         }
         return DefaultCellRenderer.class;   // default

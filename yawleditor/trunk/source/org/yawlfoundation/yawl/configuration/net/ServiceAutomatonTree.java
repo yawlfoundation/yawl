@@ -28,7 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -90,7 +90,7 @@ public class ServiceAutomatonTree implements PropertyChangeListener {
         tasks = new ArrayList<YAWLTask>();
         currentState = "";
         String savedPath = ConfigurationSettings.getWendyFilePath();
-        path = savedPath != null ? savedPath : FileUtilities.getHomeDir() + "wendy";
+        path = savedPath != null ? savedPath : FileLocations.getHomeDir() + "wendy";
     }
 
 

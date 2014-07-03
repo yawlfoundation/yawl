@@ -211,7 +211,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 //        RepaintManager.setCurrentManager(new CheckThreadViolationRepaintManager());
         splashScreen = new YSplashScreen();
         splashScreen.init();
-        LogWriter.init(FileUtilities.getHomeDir());
+        LogWriter.init(FileLocations.getHomeDir());
         IconList.getInstance().load();
     }
 

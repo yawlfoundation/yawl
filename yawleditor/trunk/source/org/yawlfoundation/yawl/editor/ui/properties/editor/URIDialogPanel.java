@@ -18,19 +18,35 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
-/**
- * @author Michael Adams
- * @date 12/07/12
- */
-public class CustomFormPropertyEditor extends URIPropertyEditor {
+import javax.swing.*;
+import java.awt.*;
 
-    public CustomFormPropertyEditor() {
-        super();
+/**
+ * Author: Michael Adams
+ * Creation Date: 4/09/2009
+ */
+public class URIDialogPanel extends JPanel {
+
+    private final JTextArea textArea;
+
+    public URIDialogPanel(String prompt) {
+        setLayout(new BorderLayout(5, 5));
+        setMinimumSize(new Dimension(300, 100));
+        setPreferredSize(new Dimension(300, 100));
+        JLabel label = new JLabel(prompt);
+        add(label, BorderLayout.NORTH);
+        textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        add(scrollPane);
     }
 
-    protected void showDialog() {
-        showDialog("Set Custom Form URI", "Please enter a valid Custom Form URI:");
+    public void setURI(String text) {
+        textArea.setText(text);
+    }
+
+    public String getURI() {
+        return textArea.getText();
     }
 
 }
-

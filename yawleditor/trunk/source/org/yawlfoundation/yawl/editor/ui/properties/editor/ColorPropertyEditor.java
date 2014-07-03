@@ -34,7 +34,7 @@ public class ColorPropertyEditor extends DialogPropertyEditor {
     private Color currentColour;
 
     public ColorPropertyEditor() {
-        super(new ColorCellRenderer());
+        super(new ColorPropertyRenderer());
     }
 
     public Object getValue() {

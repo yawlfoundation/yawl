@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.preferences;
 
-import org.yawlfoundation.yawl.editor.ui.util.FileUtilities;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
@@ -41,9 +41,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
     private JTextField _fldVariable;
     private JTextField _fldIcons;
     private JTextField _fldWofyawl;
-
-    private static final String PROPERTY_LOCATION =
-            FileUtilities.getDecompositionAttributePath();
 
 
     public FilePathPanel(CaretListener listener) {
@@ -144,20 +141,22 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
 
     private String getDecompositionPath() {
         String path = UserSettings.getDecompositionAttributesFilePath();
-        return path != null ? path : PROPERTY_LOCATION;
+        return path != null ? path : FileLocations.getDefaultDecompositionAttributePath();
     }
 
     private String getVariablePath() {
-        return UserSettings.getVariableAttributesFilePath();
+        String path = UserSettings.getVariableAttributesFilePath();
+        return path != null ? path : FileLocations.getDefaultVariableAttributePath();
     }
 
     private String getTaskIconsPath() {
-        return FileUtilities.getAbsoluteTaskIconPath();
+        String path = UserSettings.getTaskIconsFilePath();
+        return path != null ? path : FileLocations.getDefaultTaskIconPath();
     }
 
     private String getWofyawlPath() {
         String path = UserSettings.getWofyawlFilePath();
-        return path != null ? path : FileUtilities.getHomeDir();
+        return path != null ? path : FileLocations.getHomeDir();
     }
 
 

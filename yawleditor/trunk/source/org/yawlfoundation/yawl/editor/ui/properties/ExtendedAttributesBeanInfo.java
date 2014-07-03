@@ -46,7 +46,7 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
     private void addCommonProperties(String effect) {
         addProperty("backgroundColour", CATEGORY, "Background Colour",
                 "Set the background colour of the dynamically generated " + effect);
-        addProperty("font", CATEGORY, "Font", "Set the default font for labels and" +
+        addProperty("font", CATEGORY, "Font", "Set the default font for labels and " +
                 "text on the dynamically generated " + effect);
         addProperty("justify", CATEGORY, "Justify",
                 "Justify text display on the dynamically generated " + effect)
@@ -87,12 +87,14 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
                 "if the XQuery expression provided evaluates to true")
                 .setPropertyEditorClass(XQueryPropertyEditor.class);
         addProperty("imageAbove", CATEGORY, "Image Above",
-                "Set the URL of an image to show above the field");
+                "Set the URL of an image to show above the field")
+                .setPropertyEditorClass(ImageURIPropertyEditor.class);
         addProperty("imageAboveAlign", CATEGORY, "Image Above Align",
                 "Set the alignment of an image above the field")
                 .setPropertyEditorClass(JustifyEditor.class);
         addProperty("imageBelow", CATEGORY, "Image Below",
-                "Set the URL of an image to show below the field");
+                "Set the URL of an image to show below the field")
+                .setPropertyEditorClass(ImageURIPropertyEditor.class);
         addProperty("imageBelowAlign", CATEGORY, "Image Below Align",
                 "Set the alignment of an image below the field")
                 .setPropertyEditorClass(JustifyEditor.class);
