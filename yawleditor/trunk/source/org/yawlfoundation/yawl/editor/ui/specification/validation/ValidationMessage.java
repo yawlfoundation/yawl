@@ -46,7 +46,7 @@ public class ValidationMessage implements Comparable<ValidationMessage> {
     }
 
     public String getLongForm() {
-        return _longForm;
+        return _longForm != null ? _longForm : _shortForm;
     }
 
     public void setLongForm(String longForm) {

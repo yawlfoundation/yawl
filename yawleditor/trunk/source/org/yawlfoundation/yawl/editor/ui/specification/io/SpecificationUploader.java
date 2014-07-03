@@ -76,6 +76,7 @@ public class SpecificationUploader {
     private YSpecification getSpecification() {
         if (_specification == null) {
             _specification = new SpecificationWriter().cleanSpecification();
+            _specification.getSpecificationID();  // ensure specID is constructed
         }
         return _specification;
     }
