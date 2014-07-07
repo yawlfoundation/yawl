@@ -17,6 +17,8 @@
 	<property name="build.dir" value="build" />
     <property file="${build.dir}/build.properties" />
 
+    <property name="version" value="${editor.release.number}"/>
+
     <!--
     	Current editor and engine version numbers (from properties file)
     -->
@@ -128,6 +130,11 @@
 			<available file="${compatible.engine.depsLib}" type="dir" />
 		</condition>
 	</fail>
+
+
+    <taskdef name="checkSums"
+             classname="org.yawlfoundation.yawl.util.CheckSumTask"
+             classpath="../${compatible.engine.libJAR.path}"/>
 
 
 	<!-- ==================MAIN EDITOR BUILD TARGETS======================= -->
@@ -319,13 +326,22 @@
    	        depends="buildJars"
    	        description="Generate ZIP file of the editor jar and lib dir (for release)">
 
+        <!-- increment build number -->
+        <propertyfile file="${build.dir}/build.properties">
+            <entry key="build.number" type="int" default="0" operation="+"/>
+            <entry key="build.date" type="date" value="now" pattern="yyyy-MM-dd HH.mm.ss"/>
+        </propertyfile>
+
+        <!-- build checksums.xml for future update comparisons -->
+        <checkSums rootdir="../${output.dir}" todir="../${output.dir}/lib"
+                   includes="*.jar *.pdf"/>
+
    		<zip destfile="${output.dir}/${release.zip}">
             <zipfileset dir="${output.dir}" includes="${ui.jar.name}"/>
    	  	    <zipfileset dir="${output.dir}/lib" prefix="lib"/>
             <zipfileset dir="${output.dir}/plugins" prefix="plugins"/>
             <zipfileset dir="${manual.dir}" prefix="manual"/>
    		</zip>
-        <checksum file="${output.dir}/${release.zip}" />
     </target>
 
 
@@ -502,33 +518,6 @@
         <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
                style="${analyzer.dir}/jaranalyzer.xsl"/>
     </target>
-
-
-	<!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
-
-	<!--<target name="deployEditorLite" depends="buildEditorLite"-->
-			<!--description="Build and deploy Editor Lite version">-->
-		<!--<mkdir dir="${deploy.location}/lib" />-->
-		<!--<copy todir="${deploy.location}">-->
-			<!--<fileset file="${distribution.dir.lite}/${editor.lite.jar.name}" />-->
-		<!--</copy>-->
-		<!--<copy todir="${deploy.location}/lib">-->
-			<!--<fileset dir="${distribution.dir.lite}/lib" includes="*.jar" />-->
-		<!--</copy>-->
-	<!--</target>-->
-
-	<!--<target name="deployEditorComplete" depends="buildEditorComplete"-->
-			<!--description="Build and deploy Editor Complete version">-->
-		<!--<copy todir="${deploy.location}">-->
-			<!--<fileset file="${distribution.dir.complete}/${editor.complete.jar.name}" />-->
-		<!--</copy>-->
-	<!--</target>-->
-
-	<!--<target name="deployEditorBoth" depends="deployEditorLite, deployEditorComplete"-->
-			<!--description="Build and deploy both Editor Complete and Lite versions" />-->
-
-
-	<!-- ====================TESTING RELATED TARGETS======================= -->
 
 	<!--
 		Run all tests

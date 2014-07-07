@@ -36,6 +36,9 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.*;
 import org.yawlfoundation.yawl.editor.ui.swing.specification.BottomPanel;
 import org.yawlfoundation.yawl.editor.ui.update.BackgroundUpdateChecker;
 import org.yawlfoundation.yawl.editor.ui.util.*;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
@@ -44,6 +47,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -422,9 +426,22 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
 
     private static void showUpdateSuccess() {
-        YBuildProperties bp = new VersionProperties().load();
+        String fullVersion = null;
+        String checksums = StringUtil.fileToString(FileLocations.getLibPath() +
+                        File.separator + "checksums.xml");
+        if (checksums != null) {
+            XNode node = new XNodeParser().parse(checksums);
+            if (node != null) {
+                fullVersion = node.getChildText("version") + " (b." +
+                        node.getChildText("build") + ")";
+            }
+        }
+        if (fullVersion == null) {
+            YBuildProperties bp = new VersionProperties().load();
+            fullVersion = bp.getFullVersion();
+        }
         JOptionPane.showMessageDialog(getInstance(),
-                "Updated successfully to version " + bp.getFullVersion(),
+                "Updated successfully to version " + fullVersion,
                 "Update Completed", JOptionPane.INFORMATION_MESSAGE);
     }
 

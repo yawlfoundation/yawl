@@ -19,10 +19,12 @@
 package org.yawlfoundation.yawl.editor.ui.update;
 
 import javax.swing.*;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -30,79 +32,71 @@ import java.net.URL;
  */
 public class UpdateDownloader extends SwingWorker<Void, Void> {
 
-    private String _url;
-    private File _file;
-    private long _fileSize;
+    private String _urlBase;
+    private String _urlSuffix;
+    private List<String> _fileNames;
+    private long _totalBytes;
+    private File _tmpDir;
+    private boolean _hasErrors;
 
-    private static final long DEFAULT_FILE_SIZE = 1024 * 1024 * 11;       // 11mb
 
-
-    public UpdateDownloader(String urlStr, File downloadTo) {
-        _url = urlStr;
-        _file = downloadTo;
+    public UpdateDownloader(String urlBase, String urlSuffix, List<String> fileNames,
+                            long totalBytes, File tmpDir) {
+        _urlBase = urlBase;
+        _urlSuffix = urlSuffix;
+        _fileNames = fileNames;
+        _totalBytes = totalBytes;
+        _tmpDir = tmpDir;
     }
 
-    protected File getFileTo() { return _file; }
+    protected File getTmpDir() { return _tmpDir; }
+
+    protected boolean hasErrors() { return _hasErrors; }
 
     @Override
-    protected Void doInBackground() throws Exception {
-        URL webFile = new URL(_url);
-        _fileSize = getFileSize(webFile);
-        int bufferSize = (int) (_fileSize / 1000);
-        byte[] buffer = new byte[bufferSize];
-        BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
-        FileOutputStream fos = new FileOutputStream(_file);
-        BufferedOutputStream outStream = new BufferedOutputStream(fos);
+    protected Void doInBackground() {
+        int bufferSize = 8192;
         long progress = 0;
         setProgress(0);
+        for (String fileName : _fileNames) {
+            try {
+                URL webFile = new URL(_urlBase + fileName + _urlSuffix);
+                byte[] buffer = new byte[bufferSize];
+                makeDir(fileName);
+                String fileTo = _tmpDir + File.separator + fileName;
+                BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
+                FileOutputStream fos = new FileOutputStream(fileTo);
+                BufferedOutputStream outStream = new BufferedOutputStream(fos);
 
-        // read chunks from the input stream and write them out
-        int bytesRead;
-        while ((bytesRead = inStream.read(buffer, 0, bufferSize)) > 0) {
-            outStream.write(buffer, 0, bytesRead);
-            progress += bytesRead;
-            setProgress(Math.min((int)(progress * 100/_fileSize), 100));
-            if (isCancelled()) {
+                // read chunks from the input stream and write them out
+                int bytesRead;
+                while ((bytesRead = inStream.read(buffer, 0, bufferSize)) > 0) {
+                    outStream.write(buffer, 0, bytesRead);
+                    progress += bytesRead;
+                    setProgress(Math.min((int) (progress * 100 / _totalBytes), 100));
+                    if (isCancelled()) {
+                        outStream.close();
+                        inStream.close();
+                        new File(fileTo).delete();
+                        break;
+                    }
+                }
+
                 outStream.close();
                 inStream.close();
-                _file.delete();
-                break;
+            }
+            catch (Exception e) {
+                _hasErrors = true;
             }
         }
-
-        outStream.close();
-        inStream.close();
         return null;
     }
 
 
-    public long getFileSize() {
-        if (_fileSize == 0) {
-            try {
-                URL webFile = new URL(_url);
-                _fileSize = getFileSize(webFile);
-            }
-            catch (MalformedURLException mue) {
-                // ignore - fall through
-            }
-        }
-        return _fileSize;
-    }
-
-
-    private long getFileSize(URL url) {
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("HEAD");
-            conn.getInputStream();
-            return conn.getContentLength();
-        }
-        catch (IOException e) {
-            return DEFAULT_FILE_SIZE;
-        }
-        finally {
-            if (conn != null) conn.disconnect();
+    private void makeDir(String fileName) {
+        if (fileName.contains(File.separator)) {
+            new File(_tmpDir, fileName.substring(0, fileName.indexOf(File.separator)))
+                    .mkdirs();
         }
     }
 

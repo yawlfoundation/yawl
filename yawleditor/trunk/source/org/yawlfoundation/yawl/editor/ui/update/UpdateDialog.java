@@ -47,20 +47,20 @@ public class UpdateDialog extends JDialog
     private JButton _btnDownload;
     private JButton _btnDownloadAndRestart;
     private UpdateDownloader _downloader;
+    private VersionComparer _comparer;
     private boolean _restarting;
     private long _fileSize;
     private String _fileSizeString;
 
-    protected static final String ZIP_FILE = "YAWLEditor3.0beta.zip";
 
+    private UpdateDialog() { super(YAWLEditor.getInstance()); }
 
-    public UpdateDialog() { super(YAWLEditor.getInstance()); }
-
-    public UpdateDialog(UpdateChecker checker) {
+    public UpdateDialog(VersionComparer comparer) {
         this();
         setTitle("Update Information");
         setModal(true);
-        setContentPane(addContent(checker));
+        _comparer = comparer;
+        setContentPane(addContent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(YAWLEditor.getInstance());
         pack();
@@ -101,7 +101,7 @@ public class UpdateDialog extends JDialog
                 setVisible(false);
                 if (! _downloader.isCancelled()) {
                     YAWLEditor.getStatusBar().setText(
-                            "Latest version downloaded to " + _downloader.getFileTo());
+                            "Latest version downloaded to " + _downloader.getTmpDir());
                     if (_restarting) restart();
                 }
             }
@@ -113,22 +113,22 @@ public class UpdateDialog extends JDialog
         }
     }
 
-    private JPanel addContent(UpdateChecker checker) {
+    private JPanel addContent() {
         JPanel panel = new JPanel(new BorderLayout(10,10));
         panel.setBorder(new EmptyBorder(10,10,10,10));
         panel.add(new JLabel("A new version of the YAWL Editor is available:"),
                 BorderLayout.NORTH);
-        panel.add(getInfoPanel(checker), BorderLayout.CENTER);
+        panel.add(getInfoPanel(), BorderLayout.CENTER);
         panel.add(getButtonPanel(), BorderLayout.SOUTH);
         return panel;
     }
 
 
-    private JPanel getInfoPanel(UpdateChecker checker) {
+    private JPanel getInfoPanel() {
         JPanel panel = new JPanel(new GridLayout(0,1,5,5));
         panel.setBorder(new EmptyBorder(0,10,0,10));
-        panel.add(new JLabel(getCurrentInfo(checker)));
-        panel.add(new JLabel(getLatestInfo(checker)));
+        panel.add(new JLabel(_comparer.getCurrentInfo()));
+        panel.add(new JLabel(_comparer.getLatestInfo()));
         panel.add(getProgressBar());
         return panel;
     }
@@ -162,21 +162,6 @@ public class UpdateDialog extends JDialog
         return _progressBar;
     }
 
-    private String getCurrentInfo(UpdateChecker checker) {
-        StringBuilder s = new StringBuilder();
-        s.append("Current Version: ").append(checker.getCurrentVersion())
-                .append(" (build ").append(checker.getCurrentBuildNumber()).append(')');
-        return s.toString();
-    }
-
-
-    private String getLatestInfo(UpdateChecker checker) {
-        StringBuilder s = new StringBuilder();
-        s.append("New Version: ").append(checker.getLatestVersion())
-                .append(" (build ").append(checker.getLatestBuildNumber()).append(')');
-        return s.toString();
-    }
-
 
     private void enableButtons(boolean enable) {
         _btnDownload.setEnabled(enable);
@@ -190,8 +175,9 @@ public class UpdateDialog extends JDialog
         _progressBar.setIndeterminate(true);
 
         if (saveToDir == null) saveToDir = getTmpDir();
-        File toFile = new File(saveToDir, ZIP_FILE);
-        _downloader = new UpdateDownloader(UpdateChecker.SOURCE_URL + ZIP_FILE, toFile);
+        _downloader = new UpdateDownloader(UpdateChecker.SOURCE_URL,
+                UpdateChecker.SF_DOWNLOAD_SUFFIX, _comparer.getDownloadList(),
+                _comparer.getDownloadSize(), saveToDir);
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
     }
@@ -233,7 +219,7 @@ public class UpdateDialog extends JDialog
 
     private String getTotalFileSize() {
         if (_fileSizeString == null) {
-            _fileSize = _downloader.getFileSize();
+            _fileSize = _comparer.getDownloadSize();
             _fileSizeString = shorten(_fileSize);
         }
         return _fileSizeString;
@@ -275,12 +261,29 @@ public class UpdateDialog extends JDialog
 
     private void replaceApp() throws URISyntaxException, IOException {
         File editorDir = getJarFile().getParentFile();
-        File repoDir = new File(editorDir, "lib/repository");
-        File tmpRepoDir = new File(getTmpDir(), "repository");
-        FileUtil.copyDir(repoDir, tmpRepoDir);
-        FileUtil.purgeDir(editorDir);
-        FileUtil.unzip(_downloader.getFileTo(), editorDir);
-        FileUtil.copyDir(tmpRepoDir, repoDir);
+        File tmpDir = getTmpDir();
+        for (String fileName : _comparer.getDownloadList()) {
+            File source = makeFile(tmpDir.getAbsolutePath(), fileName);
+            File target = makeFile(editorDir.getAbsolutePath(), fileName);
+            FileUtil.copy(source, target);
+        }
+        File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
+        File target = makeFile(editorDir.getAbsolutePath() + "/lib",
+                UpdateChecker.CHECKSUM_FILE);
+        FileUtil.copy(source, target);
+    }
+
+
+    private File makeFile(String path, String fileName) {
+        if (fileName.contains(File.separator)) {
+            int sepPos = fileName.lastIndexOf(File.separator);
+            String dirPart = fileName.substring(0, sepPos);
+            String filePart = fileName.substring(sepPos + 1);
+            File dir = new File(path + File.separator + dirPart);
+            dir.mkdirs();
+            return new File(dir, filePart);
+        }
+        return new File(path, fileName);
     }
 
 

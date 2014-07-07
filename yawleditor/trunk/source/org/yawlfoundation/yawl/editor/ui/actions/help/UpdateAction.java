@@ -66,7 +66,7 @@ public class UpdateAction extends YAWLBaseAction implements PropertyChangeListen
                     showError(_checker.getErrorMessage());
                 }
                 else if (_checker.hasUpdate()) {
-                    new UpdateDialog(_checker).setVisible(true);
+                    new UpdateDialog(_checker.getComparer()).setVisible(true);
                 }
                 else showInfo("No updates available, you have the latest version.");
             }
