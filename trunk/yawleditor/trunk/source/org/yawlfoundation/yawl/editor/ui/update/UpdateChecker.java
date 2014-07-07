@@ -18,10 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.ui.update;
 
-import org.yawlfoundation.yawl.editor.ui.util.VersionProperties;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import java.io.File;
@@ -37,12 +36,14 @@ import java.nio.channels.ReadableByteChannel;
 */
 public class UpdateChecker extends SwingWorker<Void, Void> {
 
-    private YBuildProperties current, latest;
-    private String error;
+    private VersionComparer _comparer;
+    private String _error;
 
-    private static final String VERSION_PROPERTIES = "version.properties";
-    protected static final String BASE_URL = "http://yawlfoundation.org/";
-    protected static final String SOURCE_URL = BASE_URL + "latest/three/";
+    protected static final String CHECKSUM_FILE = "checksums.xml";
+    protected static final String BASE_URL = "http://sourceforge.net/";
+    protected static final String SOURCE_URL =
+            BASE_URL + "projects/yawl/files/updatecache/editor/";
+    protected static final String SF_DOWNLOAD_SUFFIX = "/download";
 
     public UpdateChecker() { }
 
@@ -50,93 +51,72 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     public Void doInBackground() {
         try {
             checkURLAvailable(BASE_URL);
-            current = loadCurrentVersion();
-            latest = loadLatestVersion();
+            _comparer = new VersionComparer(loadLatestCheckSums(), loadCurrentCheckSums());
         }
         catch (IOException ioe) {
-            error = "Error: " + ioe.getMessage();
+            _error = "Error: " + ioe.getMessage();
         }
         return null;
     }
 
-    public YBuildProperties getCurrent() { return current; }
 
-    public YBuildProperties getLatest() { return latest; }
+    public VersionComparer getComparer() { return _comparer; }
 
-    public String getError() { return error; }
+    public String getError() { return _error; }
 
 
-    public int getCurrentBuildNumber() {
-        return current != null ? getBuildNumber(current) : -1;
+    public String getCurrentBuildNumber() {
+        return _comparer != null ? _comparer.getCurrentBuild() : null;
     }
 
-    public int getLatestBuildNumber() {
-        return latest != null ? getBuildNumber(latest) : -1;
+    public String getLatestBuildNumber() {
+        return _comparer != null ? _comparer.getLatestBuild() : null;
     }
 
-    public String getCurrentVersion() {
-        return current != null ? current.getVersion() : null;
-    }
-
-    public String getLatestVersion() {
-        return latest != null ? latest.getVersion() : null;
-    }
-
-    public String getCurrentBuildDate() {
-        return current != null ? current.getBuildDate() : null;
-    }
-
-    public String getLatestBuildDate() {
-        return latest != null ? latest.getBuildDate() : null;
-    }
 
     public boolean hasUpdate() {
-        int latestBuild = getLatestBuildNumber();
-        return latestBuild > 0 && latestBuild != getCurrentBuildNumber();
+        return _comparer != null && _comparer.hasUpdates();
     }
 
     public boolean hasError() {
-        return error != null || getCurrentBuildNumber() <= 0 ||
-                getLatestBuildNumber() <= 0;
+        return _error != null || getCurrentBuildNumber() == null ||
+                getLatestBuildNumber() == null;
     }
 
 
     public String getErrorMessage() {
-        if (error != null) return error;
-        if (getCurrentBuildNumber() <= 0) {
+        if (_error != null) return _error;
+        if (getCurrentBuildNumber() == null) {
             return "Error: Unable to determine current version";
         }
-        if (getLatestBuildNumber() <= 0) {
+        if (getLatestBuildNumber() == null) {
             return "Error: Unable to determine latest version";
         }
         return null;
     }
 
 
-    private int getBuildNumber(YBuildProperties properties) {
-        return StringUtil.strToInt(properties.getBuildNumber(), -1);
-    }
-
-    private YBuildProperties loadCurrentVersion() throws IOException {
-        YBuildProperties current = new VersionProperties().load();
+    private String loadCurrentCheckSums() throws IOException {
+        String current = StringUtil.fileToString(FileLocations.getLibPath() +
+                File.separator + CHECKSUM_FILE);
         if (current == null) {
             throw new IOException("Unable to determine current build version");
         }
         return current;
     }
 
-
-    private YBuildProperties loadLatestVersion() throws IOException {
-        File f = new File(getTmpDir(), VERSION_PROPERTIES);
-        download(SOURCE_URL + VERSION_PROPERTIES, f);
-        YBuildProperties latest = new VersionProperties().load(f);
+    private String loadLatestCheckSums() throws IOException {
+        File f = new File(getTmpDir(), CHECKSUM_FILE);
+        download(SOURCE_URL + "lib/" + CHECKSUM_FILE + SF_DOWNLOAD_SUFFIX, f);
+        String latest = StringUtil.fileToString(f);
         if (latest == null) {
             throw new IOException("Unable to determine latest build version");
         }
         return latest;
     }
 
-    private void download(String fromURL, File toFile) throws IOException {
+
+    public void download(String fromURL, File toFile) throws IOException {
         URL webFile = new URL(fromURL);
         ReadableByteChannel rbc = Channels.newChannel(webFile.openStream());
         FileOutputStream fos = new FileOutputStream(toFile);
@@ -152,6 +132,19 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     private void checkURLAvailable(String urlStr) throws IOException {
         if (! HttpURLValidator.validate(urlStr).equals("<success/>")) {
             throw new IOException("Update server is offline or unavailable");
+        }
+    }
+
+
+    public static void main(String args[]) {
+        UpdateChecker checker = new UpdateChecker();
+        try {
+            checker.download(
+                    "http://sourceforge.net/projects/yawl/files/updatecache/editor/lib/checksums.xml/download",
+                    new File("/Users/adamsmj/Documents/temp/checkSums.xml"));
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
         }
     }
 
