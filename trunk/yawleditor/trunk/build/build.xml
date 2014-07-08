@@ -8,22 +8,12 @@
 	a rough 'top-down' order for ease of understanding
     -->
 
-
 	<!-- =========INITIAL PROPERTIES, FILTERS, FILESETS & CHECKS=========== -->
 
     <!--
-    	Load properties from file
+    	Load properties from properties file
     -->
-	<property name="build.dir" value="build" />
-    <property file="${build.dir}/build.properties" />
-
-    <property name="version" value="${editor.release.number}"/>
-
-    <!--
-    	Current editor and engine version numbers (from properties file)
-    -->
-    <filter token="EditorReleaseNumber" value="${editor.release.number}" />
-    <filter token="CompatibleEngineReleaseNumber" value="${compatible.engine.release.number}" />
+    <property file="build/build.properties" />
 
     <!--
     	Define root class name, path and directories
@@ -38,12 +28,17 @@
     <property name="root.launcher"
               value="org.yawlfoundation.yawl.editor.ui.${root.launcher.name}" />
     <property name="root.source.file.path" value="${package.dir}/ui/${root.source.file}" />
+
+    <!--
+    	Define java and release versions
+    -->
     <property name="java.target.version" value="1.6" />
+    <property name="version" value="${editor.release.version}"/>
 
     <!--
     	Define input & output directories
     -->
-	<property name="tempBuild.dir" value="temp" />
+    <property name="build.dir" value="build" />
     <property name="source.dir" value="source" />
     <property name="classes.dir" value="classes" />
     <property name="output.dir" value="output" />
@@ -57,37 +52,29 @@
     	Define output file names
     -->
     <property name="source.zip"
-              value="${root.class.name}${editor.release.number}Source.zip" />
+              value="${root.class.name}${version}Source.zip" />
     <property name="release.zip"
-              value="${root.class.name}${editor.release.number}.zip" />
+              value="${root.class.name}${version}.zip" />
     <property name="ui.jar.name"
-              value="${root.class.name}${editor.release.number}.jar" />
+              value="${root.class.name}${version}.jar" />
     <property name="core.jar.name"
-              value="${root.class.name}-core-${editor.release.number}.jar" />
+              value="${root.class.name}-core-${version}.jar" />
     <property name="analyser.jar.name"
-              value="${root.class.name}-analyser-${editor.release.number}.jar" />
+              value="${root.class.name}-analyser-${version}.jar" />
     <property name="configuration.plugin.jar.name"
-              value="${root.class.name}-configuration-${editor.release.number}.jar" />
+              value="${root.class.name}-configuration-${version}.jar" />
     <property name="decoratortoolbar.plugin.jar.name"
-              value="${root.class.name}-decobar-${editor.release.number}.jar" />
+              value="${root.class.name}-decobar-${version}.jar" />
     <property name="icons.jar.name"
               value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
-              value="jgraph4yawl-${editor.release.number}.jar" />
+              value="jgraph4yawl-${version}.jar" />
 
 	<!--
-		Define all Editor code dependencies. Since the Editor makes use of
-		YAWL services code, there are runtime dependencies to libraries
-		YAWL services code uses (and some of these libraries, such as log4j, are
-		also used by Editor code and *not* stored in the Editor source tree to
-		avoid compatibility and maintenance issues).
-
-		Compiled YAWL services code and its dependencies are referenced by
-		the properties file compatible.engine.* entries. We therefore define
-        here:
-			Editor-only dependencies (stored in the Editor source tree);
-			any YAWL Services dependencies we know we *don't* need;
-			the full set of required packages for the Complete build
+		Define all Editor code dependencies. The Editor makes use of many
+		YAWL classes, and there are runtime dependencies to some YAWL engine
+		libraries, which are *not* stored in the Editor source tree to
+		avoid compatibility and maintenance issues.
 	-->
     <property name="automaton" value="automaton.jar"/>
     <property name="bounce" value="bounce-0.18.jar"/>
@@ -102,111 +89,120 @@
 	<property name="junit" value="junit-4.4.jar"/>
 
 	<fileset id="editorOnlyDeps" dir="${library.dir}"
-			 includes="${jcal} ${servlet} ${forms} ${bounce} ${imgscalr} ${macify}
-			           ${goodies-common} ${goodies-looks} ${l2fprod} ${automaton}" />
+			 includes="${automaton} ${bounce} ${forms} ${imgscalr} ${jcal}
+			           ${goodies-common} ${goodies-looks} ${l2fprod}
+			           ${macify} ${servlet}" />
 
 	<fileset id="junitDeps" file="${tools.dir}/${junit}" />
 
-
-    <!-- this set ensures only those engine libraries required are included -->
-	<fileset id="neededEngineDeps"
-			 dir="../${compatible.engine.depsLib}"
+    <!--
+        This set ensures only those engine libraries required are included
+    -->
+	<fileset id="neededEngineDeps" dir="../${engine.lib.path}"
 	    	 includes="commons-codec*.jar commons-lang*.jar dom4j*.jar jaxen*.jar
 	    	           jdom*.jar log4j*.jar saxon9*.jar xercesImpl.jar"
 	    	 excludes="saxon9-jdom.jar" />
 
-
 	<!--
 		Check YAWL Services dependencies are where we expect they are
 	-->
-	<fail message="Parent-relative Engine path ${compatible.engine.libJAR.path} not found">
+	<fail message="Parent-relative Engine path ${engine.lib.jar.path} not found">
 		<condition>
-			<available file="${compatible.engine.libJAR.path}" type="file" />
+			<available file="${engine.lib.jar.path}" type="file" />
 		</condition>
 	</fail>
     
-	<fail message="Parent-relative Engine path ${compatible.engine.depsLib} not found">
+	<fail message="Parent-relative Engine path ${engine.lib.path} not found">
 		<condition>
-			<available file="${compatible.engine.depsLib}" type="dir" />
+			<available file="${engine.lib.path}" type="dir" />
 		</condition>
 	</fail>
 
-
+    <!--
+        This custom task (found in the yawl lib jar) writes checksum data
+        for all files in a release build, from where it is used for auto updating
+    -->
     <taskdef name="checkSums"
              classname="org.yawlfoundation.yawl.util.CheckSumTask"
-             classpath="../${compatible.engine.libJAR.path}"/>
+             classpath="../${engine.lib.jar.path}"/>
 
 
 	<!-- ==================MAIN EDITOR BUILD TARGETS======================= -->
 
 	<!--
-		Build Editor with all dependencies in external JARs, which must
-	    remain in a lib folder relative to the Editor JARs location (as set up
+		Build Editor UI jar with all dependencies in external jars, which must
+	    remain in a lib sub-folder relative to the Editor jar's location (as set up
 	    in the output directory). All dependencies are added explicitly to the
 	    manifest's Class-Path, so the Editor can be run simply as java -jar ...
 	-->
+    <target name="check.ui">
+        <uptodate property="ui.uptodate"
+                  targetfile="${output.dir}/${ui.jar.name}" >
+            <srcfiles dir="${source.dir}/${package.dir}/ui"
+                      includes="**/*" excludes="resources/taskicons/**.*"/>
+        </uptodate>
+        <echo message="UI jar is up to date: ${ui.uptodate}"/>
+    </target>
+
     <target name="buildUIJar"
-            depends="compile"
+            depends="compile, check.ui" unless="ui.uptodate"
   	        description="Build the Editor UI jar (the main jar)">
 
-        <property name="manifestFile" value="${root.class.name}.mf" />
+        <echo message="Building jar: ${ui.jar.name}"/>
+        <copy todir="${classes.dir}/${package.dir}/ui/resources">
+            <fileset dir="${source.dir}/${package.dir}/ui/resources">
+                <include name="**/*" />
+                <include name="**/*.*" />
+                <exclude name="taskicons/**"/>
+            </fileset>
+        </copy>
 
-    	<manifestclasspath property="manifest_cp"
+        <property name="manifestFile" value="${root.class.name}.mf" />
+    	<manifestclasspath property="manifest.cp"
     					   jarfile="${output.dir}/${ui.jar.name}">
     		<classpath>
     			<fileset dir="${output.dir}/lib" includes="*.jar" />
     		</classpath>
     	</manifestclasspath>
-
         <manifest file="${manifestFile}">
             <attribute name="Main-Class" value="${root.launcher}" />
-        	<attribute name="Class-Path" value="${manifest_cp}" />
+        	<attribute name="Class-Path" value="${manifest.cp}" />
             <attribute name="SplashScreen-Image"
                        value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />
         </manifest>
-
-        <propertyfile file="${build.dir}/version.properties">
-            <entry key="Version" value="${editor.release.number}"/>
-            <entry key="BuiltBy" value="${user.name}"/>
-            <entry key="BuildDate" type="date" value="now"/>
-            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
-            <entry key="JavaVersion" value="${java.version}"/>
-            <entry key="OS" value="${os.name}"/>
-            <entry key="OSVersion" value="${os.version}"/>
-        </propertyfile>
-        <copy file="${build.dir}/version.properties"
-              tofile="${classes.dir}/version.properties"/>
 
         <jar jarfile="${output.dir}/${ui.jar.name}"
              basedir="${classes.dir}"
              manifest="${manifestFile}"
              includes="${package.dir}/ui/** version.properties"
              excludes="**/Test*.class ${package.dir}/ui/resources/taskicons/**" />
-        <checksum file="${output.dir}/${ui.jar.name}"/>
+
         <delete file="${manifestFile}" />
     </target>
 
 
-    <target name="buildAnalyserJar"
-            depends="compile,copyLibs"
-  	        description="Build the Analyser library">
-
-        <jar jarfile="${output.dir}/lib/${analyser.jar.name}"
-             basedir="${classes.dir}"
-             includes="${package.base.dir}/analyser/**"
-             excludes="**/Test*.class" />
-        <checksum file="${output.dir}/lib/${analyser.jar.name}"
-                  toDir="${output.dir}"/>
+    <!--
+   		Builds the configuration toolbar plugin jar and copies it
+   		to the output plugins dir
+   	-->
+    <target name="check.configuration">
+        <uptodate property="configuration.uptodate"
+                  targetfile="${output.dir}/plugins/${configuration.plugin.jar.name}" >
+            <srcfiles dir="${source.dir}/${package.base.dir}/configuration/"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="Configuration jar is up to date: ${configuration.uptodate}"/>
     </target>
 
-
     <target name="buildConfigurationPluginJar"
-            depends="compileConfigurationPlugin, copyLibs"
+            depends="compileConfigurationPlugin, check.configuration"
+            unless="configuration.uptodate"
   	        description="Build the Configuration plugin">
 
+        <echo message="Building jar: ${configuration.plugin.jar.name}"/>
         <mkdir dir="${output.dir}/plugins" />
 
-        <manifestclasspath property="config_manifest_cp"
+        <manifestclasspath property="config.manifest.cp"
      			jarfile="${output.dir}/plugins/${configuration.plugin.jar.name}">
      		<classpath>
      			<fileset dir="${output.dir}/lib" includes="*.jar" />
@@ -214,7 +210,7 @@
      		</classpath>
      	</manifestclasspath>
         <manifest file="config.mf">
-         	<attribute name="Class-Path" value="${config_manifest_cp}" />
+         	<attribute name="Class-Path" value="${config.manifest.cp}" />
         </manifest>
 
         <copy toDir="${classes.dir}/${package.base.dir}/configuration/menu/icon">
@@ -226,27 +222,39 @@
              manifest="config.mf"
              includes="${package.base.dir}/configuration/**"
              excludes="**/Test*.class" />
-        <checksum file="${output.dir}/plugins/${configuration.plugin.jar.name}"
-                  toDir="${output.dir}"/>
         <delete file="config.mf"/>
     </target>
 
 
+    <!--
+   		Builds the decorator toolbar plugin jar and copies it to the output plugins dir
+   	-->
+    <target name="check.decobar">
+        <uptodate property="decobar.uptodate"
+                  targetfile="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}">
+            <srcfiles dir="${source.dir}/${package.base.dir}/decobar/"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="Decoration toolbar jar is up to date: ${decobar.uptodate}"/>
+    </target>
+
     <target name="buildDecoratorToolBarPluginJar"
-            depends="compileDecoratorToolBarPlugin, copyLibs"
+            depends="compileDecoratorToolBarPlugin, check.decobar"
+            unless="decobar.uptodate"
   	        description="Build the Decorator ToolBar plugin">
 
+        <echo message="Building jar: ${decoratortoolbar.plugin.jar.name}"/>
         <mkdir dir="${output.dir}/plugins" />
 
-        <manifestclasspath property="decobar_manifest_cp"
+        <manifestclasspath property="decobar.manifest.cp"
      			jarfile="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}">
      		<classpath>
      			<fileset dir="${output.dir}/lib" includes="*.jar" />
                 <fileset dir="${output.dir}" includes="${ui.jar.name}"/>
      		</classpath>
      	</manifestclasspath>
-        <manifest file="config.mf">
-         	<attribute name="Class-Path" value="${decobar_manifest_cp}" />
+        <manifest file="decobar.mf">
+         	<attribute name="Class-Path" value="${decobar.manifest.cp}" />
         </manifest>
 
         <copy toDir="${classes.dir}/${package.base.dir}/decobar/icon">
@@ -255,68 +263,126 @@
 
         <jar jarfile="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}"
              basedir="${classes.dir}"
-             manifest="config.mf"
+             manifest="decobar.mf"
              includes="${package.base.dir}/decobar/**" />
-        <checksum file="${output.dir}/plugins/${decoratortoolbar.plugin.jar.name}"
-                  toDir="${output.dir}"/>
-        <delete file="config.mf"/>
+        <delete file="decobar.mf"/>
     </target>
 
+
+    <!--
+   		Builds the editor analyser jar and copies it to the output lib dir
+   	-->
+    <target name="check.analyser">
+        <uptodate property="analyser.uptodate"
+                  targetfile="${output.dir}/lib/${analyser.jar.name}" >
+            <srcfiles dir="${source.dir}/${package.base.dir}/analyser/"
+                      includes="**/*.java"/>
+        </uptodate>
+        <echo message="Analyser jar is up to date: ${analyser.uptodate}"/>
+    </target>
+
+    <target name="buildAnalyserJar"
+            depends="compile, check.analyser" unless="analyser.uptodate"
+  	        description="Build the Analyser library">
+
+        <echo message="Building jar: ${analyser.jar.name}"/>
+        <jar jarfile="${output.dir}/lib/${analyser.jar.name}"
+             basedir="${classes.dir}"
+             includes="${package.base.dir}/analyser/**"
+             excludes="**/Test*.class" />
+    </target>
+
+
+    <!--
+   		Builds the editor resources jar and copies it to the output lib dir
+   	-->
+    <target name="check.resources">
+        <uptodate property="resources.uptodate"
+                  targetfile="${output.dir}/lib/${icons.jar.name}" >
+            <srcfiles dir="${source.dir}/${package.dir}/ui/resources/taskicons/"
+                      includes="**/*.png"/>
+        </uptodate>
+        <echo message="Resources jar is up to date: ${resources.uptodate}"/>
+    </target>
 
     <target name="buildResourcesJar"
-            depends="copyLibs"
+            depends="initialize, check.resources" unless="resources.uptodate"
   	        description="Build the Resources library">
 
+        <echo message="Building jar: ${icons.jar.name}"/>
         <jar jarfile="${output.dir}/lib/${icons.jar.name}"
-             basedir="${classes.dir}"
+             basedir="${source.dir}"
              includes="${package.dir}/ui/resources/taskicons/**"/>
-        <checksum file="${output.dir}/lib/${icons.jar.name}"
-                  toDir="${output.dir}"/>
     </target>
 
 
+    <!--
+   		Builds the editor core jar and copies it to the output lib dir
+   	-->
+    <target name="check.core">
+        <uptodate property="core.uptodate"
+                  targetfile="${output.dir}/lib/${core.jar.name}" >
+            <srcfiles dir="${source.dir}/${package.dir}/core/"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="Core jar is up to date: ${core.uptodate}"/>
+    </target>
+
     <target name="buildCoreJar"
-            depends="compile,copyLibs"
+            depends="compile, check.core" unless="core.uptodate"
   	        description="Build the Editor Core library">
 
+        <echo message="Building jar: ${core.jar.name}"/>
         <jar jarfile="${output.dir}/lib/${core.jar.name}"
              basedir="${classes.dir}"
              includes="${package.dir}/core/**"
              excludes="**/Test*.class" />
-        <checksum file="${output.dir}/lib/${core.jar.name}"
-                  toDir="${output.dir}"/>
     </target>
 
 
+    <!--
+   		Builds the modified jgraph jar and copies it to the output lib dir
+   	-->
+    <target name="check.jgraph">
+        <uptodate property="jgraph.uptodate"
+                  targetfile="${output.dir}/lib/${jgraph.jar.name}">
+            <srcfiles dir="${source.dir}/org/jgraph"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="JGraph jar is up to date: ${jgraph.uptodate}"/>
+    </target>
+
     <target name="buildJGraphJar"
-            depends="compile,copyLibs"
+            depends="compile, check.jgraph" unless="jgraph.uptodate"
   	        description="Build the Editor's modified JGraph library">
 
+        <echo message="Building jar: ${jgraph.jar.name}"/>
         <jar jarfile="${output.dir}/lib/${jgraph.jar.name}"
              basedir="${classes.dir}"
              includes="org/jgraph/**"
              excludes="**/Test*.class" />
-        <checksum file="${output.dir}/lib/${jgraph.jar.name}"
-                  toDir="${output.dir}"/>
     </target>
 
 
-    <target name="copyLibs"
-            depends="compile"
-  	        description="Creates lib folder and copies in required jar libraries">
-
-    	<mkdir dir="${output.dir}/lib" />
+    <!--
+   		Copies all required library jars to the output lib dir
+   	-->
+    <target name="copyLibs" depends="initialize">
     	<copy todir="${output.dir}/lib">
     		<fileset refid="editorOnlyDeps" />
     		<fileset refid="neededEngineDeps" />
-    		<fileset file="../${compatible.engine.libJAR.path}" />
+    		<fileset file="../${engine.lib.jar.path}" />
     	</copy>
     </target>
 
 
+    <!--
+    	Builds all the project's jars (if needed)
+    -->
     <target name="buildJars"
-            depends="buildAnalyserJar,buildCoreJar,buildJGraphJar,buildResourcesJar,
-                    buildUIJar,buildDecoratorToolBarPluginJar,buildConfigurationPluginJar"
+            depends="buildAnalyserJar, buildCoreJar, buildJGraphJar,
+                     buildResourcesJar, buildUIJar,buildDecoratorToolBarPluginJar,
+                     buildConfigurationPluginJar"
             description="Builds all jars and copies required libraries"/>
 
     <!--
@@ -326,7 +392,7 @@
    	        depends="buildJars"
    	        description="Generate ZIP file of the editor jar and lib dir (for release)">
 
-        <!-- increment build number -->
+        <!-- increment build number & date -->
         <propertyfile file="${build.dir}/build.properties">
             <entry key="build.number" type="int" default="0" operation="+"/>
             <entry key="build.date" type="date" value="now" pattern="yyyy-MM-dd HH.mm.ss"/>
@@ -355,13 +421,13 @@
             description="Generate Javadocs for the source-code">
 
         <mkdir dir="${javadoc.dir}" />
-        <javadoc packagenames="org.yawlfoundation.yawl.editor.*"
+        <javadoc packagenames="org.yawlfoundation.yawl.*"
                  source="${java.target.version}"
                  destdir="${javadoc.dir}"
                  author="true"
                  version="true"
                  use="true"
-                 windowtitle="YAWLEditor ${editor.release.number} API">
+                 windowtitle="YAWLEditor ${editor.release.version} API">
 
         	<arg value="-J-Dhttp.proxyHost=${proxy.host}"/>
         	<arg value="-J-Dhttp.proxyPort=${proxy.port}"/>
@@ -371,14 +437,14 @@
         		<exclude name="**/Test*.java" />
         	</fileset>
         	<classpath>
-        		<pathelement location="../${compatible.engine.libJAR.path}" />
+        		<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />
         		<fileset refid="neededEngineDeps" />
         	</classpath>
 	        <doctitle>
 	            <![CDATA[<h1>YAWLEditor ${editor.release.number} API</h1>]]>
 	        </doctitle>
-            <link offline="false" href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+            <link offline="false" href="http://docs.oracle.com/javase/6/docs/api/"/>
         </javadoc>
     </target>
 
@@ -395,51 +461,29 @@
 		    <zipfileset dir="${tools.dir}" prefix="tools" />
             <zipfileset dir="${build.dir}" prefix="build" />
 		</zip>
-        <checksum file="${output.dir}/${source.zip}" />
-
-        <copy todir="${output.dir}" filtering="true">
-            <fileset file="${source.dir}/ReleaseNotes.txt"/>
-            <fileset file="${source.dir}/ChangeLog.txt"/>
-        </copy>
     </target>
 
 	<!--
-		Environment clean/initialisation tasks.
+		Pre-compile initialisation tasks
 	-->
     <target name="clean">
-        <echo message="Cleaning..."/>
-        <delete dir="${classes.dir}" />
+        <echo message="Initialising..."/>
+        <delete includeemptydirs="true">
+            <fileset dir="${classes.dir}" includes="**/*"/>
+        </delete>
         <delete dir="${javadoc.dir}" />
-        <delete dir="${output.dir}" />
     </target>
 
 
-    <target name="initialize" depends="clean" unless="initialized">
-
-        <!-- Create the time stamp & filter token for 'about' box -->
-        <tstamp>
-            <format property="buildDate" pattern="yyyy.MM.dd HH:mm:ss"/>
-        </tstamp>
-        <filter token="BuildDate" value="${buildDate}" />
-
-        <!-- Create the distribution dir if it doesn't already exist -->
+    <target name="initialize">
         <mkdir dir="${output.dir}" />
-        <mkdir dir="${classes.dir}" />
-        <property name="initialized" value="true"/>
+        <mkdir dir="${output.dir}/lib" />
     </target>
 
 	<!--
-		Compile non-test code, filtering source code first to complete
-	     tokenized values (using build.properties supplied values)
+		Compile all UI and core code
 	-->
-    <target name="compile" depends="initialize">
-        <copy todir="${classes.dir}/${package.dir}/ui/resources">
-            <fileset dir="${source.dir}/${package.dir}/ui/resources">
-                <include name="**/*" />
-                <include name="**/*.*" />
-            </fileset>
-        </copy>
-
+    <target name="compile" depends="clean, copyLibs">
         <echo message="Compiling: ${root.source.file.path}" />
         <javac fork="yes"
                debug="yes"
@@ -449,7 +493,7 @@
             <include name="${root.source.file.path}" />
             <include name="${package.dir}/ui/plugin/YEditorPluginAdapter.java" />
             <classpath>
-            	<pathelement location="../${compatible.engine.libJAR.path}" />
+            	<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />
             	<fileset refid="neededEngineDeps" />
             </classpath>
@@ -457,38 +501,45 @@
     </target>
 
 
-    <target name="compileConfigurationPlugin" depends="initialize">
-        <property name="base.file.configuration"
+    <!--
+   		Compile configuration plugin code
+   	-->
+    <target name="compileConfigurationPlugin" depends="copyLibs">
+        <property name="configuration.base.file"
                   value="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
 
-        <echo message="Compiling: ${base.file.configuration}" />
+        <echo message="Compiling: ${configuration.base.file}" />
         <javac fork="yes"
                debug="yes"
                source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
-            <include name="${base.file.configuration}" />
+            <include name="${configuration.base.file}" />
             <classpath>
-            	<pathelement location="../${compatible.engine.libJAR.path}" />
+            	<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />
             	<fileset refid="neededEngineDeps" />
             </classpath>
         </javac>
     </target>
 
-    <target name="compileDecoratorToolBarPlugin" depends="initialize">
-        <property name="base.file.decorator"
+
+    <!--
+   		Compile decorator toolbar code
+   	-->
+    <target name="compileDecoratorToolBarPlugin" depends="copyLibs">
+        <property name="decorator.base.file"
                   value="${package.base.dir}/decobar/DecoratorToolbarPlugin.java"/>
 
-        <echo message="Compiling: ${base.file.decorator}" />
+        <echo message="Compiling: ${decorator.base.file}" />
         <javac fork="yes"
                debug="yes"
                source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
-            <include name="${base.file.decorator}" />
+            <include name="${decorator.base.file}" />
             <classpath>
-            	<pathelement location="../${compatible.engine.libJAR.path}" />
+            	<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />
             	<fileset refid="neededEngineDeps" />
             </classpath>
@@ -533,7 +584,7 @@
                 <pathelement location="${classes.dir}" />
                 <fileset refid="junitDeps" />
             	<fileset refid="editorOnlyDeps" />
-                <pathelement location="../${compatible.engine.libJAR.path}" />
+                <pathelement location="../${engine.lib.jar.path}" />
             	<fileset refid="neededEngineDeps" />
            </classpath>
         </junit>
