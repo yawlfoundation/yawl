@@ -47,7 +47,7 @@ public class UpdateDialog extends JDialog
     private JButton _btnDownload;
     private JButton _btnDownloadAndRestart;
     private UpdateDownloader _downloader;
-    private VersionComparer _comparer;
+    private VersionDiffer _differ;
     private boolean _restarting;
     private long _fileSize;
     private String _fileSizeString;
@@ -55,11 +55,11 @@ public class UpdateDialog extends JDialog
 
     private UpdateDialog() { super(YAWLEditor.getInstance()); }
 
-    public UpdateDialog(VersionComparer comparer) {
+    public UpdateDialog(VersionDiffer differ) {
         this();
         setTitle("Update Information");
         setModal(true);
-        _comparer = comparer;
+        _differ = differ;
         setContentPane(addContent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(YAWLEditor.getInstance());
@@ -127,8 +127,8 @@ public class UpdateDialog extends JDialog
     private JPanel getInfoPanel() {
         JPanel panel = new JPanel(new GridLayout(0,1,5,5));
         panel.setBorder(new EmptyBorder(0,10,0,10));
-        panel.add(new JLabel(_comparer.getCurrentInfo()));
-        panel.add(new JLabel(_comparer.getLatestInfo()));
+        panel.add(new JLabel(_differ.getCurrentInfo()));
+        panel.add(new JLabel(_differ.getLatestInfo()));
         panel.add(getProgressBar());
         return panel;
     }
@@ -176,8 +176,8 @@ public class UpdateDialog extends JDialog
 
         if (saveToDir == null) saveToDir = getTmpDir();
         _downloader = new UpdateDownloader(UpdateChecker.SOURCE_URL,
-                UpdateChecker.SF_DOWNLOAD_SUFFIX, _comparer.getDownloadList(),
-                _comparer.getDownloadSize(), saveToDir);
+                UpdateChecker.SF_DOWNLOAD_SUFFIX, _differ.getDownloadList(),
+                _differ.getDownloadSize(), saveToDir);
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
     }
@@ -219,7 +219,7 @@ public class UpdateDialog extends JDialog
 
     private String getTotalFileSize() {
         if (_fileSizeString == null) {
-            _fileSize = _comparer.getDownloadSize();
+            _fileSize = _differ.getDownloadSize();
             _fileSizeString = shorten(_fileSize);
         }
         return _fileSizeString;
@@ -262,11 +262,17 @@ public class UpdateDialog extends JDialog
     private void replaceApp() throws URISyntaxException, IOException {
         File editorDir = getJarFile().getParentFile();
         File tmpDir = getTmpDir();
-        for (String fileName : _comparer.getDownloadList()) {
+        for (String fileName : _differ.getDownloadList()) {
             File source = makeFile(tmpDir.getAbsolutePath(), fileName);
             File target = makeFile(editorDir.getAbsolutePath(), fileName);
             FileUtil.copy(source, target);
         }
+        for (String fileName : _differ.getDeleteList()) {
+            File toDelete = makeFile(editorDir.getAbsolutePath(), fileName);
+            if (toDelete.exists()) toDelete.delete();
+        }
+
+        // copy downloaded checksums.xml to lib
         File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
         File target = makeFile(editorDir.getAbsolutePath() + "/lib",
                 UpdateChecker.CHECKSUM_FILE);

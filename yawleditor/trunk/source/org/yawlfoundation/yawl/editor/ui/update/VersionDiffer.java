@@ -18,10 +18,11 @@
 
 package org.yawlfoundation.yawl.editor.ui.update;
 
+import org.yawlfoundation.yawl.editor.ui.util.BuildProperties;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,34 +32,33 @@ import java.util.Map;
  * @author Michael Adams
  * @date 7/07/2014
  */
-public class VersionComparer {
+public class VersionDiffer {
 
-    private XNode _latest;
-    private XNode _current;
+    private BuildProperties _latest;
+    private BuildProperties _current;
     private List<FileNode> _downloadList;
     private List<FileNode> _deleteList;
 
 
-    public VersionComparer(String latestXML, String currentXML) {
-        XNodeParser parser = new XNodeParser();
-        _latest = parser.parse(latestXML);
-        _current = parser.parse(currentXML);
+    public VersionDiffer(File latest, File current) {
+        _latest = new BuildProperties(latest);
+        _current = new BuildProperties(current);
         _downloadList = new ArrayList<FileNode>();
         _deleteList = new ArrayList<FileNode>();
         execute();
     }
 
-    public String getLatestVersion() { return getChildNodeValue(_latest, "version"); }
+    public String getLatestVersion() { return _latest.getVersion(); }
 
-    public String getLatestBuild() { return getChildNodeValue(_latest, "build"); }
+    public String getLatestBuild() { return _latest.getBuild(); }
 
-    public String getLatestTimestamp() { return getChildNodeValue(_latest, "timestamp"); }
+    public String getLatestTimestamp() { return _latest.getTimestamp(); }
 
-    public String getCurrentVersion() { return getChildNodeValue(_current, "version"); }
+    public String getCurrentVersion() { return _current.getVersion(); }
 
-    public String getCurrentBuild() { return getChildNodeValue(_current, "build"); }
+    public String getCurrentBuild() { return _current.getBuild(); }
 
-    public String getCurrentTimestamp() { return getChildNodeValue(_current, "timestamp"); }
+    public String getCurrentTimestamp() { return _current.getTimestamp(); }
 
 
     public boolean hasUpdates() {
@@ -116,24 +116,19 @@ public class VersionComparer {
                 getLatestBuild().equals(getCurrentBuild()))) {
             return ;
         }
-        Map<String, FileNode> latestMap = getFileMap(_latest);
-        Map<String, FileNode> currentMap = getFileMap(_current);
+        Map<String, FileNode> latestMap = getFileMap(_latest.getFileList());
+        Map<String, FileNode> currentMap = getFileMap(_current.getFileList());
         compareMaps(latestMap, currentMap);
     }
 
 
-    private Map<String, FileNode> getFileMap(XNode node) {
+    private Map<String, FileNode> getFileMap(List<XNode> fileList) {
         Map<String, FileNode> fileMap = new HashMap<String, FileNode>();
-        for (XNode child : node.getChild("files").getChildren()) {
+        for (XNode child : fileList) {
             FileNode fileNode = new FileNode(child);
             fileMap.put(fileNode.name, fileNode);
         }
         return fileMap;
-    }
-
-
-    private String getChildNodeValue(XNode node, String key) {
-        return node != null ? node.getChildText(key) : null;
     }
 
 

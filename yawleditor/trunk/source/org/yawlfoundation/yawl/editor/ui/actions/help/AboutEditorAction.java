@@ -20,9 +20,8 @@ package org.yawlfoundation.yawl.editor.ui.actions.help;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.YAWLBaseAction;
+import org.yawlfoundation.yawl.editor.ui.util.BuildProperties;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
-import org.yawlfoundation.yawl.editor.ui.util.VersionProperties;
-import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -106,7 +105,7 @@ class AboutEditorDialog extends JDialog {
         addMouseListener(nameLabel);
         panel.add(nameLabel);
 
-        YBuildProperties buildProperties = new VersionProperties().load();
+        BuildProperties buildProperties = new BuildProperties();
 
         JLabel versionLabel = new JLabel(getVersionText(buildProperties));
         versionLabel.setForeground(Color.DARK_GRAY);
@@ -131,9 +130,9 @@ class AboutEditorDialog extends JDialog {
     }
 
 
-    private String getVersionText(YBuildProperties buildProperties) {
+    private String getVersionText(BuildProperties buildProperties) {
         String version = buildProperties.getVersion();
-        String buildNumber = buildProperties.getBuildNumber();
+        String buildNumber = buildProperties.getBuild();
         String result = "Version " + (version != null ? version : DEFAULT_VERSION);
         if (buildNumber != null) {
             result += " (build " + buildNumber + ")";
@@ -142,14 +141,14 @@ class AboutEditorDialog extends JDialog {
     }
 
 
-    private String getBuildDateText(YBuildProperties buildProperties) {
-        String buildDate = buildProperties.getBuildDate();
+    private String getBuildDateText(BuildProperties buildProperties) {
+        String buildDate = buildProperties.getTimestamp();
         return "Build Date: " + (buildDate != null ? buildDate : "");
     }
 
 
-    private String getCopyrightText(YBuildProperties buildProperties) {
-        String buildDate = buildProperties.getBuildDate();
+    private String getCopyrightText(BuildProperties buildProperties) {
+        String buildDate = buildProperties.getTimestamp();
         String year = buildDate != null ? buildDate.substring(0,4) : DEFAULT_YEAR;
         return "\u00a9 " + year + " The YAWL Foundation";
     }

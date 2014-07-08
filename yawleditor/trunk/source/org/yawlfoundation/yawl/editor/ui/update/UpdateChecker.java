@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.update;
 
 import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
-import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.io.File;
@@ -36,10 +35,10 @@ import java.nio.channels.ReadableByteChannel;
 */
 public class UpdateChecker extends SwingWorker<Void, Void> {
 
-    private VersionComparer _comparer;
+    private VersionDiffer _differ;
     private String _error;
 
-    protected static final String CHECKSUM_FILE = "checksums.xml";
+    public static final String CHECKSUM_FILE = "checksums.xml";
     protected static final String BASE_URL = "http://sourceforge.net/";
     protected static final String SOURCE_URL =
             BASE_URL + "projects/yawl/files/updatecache/editor/";
@@ -51,7 +50,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     public Void doInBackground() {
         try {
             checkURLAvailable(BASE_URL);
-            _comparer = new VersionComparer(loadLatestCheckSums(), loadCurrentCheckSums());
+            _differ = new VersionDiffer(loadLatestCheckSums(), loadCurrentCheckSums());
         }
         catch (IOException ioe) {
             _error = "Error: " + ioe.getMessage();
@@ -60,22 +59,13 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    public VersionComparer getComparer() { return _comparer; }
+    public VersionDiffer getDiffer() { return _differ; }
 
     public String getError() { return _error; }
 
 
-    public String getCurrentBuildNumber() {
-        return _comparer != null ? _comparer.getCurrentBuild() : null;
-    }
-
-    public String getLatestBuildNumber() {
-        return _comparer != null ? _comparer.getLatestBuild() : null;
-    }
-
-
     public boolean hasUpdate() {
-        return _comparer != null && _comparer.hasUpdates();
+        return _differ != null && _differ.hasUpdates();
     }
 
     public boolean hasError() {
@@ -96,20 +86,18 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    private String loadCurrentCheckSums() throws IOException {
-        String current = StringUtil.fileToString(FileLocations.getLibPath() +
-                File.separator + CHECKSUM_FILE);
-        if (current == null) {
+    private File loadCurrentCheckSums() throws IOException {
+        File current = new File(FileLocations.getLibPath(), CHECKSUM_FILE);
+        if (! current.exists()) {
             throw new IOException("Unable to determine current build version");
         }
         return current;
     }
 
-    private String loadLatestCheckSums() throws IOException {
-        File f = new File(getTmpDir(), CHECKSUM_FILE);
-        download(SOURCE_URL + "lib/" + CHECKSUM_FILE + SF_DOWNLOAD_SUFFIX, f);
-        String latest = StringUtil.fileToString(f);
-        if (latest == null) {
+    private File loadLatestCheckSums() throws IOException {
+        File latest = new File(getTmpDir(), CHECKSUM_FILE);
+        download(SOURCE_URL + "lib/" + CHECKSUM_FILE + SF_DOWNLOAD_SUFFIX, latest);
+        if (! latest.exists()) {
             throw new IOException("Unable to determine latest build version");
         }
         return latest;
@@ -136,16 +124,12 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    public static void main(String args[]) {
-        UpdateChecker checker = new UpdateChecker();
-        try {
-            checker.download(
-                    "http://sourceforge.net/projects/yawl/files/updatecache/editor/lib/checksums.xml/download",
-                    new File("/Users/adamsmj/Documents/temp/checkSums.xml"));
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+    private String getCurrentBuildNumber() {
+        return _differ != null ? _differ.getCurrentBuild() : null;
+    }
+
+    private String getLatestBuildNumber() {
+        return _differ != null ? _differ.getLatestBuild() : null;
     }
 
 }
