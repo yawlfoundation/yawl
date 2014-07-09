@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.util.FileUtil;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationFileHandler;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
+import org.yawlfoundation.yawl.util.CheckSummer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -72,7 +74,7 @@ public class UpdateDialog extends JDialog
         String action = event.getActionCommand();
         if (action.equals("Cancel")) {
             if (! (_downloader == null || _downloader.isDone())) {
-                _downloader.cancel(true);
+                _downloader.cancel();
             }
             setVisible(false);
         }
@@ -99,12 +101,8 @@ public class UpdateDialog extends JDialog
             }
             else if (stateValue == SwingWorker.StateValue.DONE) {
                 setVisible(false);
-                if (! _downloader.isCancelled()) {
-                    YAWLEditor.getStatusBar().setText(
-                            "Latest version downloaded to " + _downloader.getTmpDir());
-                    if (_restarting) restart();
-                }
-            }
+                processDownloadCompleted();
+             }
         }
         else if (event.getPropertyName().equals("progress")) {
             int progress = (Integer) event.getNewValue();
@@ -238,6 +236,43 @@ public class UpdateDialog extends JDialog
     }
 
 
+    private void processDownloadCompleted() {
+        if (! _downloader.isCancelled()) {
+            if (_downloader.hasErrors()) {
+                showError("Failed to download updates.");
+            }
+            else if (verified()) {
+                YAWLEditor.getStatusBar().setText(
+                        "Update downloaded to " + _downloader.getTargetDir());
+                if (_restarting) restart();
+            }
+            else {
+                showError("Downloaded files failed to verify.");
+            }
+        }
+    }
+
+
+    private boolean verified() {
+        YAWLEditor.getStatusBar().setText("Verifying downloaded updates...");
+        File targetDir = _downloader.getTargetDir();
+        CheckSummer summer = new CheckSummer();
+        Map<String, String> md5Map = _differ.getDownloadMD5Map();
+        for (String file : md5Map.keySet()) {
+            String fileName = targetDir.getAbsolutePath() + File.separator + file;
+            try {
+                if (! summer.compare(fileName, md5Map.get(file))) {
+                    return false;
+                }
+            }
+            catch (IOException ioe) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     private void restart() {
         try {
             if (new SpecificationFileHandler().closeFileOnExit()) {
@@ -281,8 +316,8 @@ public class UpdateDialog extends JDialog
 
 
     private File makeFile(String path, String fileName) {
-        if (fileName.contains(File.separator)) {
-            int sepPos = fileName.lastIndexOf(File.separator);
+        if (fileName.contains("/")) {
+            int sepPos = fileName.lastIndexOf('/');
             String dirPart = fileName.substring(0, sepPos);
             String filePart = fileName.substring(sepPos + 1);
             File dir = new File(path + File.separator + dirPart);
@@ -302,8 +337,6 @@ public class UpdateDialog extends JDialog
         command.add("-jar");
         command.add(getJarFile().getPath());
         command.add("-updated");
-
-        System.out.println(command);
 
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.start();
