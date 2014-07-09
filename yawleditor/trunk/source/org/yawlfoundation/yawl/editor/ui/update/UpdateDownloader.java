@@ -19,85 +19,118 @@
 package org.yawlfoundation.yawl.editor.ui.update;
 
 import javax.swing.*;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
  * @date 27/05/2014
  */
-public class UpdateDownloader extends SwingWorker<Void, Void> {
+public class UpdateDownloader extends SwingWorker<Void, Void> implements PropertyChangeListener {
 
     private String _urlBase;
     private String _urlSuffix;
     private List<String> _fileNames;
     private long _totalBytes;
-    private File _tmpDir;
-    private boolean _hasErrors;
+    private File _targetDir;
+    private Map<DownloadWorker, Integer> _workerMap;
+    private final Object _lock = new Object();
 
 
     public UpdateDownloader(String urlBase, String urlSuffix, List<String> fileNames,
-                            long totalBytes, File tmpDir) {
+                            long totalBytes, File targetDir) {
         _urlBase = urlBase;
         _urlSuffix = urlSuffix;
         _fileNames = fileNames;
         _totalBytes = totalBytes;
-        _tmpDir = tmpDir;
+        _targetDir = targetDir;
     }
 
-    protected File getTmpDir() { return _tmpDir; }
 
-    protected boolean hasErrors() { return _hasErrors; }
+    protected File getTargetDir() { return _targetDir; }
+
+
+    protected boolean hasErrors() {
+        for (DownloadWorker worker : _workerMap.keySet()) {
+            if (worker.hasErrors()) return true;
+        }
+        return false;
+    }
 
     @Override
     protected Void doInBackground() {
-        int bufferSize = 8192;
-        long progress = 0;
+        _workerMap = new HashMap<DownloadWorker, Integer>();
         setProgress(0);
         for (String fileName : _fileNames) {
-            try {
-                URL webFile = new URL(_urlBase + fileName + _urlSuffix);
-                byte[] buffer = new byte[bufferSize];
-                makeDir(fileName);
-                String fileTo = _tmpDir + File.separator + fileName;
-                BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
-                FileOutputStream fos = new FileOutputStream(fileTo);
-                BufferedOutputStream outStream = new BufferedOutputStream(fos);
-
-                // read chunks from the input stream and write them out
-                int bytesRead;
-                while ((bytesRead = inStream.read(buffer, 0, bufferSize)) > 0) {
-                    outStream.write(buffer, 0, bytesRead);
-                    progress += bytesRead;
-                    setProgress(Math.min((int) (progress * 100 / _totalBytes), 100));
-                    if (isCancelled()) {
-                        outStream.close();
-                        inStream.close();
-                        new File(fileTo).delete();
-                        break;
-                    }
-                }
-
-                outStream.close();
-                inStream.close();
-            }
-            catch (Exception e) {
-                _hasErrors = true;
+            DownloadWorker worker = new DownloadWorker(_urlBase, _urlSuffix,
+                     fileName, _totalBytes, _targetDir);
+            worker.addPropertyChangeListener(this);
+            _workerMap.put(worker, 0);
+            worker.execute();
+        }
+        while (! isComplete()) {
+            pause(1000);
+            if (hasErrors()) {
+                cancel();
+                break;
             }
         }
         return null;
     }
 
 
-    private void makeDir(String fileName) {
-        if (fileName.contains(File.separator)) {
-            new File(_tmpDir, fileName.substring(0, fileName.indexOf(File.separator)))
-                    .mkdirs();
+    public boolean cancel() {
+        for (DownloadWorker worker : _workerMap.keySet()) {
+             if (! worker.isDone()) worker.cancel(true);
+        }
+        return super.cancel(true);
+    }
+
+
+    public void propertyChange(PropertyChangeEvent event) {
+        DownloadWorker worker = (DownloadWorker) event.getSource();
+        if (event.getPropertyName().equals("progress")) {
+            int progress = (Integer) event.getNewValue();
+            _workerMap.put(worker, progress);
+            setProgress(getTotalProgress());
         }
     }
+
+
+    private boolean isComplete() {
+        for (DownloadWorker worker : _workerMap.keySet()) {
+            if (! worker.isDone()) return false;
+        }
+        return true;
+    }
+
+
+    private int getTotalProgress() {
+        int progress = 0;
+        for (Integer i : _workerMap.values()) progress += i;
+        return progress;
+    }
+
+    private void pause(long milliseconds) {
+        long now = System.currentTimeMillis();
+        long finishTime = now + milliseconds;
+        while (now < finishTime) {
+            long timeToWait = finishTime - now;
+            synchronized (_lock) {
+                try {
+                    _lock.wait(timeToWait);
+                }
+                catch (InterruptedException ex) {
+                    // go round again
+                }
+            }
+            now = System.currentTimeMillis();
+        }
+    }
+
 
 }

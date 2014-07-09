@@ -75,6 +75,15 @@ public class VersionDiffer {
     }
 
 
+    public Map<String, String> getDownloadMD5Map() {
+        Map<String, String> map = new HashMap<String, String>();
+        for (FileNode node : _downloadList) {
+            map.put(node.name, node.md5);
+        }
+        return map;
+    }
+
+
     public List<String> getDeleteList() {
         List<String> list = new ArrayList<String>();
         for (FileNode node : _deleteList) {
