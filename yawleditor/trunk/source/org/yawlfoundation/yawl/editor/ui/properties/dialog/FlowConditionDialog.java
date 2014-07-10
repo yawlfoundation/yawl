@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.FlowConditionTablePanel;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,11 +43,11 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
         super(parent);
         setModal(true);
         setTitle(makeTitle(task));
-        setResizable(false);
+        setResizable(true);
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         add(getContent(task, graph));
-        this.setPreferredSize(new Dimension(420, 270));
+        this.setMinimumSize(new Dimension(420, 180));
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -61,14 +62,17 @@ public class FlowConditionDialog extends JDialog implements ActionListener {
 
 
     private JPanel getContent(YAWLTask task, NetGraph graph) {
-        JPanel content = new JPanel();
+        JPanel content = new JPanel(new BorderLayout());
         _tablePanel = new FlowConditionTablePanel(this, task, graph);
         _btnOK = new JButton("OK");
         _btnOK.setActionCommand("OK");
         _btnOK.setPreferredSize(new Dimension(75, 25));
         _btnOK.addActionListener(this);
-        content.add(_tablePanel);
-        content.add(_btnOK);
+        JPanel btnPanel = new JPanel();
+        btnPanel.setBorder(new EmptyBorder(0,0,5,0));
+        btnPanel.add(_btnOK);
+        content.add(_tablePanel, BorderLayout.CENTER);
+        content.add(btnPanel, BorderLayout.SOUTH);
         return content;
     }
 
