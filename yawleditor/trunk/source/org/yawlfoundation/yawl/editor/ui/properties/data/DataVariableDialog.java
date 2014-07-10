@@ -51,7 +51,8 @@ public class DataVariableDialog extends JDialog
     private YNet net;
     private YDecomposition decomposition;          // for task
     private YTask task;
-    private YDataHandler dataHandler;
+    private DataUpdater dataUpdater;
+
     private OutputBindings outputBindings;
     private MultiInstanceHandler _miHandler;
     private JButton btnOK;
@@ -63,8 +64,7 @@ public class DataVariableDialog extends JDialog
 
     public DataVariableDialog(YNet net) {
         super();
-        initialise(net);
-        setTitle("Data Variables for Net " + net.getID());
+        initialise(net, null, null);
         add(getContentForNetLevel());
         setPreferredSize(new Dimension(620, 290));
         setMinimumSize(new Dimension(400, 200));
@@ -73,7 +73,7 @@ public class DataVariableDialog extends JDialog
 
     public DataVariableDialog(YNet net, YDecomposition decomposition, YAWLTask task) {
         super();
-        initialise(net);
+        initialise(net, decomposition, task);
         this.decomposition = decomposition;
         this.task = task.getTask();                             // YTask from YAWLTask
         outputBindings = new OutputBindings(this.task);
@@ -207,7 +207,7 @@ public class DataVariableDialog extends JDialog
                 row.setMapping(createMapping(net.getID(), row.getName(),
                        row.getDataType()));
             }
-            if ((usage == YDataHandler.OUTPUT  || usage == YDataHandler.INPUT_OUTPUT)
+            if ((usage == YDataHandler.OUTPUT || usage == YDataHandler.INPUT_OUTPUT)
                     && outputBindings.getBinding(row.getName()) == null) {
                 outputBindings.setBinding(row.getName(),
                         createMapping(task.getID(), row.getName(), row.getDataType()));
@@ -255,13 +255,31 @@ public class DataVariableDialog extends JDialog
         }
     }
 
-    private void initialise(YNet net) {
-        this.net = net;
-        dataHandler = SpecificationModel.getHandler().getDataHandler();
+
+    private void initialise(YNet net, YDecomposition decomposition, YAWLTask task) {
         setModal(true);
         setResizable(true);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
+        this.net = net;
+        String title;
+        if (! (decomposition == null || task == null)) {
+            title = " Decomposition " + decomposition.getID() +
+                             " [Task: " + task.getID() + "]";
+            this.decomposition = decomposition;
+            this.task = task.getTask();                         // YTask from YAWLTask
+            outputBindings = new OutputBindings(this.task);
+            if (this.task.isMultiInstance()) {
+                _miHandler = new MultiInstanceHandler(this.task, outputBindings);
+            }
+        }
+        else {
+            title = " Net " + net.getID();
+        }
+        setTitle("Data Variables for " + title);
+
+        // task and outputBindings will be null for net-level dialog
+        dataUpdater = new DataUpdater(net.getID(), this.task, outputBindings);
     }
 
 
@@ -421,6 +439,7 @@ public class DataVariableDialog extends JDialog
         return getMapping(parameter.getPreferredName(), parameter.getParamType());
     }
 
+
     private String getMapping(String variableName, int type) {
         return (type == YDataHandler.INPUT) ?
                 task.getDataBindingForInputParam(variableName) :
@@ -430,8 +449,8 @@ public class DataVariableDialog extends JDialog
 
     private boolean updateVariables() {
         try {
-            updateVariables(getNetTable(), net);
-            updateVariables(getTaskTable(), decomposition);
+            dataUpdater.update(getNetTable(), net);
+            dataUpdater.update(getTaskTable(), decomposition);
             if (_miHandler != null) _miHandler.commit();
             if (outputBindings != null) outputBindings.commit();
             dirty = false;
@@ -441,217 +460,6 @@ public class DataVariableDialog extends JDialog
             JOptionPane.showMessageDialog(this, ydhe.getMessage(),
                     "Failed to update data", JOptionPane.ERROR_MESSAGE);
             return false;
-        }
-    }
-
-
-    private void updateVariables(VariableTable table, YDecomposition host)
-            throws YDataHandlerException {
-        if (table == null || ! table.isChanged()) return;
-
-        for (VariableRow row : table.getRemovedVariables()) {
-            removeVariable(row, host);
-        }
-
-        for (VariableRow row : table.getVariables()) {
-            if (row.isModified()) {
-                if (row.isNameChange()) {
-                    handleNameChange(row, host);
-                }
-                if (row.isUsageChange()) {
-                    handleUsageChange(row, host);
-                }
-
-                if (row.isDataTypeAndValueChange()) {
-                    handleDataTypeAndValueChange(row, host);
-                }
-                else if (row.isDataTypeChange()) {
-                    handleDataTypeChange(row, host);
-                }
-                else if (row.isValueChange()) {
-                    handleValueChange(row, host);
-                }
-
-                if (isTaskTable(table) && row.isMappingChange()) {
-                    handleMappingChange(row);         // only task tables have mappings
-                }
-                if (isTaskTable(table) && row.isAttributeChange()) {
-                    handleAttributeChange(row, host);
-                }
-                if (isTaskTable(table) && row.isLogPredicateChange()) {
-                    handleLogPredicateChange(row, host);
-                }
-            }
-            else if (row.isNew()) {
-                handleNewRow(row, host);
-                if (isTaskTable(table)) handleMappingChange(row);
-            }
-        }
-
-        if (table.hasChangedRowOrder()) {
-            updateVariableIndex(table, host);
-        }
-
-        if (isTaskTable(table)) updateMappingsForUsage();
-
-        table.updatesApplied();
-    }
-
-
-    private boolean isTaskTable(VariableTable table) {
-        return table.getTableModel() instanceof TaskVarTableModel;
-    }
-
-
-    private boolean handleUsageChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        return dataHandler.changeVariableScope(host.getID(), row.getName(),
-                row.getStartingUsage(), row.getUsage());
-    }
-
-
-    private void handleNameChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        if (row.isLocal()) {
-            dataHandler.renameVariable(host.getID(), row.getStartingName(),
-                    row.getName(), YDataHandler.LOCAL);
-        }
-        else {
-            if (row.isInput() || row.isInputOutput()) {
-                dataHandler.renameVariable(host.getID(), row.getStartingName(),
-                        row.getName(), YDataHandler.INPUT);
-            }
-            if (row.isOutput() || row.isInputOutput()) {
-                dataHandler.renameVariable(host.getID(), row.getStartingName(),
-                        row.getName(), YDataHandler.OUTPUT);
-            }
-        }
-        if (host instanceof YNet) refreshTaskMappings();
-    }
-
-
-    private void handleDataTypeChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        dataHandler.setVariableDataType(host.getID(), row.getName(), row.getDataType(),
-                row.getUsage());
-    }
-
-
-    private void handleDataTypeAndValueChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        dataHandler.setVariableDataTypeAndValue(host.getID(), row.getName(),
-                row.getDataType(), row.getValue(), row.getUsage());
-    }
-
-
-    private void handleValueChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        if (row.isLocal()) {
-            dataHandler.setInitialValue(host.getID(), row.getName(), row.getValue());
-        }
-        else if (row.isOutput()) {
-            dataHandler.setDefaultValue(host.getID(), row.getName(), row.getValue());
-        }
-    }
-
-
-    // only input mappings handled here - outputs done via output bindings
-    private void handleMappingChange(VariableRow row) throws YDataHandlerException {
-        if (row.isOutput()) return;
-        String mapping = row.getFullMapping();
-        if (mapping == null) return;
-        String variableName = row.getName();
-        dataHandler.setVariableMapping(net.getID(), task.getID(), variableName,
-                mapping, YDataHandler.INPUT);
-    }
-
-
-    private void handleAttributeChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        dataHandler.setVariableAttributes(host.getID(), row.getName(),
-                row.getAttributes(), row.getUsage());
-    }
-
-
-    private void handleLogPredicateChange(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        dataHandler.setVariableLogPredicate(host.getID(), row.getName(),
-                row.getLogPredicate(), row.getUsage());
-    }
-
-
-    private void handleNewRow(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        String ns = "http://www.w3.org/2001/XMLSchema";
-        dataHandler.addVariable(host.getID(), row.getName(), row.getDataType(),
-                    ns, row.getUsage(), row.getValue(), row.getAttributes());
-    }
-
-
-    private void removeVariable(VariableRow row, YDecomposition host)
-            throws YDataHandlerException {
-        String name = row.getStartingName();
-        if (name == null) return;                 // added and removed without updating
-
-        if (row.isLocal()) {
-            dataHandler.removeVariable(host.getID(), name, YDataHandler.LOCAL);
-        }
-        if (row.isInput() || row.isInputOutput()) {
-            dataHandler.removeVariable(host.getID(), name, YDataHandler.INPUT);
-        }
-        if (row.isOutput() || row.isInputOutput()) {
-            dataHandler.removeVariable(host.getID(), name, YDataHandler.OUTPUT);
-        }
-        if (host instanceof YNet) refreshTaskMappings();
-    }
-
-
-    private void refreshTaskMappings() {
-        if (getTaskTable() == null) return;            // showing netvars only
-        for (VariableRow row : getTaskTable().getVariables()) {
-            if (! row.isOutput()) {
-                String mapping = DataUtils.unwrapBinding(
-                        getMapping(row.getName(), YDataHandler.INPUT));
-                row.initMapping(mapping);
-            }
-        }
-        getTaskTable().repaint();
-    }
-
-
-    private void updateMappingsForUsage() {
-        if (getTaskTable() == null) return;            // showing netvars only
-        Map<String, String> inputMap = task.getDataMappingsForTaskStarting();
-        for (VariableRow row : getTaskTable().getVariables()) {
-            if (row.isInput()) {
-                outputBindings.removeBindingForSource(row.getName());
-            }
-            else if (row.isOutput()) {
-                inputMap.remove(row.getName());
-            }
-        }
-    }
-
-
-    private void updateVariableIndex(VariableTable table, YDecomposition host)
-            throws YDataHandlerException {
-        int index = 0;
-        for (VariableRow row : table.getVariables()) {
-            if (row.isLocal()) {
-                dataHandler.setVariableIndex(host.getID(), row.getName(),
-                        YDataHandler.LOCAL, index);
-            }
-            else {
-                if (row.isInput() || row.isInputOutput()) {
-                    dataHandler.setVariableIndex(host.getID(), row.getName(),
-                            YDataHandler.INPUT, index);
-                }
-                if (row.isOutput() || row.isInputOutput()) {
-                    dataHandler.setVariableIndex(host.getID(), row.getName(),
-                            YDataHandler.OUTPUT, index);
-                }
-            }
-            index++;
         }
     }
 

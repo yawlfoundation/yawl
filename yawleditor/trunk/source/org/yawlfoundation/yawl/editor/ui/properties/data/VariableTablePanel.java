@@ -176,7 +176,7 @@ public class VariableTablePanel extends JPanel
 
     private JTable createTable(java.util.List<VariableRow> rows, TableType tableType,
                                String netElementName) {
-        table = new VariableTable(tableType.getModel());
+        table = new VariableTable(tableType);
         table.setVariables(rows);
         table.setNetElementName(netElementName);
         VariableRowUsageEditor usageEditor = new VariableRowUsageEditor(this);
