@@ -29,6 +29,9 @@ class NetVarTableModel extends VariableTableModel {
     private static final String[] COLUMN_LABELS =
             {"", "Name", "Type", "Scope", "Initial Value"};
 
+    protected static final String SELECTOR_INDICATOR = "\u25B6";      // right arrowhead
+    protected static final String MI_INDICATOR = "\u2750";            // like an MI task
+
     protected static final int SELECTOR_COLUMN  = 0;
     protected static final int NAME_COLUMN  = 1;
     protected static final int TYPE_COLUMN  = 2;
@@ -61,7 +64,8 @@ class NetVarTableModel extends VariableTableModel {
     public Object getValueAt(int row, int col) {
         VariableRow selected = getVariableAtRow(row);
         switch (col) {
-            case SELECTOR_COLUMN: return SELECTOR_INDICATOR;
+            case SELECTOR_COLUMN: return selected.isMultiInstance() ?
+                                             MI_INDICATOR : SELECTOR_INDICATOR;
             case NAME_COLUMN:     return selected.getName();
             case TYPE_COLUMN:     return selected.getDataType();
             case SCOPE_COLUMN:    return selected.getUsage();

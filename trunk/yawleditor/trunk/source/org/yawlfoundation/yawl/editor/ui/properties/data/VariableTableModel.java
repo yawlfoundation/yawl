@@ -34,8 +34,6 @@ abstract class VariableTableModel extends AbstractTableModel {
     protected boolean editable;
     private boolean tableChanged;
 
-    protected static final String SELECTOR_INDICATOR = "\u25B6";      // right arrowhead
-
 
     public VariableTableModel() {
         super();

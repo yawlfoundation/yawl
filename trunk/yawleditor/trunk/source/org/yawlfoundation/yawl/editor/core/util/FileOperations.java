@@ -214,14 +214,11 @@ public class FileOperations {
     }
 
     private void setURIOnSaveAs() {
-        String uri = _specification.getURI();
-        if (uri == null || uri.equals(DEFAULT_SPECIFICATION_URI)) {
-            File file = new File(_fileName);
-            String shortFileName = file.getName();
-            int extnPos = shortFileName.lastIndexOf('.');
-            if (extnPos > -1) shortFileName = shortFileName.substring(0, extnPos);
-            _specification.setURI(shortFileName.replace(' ', '_'));
-        }
+        File file = new File(_fileName);
+        String shortFileName = file.getName();
+        int extnPos = shortFileName.lastIndexOf('.');
+        if (extnPos > -1) shortFileName = shortFileName.substring(0, extnPos);
+        _specification.setURI(shortFileName.replace(' ', '_'));
     }
 
     /**

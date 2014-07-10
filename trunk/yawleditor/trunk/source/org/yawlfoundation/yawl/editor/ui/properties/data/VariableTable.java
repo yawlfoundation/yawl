@@ -29,12 +29,14 @@ import java.util.List;
 class VariableTable extends JSingleSelectTable {
 
     private boolean orderChanged;
+    private TableType tableType;
     private String netElementName; // the name of the net or task the variables belong to
 
-    public VariableTable(VariableTableModel model) {
+    public VariableTable(TableType type) {
         super();
         consumeEnterKeyWraps();
-        setModel(model);
+        tableType = type;
+        setModel(type.getModel());
         setRowHeight(getRowHeight() + 5);
         setEditable(true);
         setRowSelectionAllowed(true);
@@ -46,6 +48,7 @@ class VariableTable extends JSingleSelectTable {
         return (VariableTableModel) getModel();
     }
 
+    public TableType getTableType() { return tableType; }
 
     public String getNetElementName() { return netElementName; }
 
