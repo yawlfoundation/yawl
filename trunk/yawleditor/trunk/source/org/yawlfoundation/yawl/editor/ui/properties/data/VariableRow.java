@@ -168,8 +168,7 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
     public boolean isLogPredicateChange() {
-        return endValues != null &&
-                ! endValues.logPredicate.equals(startValues.logPredicate);
+        return ! endValues.logPredicateEquals(startValues);
     }
 
 

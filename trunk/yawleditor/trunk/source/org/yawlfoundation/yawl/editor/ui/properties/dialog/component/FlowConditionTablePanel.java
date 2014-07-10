@@ -60,7 +60,7 @@ public class FlowConditionTablePanel extends JPanel
     public FlowConditionTablePanel(FlowConditionDialog parent, YAWLTask task,
                                    NetGraph graph) {
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(5,5,0,5));
+        setBorder(new EmptyBorder(5,8,5,8));
         _graph = graph;
         _parent = parent;
         _conditionValidator = new BindingTypeValidator(
@@ -72,7 +72,7 @@ public class FlowConditionTablePanel extends JPanel
         saveOriginalFlowColours(rows);
         add(createToolBar(parent), BorderLayout.SOUTH);
         JScrollPane scrollPane = new JScrollPane(createTable(rows));
-        scrollPane.setPreferredSize(new Dimension(400, 180));
+        scrollPane.setMinimumSize(new Dimension(400, 120));
         add(scrollPane, BorderLayout.CENTER);
         enableButtons();
         setStatus();
