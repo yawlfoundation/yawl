@@ -50,6 +50,26 @@ public class OutputBindings {
     }
 
 
+    public Map<String, String> getBindingsSummary() {
+        Map<String, String> bindings = new HashMap<String, String>();
+        bindings.putAll(_task.getDataMappingsForTaskCompletion());
+        for (String binding : _orphanedBindings) {
+            bindings.remove(binding);
+        }
+        for (String binding : _netVarBindings.keySet()) {
+            String netVar = _netVarBindings.get(binding);
+            String currentMapping = _task.getDataBindingForOutputParam(netVar);
+            if (currentMapping != null) {
+                bindings.remove(currentMapping);
+            }
+            bindings.put(binding, netVar);
+        }
+        for (String binding : _externalBindings.values()) {
+            bindings.put(binding, "");
+        }
+        return bindings;
+    }
+
     /**
      * Gets the binding targeting the named net-level variable, with its outer tags
      * removed
