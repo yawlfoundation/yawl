@@ -26,7 +26,7 @@ import java.util.List;
 * @author Michael Adams
 * @date 3/08/12
 */
-class VariableTable extends JSingleSelectTable {
+public class VariableTable extends JSingleSelectTable {
 
     private boolean orderChanged;
     private TableType tableType;

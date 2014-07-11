@@ -161,7 +161,7 @@ public class DataVariableDialog extends JDialog
     }
 
 
-    protected OutputBindings getOutputBindings() { return outputBindings; }
+    public OutputBindings getOutputBindings() { return outputBindings; }
 
 
     protected void updateMappingsOnVarNameChange(VariableRow row, String newName) {
@@ -368,12 +368,12 @@ public class DataVariableDialog extends JDialog
     private VariableTable getNetTable() { return netTablePanel.getTable(); }
 
 
-    protected VariableTable getTaskTable() {
+    public VariableTable getTaskTable() {
         return taskTablePanel != null ? taskTablePanel.getTable() : null;
     }
 
 
-    protected YTask getTask() { return task; }
+    public YTask getTask() { return task; }
 
 
     private VariableTablePanel getTablePanelFromTableModel(VariableTableModel model) {

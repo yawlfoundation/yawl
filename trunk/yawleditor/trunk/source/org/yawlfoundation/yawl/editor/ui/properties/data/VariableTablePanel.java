@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.view.BindingViewDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.LogPredicateDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
@@ -58,6 +59,7 @@ public class VariableTablePanel extends JPanel
     private JButton btnInMapping;
     private JButton btnOutMapping;
     private JButton btnAutoMapping;
+    private JButton btnQuickView;
     private JButton btnMIVar;
     private JButton btnExAttributes;
     private JButton btnLog;
@@ -140,6 +142,9 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Autobind")) {
             autobind();
         }
+        else if (action.equals("View")) {
+            new BindingViewDialog(this, parent).setVisible(true);
+        }
         else if (action.equals("MarkMI")) {
             int row = table.getSelectedRow();
             String error = parent.setMultiInstanceRow(table.getSelectedVariable());
@@ -201,8 +206,9 @@ public class VariableTablePanel extends JPanel
         btnUp = toolbar.addButton("arrow_up", "Up", " Move up ");
         btnDown = toolbar.addButton("arrow_down", "Down", " Move down ");
         if (tableType == TableType.Task) {
-            btnInMapping = toolbar.addButton("inMapping", "InBinding", " Input Bindings ");
-            btnOutMapping = toolbar.addButton("outMapping", "OutBinding", " Output Bindings ");
+            btnInMapping = toolbar.addButton("inBinding", "InBinding", " Input Bindings ");
+            btnOutMapping = toolbar.addButton("outBinding", "OutBinding", " Output Bindings ");
+            btnQuickView = toolbar.addButton("view", "View", " Quick View Bindings ");
             btnAutoMapping = toolbar.addButton("generate", "Autobind", " Smart Data Bindings ");
             btnExAttributes = toolbar.addButton("exat", "ExAt", " Ext. Attributes ");
             btnLog = toolbar.addButton("log", "Log", " Log Entries ");
@@ -284,6 +290,7 @@ public class VariableTablePanel extends JPanel
             btnExAttributes.setEnabled(enable && hasRowSelected);
             btnMIVar.setEnabled(enable && shouldEnableMIButton());
             btnAutoMapping.setEnabled(enable && shouldEnableAutoBindingButton());
+            btnQuickView.setEnabled(enable && hasRowSelected);
             btnLog.setEnabled(enable && hasRowSelected);
         }
     }
