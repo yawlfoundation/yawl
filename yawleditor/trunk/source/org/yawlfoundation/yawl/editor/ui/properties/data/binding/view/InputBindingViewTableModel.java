@@ -94,6 +94,11 @@ class InputBindingViewTableModel extends AbstractTableModel {
     }
 
 
+    public String getSelectedTaskVarName(int row) {
+        return row > -1 ? (String) getValueAt(row, 1) : null;
+    }
+
+
     public void setVariableRows(List<VariableRow> list) {
         variableRows = new ArrayList<VariableRow>();
         for (VariableRow row : list) {

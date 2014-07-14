@@ -157,5 +157,20 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
         }
     }
 
+    /*
+     * Removes the named User Defined Attribute.
+     * Note: all user defined attribute properties have the name "UdAttributeValue" -
+     * their display names are unique. Since there is no support in the library
+     * for removing a property by display name, we have to remove all ud attributes
+     * then reload the updated binder (with the attribute already removed)
+     */
+    public void removeUserDefinedAttribute(UserDefinedAttributesBinder udAttributes,
+                                           String name) {
+        if (name == null) return;
+        while (removeProperty("UdAttributeValue") != null);   // remove all ud's
+        udAttributes.remove(name);
+        addUserDefinedAttributes(udAttributes);
+    }
+
 
 }

@@ -41,10 +41,12 @@ public class AddUserDefinedAttributeDialog extends PropertyDialog
     private JComboBox cbxTypes;
     private JTextField txtName;
     private JTextField txtEnumerations;
+    private ExtendedAttributesDialog parentDialog;
 
 
-    public AddUserDefinedAttributeDialog(Window parent) {
+    public AddUserDefinedAttributeDialog(ExtendedAttributesDialog parent) {
         super(parent);
+        parentDialog = parent;
         setTitle("Add a User-Defined Extended Attribute");
         setPreferredSize(new Dimension(370, 120));
         pack();
@@ -102,8 +104,18 @@ public class AddUserDefinedAttributeDialog extends PropertyDialog
 
 
     public void actionPerformed(ActionEvent event) {
-        cancelled = ! event.getActionCommand().equals("OK");
-        setVisible(false);
+        String cmd = event.getActionCommand();
+        if (cmd.equals("OK") && ! parentDialog.isUniqueName(getName())) {
+            JOptionPane.showMessageDialog(this,
+                    "An attribute with that name already exists.",
+                    "Unable to add attribute", JOptionPane.ERROR_MESSAGE);
+            txtName.requestFocus();
+            txtName.selectAll();
+        }
+        else {
+            cancelled = ! cmd.equals("OK");
+            setVisible(false);
+        }
     }
 
 

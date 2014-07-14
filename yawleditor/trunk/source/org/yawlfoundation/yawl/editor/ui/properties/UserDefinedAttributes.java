@@ -51,7 +51,7 @@ public abstract class UserDefinedAttributes {
             Map<String, String> map = getMap();
             if (map != null) {
                 map.put(name, type);
-                return save(getMap(), getFilePath());
+                return save(map, getFilePath());
             }
             return false;
         }
@@ -64,7 +64,7 @@ public abstract class UserDefinedAttributes {
         if (map != null) {
             String type = map.remove(name);
             if (type != null) {
-                return save(getMap(), getFilePath());
+                return save(map, getFilePath());
             }
         }
         return false;
