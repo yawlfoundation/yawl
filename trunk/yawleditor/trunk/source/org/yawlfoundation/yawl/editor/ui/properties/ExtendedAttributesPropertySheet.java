@@ -28,6 +28,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.beans.PropertyEditor;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
         this.dialog = dialog;
         setTable(new UDAPropertySheetTable());
         setSortingProperties(true);
-        setPropertySortingComparator(new PropertySorter());
+        setPropertySortingComparator(new AttributeSorter());
         registerGlobalEditors();
     }
 
@@ -87,8 +88,9 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     public boolean uniquePropertyName(String name) {
         for (Property property : getProperties()) {
-            if (property.getName().equals(name) ||
-                    (isUdaProperty(property) && property.getDisplayName().equals(name))) {
+            if (property.getName().equalsIgnoreCase(name) ||
+                    (isUdaProperty(property) &&
+                            property.getDisplayName().equalsIgnoreCase(name))) {
                 return false;
             }
         }
@@ -204,9 +206,11 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
     }
 
 
+    /************************************************************************/
+
     class UDACellRenderer extends DefaultTableCellRenderer {
 
-        final Color foreColor =  new Color(0,0,200);
+        final Color foreColor =  new Color(0,0,190);
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -217,6 +221,23 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
             setForeground(foreColor);
             setText(((PropertySheetTableModel.Item) value).getName());
             return this;
+        }
+    }
+
+
+    /**********************************************************************/
+
+    /**
+     * Sorts properties by display name
+     */
+    public class AttributeSorter implements Comparator<Property> {
+
+        public int compare(Property prop1, Property prop2) {
+            if (prop1 == null) return prop2 == null ? 0 : -1;   // deal with null props
+
+            String name1 = prop1.getDisplayName().toLowerCase();
+            String name2 = prop2.getDisplayName().toLowerCase();
+            return name1.compareTo(name2);
         }
     }
 

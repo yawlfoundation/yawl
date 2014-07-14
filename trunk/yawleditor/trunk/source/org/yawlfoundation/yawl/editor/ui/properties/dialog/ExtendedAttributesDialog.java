@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLToolBarButton;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -136,6 +137,11 @@ public class ExtendedAttributesDialog extends PropertyDialog
 
 
     public void setStatus(String status) { statusBar.setText(status); }
+
+
+    public boolean isUniqueName(String name) {
+        return propertySheet.uniquePropertyName(name);
+    }
 
 
     /********************************************************************************/
@@ -253,7 +259,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         if (! dialog.isCancelled()) {
             String name = dialog.getName();
             String type = dialog.getSelectedType();
-            if (propertySheet.uniquePropertyName(name)) {
+            if (!StringUtil.isNullOrEmpty(name) && propertySheet.uniquePropertyName(name)) {
                 udAttributes.add(name, type);
 
                 // create a property for the sheet
@@ -276,9 +282,9 @@ public class ExtendedAttributesDialog extends PropertyDialog
         String name = propertySheet.getSelectedPropertyName();
         if (name != null) {
 
-            // will remove only if it is a user-defined attribute
-            if (propertySheet.removeProperty(name)) {         // from table
-                udAttributes.remove(name);                    // from template (& disk)
+            // will remove only if it is a user-defined attribute,from table & bean
+            if (propertySheet.removeProperty(name)) {
+                attributesBeanInfo.removeUserDefinedAttribute(udAttributes, name);
             }
             else {
                 // not a user-defined attribute, but since the button that fires this

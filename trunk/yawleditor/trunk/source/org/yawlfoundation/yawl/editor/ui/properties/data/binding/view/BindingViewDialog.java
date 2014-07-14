@@ -60,19 +60,23 @@ public class BindingViewDialog extends JDialog implements ActionListener {
         else {
 
             // have to set the parent table to the selected row of the view dialog
-            BindingViewTable viewTable = cmd.startsWith("In") ? inputTable : outputTable;
-            String name = (String) viewTable.getValueAt(viewTable.getSelectedRow(), 1);
+            boolean input = cmd.startsWith("In");
+            BindingViewTable viewTable = input ? inputTable : outputTable;
             VariableTable parentTable = parentListener.getTable();
             int selectedRow = parentTable.getSelectedRow();
-            java.util.List<VariableRow> parentRows = parentTable.getVariables();
-            for (int i=0; i < parentTable.getRowCount(); i++) {
-                if (parentRows.get(i).getName().equals(name)) {
-                    parentTable.selectRow(i);
-                    break;                    // todo - get task vr for output from ob
+            String name = viewTable.getSelectedTaskVarName();
+            if (name != null) {
+                java.util.List<VariableRow> parentRows = parentTable.getVariables();
+                for (int i = 0; i < parentTable.getRowCount(); i++) {
+                    if (parentRows.get(i).getName().equals(name)) {
+                        parentTable.selectRow(i);
+                        break;
+                    }
                 }
             }
             parentListener.actionPerformed(event);
             parentTable.selectRow(selectedRow);
+            if (! input) outputTable.refresh();
         }
     }
 

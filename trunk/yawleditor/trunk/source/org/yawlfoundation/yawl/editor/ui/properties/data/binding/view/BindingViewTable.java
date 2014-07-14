@@ -49,6 +49,8 @@ import java.util.List;
 */
 class BindingViewTable extends JSingleSelectTable {
 
+    private boolean input;
+
     public BindingViewTable(TableModel model) {
         super();
         consumeEnterKeyWraps();
@@ -61,19 +63,33 @@ class BindingViewTable extends JSingleSelectTable {
 
 
     public void setRows(List<VariableRow> rows) {
+        input = true;
         ((InputBindingViewTableModel) getModel()).setVariableRows(rows);
-        setPreferredScrollableViewportSize(getPreferredSize());
-        updateUI();
+        updateAfterSet();
     }
 
 
     public void setRows(OutputBindings bindings) {
+        input = false;
         ((OutputBindingViewTableModel) getModel()).setBindings(bindings);
-
+        updateAfterSet();
     }
 
-//    public VariableRow getSelectedVariableRow() {
-//        return ((InputBindingViewTableModel) getModel()).getVariableAtRow(getSelectedRow());
-//    }
 
+    public String getSelectedTaskVarName() {
+        int row = getSelectedRow();
+        return input ?
+                ((InputBindingViewTableModel) getModel()).getSelectedTaskVarName(row) :
+                ((OutputBindingViewTableModel) getModel()).getSelectedTaskVarName(row);
+    }
+
+
+    public void refresh() {
+        if (! input) ((OutputBindingViewTableModel) getModel()).refresh();
+    }
+
+    private void updateAfterSet() {
+        setPreferredScrollableViewportSize(getPreferredSize());
+        updateUI();
+    }
 }

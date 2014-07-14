@@ -109,7 +109,7 @@ public class BindingViewTablePanel extends JPanel {
 
 
     protected void enableButtons() {
-        btnBinding.setEnabled(table.getSelectedRow() > -1);
+//        btnBinding.setEnabled(table.getSelectedRow() > -1);
     }
 
 }

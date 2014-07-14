@@ -108,6 +108,28 @@ class OutputBindingViewTableModel extends AbstractTableModel {
 
     public void setBindings(OutputBindings ob) {
         outputBindings = ob;
+        refresh();
+    }
+
+
+    public String getSelectedTaskVarName(int row) {
+        if (row < 0) return null;
+        String binding = bindings.get(row).binding;
+
+        // try external first
+        int colonPos = binding.lastIndexOf(':');
+        if (colonPos > -1) {
+            return binding.substring(colonPos);
+        }
+
+        if (binding.startsWith("<")) {
+            return binding.substring(1, binding.indexOf('>') -1);
+        }
+        return null;
+    }
+
+
+    public void refresh() {
         bindings = new ArrayList<Binding>();
         Map<String, String> summary = outputBindings.getBindingsSummary();
         for (String binding : summary.keySet()) {
