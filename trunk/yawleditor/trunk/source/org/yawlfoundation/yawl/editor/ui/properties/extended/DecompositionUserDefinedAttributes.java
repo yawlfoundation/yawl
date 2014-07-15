@@ -16,7 +16,7 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties;
+package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
 import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;

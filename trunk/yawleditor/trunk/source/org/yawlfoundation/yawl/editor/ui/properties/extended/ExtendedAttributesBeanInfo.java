@@ -16,9 +16,10 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties;
+package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
 import com.l2fprod.common.beans.ExtendedPropertyDescriptor;
+import org.yawlfoundation.yawl.editor.ui.properties.YBeanInfo;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 import org.yawlfoundation.yawl.schema.XSDType;
 

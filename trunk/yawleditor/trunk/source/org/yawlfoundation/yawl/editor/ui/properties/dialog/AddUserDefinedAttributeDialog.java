@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
-import org.yawlfoundation.yawl.editor.ui.properties.UserDefinedAttributes;
+import org.yawlfoundation.yawl.editor.ui.properties.extended.UserDefinedAttributes;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

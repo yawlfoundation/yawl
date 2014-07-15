@@ -63,17 +63,12 @@ public class FontPropertyEditor extends DialogPropertyEditor {
         Font newFont = dialog.showDialog();
 
         if (newFont != null) {
-            boolean colourChange = false;
-            Color newColour = null;
-            if (colour != null) {
-                newColour = dialog.getColour();
-                colourChange = ! newColour.equals(colour);
-            }
-            if (colourChange || ! newFont.equals(currentFont)) {
+            Color newColour = dialog.getColour();
+            if (! (newColour.equals(colour) && newFont.equals(currentFont))) {
                 Object oldValue = getValue();
-                Object newValue = colour != null ? new FontColor(newFont, newColour) : newFont;
+                Object newValue = new FontColor(newFont, newColour);
                 setValue(newValue);
-                firePropertyChange(oldValue, newFont);
+                firePropertyChange(oldValue, newValue);
             }
         }
     }

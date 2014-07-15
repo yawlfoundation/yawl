@@ -64,7 +64,7 @@ public class PropertyUtil {
     }
 
 
-    protected static Color hexToColor(String hexStr) {
+    public static Color hexToColor(String hexStr) {
 
         // expects the format #123456
         if ((hexStr == null) || (hexStr.length() < 7)) {
@@ -82,7 +82,7 @@ public class PropertyUtil {
         }
     }
 
-    protected static String colorToHex(Color color) {
+    public static String colorToHex(Color color) {
         String hex = "#";
         hex += intToHex(color.getRed());
         hex += intToHex(color.getGreen());
