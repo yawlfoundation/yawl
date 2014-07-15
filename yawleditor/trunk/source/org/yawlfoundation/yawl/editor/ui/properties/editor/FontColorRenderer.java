@@ -30,12 +30,23 @@ import javax.swing.*;
 public class FontColorRenderer extends ColorCellRenderer {
 
     protected String convertToString(Object value) {
-        return (value instanceof FontColor) ? value.toString() : null;
+        if (value instanceof FontColor) {
+            FontColor fontColor = (FontColor) value;
+            if (fontColor.getFont() != null) {
+                return fontColor.toString();
+            }
+        }
+        return null;
     }
 
     protected Icon convertToIcon(Object value) {
-        return (value instanceof FontColor) ?
-                new PaintIcon(((FontColor) value).getColour()) : null;
+        if (value instanceof FontColor) {
+            FontColor fontColor = (FontColor) value;
+            if (fontColor.getColour() != null) {
+                return new PaintIcon(fontColor.getColour());
+            }
+        }
+        return null;
     }
 
 }

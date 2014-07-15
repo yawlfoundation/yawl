@@ -16,9 +16,11 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties;
+package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
 import com.l2fprod.common.propertysheet.*;
+import org.yawlfoundation.yawl.editor.ui.properties.FontColor;
+import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
 
@@ -55,9 +57,11 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
         registerGlobalEditors();
     }
 
+
     public void setUserDefinedAttributes(UserDefinedAttributesBinder attributes) {
         udAttributes = attributes;
     }
+
 
     public void readFromObject(Object data) {
         getTable().cancelEditing();    // cancel pending edits
@@ -66,8 +70,10 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
             propertyBeingRead = property.getDisplayName();
             property.readFromObject(data);
         }
+        propertyBeingRead = null;
         repaint();
     }
+
 
     public boolean removeProperty(String name) {
         for (Property property : getProperties()) {
@@ -114,9 +120,8 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
     }
 
 
-    public String getPropertyBeingRead() {
-        return propertyBeingRead;
-    }
+    public String getPropertyBeingRead() { return propertyBeingRead; }
+
 
     public String getSelectedPropertyName() {
         PropertySheetTableModel.Item item = getSelectedItem();
@@ -228,7 +233,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
     /**********************************************************************/
 
     /**
-     * Sorts properties by display name
+     * Sorts properties by display name (case insensitive)
      */
     public class AttributeSorter implements Comparator<Property> {
 

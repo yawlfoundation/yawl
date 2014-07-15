@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -16,13 +16,17 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties.editor;
+package org.yawlfoundation.yawl.editor.ui.properties.extended.editor;
+
+import org.yawlfoundation.yawl.editor.ui.properties.editor.ComboPropertyEditor;
 
 /**
-* @author Michael Adams
-* @date 9/08/13
-*/
-public class JustifyEditor extends ComboPropertyEditor {
+ * @author Michael Adams
+ * @date 15/07/2014
+ */
+public class BooleanAsEnumerationPropertyEditor extends ComboPropertyEditor {
 
-    public JustifyEditor() { super(new String[] { " ", "left", "center", "right"}); }
+    public BooleanAsEnumerationPropertyEditor() {
+        super(new String[] { " ", "true", "false " });
+    }
 }

@@ -16,8 +16,9 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties;
+package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
+import org.yawlfoundation.yawl.editor.ui.properties.*;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
@@ -79,11 +80,11 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     public String getJustify() {
         String justify = get("justify");
-        return justify != null ? justify : "left";
+        return justify == null || justify.trim().isEmpty() ? null : justify;
     }
 
     public void setJustify(String justify) {
-        set("justify", justify.equals("left") ? null : justify);
+        set("justify", justify == null ? null : justify.trim());
     }
 
 
@@ -181,21 +182,21 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     public String getImageAboveAlign() {
         String align = get("image-above-align");
-        return align != null ? align : "left";
+        return align == null || align.trim().isEmpty() ? null : align;
     }
 
     public void setImageAboveAlign(String align) {
-        set("image-above-align", align.equals("left") ? null : align);
+        set("image-above-align", align == null ? null : align.trim());
     }
 
 
     public String getImageBelowAlign() {
         String align = get("image-below-align");
-        return align != null ? align : "left";
+        return align == null || align.trim().isEmpty() ? null : align;
     }
 
     public void setImageBelowAlign(String align) {
-        set("image-below-align", align.equals("left") ? null : align);
+        set("image-below-align", align == null ? null : align.trim());
     }
 
 
@@ -380,7 +381,7 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     private Color getColour(String key) {
         String colourStr = get(key);
-        return colourStr != null ? PropertyUtil.hexToColor(colourStr) : Color.WHITE;
+        return colourStr != null ? PropertyUtil.hexToColor(colourStr) : null;
     }
 
     private File getFile(String key) {
@@ -438,21 +439,27 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
 
     private FontColor getFontColorFromAttributes(String prefix) {
         String family = get(prefix + "-family");
-        if (family == null) family = UIManager.getDefaults().getFont("Label.font").getFamily();
-
         Integer size = getInt(prefix + "-size");
-        if (size == null) size = UserSettings.getFontSize();
-
-        int style = fontStyleToInt(get(prefix + "-style"));
-
+        String styleStr = get(prefix + "-style");
         String colourStr = get(prefix + "-color");
+
+        // no attributes set
+        if (family == null && size == null && styleStr == null && colourStr == null) {
+            return null;
+        }
+
+        // fill in with defaults where required
+        if (family == null) family = UIManager.getDefaults().getFont("Label.font").getFamily();
+        if (size == null) size = UserSettings.getFontSize();
+        Integer style = fontStyleToInt(get(prefix + "-style"));
         Color colour = StringUtil.isNullOrEmpty(colourStr) ? Color.BLACK
                 : PropertyUtil.hexToColor(colourStr);
+
         return new FontColor(new Font(family, style, size), colour);
     }
 
 
-    private int fontStyleToInt(String style) {
+    private Integer fontStyleToInt(String style) {
         if (style == null) return Font.PLAIN;
         if (style.equals("bold")) return Font.BOLD;
         if (style.equals("italic")) return Font.ITALIC;

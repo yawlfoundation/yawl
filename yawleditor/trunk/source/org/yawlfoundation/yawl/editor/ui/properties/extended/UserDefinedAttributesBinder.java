@@ -16,20 +16,22 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.properties;
+package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
-import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
 import com.l2fprod.common.beans.editor.DoublePropertyEditor;
 import com.l2fprod.common.beans.editor.IntegerPropertyEditor;
 import com.l2fprod.common.beans.editor.StringPropertyEditor;
-import com.l2fprod.common.swing.renderer.BooleanCellRenderer;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.PropertyUtil;
 import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
+import org.yawlfoundation.yawl.editor.ui.properties.extended.editor.BooleanAsEnumerationPropertyEditor;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,7 +83,7 @@ public class UserDefinedAttributesBinder {
         String key = getSelectedKey();
         if (key != null) {
             String valueStr = objToString(key, value);
-            if (StringUtil.isNullOrEmpty(valueStr)) {    // no value supplied, so del
+            if (StringUtil.isNullOrEmpty(valueStr.trim())) { // no value supplied, so del
                 _attributeMap.remove(key);
             }
             else {
@@ -112,7 +114,7 @@ public class UserDefinedAttributesBinder {
         String type = getAttributes().getType(name);
         if (type != null) {
             if (type.equalsIgnoreCase("boolean")) {
-                return BooleanAsCheckBoxPropertyEditor.class;
+                return BooleanAsEnumerationPropertyEditor.class;
             }
             if (type.equalsIgnoreCase("color")) {
                 return ColorPropertyEditor.class;
@@ -143,9 +145,6 @@ public class UserDefinedAttributesBinder {
     public Class getRendererClass(String name) {
         String type = getAttributes().getType(name);
         if (type != null) {
-            if (type.equalsIgnoreCase("boolean")) {
-                return BooleanCellRenderer.class;
-            }
             if (type.equalsIgnoreCase("color")) {
                 return ColorPropertyRenderer.class;
             }
@@ -168,9 +167,6 @@ public class UserDefinedAttributesBinder {
         if (type == null) {
             return value.toString();
         }
-        if (type.equalsIgnoreCase("boolean")) {
-            return value.toString();
-        }
         if (type.equalsIgnoreCase("color")) {
             return PropertyUtil.colorToHex((Color) value);
         }
@@ -186,10 +182,6 @@ public class UserDefinedAttributesBinder {
         String type = getAttributes().getType(key);
         if (type == null) {
             return value;
-        }
-        if (type.equalsIgnoreCase("boolean")) {
-            if (value == null) return Boolean.FALSE;
-            return Boolean.valueOf(value);
         }
         if (type.equalsIgnoreCase("integer")) {
             return StringUtil.strToInt(value, 0);
@@ -210,17 +202,19 @@ public class UserDefinedAttributesBinder {
     }
 
 
-    public String[] getListItems(String key) {
+    public Object[] getListItems(String key) {
         String type = getAttributes().getType(key);
         if (type == null) return new String[0];
 
-        String[] rawItems = type.split("\\{|\\}|,");
+        ArrayList<String> items = new ArrayList<String>(
+                Arrays.asList(type.split("\\{|\\}|,")));
 
-        // remove 'enumeration'
-        String[] items = new String[rawItems.length -1];
-        System.arraycopy(rawItems, 1, items,  0, rawItems.length -1);
+        // remove 'enumeration' keyword, then first entry if empty, then add space
+        if (! items.isEmpty()) items.remove(0);
+        if (! items.isEmpty() && items.get(0).isEmpty()) items.remove(0);
+        items.add(0, " ");
 
-        return items;
+        return items.toArray();
     }
 
 
