@@ -2,8 +2,10 @@ package org.yawlfoundation.yawl.resourcing;
 
 import junit.framework.TestCase;
 
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.jdom2.Document;
+import org.yawlfoundation.yawl.util.YPluginLoader;
 
 /**
  *
@@ -14,9 +16,7 @@ import org.jdom2.Document;
 public class TestGetSelectors extends TestCase {
 
     public void testGetSelectors() {
-
-        ResourceManager rm = ResourceManager.getInstance();
-        String xml = rm.getPluginHandler().getAllSelectors() ;
+         String xml = PluginFactory.getAllSelectors();
         Document doc = JDOMUtil.stringToDocument(xml);
         JDOMUtil.documentToFile(doc, "c:/temp/selectors.xml");
     }

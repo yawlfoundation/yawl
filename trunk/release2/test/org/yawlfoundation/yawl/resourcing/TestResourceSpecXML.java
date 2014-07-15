@@ -6,6 +6,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.*;
 import org.yawlfoundation.yawl.resourcing.allocators.GenericAllocator;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.filters.GenericFilter;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
 import org.jdom2.Document;
@@ -24,7 +25,7 @@ public class TestResourceSpecXML extends TestCase {
         ResourceManager rm = ResourceManager.getInstance();
 
         // get full set of resource selectors (ie. filters, constraints, allocators)
-        String xml = rm.getPluginHandler().getAllSelectors() ;
+        String xml = PluginFactory.getAllSelectors() ;
         Element eSelectors = JDOMUtil.stringToElement(xml);
         Element eFilters = eSelectors.getChild("filters");
         Element eConstraints = eSelectors.getChild("constraints");

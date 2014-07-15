@@ -61,6 +61,10 @@ public class TestCaseCancellation extends TestCase {
                 serviceURI, null, _logdata, service.getServiceName(), false);
 
         ObserverGateway og = new ObserverGateway() {
+            public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id, Set<YTask> tasks) {
+
+            }
+
             public void announceCancelledWorkItem(YAnnouncement announcement) {
                 _taskCancellationReceived.add(announcement);
             }

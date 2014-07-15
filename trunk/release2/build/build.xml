@@ -134,7 +134,7 @@
     <!-- eng, xsd -->
     <property name="commonsBeanutils" value="commons-beanutils.jar"/>
     <!-- eng Dom -->
-    <property name="commonsCodec" value="commons-codec-1.5.jar"/>
+    <property name="commonsCodec" value="commons-codec-1.9.jar"/>
     <!-- mul -->
     <property name="commonsCollections" value="commons-collections-3.2.1.jar"/>
     <!-- hbn -->
