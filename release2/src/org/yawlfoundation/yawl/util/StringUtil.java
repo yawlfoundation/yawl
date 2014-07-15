@@ -384,8 +384,20 @@ public class StringUtil {
     }
 
 
-    public static File stringToFile(String fileName, String contents) {
-        return stringToFile(new File(fileName), contents);
+    public static File stringToFile(String path, String contents) {
+        if (isNullOrEmpty(path) || contents == null) {
+            throw new IllegalArgumentException("Arguments must not be null");
+        }
+        int sepPos = path.lastIndexOf(File.separator);
+        File toFile;
+        if (sepPos > -1) {
+            File dir = new File(path.substring(0, sepPos));
+            dir.mkdirs();
+            toFile = new File(dir, path.substring(sepPos + 1));
+        }
+        else toFile = new File(path);
+
+        return stringToFile(toFile, contents);
     }
 
 
