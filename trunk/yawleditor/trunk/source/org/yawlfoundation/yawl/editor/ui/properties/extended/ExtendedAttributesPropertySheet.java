@@ -20,9 +20,14 @@ package org.yawlfoundation.yawl.editor.ui.properties.extended;
 
 import com.l2fprod.common.propertysheet.*;
 import org.yawlfoundation.yawl.editor.ui.properties.FontColor;
+import org.yawlfoundation.yawl.editor.ui.properties.NonNegativeInteger;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
-import org.yawlfoundation.yawl.editor.ui.properties.editor.*;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.ColorPropertyRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.FontColorRenderer;
+import org.yawlfoundation.yawl.editor.ui.properties.editor.UserDefinedListPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.extended.editor.AttributeColorPropertyEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.extended.editor.AttributeFontPropertyEditor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -51,7 +56,7 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
     public ExtendedAttributesPropertySheet(ExtendedAttributesDialog dialog) {
         super();
         this.dialog = dialog;
-        setTable(new UDAPropertySheetTable());
+        setTable(new ExAttributePropertySheetTable());
         setSortingProperties(true);
         setPropertySortingComparator(new AttributeSorter());
         registerGlobalEditors();
@@ -150,9 +155,9 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     private void registerGlobalEditors() {
         PropertyEditorRegistry editorFactory = (PropertyEditorRegistry) getEditorFactory();
-        editorFactory.registerEditor(Color.class, new ColorPropertyEditor());
-        editorFactory.registerEditor(Font.class, new FontPropertyEditor());
-        editorFactory.registerEditor(FontColor.class, new FontPropertyEditor());
+        editorFactory.registerEditor(Color.class, new AttributeColorPropertyEditor());
+        editorFactory.registerEditor(Font.class, new AttributeFontPropertyEditor());
+        editorFactory.registerEditor(FontColor.class, new AttributeFontPropertyEditor());
 
         PropertyRendererRegistry rendererFactory =
                 (PropertyRendererRegistry) getRendererFactory();
@@ -163,23 +168,19 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     /*************************************************************************/
 
-    private class UDAPropertySheetTable extends YPropertySheetTable {
+    private class ExAttributePropertySheetTable extends YPropertySheetTable {
 
-        final UDACellRenderer udaCellRenderer = new UDACellRenderer();
+        final AttributeCellRenderer exCellRenderer = new AttributeCellRenderer();
 
-        UDAPropertySheetTable() {
+        ExAttributePropertySheetTable() {
             super();
         }
 
-        // override to paint UDAs a different colour
+        // override to bold set attributes and paint UDAs a different colour
         public TableCellRenderer getCellRenderer(int row, int column) {
             if (getSheetModel().getPropertyCount() > 0) {
                 if (column == PropertySheetTableModel.NAME_COLUMN) {
-                    PropertySheetTableModel.Item item = getSheetModel()
-                          .getPropertySheetElement(row);
-                    if (item.getProperty().getName().equals("UdAttributeValue")) {
-                        return udaCellRenderer;
-                    }
+                    return exCellRenderer;
                 }
                 return super.getCellRenderer(row, column);
             }
@@ -213,9 +214,9 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
 
     /************************************************************************/
 
-    class UDACellRenderer extends DefaultTableCellRenderer {
+    class AttributeCellRenderer extends DefaultTableCellRenderer {
 
-        final Color foreColor =  new Color(0,0,190);
+        final Color udaColor =  new Color(0,0,190);
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -223,9 +224,29 @@ public class ExtendedAttributesPropertySheet extends YPropertySheet {
                                                   int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected,
                     hasFocus, row, column);
-            setForeground(foreColor);
+
+            Property property = ((PropertySheetTableModel.Item) value).getProperty();
+            if (hasSetValue(property.getValue())) {
+                setFont(getFont().deriveFont(Font.BOLD));
+            }
+            if (property.getName().equals("UdAttributeValue")) {
+                setForeground(udaColor);
+            }
+            else setForeground(Color.BLACK);
+
             setText(((PropertySheetTableModel.Item) value).getName());
             return this;
+        }
+
+
+        // return true if value not null or Boolean false
+        private boolean hasSetValue(Object value) {
+            if (value == null) return false;
+            if (value instanceof Boolean) return (Boolean) value;
+            if (value instanceof NonNegativeInteger) {
+                return ((NonNegativeInteger) value).getValue() != null;
+            }
+            return true;
         }
     }
 
