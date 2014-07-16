@@ -57,6 +57,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         implements ActionListener, ListSelectionListener {
 
     private JButton btnDel;
+    private JButton btnOK;
     private JLabel statusBar;
     private ExtendedAttributesPropertySheet propertySheet;
     private ExtendedAttributesBeanInfo attributesBeanInfo;
@@ -190,6 +191,7 @@ public class ExtendedAttributesDialog extends PropertyDialog
         propertySheet.getTable().getSelectionModel().addListSelectionListener(this);
         setPreferredSize(new Dimension(400, 350));
         setMinimumSize(new Dimension(250, 300));
+        getRootPane().setDefaultButton(btnOK);
         pack();
     }
 
@@ -251,7 +253,8 @@ public class ExtendedAttributesDialog extends PropertyDialog
     protected JPanel getButtonBar(ActionListener listener) {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 10, 0));
-        panel.add(createButton("OK", listener));
+        btnOK = createButton("OK", listener);
+        panel.add(btnOK);
         return panel;
     }
 

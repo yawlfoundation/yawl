@@ -46,6 +46,7 @@ public abstract class PropertyDialog extends JDialog {
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         if (createContent) add(getContent());
+        getRootPane().setDefaultButton(getOKButton());
     }
 
 
