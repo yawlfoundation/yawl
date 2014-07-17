@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.elements.YCompositeTask;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -74,14 +75,6 @@ public class DataVariableDialog extends JDialog
     public DataVariableDialog(YNet net, YDecomposition decomposition, YAWLTask task) {
         super();
         initialise(net, decomposition, task);
-        this.decomposition = decomposition;
-        this.task = task.getTask();                             // YTask from YAWLTask
-        outputBindings = new OutputBindings(this.task);
-        if (this.task.isMultiInstance()) {
-            _miHandler = new MultiInstanceHandler(this.task, outputBindings);
-        }
-        setTitle("Data Variables for Decomposition " + decomposition.getID() +
-                 " [Task: " + task.getID() + "]");
         add(getContentForTaskLevel());
         setPreferredSize(new Dimension(760, 580));
         setMinimumSize(new Dimension(400, 420));
@@ -147,7 +140,7 @@ public class DataVariableDialog extends JDialog
 
     protected VariableTablePanel getNetTablePanel() { return netTablePanel; }
 
-    protected MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
+    public MultiInstanceHandler getMultiInstanceHandler() { return _miHandler; }
 
 
     protected String setMultiInstanceRow(VariableRow row) {
@@ -376,6 +369,11 @@ public class DataVariableDialog extends JDialog
     public YTask getTask() { return task; }
 
 
+    public boolean isCompositeTask() {
+        return task instanceof YCompositeTask;
+    }
+
+
     private VariableTablePanel getTablePanelFromTableModel(VariableTableModel model) {
         if (model instanceof TaskVarTableModel) return taskTablePanel;
         if (model instanceof NetVarTableModel) return netTablePanel;
@@ -416,22 +414,21 @@ public class DataVariableDialog extends JDialog
 
     private void initMapping(VariableRow row, String mapping) {
         if (_miHandler != null) {
-            if (row.isInput() || row.isInputOutput()) {
-                String miParam = _miHandler.getFormalInputParam();
-                if (miParam != null && row.getName().equals(miParam)) {
-                    row.setMultiInstance(true);
-                    row.initMapping(mapping);
-                }
-            }
             if (row.isOutput() || row.isInputOutput()) {
                 if (_miHandler.outputQueryBindsFrom(row.getName())) {
                     row.setMultiInstance(true);
                 }
             }
+            if (row.isInput() || row.isInputOutput()) {
+                String miParam = _miHandler.getFormalInputParam();
+                if (miParam != null && row.getName().equals(miParam)) {
+                    row.setMultiInstance(true);
+                    row.initMapping(mapping);
+                    return;                           // init'ed and done
+                }
+            }
         }
-        else {
-            row.initMapping(DataUtils.unwrapBinding(mapping));
-        }
+        row.initMapping(DataUtils.unwrapBinding(mapping));
     }
 
 

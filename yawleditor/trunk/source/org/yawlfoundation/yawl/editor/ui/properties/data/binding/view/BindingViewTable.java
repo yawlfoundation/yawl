@@ -36,8 +36,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding.view;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataVariableDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
-import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.swing.JSingleSelectTable;
 
 import javax.swing.table.TableModel;
@@ -59,6 +59,7 @@ class BindingViewTable extends JSingleSelectTable {
         setRowSelectionAllowed(true);
         setFillsViewportHeight(true);
         getColumnModel().getColumn(0).setPreferredWidth(330);
+        setDefaultRenderer(String.class, new RowRenderer());
     }
 
 
@@ -69,9 +70,9 @@ class BindingViewTable extends JSingleSelectTable {
     }
 
 
-    public void setRows(OutputBindings bindings) {
+    public void setRows(DataVariableDialog dataDialog) {
         input = false;
-        ((OutputBindingViewTableModel) getModel()).setBindings(bindings);
+        ((OutputBindingViewTableModel) getModel()).setBindings(dataDialog);
         updateAfterSet();
     }
 
@@ -87,6 +88,17 @@ class BindingViewTable extends JSingleSelectTable {
     public void refresh() {
         if (! input) ((OutputBindingViewTableModel) getModel()).refresh();
     }
+
+
+    public boolean isMIRow(int row) {
+        return input ?
+                ((InputBindingViewTableModel) getModel()).isMIRow(row) :
+                ((OutputBindingViewTableModel) getModel()).isMIRow(row);
+    }
+
+
+    public boolean isMIRowSelected() { return isMIRow(getSelectedRow()); }
+
 
     private void updateAfterSet() {
         setPreferredScrollableViewportSize(getPreferredSize());

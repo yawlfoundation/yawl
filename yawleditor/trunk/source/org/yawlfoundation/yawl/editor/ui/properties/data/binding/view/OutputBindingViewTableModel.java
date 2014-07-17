@@ -55,6 +55,9 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding.view;
 
 import org.yawlfoundation.yawl.editor.ui.properties.data.DataUtils;
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataVariableDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
+import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 
 import javax.swing.table.AbstractTableModel;
@@ -69,6 +72,8 @@ import java.util.Map;
 class OutputBindingViewTableModel extends AbstractTableModel {
 
     private OutputBindings outputBindings;
+    private MultiInstanceHandler miHandler;
+    private List<VariableRow> variableRows;
     private List<Binding> bindings;
 
     private static final String[] COLUMN_LABELS = {"Binding", " Net Variable"};
@@ -99,15 +104,17 @@ class OutputBindingViewTableModel extends AbstractTableModel {
 
     public Object getValueAt(int row, int col) {
         switch (col) {
-            case BINDING_COLUMN: return bindings.get(row).binding;
+            case BINDING_COLUMN: return DataUtils.unwrapBinding(bindings.get(row).binding);
             case VARIABLE_COLUMN: return bindings.get(row).netVar;
             default: return null;
         }
     }
 
 
-    public void setBindings(OutputBindings ob) {
-        outputBindings = ob;
+    public void setBindings(DataVariableDialog dataDialog) {
+        outputBindings = dataDialog.getOutputBindings();
+        variableRows = dataDialog.getTaskTable().getVariables();
+        miHandler = dataDialog.getMultiInstanceHandler();
         refresh();
     }
 
@@ -119,11 +126,11 @@ class OutputBindingViewTableModel extends AbstractTableModel {
         // try external first
         int colonPos = binding.lastIndexOf(':');
         if (colonPos > -1) {
-            return binding.substring(colonPos);
+            return binding.substring(colonPos + 1);
         }
 
         if (binding.startsWith("<")) {
-            return binding.substring(1, binding.indexOf('>') -1);
+            return binding.substring(1, binding.indexOf('>'));
         }
         return null;
     }
@@ -132,19 +139,35 @@ class OutputBindingViewTableModel extends AbstractTableModel {
     public void refresh() {
         bindings = new ArrayList<Binding>();
         Map<String, String> summary = outputBindings.getBindingsSummary();
-        for (String binding : summary.keySet()) {
-            bindings.add(new Binding(binding, summary.get(binding)));
+        for (VariableRow row : variableRows) {
+            if (row.isOutput() || row.isInputOutput()) {
+                String binding = outputBindings.getBindingFromSource(
+                        row.getName(), false);
+                if (binding != null) {
+                    bindings.add(new Binding(binding, summary.get(binding)));
+                }
+            }
         }
         fireTableRowsUpdated(0, getRowCount() - 1);
     }
 
+
+    public boolean isMIRow(int row) {
+        if (miHandler != null) {
+            String miTarget = miHandler.getOutputTarget();
+            return miTarget != null && miTarget.equals(bindings.get(row).netVar);
+        }
+        return false;
+    }
+
+    /*******************************************************************/
 
     class Binding {
         String binding;
         String netVar;
 
         Binding(String b, String n) {
-            binding = DataUtils.unwrapBinding(b);
+            binding = b;
             netVar = n;
         }
     }

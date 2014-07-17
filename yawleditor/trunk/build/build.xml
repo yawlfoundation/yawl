@@ -69,6 +69,8 @@
               value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
               value="jgraph4yawl-${version}.jar" />
+    <property name="bounce.jar.name"
+              value="xmleditorkit.jar" />
 
 	<!--
 		Define all Editor code dependencies. The Editor makes use of many
@@ -77,7 +79,6 @@
 		avoid compatibility and maintenance issues.
 	-->
     <property name="automaton" value="automaton.jar"/>
-    <property name="bounce" value="bounce-0.18.jar"/>
     <property name="forms" value="forms_rt.jar"/>
     <property name="imgscalr" value="imgscalr-lib-4.2.jar"/>
     <property name="jcal" value="jcalendar-1.4.jar"/>
@@ -89,7 +90,7 @@
 	<property name="junit" value="junit-4.4.jar"/>
 
 	<fileset id="editorOnlyDeps" dir="${library.dir}"
-			 includes="${automaton} ${bounce} ${forms} ${imgscalr} ${jcal}
+			 includes="${automaton} ${forms} ${imgscalr} ${jcal}
 			           ${goodies-common} ${goodies-looks} ${l2fprod}
 			           ${macify} ${servlet}" />
 
@@ -195,7 +196,7 @@
     </target>
 
     <target name="buildConfigurationPluginJar"
-            depends="compileConfigurationPlugin, check.configuration"
+            depends="compile, check.configuration"
             unless="configuration.uptodate"
   	        description="Build the Configuration plugin">
 
@@ -239,7 +240,7 @@
     </target>
 
     <target name="buildDecoratorToolBarPluginJar"
-            depends="compileDecoratorToolBarPlugin, check.decobar"
+            depends="compile, check.decobar"
             unless="decobar.uptodate"
   	        description="Build the Decorator ToolBar plugin">
 
@@ -363,6 +364,28 @@
              excludes="**/Test*.class" />
     </target>
 
+    <!--
+   		Builds the bounce xml editorkit jar and copies it to the output lib dir
+   	-->
+    <target name="check.bounce">
+        <uptodate property="bounce.uptodate"
+                  targetfile="${output.dir}/lib/${bounce.jar.name}">
+            <srcfiles dir="${source.dir}/org/bounce"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="Bounce XML EditorKit jar is up to date: ${bounce.uptodate}"/>
+    </target>
+
+    <target name="buildBounceJar"
+            depends="compile, check.bounce" unless="bounce.uptodate"
+  	        description="Build the Editor's modified XML EditorKit library">
+
+        <echo message="Building jar: ${bounce.jar.name}"/>
+        <jar jarfile="${output.dir}/lib/${bounce.jar.name}"
+             basedir="${classes.dir}"
+             includes="org/bounce/**" />
+    </target>
+
 
     <!--
    		Copies all required library jars to the output lib dir
@@ -380,8 +403,8 @@
     	Builds all the project's jars (if needed)
     -->
     <target name="buildJars"
-            depends="buildAnalyserJar, buildCoreJar, buildJGraphJar,
-                     buildResourcesJar, buildUIJar,buildDecoratorToolBarPluginJar,
+            depends="buildAnalyserJar, buildCoreJar, buildJGraphJar, buildBounceJar,
+                     buildResourcesJar, buildUIJar, buildDecoratorToolBarPluginJar,
                      buildConfigurationPluginJar"
             description="Builds all jars and copies required libraries"/>
 
@@ -490,8 +513,10 @@
                source="${java.target.version}"
                srcdir="${source.dir}"
                destdir="${classes.dir}">
-            <include name="${root.source.file.path}" />
-            <include name="${package.dir}/ui/plugin/YEditorPluginAdapter.java" />
+            <include name="${root.source.file.path}"/>
+            <include name="${package.dir}/ui/plugin/YEditorPluginAdapter.java"/>
+            <include name="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
+            <include name="${package.base.dir}/decobar/DecoratorToolbarPlugin.java"/>
             <classpath>
             	<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />

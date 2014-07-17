@@ -69,7 +69,7 @@ public class MultiInstanceHandler {
         setSplitQuery(assembleSplitQuery(row, newName));
     }
 
-    protected String getOutputTarget() {
+    public String getOutputTarget() {
         if (_netVarTarget != null) return _netVarTarget;
         String target = _attributes.getMIOutputAssignmentVar();
         return target != null ? target : getTaskAttributes().getMIOutputAssignmentVar();

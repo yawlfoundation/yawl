@@ -109,7 +109,7 @@ public class VariableTablePanel extends JPanel
 
     public java.util.List<String> getScopeNames() {
         java.util.List<String> names = YDataHandler.getScopeNames();
-        if (tableType != TableType.Net) {
+        if (tableType == TableType.Task && ! parent.isCompositeTask()) {
             names.remove("Local");
         }
         return names;
@@ -283,10 +283,10 @@ public class VariableTablePanel extends JPanel
         btnUp.setEnabled(enable && hasRowSelected);
         btnDown.setEnabled(enable && hasRowSelected);
         if (tableType == TableType.Task) {
-            btnInMapping.setEnabled(enable && hasRowSelected && row != null &&
-                    (row.isInput() || row.isInputOutput()));
-            btnOutMapping.setEnabled(enable && hasRowSelected && row != null &&
-                    (row.isOutput() || row.isInputOutput()));
+            btnInMapping.setEnabled(enable && hasRowSelected &&
+                    row != null && (row.isInput() || row.isInputOutput()));
+            btnOutMapping.setEnabled(enable && hasRowSelected &&
+                    row != null && (row.isOutput() || row.isInputOutput()));
             btnExAttributes.setEnabled(enable && hasRowSelected);
             btnMIVar.setEnabled(enable && shouldEnableMIButton());
             btnAutoMapping.setEnabled(enable && shouldEnableAutoBindingButton());
@@ -334,12 +334,14 @@ public class VariableTablePanel extends JPanel
 
     private void autobind() {
         boolean changed = false;
+        int selectedRow = table.getSelectedRow();
         for (VariableRow row : table.getVariables()) {
             if (! hasBinding(row)) {
                 changed = parent.createAutoBinding(row) || changed;
             }
         }
         if (changed) table.getTableModel().fireTableDataChanged();
+        table.selectRow(selectedRow);
     }
 
 

@@ -114,4 +114,10 @@ class InputBindingViewTableModel extends AbstractTableModel {
         return variableRows;
     }
 
+
+    public boolean isMIRow(int row) {
+        VariableRow varRow = variableRows.get(row);
+        return varRow != null && varRow.isMultiInstance();
+    }
+
 }

@@ -52,7 +52,7 @@ public class BuildProperties {
     public String getTimestamp() { return getValue("timestamp"); }
 
     public String getFullVersionText() {
-        return getVersion() + "(build " + getBuild() + ")";
+        return getVersion() + " (build " + getBuild() + ")";
     }
 
     public List<XNode> getFileList() {

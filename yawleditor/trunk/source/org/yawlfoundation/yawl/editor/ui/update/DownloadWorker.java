@@ -54,7 +54,7 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
     private String _fileName;
     private long _totalBytes;
     private File _tmpDir;
-    private boolean _hasErrors;
+    private String _errorMsg;
 
 
     public DownloadWorker(String urlBase, String urlSuffix, String fileName,
@@ -67,7 +67,9 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
     }
 
 
-    protected boolean hasErrors() { return _hasErrors; }
+    protected boolean hasErrors() { return _errorMsg != null; }
+
+    protected String getError() { return _errorMsg; }
 
     @Override
     protected Void doInBackground() {
@@ -100,8 +102,7 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
             inStream.close();
         }
         catch (Exception e) {
-            e.printStackTrace();
-            _hasErrors = true;
+            _errorMsg = e.getMessage();
         }
 
         return null;

@@ -88,8 +88,10 @@ class QueryPanel extends AbstractBindingPanel {
         MiniToolBar toolbar = new MiniToolBar(listener);
         toolbar.addButton("generate", "insertBinding", " Generate and insert binding ");
         toolbar.addButton("reset", "resetBinding", " Reset to original binding ");
-        toolbar.add(createFormatButton());
+        JButton btnFormat = createFormatButton();
+        toolbar.add(btnFormat);
         toolbar.enableComponents(enableButtons);
+        btnFormat.setEnabled(true);
         content.add(toolbar, BorderLayout.EAST);
         return content;
     }
