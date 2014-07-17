@@ -356,8 +356,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private JPanel getPropertiesPane() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Properties"));
-        JScrollPane propertiesPane = new JScrollPane(sheet);
-        panel.add(propertiesPane, BorderLayout.CENTER);
+        panel.add(sheet, BorderLayout.CENTER);
         Dimension size = sheet.getPreferredSize();
         sheet.getTable().setBackground(getBackground());   // init uncoloured
         panel.setMinimumSize(new Dimension((int) size.getWidth() + 20,

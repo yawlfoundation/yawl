@@ -36,8 +36,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding.view;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataVariableDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
-import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
 
 import javax.swing.*;
@@ -64,8 +64,8 @@ public class BindingViewTablePanel extends JPanel {
     }
 
 
-    public BindingViewTablePanel(ActionListener listener, OutputBindings bindings) {
-        table = createTable(bindings);
+    public BindingViewTablePanel(ActionListener listener, DataVariableDialog dataDialog) {
+        table = createTable(dataDialog);
         init(listener, "Out");
     }
 
@@ -75,9 +75,9 @@ public class BindingViewTablePanel extends JPanel {
         setBorder(new TitledBorder(prefix + "put Bindings"));
         add(createToolBar(listener, prefix), BorderLayout.SOUTH);
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setMinimumSize(new Dimension(400, 120));
+        scrollPane.setSize(new Dimension(400, 120));
+        scrollPane.setPreferredSize(new Dimension(400, 125));
         add(scrollPane, BorderLayout.CENTER);
-        enableButtons();
     }
 
 
@@ -92,9 +92,9 @@ public class BindingViewTablePanel extends JPanel {
     }
 
 
-    private BindingViewTable createTable(OutputBindings bindings) {
+    private BindingViewTable createTable(DataVariableDialog dataDialog) {
         table = new BindingViewTable(new OutputBindingViewTableModel());
-        table.setRows(bindings);
+        table.setRows(dataDialog);
         if (table.getRowCount() > 0) table.selectRow(0);
         return table;
     }
@@ -105,11 +105,6 @@ public class BindingViewTablePanel extends JPanel {
         btnBinding = toolBar.addButton(prefix.toLowerCase() + "Binding",
                 prefix + "Binding", " Show " + prefix + "put Binding Dialog ");
         return toolBar;
-    }
-
-
-    protected void enableButtons() {
-//        btnBinding.setEnabled(table.getSelectedRow() > -1);
     }
 
 }

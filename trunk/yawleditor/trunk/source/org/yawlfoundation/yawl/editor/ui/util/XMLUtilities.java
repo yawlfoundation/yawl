@@ -88,7 +88,7 @@ public class XMLUtilities {
             XNode node = new XNodeParser(true).parse(temp);
             if (node != null) {
                 if (prettify) {
-                    temp = node.toPrettyString(1,3);
+                    temp = newLineBraces(node.toPrettyString(1, 3));
                     return wrap ? StringUtil.unwrap(temp).substring(1) : temp;  // lead \n
                 }
                 else {
@@ -98,6 +98,16 @@ public class XMLUtilities {
             }
         }
         return xml;
+    }
+
+
+    private static String newLineBraces(String xml) {
+        if (StringUtil.isNullOrEmpty(xml)) return xml;
+        StringBuilder insert = new StringBuilder("}\n\t");
+        int i = 0;
+        while(xml.charAt(i++) == '\t') insert.append('\t');
+        insert.append('{');
+        return xml.replaceAll("\\}\\s*\\{", insert.toString());
     }
 
 }

@@ -163,6 +163,13 @@ public class OutputBindings {
     }
 
 
+    public String getTargetForBinding(String binding) {
+        String target = _netVarBindings.get(binding);
+        return target != null ? target :
+                _task.getDataMappingsForTaskCompletion().get(binding);
+    }
+
+
     public String getTarget(String taskVarName) {
         String target = getExternalBinding(taskVarName);
         if (target == null) {
@@ -177,6 +184,12 @@ public class OutputBindings {
     public String getBindingFromSource(String taskVarName) {
         String netVarName = getTarget(taskVarName);
         return netVarName != null ? getBinding(netVarName) : null;
+    }
+
+
+    public String getBindingFromSource(String taskVarName, boolean unwrap) {
+        String netVarName = getTarget(taskVarName);
+        return netVarName != null ? getBinding(netVarName, unwrap) : null;
     }
 
 

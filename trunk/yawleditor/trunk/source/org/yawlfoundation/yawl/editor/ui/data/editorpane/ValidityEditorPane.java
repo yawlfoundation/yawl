@@ -128,7 +128,7 @@ public class ValidityEditorPane extends JEditorPane
         kit.setStyle(XMLStyleConstants.COMMENT, comment, Font.ITALIC);
         setEditorKit(kit);
 
-        // Set the tab size & error highlighting
+        // Set the tab size
         getDocument().putProperty(PlainDocument.tabSizeAttribute, 2);
 
         setBackground(new Color(252,252,252));
@@ -137,7 +137,7 @@ public class ValidityEditorPane extends JEditorPane
 
     // override to add anti-aliasing to text
     public void paint(Graphics g) {
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         RenderingHints rh = new RenderingHints(
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);

@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,16 @@ public class UpdateDownloader extends SwingWorker<Void, Void> implements Propert
         }
         return false;
     }
+
+
+    protected List<String> getErrors() {
+        List<String> errors = new ArrayList<String>();
+        for (DownloadWorker worker : _workerMap.keySet()) {
+            if (worker.hasErrors()) errors.add(worker.getError());
+        }
+        return errors;
+    }
+
 
     @Override
     protected Void doInBackground() {

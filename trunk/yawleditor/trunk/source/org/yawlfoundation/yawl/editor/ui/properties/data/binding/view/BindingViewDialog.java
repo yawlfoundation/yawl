@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.DataVariableDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableTable;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableTablePanel;
-import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
 import org.yawlfoundation.yawl.elements.YTask;
 
 import javax.swing.*;
@@ -45,8 +44,8 @@ public class BindingViewDialog extends JDialog implements ActionListener {
     public BindingViewDialog(VariableTablePanel listener, DataVariableDialog dataDialog) {
         super(dataDialog);
         parentListener = listener;
-        add(getContent(dataDialog.getTaskTable().getVariables(),
-                dataDialog.getOutputBindings()));
+        add(getContent(dataDialog));
+        setModal(true);
         setTitle(makeTitle(dataDialog.getTask()));
         setMinimumSize(new Dimension(600, 320));
         setLocationRelativeTo(dataDialog);
@@ -56,27 +55,19 @@ public class BindingViewDialog extends JDialog implements ActionListener {
 
     public void actionPerformed(ActionEvent event) {
         String cmd = event.getActionCommand();
-        if (cmd.equals("Close")) setVisible(false);
+        if (cmd.equals("Close")) {
+            setVisible(false);
+        }
         else {
 
             // have to set the parent table to the selected row of the view dialog
-            boolean input = cmd.startsWith("In");
-            BindingViewTable viewTable = input ? inputTable : outputTable;
             VariableTable parentTable = parentListener.getTable();
-            int selectedRow = parentTable.getSelectedRow();
-            String name = viewTable.getSelectedTaskVarName();
-            if (name != null) {
-                java.util.List<VariableRow> parentRows = parentTable.getVariables();
-                for (int i = 0; i < parentTable.getRowCount(); i++) {
-                    if (parentRows.get(i).getName().equals(name)) {
-                        parentTable.selectRow(i);
-                        break;
-                    }
-                }
-            }
+            int currentRow = parentTable.getSelectedRow();
+            int matchingRow = getMatchingRow(parentTable, cmd);
+            if (matchingRow > -1) parentTable.selectRow(matchingRow);
             parentListener.actionPerformed(event);
-            parentTable.selectRow(selectedRow);
-            if (! input) outputTable.refresh();
+            parentTable.selectRow(currentRow);
+            if (cmd.startsWith("Out")) outputTable.refresh();
         }
     }
 
@@ -87,14 +78,14 @@ public class BindingViewDialog extends JDialog implements ActionListener {
     }
 
 
-    private JPanel getContent(java.util.List<VariableRow> inputRows,
-                                 OutputBindings outputBindings) {
+    private JPanel getContent(DataVariableDialog dataDialog) {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(7, 7, 7, 7));
         JPanel subContent = new JPanel(new GridLayout(0, 1, 10, 10));
-        BindingViewTablePanel inputPanel = new BindingViewTablePanel(this, inputRows);
+        BindingViewTablePanel inputPanel =
+                new BindingViewTablePanel(this, dataDialog.getTaskTable().getVariables());
         inputTable = inputPanel.getTable();
-        BindingViewTablePanel outputPanel = new BindingViewTablePanel(this, outputBindings);
+        BindingViewTablePanel outputPanel = new BindingViewTablePanel(this, dataDialog);
         outputTable = outputPanel.getTable();
         subContent.add(inputPanel);
         subContent.add(outputPanel);
@@ -107,7 +98,9 @@ public class BindingViewDialog extends JDialog implements ActionListener {
     private JPanel createButtonBar() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10,0,0,0));
-        panel.add(createButton("Close"));
+        JButton btnClose = createButton("Close");
+        getRootPane().setDefaultButton(btnClose);
+        panel.add(btnClose);
         return panel;
     }
 
@@ -119,6 +112,32 @@ public class BindingViewDialog extends JDialog implements ActionListener {
         button.setMnemonic(label.charAt(0));
         button.addActionListener(this);
         return button;
+    }
+
+
+    private int getMatchingRow(VariableTable parentTable, String cmd) {
+        boolean input = cmd.startsWith("In");
+        BindingViewTable viewTable = input ? inputTable : outputTable;
+        java.util.List<VariableRow> parentRows = parentTable.getVariables();
+
+        // try MI first
+        if (viewTable.isMIRowSelected()) {
+            for (int i = 0; i < parentTable.getRowCount(); i++) {
+                if (parentRows.get(i).isMultiInstance()) {
+                    return i;
+                }
+            }
+        }
+
+        String name = viewTable.getSelectedTaskVarName();
+        if (name != null) {
+            for (int i = 0; i < parentTable.getRowCount(); i++) {
+                if (parentRows.get(i).getName().equals(name)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
 }
