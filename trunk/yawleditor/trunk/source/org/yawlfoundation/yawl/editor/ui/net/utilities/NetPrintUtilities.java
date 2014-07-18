@@ -18,11 +18,10 @@
 
 package org.yawlfoundation.yawl.editor.ui.net.utilities;
 
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.PrettyOutputStateManager;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import javax.imageio.ImageIO;
 import javax.print.*;
@@ -35,189 +34,91 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
 
 public class NetPrintUtilities {
-  private static final String PNG_FILE_TYPE = "png";
-  private static final String JPG_FILE_TYPE = "jpg";
-  
-  public static void toPNGfile(NetGraph graph, int imageBuffer, String fullFileName) {
-    toImageType(graph, imageBuffer, fullFileName, PNG_FILE_TYPE);
-  }
 
-  public static void toJPGfile(NetGraph graph, int imageBuffer, String fullFileName) {
-    toImageType(graph, imageBuffer, fullFileName, JPG_FILE_TYPE);
-  }
-  
-  private static void toImageType(NetGraph graph, int imageBuffer, String fullFileName, String fileType) {
-    if (!fullFileName.toLowerCase().endsWith(fileType)) {
-      fullFileName += "." + fileType;
+    public static void toPNGfile(NetGraph graph, int imageBuffer, String fullFileName) {
+        if (! fullFileName.toLowerCase().endsWith("png")) {
+            fullFileName += ".png";
+        }
+        BufferedImage image = toBufferedImage(graph, imageBuffer);
+
+        try {
+            ImageIO.write(image, "png", new File(fullFileName));
+        }
+        catch (IOException ioe) {
+            LogWriter.error("Could not write image", ioe);
+        }
     }
-    BufferedImage img = NetPrintUtilities.toBufferedImage(graph, imageBuffer);
-    
-    try {
-      ImageIO.write(img, fileType.toLowerCase(), new File(fullFileName));
-    } catch (IOException ioe) {
-      LogWriter.error("Could not write image", ioe);
+
+
+    public static BufferedImage toBufferedImage(NetGraph net, int imageBuffer) {
+        Object[] cells = net.getRoots();
+        Rectangle2D bounds = net.getCellBounds(cells);
+        Dimension d = bounds.getBounds().getSize();
+
+        String label = "Specification: " + SpecificationModel.getHandler().getURI() +
+                ", Net:  " + net.getName();
+
+        int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
+        int characterWidth = (int) net.getFontMetrics(net.getFont())
+                .getStringBounds(label, net.getGraphics()).getWidth();
+
+        BufferedImage image = new BufferedImage(
+                  Math.max(characterWidth, d.width) + imageBuffer*2,
+                  d.height + imageBuffer*2 + characterHeight,
+                  BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = image.createGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        graphics.setColor(Color.BLACK);
+        graphics.setFont(net.getFont());
+
+        // Note: drawing a string, the coordinates are the _bottom, left_ of the string.
+        // We must cater for the height of the string in its coordinates.
+        graphics.drawString(label, imageBuffer, imageBuffer/4 + characterHeight);
+
+        PrettyOutputStateManager stateManager = new PrettyOutputStateManager(net);
+        stateManager.makeGraphOutputReady();
+        graphics.drawImage(net.getImage(Color.WHITE, 0), imageBuffer,
+                imageBuffer + characterHeight, null);
+        stateManager.revertNetGraphToPreviousState();
+
+        return image;
     }
-  }
 
-  private static BufferedImage toBufferedImage(NetGraph net, int imageBuffer) {
-    Object[] cells = net.getRoots();
+    public static void print(NetGraph graph,
+                             PrintService service,
+                             DocFlavor flavor,
+                             PrintRequestAttributeSet printAttribs) {
 
-    Rectangle2D bounds = net.getCellBounds(cells);
+        DocPrintJob job = service.createPrintJob();
+        DocAttributeSet das = new HashDocAttributeSet();
 
-    Dimension d = bounds.getBounds().getSize();
+        PrettyOutputStateManager stateManager =
+                new PrettyOutputStateManager(graph);
+        stateManager.makeGraphOutputReady();
 
-    String printoutLabel = "Specification ID: " +
-            SpecificationModel.getHandler().getID().getUri() +
-                           ", Net ID:  " + net.getName();
+        File tempFile =
+                new File(new File(System.getProperty("user.dir")),
+                        graph.getName() + ".png"
+                );
 
-    int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
-    int characterWidth = (int) net.getFontMetrics(net.getFont())
-                        .getStringBounds(printoutLabel, net.getGraphics()).getWidth();
-    
-    BufferedImage image =
-      new BufferedImage(
-        Math.max(characterWidth, d.width)  + imageBuffer*2,
-        d.height + imageBuffer*2 + characterHeight,
-        BufferedImage.TYPE_INT_RGB);
+        try {
+            NetPrintUtilities.toPNGfile(graph, 5, tempFile.getAbsolutePath());
+            FileInputStream fis = new FileInputStream(tempFile.getAbsoluteFile());
 
-    Graphics2D graphics = image.createGraphics();
+            Doc doc = new SimpleDoc(fis, flavor, das);
 
-    graphics.setColor(net.getBackground());
-    graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+            job.print(doc, printAttribs);
 
+            tempFile.delete();
+        } catch (Exception e) {
+            LogWriter.error("Error printing net.", e);
+        }
 
-    graphics.setColor(Color.BLACK);
-    graphics.setFont(net.getFont());
-    
-    // Note: drawing a string, the coordinates are the _bottom, left_ of the string. We
-    // must cater for the height of the string in its coordinates.
-    
-    graphics.drawString(
-        printoutLabel,
-        imageBuffer, 
-        imageBuffer/4 + characterHeight
-    );
-    
-    PrettyOutputStateManager stateManager = 
-      new PrettyOutputStateManager(net);
-      
-    stateManager.makeGraphOutputReady();
-    
-    graphics.drawImage(net.getImage(Color.WHITE,0),imageBuffer, imageBuffer + characterHeight, null);
-
-    stateManager.revertNetGraphToPreviousState();
-
-    return image;
-  }
-  
-  public static void print(NetGraph graph, 
-                           PrintService service, 
-                           DocFlavor flavor, 
-                           PrintRequestAttributeSet printAttribs) {
-
-    DocPrintJob job = service.createPrintJob();
-    DocAttributeSet das = new HashDocAttributeSet();
-    
-    PrettyOutputStateManager stateManager = 
-      new PrettyOutputStateManager(graph);
-    stateManager.makeGraphOutputReady();
-    
-    File tempFile = 
-      new File(new File(System.getProperty("user.dir")), 
-               graph.getName() + ".png"
-    );
-    
-    try {
-      NetPrintUtilities.toPNGfile(graph, 5, tempFile.getAbsolutePath());
-      FileInputStream fis = new FileInputStream(tempFile.getAbsoluteFile());
-      
-      Doc doc = new SimpleDoc(fis, flavor, das);
-      
-      job.print(doc, printAttribs);
-      
-      tempFile.delete();
-    } catch (Exception e) {
-      LogWriter.error("Error printing net.", e);
-    } 
-
-    stateManager.revertNetGraphToPreviousState();
-  }
-  
-  public static void printAll(Set graphs,
-                              MultiDocPrintService service, 
-                              DocFlavor flavor, 
-                              PrintRequestAttributeSet printAttribs) {
-
-    MultiDocPrintJob job = service.createMultiDocPrintJob();
-    DocAttributeSet das = new HashDocAttributeSet();
-    
-    PngMultiDoc multiDoc = new PngMultiDoc();
-    
-    LinkedList docs = new LinkedList();
-    
-    Iterator graphsIterator = graphs.iterator();
-    
-    while(graphsIterator.hasNext()) {
-      
-      NetGraph graph = ((NetGraphModel) graphsIterator.next()).getGraph();
-      
-      PrettyOutputStateManager stateManager = 
-        new PrettyOutputStateManager(graph);
-      stateManager.makeGraphOutputReady();
-      
-      File tempFile = 
-        new File(new File(System.getProperty("user.dir")), 
-                 graph.getName() + ".png"
-      );
-      
-      try {
-        NetPrintUtilities.toPNGfile(graph, 5, tempFile.getAbsolutePath());
-        FileInputStream fis = new FileInputStream(tempFile.getAbsoluteFile());
-        
-        docs.add(new SimpleDoc(fis, flavor, das));
-
-        tempFile.delete();
-      } catch (Exception e) {
-        LogWriter.error("Error printing net", e);
-      } 
-
-      stateManager.revertNetGraphToPreviousState();
+        stateManager.revertNetGraphToPreviousState();
     }
-    multiDoc.setDocuments(docs);
 
-    try {
-      job.print(multiDoc, printAttribs);
-    } catch (Exception e) {
-        LogWriter.error("Error printing net", e);
-    }
-  }
-}
-
-class PngMultiDoc implements MultiDoc {
-  private LinkedList pngDocuments = new LinkedList();
-  private Iterator   docIterator;
-  
-  private Doc currentDoc;
-  
-  public void setDocuments(LinkedList pngDocuments) {
-    this.pngDocuments = pngDocuments;
-    this.docIterator = this.pngDocuments.iterator();
-  }
-  
-  public Doc getDoc() {
-    return currentDoc;
-  }
-  
-  public MultiDoc next() {
-    if (docIterator.hasNext()) {
-      currentDoc = (Doc) docIterator.next();
-      return this;      
-    } 
-    return null;
-  }
 }

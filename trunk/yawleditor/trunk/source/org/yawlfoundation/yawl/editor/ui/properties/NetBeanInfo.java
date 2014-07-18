@@ -47,12 +47,15 @@ public class NetBeanInfo extends YBeanInfo {
     private void addSpecProperties() {
         String category = "Specification";
         addProperty("Authors", category, null, "Name(s) of the specification's authors. " +
-                "Multiple author names should be separated with commas ','");
+                "Multiple author names should be separated with commas ','")
+                .setPropertyEditorClass(TextPropertyEditor.class);
         addProperty("DataSchema", category, "Data Definitions", "Define data types")
                 .setPropertyEditorClass(DataDefinitionPropertyEditor.class);
-        addProperty("Description", category, null, "A description of the specification");
+        addProperty("Description", category, null, "A description of the specification")
+                .setPropertyEditorClass(TextPropertyEditor.class);
         addProperty("Uri", category, "Name", "Name identifier (must not be blank)");
-        addProperty("Title", category, null, "A user title");
+        addProperty("Title", category, null, "A user title")
+                .setPropertyEditorClass(TextPropertyEditor.class);
         addProperty("Version", category, "Version Number", "Version number of the " +
                 "specification. Consists of a major part and a minor part");
     }
