@@ -19,12 +19,21 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.imgscalr.Scalr;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
+import javax.print.PrintService;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.JobName;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 
 /**
@@ -33,47 +42,161 @@ import java.util.ArrayList;
  */
 public class NetPrinter implements Printable {
 
-    private java.util.List<BufferedImage> imageList;
+    private PrintRequestAttributeSet attributes;
+    private java.util.List<NetGraph> netList;
+
+    private static final int CAPTION_HEIGHT = 16;
 
 
-    public NetPrinter(java.util.List<BufferedImage> list) {
-        imageList = list;
+    public NetPrinter() {
+        initAttributes();
     }
 
 
-    public NetPrinter(BufferedImage image) {
-        imageList = new ArrayList<BufferedImage>(1);
-        imageList.add(image);
+    public void setJobName(String jobName) {
+        attributes.add(new JobName(jobName, null));
+    }
+
+
+    public void printNet(NetGraph net) {
+        netList = new ArrayList<NetGraph>(1);
+        netList.add(net);
+        setJobName("YAWL Net: " + net.getName());
+        print();
+    }
+
+
+    public void printSpecification() {
+        netList = new ArrayList<NetGraph>();
+        for (NetGraphModel model : SpecificationModel.getNets()) {
+            netList.add(model.getGraph());
+        }
+        setJobName("YAWL Specification: " + SpecificationModel.getHandler().getURI());
+        print();
+    }
+
+
+    public void print() {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPrintable(this);
+
+        PrintService[] services = PrinterJob.lookupPrintServices();
+        if (services.length > 0) {
+            try {
+                job.setPrintService(services[0]);
+                if (job.printDialog()) {
+                    job.print(attributes);
+                }
+            }
+            catch (PrinterException pe) {
+                showError(pe.getMessage());
+            }
+        }
+        else {
+            showError("Unable to locate any printers.");
+        }
     }
 
 
     public int print(Graphics g, PageFormat pf, int index) throws PrinterException {
-        if (imageList == null || index >= imageList.size()) {
+        if (netList == null || index >= netList.size()) {
             return Printable.NO_SUCH_PAGE;
         }
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
-        g.drawImage(fitToPage(imageList.get(index), pf), 0, 0, null);
+        printImage(g2d, netList.get(index), pf);
+        printCaption(g2d, index, pf);
         return Printable.PAGE_EXISTS;
     }
 
 
-    private BufferedImage fitToPage (BufferedImage image, PageFormat pf) {
-        int pageWidth = (int) pf.getImageableWidth();
+    private void initAttributes() {
+        attributes = new HashPrintRequestAttributeSet();
+        attributes.add(new Copies(1));
+    }
+
+
+    private BufferedImage printImage(Graphics2D g, NetGraph net, PageFormat pf) {
+        PrettyOutputStateManager stateManager = new PrettyOutputStateManager(net);
+        stateManager.makeGraphOutputReady();
+        BufferedImage image = net.getImage(Color.WHITE, 0);
+        image = fitToPage(image, pf);
+        Point p = getOrigin(image, pf);
+        g.drawImage(image, p.x, p.y, null);
+        stateManager.revertNetGraphToPreviousState();
+        return image;
+    }
+
+
+    private void printCaption(Graphics2D g, int index, PageFormat pf) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+            RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        String caption = makeCaption(index);
         int pageHeight = (int) pf.getImageableHeight();
-        if (pf.getOrientation() == PageFormat.PORTRAIT) {
-            if (image.getWidth() > pageWidth)
-                return Scalr.resize(image, pageWidth);
-            if (image.getHeight() > pageHeight)
-                return Scalr.resize(image, pageHeight);
+        int pageWidth = (int) pf.getImageableWidth();
+
+        int captionWidth = (int) g.getFontMetrics().getStringBounds(caption, g).getWidth();
+        g.drawString(caption, (pageWidth - captionWidth) / 2,
+                pageHeight - (CAPTION_HEIGHT /4));
+    }
+
+
+    private String makeCaption(int index) {
+        NetGraph net = netList.get(index);
+        StringBuilder s = new StringBuilder();
+        s.append("Specification: ");
+        s.append(SpecificationModel.getHandler().getURI());
+        s.append(" - Net: ");
+        s.append(net.getName());
+        if (netList.size() > 1) {
+            if (net.getNetModel().isRootNet()) {
+                s.append(" [root]");
+            }
+            s.append(" (").append(index +1 ).append('/')
+                    .append(netList.size()).append(')');
         }
-        else {
-            if (image.getWidth() > pageHeight)
-                return Scalr.resize(image, pageHeight);
-            if (image.getHeight() > pageWidth)
-                return Scalr.resize(image, pageWidth);
+        return s.toString();
+    }
+
+
+    private BufferedImage fitToPage (BufferedImage image, PageFormat pf) {
+        if (shouldRotate(image, pf)) {
+            image = Scalr.rotate(image, Scalr.Rotation.CW_270);
+        }
+        double pageWidth = pf.getImageableWidth();
+        double pageHeight = pf.getImageableHeight() - CAPTION_HEIGHT;
+        double imageWidth = image.getWidth();
+        double imageHeight = image.getHeight();
+        if (imageWidth > pageWidth || imageHeight > pageHeight) {
+            double heightDiff = imageHeight - pageHeight;
+            double widthDiff = imageWidth - pageWidth;
+            double scale = (heightDiff > widthDiff) ? pageHeight : pageWidth;
+            return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, (int) scale);
         }
         return image;
     }
+
+
+    private boolean shouldRotate(BufferedImage image, PageFormat pf) {
+        int pageWidth = (int) pf.getImageableWidth();
+        return image.getWidth() > pageWidth && image.getWidth() > image.getHeight();
+    }
+
+
+    private Point getOrigin(BufferedImage image, PageFormat pf) {
+          return new Point((int) (pf.getImageableWidth() - image.getWidth()) / 2,
+                    (int) (pf.getImageableHeight()
+                            - image.getHeight() - CAPTION_HEIGHT) / 2);
+    }
+
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), msg,
+                "Printer Error", JOptionPane.ERROR_MESSAGE);
+    }
+
 }
