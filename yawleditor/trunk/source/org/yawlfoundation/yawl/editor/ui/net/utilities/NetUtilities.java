@@ -20,12 +20,22 @@ package org.yawlfoundation.yawl.editor.ui.net.utilities;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
+import org.yawlfoundation.yawl.editor.ui.net.PrettyOutputStateManager;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 import org.yawlfoundation.yawl.elements.YCondition;
 import org.yawlfoundation.yawl.elements.YFlow;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -257,5 +267,57 @@ public final class NetUtilities {
     public static ImageIcon getIconForNetModel(NetGraphModel model) {
         return model.isRootNet() ? getRootNetIcon() : getSubNetIcon();
     }
+
+    public static void toPNGfile(NetGraph graph, int imageBuffer, String fullFileName) {
+        if (! fullFileName.toLowerCase().endsWith("png")) {
+            fullFileName += ".png";
+        }
+        BufferedImage image = toBufferedImage(graph, imageBuffer);
+
+        try {
+            ImageIO.write(image, "png", new File(fullFileName));
+        }
+        catch (IOException ioe) {
+            LogWriter.error("Could not write image", ioe);
+        }
+    }
+
+
+    public static BufferedImage toBufferedImage(NetGraph net, int imageBuffer) {
+        Object[] cells = net.getRoots();
+        Rectangle2D bounds = net.getCellBounds(cells);
+        Dimension d = bounds.getBounds().getSize();
+
+        String label = "Specification: " + SpecificationModel.getHandler().getURI() +
+                ", Net:  " + net.getName();
+
+        int characterHeight = net.getFontMetrics(net.getFont()).getHeight();
+        int characterWidth = (int) net.getFontMetrics(net.getFont())
+                .getStringBounds(label, net.getGraphics()).getWidth();
+
+        BufferedImage image = new BufferedImage(
+                  Math.max(characterWidth, d.width) + imageBuffer*2,
+                  d.height + imageBuffer*2 + characterHeight,
+                  BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = image.createGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        graphics.setColor(Color.BLACK);
+        graphics.setFont(net.getFont());
+
+        // Note: drawing a string, the coordinates are the _bottom, left_ of the string.
+        // We must cater for the height of the string in its coordinates.
+        graphics.drawString(label, imageBuffer, imageBuffer/4 + characterHeight);
+
+        PrettyOutputStateManager stateManager = new PrettyOutputStateManager(net);
+        stateManager.makeGraphOutputReady();
+        graphics.drawImage(net.getImage(Color.WHITE, 0), imageBuffer,
+                imageBuffer + characterHeight, null);
+        stateManager.revertNetGraphToPreviousState();
+
+        return image;
+    }
+
 
 }

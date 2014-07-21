@@ -19,41 +19,41 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 public class PrettyOutputStateManager {
-  private final NetGraph net;
-  
-  private double rememberedScale;
-  private boolean rememberedGridVisibility;
-  private boolean rememberedPortVisibility;
-  private Object[] rememberedSelectionSet;
+    private final NetGraph net;
 
-  public PrettyOutputStateManager(NetGraph net) {
-    this.net = net;
-  }
-  
-  public void makeGraphOutputReady() {
-    rememberCurrentNetGraphState();
-    makeStateOfNetGraphOutputFriendly();
-  }
-  
-  private void rememberCurrentNetGraphState() {
-    rememberedScale = net.getScale();
-    rememberedGridVisibility = net.isGridVisible();
-    rememberedPortVisibility = net.isPortsVisible();
-    rememberedSelectionSet = 
-      net.getSelectionModel().getSelectionCells();
-  }
+    private double rememberedScale;
+    private boolean rememberedGridVisibility;
+    private boolean rememberedPortVisibility;
+    private Object[] rememberedSelectionSet;
 
-  private void makeStateOfNetGraphOutputFriendly() {
-    net.setScale(1);
-    net.setGridVisible(false);
-    net.setPortsVisible(false);
-    net.getSelectionModel().clearSelection();
-  }
-  
-  public void revertNetGraphToPreviousState() {
-    net.setScale(rememberedScale);
-    net.setGridVisible(rememberedGridVisibility);
-    net.setPortsVisible(rememberedPortVisibility);
-    net.getSelectionModel().addSelectionCells(rememberedSelectionSet);
-  }
+    public PrettyOutputStateManager(NetGraph net) {
+        this.net = net;
+    }
+
+    public void makeGraphOutputReady() {
+        rememberCurrentNetGraphState();
+        makeStateOfNetGraphOutputFriendly();
+    }
+
+    private void rememberCurrentNetGraphState() {
+        rememberedScale = net.getScale();
+        rememberedGridVisibility = net.isGridVisible();
+        rememberedPortVisibility = net.isPortsVisible();
+        rememberedSelectionSet =
+                net.getSelectionModel().getSelectionCells();
+    }
+
+    private void makeStateOfNetGraphOutputFriendly() {
+        net.setScale(1);
+        net.setGridVisible(false);
+        net.setPortsVisible(false);
+        net.getSelectionModel().clearSelection();
+    }
+
+    public void revertNetGraphToPreviousState() {
+        net.setScale(rememberedScale);
+        net.setGridVisible(rememberedGridVisibility);
+        net.setPortsVisible(rememberedPortVisibility);
+        net.getSelectionModel().addSelectionCells(rememberedSelectionSet);
+    }
 }
