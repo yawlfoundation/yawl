@@ -320,7 +320,8 @@ public class CellProperties extends NetProperties {
             graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
         }
         else if (decomposition instanceof YNet) {
-            graph.setElementLabel(vertex, decomposition.getID());
+            String label = decomposition.getName();
+            graph.setElementLabel(vertex, label != null ? label : decomposition.getID());
         }
         setDirty();
         graph.setSelectionCell(vertex.getParent());

@@ -42,6 +42,8 @@ import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -50,13 +52,10 @@ import java.util.List;
  * @author Michael Adams
  * @date 9/08/13
  */
-public class BindingViewTablePanel extends JPanel {
+public class BindingViewTablePanel extends JPanel implements ListSelectionListener {
 
     private BindingViewTable table;
-
-    // toolbar button
-    private JButton btnBinding;
-
+    private MiniToolBar toolBar;
 
     public BindingViewTablePanel(ActionListener listener, List<VariableRow> variableRows) {
         table = createTable(variableRows);
@@ -67,6 +66,14 @@ public class BindingViewTablePanel extends JPanel {
     public BindingViewTablePanel(ActionListener listener, DataVariableDialog dataDialog) {
         table = createTable(dataDialog);
         init(listener, "Out");
+    }
+
+
+    public BindingViewTable getTable() { return table; }
+
+
+    public void valueChanged(ListSelectionEvent event) {
+        toolBar.enableComponents(table.getSelectedRowCount() > 0);
     }
 
 
@@ -81,11 +88,8 @@ public class BindingViewTablePanel extends JPanel {
     }
 
 
-    public BindingViewTable getTable() { return table; }
-
-
     private BindingViewTable createTable(List<VariableRow> rows) {
-        table = new BindingViewTable(new InputBindingViewTableModel());
+        table = new InputBindingViewTable(new InputBindingViewTableModel());
         table.setRows(rows);
         if (table.getRowCount() > 0) table.selectRow(0);
         return table;
@@ -93,7 +97,7 @@ public class BindingViewTablePanel extends JPanel {
 
 
     private BindingViewTable createTable(DataVariableDialog dataDialog) {
-        table = new BindingViewTable(new OutputBindingViewTableModel());
+        table = new OutputBindingViewTable(new OutputBindingViewTableModel());
         table.setRows(dataDialog);
         if (table.getRowCount() > 0) table.selectRow(0);
         return table;
@@ -101,9 +105,10 @@ public class BindingViewTablePanel extends JPanel {
 
 
     private JToolBar createToolBar(ActionListener listener, String prefix) {
-        MiniToolBar toolBar = new MiniToolBar(listener);
-        btnBinding = toolBar.addButton(prefix.toLowerCase() + "Binding",
+        toolBar = new MiniToolBar(listener);
+        toolBar.addButton(prefix.toLowerCase() + "Binding",
                 prefix + "Binding", " Show " + prefix + "put Binding Dialog ");
+        toolBar.addButton("minus", prefix + "Remove", " Remove ");
         return toolBar;
     }
 

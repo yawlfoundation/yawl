@@ -340,9 +340,18 @@ public class OutputBindings {
         String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
         String varTag = '<' + taskVarName + '>';
         for (String outputQuery : bindings.keySet()) {
-            if (outputQuery.contains(decompKey + taskVarName + '/') ||
-                    outputQuery.startsWith(varTag)) {
+            if (outputQuery.startsWith(varTag)) {
                 return bindings.get(outputQuery);
+            }
+            else {
+                String xpath = decompKey + taskVarName;
+                if (outputQuery.contains(xpath)) {
+                    int nextCharPos = outputQuery.indexOf(xpath) + xpath.length();
+                    char next = outputQuery.charAt(nextCharPos);
+                    if (next == '/' || next == '}' || next == '<') {
+                        return bindings.get(outputQuery);
+                    }
+                }
             }
         }
         return null;

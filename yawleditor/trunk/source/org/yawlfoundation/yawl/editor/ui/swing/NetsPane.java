@@ -64,6 +64,12 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
     }
 
 
+    public void setVisible(boolean visible)  {
+        super.setVisible(visible);
+        if (visible && getTabCount() > 0) highlightSelectedTab();
+    }
+
+
     public void openNet(NetGraph graph) {
         YAWLEditorNetPanel frame = new YAWLEditorNetPanel(getBounds(), graph);
         bindFrame(frame, true);
@@ -112,6 +118,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         for (int i=0; i<getTabCount(); i++) {
             if (getTitleAt(i).equals(oldCaption)) {
                 setTitleAt(i, newCaption);
+                highlightSelectedTab();
                 break;
             }
         }
@@ -163,6 +170,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             publisher.publishNetSelectedEvent();
             if (select) {
                 _propertiesLoader.setGraph(frame.getNet());
+                if (isVisible()) highlightSelectedTab();
             }
             try {
                 getSelectedGraph().getSelectionListener().forceActionUpdate();
@@ -192,6 +200,34 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             }
         }
         return i;
+    }
+
+
+    public void highlightSelectedTab() {
+        try {
+            for (int i = 0; i < getTabCount(); i++) {         // unhighlight
+                String caption = getTitleAt(i);
+                if (caption.startsWith("<html>")) {
+                    setTitleAt(i, resetCaption(caption));
+                    break;
+                }
+            }
+            int selectedIndex = getSelectedIndex();
+            setTitleAt(selectedIndex, highlightCaption(getTitleAt(selectedIndex)));
+        }
+        catch (ArrayIndexOutOfBoundsException aioobe) {
+            // nothing to do - no side-effects
+        }
+    }
+
+
+    private String resetCaption(String caption) {
+        return caption.replaceAll("<\\w*>|</\\w*>", "");
+    }
+
+
+    private String highlightCaption(String caption) {
+        return "<html><b>" + caption + "</b></html>";
     }
 
 

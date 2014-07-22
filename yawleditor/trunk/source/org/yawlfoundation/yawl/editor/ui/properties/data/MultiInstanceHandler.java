@@ -64,6 +64,10 @@ public class MultiInstanceHandler {
         setJoinQuery(DataUtils.wrapBinding(getOutputTarget(), query));
     }
 
+    public void setOutputTarget(String netVarName) {
+        _netVarTarget = netVarName;
+    }
+
     public void renameItem(VariableRow row, String newName) {
         setFormalInputParam(newName);
         setSplitQuery(assembleSplitQuery(row, newName));

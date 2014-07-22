@@ -36,8 +36,8 @@ import java.awt.event.ActionListener;
  */
 public class BindingViewDialog extends JDialog implements ActionListener {
 
-    private BindingViewTable inputTable;
-    private BindingViewTable outputTable;
+    private InputBindingViewTable inputTable;
+    private OutputBindingViewTable outputTable;
     private VariableTablePanel parentListener;         // the VariableTablePanel invoker
 
 
@@ -58,7 +58,15 @@ public class BindingViewDialog extends JDialog implements ActionListener {
         if (cmd.equals("Close")) {
             setVisible(false);
         }
-        else {
+        else if (cmd.equals("InRemove")) {
+            inputTable.removeSelectedBinding();
+            parentListener.setTableChanged();
+        }
+        else if (cmd.equals("OutRemove")) {
+            outputTable.removeSelectedBinding();
+            parentListener.setTableChanged();
+        }
+        else {     // view the bindings dialog for the selected row
 
             // have to set the parent table to the selected row of the view dialog
             VariableTable parentTable = parentListener.getTable();
@@ -84,9 +92,9 @@ public class BindingViewDialog extends JDialog implements ActionListener {
         JPanel subContent = new JPanel(new GridLayout(0, 1, 10, 10));
         BindingViewTablePanel inputPanel =
                 new BindingViewTablePanel(this, dataDialog.getTaskTable().getVariables());
-        inputTable = inputPanel.getTable();
+        inputTable = (InputBindingViewTable) inputPanel.getTable();
         BindingViewTablePanel outputPanel = new BindingViewTablePanel(this, dataDialog);
-        outputTable = outputPanel.getTable();
+        outputTable = (OutputBindingViewTable) outputPanel.getTable();
         subContent.add(inputPanel);
         subContent.add(outputPanel);
         content.add(subContent, BorderLayout.CENTER);
