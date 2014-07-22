@@ -79,6 +79,8 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
             if (getCurrentRow().isMultiInstance()) {
                 getMultiInstanceHandler().setJoinQueryUnwrapped(
                         formatQuery(getMIEditorText(), false));
+                getMultiInstanceHandler().setOutputTarget(
+                        _targetPanel.getSelectedVariableName());
             }
             setVisible(false);
         }
@@ -137,13 +139,6 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
                 _workingSelection.set(target, binding, false);
             }
             if (! guessedTarget) setEditorText(binding);
-        }
-        if (getCurrentRow().isMultiInstance()) {
-            _targetPanel.disableSelections();
-            _generatePanel.disableSelections();
-        }
-        else {
-            _generatePanel.hideMiVar();
         }
     }
 

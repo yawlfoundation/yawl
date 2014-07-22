@@ -220,7 +220,7 @@ public class VariableTablePanel extends JPanel
     }
 
 
-    protected void setTableChanged() {
+    public void setTableChanged() {
         table.getTableModel().setTableChanged(true);
         parent.enableApplyButton();
     }

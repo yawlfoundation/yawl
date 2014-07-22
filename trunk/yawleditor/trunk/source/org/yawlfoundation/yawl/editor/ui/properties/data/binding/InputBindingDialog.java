@@ -105,13 +105,6 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         if (source == null) source = row.getName(); // if no source, guess on name match
         _generatePanel.setSelectedItem(source);
         setEditorText(row.getMapping());
-        if (getCurrentRow().isMultiInstance()) {
-            _targetPanel.disableSelections();
-            _generatePanel.disableSelections();
-        }
-        else {
-            _targetPanel.hideMiVar();
-        }
     }
 
 

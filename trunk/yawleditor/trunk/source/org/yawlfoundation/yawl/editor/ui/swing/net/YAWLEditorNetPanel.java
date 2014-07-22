@@ -175,6 +175,7 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
             int index = parent.indexOfComponent(this);
             if (index > -1) {
                 parent.setTitleAt(index, title);
+                parent.highlightSelectedTab();
             }
         }
     }

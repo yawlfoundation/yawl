@@ -46,7 +46,8 @@ import java.util.List;
 * @author Michael Adams
 * @date 11/07/14
 */
-class InputBindingViewTableModel extends AbstractTableModel {
+class InputBindingViewTableModel extends AbstractTableModel
+        implements BindingViewTableModel  {
 
     private List<VariableRow> variableRows;
 
@@ -118,6 +119,15 @@ class InputBindingViewTableModel extends AbstractTableModel {
     public boolean isMIRow(int row) {
         VariableRow varRow = variableRows.get(row);
         return varRow != null && varRow.isMultiInstance();
+    }
+
+
+    public boolean removeBinding(int row) {
+        if (row < getRowCount()) {
+            variableRows.get(row).setMapping(null);
+            fireTableRowsUpdated(row, row);
+        }
+        return row < getRowCount();
     }
 
 }

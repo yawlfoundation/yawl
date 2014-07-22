@@ -48,7 +48,7 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
             if (_selectorFont != null) setFont(_selectorFont);
         }
         else if (isTaskTable(table)) {
-            if (! hasBinding(varRow)) {
+            if (! (varRow.isLocal() || hasBinding(varRow))) {
                 setFont(getFont().deriveFont(Font.ITALIC));
             }
             if (varRow.isMultiInstance()) {

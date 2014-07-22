@@ -69,7 +69,8 @@ import java.util.Map;
 * @author Michael Adams
 * @date 11/07/14
 */
-class OutputBindingViewTableModel extends AbstractTableModel {
+class OutputBindingViewTableModel extends AbstractTableModel
+        implements BindingViewTableModel {
 
     private OutputBindings outputBindings;
     private MultiInstanceHandler miHandler;
@@ -145,6 +146,7 @@ class OutputBindingViewTableModel extends AbstractTableModel {
                         row.getName(), false);
                 if (binding != null) {
                     bindings.add(new Binding(binding, summary.get(binding)));
+                    if (bindings.size() == summary.size()) break;
                 }
             }
         }
@@ -159,6 +161,16 @@ class OutputBindingViewTableModel extends AbstractTableModel {
         }
         return false;
     }
+
+
+    public boolean removeBinding(int row) {
+        if (row < getRowCount()) {
+            outputBindings.removeBinding(bindings.get(row).binding);
+            refresh();
+        }
+        return row < getRowCount();
+    }
+
 
     /*******************************************************************/
 
