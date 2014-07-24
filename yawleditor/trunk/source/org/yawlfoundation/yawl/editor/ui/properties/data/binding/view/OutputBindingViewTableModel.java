@@ -150,7 +150,7 @@ class OutputBindingViewTableModel extends AbstractTableModel
                 }
             }
         }
-        fireTableRowsUpdated(0, getRowCount() - 1);
+        fireTableDataChanged();
     }
 
 
@@ -167,8 +167,9 @@ class OutputBindingViewTableModel extends AbstractTableModel
         if (row < getRowCount()) {
             outputBindings.removeBinding(bindings.get(row).binding);
             refresh();
+            return true;
         }
-        return row < getRowCount();
+        return false;
     }
 
 

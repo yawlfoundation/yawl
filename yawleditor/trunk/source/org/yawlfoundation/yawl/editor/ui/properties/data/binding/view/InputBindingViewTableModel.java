@@ -126,8 +126,9 @@ class InputBindingViewTableModel extends AbstractTableModel
         if (row < getRowCount()) {
             variableRows.get(row).setMapping(null);
             fireTableRowsUpdated(row, row);
+            return true;
         }
-        return row < getRowCount();
+        return false;
     }
 
 }

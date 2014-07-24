@@ -157,6 +157,13 @@ public class VariableTable extends JSingleSelectTable {
     }
 
 
+    public void refresh() {
+        int selectedRow = getSelectedRow();
+        getTableModel().fireTableDataChanged();
+        selectRow(Math.min(selectedRow, getRowCount() - 1));
+    }
+
+
     public void updatesApplied() {
         getTableModel().updatesApplied();
     }

@@ -180,12 +180,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
         }
     }
 
-    public boolean isValidNewDecompositionName(String name) {
-        return ! (name == null || SpecificationModel.getHandler().getControlFlowHandler()
-                .getDecompositionIds().contains(name));
-    }
-
-
 
     public JScrollPane getScrollPane() {
         return scrollPane;
@@ -194,18 +188,5 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
 
     public ImageIcon getFrameIcon() { return icon; }
 
-    public void setFrameIcon(ImageIcon i) { icon = i; }
 
-
-    public boolean isClosable() {
-        return closable;
-    }
-
-    public void setClosable(boolean closable) {
-        this.closable = closable;
-    }
-
-    private Rectangle cropRectangle(Rectangle r, int crop) {
-        return new Rectangle(r.x, r.y, r.width - crop, r.height - crop);
-    }
 }

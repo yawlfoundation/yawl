@@ -56,6 +56,7 @@ public class BindingViewDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         String cmd = event.getActionCommand();
         if (cmd.equals("Close")) {
+            parentListener.refreshTable();
             setVisible(false);
         }
         else if (cmd.equals("InRemove")) {

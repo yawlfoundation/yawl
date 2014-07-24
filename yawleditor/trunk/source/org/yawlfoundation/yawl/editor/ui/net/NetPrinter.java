@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.net;
 
 import org.imgscalr.Scalr;
+import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
@@ -77,10 +78,12 @@ public class NetPrinter implements Printable {
 
 
     public void print() {
+        setCursor(Cursor.WAIT_CURSOR);
         PrinterJob job = PrinterJob.getPrinterJob();
         job.setPrintable(this);
-
         PrintService[] services = PrinterJob.lookupPrintServices();
+        setCursor(Cursor.DEFAULT_CURSOR);
+
         if (services.length > 0) {
             try {
                 job.setPrintService(services[0]);
@@ -149,7 +152,7 @@ public class NetPrinter implements Printable {
         NetGraph net = netList.get(index);
         StringBuilder s = new StringBuilder();
         s.append("Specification: ");
-        s.append(SpecificationModel.getHandler().getURI());
+        s.append(getPreferredSpecificationName());
         s.append(" - Net: ");
         s.append(net.getName());
         if (netList.size() > 1) {
@@ -160,6 +163,13 @@ public class NetPrinter implements Printable {
                     .append(netList.size()).append(')');
         }
         return s.toString();
+    }
+
+
+    private String getPreferredSpecificationName() {
+        YSpecificationHandler handler = SpecificationModel.getHandler();
+        String title = handler.getTitle();
+        return title != null ? title : handler.getURI();
     }
 
 
@@ -197,6 +207,11 @@ public class NetPrinter implements Printable {
     private void showError(String msg) {
         JOptionPane.showMessageDialog(YAWLEditor.getInstance(), msg,
                 "Printer Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    private void setCursor(int cursor) {
+        YAWLEditor.getInstance().setCursor(Cursor.getPredefinedCursor(cursor));
     }
 
 }

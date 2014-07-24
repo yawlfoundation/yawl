@@ -64,9 +64,15 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     public String getError() { return _error; }
 
 
+    public boolean isNewVersion() {
+        return _differ != null && _differ.isNewVersion();
+    }
+
+
     public boolean hasUpdate() {
         return _differ != null && _differ.hasUpdates();
     }
+
 
     public boolean hasError() {
         return _error != null || getCurrentBuildNumber() == null ||
