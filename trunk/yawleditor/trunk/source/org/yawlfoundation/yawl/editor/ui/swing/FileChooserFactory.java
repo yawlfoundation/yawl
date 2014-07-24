@@ -74,12 +74,14 @@ public class FileChooserFactory {
 
         }  // class
 
+        String lastPath = UserSettings.getLastSaveOrLoadPath();
 
         // if no previous file save by editor, set to OS's user dir
-        String lastPath = UserSettings.getLastSaveOrLoadPath();
         if (lastPath == null) {
-            fileChooser.setCurrentDirectory(null);
             UserSettings.setLastSaveOrLoadPath(fileChooser.getCurrentDirectory().getPath());
+        }
+        else {
+            fileChooser.setCurrentDirectory(new File(lastPath));
         }
 
         fileChooser.setDialogTitle(title);

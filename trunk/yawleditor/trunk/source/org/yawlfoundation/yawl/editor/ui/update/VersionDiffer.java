@@ -38,6 +38,7 @@ public class VersionDiffer {
     private BuildProperties _current;
     private List<FileNode> _downloadList;
     private List<FileNode> _deleteList;
+    private boolean _newVersion;
 
 
     public VersionDiffer(File latest, File current) {
@@ -66,10 +67,18 @@ public class VersionDiffer {
     }
 
 
+    public boolean isNewVersion() { return _newVersion; }
+
+
     public List<String> getDownloadList() {
         List<String> list = new ArrayList<String>();
-        for (FileNode node : _downloadList) {
-            list.add(node.name);
+        if (isNewVersion()) {
+            list.add("YAWLEditor" + getLatestVersion() + ".zip");
+        }
+        else {
+            for (FileNode node : _downloadList) {
+                list.add(node.name);
+            }
         }
         return list;
     }
@@ -94,6 +103,9 @@ public class VersionDiffer {
 
 
     public long getDownloadSize() {
+        if (isNewVersion()) {
+            return 1024*1024*12;             // 12Mb.
+        }
         long size = 0;
         for (FileNode node : _downloadList) {
             size += node.size;
@@ -125,9 +137,13 @@ public class VersionDiffer {
                 getLatestBuild().equals(getCurrentBuild()))) {
             return ;
         }
-        Map<String, FileNode> latestMap = getFileMap(_latest.getFileList());
-        Map<String, FileNode> currentMap = getFileMap(_current.getFileList());
-        compareMaps(latestMap, currentMap);
+        _newVersion = ! getLatestVersion().equals(getCurrentVersion());
+
+        if (! _newVersion) {
+            Map<String, FileNode> latestMap = getFileMap(_latest.getFileList());
+            Map<String, FileNode> currentMap = getFileMap(_current.getFileList());
+            compareMaps(latestMap, currentMap);
+        }
     }
 
 

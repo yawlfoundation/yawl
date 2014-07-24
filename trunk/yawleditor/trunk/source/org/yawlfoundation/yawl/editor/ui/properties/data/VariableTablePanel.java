@@ -88,6 +88,8 @@ public class VariableTablePanel extends JPanel
 
     public VariableTable getTable() { return table; }
 
+    public void refreshTable() { table.refresh(); }
+
 
     public void showErrorStatus(String msg, java.util.List<String> more) {
         status.set("    " + msg, StatusPanel.ERROR, more);

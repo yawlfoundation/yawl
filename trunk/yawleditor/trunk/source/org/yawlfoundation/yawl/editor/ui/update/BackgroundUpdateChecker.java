@@ -69,7 +69,7 @@ public class BackgroundUpdateChecker implements PropertyChangeListener {
                 if (_checker.hasError()) {
                     showMessage("Error " + _checker.getErrorMessage());
                 }
-                else if (_checker.hasUpdate()) {
+                else if (_checker.isNewVersion() || _checker.hasUpdate()) {
                     new UpdateDialog(_checker.getDiffer()).setVisible(true);
                 }
                 else showMessage("you have the latest version");

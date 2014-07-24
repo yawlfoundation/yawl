@@ -205,7 +205,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     public void highlightSelectedTab() {
         try {
-            for (int i = 0; i < getTabCount(); i++) {         // unhighlight
+            for (int i = 0; i < getTabCount(); i++) {         // unhighlight all
                 String caption = getTitleAt(i);
                 if (caption.startsWith("<html>")) {
                     setTitleAt(i, resetCaption(caption));

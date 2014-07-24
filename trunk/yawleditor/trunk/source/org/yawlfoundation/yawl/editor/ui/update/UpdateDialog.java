@@ -114,8 +114,7 @@ public class UpdateDialog extends JDialog
     private JPanel addContent() {
         JPanel panel = new JPanel(new BorderLayout(10,10));
         panel.setBorder(new EmptyBorder(10,10,10,10));
-        panel.add(new JLabel("A new version of the YAWL Editor is available:"),
-                BorderLayout.NORTH);
+        panel.add(getMessageLabel(), BorderLayout.NORTH);
         panel.add(getInfoPanel(), BorderLayout.CENTER);
         panel.add(getButtonPanel(), BorderLayout.SOUTH);
         return panel;
@@ -137,8 +136,10 @@ public class UpdateDialog extends JDialog
         panel.add(createButton("Cancel"));
         _btnDownload = createButton("Download");
         panel.add(_btnDownload);
-        _btnDownloadAndRestart = createButton("Download & Restart");
-        panel.add(_btnDownloadAndRestart);
+        if (! _differ.isNewVersion()) {
+            _btnDownloadAndRestart = createButton("Download & Restart");
+            panel.add(_btnDownloadAndRestart);
+        }
         return panel;
     }
 
@@ -164,6 +165,13 @@ public class UpdateDialog extends JDialog
     private void enableButtons(boolean enable) {
         _btnDownload.setEnabled(enable);
         _btnDownloadAndRestart.setEnabled(enable);
+    }
+
+
+    private JLabel getMessageLabel() {
+        String updated = _differ.isNewVersion() ? "version" : "build";
+        return new JLabel(String.format(
+                "A new %s of the YAWL Editor is available:", updated));
     }
 
 
