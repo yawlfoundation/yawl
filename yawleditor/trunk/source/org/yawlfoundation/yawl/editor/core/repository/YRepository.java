@@ -26,6 +26,8 @@ package org.yawlfoundation.yawl.editor.core.repository;
  */
 public class YRepository {
 
+    public String _basePath;
+
     // the 'maps' that store each repository (in memory and to/from file)
     private TaskDecompositionRepository _taskDecompositionMap;
     private NetRepository _netDecompositionMap;
@@ -43,34 +45,36 @@ public class YRepository {
 
 
     public String getRepositoryDir() {
-        return RepoMap.BACKINGSTORE_DIR;
+        return _basePath != null ? _basePath : RepoMap.BACKINGSTORE_DIR;
     }
+
+    public void setRepositoryDir(String dir) { _basePath = dir; }
 
 
     public TaskDecompositionRepository getTaskDecompositionRepository() {
         if (_taskDecompositionMap == null) {
-            _taskDecompositionMap = new TaskDecompositionRepository();
+            _taskDecompositionMap = new TaskDecompositionRepository(_basePath);
         }
         return _taskDecompositionMap;
     }
 
     public NetRepository getNetRepository() {
         if (_netDecompositionMap == null) {
-            _netDecompositionMap = new NetRepository();
+            _netDecompositionMap = new NetRepository(_basePath);
         }
         return _netDecompositionMap;
     }
 
     public ExtendedAttributesRepository getExtendedAttributesRepository() {
         if (_extendedAttributesMap == null) {
-             _extendedAttributesMap = new ExtendedAttributesRepository();
+             _extendedAttributesMap = new ExtendedAttributesRepository(_basePath);
         }
         return _extendedAttributesMap;
     }
 
     public DataDefinitionRepository getDataDefinitionRepository() {
         if (_dataDefinitionMap == null) {
-            _dataDefinitionMap = new DataDefinitionRepository();
+            _dataDefinitionMap = new DataDefinitionRepository(_basePath);
         }
         return _dataDefinitionMap;
     }

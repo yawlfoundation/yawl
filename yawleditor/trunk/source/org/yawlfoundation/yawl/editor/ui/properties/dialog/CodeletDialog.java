@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletData;
-import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletSelectTable;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletTable;
 import org.yawlfoundation.yawl.editor.ui.swing.AbstractDoneDialog;
 
 import javax.swing.*;
@@ -29,7 +29,7 @@ import java.awt.*;
 
 public class CodeletDialog extends AbstractDoneDialog {
 
-    private CodeletSelectTable codeletTable;
+    private CodeletTable codeletTable;
 
 
     public CodeletDialog() {
@@ -42,6 +42,7 @@ public class CodeletDialog extends AbstractDoneDialog {
 
     protected void makeLastAdjustments() {
         setSize(630, 400);
+        setMinimumSize(new Dimension(300,200));
         setResizable(true);
     }
 
@@ -59,10 +60,10 @@ public class CodeletDialog extends AbstractDoneDialog {
 
 
     private JPanel getCodeletPanel() {
-        codeletTable = new CodeletSelectTable(CodeletSelectTable.CODELET);
+        codeletTable = new CodeletTable();
         JScrollPane jspane = new JScrollPane(codeletTable);
-        JPanel codeletTablePanel = new JPanel();
-        codeletTablePanel.setBorder(new EmptyBorder(12,12,0,11));
+        JPanel codeletTablePanel = new JPanel(new BorderLayout());
+        codeletTablePanel.setBorder(new EmptyBorder(5,5,0,5));
         codeletTablePanel.add(jspane, BorderLayout.CENTER);
         return codeletTablePanel;
     }

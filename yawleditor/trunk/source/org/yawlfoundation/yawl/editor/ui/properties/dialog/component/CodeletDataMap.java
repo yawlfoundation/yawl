@@ -27,20 +27,11 @@ public class CodeletDataMap {
 
   private Map<String, String> _codeletMap;
 
-  public CodeletDataMap() {}
 
   public CodeletDataMap(Map<String, String> codeletMap) {
     _codeletMap = codeletMap;
   }
 
-
-  public void setCodeletDataMap(Map<String, String> codeletMap) {
-    _codeletMap = codeletMap;
-  }
-
-  public Map<String, String> getCodeletDataMap() {
-    return _codeletMap;
-  }
 
   public List<CodeletData> getCodeletDataAsList() {
       List<CodeletData> result = new ArrayList<CodeletData>();

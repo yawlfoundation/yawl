@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.YPropertySheet;
 import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
@@ -211,6 +212,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         splashScreen = new YSplashScreen();
         splashScreen.init();
         LogWriter.init(FileLocations.getHomeDir());
+        YRepository.getInstance().setRepositoryDir(FileLocations.getRepositoryPath());
         IconList.getInstance().load();
     }
 

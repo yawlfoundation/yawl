@@ -46,11 +46,21 @@ public class RepoMap {
 
     /**
      * Constructs a new RepoMap and loads it content from the file at 'path'
-     * @param path the absolute path to the file to load into the map
+     * @param fileName the name of the file in the default dir to load into the map
      */
-    protected RepoMap(String path) {
+    protected RepoMap(String fileName) {
+        this(null, fileName);
+    }
+
+
+    /**
+     * Constructs a new RepoMap and loads it content from the file at 'path'
+     * @param baseDir the absolute path to the file's base dir
+     * @param fileName the name of the file in the default dir to load into the map
+     */
+    protected RepoMap(String baseDir, String fileName) {
         _map = new HashMap<String, RepoRecord>();
-        load(getFilePath(path));
+        load(getFilePath(baseDir, fileName));
     }
 
 
@@ -125,8 +135,9 @@ public class RepoMap {
     /************************************************************************/
 
     // gets the absolute file path for the named file
-    private String getFilePath(String fileName) {
-        return BACKINGSTORE_DIR + File.separatorChar + fileName + ".xml";
+    private String getFilePath(String baseDir, String fileName) {
+        if (baseDir == null) baseDir = BACKINGSTORE_DIR;
+        return baseDir + File.separatorChar + fileName + ".xml";
     }
 
     // makes a name unique by appending and underscore and digit(s), if it already exists

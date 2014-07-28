@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.specification.io;
 
 import org.yawlfoundation.yawl.editor.core.repository.RepoMap;
 import org.yawlfoundation.yawl.editor.core.repository.RepoRecord;
+import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 
 /**
@@ -31,7 +32,7 @@ public class LayoutRepository extends RepoMap {
     private static final LayoutRepository INSTANCE = new LayoutRepository();
 
 
-    private LayoutRepository() { super("layouts"); }
+    private LayoutRepository() { super(FileLocations.getRepositoryPath(), "layouts"); }
 
 
     public static LayoutRepository getInstance() { return INSTANCE; }
