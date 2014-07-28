@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.properties.NetTaskPair;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.TimerDialog;
+import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YTimerParameters;
 
@@ -52,7 +53,7 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
     protected void showDialog() {
         YTimerParameters oldParameters = getTimerParameters();
         TimerDialog dialog = new TimerDialog();
-        dialog.setContent(oldParameters, getNet());
+        dialog.setContent(oldParameters, getNet(), isAutoTask());
         dialog.setTitle(getTitle());
         dialog.setVisible(true);
 
@@ -102,6 +103,15 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
 
     private YNet getNet() {
         return pair != null ? pair.getNet() : null;
+    }
+
+
+    private boolean isAutoTask() {
+        if (pair != null) {
+            YDecomposition decomposition = pair.getTask().getDecomposition();
+            return ! (decomposition == null || decomposition.requiresResourcingDecisions());
+        }
+        return false;
     }
 
 }

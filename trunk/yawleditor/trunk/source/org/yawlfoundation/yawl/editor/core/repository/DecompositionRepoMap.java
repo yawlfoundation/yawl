@@ -45,6 +45,11 @@ public abstract class DecompositionRepoMap extends RepoMap {
         super(path);
     }
 
+    protected DecompositionRepoMap(String baseDir, String path) {
+        super(baseDir, path);
+    }
+
+
     /**
      * Adds a decomposition to the repository
      * @param name a reference name for the decomposition

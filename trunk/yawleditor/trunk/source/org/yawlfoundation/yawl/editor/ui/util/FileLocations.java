@@ -35,6 +35,8 @@ public class FileLocations {
             HOME_DIR + File.separator + "plugins";
     private static final String ABSOLUTE_LIB_PATH =
             HOME_DIR + File.separator + "lib";
+    private static final String ABSOLUTE_REPOSITORY_PATH =
+            HOME_DIR + File.separator + "repository";
     private static final String DECOMPOSITION_EXTENDED_ATTRIBUTE_PROPERTIES =
             "decomposition.properties";
     private static final String VARIABLE_EXTENDED_ATTRIBUTE_PROPERTIES =
@@ -78,6 +80,7 @@ public class FileLocations {
 
     public static String getLibPath() { return ABSOLUTE_LIB_PATH; }
 
+    public static String getRepositoryPath() { return ABSOLUTE_REPOSITORY_PATH; }
 
     // returns the path from which the editor was loaded (ie. the location of the editor jar)
     private static String setHomeDir() {

@@ -252,6 +252,9 @@ public class UpdateDialog extends JDialog
             else if (verified()) {
                 YAWLEditor.getStatusBar().setText(
                         "Update downloaded to " + _downloader.getTargetDir());
+                if (_differ.isNewVersion()) {
+                    new InstallInstructions().show();
+                }
                 if (_restarting) restart();
             }
             else {

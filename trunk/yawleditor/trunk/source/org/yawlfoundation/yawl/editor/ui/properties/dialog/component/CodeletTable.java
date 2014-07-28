@@ -31,34 +31,29 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class CodeletSelectTable extends JOrderedSingleSelectTable {
+public class CodeletTable extends JOrderedSingleSelectTable {
 
     private static final int MAX_TABLE_HEIGHT = 290;
     private static final int CODELET_TABLE_WIDTH = 585;
-    private static final int GATEWAY_TABLE_WIDTH = 515;
-
-    public static final int CODELET = 0;
-    public static final int DATA_GATEWAY = 1;
 
     private List<CodeletData> codeletDataList;
     private int preferredTableWidth;
-    private CodeletDataMap codeletDataMap;
 
-    public CodeletSelectTable(int source) {
+    public CodeletTable() {
         super();
-        preferredTableWidth = (source == CODELET) ? CODELET_TABLE_WIDTH : GATEWAY_TABLE_WIDTH;
-        setModel(new CodeletSelectTableModel(getCodeletDataList(source)));
+        preferredTableWidth = CODELET_TABLE_WIDTH;
+        setModel(new CodeletSelectTableModel(getCodeletDataList()));
         setFormat();
     }
 
-    public CodeletSelectTable(CodeletSelectTableModel model) {
+    public CodeletTable(CodeletSelectTableModel model) {
         super();
         setModel(model);
         setFormat();
     }
 
     public void setFormat() {
-        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+ //       setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         getColumnModel().getColumn(1).setCellRenderer(WrappingCellRenderer.INSTANCE);
         getTableHeader().setResizingAllowed(false);
 
@@ -76,16 +71,6 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
         return new Dimension(preferredTableWidth, getPreferredViewportHeight());
     }
 
-
-    public void setCodeletDataList(List<CodeletData> codeletDataList) {
-        this.codeletDataList = codeletDataList;
-        updateState();
-    }
-
-    public void updateState() {
-        setModel(new CodeletSelectTableModel(codeletDataList));
-        setFormat();
-    }
 
     private int getMessageWidth(String message) {
         return  getFontMetrics(getFont()).stringWidth(message) + 5;
@@ -115,23 +100,17 @@ public class CodeletSelectTable extends JOrderedSingleSelectTable {
         return maxWidth;
     }
 
-    private List<CodeletData> getCodeletDataList(int source) {
+    private List<CodeletData> getCodeletDataList() {
         Map<String, String> dataMap = null;
         try {
-            if (source == CODELET) {
                 dataMap = getCodeletMap();
-            }
-            else {
-                dataMap = YConnector.getExternalDataGateways();
-            }
         }
         catch (IOException ioe) {
             // nothing to do - proceed with null map
         }
 
         if (dataMap != null) {
-            codeletDataMap = new CodeletDataMap(dataMap);
-            return codeletDataMap.getCodeletDataAsList();
+            return new CodeletDataMap(dataMap).getCodeletDataAsList();
         }
         return null;
     }

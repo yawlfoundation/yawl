@@ -65,8 +65,8 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
 
     public void setVisible(boolean visible)  {
-        super.setVisible(visible);
         if (visible && getTabCount() > 0) highlightSelectedTab();
+        super.setVisible(visible);
     }
 
 
@@ -84,7 +84,6 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
                 frame.removeFromSpecification();
                 remove(frame);
                 YPluginHandler.getInstance().netRemoved(frame.getNet().getNetModel());
-
             }
         }
     }
@@ -118,7 +117,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
         for (int i=0; i<getTabCount(); i++) {
             if (getTitleAt(i).equals(oldCaption)) {
                 setTitleAt(i, newCaption);
-                highlightSelectedTab();
+                if (isVisible()) highlightSelectedTab();
                 break;
             }
         }
@@ -213,7 +212,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
                 }
             }
             int selectedIndex = getSelectedIndex();
-            setTitleAt(selectedIndex, highlightCaption(getTitleAt(selectedIndex)));
+            if (selectedIndex < getTabCount()) {           // try to avoid exception
+                setTitleAt(selectedIndex, highlightCaption(getTitleAt(selectedIndex)));
+            }
         }
         catch (ArrayIndexOutOfBoundsException aioobe) {
             // nothing to do - no side-effects

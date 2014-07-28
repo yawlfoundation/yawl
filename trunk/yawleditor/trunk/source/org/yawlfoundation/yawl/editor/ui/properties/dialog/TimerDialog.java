@@ -56,6 +56,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
     private JRadioButton startButton;
     private JRadioButton exactlyButton;
     private JRadioButton durationButton;
+    private boolean isAutomatedTask;
 
 
     public TimerDialog() {
@@ -71,8 +72,11 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
     }
 
 
-    public void setContent(YTimerParameters timerParameters, YNet net) {
+    public void setContent(YTimerParameters timerParameters, YNet net,
+                           boolean isAutomated) {
         timerVariableComboBox.setNet(net);
+        isAutomatedTask = isAutomated;
+        startButton.setEnabled(! isAutomatedTask);
         if (timerParameters == null) {
             performAction(neverButton, "never");
         }
@@ -228,6 +232,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
         enablePanel(timerVariableComboBox.getParent(), varSelected);
         offerButton.setSelected(varSelected);
         enablePanel(beginsPanel, ! varSelected);
+        startButton.setEnabled(! (varSelected || isAutomatedTask));
         exactlyButton.setEnabled(exactlyButton.isEnabled() || varSelected);
         durationButton.setEnabled(durationButton.isEnabled() || varSelected);
     }

@@ -40,6 +40,9 @@ public class NetRepository extends DecompositionRepoMap {
         super("netDecompositions");
     }
 
+    protected NetRepository(String baseDir) {
+        super(baseDir, "netDecompositions");
+    }
 
     /**
      * Adds a net decomposition to the repository

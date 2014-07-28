@@ -30,6 +30,10 @@ public class DataDefinitionRepository extends RepoMap {
         super("dataDefinitions");
     }
 
+    protected DataDefinitionRepository(String baseDir) {
+        super(baseDir, "dataDefinitions");
+    }
+
     /**
      * Adds a data definition to the repository
      * @param name a reference name for the data definition

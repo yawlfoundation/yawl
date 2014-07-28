@@ -35,6 +35,10 @@ public class TaskDecompositionRepository extends DecompositionRepoMap {
         super("taskDecompositions");
     }
 
+    protected TaskDecompositionRepository(String baseDir) {
+        super(baseDir, "taskDecompositions");
+    }
+
 
     /**
      * Adds a task decomposition to the repository

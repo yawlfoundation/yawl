@@ -34,6 +34,10 @@ public class ExtendedAttributesRepository extends RepoMap {
         super("extendedAttributes");
     }
 
+    protected ExtendedAttributesRepository(String baseDir) {
+        super(baseDir, "extendedAttributes");
+    }
+
     /**
      * Adds a set of extended attributes and their values to the repository
      * @param name a reference name for the net decomposition
