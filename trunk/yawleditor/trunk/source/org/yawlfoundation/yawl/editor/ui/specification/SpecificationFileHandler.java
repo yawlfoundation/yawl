@@ -31,6 +31,8 @@ import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 public class SpecificationFileHandler {
@@ -204,9 +206,7 @@ public class SpecificationFileHandler {
         if (StringUtil.isNullOrEmpty(fileName)) return;
 
         YPluginHandler.getInstance().preSaveFile();
-        if (saveToFile(fileName)) {
-            OpenRecentSubMenu.getInstance().addRecentFile(fileName);
-        }
+        saveToFile(fileName);
         YPluginHandler.getInstance().postSaveFile();
     }
 
@@ -259,28 +259,23 @@ public class SpecificationFileHandler {
     }
 
 
-    private boolean saveToFile(String fileName) {
+    private void saveToFile(String fileName) {
         if (StringUtil.isNullOrEmpty(fileName)) {
 
             // rollback version number if auto-incrementing
             if (UserSettings.getAutoIncrementVersionOnSave()) {
                 _handler.getVersion().minorRollback();
             }
-            return false;     // user-cancelled save or no file name selected
+            return;     // user-cancelled save or no file name selected
         }
 
         _statusBar.setText("Saving Specification...");
         _statusBar.progressOverSeconds(2);
 
-        boolean success = new SpecificationWriter().writeToFile(fileName);
-        if (success) {
-            SpecificationUndoManager.getInstance().setDirty(false);
-            _statusBar.setText("Saved to file: " + fileName);
-        }
-        else _statusBar.setTextToPrevious();
 
-        _statusBar.resetProgress();
-        return success;
+        SpecificationWriter writer = new SpecificationWriter(fileName);
+        writer.addPropertyChangeListener(new SaveCompletionListener(fileName));
+        writer.execute();
     }
 
 
@@ -289,11 +284,11 @@ public class SpecificationFileHandler {
         _statusBar.setText("Opening Specification...");
         _statusBar.progressOverSeconds(4);
         YAWLEditor.getNetsPane().setVisible(false);
-        new SpecificationReader().load(fullFileName);
-        YAWLEditor.getNetsPane().setVisible(true);
-        _statusBar.resetProgress();
-        OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
-        YPluginHandler.getInstance().specificationLoaded();
+
+        // SpecificationReader is a SwingWorker
+        SpecificationReader reader = new SpecificationReader(fullFileName);
+        reader.addPropertyChangeListener(new LoadCompletionListener(fullFileName));
+        reader.execute();
     }
 
 
@@ -308,5 +303,48 @@ public class SpecificationFileHandler {
         // check for odd dirs on non dos os's
         return file.isFile() ? file.getAbsolutePath() : null;
     }
+
+    /***************************************************************************/
+
+    // listens for reader swing worker completion & does final cleanups
+    class LoadCompletionListener implements PropertyChangeListener {
+
+        String fullFileName;
+
+        LoadCompletionListener(String fileName) { fullFileName = fileName; }
+
+        public void propertyChange(PropertyChangeEvent event) {
+            if (event.getNewValue() == SwingWorker.StateValue.DONE) {
+                YAWLEditor.getNetsPane().setVisible(true);
+                _statusBar.resetProgress();
+                OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+                YPluginHandler.getInstance().specificationLoaded();
+            }
+        }
+    }
+
+
+    // listens for writer swing worker completion & does final cleanups
+    class SaveCompletionListener implements PropertyChangeListener {
+
+        String fullFileName;
+
+        SaveCompletionListener(String fileName) { fullFileName = fileName; }
+
+        public void propertyChange(PropertyChangeEvent event) {
+            if (event.getNewValue() == SwingWorker.StateValue.DONE) {
+                SpecificationWriter writer = (SpecificationWriter) event.getSource();
+                if (writer.successful()) {
+                     SpecificationUndoManager.getInstance().setDirty(false);
+                     _statusBar.setText("Saved to file: " + fullFileName);
+                     OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+                 }
+                 else _statusBar.setTextToPrevious();
+
+                 _statusBar.resetProgress();
+            }
+        }
+    }
+
 
 }

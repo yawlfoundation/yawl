@@ -45,27 +45,53 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SpecificationReader {
+public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
     private static final Point DEFAULT_LOCATION = new Point(100,100);
 
     private final YSpecificationHandler _handler;
     private final Map<YExternalNetElement, YAWLVertex> _elementMap;
 
+    private String _fileName;
+    private String _specXML;
+    private String _layoutXML;
 
-    public SpecificationReader() {
+
+    private SpecificationReader() {
         _handler = SpecificationModel.getHandler();
         _elementMap = new HashMap<YExternalNetElement, YAWLVertex>();
     }
 
+    public SpecificationReader(String fileName) {
+        this();
+        _fileName = fileName;
+    }
 
-    public boolean load(String fileName) {
+    public SpecificationReader(String specXML, String layoutXML) {
+        this();
+        _specXML = specXML;
+        _layoutXML = layoutXML;
+    }
+
+
+    public Boolean doInBackground() {
+        return _fileName != null ? load(_fileName) : load(_specXML, _layoutXML);
+    }
+
+
+    public void done() {
+        finaliseLoad();
+    }
+
+    /*****************************************************************************/
+
+    private boolean load(String fileName) {
         return populate(loadFile(fileName));
     }
 
 
-    public boolean load(String fileName, String layoutXML) {
-        return populate(loadFromXML(fileName, layoutXML));
+    private boolean load(String specXML, String layoutXML) {
+        return populate(loadFromXML(specXML, layoutXML));
     }
 
 
@@ -73,7 +99,7 @@ public class SpecificationReader {
         if (loaded) {
             createEditorObjects();
             layoutElements();
-            finaliseLoad();
+            rationaliseIdentifiers();
         }
         return loaded;
     }
@@ -128,7 +154,6 @@ public class SpecificationReader {
 
 
     private void finaliseLoad() {
-        rationaliseIdentifiers();
         Publisher.getInstance().publishOpenFileEvent();
         YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
         SpecificationUndoManager.getInstance().discardAllEdits();
@@ -391,7 +416,6 @@ public class SpecificationReader {
                 (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
                 "Specification File Load Error",
                 JOptionPane.ERROR_MESSAGE);
-
     }
 
 

@@ -24,115 +24,111 @@ import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Author: Michael Adams
  * Creation Date: 16/03/2009
  */
-public class JConnectionStatus extends JPanel {
+public class ConnectionStatus extends JPanel implements ActionListener {
 
     private static final ImageIcon onlineIcon = ResourceLoader.getIcon("online.png");
     private static final ImageIcon offlineIcon = ResourceLoader.getIcon("offline.png");
+    private final PreferencesLauncher preferencesLauncher = new PreferencesLauncher();
 
-    private JIndicator engineIndicator;
-    private JIndicator resourceIndicator;
+    private ConnectionIndicator engineIndicator;
+    private ConnectionIndicator resourceIndicator;
 
-    public JConnectionStatus() {
+
+    public ConnectionStatus() {
         super();
         setLayout(new BorderLayout());
         setBorder(
             BorderFactory.createCompoundBorder(
-                BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createMatteBorder(0,0,0,1,Color.GRAY),
                 BorderFactory.createEmptyBorder(0, 2, 0, 2)
             )
         );
         addIndicators();
-        addMouseListener(new PreferencesLauncher());
+        addMouseListener(preferencesLauncher);
         startHeartbeat();
     }
 
 
+    public boolean refresh() {
+        engineIndicator.setStatus(YConnector.isEngineConnected());
+        return resourceIndicator.setStatus(YConnector.isResourceConnected());
+    }
+
+
+    // triggered by the 'heartbeat' timer
+    public void actionPerformed(ActionEvent event) {
+        refresh();
+    }
+
+
     private void addIndicators() {
-        engineIndicator = new JIndicator("Engine");
-        resourceIndicator = new JIndicator("Resource Service");
+        engineIndicator = new ConnectionIndicator("Engine");
+        resourceIndicator = new ConnectionIndicator("Resource Service");
         add(engineIndicator, BorderLayout.WEST);
         add(resourceIndicator, BorderLayout.EAST);
     }
 
 
     private void startHeartbeat() {
-        ScheduledExecutorService _heartbeat = Executors.newScheduledThreadPool(1);
-        _heartbeat.scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                checkConnectionStatus();
-            }
-        }, 1, 10, TimeUnit.SECONDS);
+        Timer timer = new Timer(10000, this);     // 10 seconds
+        timer.setInitialDelay(500);
+        timer.start();
     }
 
-    
-    public void setStatusMode(String component, boolean online) {
-        if (component.equals("engine")) {
-            engineIndicator.setOnline(online);
-        }
-        else if (component.equals("resource")) {
-            resourceIndicator.setOnline(online);
-        }
-    }
-
-    public void checkConnectionStatus() {
-        setStatusMode("engine", YConnector.isEngineConnected());
-        setStatusMode("resource", YConnector.isResourceConnected());
-    }
 
     /*******************************************/
 
-    class JIndicator extends JPanel {
+    class ConnectionIndicator extends JPanel {
 
         private final JLabel _indicator ;
         private boolean _online ;
         private String _indicatorFor;
 
-        public JIndicator() {
+
+        public ConnectionIndicator() {
             super();
             _indicator = new JLabel();
-            _indicator.addMouseListener(new PreferencesLauncher());
-            setOnline(false);
+            _indicator.addMouseListener(preferencesLauncher);
             this.add(_indicator);
         }
 
-        public JIndicator(String iFor) {
+
+        public ConnectionIndicator(String iFor) {
             this();
             setIndicatorFor(iFor) ;
         }
 
 
-        public void setOnline(final boolean online) {
-            _online = online;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    _indicator.setIcon(online ? onlineIcon : offlineIcon);
-                    setTip();
-                }
-            });
+        public boolean setStatus(boolean isOnline) {
+            if (_online != isOnline) {             // if there's a status change
+                _online = isOnline;
+                _indicator.setIcon(isOnline ? onlineIcon : offlineIcon);
+                setTip();
+            }
+            return _online;
         }
+
 
         public void setIndicatorFor(String iFor) {
             _indicatorFor = iFor;
             setTip();
         }
 
+
         private void setTip() {
-            _indicator.setToolTipText(_indicatorFor + " is " + getStatus());
+            _indicator.setToolTipText(_indicatorFor + " is " +
+                    (_online ? "online" : "offline"));
         }
 
-        private String getStatus() {
-            return _online ? "online" : "offline" ;
-        }
     }
 
     /*******************************************/

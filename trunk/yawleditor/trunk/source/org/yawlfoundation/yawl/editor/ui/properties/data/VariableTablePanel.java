@@ -166,7 +166,8 @@ public class VariableTablePanel extends JPanel
     }
 
     public VariableRow getVariableAtRow(int row) {
-        return table.getVariables().get(row);
+        java.util.List<VariableRow> variableRows = table.getVariables();
+        return row < variableRows.size() ? variableRows.get(row) : null;
     }
 
     public boolean isEditing() {return isEditing; }

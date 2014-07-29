@@ -19,14 +19,12 @@
 package org.yawlfoundation.yawl.editor.ui.specification;
 
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.SpecificationValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationResultsParser;
-import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 
 import java.awt.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author Michael Adams
@@ -36,46 +34,29 @@ public class FileOperations {
 
     private enum Action { Open, OpenFile, Validate, Analyse, Save, SaveAs, Close, Exit }
 
-    private static final ExecutorService _executor;
 
+    public static void open()  { processAction(Action.Open); }
 
-    static {
-         int POOL_SIZE = Runtime.getRuntime().availableProcessors();
-        _executor = Executors.newFixedThreadPool(POOL_SIZE);
-    }
+    public static void open(String fileName)  { processAction(Action.OpenFile, fileName); }
 
+    public static void validate()  { processAction(Action.Validate); }
 
-    public static void open()  { run(Action.Open); }
+    public static void analyse()  { processAction(Action.Analyse); }
 
-    public static void open(String fileName)  { run(Action.OpenFile, fileName); }
+    public static void save() { processAction(Action.Save); }
 
-    public static void validate()  { run(Action.Validate); }
+    public static void saveAs()  { processAction(Action.SaveAs); }
 
-    public static void analyse()  { run(Action.Analyse); }
+    public static void close()  { processAction(Action.Close); }
 
-    public static void save() { run(Action.Save); }
-
-    public static void saveAs()  { run(Action.SaveAs); }
-
-    public static void close()  { run(Action.Close); }
-
-    public static void exit()  { run(Action.Exit); }
-
-
-    private static void run(final Action action, final String... args) {
-        _executor.execute(new Runnable() {
-            public void run() {
-                processAction(action, args);
-            }
-        });
-    }
+    public static void exit()  { processAction(Action.Exit); }
 
 
     private static void processAction(Action action, String... args) {
-        SpecificationFileHandler handler = new SpecificationFileHandler();
-        Publisher publisher = Publisher.getInstance();
         YAWLEditor editor = YAWLEditor.getInstance();
         editor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        SpecificationFileHandler handler = new SpecificationFileHandler();
+        Publisher publisher = Publisher.getInstance();
         publisher.publishFileBusyEvent();
 
         switch (action) {

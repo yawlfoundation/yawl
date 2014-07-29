@@ -115,9 +115,9 @@ public class SpecificationUndoManager extends GraphUndoManager {
             else {
                 addEdit(edit);
             }
+            setDirty(true);
+            refreshButtons();
         }
-        setDirty(true);
-        refreshButtons();
     }
 
     /**

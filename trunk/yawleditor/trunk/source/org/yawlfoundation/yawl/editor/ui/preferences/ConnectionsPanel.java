@@ -172,11 +172,7 @@ public class ConnectionsPanel extends JPanel
         YConnector.setResourceURL(_resourcePanel.getHost(), _resourcePanel.getPort());
         YConnector.setUserID(getUser());
         YConnector.setPassword(getPassword());
-        YAWLEditor.getStatusBar().setConnectionMode(
-                "engine", YConnector.isEngineConnected());
-
-        boolean isConnected = YConnector.isResourceConnected();
-        YAWLEditor.getStatusBar().setConnectionMode("resource", isConnected);
+        boolean isConnected = YAWLEditor.getStatusBar().refreshConnectionStatus();
         if (isConnected) {
             SpecificationModel.getHandler().getResourceHandler().resetCache();
         }

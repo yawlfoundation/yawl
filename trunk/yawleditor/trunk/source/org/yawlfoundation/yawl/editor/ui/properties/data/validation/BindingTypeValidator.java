@@ -12,6 +12,7 @@ import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -117,13 +118,16 @@ public class BindingTypeValidator extends TypeValueBuilder {
      *                 YVariable required for dynamic forms)
      */
     private void init(final Map<String, FormParameter> paramMap) {
-        new Thread(new Runnable() {
-            public void run() {
-              _fieldMap = getFieldMap(paramMap, _rootName, getDataSchema(paramMap));
-              _dataDocument = getDataDocument(
-                      new ArrayList<DynFormField>(_fieldMap.values()), _rootName);
+        new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                _fieldMap = getFieldMap(paramMap, _rootName, getDataSchema(paramMap));
+                _dataDocument = getDataDocument(
+                        new ArrayList<DynFormField>(_fieldMap.values()), _rootName);
+                return null;
             }
-        }).start();
+        }.execute();
     }
 
 

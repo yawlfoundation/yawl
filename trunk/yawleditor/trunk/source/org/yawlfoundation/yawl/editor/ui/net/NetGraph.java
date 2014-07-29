@@ -50,32 +50,32 @@ import java.util.Set;
 
 public class NetGraph extends JGraph {
 
-  private static final int DEFAULT_MARGIN  = 50;
-  
-  // Default margin size of whitespace to appear around elements being added to a net
-  private static final int WHITESPACE_MARGIN  = 20;
+    private static final int DEFAULT_MARGIN  = 50;
 
-  private YAWLEditorNetPanel frame;
-  private NetSelectionListener selectionListener;
-  private CancellationSetModel cancellationSetModel;
+    // Default margin size of whitespace to appear around elements being added to a net
+    private static final int WHITESPACE_MARGIN  = 20;
 
-
-  public NetGraph() {
-    super();
-    initialize();
-  }
+    private YAWLEditorNetPanel frame;
+    private NetSelectionListener selectionListener;
+    private CancellationSetModel cancellationSetModel;
 
 
-  public NetGraph(YDecomposition decomposition) {
-    super();
-    initialize();
-    getNetModel().setDecomposition(decomposition);
-  }
+    public NetGraph() {
+        super();
+        initialize();
+    }
 
-  
-  private void initialize() {
-    buildBasicGraphContent();
-  }
+
+    public NetGraph(YDecomposition decomposition) {
+        super();
+        initialize();
+        getNetModel().setDecomposition(decomposition);
+    }
+
+
+    private void initialize() {
+        buildBasicGraphContent();
+    }
 
 
     @Override
@@ -122,230 +122,230 @@ public class NetGraph extends JGraph {
 
         startUndoableEdits();
     }
-  
-
-  public void buildNewGraphContent(){
-    buildNewGraphContent(getDefaultSize());
-  }
-
-  public void buildNewGraphContent(Rectangle bounds) {
-    buildNewGraphContent(new Dimension(bounds.width, bounds.height));
-  }
-
-  private void buildNewGraphContent(Dimension dimension) {
-    stopUndoableEdits();
-    setSize(dimension);
-    addInputCondition();
-    addOutputCondition();
-    startUndoableEdits();
-  }
-  
-  public void startUndoableEdits() {
-    SpecificationUndoManager.getInstance().acceptEdits(true);
-  }
-
-  public void stopUndoableEdits() {
-    SpecificationUndoManager.getInstance().acceptEdits(false);
-  }
-  
-  private void bindComponentListener() {
-    addComponentListener(
-      new ComponentAdapter() {
-        public void componentResized(ComponentEvent event) {
-            UserSettings.setInternalFrameWidth((int) (getWidth() * getScale()));
-            UserSettings.setInternalFrameHeight((int) (getHeight() * getScale()));
-        } 
-    });
-  }
-  
-  private void bindCancellationModel() {
-      cancellationSetModel = new CancellationSetModel(this);
-      cancellationSetModel.subscribe(ViewCancellationSetAction.getInstance());
-      cancellationSetModel.subscribe(AddToVisibleCancellationSetAction.getInstance());
-      cancellationSetModel.subscribe(RemoveFromVisibleCancellationSetAction.getInstance());
-  }
-
-  private void bindKeyMappings() {
-    ActionMap map = new ActionMap();
-    InputMap  inputMap = new InputMap();
-
-    addKeyMapping(
-        map, inputMap,
-        KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0),
-        MoveElementsLeftAction.getInstance()
-    ); 
-
-    addKeyMapping(
-        map, inputMap,
-        KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0),
-        MoveElementsRightAction.getInstance()
-    ); 
-
-    addKeyMapping(
-        map, inputMap,
-        KeyStroke.getKeyStroke(KeyEvent.VK_UP,0),
-        MoveElementsUpAction.getInstance()
-    ); 
-
-    addKeyMapping(
-        map, inputMap,
-        KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,0),
-        MoveElementsDownAction.getInstance()
-    ); 
-
-    addKeyMapping(
-        map, inputMap,
-        KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK),
-        SelectAllNetElementsAction.getInstance()
-    ); 
-
-    
-    setActionMap(map); 
-    setInputMap(JComponent.WHEN_FOCUSED, inputMap);
-    setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
-  }
-
-  private void addKeyMapping(ActionMap actionMap, InputMap inputMap, 
-                             KeyStroke keystroke, Action action) {
-    actionMap.put(action.getValue(Action.NAME), action);
-    inputMap.put(keystroke,action.getValue(Action.NAME));
-  }
 
 
-  private Dimension getDefaultSize() {
-    return new Dimension(UserSettings.getInternalFrameWidth(),
-                         UserSettings.getInternalFrameHeight());
-  }
-  
-  public NetSelectionListener getSelectionListener() {
-    return selectionListener; 
-  }
-  
-  public void addElement(YAWLVertex element) {
-    getModel().insert(new Object[] {element}, null, null, null, null);
-    NetCellUtilities.scrollNetToShowCells(this, new Object[] { element });
-      YPluginHandler.getInstance().elementAdded(getNetModel(), element);
-  }
-
-  public Dimension getPreferredSize() {
-    Dimension currentPrefferedSize = super.getPreferredSize();
-
-    // Put a little whitespace padding around the default preferred size.
-    
-    return new Dimension(
-      (int) currentPrefferedSize.getWidth() + WHITESPACE_MARGIN,
-      (int) currentPrefferedSize.getHeight() + WHITESPACE_MARGIN
-    );
-  }
-  
-  public String getToolTipText(MouseEvent event) {
-    Object cell = getFirstCellForLocation(event.getX(), event.getY());
-    if (cell instanceof YAWLVertex) {
-      return ((YAWLVertex) cell).getToolTipText();
+    public void buildNewGraphContent(){
+        buildNewGraphContent(getDefaultSize());
     }
-    if (cell instanceof VertexContainer) {
-      return ((VertexContainer) cell).getToolTipText();
-      
+
+    public void buildNewGraphContent(Rectangle bounds) {
+        buildNewGraphContent(new Dimension(bounds.width, bounds.height));
     }
-    return null;
-  }
-  
-  private InputCondition addInputCondition() {
-    Point2D startPoint = getInputConditionDefaultPoint(InputCondition.getVertexSize());
-    InputCondition inputCondition = new InputCondition(startPoint);
-    addElement(inputCondition);
-    return inputCondition;
-  }
-  
-  private Point2D getInputConditionDefaultPoint(Dimension size) {
-   return snap(new Point((DEFAULT_MARGIN)  - (size.width/2), 
-                         (getHeight()/2) - (size.height/2)));
-  }
-  
-  private OutputCondition addOutputCondition() {
-    Point2D startPoint = getOutputConditionDefaultPoint(OutputCondition.getVertexSize());
-    OutputCondition outputCondition = new OutputCondition(startPoint);
-    addElement(outputCondition);
-    return outputCondition;
-  }
 
-  private Point2D getOutputConditionDefaultPoint(Dimension size) {
-    return snap(new Point((getWidth()-DEFAULT_MARGIN) - (size.width/2), 
-                          (getHeight()/2)  - (size.height/2)));
-  }
+    private void buildNewGraphContent(Dimension dimension) {
+        stopUndoableEdits();
+        setSize(dimension);
+        addInputCondition();
+        addOutputCondition();
+        startUndoableEdits();
+    }
 
-  public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
-      YAWLFlowRelation flow = NetCellFactory.insertFlow(this,
-              source.getVertexID(), target.getVertexID());
-      connect(flow, source, target);
-      return flow;
-  }
+    public void startUndoableEdits() {
+        SpecificationUndoManager.getInstance().acceptEdits(true);
+    }
+
+    public void stopUndoableEdits() {
+        SpecificationUndoManager.getInstance().acceptEdits(false);
+    }
+
+    private void bindComponentListener() {
+        addComponentListener(
+                new ComponentAdapter() {
+                    public void componentResized(ComponentEvent event) {
+                        UserSettings.setInternalFrameWidth((int) (getWidth() * getScale()));
+                        UserSettings.setInternalFrameHeight((int) (getHeight() * getScale()));
+                    }
+                });
+    }
+
+    private void bindCancellationModel() {
+        cancellationSetModel = new CancellationSetModel(this);
+        cancellationSetModel.subscribe(ViewCancellationSetAction.getInstance());
+        cancellationSetModel.subscribe(AddToVisibleCancellationSetAction.getInstance());
+        cancellationSetModel.subscribe(RemoveFromVisibleCancellationSetAction.getInstance());
+    }
+
+    private void bindKeyMappings() {
+        ActionMap map = new ActionMap();
+        InputMap  inputMap = new InputMap();
+
+        addKeyMapping(
+                map, inputMap,
+                KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0),
+                MoveElementsLeftAction.getInstance()
+        );
+
+        addKeyMapping(
+                map, inputMap,
+                KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0),
+                MoveElementsRightAction.getInstance()
+        );
+
+        addKeyMapping(
+                map, inputMap,
+                KeyStroke.getKeyStroke(KeyEvent.VK_UP,0),
+                MoveElementsUpAction.getInstance()
+        );
+
+        addKeyMapping(
+                map, inputMap,
+                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,0),
+                MoveElementsDownAction.getInstance()
+        );
+
+        addKeyMapping(
+                map, inputMap,
+                KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK),
+                SelectAllNetElementsAction.getInstance()
+        );
+
+
+        setActionMap(map);
+        setInputMap(JComponent.WHEN_FOCUSED, inputMap);
+        setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+    }
+
+    private void addKeyMapping(ActionMap actionMap, InputMap inputMap,
+                               KeyStroke keystroke, Action action) {
+        actionMap.put(action.getValue(Action.NAME), action);
+        inputMap.put(keystroke,action.getValue(Action.NAME));
+    }
+
+
+    private Dimension getDefaultSize() {
+        return new Dimension(UserSettings.getInternalFrameWidth(),
+                UserSettings.getInternalFrameHeight());
+    }
+
+    public NetSelectionListener getSelectionListener() {
+        return selectionListener;
+    }
+
+    public void addElement(YAWLVertex element) {
+        getModel().insert(new Object[] {element}, null, null, null, null);
+        NetCellUtilities.scrollNetToShowCells(this, new Object[] { element });
+        YPluginHandler.getInstance().elementAdded(getNetModel(), element);
+    }
+
+    public Dimension getPreferredSize() {
+        Dimension preferredSize = super.getPreferredSize();
+
+        // Put a little whitespace padding around the default preferred size.
+
+        return new Dimension(
+                (int) preferredSize.getWidth() + WHITESPACE_MARGIN,
+                (int) preferredSize.getHeight() + WHITESPACE_MARGIN
+        );
+    }
+
+    public String getToolTipText(MouseEvent event) {
+        Object cell = getFirstCellForLocation(event.getX(), event.getY());
+        if (cell instanceof YAWLVertex) {
+            return ((YAWLVertex) cell).getToolTipText();
+        }
+        if (cell instanceof VertexContainer) {
+            return ((VertexContainer) cell).getToolTipText();
+
+        }
+        return null;
+    }
+
+    private InputCondition addInputCondition() {
+        Point2D startPoint = getInputConditionDefaultPoint(InputCondition.getVertexSize());
+        InputCondition inputCondition = new InputCondition(startPoint);
+        addElement(inputCondition);
+        return inputCondition;
+    }
+
+    private Point2D getInputConditionDefaultPoint(Dimension size) {
+        return snap(new Point((DEFAULT_MARGIN)  - (size.width/2),
+                (getHeight()/2) - (size.height/2)));
+    }
+
+    private OutputCondition addOutputCondition() {
+        Point2D startPoint = getOutputConditionDefaultPoint(OutputCondition.getVertexSize());
+        OutputCondition outputCondition = new OutputCondition(startPoint);
+        addElement(outputCondition);
+        return outputCondition;
+    }
+
+    private Point2D getOutputConditionDefaultPoint(Dimension size) {
+        return snap(new Point((getWidth()-DEFAULT_MARGIN) - (size.width/2),
+                (getHeight()/2)  - (size.height/2)));
+    }
+
+    public YAWLFlowRelation connect(YAWLPort source, YAWLPort target) {
+        YAWLFlowRelation flow = NetCellFactory.insertFlow(this,
+                source.getVertexID(), target.getVertexID());
+        connect(flow, source, target);
+        return flow;
+    }
 
     public void connect(YAWLFlowRelation flow, YAWLVertex source, YAWLVertex target) {
         connect(flow, source.getDefaultSourcePort(), target.getDefaultTargetPort());
     }
 
-  public void connect(YAWLFlowRelation flow, YAWLPort source, YAWLPort target) {
-      ConnectionSet cs = new ConnectionSet();
-      cs.connect(flow, source, target);
+    public void connect(YAWLFlowRelation flow, YAWLPort source, YAWLPort target) {
+        ConnectionSet cs = new ConnectionSet();
+        cs.connect(flow, source, target);
 
-      getNetModel().beginUpdate();
-      getModel().insert(new Object[] {flow}, null, cs, null, null);
-      if (flow.connectsTaskToItself()) {
-          NetCellUtilities.prettifyLoopingFlow(this, flow,
-                  (EdgeView) getViewFor(flow), getViewFor(flow.getSourceTask()));
-      }
-      YPluginHandler.getInstance().portsConnected(getNetModel(), source, target);
-      getNetModel().endUpdate();
-   }
+        getNetModel().beginUpdate();
+        getModel().insert(new Object[] {flow}, null, cs, null, null);
+        if (flow.connectsTaskToItself()) {
+            NetCellUtilities.prettifyLoopingFlow(this, flow,
+                    (EdgeView) getViewFor(flow), getViewFor(flow.getSourceTask()));
+        }
+        YPluginHandler.getInstance().portsConnected(getNetModel(), source, target);
+        getNetModel().endUpdate();
+    }
 
 
-  /**
-   * Returns true if <code>object</code> is a vertex, that is, if it
-   * is not an instance of Port or Edge, and all of its children are
-   * ports, or it has no children.
-   */
-  public boolean isGroup(Object cell) {
-    // Map the Cell to its View
-    CellView view = getGraphLayoutCache().getMapping(cell, false);
-      return view != null && !view.isLeaf();
-  }
+    /**
+     * Returns true if <code>object</code> is a vertex, that is, if it
+     * is not an instance of Port or Edge, and all of its children are
+     * ports, or it has no children.
+     */
+    public boolean isGroup(Object cell) {
+        // Map the Cell to its View
+        CellView view = getGraphLayoutCache().getMapping(cell, false);
+        return view != null && !view.isLeaf();
+    }
 
-  public boolean connectionAllowable(Port source, Port target) {
-    return getNetModel().connectionAllowable(source, target);
-  }
-  
-  public Set getEdges(YAWLCell [] cells) {
-    return NetGraphModel.getEdges(getModel(), cells );
-  }
-  
-  public YAWLCell getTargetOf(Edge edge) {
-    return getNetModel().getTargetOf(edge);
-  }
+    public boolean connectionAllowable(Port source, Port target) {
+        return getNetModel().connectionAllowable(source, target);
+    }
 
-  public YAWLCell getSourceOf(Edge edge) {
-    return getNetModel().getSourceOf(edge);
-  }
-  
-  public boolean areConnected(YAWLCell sourceCell, YAWLCell targetCell) {
-    return getNetModel().areConnected(sourceCell, targetCell);
-  }
-  
-  public boolean acceptsIncomingFlows(YAWLCell cell) {
-    return getNetModel().acceptsIncomingFlows(cell);
-  }
-  
-  public boolean hasIncomingFlow(YAWLCell cell) {
-    return getNetModel().hasIncomingFlow(cell);
-  }
+    public Set getEdges(YAWLCell [] cells) {
+        return NetGraphModel.getEdges(getModel(), cells );
+    }
 
-  public boolean generatesOutgoingFlows(YAWLCell cell) {
-    return getNetModel().generatesOutgoingFlows(cell);
-  }
+    public YAWLCell getTargetOf(Edge edge) {
+        return getNetModel().getTargetOf(edge);
+    }
 
-  public boolean hasOutgoingFlow(YAWLCell cell) {
-    return getNetModel().hasOutgoingFlow(cell);
-  }
+    public YAWLCell getSourceOf(Edge edge) {
+        return getNetModel().getSourceOf(edge);
+    }
+
+    public boolean areConnected(YAWLCell sourceCell, YAWLCell targetCell) {
+        return getNetModel().areConnected(sourceCell, targetCell);
+    }
+
+    public boolean acceptsIncomingFlows(YAWLCell cell) {
+        return getNetModel().acceptsIncomingFlows(cell);
+    }
+
+    public boolean hasIncomingFlow(YAWLCell cell) {
+        return getNetModel().hasIncomingFlow(cell);
+    }
+
+    public boolean generatesOutgoingFlows(YAWLCell cell) {
+        return getNetModel().generatesOutgoingFlows(cell);
+    }
+
+    public boolean hasOutgoingFlow(YAWLCell cell) {
+        return getNetModel().hasOutgoingFlow(cell);
+    }
 
     public void setJoinDecorator(YAWLTask task, int type, int position) {
         setDecorator(task, type, position, true);
@@ -544,437 +544,437 @@ public class NetGraph extends JGraph {
             }
         }
     }
-  
-  public void moveSelectedElementsLeft() {
-    moveSelectedElementsBy(-getGridSize(), 0);
-  }
 
-  public void moveSelectedElementsRight() {
-    moveSelectedElementsBy(getGridSize(), 0);
-  }
-
-  public void moveSelectedElementsUp() {
-    moveSelectedElementsBy(0, -getGridSize());
-  }
-
-  public void moveSelectedElementsDown() {
-    moveSelectedElementsBy(0, getGridSize());
-  }
-  
-  public void moveElementsBy(Object[] cells, double x, double y) {
-    CellView[] views = new CellView[cells.length];
-    for(int i = 0; i < cells.length; i++) {
-      views[i] = getViewFor((GraphCell) cells[i]);
+    public void moveSelectedElementsLeft() {
+        moveSelectedElementsBy(-getGridSize(), 0);
     }
-    NetCellUtilities.translateViews(this, views, x, y);
-  }
 
-  public void moveElementBy(GraphCell cell, double x, double y) {
-    NetCellUtilities.translateViews(this, new CellView[] { getViewFor(cell) }, x, y);
-  }
-
-  public void moveElementTo(GraphCell cell, double x, double y) {
-    double deltaX = x - getCellBounds(cell).getX();
-    double deltaY = y - getCellBounds(cell).getY();
-    
-    moveElementBy(cell, deltaX, deltaY);
-  }
-
-  
-  private void moveSelectedElementsBy(double x, double y) {
-    moveElementsBy(getSelectionCells(), x, y);
-  }
-  
-  public CellView getViewFor(GraphCell cell) {
-    return graphLayoutCache.getMapping(cell, false);
-  }
-
-  public VertexView getVertexViewFor(GraphCell cell) {
-    return (VertexView) getViewFor(cell);
-  }
-  
-  public String getElementLabel(GraphCell vertex) {
-    VertexContainer container = null;
-    if (vertex instanceof VertexContainer) {
-      container = (VertexContainer) vertex;
+    public void moveSelectedElementsRight() {
+        moveSelectedElementsBy(getGridSize(), 0);
     }
-    if (vertex instanceof YAWLVertex) {
-      YAWLVertex element = (YAWLVertex) vertex;
-      if (element.getParent() != null) {
-        container = (VertexContainer) element.getParent();
-      }
+
+    public void moveSelectedElementsUp() {
+        moveSelectedElementsBy(0, -getGridSize());
     }
-    if (container != null) {
-      VertexLabel label = container.getLabel();
-      if (label != null) {
-        return container.getLabel().getText();
-      }
+
+    public void moveSelectedElementsDown() {
+        moveSelectedElementsBy(0, getGridSize());
     }
-    return null;
-  }
-  
-  public void setElementLabel(GraphCell vertex, String labelString) {
-    getNetModel().beginUpdate();
-    setElementLabelInsideUpdate(vertex, labelString);
-    getNetModel().endUpdate();
-    
-    NetCellUtilities.scrollNetToShowCells(
-        this, 
-        new Object[] { vertex }
-    );
 
-  }
-
-  public void setElementLabelInsideUpdate(GraphCell vertex, String labelString) {
-    HashSet objectsToInsert = new HashSet();
-    ParentMap parentMap = new ParentMap();
-    YAWLVertex element = null;
-    
-    try {
-      VertexContainer container = null;
-      if (vertex instanceof VertexContainer) {
-        container = (VertexContainer) vertex;
-        element = container.getVertex();
-      } else {
-        element = (YAWLVertex) vertex;
-        container = getNetModel().getVertexContainer(element, objectsToInsert, parentMap);
-      }
-
-        VertexLabel oldLabel = container.getLabel();
-      if(oldLabel != null) {
-        getNetModel().removeCells(new Object[]{oldLabel});
-      }
-      
-      if(labelString == null || labelString.equals("") || labelString.equals("null")) {
-        return;
-      }
-
-      VertexLabel newLabel = new VertexLabel(element, labelString);
-        if (oldLabel != null) {
-            newLabel.setFont(oldLabel.getFont());
-            newLabel.setForeground(oldLabel.getForeground());
+    public void moveElementsBy(Object[] cells, double x, double y) {
+        CellView[] views = new CellView[cells.length];
+        for(int i = 0; i < cells.length; i++) {
+            views[i] = getViewFor((GraphCell) cells[i]);
         }
-      
-      getNetModel().insert(objectsToInsert.toArray(),null, null, parentMap, null); 
-      
-      getGraphLayoutCache().insert(newLabel);
-      
-      // The ordering of the following code is very important for getting the label
-      // to align correctly with the element (JGraph 5.7.3.1 exhibits this behaviour). 
-
-      // Moving after the insert causes the label to resize to its maximum bounding box.
-      
-      NetCellUtilities.moveViewToLocation(
-          this, 
-          getVertexViewFor(newLabel),
-          getVertexViewFor(container).getBounds().getCenterX(),
-          getVertexViewFor(container).getBounds().getMaxY()
-      );
-
-      // Adding the label as a child to the container adds a couple pixels to the
-      // label width, so we remember the correct label width now.
-
-      double labelWidth = getVertexViewFor(newLabel).getBounds().getWidth();
-
-      parentMap.addEntry(newLabel, container);
-      
-      getNetModel().edit(null,null, parentMap, null); 
-
-      // Center the label under the element. Rounding was necessary to get
-      // good placement of the label.
-      
-      NetCellUtilities.translateView(
-          this, 
-          getVertexViewFor(newLabel),
-          Math.round(-1.0*(labelWidth/2.0)),
-          0
-      );
-        
-    } catch (Exception e) {}
-  }
-
-  public NetGraphModel getNetModel() {
-   return (NetGraphModel) getModel();
-  }
-  
-  public CancellationSetModel getCancellationSetModel() {
-    return this.cancellationSetModel;
-  }
-
-  public void resetCancellationSet() {
-      YAWLTask task = cancellationSetModel.getTriggeringTask();
-      if (task != null) changeCancellationSet(task);       
-  }
-  
-  public void changeCancellationSet(YAWLTask task) {
-    getNetModel().beginUpdate();
-
-    if (cancellationSetModel.getTriggeringTask() != null) {
-      hideOldCancellationSet();
+        NetCellUtilities.translateViews(this, views, x, y);
     }
 
-    cancellationSetModel.changeCancellationSet(task);
-
-    if (task != null) {
-      showCurrentCancellationSet();
-    }
-    getNetModel().endUpdate();
-  }
-  
-  public YAWLTask viewingCancellationSetOf() {
-    return cancellationSetModel.getTriggeringTask();
-    
-  }
-  
-  private void hideOldCancellationSet() {
-    YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-    changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
-    for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
-       showCellAsNotInCurrentCancellationSet(cell);
-    }
-  }
-  
-  private void showCurrentCancellationSet() {
-    YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-    changeVertexBackground(triggeringTask, 
-                           CancellationSetModel.CANCELLATION_SET_TRIGGER_BACKGROUND);
-    for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
-       showCellAsInCurrentCancellationSet(cell);
-    }
-  }
-  
-  public YAWLTask getTriggeringTaskOfCurrentCancellationSet() {
-  	return cancellationSetModel.getTriggeringTask();
-  }
-  
-  public void addSelectedCellsToVisibleCancellationSet() {
-    Object[] validSelectedCells = 
-      getCancellationSetModel().getValidSelectedCellsForInclusion();
-
-    if(validSelectedCells.length == 0) {
-      return;
+    public void moveElementBy(GraphCell cell, double x, double y) {
+        NetCellUtilities.translateViews(this, new CellView[] { getViewFor(cell) }, x, y);
     }
 
-    getNetModel().beginUpdate();
-    for(int i = 0; i < validSelectedCells.length; i++) {
-      addCellToCancellationSetInsideUpdate((YAWLCell) validSelectedCells[i]);
-    }
-    getCancellationSetModel().refresh();
-    getNetModel().endUpdate();
-  }
+    public void moveElementTo(GraphCell cell, double x, double y) {
+        double deltaX = x - getCellBounds(cell).getX();
+        double deltaY = y - getCellBounds(cell).getY();
 
-  public void removeSelectedCellsFromVisibleCancellationSet() {
-    Object[] validSelectedCells = 
-      getCancellationSetModel().getValidSelectedCellsForExclusion();
-
-    if(validSelectedCells.length == 0) {
-      return;
+        moveElementBy(cell, deltaX, deltaY);
     }
 
-    getNetModel().beginUpdate();
-      for (Object validSelectedCell : validSelectedCells) {
-          removeCellFromCancellationSetInsideUpdate((YAWLCell) validSelectedCell);
-      }
-    getCancellationSetModel().refresh();
-    getNetModel().endUpdate();
-  }
 
-  
-  public void addCellToCancellationSet(YAWLCell cell) {
-    getNetModel().beginUpdate();
-    addCellToCancellationSetInsideUpdate(cell);
-    getNetModel().endUpdate();
-  }
-  
-  private void addCellToCancellationSetInsideUpdate(YAWLCell cell) {
-    if (cancellationSetModel.addCellToCancellationSet(cell)) {
-      showCellAsInCurrentCancellationSet(cell);
-    }
-  }
-
-  public void removeCellFromCancellationSet(YAWLCell cell) {
-    getNetModel().beginUpdate();
-    removeCellFromCancellationSetInsideUpdate(cell);
-    getNetModel().endUpdate();
-  }
-  
-  public void removeCellFromCancellationSetInsideUpdate(YAWLCell cell) {
-    if (cancellationSetModel.removeCellFromCancellationSet(cell)) {
-      showCellAsNotInCurrentCancellationSet(cell);
-    }
-  }
-
-
-  private void showCellAsInCurrentCancellationSet(YAWLCell cell) {
-    changeNetCellForeground(cell, CancellationSetModel.CANCELLATION_SET_MEMBER_FOREGROUND);
-  }
-
-  private void showCellAsNotInCurrentCancellationSet(YAWLCell cell) {
-    changeNetCellForeground(cell, CancellationSetModel.NOT_CANCELLATION_SET_MEMBER_FOREGROUND);
-  }
-  
-  public void changeCellForeground(GraphCell cell, Color color) {
-    Map attributes;
-    if(cell instanceof Edge) {
-      attributes = GraphConstants.createAttributes(cell, 
-                                                   GraphConstants.LINECOLOR,
-                                                   color);
-    } else {
-      attributes = GraphConstants.createAttributes(cell, 
-                                                   GraphConstants.FOREGROUND,
-                                                   color);
-    }
-    getModel().edit(attributes, null, null, null);
-  }
-
-  public Color getCellForeground(GraphCell cell) {
-      String colourKey = (cell instanceof Edge) ? GraphConstants.LINECOLOR :
-                                                  GraphConstants.FOREGROUND;
-      return (Color) getModel().getAttributes(cell).get(colourKey);
-  }
-  
-  private void changeNetCellForeground(YAWLCell cell, Color color) {
-    changeCellForeground((GraphCell) cell,color);
-    if (cell instanceof YAWLTask && ((YAWLTask)cell).getParent() != null) {
-      YAWLTask task = (YAWLTask) cell;
-      if (task.getJoinDecorator() != null) {
-        changeCellForeground(task.getJoinDecorator(), 
-                             color);
-      }
-      if (task.getSplitDecorator() != null) {
-        changeCellForeground(task.getSplitDecorator(), 
-                             color);
-      }
-    }
-  }
-
-  public void changeVertexBackground(YAWLVertex vertex, Color color) {
-    changeCellBackground(vertex,color);
-    if (vertex.getParent() != null && vertex instanceof YAWLTask) {
-      YAWLTask task = (YAWLTask) vertex;
-      if (task.getJoinDecorator() != null) {
-        changeCellBackground(task.getJoinDecorator(), 
-                             color);
-      }
-      if (task.getSplitDecorator() != null) {
-        changeCellBackground(task.getSplitDecorator(), 
-                             color);
-      }
-    }
-  }
-
-  private  void changeCellBackground(GraphCell cell, Color color) {
-    Map attributes = GraphConstants.createAttributes(cell, 
-                                                     GraphConstants.BACKGROUND,
-                                                     color);
-    getModel().edit(attributes, null, null, null);
-  }
-  
-  public  void changeLineWidth(YAWLVertex cell) {
-	    Map attributes = GraphConstants.createAttributes(cell,
-	                                                     GraphConstants.LINEWIDTH,
-	                                                     (float)20.0);
-	    getModel().edit(attributes, null, null, null);
-	  }
-
-  public YAWLEditorNetPanel getFrame() {
-    return frame;
-  }
-  
-  public void setFrame(YAWLEditorNetPanel frame) {
-    this.frame = frame;
-  }
-
-  public void removeFrame() {
-      frame.setVisible(false);
-      frame = null;
-  }
-  
-  public String getName() {
-    return getNetModel().getName();
-  }
-  
-  public void setName(String name) {
-    getNetModel().setName(name);
-  }
-  
-  
-  public void setUnfoldingNet(YAWLCompositeTask task, NetGraph graph) {
-    if (graph != null) {
-      ((YAWLTask)task).setDecomposition(graph.getNetModel().getDecomposition());
-    } else {
-      ((YAWLTask)task).setDecomposition(null);
-    }
-    if (!((YAWLTask) task).hasLabel()) {
-      String name = graph.getNetModel().getName();
-      setElementLabel((YAWLTask) task, name);
-    }
-  }
-  
-  /**
-   * Sets an icon on a vertex that becomes an undoable action for the graph.
-   * @param vertex The vertex to add the icon to.
-   * @param iconPath The file path to the icon needed.
-   */
-  
-  public void setVertexIcon(YAWLVertex vertex, String iconPath) {
-      if (! (vertex instanceof YAWLTask)) return;
-
-      YAWLTask task = (YAWLTask) vertex;
-      if (task.getIconPath() != null && task.getIconPath().equals(iconPath)) {
-          return;
-      }
-
-      getNetModel().beginUpdate();
-      getNetModel().postEdit(
-          new UndoableTaskIconChange(this, vertex, task.getIconPath(), iconPath));
-
-      task.setIconPath(iconPath);
-      repaint();
-      getNetModel().endUpdate();
-  }
-  
-  public void setTaskDecomposition(YAWLTask task, YDecomposition decomposition) {
-      YDecomposition oldDecomposition = task.getDecomposition();
-    if ((decomposition != null) && decomposition.equals(oldDecomposition)) {
-      return;
+    private void moveSelectedElementsBy(double x, double y) {
+        moveElementsBy(getSelectionCells(), x, y);
     }
 
-    getNetModel().beginUpdate();
-    
-    if (decomposition != null) {
-        if (task.getLabel() == null) {
-          setElementLabelInsideUpdate(task, decomposition.getID());
+    public CellView getViewFor(GraphCell cell) {
+        return graphLayoutCache.getMapping(cell, false);
+    }
+
+    public VertexView getVertexViewFor(GraphCell cell) {
+        return (VertexView) getViewFor(cell);
+    }
+
+    public String getElementLabel(GraphCell vertex) {
+        VertexContainer container = null;
+        if (vertex instanceof VertexContainer) {
+            container = (VertexContainer) vertex;
         }
+        if (vertex instanceof YAWLVertex) {
+            YAWLVertex element = (YAWLVertex) vertex;
+            if (element.getParent() != null) {
+                container = (VertexContainer) element.getParent();
+            }
+        }
+        if (container != null) {
+            VertexLabel label = container.getLabel();
+            if (label != null) {
+                return container.getLabel().getText();
+            }
+        }
+        return null;
     }
-    else {
 
-        // if decomp is null, its being dropped, so if the decomp's name == the task's label
-        // remove the label also
-        if ((oldDecomposition != null) &&
-            (oldDecomposition.getID().equals(task.getLabel()))) {
-            setElementLabelInsideUpdate(task, null);
+    public void setElementLabel(GraphCell vertex, String labelString) {
+        getNetModel().beginUpdate();
+        setElementLabelInsideUpdate(vertex, labelString);
+        getNetModel().endUpdate();
+
+        NetCellUtilities.scrollNetToShowCells(
+                this,
+                new Object[] { vertex }
+        );
+
+    }
+
+    public void setElementLabelInsideUpdate(GraphCell vertex, String labelString) {
+        HashSet objectsToInsert = new HashSet();
+        ParentMap parentMap = new ParentMap();
+        YAWLVertex element = null;
+
+        try {
+            VertexContainer container = null;
+            if (vertex instanceof VertexContainer) {
+                container = (VertexContainer) vertex;
+                element = container.getVertex();
+            } else {
+                element = (YAWLVertex) vertex;
+                container = getNetModel().getVertexContainer(element, objectsToInsert, parentMap);
+            }
+
+            VertexLabel oldLabel = container.getLabel();
+            if(oldLabel != null) {
+                getNetModel().removeCells(new Object[]{oldLabel});
+            }
+
+            if(labelString == null || labelString.equals("") || labelString.equals("null")) {
+                return;
+            }
+
+            VertexLabel newLabel = new VertexLabel(element, labelString);
+            if (oldLabel != null) {
+                newLabel.setFont(oldLabel.getFont());
+                newLabel.setForeground(oldLabel.getForeground());
+            }
+
+            getNetModel().insert(objectsToInsert.toArray(),null, null, parentMap, null);
+
+            getGraphLayoutCache().insert(newLabel);
+
+            // The ordering of the following code is very important for getting the label
+            // to align correctly with the element (JGraph 5.7.3.1 exhibits this behaviour).
+
+            // Moving after the insert causes the label to resize to its maximum bounding box.
+
+            NetCellUtilities.moveViewToLocation(
+                    this,
+                    getVertexViewFor(newLabel),
+                    getVertexViewFor(container).getBounds().getCenterX(),
+                    getVertexViewFor(container).getBounds().getMaxY()
+            );
+
+            // Adding the label as a child to the container adds a couple pixels to the
+            // label width, so we remember the correct label width now.
+
+            double labelWidth = getVertexViewFor(newLabel).getBounds().getWidth();
+
+            parentMap.addEntry(newLabel, container);
+
+            getNetModel().edit(null,null, parentMap, null);
+
+            // Center the label under the element. Rounding was necessary to get
+            // good placement of the label.
+
+            NetCellUtilities.translateView(
+                    this,
+                    getVertexViewFor(newLabel),
+                    Math.round(-1.0*(labelWidth/2.0)),
+                    0
+            );
+
+        } catch (Exception e) {}
+    }
+
+    public NetGraphModel getNetModel() {
+        return (NetGraphModel) getModel();
+    }
+
+    public CancellationSetModel getCancellationSetModel() {
+        return this.cancellationSetModel;
+    }
+
+    public void resetCancellationSet() {
+        YAWLTask task = cancellationSetModel.getTriggeringTask();
+        if (task != null) changeCancellationSet(task);
+    }
+
+    public void changeCancellationSet(YAWLTask task) {
+        getNetModel().beginUpdate();
+
+        if (cancellationSetModel.getTriggeringTask() != null) {
+            hideOldCancellationSet();
+        }
+
+        cancellationSetModel.changeCancellationSet(task);
+
+        if (task != null) {
+            showCurrentCancellationSet();
+        }
+        getNetModel().endUpdate();
+    }
+
+    public YAWLTask viewingCancellationSetOf() {
+        return cancellationSetModel.getTriggeringTask();
+
+    }
+
+    private void hideOldCancellationSet() {
+        YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
+        changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
+        for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
+            showCellAsNotInCurrentCancellationSet(cell);
         }
     }
 
-    
-    getNetModel().postEdit(
-        new UndoableTaskDecompositionChange(
-              task, 
-              oldDecomposition, 
-              task.getDecomposition()
-        )
-      );    
-    
-    getNetModel().endUpdate();
-  }
-  
-  public NetMarqueeHandler getNetMarqueeHandler() {
-    return (NetMarqueeHandler) getMarqueeHandler();
-  }
+    private void showCurrentCancellationSet() {
+        YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
+        changeVertexBackground(triggeringTask,
+                CancellationSetModel.CANCELLATION_SET_TRIGGER_BACKGROUND);
+        for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
+            showCellAsInCurrentCancellationSet(cell);
+        }
+    }
+
+    public YAWLTask getTriggeringTaskOfCurrentCancellationSet() {
+        return cancellationSetModel.getTriggeringTask();
+    }
+
+    public void addSelectedCellsToVisibleCancellationSet() {
+        Object[] validSelectedCells =
+                getCancellationSetModel().getValidSelectedCellsForInclusion();
+
+        if(validSelectedCells.length == 0) {
+            return;
+        }
+
+        getNetModel().beginUpdate();
+        for(int i = 0; i < validSelectedCells.length; i++) {
+            addCellToCancellationSetInsideUpdate((YAWLCell) validSelectedCells[i]);
+        }
+        getCancellationSetModel().refresh();
+        getNetModel().endUpdate();
+    }
+
+    public void removeSelectedCellsFromVisibleCancellationSet() {
+        Object[] validSelectedCells =
+                getCancellationSetModel().getValidSelectedCellsForExclusion();
+
+        if(validSelectedCells.length == 0) {
+            return;
+        }
+
+        getNetModel().beginUpdate();
+        for (Object validSelectedCell : validSelectedCells) {
+            removeCellFromCancellationSetInsideUpdate((YAWLCell) validSelectedCell);
+        }
+        getCancellationSetModel().refresh();
+        getNetModel().endUpdate();
+    }
 
 
-class NetFocusListener implements FocusListener {
+    public void addCellToCancellationSet(YAWLCell cell) {
+        getNetModel().beginUpdate();
+        addCellToCancellationSetInsideUpdate(cell);
+        getNetModel().endUpdate();
+    }
+
+    private void addCellToCancellationSetInsideUpdate(YAWLCell cell) {
+        if (cancellationSetModel.addCellToCancellationSet(cell)) {
+            showCellAsInCurrentCancellationSet(cell);
+        }
+    }
+
+    public void removeCellFromCancellationSet(YAWLCell cell) {
+        getNetModel().beginUpdate();
+        removeCellFromCancellationSetInsideUpdate(cell);
+        getNetModel().endUpdate();
+    }
+
+    public void removeCellFromCancellationSetInsideUpdate(YAWLCell cell) {
+        if (cancellationSetModel.removeCellFromCancellationSet(cell)) {
+            showCellAsNotInCurrentCancellationSet(cell);
+        }
+    }
+
+
+    private void showCellAsInCurrentCancellationSet(YAWLCell cell) {
+        changeNetCellForeground(cell, CancellationSetModel.CANCELLATION_SET_MEMBER_FOREGROUND);
+    }
+
+    private void showCellAsNotInCurrentCancellationSet(YAWLCell cell) {
+        changeNetCellForeground(cell, CancellationSetModel.NOT_CANCELLATION_SET_MEMBER_FOREGROUND);
+    }
+
+    public void changeCellForeground(GraphCell cell, Color color) {
+        Map attributes;
+        if(cell instanceof Edge) {
+            attributes = GraphConstants.createAttributes(cell,
+                    GraphConstants.LINECOLOR,
+                    color);
+        } else {
+            attributes = GraphConstants.createAttributes(cell,
+                    GraphConstants.FOREGROUND,
+                    color);
+        }
+        getModel().edit(attributes, null, null, null);
+    }
+
+    public Color getCellForeground(GraphCell cell) {
+        String colourKey = (cell instanceof Edge) ? GraphConstants.LINECOLOR :
+                GraphConstants.FOREGROUND;
+        return (Color) getModel().getAttributes(cell).get(colourKey);
+    }
+
+    private void changeNetCellForeground(YAWLCell cell, Color color) {
+        changeCellForeground((GraphCell) cell,color);
+        if (cell instanceof YAWLTask && ((YAWLTask)cell).getParent() != null) {
+            YAWLTask task = (YAWLTask) cell;
+            if (task.getJoinDecorator() != null) {
+                changeCellForeground(task.getJoinDecorator(),
+                        color);
+            }
+            if (task.getSplitDecorator() != null) {
+                changeCellForeground(task.getSplitDecorator(),
+                        color);
+            }
+        }
+    }
+
+    public void changeVertexBackground(YAWLVertex vertex, Color color) {
+        changeCellBackground(vertex,color);
+        if (vertex.getParent() != null && vertex instanceof YAWLTask) {
+            YAWLTask task = (YAWLTask) vertex;
+            if (task.getJoinDecorator() != null) {
+                changeCellBackground(task.getJoinDecorator(),
+                        color);
+            }
+            if (task.getSplitDecorator() != null) {
+                changeCellBackground(task.getSplitDecorator(),
+                        color);
+            }
+        }
+    }
+
+    private  void changeCellBackground(GraphCell cell, Color color) {
+        Map attributes = GraphConstants.createAttributes(cell,
+                GraphConstants.BACKGROUND,
+                color);
+        getModel().edit(attributes, null, null, null);
+    }
+
+    public  void changeLineWidth(YAWLVertex cell) {
+        Map attributes = GraphConstants.createAttributes(cell,
+                GraphConstants.LINEWIDTH,
+                (float)20.0);
+        getModel().edit(attributes, null, null, null);
+    }
+
+    public YAWLEditorNetPanel getFrame() {
+        return frame;
+    }
+
+    public void setFrame(YAWLEditorNetPanel frame) {
+        this.frame = frame;
+    }
+
+    public void removeFrame() {
+        frame.setVisible(false);
+        frame = null;
+    }
+
+    public String getName() {
+        return getNetModel().getName();
+    }
+
+    public void setName(String name) {
+        getNetModel().setName(name);
+    }
+
+
+    public void setUnfoldingNet(YAWLCompositeTask task, NetGraph graph) {
+        if (graph != null) {
+            ((YAWLTask)task).setDecomposition(graph.getNetModel().getDecomposition());
+        } else {
+            ((YAWLTask)task).setDecomposition(null);
+        }
+        if (!((YAWLTask) task).hasLabel()) {
+            String name = graph.getNetModel().getName();
+            setElementLabel((YAWLTask) task, name);
+        }
+    }
+
+    /**
+     * Sets an icon on a vertex that becomes an undoable action for the graph.
+     * @param vertex The vertex to add the icon to.
+     * @param iconPath The file path to the icon needed.
+     */
+
+    public void setVertexIcon(YAWLVertex vertex, String iconPath) {
+        if (! (vertex instanceof YAWLTask)) return;
+
+        YAWLTask task = (YAWLTask) vertex;
+        if (task.getIconPath() != null && task.getIconPath().equals(iconPath)) {
+            return;
+        }
+
+        getNetModel().beginUpdate();
+        getNetModel().postEdit(
+                new UndoableTaskIconChange(this, vertex, task.getIconPath(), iconPath));
+
+        task.setIconPath(iconPath);
+        repaint();
+        getNetModel().endUpdate();
+    }
+
+    public void setTaskDecomposition(YAWLTask task, YDecomposition decomposition) {
+        YDecomposition oldDecomposition = task.getDecomposition();
+        if ((decomposition != null) && decomposition.equals(oldDecomposition)) {
+            return;
+        }
+
+        getNetModel().beginUpdate();
+
+        if (decomposition != null) {
+            if (task.getLabel() == null) {
+                setElementLabelInsideUpdate(task, decomposition.getID());
+            }
+        }
+        else {
+
+            // if decomp is null, its being dropped, so if the decomp's name == the task's label
+            // remove the label also
+            if ((oldDecomposition != null) &&
+                    (oldDecomposition.getID().equals(task.getLabel()))) {
+                setElementLabelInsideUpdate(task, null);
+            }
+        }
+
+
+        getNetModel().postEdit(
+                new UndoableTaskDecompositionChange(
+                        task,
+                        oldDecomposition,
+                        task.getDecomposition()
+                )
+        );
+
+        getNetModel().endUpdate();
+    }
+
+    public NetMarqueeHandler getNetMarqueeHandler() {
+        return (NetMarqueeHandler) getMarqueeHandler();
+    }
+
+
+    class NetFocusListener implements FocusListener {
 
   /* 
    * This jiggery-pokery has been made necessary because 
@@ -984,21 +984,21 @@ class NetFocusListener implements FocusListener {
    * on the net when users next tried connecting two net elements with 
    * a flow.
    */
-  
-  private final NetGraph net;
-  
-  public NetFocusListener(NetGraph net) {
-    this.net = net;
-  }
-  
-  public void focusGained(FocusEvent event) {
-    // deliberately does nothing. 
-  }
 
-  public void focusLost(FocusEvent event) {
-    try {
-//      net.getNetMarqueeHandler().connectElementsOrIgnoreFlow();
-    } catch (Exception e) {}
-  }
-}
+        private final NetGraph net;
+
+        public NetFocusListener(NetGraph net) {
+            this.net = net;
+        }
+
+        public void focusGained(FocusEvent event) {
+            // deliberately does nothing.
+        }
+
+        public void focusLost(FocusEvent event) {
+            try {
+                //      net.getNetMarqueeHandler().connectElementsOrIgnoreFlow();
+            } catch (Exception e) {}
+        }
+    }
 }

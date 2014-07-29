@@ -21,17 +21,17 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationStateListener;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class YStatusBar extends JPanel implements SpecificationStateListener {
 
     private static final JLabel statusLabel = new JLabel();
-    private static final JConnectionStatus modeIndicator = new JConnectionStatus();
+    private static final ConnectionStatus modeIndicator = new ConnectionStatus();
     private JProgressBar progressBar;
-    private SecondUpdateThread secondUpdateThread;
     private String previousStatusText;
     private UpdateProgressByTime updater;
 
@@ -39,15 +39,9 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     public YStatusBar() {
         super();
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
+        setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
         statusLabel.setForeground(Color.DARK_GRAY);
-        statusLabel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLoweredBevelBorder(),
-                        BorderFactory.createEmptyBorder(0, 2, 0, 2)
-                )
-        );
-
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
         add(modeIndicator, BorderLayout.WEST);
         add(statusLabel, BorderLayout.CENTER);
         add(getProgressBar(), BorderLayout.EAST);
@@ -71,80 +65,51 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     }
 
 
-    public void setConnectionMode(String component, boolean online) {
-        modeIndicator.setStatusMode(component, online);
+    public boolean refreshConnectionStatus() {
+        return modeIndicator.refresh();
     }
 
 
-    private JProgressBar getProgressBar() {
+    private JPanel getProgressBar() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        panel.setSize(new Dimension(200, 16));
+
         progressBar = new JProgressBar();
-        progressBar.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLoweredBevelBorder(),
-                        BorderFactory.createEmptyBorder(1, 1, 1, 1)
-                )
-        );
-
-        progressBar.setPreferredSize(new Dimension(200, 1));
+        progressBar.setBorderPainted(false);
         progressBar.setVisible(false);
-        return progressBar;
-    }
-
-
-    public void updateProgress(final int completionValue) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                if (completionValue < 0 || completionValue > 100) {
-                    return;
-                }
-                progressBar.setVisible(true);
-                progressBar.setValue(completionValue);
-            }
-        });
+        panel.add(progressBar, BorderLayout.CENTER);
+        return panel;
     }
 
 
     public void finishProgress() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                progressBar.setVisible(false);
-            }
-        });
+        progressBar.setVisible(false);
     }
 
 
     public void progressOverSeconds(final int pauseSeconds) {
-//        updater = new UpdateProgressByTime(pauseSeconds);
-//        updater.addPropertyChangeListener(new PropertyChangeListener() {
-//            public void propertyChange(PropertyChangeEvent evt) {
-//                if ("progress".equals(evt.getPropertyName())) {
-//                    progressBar.setValue((Integer) evt.getNewValue());
-//                }
-//            }
-//        });
-//
-//        updater.execute();
+        progressBar.setVisible(true);
+        updater = new UpdateProgressByTime(pauseSeconds);
+         updater.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("progress".equals(evt.getPropertyName())) {
+                    progressBar.setValue((Integer) evt.getNewValue());
+                }
+            }
+        });
 
-        secondUpdateThread = new SecondUpdateThread();
-        try {
-            secondUpdateThread.setPauseSeconds(pauseSeconds);
-            secondUpdateThread.start();
-        }
-        catch (Exception e) {
-            LogWriter.error("Error initialising status bar", e);
-        }
+        updater.execute();
     }
 
 
     public void resetProgress() {
-//        updater.cancel(true);
-//        finishProgress();
-        secondUpdateThread.reset();
+        if (updater != null) updater.cancel(true);
+        finishProgress();
     }
 
     public void freeze() {
- //       updater.cancel(true);
-        secondUpdateThread.freeze();
+        if (updater != null) updater.cancel(true);
     }
 
     public void specificationStateChange(SpecificationState state) {
@@ -171,7 +136,7 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
 
     class UpdateProgressByTime extends SwingWorker<Void, Integer> {
 
-        private static final long WAIT_MSECS = 100;
+        private static final long WAIT_MSECS = 50;
         private final int seconds;
 
         UpdateProgressByTime(int seconds) {
@@ -181,78 +146,22 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
         protected Void doInBackground() throws Exception {
             int progress = 0;
             int maxMSecs = seconds * 1000;
-            while (progress < maxMSecs) {
+            while (progress < maxMSecs && ! isCancelled()) {
                 progress += WAIT_MSECS;
-                setProgress((progress / maxMSecs) * 100);
+                setProgress(Math.min(progress * 100 / maxMSecs, 100));
                 pause(WAIT_MSECS);
             }
             return null;
         }
 
         private void pause(long milliseconds) {
-             Object lock = new Object();
-             long now = System.currentTimeMillis();
-             long finishTime = now + milliseconds;
-             while (now < finishTime) {
-                 long timeToWait = finishTime - now;
-                 synchronized (lock) {
-                     try {
-                         lock.wait(timeToWait);
-                     }
-                     catch (InterruptedException ex) {
-                     }
-                 }
-                 now = System.currentTimeMillis();
-             }
-         }
-    }
-
-    class SecondUpdateThread extends Thread {
-
-        private final int APPARENTLY_INSTANT_MILLISECONDS = 50;
-        private int pauseSeconds = 0;
-        private volatile boolean shouldStop = false;
-
-        public void run() {
-            final int secondsAsMillis = pauseSeconds * 1000;
-            final int pausePasses = secondsAsMillis / APPARENTLY_INSTANT_MILLISECONDS;
-            for (int i = 0; i < pausePasses; i++) {
-                if (shouldStop) {
-                    break;
-                }
-                updateProgress((i * 100) / (pausePasses));
-                pause(APPARENTLY_INSTANT_MILLISECONDS);
+            try {
+                Thread.sleep(milliseconds);
             }
-        }
-
-        public void setPauseSeconds(int seconds) {
-            this.pauseSeconds = seconds;
-        }
-
-        public void reset() {
-            shouldStop = true;
-            finishProgress();
-        }
-
-        public void freeze() {
-            shouldStop = true;
-        }
-
-        private void pause(long milliseconds) {
-            Object lock = new Object();
-            long now = System.currentTimeMillis();
-            long finishTime = now + milliseconds;
-            while (now < finishTime) {
-                long timeToWait = finishTime - now;
-                synchronized (lock) {
-                    try {
-                        lock.wait(timeToWait);
-                    }
-                    catch (InterruptedException ex) {
-                    }
-                }
-                now = System.currentTimeMillis();
+            catch (InterruptedException ie) {
+                // ignore
             }
         }
     }
+
 }

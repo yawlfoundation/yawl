@@ -20,9 +20,10 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.PropertyDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutRepository;
 import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationReader;
-import org.yawlfoundation.yawl.editor.ui.properties.dialog.PropertyDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -37,8 +38,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * @author Michael Adams
@@ -110,18 +115,16 @@ public class SpecificationDownloadDialog extends PropertyDialog
                 }
                 YAWLEditor editor = YAWLEditor.getInstance();
                 YStatusBar statusBar = YAWLEditor.getStatusBar();
-                Cursor oldCursor = editor.getCursor();
                 editor.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 Publisher.getInstance().publishFileBusyEvent();
                 statusBar.setText("Downloading Specification...");
                 statusBar.progressOverSeconds(4);
                 YAWLEditor.getNetsPane().setVisible(false);
-                new SpecificationReader().load(specXML,
+
+                SpecificationReader reader = new SpecificationReader(specXML,
                         getSpecificationLayout(selectedID));
-                YAWLEditor.getNetsPane().setVisible(true);
-                statusBar.resetProgress();
-                Publisher.getInstance().publishFileUnbusyEvent();
-                editor.setCursor(oldCursor);
+                reader.addPropertyChangeListener(new LoadCompletionListener());
+                reader.execute();
             }
             catch (IOException ioe) {
                 showError("Failed to get download the selected specification from" +
@@ -192,5 +195,23 @@ public class SpecificationDownloadDialog extends PropertyDialog
             return i > -1 ? items.get(i) : null;
         }
     }
+
+
+    /******************************************************************************/
+
+    class LoadCompletionListener implements PropertyChangeListener {
+
+        public void propertyChange(PropertyChangeEvent event) {
+            if (event.getNewValue() == SwingWorker.StateValue.DONE) {
+                YAWLEditor.getNetsPane().setVisible(true);
+                YAWLEditor.getStatusBar().resetProgress();
+                Publisher.getInstance().publishFileUnbusyEvent();
+                YAWLEditor.getInstance().setCursor(
+                        Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                YPluginHandler.getInstance().specificationLoaded();
+            }
+        }
+    }
+
 
 }

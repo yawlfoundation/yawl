@@ -50,7 +50,7 @@ public class IconList {
     public static IconList getInstance() { return INSTANCE; }
 
 
-    public void load() { new LoaderThread().run(); }
+    public void load() { new LoaderThread().execute(); }
 
     public List<IconPair> getList() { return _icons; }
 
@@ -151,14 +151,15 @@ public class IconList {
 
     /*******************************************************************************/
 
-    class LoaderThread extends Thread {
+    class LoaderThread extends SwingWorker<Void, Void> {
 
-        public void run() {
+        public Void doInBackground() {
             addIcon("None", null, null);
             getInternalIcons();
             getExternalIcons();
             Collections.sort(_icons);
             _loaded = true;
+            return null;
         }
 
         private void getInternalIcons() {
