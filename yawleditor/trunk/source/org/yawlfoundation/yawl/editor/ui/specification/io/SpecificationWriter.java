@@ -37,34 +37,50 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpecificationWriter {
+public class SpecificationWriter extends SwingWorker<Boolean, Void> {
 
     private final YSpecificationHandler _handler = SpecificationModel.getHandler();
 
-    public boolean writeToFile(String fileName) {
-        boolean success = false;
-        try {
-            if (checkUserDefinedDataTypes()) {
-                YLayout layout = new LayoutExporter().parse();
-                cleanSpecification();
-                checkSpecification();
-                if (! fileName.equals(_handler.getFileName())) {
-                    _handler.saveAs(fileName, layout, UserSettings.getFileSaveOptions());
-                    YAWLEditor.getPropertySheet().firePropertyChange("Uri",
-                            _handler.getURI());
+    private String _fileName;
+    private boolean _successful;
+
+    public SpecificationWriter() { }
+
+    public SpecificationWriter(String fileName) { _fileName = fileName; }
+
+
+    public Boolean doInBackground() {
+        _successful = false;
+
+        if (_fileName != null) {
+            try {
+                if (checkUserDefinedDataTypes()) {
+                    YLayout layout = new LayoutExporter().parse();
+                    cleanSpecification();
+                    checkSpecification();
+                    if (!_fileName.equals(_handler.getFileName())) {
+                        _handler.saveAs(_fileName, layout, UserSettings.getFileSaveOptions());
+                        YAWLEditor.getPropertySheet().firePropertyChange("Uri",
+                                _handler.getURI());
+                    }
+                    else {
+                        _handler.save(layout, UserSettings.getFileSaveOptions());
+                    }
+                    _successful = true;
                 }
-                else _handler.save(layout, UserSettings.getFileSaveOptions());
-                success = true;
+            }
+            catch (Exception e) {
+                showError("The attempt to save this specification to file failed.\n\n" +
+                                "Error message: " + e.getMessage() + "\n ",
+                        "Save File Error");
+                LogWriter.error("Error saving specification to file.", e);
             }
         }
-        catch (Exception e) {
-            showError("The attempt to save this specification to file failed.\n\n" +
-                    "Error message: " + e.getMessage() + "\n ",
-                    "Save File Error");
-            LogWriter.error("Error saving specification to file.", e);
-        }
-        return success;
+        return _successful;
     }
+
+
+    public boolean successful() { return _successful; }
 
 
     public String getSpecificationXML() {

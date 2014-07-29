@@ -192,8 +192,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         else {
             try {
                 UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
-//              UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-//              UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
             catch (Exception e) {
                 // accept default LaF
@@ -208,7 +206,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
 
     private static void startLoading() {
-//        RepaintManager.setCurrentManager(new CheckThreadViolationRepaintManager());
         splashScreen = new YSplashScreen();
         splashScreen.init();
         LogWriter.init(FileLocations.getHomeDir());
@@ -295,7 +292,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setTopComponent(getTopPanel());
         splitPane.setBottomComponent(getBottomPanel());
-        splitPane.setDividerSize(8);
+        splitPane.setDividerSize(7);
         splitPane.setResizeWeight(0);
         splitPane.setOneTouchExpandable(true);
         return splitPane;
@@ -308,7 +305,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         updateLoadProgress(70);
         splitPane.setRightComponent(getEditPanel());
         updateLoadProgress(80);
-        splitPane.setDividerSize(8);
+        splitPane.setDividerSize(7);
         splitPane.setResizeWeight(0);
         splitPane.setOneTouchExpandable(true);
         return splitPane;
@@ -349,7 +346,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private JPanel getEditPanel() {
         JPanel editPanel = new JPanel(new BorderLayout());
-        editPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         netsPane = new NetsPane();
         editPanel.add(netsPane, BorderLayout.CENTER);
         return editPanel;
