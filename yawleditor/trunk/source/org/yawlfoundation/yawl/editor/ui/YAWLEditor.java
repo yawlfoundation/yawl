@@ -39,6 +39,10 @@ import org.yawlfoundation.yawl.editor.ui.update.BackgroundUpdateChecker;
 import org.yawlfoundation.yawl.editor.ui.util.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -240,7 +244,6 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         sheet = new YPropertySheet();
         setJMenuBar(new YAWLMenuBar(splashScreen));
         Container pane = getContentPane();
-
         pane.setLayout(new BorderLayout());
         pane.add(getToolbarMenuPanel(), BorderLayout.NORTH);
         pane.add(getVerticalSplitPane(), BorderLayout.CENTER);
@@ -289,26 +292,39 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     }
 
     private JSplitPane getVerticalSplitPane() {
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         splitPane.setTopComponent(getTopPanel());
         splitPane.setBottomComponent(getBottomPanel());
-        splitPane.setDividerSize(7);
-        splitPane.setResizeWeight(0);
-        splitPane.setOneTouchExpandable(true);
+        initSplitPane(splitPane);
         return splitPane;
     }
 
 
     private JSplitPane getTopPanel() {
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         splitPane.setLeftComponent(getLeftPane());
         updateLoadProgress(70);
         splitPane.setRightComponent(getEditPanel());
         updateLoadProgress(80);
-        splitPane.setDividerSize(7);
+        initSplitPane(splitPane);
+        return splitPane;
+    }
+
+
+    private void initSplitPane(JSplitPane splitPane) {
+        splitPane.setDividerSize(4);
         splitPane.setResizeWeight(0);
         splitPane.setOneTouchExpandable(true);
-        return splitPane;
+        splitPane.setUI(new BasicSplitPaneUI() {
+            public BasicSplitPaneDivider createDefaultDivider() {
+                return new BasicSplitPaneDivider(this) {
+                    public void setBorder(Border b) {
+
+                    }
+                };
+            }
+        });
+        splitPane.setBorder(null);
     }
 
 
@@ -346,6 +362,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private JPanel getEditPanel() {
         JPanel editPanel = new JPanel(new BorderLayout());
+        editPanel.setBorder(new EmptyBorder(0,0,2,0));   // to align with property pane
         netsPane = new NetsPane();
         editPanel.add(netsPane, BorderLayout.CENTER);
         return editPanel;

@@ -79,7 +79,7 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
     }
 
 
-    public void done() {
+    protected void done() {
         finaliseLoad();
     }
 

@@ -75,9 +75,7 @@ public class FileOperations {
                 break;
             }
             case Analyse: {
-                editor.showProblemList("Analysis Results",
-                        new ValidationResultsParser().parse(
-                        new AnalysisResultsParser().getAnalysisResults()));
+                new AnalysisResultsParser().showAnalysisResults();
                 break;
             }
             case Save: {

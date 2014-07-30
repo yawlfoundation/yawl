@@ -272,7 +272,7 @@ public class SpecificationFileHandler {
         _statusBar.setText("Saving Specification...");
         _statusBar.progressOverSeconds(2);
 
-
+        // SpecificationWriter is a SwingWorker
         SpecificationWriter writer = new SpecificationWriter(fileName);
         writer.addPropertyChangeListener(new SaveCompletionListener(fileName));
         writer.execute();
