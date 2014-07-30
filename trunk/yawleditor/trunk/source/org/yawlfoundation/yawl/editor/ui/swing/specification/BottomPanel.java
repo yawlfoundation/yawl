@@ -21,14 +21,13 @@ package org.yawlfoundation.yawl.editor.ui.swing.specification;
 import org.jgraph.event.GraphSelectionEvent;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
-import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.GraphStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,8 +41,6 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
 
 
     public BottomPanel() {
-        setBorder(new EmptyBorder(4,5,5,5));
-
         notesPanel = new NotesPanel();
         addTab("Notes", notesPanel);
 

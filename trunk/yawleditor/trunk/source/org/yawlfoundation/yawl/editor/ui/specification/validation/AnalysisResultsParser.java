@@ -19,131 +19,55 @@
 package org.yawlfoundation.yawl.editor.ui.specification.validation;
 
 import org.yawlfoundation.yawl.analyser.YAnalyser;
-import org.yawlfoundation.yawl.analyser.YAnalyserOptions;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.io.SpecificationWriter;
 import org.yawlfoundation.yawl.editor.ui.swing.AnalysisDialog;
-import org.yawlfoundation.yawl.editor.ui.util.FileLocations;
-import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.swing.*;
-import java.io.File;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AnalysisResultsParser {
+public class AnalysisResultsParser implements AnalysisCanceller {
 
-    private static final YAnalyser _analyser = new YAnalyser();
-
-    private static final String WOF_YAWL_BINARY = "wofyawl0.4.exe";
+    private YAnalyser _analyser;
 
 
-    public List<String> getAnalysisResults() {
-        String specXML = new SpecificationWriter().getSpecificationXML();
-        return getAnalysisResults(specXML);
+    // triggered from menu or toolbar - do via swing worker
+    public void showAnalysisResults() {
+        final AnalysisWorker worker = new AnalysisWorker();
+
+        worker.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
+                if (event.getNewValue() == SwingWorker.StateValue.DONE) {
+                    YAWLEditor.getInstance().showProblemList("Analysis Results",
+                            new ValidationResultsParser().parse(
+                                    parseRawResultsIntoList(worker.getResult())));
+                }
+            }
+        });
+
+        worker.execute();
     }
 
 
-    public List<String> getAnalysisResults(String engineSpecXML) {
-        return parseRawResultsIntoList(getRawAnalysisResults(engineSpecXML));
+    // triggered on file save with analyse option - already in a swing worker
+    public List<String> getAnalysisResults(String specXML) {
+        AnalysisDialog messageDlg = AnalysisUtil.createDialog(this);
+        _analyser = new YAnalyser();
+        String result = AnalysisUtil.analyse(_analyser, messageDlg, specXML);
+        return parseRawResultsIntoList(result);
     }
 
 
     public void cancel() {
-        _analyser.cancelAnalysis();
-    }
-
-
-    protected String getRawAnalysisResults(String engineSpecXML) {
-        AnalysisDialog messageDlg = createDialog(YAWLEditor.getInstance());
-        _analyser.addEventListener(messageDlg);
-
-        try {
-            return _analyser.analyse(engineSpecXML, getAnalyserOptions(),
-                    UserSettings.getAnalyserMaxMarkings());
-        }
-        catch (YSyntaxException yse) {
-            messageDlg.setVisible(false);
-            messageDlg.dispose();
-            String msg = yse.getMessage().trim();
-            msg = msg.substring(0, msg.indexOf(":")) + ".";
-            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                    msg + "\nAnalysis cannot proceed until these issues are resolved.\n" +
-                            "Please validate the specification for more detailed information.",
-                    "Error analysing specification",
-                    JOptionPane.ERROR_MESSAGE);
-            return "<error>Analysis aborted.</error>";
-        }
-        catch (IllegalArgumentException iae) {
-            messageDlg.setVisible(false);
-            messageDlg.dispose();
-            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                    "\nNo analysis options selected. Please select at least one option\n" +
-                    "in the analysis preferences list [File->Preferences->Analysis].",
-                    "Error analysing specification",
-                    JOptionPane.ERROR_MESSAGE);
-            return "<error>Analysis aborted.</error>";
-        }
-        catch (Exception e) {
-            messageDlg.setVisible(false);
-            messageDlg.dispose();
-            LogWriter.error("Error analysing specification.", e);
-            return "<error>"+ JDOMUtil.encodeEscapes(e.getMessage()) +"</error>";
-        }
-        finally {
-            if (messageDlg != null) {
-                messageDlg.finished();
-            }
-            _analyser.removeEventListener(messageDlg);
-        }
-    }
-
-
-    private YAnalyserOptions getAnalyserOptions() {
-        YAnalyserOptions options = new YAnalyserOptions();
-        if (UserSettings.getResetNetAnalysis()) {
-            options.enableResetWeakSoundness(UserSettings.getWeakSoundnessAnalysis());
-            options.enableResetSoundness(UserSettings.getSoundnessAnalysis());
-            options.enableResetCancellation(UserSettings.getCancellationAnalysis());
-            options.enableResetOrJoin(UserSettings.getOrJoinAnalysis());
-            options.enableResetOrjoinCycle(UserSettings.getOrJoinCycleAnalysis());
-            options.enableResetReductionRules(UserSettings.getUseResetReductionRules());
-            options.enableYawlReductionRules(UserSettings.getUseYawlReductionRules());
-        }
-        if (UserSettings.getWofyawlAnalysis()) {
-            options.enableWofBehavioural(UserSettings.getBehaviouralAnalysis());
-            options.enableWofStructural(UserSettings.getStructuralAnalysis());
-            options.enableWofExtendedCoverabiity(UserSettings.getExtendedCoverability());
-            options.setWofYawlExecutableLocation(getWofYawlExecutableFilePath());
-        }
-        return options;
-    }
-
-
-    private AnalysisDialog createDialog(JFrame owner) {
-        AnalysisDialog messageDlg = new AnalysisDialog("Specification", owner);
-        messageDlg.setTitle("Analyse Specification");
-        messageDlg.setOwner(this);
-        return messageDlg;
-    }
-
-
-    private static String getWofYawlExecutableFilePath() {
-        String path = UserSettings.getWofyawlFilePath();
-        return path != null ? path : FileLocations.getHomeDir() + WOF_YAWL_BINARY;
-    }
-
-    public static boolean wofYawlAvailable() {
-        String path = getWofYawlExecutableFilePath();
-        return path.endsWith(".exe") && new File(path).exists();
+        if (_analyser != null) _analyser.cancelAnalysis();
     }
 
 
@@ -151,7 +75,7 @@ public class AnalysisResultsParser {
         if (StringUtil.isNullOrEmpty(rawAnalysisXML)) {
             return Collections.emptyList();
         }
-        if (rawAnalysisXML.startsWith("<error>")) {
+        if (rawAnalysisXML.startsWith("<error>") || rawAnalysisXML.startsWith("<cancelled>")) {
             return Arrays.asList(StringUtil.unwrap(rawAnalysisXML));
         }
         List<String> resultList = new ArrayList<String>();

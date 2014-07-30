@@ -39,7 +39,9 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     public YStatusBar() {
         super();
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1,0,0,0,Color.GRAY),
+                BorderFactory.createEmptyBorder(0, 2, 0, 2)));
         statusLabel.setForeground(Color.DARK_GRAY);
         statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
         add(modeIndicator, BorderLayout.WEST);

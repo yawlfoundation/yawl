@@ -18,15 +18,14 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.specification;
 
-import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileState;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.FileStateListener;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.swing.MoreDialog;
 import org.yawlfoundation.yawl.editor.ui.swing.ProblemTable;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -92,7 +91,6 @@ public class ProblemPanel extends JPanel implements FileStateListener, ListSelec
 
     private void buildContent() {
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(4,5,5,5));
         JScrollPane problemScrollPane = new JScrollPane(problemTable);
         problemScrollPane.setBackground(Color.WHITE);
         add(problemScrollPane, BorderLayout.CENTER);

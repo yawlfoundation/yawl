@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -16,26 +16,13 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.editor.ui.swing.specification;
+package org.yawlfoundation.yawl.editor.ui.specification.validation;
 
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
+/**
+ * @author Michael Adams
+ * @date 30/07/2014
+ */
+public interface AnalysisCanceller {
 
-import javax.swing.*;
-import java.awt.*;
-
-public class NotesPanel extends JPanel {
-
-    private final NotesEditor editor;
-
-    public NotesPanel() {
-        editor = new NotesEditor();
-        setLayout(new BorderLayout());
-        add(new JScrollPane(editor), BorderLayout.CENTER);
-    }
-
-
-    public void setVertex(YAWLVertex vertex) {
-        editor.setVertex(vertex);
-    }
+    public void cancel();
 }
-

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.preferences;
 
-import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisUtil;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -55,7 +55,7 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
         super();
         add(getContentPanel(actionListener));
         maxMarkingsField.addCaretListener(caretListener);       // the only non-checkbox
-        if (! AnalysisResultsParser.wofYawlAvailable()) {
+        if (! AnalysisUtil.wofYawlAvailable()) {
             wofYawlAnalysisCheckBox.setEnabled(false);
             enableWofYAWLCheckBoxes(false);
         }

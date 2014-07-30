@@ -23,7 +23,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.yawlfoundation.yawl.analyser.YAnalyserEvent;
 import org.yawlfoundation.yawl.analyser.YAnalyserEventListener;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
+import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisCanceller;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
@@ -41,7 +41,7 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
     private JScrollPane scrollpane;
     private JButton btnCancel;
     private boolean cancelled;
-    private AnalysisResultsParser _owner;
+    private AnalysisCanceller _owner;
     private final String header;
 
     public AnalysisDialog(String title, JFrame owner) {
@@ -92,7 +92,7 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
         return txtOutput.getText();
     }
 
-    public void setOwner(AnalysisResultsParser owner) {
+    public void setOwner(AnalysisCanceller owner) {
         _owner = owner;
     }
 
