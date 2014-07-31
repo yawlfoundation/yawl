@@ -136,10 +136,8 @@ public class UpdateDialog extends JDialog
         panel.add(createButton("Cancel"));
         _btnDownload = createButton("Download");
         panel.add(_btnDownload);
-        if (! _differ.isNewVersion()) {
-            _btnDownloadAndRestart = createButton("Download & Restart");
-            panel.add(_btnDownloadAndRestart);
-        }
+        _btnDownloadAndRestart = createButton("Download & Restart");
+        panel.add(_btnDownloadAndRestart);
         return panel;
     }
 
@@ -252,9 +250,6 @@ public class UpdateDialog extends JDialog
             else if (verified()) {
                 YAWLEditor.getStatusBar().setText(
                         "Update downloaded to " + _downloader.getTargetDir());
-                if (_differ.isNewVersion()) {
-                    new InstallInstructions().show();
-                }
                 if (_restarting) restart();
             }
             else {
