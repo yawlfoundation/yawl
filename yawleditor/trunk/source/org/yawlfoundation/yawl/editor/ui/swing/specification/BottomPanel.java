@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.editor.ui.specification.pubsub.Publisher;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class BottomPanel extends JTabbedPane implements GraphStateListener {
 
 
     public BottomPanel() {
+        setMinimumSize(new Dimension());            // minimise pane on startup
+
         notesPanel = new NotesPanel();
         addTab("Notes", notesPanel);
 

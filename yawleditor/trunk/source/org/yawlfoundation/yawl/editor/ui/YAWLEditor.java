@@ -318,9 +318,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
         splitPane.setUI(new BasicSplitPaneUI() {
             public BasicSplitPaneDivider createDefaultDivider() {
                 return new BasicSplitPaneDivider(this) {
-                    public void setBorder(Border b) {
-
-                    }
+                    public void setBorder(Border b) { }
                 };
             }
         });

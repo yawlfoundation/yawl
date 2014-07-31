@@ -34,6 +34,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
     private String _rootName;
     private String _taskDecompositionID;
     private Document _dataDocument;
+    private boolean _initialised;
 
 
     /**
@@ -110,6 +111,8 @@ public class BindingTypeValidator extends TypeValueBuilder {
     }
 
 
+    public boolean isInitialised() { return _initialised; }
+
     /********************************************************************************/
 
     /**
@@ -127,6 +130,8 @@ public class BindingTypeValidator extends TypeValueBuilder {
                         new ArrayList<DynFormField>(_fieldMap.values()), _rootName);
                 return null;
             }
+
+            protected void done() { _initialised = true; }
         }.execute();
     }
 
