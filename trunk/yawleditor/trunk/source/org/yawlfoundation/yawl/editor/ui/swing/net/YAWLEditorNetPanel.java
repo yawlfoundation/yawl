@@ -38,7 +38,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     private JScrollPane scrollPane;
     private String title;
     private ImageIcon icon;
-    private boolean closable ;
 
 
     private YAWLEditorNetPanel() {
@@ -186,7 +185,6 @@ public class YAWLEditorNetPanel extends JPanel implements MouseWheelListener {
     }
 
 
-    public ImageIcon getFrameIcon() { return icon; }
-
+    public ImageIcon getIcon() { return icon; }
 
 }

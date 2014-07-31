@@ -39,10 +39,7 @@ import org.yawlfoundation.yawl.editor.ui.update.BackgroundUpdateChecker;
 import org.yawlfoundation.yawl.editor.ui.util.*;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -293,36 +290,23 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private JSplitPane getVerticalSplitPane() {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
-        splitPane.setTopComponent(getTopPanel());
+        SplitPaneUtil splitPaneUtil = new SplitPaneUtil();
+        splitPaneUtil.setupDivider(splitPane);
+        splitPane.setTopComponent(getTopPanel(splitPaneUtil));
         splitPane.setBottomComponent(getBottomPanel());
-        initSplitPane(splitPane);
+        splitPaneUtil.setDividerLocation(splitPane, 1.0d);
         return splitPane;
     }
 
 
-    private JSplitPane getTopPanel() {
+    private JSplitPane getTopPanel(SplitPaneUtil splitPaneUtil) {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        splitPaneUtil.setupDivider(splitPane);
         splitPane.setLeftComponent(getLeftPane());
         updateLoadProgress(70);
         splitPane.setRightComponent(getEditPanel());
         updateLoadProgress(80);
-        initSplitPane(splitPane);
         return splitPane;
-    }
-
-
-    private void initSplitPane(JSplitPane splitPane) {
-        splitPane.setDividerSize(4);
-        splitPane.setResizeWeight(0);
-        splitPane.setOneTouchExpandable(true);
-        splitPane.setUI(new BasicSplitPaneUI() {
-            public BasicSplitPaneDivider createDefaultDivider() {
-                return new BasicSplitPaneDivider(this) {
-                    public void setBorder(Border b) { }
-                };
-            }
-        });
-        splitPane.setBorder(null);
     }
 
 
