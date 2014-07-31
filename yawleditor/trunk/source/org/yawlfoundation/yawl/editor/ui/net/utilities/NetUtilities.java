@@ -49,6 +49,11 @@ import java.util.Set;
 
 public final class NetUtilities {
 
+    private static final ImageIcon rootNetIcon = ResourceLoader.getMenuIcon("rootnet");
+
+    private static final ImageIcon subNetIcon = ResourceLoader.getMenuIcon("subnet");
+
+
     /**
      * Returns all tasks in the selected net. Specifically,
      * all those vertices in the net that conform to the <code>YAWLTask</code> interface.
@@ -256,12 +261,12 @@ public final class NetUtilities {
      * @return
      */
     public static ImageIcon getRootNetIcon() {
-        return ResourceLoader.getMenuIcon("rootnet");
+        return rootNetIcon;
     }
 
 
     public static ImageIcon getSubNetIcon() {
-        return ResourceLoader.getMenuIcon("subnet");
+        return subNetIcon;
     }
 
     public static ImageIcon getIconForNetModel(NetGraphModel model) {

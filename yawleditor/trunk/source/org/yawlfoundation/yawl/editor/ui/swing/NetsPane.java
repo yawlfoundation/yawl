@@ -152,7 +152,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     private void bindFrame(final YAWLEditorNetPanel frame, boolean select) {
         int tabIndex = getInsertionIndex(frame);
-        insertTab(frame.getTitle(), frame.getFrameIcon(), frame, null, tabIndex);
+        insertTab(frame.getTitle(), frame.getIcon(), frame, null, tabIndex);
         if (select) setSelectedIndex(tabIndex);
         updateState(select);
     }
