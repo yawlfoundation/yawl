@@ -72,13 +72,8 @@ public class VersionDiffer {
 
     public List<String> getDownloadList() {
         List<String> list = new ArrayList<String>();
-        if (isNewVersion()) {
-            list.add("YAWLEditor" + getLatestVersion() + ".zip");
-        }
-        else {
-            for (FileNode node : _downloadList) {
-                list.add(node.name);
-            }
+        for (FileNode node : _downloadList) {
+            list.add(node.name);
         }
         return list;
     }
@@ -103,9 +98,6 @@ public class VersionDiffer {
 
 
     public long getDownloadSize() {
-        if (isNewVersion()) {
-            return 1024*1024*12;             // 12Mb.
-        }
         long size = 0;
         for (FileNode node : _downloadList) {
             size += node.size;
