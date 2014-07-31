@@ -26,6 +26,9 @@ public class CheckSumTask extends Task {
     private List<String> _antIncludes;
     private List<String> _antExcludes;
 
+    private static final SimpleDateFormat _sdf =
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
     private static final String DEFAULT_ROOT_DIR = ".";
     private static final String DEFAULT_TO_FILE = "checksums.xml";
 
@@ -89,6 +92,8 @@ public class CheckSumTask extends Task {
                  .append(getRelativePath(checkDir, file.getAbsolutePath()))
                  .append("\" md5=\"").append(summer.getMD5Hex(file))
                  .append("\" size=\"").append(file.length())
+                 .append("\" timestamp=\"")
+                 .append(_sdf.format(new Date(file.lastModified())))
                  .append("\"/>\n");
             }
         }

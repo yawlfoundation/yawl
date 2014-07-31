@@ -281,7 +281,6 @@
       <xs:element name="port" type="yawl:InputPortConfigType"
                   minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="value" type="yawl:InputPortValueType"/>
   </xs:complexType>
   <xs:complexType name="remConfigType">
     <xs:attribute name="value" type="yawl:OutputPortValueType"/>
@@ -291,7 +290,6 @@
       <xs:element name="port" type="yawl:OutputPortConfigType"
                   minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="value" type="yawl:OutputPortValueType"/>
   </xs:complexType>
 
   <xs:complexType name="nofiConfigType">

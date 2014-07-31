@@ -1711,7 +1711,7 @@ public abstract class YTask extends YExternalNetElement {
         int numParams = _dataMappingsForTaskStarting.size();
         if (numOfUniqueParamsMappedTo != numParams) {
             handler.error(this,
-                    "A input parameter is used twice.  The task (id=" + getID() + ") " +
+                    "An input parameter is used twice.  The task (id=" + getID() + ") " +
                             "uses the same parameter through its multi-instance input " +
                             "and its regular input.");
         }
@@ -1725,7 +1725,7 @@ public abstract class YTask extends YExternalNetElement {
         numParams = _dataMappingsForTaskCompletion.size();
         if (numOfUniqueNetVarsMappedTo != numParams) {
             handler.error(this,
-                    "A output parameter is used twice.  The task (id=" + getID() + ") " +
+                    "An output parameter is used twice.  The task (id=" + getID() + ") " +
                             "uses the same parameter through its multi-instance output " +
                             "and its regular output.");
         }
