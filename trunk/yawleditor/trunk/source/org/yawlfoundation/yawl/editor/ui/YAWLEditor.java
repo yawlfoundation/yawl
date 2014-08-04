@@ -102,6 +102,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
             for (Component c : container.getComponents()) {
                 if ((c instanceof JToolBar) && c.getName().equals(bar.getName())) {
                     container.remove(c);
+                    UserSettings.setViewPluginToolbar(bar.getName(), false);
                     break;
                 }
             }

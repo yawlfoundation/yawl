@@ -257,7 +257,7 @@ public class YDataHandler {
         YVariable outputVar = decomposition.getOutputParameters().get(variableName);
         if (inputVar == null && outputVar != null) {
             validateValue(outputVar, value);
-            outputVar.setInitialValue(value);
+            outputVar.setDefaultValue(value);
         }
         else raise("No output-only variable found named: " + variableName +
                     ". Only an output-only variable can have an default value.");

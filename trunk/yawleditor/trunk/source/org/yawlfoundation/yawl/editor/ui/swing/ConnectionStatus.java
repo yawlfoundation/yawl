@@ -98,6 +98,7 @@ public class ConnectionStatus extends JPanel implements ActionListener {
             super();
             _indicator = new JLabel();
             _indicator.addMouseListener(preferencesLauncher);
+            _indicator.setIcon(offlineIcon);             // initialise
             this.add(_indicator);
         }
 
