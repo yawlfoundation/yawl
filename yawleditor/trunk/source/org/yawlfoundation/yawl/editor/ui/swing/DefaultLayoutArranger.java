@@ -32,131 +32,109 @@ import java.util.*;
  */
 
 public class DefaultLayoutArranger {
-  private static final int X_BUFFER = 32;
-  private static final int Y_BUFFER = 32;
 
-  private HashSet breadthTraversedNodes;
-  private LinkedList nodeBreadthsList;
+    private static final int X_BUFFER = 32;
+    private static final int Y_BUFFER = 32;
+
+    private Set<GraphCell> breadthTraversedNodes;
+    private LinkedList<LinkedList<GraphCell>> nodeBreadthsList;
+
 
     public void layoutSpecification() {
-    for(NetGraphModel net : SpecificationModel.getNets()) {
-      layoutNet(net);
-    }
-  }
-
-  private void initialise() {
-    breadthTraversedNodes = new HashSet();
-    nodeBreadthsList = new LinkedList();
-  }
-
-  public void layoutNet(NetGraphModel netModel) {
-    initialise();
-
-    traverseGraphToDetermineNodeBredth(netModel);
-    ensureOutputConditionIsLast(netModel);
-    doGraphLayout(netModel);
-  }
-
-  private void traverseGraphToDetermineNodeBredth(NetGraphModel netModel) {
-    InputCondition inputCondition = NetUtilities.getInputCondition(netModel);
-
-    LinkedList startNodeList = new LinkedList();
-    startNodeList.add(inputCondition);
-
-    nodeBreadthsList.add(startNodeList);
-    breadthTraversedNodes.add(inputCondition);
-      int largestNumberOfNodesAtSingleBreadth = 1;
-
-    while (getUntraversedNodesFrom((LinkedList) nodeBreadthsList.getLast()).size() > 0) {
-      nodeBreadthsList.add(new LinkedList(getUntraversedNodesFrom((LinkedList) nodeBreadthsList.getLast())));
-      if (((LinkedList) nodeBreadthsList.getLast()).size() > largestNumberOfNodesAtSingleBreadth) {
-        largestNumberOfNodesAtSingleBreadth = ((LinkedList) nodeBreadthsList.getLast()).size();
-      }
-      breadthTraversedNodes.addAll((LinkedList) nodeBreadthsList.getLast());
-    }
-  }
-
-  private Set getUntraversedNodesFrom(LinkedList nodesAtCurrentDepth) {
-    HashSet nodeSet = new HashSet();
-    Iterator nodeIterator = nodesAtCurrentDepth.iterator();
-    while (nodeIterator.hasNext()) {
-      YAWLCell cell = (YAWLCell) nodeIterator.next();
-
-      for(YAWLFlowRelation flow : NetUtilities.getOutgoingFlowsFrom(cell)) {
-        YAWLCell targetCell = NetCellUtilities.getVertexFromCell(flow.getTargetVertex());
-
-        if (!breadthTraversedNodes.contains(targetCell)) {
-          nodeSet.add(targetCell);
+        for (NetGraphModel net : SpecificationModel.getNets()) {
+            layoutNet(net);
         }
-      }
     }
-    return nodeSet;
-  }
 
-  private void ensureOutputConditionIsLast(NetGraphModel netModel) {
-    OutputCondition outputCondition = NetUtilities.getOutputCondition(netModel);
 
-    if (!((LinkedList) nodeBreadthsList.getLast()).contains(outputCondition)) {
-
-      // It's somewhere earlier in the list. Locate, and remove from there.
-
-      LinkedList depthToRemove = null;
-      Iterator nodeListIterator = nodeBreadthsList.iterator();
-      while(nodeListIterator.hasNext()) {
-        LinkedList nodes = (LinkedList) nodeListIterator.next();
-        if (nodes.contains(outputCondition)) {
-          nodes.remove(outputCondition);
-          if (nodes.size() == 0) {
-            depthToRemove = nodes;
-          }
-        }
-      }
-      if (depthToRemove != null) {
-        nodeBreadthsList.remove(depthToRemove);
-      }
-
-      // Put output condition last.
-
-      LinkedList endNodeList = new LinkedList();
-      endNodeList.add(outputCondition);
-      nodeBreadthsList.add(endNodeList);
+    public void layoutNet(NetGraphModel netModel) {
+        breadthTraversedNodes = new HashSet<GraphCell>();
+        nodeBreadthsList = new LinkedList<LinkedList<GraphCell>>();
+        traverseGraphToDetermineNodeBreadth(netModel);
+        ensureOutputConditionIsLast(netModel);
+        doGraphLayout(netModel);
     }
-  }
 
-  private void doGraphLayout(NetGraphModel netModel) {
-    int graphNodeXPosn = X_BUFFER;
-    Iterator nodeDepthIterator = nodeBreadthsList.iterator();
-    while (nodeDepthIterator.hasNext()) {
-      LinkedList nodesAtCurrentDepth = (LinkedList) nodeDepthIterator.next();
-      Iterator nodeIterator = nodesAtCurrentDepth.iterator();
 
-      double largestXwidth = 0;
+    private void traverseGraphToDetermineNodeBreadth(NetGraphModel netModel) {
+        InputCondition inputCondition = NetUtilities.getInputCondition(netModel);
+        LinkedList<GraphCell> startNodeList = new LinkedList<GraphCell>();
+        startNodeList.add(inputCondition);
+        nodeBreadthsList.add(startNodeList);
+        breadthTraversedNodes.add(inputCondition);
+        int largestNumberOfNodesAtSingleBreadth = 1;
 
-      int graphNodeYPosn = Y_BUFFER;
-
-      while (nodeIterator.hasNext()) {
-        GraphCell cell  = (GraphCell) nodeIterator.next();
-
-        if (cell instanceof YAWLVertex  && ((YAWLVertex) cell).getParent() != null) {
-          cell = (GraphCell) ((YAWLVertex)cell).getParent();
+        while (getUntraversedNodesFrom(nodeBreadthsList.getLast()).size() > 0) {
+            nodeBreadthsList.add(new LinkedList<GraphCell>(
+                    getUntraversedNodesFrom(nodeBreadthsList.getLast())));
+            if (nodeBreadthsList.getLast().size() > largestNumberOfNodesAtSingleBreadth) {
+                largestNumberOfNodesAtSingleBreadth = nodeBreadthsList.getLast().size();
+            }
+            breadthTraversedNodes.addAll(nodeBreadthsList.getLast());
         }
-
-        netModel.getGraph().moveElementTo(
-            cell,
-            graphNodeXPosn,
-            graphNodeYPosn
-        );
-
-
-        if (netModel.getGraph().getCellBounds(cell).getWidth() > largestXwidth) {
-          largestXwidth = netModel.getGraph().getCellBounds(cell).getWidth();
-        }
-        graphNodeYPosn = graphNodeYPosn + (int) netModel.getGraph().getCellBounds(cell).getHeight() + Y_BUFFER;
-
-      }
-      NetCellUtilities.alignCellsAlongVerticalCentre(netModel.getGraph(),nodesAtCurrentDepth.toArray());
-
-      graphNodeXPosn = graphNodeXPosn + (int) largestXwidth + + X_BUFFER;
     }
-  }
+
+
+    private Set<GraphCell> getUntraversedNodesFrom(LinkedList<GraphCell> nodesAtCurrentDepth) {
+        Set<GraphCell> nodeSet = new HashSet<GraphCell>();
+        for (GraphCell cell : nodesAtCurrentDepth) {
+            for (YAWLFlowRelation flow : NetUtilities.getOutgoingFlowsFrom((YAWLCell) cell)) {
+                GraphCell targetCell = NetCellUtilities.getVertexFromCell(flow.getTargetVertex());
+                if (!breadthTraversedNodes.contains(targetCell)) {
+                    nodeSet.add(targetCell);
+                }
+            }
+        }
+        return nodeSet;
+    }
+
+
+    private void ensureOutputConditionIsLast(NetGraphModel netModel) {
+        OutputCondition outputCondition = NetUtilities.getOutputCondition(netModel);
+        if (!nodeBreadthsList.getLast().contains(outputCondition)) {
+
+            // It's somewhere earlier in the list. Locate, and remove from there.
+            LinkedList<GraphCell> depthToRemove = null;
+            for (LinkedList<GraphCell> nodes : nodeBreadthsList) {
+                if (nodes.contains(outputCondition)) {
+                    nodes.remove(outputCondition);
+                    if (nodes.isEmpty()) {
+                        depthToRemove = nodes;
+                    }
+                }
+            }
+            if (depthToRemove != null) {
+                nodeBreadthsList.remove(depthToRemove);
+            }
+
+            // Put output condition last.
+            LinkedList<GraphCell> endNodeList = new LinkedList<GraphCell>();
+            endNodeList.add(outputCondition);
+            nodeBreadthsList.add(endNodeList);
+        }
+    }
+
+
+    private void doGraphLayout(NetGraphModel netModel) {
+        int nodeX = X_BUFFER;
+        for (LinkedList<GraphCell> nodesAtCurrentDepth : nodeBreadthsList) {
+            double widestX = 0;
+            int nodeY = Y_BUFFER;
+            for (GraphCell cell : nodesAtCurrentDepth) {
+                if (cell instanceof YAWLVertex && ((YAWLVertex) cell).getParent() != null) {
+                    cell = (GraphCell) ((YAWLVertex) cell).getParent();
+                }
+                netModel.getGraph().moveElementTo(cell, nodeX, nodeY);
+                if (netModel.getGraph().getCellBounds(cell).getWidth() > widestX) {
+                    widestX = netModel.getGraph().getCellBounds(cell).getWidth();
+                }
+                nodeY = nodeY + (int) netModel.getGraph().getCellBounds(cell).getHeight()
+                        + Y_BUFFER;
+
+            }
+            NetCellUtilities.alignCellsAlongVerticalCentre(netModel.getGraph(),
+                    nodesAtCurrentDepth.toArray());
+            nodeX = nodeX + (int) widestX + +X_BUFFER;
+        }
+    }
 }

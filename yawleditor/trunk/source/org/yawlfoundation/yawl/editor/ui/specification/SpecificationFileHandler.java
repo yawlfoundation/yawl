@@ -335,9 +335,10 @@ public class SpecificationFileHandler {
             if (event.getNewValue() == SwingWorker.StateValue.DONE) {
                 SpecificationWriter writer = (SpecificationWriter) event.getSource();
                 if (writer.successful()) {
-                     SpecificationUndoManager.getInstance().setDirty(false);
-                     _statusBar.setText("Saved to file: " + fullFileName);
-                     OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+                    SpecificationUndoManager.getInstance().setDirty(false);
+                    _statusBar.setText("Saved to file: " + fullFileName);
+                    OpenRecentSubMenu.getInstance().addRecentFile(fullFileName);
+                    YAWLEditor.getInstance().setTitle(fullFileName);
                  }
                  else _statusBar.setTextToPrevious();
 
