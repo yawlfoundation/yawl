@@ -184,7 +184,7 @@ public class YPluginLoader extends URLClassLoader {
 
     private <T> void addIfMatch(Class<T> mask, Set<Class<T>> plugins, String fileName) {
         if (fileName.endsWith(".class")) {
-            Class<T> plugin = loadIfMatch(mask, fileName);
+            Class<T> plugin = loadIfMatch(mask, fileToQualifiedClassName(fileName));
             if (plugin != null) {
                 plugins.add(plugin);
             }
@@ -192,9 +192,9 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
-    private <T> Class<T> loadIfMatch(Class<T> mask, String name) {
+    private <T> Class<T> loadIfMatch(Class<T> mask, String className) {
         try {
-            Class<?> c = loadClass(pathToPackage(name));      // may throw NoClassDef
+            Class<?> c = loadClass(className);        // may throw NoClassDef
             if (mask.isInterface())  {
                 return (Class<T>) loadIfImplementer(c, mask);
             }
@@ -232,9 +232,9 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
-    // transforms a path string to a package name
-    private String pathToPackage(String path) {
-        return path.replace('/', '.').substring(0, path.lastIndexOf('.'));
+    // transforms a path string to a qualified class name
+    private String fileToQualifiedClassName(String path) {
+        return path.replaceAll("\\\\|/", ".").substring(0, path.lastIndexOf('.'));
     }
 
 
