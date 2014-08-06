@@ -292,7 +292,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private JSplitPane getVerticalSplitPane() {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         SplitPaneUtil splitPaneUtil = new SplitPaneUtil();
-        splitPaneUtil.setupDivider(splitPane);
+        splitPaneUtil.setupDivider(splitPane, true);
         splitPane.setTopComponent(getTopPanel(splitPaneUtil));
         splitPane.setBottomComponent(getBottomPanel());
         splitPaneUtil.setDividerLocation(splitPane, 1.0d);
@@ -302,7 +302,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     private JSplitPane getTopPanel(SplitPaneUtil splitPaneUtil) {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-        splitPaneUtil.setupDivider(splitPane);
+        splitPaneUtil.setupDivider(splitPane, true);
         splitPane.setLeftComponent(getLeftPane());
         updateLoadProgress(70);
         splitPane.setRightComponent(getEditPanel());

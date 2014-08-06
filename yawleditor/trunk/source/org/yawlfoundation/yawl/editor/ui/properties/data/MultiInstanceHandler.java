@@ -161,7 +161,7 @@ public class MultiInstanceHandler {
 
     private String generateBinding(VariableRow row) {
         StringBuilder s = new StringBuilder();
-        s.append('/').append(row.getDecompositionID());
+        s.append('/').append(row.getElementID());
         s.append('/').append(row.getName()).append("/*");
         return s.toString();
     }

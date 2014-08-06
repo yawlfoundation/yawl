@@ -125,7 +125,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
 
         String netVarName = null;
         VariableRow netVarRow = getNetVariableRow(defBinding.getVariableName());
-        if (netVarRow != null && netVarRow.getDecompositionID().equals(
+        if (netVarRow != null && netVarRow.getElementID().equals(
                 defBinding.getContainerName())) {
             netVarName = netVarRow.getName();
         }

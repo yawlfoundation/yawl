@@ -34,12 +34,8 @@ import java.util.Vector;
  */
 class AbstractBindingPanel extends JPanel {
 
-    private JButton _btnOK;
-
     AbstractBindingPanel() { super(); }
 
-
-    protected JButton getOKButton() { return _btnOK; }
 
     protected Vector<String> getVarNames(java.util.List<VariableRow> varList) {
         Vector<String> names = new Vector<String>();
@@ -63,7 +59,7 @@ class AbstractBindingPanel extends JPanel {
     protected JComboBox buildComboBox(Vector<String> items, String action,
                                     ActionListener listener) {
         JComboBox comboBox = new JComboBox(items);
-        comboBox.setPreferredSize(new Dimension(250, 22));
+        comboBox.setRenderer(new ComboBoxRenderer());
         comboBox.addActionListener(listener);
         comboBox.setActionCommand(action);
         return comboBox;
@@ -73,6 +69,25 @@ class AbstractBindingPanel extends JPanel {
     protected String formatQuery(String query) {
         return XMLUtilities.formatXML(query, true, true);
     }
+
+
+    /*****************************************************************************/
+
+    static class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+
+            public Component getListCellRendererComponent(JList list, Object value,
+                    int index,  boolean isSelected, boolean cellHasFocus) {
+
+                JLabel label = new JLabel(){
+                    public Dimension getPreferredSize(){
+                        return new Dimension(250, 22);       // add a bit of height
+                    }
+                };
+                label.setText(String.valueOf(value));
+
+                return label;
+            }
+        }
 
 
 }

@@ -177,7 +177,7 @@ public class VariableTablePanel extends JPanel
 
     public VariableTablePanel copy() {
         return new VariableTablePanel(table.getVariables(), tableType,
-                table.getNetElementName(), parent);
+                table.getNetElementID(), parent);
     }
 
     public DataVariableDialog getVariableDialog() { return parent; }
@@ -186,7 +186,7 @@ public class VariableTablePanel extends JPanel
                                String netElementName) {
         table = new VariableTable(tableType);
         table.setVariables(rows);
-        table.setNetElementName(netElementName);
+        table.setNetElementID(netElementName);
         VariableRowUsageEditor usageEditor = new VariableRowUsageEditor(this);
         table.setDefaultEditor(Integer.class, usageEditor);
         VariableRowStringEditor stringEditor = new VariableRowStringEditor(this);

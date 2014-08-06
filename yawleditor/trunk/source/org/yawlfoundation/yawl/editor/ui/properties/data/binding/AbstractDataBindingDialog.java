@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ButtonBar;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.util.SplitPaneUtil;
 import org.yawlfoundation.yawl.editor.ui.util.XMLUtilities;
 
 import javax.swing.*;
@@ -62,7 +63,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
         setTitle(makeTitle(taskID));
         add(getContent(row));
         init();
-        setPreferredSize(new Dimension(426, row.isMultiInstance() ? 560 : 440));
+        setMinimumSize(new Dimension(426, row.isMultiInstance() ? 560 : 440));
         pack();
     }
 
@@ -152,7 +153,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
     protected String createBinding(VariableRow row) {
         StringBuilder s = new StringBuilder();
-        s.append('/').append(row.getDecompositionID()).append('/').append(row.getName())
+        s.append('/').append(row.getElementID()).append('/').append(row.getName())
                 .append('/').append(getXQuerySuffix(row));
         return s.toString();
     }
@@ -179,18 +180,45 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
 
     private JPanel getContent(VariableRow row) {
-        JPanel content = new JPanel();
-        content.setBorder(new EmptyBorder(7, 7, 7, 7));
-        content.add(buildTargetPanel());
-        content.add(buildGeneratePanel());
-        content.add(buildQueryPanel(row.isMultiInstance()));
-        if (row.isMultiInstance()) content.add(buildMiQueryPanel());
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBorder(new EmptyBorder(7, 7, 0, 7));
+        content.add(buildTopPanel(), BorderLayout.NORTH);
+        content.add(buildCentrePanel(row), BorderLayout.CENTER);
         _buttonBar = new ButtonBar(this);
         _buttonBar.setOKEnabled(true);
-        content.add(_buttonBar);
+        content.add(_buttonBar, BorderLayout.SOUTH);
         initContent(row);
         return content;
     }
+
+
+    private JPanel buildTopPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(buildTargetPanel());
+        panel.add(buildGeneratePanel());
+        return panel;
+    }
+
+
+    private JPanel buildCentrePanel(VariableRow row) {
+        JPanel panel = new JPanel(new BorderLayout());
+        buildQueryPanel(row.isMultiInstance());
+        if (row.isMultiInstance()) {
+            buildMiQueryPanel();
+            JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+                    _queryPanel, _miQueryPanel);
+            SplitPaneUtil splitPaneUtil = new SplitPaneUtil();
+            splitPaneUtil.setupDivider(splitPane, false);
+            splitPaneUtil.setDividerLocation(splitPane, 0.6d);
+            panel.add(splitPane, BorderLayout.CENTER);
+        }
+        else {
+            panel.add(_queryPanel, BorderLayout.CENTER);
+        }
+        return panel;
+    }
+
 
 
     private JPanel buildQueryPanel(boolean isMultiInstance) {
@@ -207,7 +235,7 @@ public abstract class AbstractDataBindingDialog extends JDialog implements Actio
 
     private void init() {
         setModal(true);
-        setResizable(false);
+        setResizable(true);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationByPlatform(true);
     }

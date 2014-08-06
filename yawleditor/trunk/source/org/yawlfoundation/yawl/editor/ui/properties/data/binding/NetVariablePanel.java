@@ -51,7 +51,6 @@ class NetVariablePanel extends AbstractBindingPanel implements ActionListener {
         }
         add(buildNetSelectionPanel(varList, listener), BorderLayout.CENTER);
         add(buildRadioPanel(listener), BorderLayout.WEST);
-        setPreferredSize(new Dimension(410, 90));
         initContent();
     }
 
