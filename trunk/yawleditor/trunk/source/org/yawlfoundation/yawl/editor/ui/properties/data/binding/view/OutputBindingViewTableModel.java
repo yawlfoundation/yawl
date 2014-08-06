@@ -142,8 +142,11 @@ class OutputBindingViewTableModel extends AbstractTableModel
         Map<String, String> summary = outputBindings.getBindingsSummary();
         for (VariableRow row : variableRows) {
             if (row.isOutput() || row.isInputOutput()) {
-                String binding = outputBindings.getBindingFromSource(
-                        row.getName(), false);
+                String binding = getBindingForVariable(summary, row.getName());
+                if (binding == null) {
+                    binding = outputBindings.getBindingFromSource(
+                            row.getName(), false);
+                }
                 if (binding != null) {
                     bindings.add(new Binding(binding, summary.get(binding)));
                     if (bindings.size() == summary.size()) break;
@@ -172,6 +175,14 @@ class OutputBindingViewTableModel extends AbstractTableModel
         return false;
     }
 
+
+    private String getBindingForVariable(Map<String, String> bindings, String varName) {
+        String tag = "<" + varName + ">";
+        for (String binding : bindings.keySet()) {
+             if (binding.startsWith(tag)) return binding;
+        }
+        return null;
+    }
 
     /*******************************************************************/
 

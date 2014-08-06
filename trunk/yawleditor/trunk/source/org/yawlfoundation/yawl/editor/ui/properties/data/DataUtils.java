@@ -35,7 +35,7 @@ public class DataUtils {
 
     public static String wrapBinding(String tagName, String binding) {
         if (StringUtil.isNullOrEmpty(binding)) return null;
-        boolean needsBrackets = ! binding.trim().startsWith("<");
+        boolean needsBrackets = needsBrackets(binding);
         StringBuilder s = new StringBuilder();
         s.append('<').append(tagName).append(">");
         if (needsBrackets) s.append("{");
@@ -43,6 +43,12 @@ public class DataUtils {
         if (needsBrackets) s.append("}");
         s.append("</").append(tagName).append('>');
         return s.toString();
+    }
+
+
+    private static boolean needsBrackets(String binding) {
+        String s = binding.trim();
+        return ! (s.startsWith("<") || s.startsWith("{"));
     }
 
 }

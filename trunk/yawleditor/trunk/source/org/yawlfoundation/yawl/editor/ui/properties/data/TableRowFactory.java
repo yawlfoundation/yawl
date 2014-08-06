@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 
@@ -31,8 +32,8 @@ import java.util.*;
  */
 public class TableRowFactory {
 
-    public List<VariableRow> createRows(YDecomposition decomposition) {
-        String decompositionID = decomposition.getID();
+    public List<VariableRow> createRows(YDecomposition decomposition, YTask task) {
+        String elementID = task != null ? task.getID() : decomposition.getID();
         Set<String> ioNames = new HashSet<String>();
         java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
 
@@ -45,7 +46,7 @@ public class TableRowFactory {
                     ioNames.add(name);
                 }
             }
-            rows.add(new VariableRow(input, ioNames.contains(name), decompositionID));
+            rows.add(new VariableRow(input, ioNames.contains(name), elementID));
         }
 
         // add output only
@@ -53,7 +54,7 @@ public class TableRowFactory {
         for (String name : decomposition.getOutputParameterNames()) {
             if (! ioNames.contains(name)) {
                 rows.add(new VariableRow(decomposition.getOutputParameters().get(name),
-                        decompositionID));
+                        elementID));
                 dummyLocalNames.add(name);
             }
         }
@@ -63,7 +64,7 @@ public class TableRowFactory {
             // add locals that weren't created to 'shadow' output-only parameters
             for (YVariable variable : ((YNet) decomposition).getLocalVariables().values()) {
                 if (! dummyLocalNames.contains(variable.getName())) {
-                    rows.add(new VariableRow(variable, decompositionID));
+                    rows.add(new VariableRow(variable, elementID));
                 }
             }
         }

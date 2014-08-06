@@ -163,7 +163,7 @@ public class DataVariableDialog extends JDialog
         String oldName = row.getName();
         if (oldName.isEmpty() || oldName.equals(newName)) return;
 
-        String id = row.getDecompositionID();
+        String id = row.getElementID();
         if (id.equals(net.getID())) {                 // net var name change
             for (VariableRow taskRow : getTaskTable().getVariables()) {
                 if (taskRow.getMapping().contains(id + "/" + oldName + "/")) {
@@ -174,9 +174,9 @@ public class DataVariableDialog extends JDialog
             outputBindings.renameNetVarTarget(oldName, newName);
         }
         else if (row.isOutput() || row.isInputOutput()) { // task output var name change
-            String oldBinding = createMapping(row.getDecompositionID(),
+            String oldBinding = createMapping(row.getElementID(),
                     oldName, row.getDataType());
-            String newBinding = createMapping(row.getDecompositionID(),
+            String newBinding = createMapping(row.getElementID(),
                     newName, row.getDataType());
             outputBindings.replaceBinding(oldName, oldBinding, newBinding);
             outputBindings.renameExternalTarget(oldName, newName);
@@ -384,10 +384,10 @@ public class DataVariableDialog extends JDialog
     private java.util.List<VariableRow> createTableRows(TableType tableType) {
         TableRowFactory rowFactory = new TableRowFactory();
         if (tableType == TableType.Net) {
-            return rowFactory.createRows(net);
+            return rowFactory.createRows(net, null);
         }
         else {
-            java.util.List<VariableRow> rows = rowFactory.createRows(decomposition);
+            java.util.List<VariableRow> rows = rowFactory.createRows(decomposition, task);
             initMappings(rows);
             return rows;
         }

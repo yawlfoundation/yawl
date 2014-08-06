@@ -51,7 +51,6 @@ class MIQueryPanel extends AbstractBindingPanel {
 
     private XQueryEditorPane createMiQueryEditor() {
         _miQueryEditor = new XQueryEditorPane();
-        _miQueryEditor.setPreferredSize(new Dimension(400, 90));
         _miQueryEditor.setValidating(true);
         return _miQueryEditor;
     }

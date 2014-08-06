@@ -37,10 +37,10 @@ public class SplitPaneUtil {
      * Sets some divider options and removes its border
      * @param splitPane the pane to setup
      */
-    public void setupDivider(JSplitPane splitPane) {
+    public void setupDivider(JSplitPane splitPane, boolean oneTouch) {
         splitPane.setDividerSize(4);
         splitPane.setResizeWeight(0);
-        splitPane.setOneTouchExpandable(true);
+        splitPane.setOneTouchExpandable(oneTouch);
         splitPane.setUI(new BasicSplitPaneUI() {
             public BasicSplitPaneDivider createDefaultDivider() {
                 return new BasicSplitPaneDivider(this) {
@@ -81,10 +81,16 @@ public class SplitPaneUtil {
                     if((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 &&
                             splitter.isShowing()) {
                         splitter.removeHierarchyListener(this);
-                        BasicSplitPaneUI ui = (BasicSplitPaneUI) splitter.getUI();
-                        BasicSplitPaneDivider divider = ui.getDivider();
-                        JButton button = (JButton) divider.getComponent(1);
-                        button.doClick();              }
+                        if (splitter.isOneTouchExpandable()) {
+                            BasicSplitPaneUI ui = (BasicSplitPaneUI) splitter.getUI();
+                            BasicSplitPaneDivider divider = ui.getDivider();
+                            JButton button = (JButton) divider.getComponent(1);
+                            button.doClick();
+                        }
+                        else {
+                            setDividerLocation(splitter, proportion);
+                        }
+                    }
                 }
             });
         }

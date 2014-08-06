@@ -35,7 +35,7 @@ public class VariableRow implements Comparable<VariableRow> {
     private Values startValues;
     private Values endValues;
 
-    private String decompositionID;
+    private String elementID;            // the net of task ID of the variable's owner
     private boolean hasValidName;
     private boolean hasValidValue;
     private boolean multiInstance;
@@ -52,12 +52,12 @@ public class VariableRow implements Comparable<VariableRow> {
         initialiseValidity();
     }
 
-    public VariableRow(YVariable variable, String decompositionID) {
-        initialise(variable, false, decompositionID);
+    public VariableRow(YVariable variable, String elementID) {
+        this(variable, false, elementID);
     }
 
-    public VariableRow(YVariable variable, boolean isInputOutput, String decompositionID) {
-        initialise(variable, isInputOutput, decompositionID);
+    public VariableRow(YVariable variable, boolean isInputOutput, String elementID) {
+        initialise(variable, isInputOutput, elementID);
     }
 
 
@@ -195,9 +195,9 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    public void setDecompositionID(String name) { decompositionID = name; }
+    public void setElementID(String name) { elementID = name; }
 
-    public String getDecompositionID() { return decompositionID; }
+    public String getElementID() { return elementID; }
 
 
     public int getIndex() { return endValues.index; }
@@ -254,7 +254,7 @@ public class VariableRow implements Comparable<VariableRow> {
         }
 
         endValues = startValues.copy();
-        setDecompositionID(netElement);
+        setElementID(netElement);
         initialiseValidity();
     }
 

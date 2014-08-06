@@ -101,7 +101,7 @@ public class VariableRowTransferHandler extends TransferHandler {
         VariableRow newVariableRow = new VariableRow(YDataHandler.INPUT_OUTPUT);
         newVariableRow.setName(data.getName());
         newVariableRow.setDataType(data.getDataType());
-        newVariableRow.setDecompositionID(_table.getNetElementName());
+        newVariableRow.setElementID(_table.getNetElementID());
         createMapping(data, newVariableRow);
         _table.insertRow(row, newVariableRow);
 
@@ -169,7 +169,7 @@ public class VariableRowTransferHandler extends TransferHandler {
 
     private String createMapping(VariableRow row) {
         StringBuilder s = new StringBuilder("/");
-        s.append(row.getDecompositionID())
+        s.append(row.getElementID())
          .append("/")
          .append(row.getName())
          .append("/")

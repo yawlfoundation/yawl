@@ -76,7 +76,6 @@ class QueryPanel extends AbstractBindingPanel {
 
     private XQueryValidatingEditorPane createXQueryEditor() {
         _xQueryEditor = new XQueryValidatingEditorPane();
-        _xQueryEditor.setPreferredSize(new Dimension(400, 150));
         _xQueryEditor.setPreAndPostEditorText("<foo_bar>", "</foo_bar>");
         _xQueryEditor.setValidating(true);
         return _xQueryEditor;

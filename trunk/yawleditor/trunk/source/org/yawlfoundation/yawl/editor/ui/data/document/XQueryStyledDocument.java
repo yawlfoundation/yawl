@@ -47,35 +47,35 @@ public class XQueryStyledDocument extends AbstractXMLStyledDocument {
 
     public void checkValidity() {
         errorList.clear();
+        String text = getEditor().getText();
         if (isValidating()) {
-            if (getEditor().getText().equals("")) {
+            if (text.equals("")) {
                 errorList.add("Query required");
                 setContentValidity(Validity.INVALID);
                 return;
             }
 
             // external data gateway
-            if (getEditor().getText().matches(
-                    "^\\s*#external:\\w+\\s*:\\w+\\s*")) {
+            if (text.matches("^\\s*#external:\\w+\\s*:\\w+\\s*")) {
                 setContentValidity(Validity.VALID);
                 return;
             }
 
             // timer expression
-            if (getEditor().getText().matches(
+            if (text.matches(
                     "^\\s*timer\\(\\w+\\)\\s*!?=\\s*'(dormant|active|closed|expired)'\\s*$")) {
                 setContentValidity(Validity.VALID);
                 return;
             }
 
             // cost expression
-            if (getEditor().getText().matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$")) {
+            if (text.matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$")) {
                 setContentValidity(Validity.VALID);
                 return;
             }
 
             try {
-                SaxonUtil.compileXQuery(preEditorText + getEditor().getText() + postEditorText);
+                SaxonUtil.compileXQuery(preEditorText + text + postEditorText);
                 errorList = SaxonUtil.getCompilerMessages();
                 setContentValidity(errorList.isEmpty() ? Validity.VALID : Validity.INVALID);
             }

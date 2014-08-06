@@ -93,9 +93,11 @@ public class BindingTypeValidator extends TypeValueBuilder {
     public List<String> validate(String binding) {
         if (shouldValidate(binding)) {
             try {
-                String query = evaluateQuery(maskDecompositionID(binding),
-                        _dataDocument);
-                if (! query.isEmpty()) {
+                String query = evaluateQuery(maskDecompositionID(binding), _dataDocument);
+                if (query.isEmpty()) {
+                    return Arrays.asList("Invalid XPath expression (perhaps spelling?)");
+                }
+                else {
                     List<String> errors = getDataHandler().validate(_dataTypeName, query);
                     if (! errors.isEmpty()) {
                         return Arrays.asList("Invalid value for target data type '" +
@@ -249,7 +251,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
      */
     private void setTaskDecompositionID(List<VariableRow> varList) {
         if (! (varList == null || varList.isEmpty())) {
-            _taskDecompositionID = varList.get(0).getDecompositionID();
+            _taskDecompositionID = varList.get(0).getElementID();
         }
     }
 

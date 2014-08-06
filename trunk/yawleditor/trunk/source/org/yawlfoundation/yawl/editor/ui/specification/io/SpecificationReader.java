@@ -80,7 +80,12 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
 
     protected void done() {
-        finaliseLoad();
+        try {
+            finaliseLoad(get());
+        }
+        catch (Exception e) {
+            finaliseLoad(false);
+        }
     }
 
     /*****************************************************************************/
@@ -153,14 +158,16 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
     }
 
 
-    private void finaliseLoad() {
-        Publisher.getInstance().publishOpenFileEvent();
-        YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
+    private void finaliseLoad(boolean loaded) {
         SpecificationUndoManager.getInstance().discardAllEdits();
-        setSelectedCancellationSets();
-        YPluginHandler.getInstance().postOpenFile();
-        YAWLEditor.getPropertySheet().setVisible(true);
-        warnOnInvalidResources();
+        if (loaded) {
+            Publisher.getInstance().publishOpenFileEvent();
+            YAWLEditor.getNetsPane().setSelectedIndex(0);           // root net
+            setSelectedCancellationSets();
+            YPluginHandler.getInstance().postOpenFile();
+            YAWLEditor.getPropertySheet().setVisible(true);
+            warnOnInvalidResources();
+        }
     }
 
 

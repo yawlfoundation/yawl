@@ -44,7 +44,7 @@ class TaskVariablePanel extends AbstractBindingPanel {
         super();
         setLayout(new BorderLayout());
         setBorder(new CompoundBorder(new TitledBorder(title),
-                new EmptyBorder(0,17,0,0)));
+                new EmptyBorder(0,17,3,0)));
 
         _varsCombo = buildComboBox(getVarNames(varList), "taskVarComboSelection", listener);
         _varsCombo.setBorder(new EmptyBorder(3,0,3,0));
@@ -55,7 +55,6 @@ class TaskVariablePanel extends AbstractBindingPanel {
         _prompt.setBorder(new EmptyBorder(0,0,0,20));
         add(_prompt, BorderLayout.WEST);
         setMiVarName(varList);
-        setPreferredSize(new Dimension(410, 55));
     }
 
     protected void hideMiVar() {
