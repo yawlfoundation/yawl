@@ -121,13 +121,16 @@
 	</fail>
 
     <!--
-        This custom task (found in the yawl lib jar) writes checksum data
-        for all files in a release build, from where it is used for auto updating
+        This custom task writes checksum data for all files in a release build,
+        from where it is used for auto updating
     -->
     <taskdef name="checkSums"
-             classname="org.yawlfoundation.yawl.util.CheckSumTask"
-             classpath="../${engine.lib.jar.path}"/>
-
+             classname="org.yawlfoundation.yawl.editor.ui.util.CheckSumTask">
+        <classpath>
+            <pathelement path="${classes.dir}"/>
+            <pathelement path="../${engine.lib.jar.path}"/>
+        </classpath>
+    </taskdef>
 
 	<!-- ==================MAIN EDITOR BUILD TARGETS======================= -->
 
@@ -432,9 +435,7 @@
             <entry key="build.date" type="date" value="now" pattern="yyyy-MM-dd HH.mm.ss"/>
         </propertyfile>
 
-        <!-- build checksums.xml for future update comparisons -->
-        <checkSums rootdir="../${output.dir}" todir="../${output.dir}/lib"
-                   includes="*.jar *.pdf"/>
+        <antcall target="checksums"/>
 
    		<zip destfile="${output.dir}/${release.zip}">
             <zipfileset dir="${output.dir}" includes="${ui.jar.name}"/>
@@ -529,6 +530,7 @@
                destdir="${classes.dir}">
             <include name="${root.source.file.path}"/>
             <include name="${package.dir}/ui/plugin/YEditorPluginAdapter.java"/>
+            <include name="${package.dir}/ui/util/CheckSumTask.java"/>
             <include name="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
             <include name="${package.base.dir}/decobar/DecoratorToolbarPlugin.java"/>
             <classpath>
@@ -607,6 +609,13 @@
 
         <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
                style="${analyzer.dir}/jaranalyzer.xsl"/>
+    </target>
+
+
+    <!-- build checksums.xml for future update comparisons -->
+    <target name="checksums">
+        <checkSums rootdir="../${output.dir}" todir="../${output.dir}/lib"
+                   includes="*.jar *.pdf"/>
     </target>
 
 	<!--
