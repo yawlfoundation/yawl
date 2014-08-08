@@ -115,6 +115,9 @@ public class YMarshal {
             // now build a set of specifications - verification has not yet occurred.
             result = buildSpecifications(specificationSetEl, ns, version);
         }
+        else {
+            throw new YSyntaxException("Invalid XML specification.");
+        }
         return result;
     }
 

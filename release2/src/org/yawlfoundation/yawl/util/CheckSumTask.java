@@ -1,110 +1,123 @@
 package org.yawlfoundation.yawl.util;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.Task;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Michael Adams
  * @date 5/07/2014
  */
-public class CheckSumTask extends Task {
+public class CheckSumTask extends AbstractCheckSumTask {
 
-    private String _antRootDir;
-    private String _antToDir;
-    private String _antToFile;
-    private List<String> _antIncludes;
-    private List<String> _antExcludes;
-
-    private static final SimpleDateFormat _sdf =
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
-    private static final String DEFAULT_ROOT_DIR = ".";
-    private static final String DEFAULT_TO_FILE = "checksums.xml";
-
-    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-    private static final String COMMENT =
-           "<!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->";
-
-
-    public void setRootDir(String dir) { _antRootDir = dir; }
-
-    public void setToDir(String dir) { _antToDir = dir; }
-
-    public void setFile(String file) { _antToFile = file; }
-
-    public void setIncludes(String includes) {
-        _antIncludes = toExtnList(includes);
-    }
-
-    public void setExcludes(String excludes) {
-        _antExcludes = toExtnList(excludes);
-    }
-
-
-    // called from Ant task
-    public void execute() throws BuildException {
-        try {
-            createOutputXML(_antRootDir, _antToDir, _antToFile);
-        }
-        catch (IOException ioe) {
-            throw new BuildException(ioe.getMessage());
-        }
-    }
-
-
-    public void createOutputXML(String rootDir, String toDir, String file)
-            throws IOException {
-        if (rootDir == null) rootDir = DEFAULT_ROOT_DIR;
-        if (toDir == null) toDir = rootDir;
-        if (file == null) file = DEFAULT_TO_FILE;
-        createOutputXML(new File(rootDir), new File(toDir, file));
-    }
-
-
-    public void createOutputXML(File checkDir, File outFile) throws IOException {
-        CheckSummer summer = new CheckSummer();
-        if (_antIncludes == null) _antIncludes = Collections.emptyList();
-        if (_antExcludes == null) _antExcludes = Collections.emptyList();
-        String now = now();
+    public String toXML(File baseDir, CheckSummer summer) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append(XML_HEADER).append('\n');
         s.append(COMMENT).append('\n');
-        s.append("<release>\n");
-        s.append("\t<version>").append(getProjectProperty("version"))
-                .append("</version>\n");
-        s.append("\t<build>").append(getBuildNumber()).append("</build>\n");
-        s.append("\t<timestamp>").append(now).append("</timestamp>\n");
-        s.append("\t<files>\n");
-        for (File file : getFileList(checkDir)) {
-            if (shouldBeIncluded(file)) {
-                s.append("\t\t<file name=\"")
-                 .append(getRelativePath(checkDir, file.getAbsolutePath()))
-                 .append("\" md5=\"").append(summer.getMD5Hex(file))
-                 .append("\" size=\"").append(file.length())
-                 .append("\" timestamp=\"")
-                 .append(_sdf.format(new Date(file.lastModified())))
-                 .append("\"/>\n");
-            }
-        }
-        s.append("\t</files>\n");
-        s.append("</release>");
-        writeToFile(outFile, s.toString());
+        s.append("<build>\n");
+        appendVersion(s);
+        appendLibs(s, baseDir, summer);
+        appendApp(s, baseDir, summer);
+        s.append("</build>");
+        return s.toString();
     }
 
 
-    private int getBuildNumber() {
-        String prevBuild = getProjectProperty("build.number");
+    private void appendVersion(StringBuilder s) {
+        s.append("\t<version>").append(getProjectProperty("app.version"))
+                .append("</version>\n");
+        s.append("\t<build>").append(getBuildNumber(getAppName())).append("</build>\n");
+        s.append("\t<timestamp>").append(now()).append("</timestamp>\n");
+    }
+
+
+    private void appendLibs(StringBuilder s, File baseDir, CheckSummer summer) {
+        s.append("\t<lib>\n");
+        for (File file : getFileList(getDir(baseDir, "lib.dir"))) {
+            if (shouldBeIncluded(file)) {
+                appendFile(s, file, summer, null);
+            }
+        }
+        appendYAWLLib(s, baseDir, summer);
+        s.append("\t</lib>\n");
+    }
+
+
+    private void appendApp(StringBuilder s, File baseDir, CheckSummer summer) {
+        String appName = getAppName();
+        s.append("\t<webapp name=\"").append(appName).append("\">\n");
+        appendAppFiles(s, appName, baseDir, summer);
+        appendAppLibs(s, appName);
+        s.append("\t</webapp>\n");
+    }
+
+
+    private void appendAppFiles(StringBuilder s, String appName, File baseDir,
+                                CheckSummer summer) {
+        File fileDir = getFileDir(getTempDir(baseDir), appName);
+        s.append("\t\t<files>\n");
+        for (File file : getFileList(fileDir)) {
+            if (shouldBeIncluded(file)) {
+                appendFile(s, file, summer, fileDir);
+            }
+        }
+        s.append("\t\t</files>\n");
+    }
+
+
+
+    private void appendAppLibs(StringBuilder s, String appName) {
+        s.append("\t\t<lib>\n");
+        for (String member : getPropertyList("webapp_" + appName + ".libs")) {
+            s.append("\t\t\t<file name=\"")
+             .append(member)
+             .append("\"/>\n");
+        }
+        s.append("\t\t</lib>\n");
+    }
+
+
+    private void appendYAWLLib(StringBuilder s, File baseDir, CheckSummer summer) {
+        File outputDir = getDir(baseDir, "output.dir");
+        String version = getProjectProperty("app.version");
+        File yawlJar = new File(outputDir, "yawl-lib-" + version + ".jar");
+        appendFile(s, yawlJar, summer, null);
+    }
+
+
+    private void appendFile(StringBuilder s, File file, CheckSummer summer, File dir) {
+        String fileName = dir == null ? file.getName() :
+                getRelativePath(dir, file.getAbsolutePath());
+        s.append("\t\t");
+        if (dir != null) s.append("\t");
+        s.append("<file name=\"")
+                .append(fileName)
+                .append("\" md5=\"").append(getMD5Hex(file, summer))
+                .append("\" size=\"").append(file.length())
+                .append("\" timestamp=\"")
+                .append(formatTimestamp(file.lastModified()))
+                .append("\"/>\n");
+
+    }
+
+
+    private String getMD5Hex(File file, CheckSummer summer) {
+        try {
+            return summer.getMD5Hex(file);
+        }
+        catch (IOException ioe) {
+            return "";
+        }
+    }
+
+
+    private String[] getPropertyList(String group) {
+        String members = getProjectProperty(group);
+        return members != null ? members.split("\\s+") : new String[0];
+    }
+
+
+    private int getBuildNumber(String appName) {
+        String prevBuild = getProjectProperty(appName + ".build.number");
         try {
             return Integer.parseInt(prevBuild) + 1;
         }
@@ -113,68 +126,23 @@ public class CheckSumTask extends Task {
         }
     }
 
-    private String getProjectProperty(String key) {
-        Project project = getProject();
-        return project != null ? project.getProperty(key) : "";
-    }
 
-    private String now() {
-        return new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
+    private String getBuildDate(String appName) {
+        return getProjectProperty(appName + ".build.date");
     }
 
 
-    private List<String> toExtnList(String extn) {
-        if (extn != null) {
-            List<String> list = new ArrayList<String>();
-            for (String s : extn.trim().split(" ")) {
-                int i = s.lastIndexOf('.');
-                if (i > -1) list.add(s.substring(i));
-            }
-            return list;
-        }
-        return Collections.emptyList();
+    private File getDir(File baseDir, String subdir) {
+        return new File(baseDir, getProjectProperty(subdir));
     }
 
 
-    private List<File> getFileList(File f) {
-        List<File> fileList = new ArrayList<File>();
-        if (! f.isDirectory()) {
-            fileList.add(f);
-        }
-        else {
-            File[] files = f.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) fileList.add(file);
-                    else fileList.addAll(getFileList(file));
-                }
-            }
-        }
-        return fileList;
+    private File getTempDir(File baseDir) {
+        return new File(baseDir, getProjectProperty("temp.dir"));
     }
 
-
-    private boolean shouldBeIncluded(File f) {
-        String fileName = f.getAbsolutePath();
-        int dot = fileName.lastIndexOf('.');
-        if (dot == -1) return false;
-        String extn = fileName.substring(dot);
-        if (_antExcludes.contains(extn)) return false;
-        return _antIncludes.isEmpty() || _antIncludes.contains(extn);
-    }
-
-
-    private void writeToFile(File f, String content) throws IOException {
-        BufferedWriter buf = new BufferedWriter(new FileWriter(f));
-        buf.write(content, 0, content.length());
-        buf.close();
-    }
-
-
-    private String getRelativePath(File absoluteDir, String fileName) {
-
-        // remove the absolute path from the start and the file sep from the end
-        return fileName.replace(absoluteDir.getAbsolutePath(), "").substring(1);
+    private File getFileDir(File buildDir, String appName) {
+        return new File(buildDir, appName);
     }
 
 }

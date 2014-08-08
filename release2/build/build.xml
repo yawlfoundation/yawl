@@ -61,6 +61,7 @@
     <property name="classes.dir" value="classes"/>
     <property name="graphics.dir" value="graphics"/>
     <property name="output.dir" value="output"/>
+    <property name="checksums.dir" value="checksums"/>
     <property name="schema.dir" value="schema"/>
     <property name="src.dir" value="src"/>
     <property name="test.dir" value="test"/>
@@ -308,11 +309,6 @@
         standard stop/start/apply-SQL-script method (as in the User Guide).
         This is due to required differing table structures, meaning that
         table creation cannot be automated at first startup as for other DBs.
-        If you are using an *identical* version of YAWL code to one released
-        in a YAWL4Study release, you can reuse the pre-initialised Derby DB
-        from there (copy from the misc/yawldb folder of an installed
-        YAWL4Study release). (This *might* work if you've built later code,
-        so long as no table structures or data have changed in the meantime).
     -->
 
     <filter token="DB_Path" value="${database.path}"/>
@@ -428,16 +424,16 @@
                      ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
                      ${xerces} ${saxon.libs}"/>
 
-    <property name="webapp_worklet.libs"
+    <property name="webapp_workletService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
                      ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
                      ${commonsCodec}"/>
 
-    <property name="webapp_wsInvoker.libs"
+    <property name="webapp_yawlWSInvoker.libs"
               value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j} ${xerces}
                      ${commonsCodec} ${commonsLang} README.html"/>
 
-    <property name="webapp_smsInvoker.libs"
+    <property name="webapp_yawlSMSInvoker.libs"
               value="${jdom} ${log4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_digitalSignature.libs"
@@ -448,29 +444,29 @@
               value="${jdom} ${log4j} ${mail} ${activation}
                      ${commonsIO} ${commonsFileupload} ${commonsCodec} ${xerces}"/>
 
-    <property name="webapp_monitor.libs"
+    <property name="webapp_monitorService.libs"
               value="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
                      ${commonsLogging} ${commonsCollections} ${commonsCodec} ${xerces}"/>
 
-    <property name="webapp_twitter.libs"
+    <property name="webapp_twitterService.libs"
               value="${jdom} ${log4j} ${twitter4j} ${commonsCodec} ${xerces}"/>
 
-    <property name="webapp_simplemail.libs"
+    <property name="webapp_mailService.libs"
               value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
 
-    <property name="webapp_scheduling.libs"
+    <property name="webapp_schedulingService.libs"
               value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
                      ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool} ${xerces}"/>
 
-    <property name="webapp_test.libs"
+    <property name="webapp_testService.libs"
               value="${jdom} ${xerces} ${log4j} ${twitter4j} ${commonsIO}
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
-    <property name="webapp_cost.libs"
+    <property name="webapp_costService.libs"
               value="${jdom} ${xerces} ${log4j} ${persistence.libs}
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
-    <property name="webapp_docStore.libs"
+    <property name="webapp_documentStore.libs"
               value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
 
     <property name="webapp_procletService.libs"
@@ -613,6 +609,31 @@
     <condition property="tomcat.isDedicated" value="true">
         <equals arg1="${tomcat.treatAsDedicated}" arg2="true"/>
     </condition>
+
+
+    <!--
+        This custom task writes checksum data for all files in a release build,
+        from where it is used for auto updating
+    -->
+    <taskdef name="checkSums"
+             classname="org.yawlfoundation.yawl.util.CheckSumTask"
+             classpath="${classes.dir}"/>
+
+    <!-- build checksums.xml for future update comparisons -->
+    <target name="checksums">
+        <checkSums rootdir="${basedir}" todir="${output.dir}" includes="*.jar"/>
+    </target>
+
+
+    <!-- increment build number & date -->
+    <target name="updateBuildProperties">
+        <propertyfile file="${build.dir}/build.properties">
+            <entry key="${target}.build.number" type="int" default="0" operation="+"/>
+            <entry key="${target}.build.date" type="date" value="now"
+                   pattern="yyyy-MM-dd HH.mm.ss"/>
+        </propertyfile>
+    </target>
+
 
 
     <!-- =================MAIN YAWL SERVICES BUILD TARGETS================= -->
@@ -822,6 +843,7 @@
     <target name="init" depends="clean">
         <mkdir dir="${classes.dir}"/>
         <mkdir dir="${output.dir}"/>
+        <mkdir dir="${checksums.dir}"/>
     </target>
 
     <!--
@@ -879,6 +901,8 @@
 
         <!-- adjust hbm.xml files depending on db chosen -->
         <antcall target="configureHbmXML"/>
+
+        <!--<antcall target="checksums"/>-->
     </target>
 
     <!--
@@ -1019,6 +1043,10 @@
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes"
               file="${classes.dir}${packageRoot}/engine/defaultClients.properties"/>
 
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${engine.app.name}"/>
+        </antcall>
+
         <propertyfile file="${build.dir}/engine/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
@@ -1034,6 +1062,12 @@
             <fileset dir="${temp.dir}/${engine.app.name}"/>
         </jar>
         <checksum file="${output.dir}/yawl.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${engine.app.name}" file="${engine.app.name}.xml"
+                   includes="*.jar *.xml *.properties"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
         <delete dir="${temp.dir}/${engine.app.name}"/>
     </target>
 
@@ -1103,6 +1137,15 @@
             <fileset dir="${temp.dir}/${wsInvoker.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${wsInvoker.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${wsInvoker.app.name}" file="${wsInvoker.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${wsInvoker.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${wsInvoker.app.name}"/>
     </target>
 
@@ -1111,7 +1154,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_wsInvoker.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_yawlWSInvoker.libs}"/>
         </copy>
     </target>
 
@@ -1171,6 +1214,15 @@
             <fileset dir="${temp.dir}/${smsInvoker.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${smsInvoker.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${smsInvoker.app.name}" file="${smsInvoker.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${smsInvoker.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${smsInvoker.app.name}"/>
     </target>
 
@@ -1179,7 +1231,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_smsInvoker.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_yawlSMSInvoker.libs}"/>
         </copy>
     </target>
 
@@ -1271,6 +1323,11 @@
         <copy todir="${temp.dir}/${worklet.app.name}/jsp">
             <fileset dir="${classes.dir}${packageRoot}/worklet/jsp"/>
         </copy>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${worklet.app.name}"/>
+        </antcall>
+
         <propertyfile file="${build.dir}/${worklet.app.name}/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
@@ -1288,6 +1345,11 @@
             <fileset dir="${temp.dir}/${worklet.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${worklet.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${worklet.app.name}" file="${worklet.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
         <delete dir="${temp.dir}/${worklet.app.name}"/>
     </target>
 
@@ -1297,7 +1359,7 @@
                      includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_worklet.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_workletService.libs}"/>
         </copy>
     </target>
 
@@ -1424,6 +1486,10 @@
             <entry key="OSVersion" value="${os.version}"/>
         </propertyfile>
 
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${resource.app.name}"/>
+        </antcall>
+
         <copy file="${build.dir}/${resource.app.name}/version.properties"
               tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/version.properties"/>
 
@@ -1436,6 +1502,10 @@
             <fileset dir="${temp.dir}/${resource.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${resource.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${resource.app.name}" file="${resource.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${temp.dir}/${resource.app.name}"/>
@@ -1642,6 +1712,11 @@
             <entry key="OS" value="${os.name}"/>
             <entry key="OSVersion" value="${os.version}"/>
         </propertyfile>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${monitor.app.name}"/>
+        </antcall>
+
         <copy file="${build.dir}/${monitor.app.name}/version.properties"
               tofile="${temp.dir}/${monitor.app.name}/WEB-INF/classes/version.properties"/>
         <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF"
@@ -1650,6 +1725,10 @@
             <fileset dir="${temp.dir}/${monitor.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${monitor.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${monitor.app.name}" file="${monitor.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
         <delete dir="${temp.dir}/${monitor.app.name}"/>
     </target>
 
@@ -1658,7 +1737,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_monitor.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_monitorService.libs}"/>
         </copy>
     </target>
 
@@ -1769,7 +1848,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_test.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
         </copy>
     </target>
 
@@ -1845,6 +1924,14 @@
         <jar destfile="${output.dir}/${cost.app.name}.war">
             <fileset dir="${temp.dir}/${cost.app.name}"/>
         </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${cost.app.name}" file="${cost.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${cost.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${cost.app.name}"/>
     </target>
 
@@ -1855,7 +1942,7 @@
                      includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_cost.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_costService.libs}"/>
         </copy>
     </target>
 
@@ -1908,6 +1995,14 @@
         <jar destfile="${output.dir}/${twitter.app.name}.war">
             <fileset dir="${temp.dir}/${twitter.app.name}"/>
         </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${twitter.app.name}" file="${twitter.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${twitter.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${twitter.app.name}"/>
     </target>
 
@@ -1916,7 +2011,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_twitter.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_twitterService.libs}"/>
         </copy>
     </target>
 
@@ -1963,6 +2058,14 @@
         <jar destfile="${output.dir}/${mail.app.name}.war">
             <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${mail.app.name}" file="${mail.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${mail.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${mail.app.name}"/>
     </target>
 
@@ -1971,7 +2074,7 @@
             <fileset dir="${classes.dir}" includes="log4j.properties"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_simplemail.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_mailService.libs}"/>
         </copy>
     </target>
 
@@ -2021,7 +2124,6 @@
             <fileset dir="${classes.dir}${packageRoot}/scheduling"/>
         </copy>
 
-
         <copy todir="${temp.dir}/${scheduling.app.name}">
             <fileset dir="${build.dir}/${scheduling.app.name}/resources"/>
         </copy>
@@ -2034,6 +2136,14 @@
              webxml="${build.dir}/${scheduling.app.name}/web.xml">
             <fileset dir="${temp.dir}/${scheduling.app.name}"/>
         </war>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${scheduling.app.name}" file="${scheduling.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${scheduling.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${scheduling.app.name}"/>
     </target>
 
@@ -2043,7 +2153,7 @@
                      includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_scheduling.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_schedulingService.libs}"/>
         </copy>
     </target>
 
@@ -2103,6 +2213,15 @@
             <fileset dir="${temp.dir}/${digitalSignature.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${digitalSignature.app.name}"
+                   file="${digitalSignature.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${digitalSignature.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
     </target>
 
@@ -2165,6 +2284,14 @@
             <fileset dir="${temp.dir}/${mailSender.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${mailSender.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${mailSender.app.name}" file="${mailSender.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${mailSender.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${mailSender.app.name}"/>
     </target>
 
@@ -2208,6 +2335,14 @@
             <fileset dir="${temp.dir}/${docStore.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${docStore.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${docStore.app.name}" file="${docStore.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${docStore.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${docStore.app.name}"/>
     </target>
 
@@ -2217,7 +2352,7 @@
                      includes="log4j.properties hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${webapp_docStore.libs}"/>
+            <fileset dir="${lib.dir}" includes="${webapp_documentStore.libs}"/>
         </copy>
     </target>
 
@@ -2266,6 +2401,14 @@
             <fileset dir="${temp.dir}/${proclet.app.name}"/>
         </jar>
         <checksum file="${output.dir}/${proclet.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${proclet.app.name}" file="${proclet.app.name}.xml"
+                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${proclet.app.name}"/>
+        </antcall>
+
         <delete dir="${temp.dir}/${proclet.app.name}"/>
     </target>
 
@@ -2459,10 +2602,10 @@
             <fileset dir="${lib.dir}"
                      includes="${webapp_yawl.libs}
                                ${webapp_resourceService.libs}
-                               ${webapp_wsInvoker.libs}
-                               ${webapp_smsInvoker.libs}
-                               ${webapp_simplemail.libs}
-                               ${webapp_worklet.libs}"/>
+                               ${webapp_yawlWSInvoker.libs}
+                               ${webapp_yawlSMSInvoker.libs}
+                               ${webapp_mailService.libs}
+                               ${webapp_workletService.libs}"/>
         </copy>
         <copy overwrite="true" todir="${sharedLibs.dir}">
             <fileset dir="${classes.dir}"
@@ -2475,11 +2618,11 @@
             <fileset dir="${lib.dir}"
                      includes="${webapp_digitalSignature.libs}
                                ${webapp_mailSender.libs}
-                               ${webapp_monitor.libs}
-                               ${webapp_twitter.libs}
-                               ${webapp_scheduling.libs}
-                               ${webapp_test.libs}
-                               ${webapp_cost.libs}
+                               ${webapp_monitorService.libs}
+                               ${webapp_twitterService.libs}
+                               ${webapp_schedulingService.libs}
+                               ${webapp_testService.libs}
+                               ${webapp_costService.libs}
                                ${webapp_procletService.libs}"/>
         </copy>
     </target>

@@ -1404,7 +1404,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private String writeExpressionMapping(String expression, String mapsTo) {
         StringBuilder xml = new StringBuilder("<mapping><expression query=\"");
-        xml.append(JDOMUtil.encodeEscapes(expression))
+        xml.append(JDOMUtil.encodeEscapes(expression).replace("\n", "&#xA;"))
                 .append("\"/>")
                 .append("<mapsTo>")
                 .append(mapsTo)
