@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.elements.model;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.YTimerParameters;
+import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 
 import java.awt.geom.Point2D;
 
@@ -63,6 +64,9 @@ public class AtomicTask extends YAWLTask implements YAWLAtomicTask {
     }
 
     public void setTimerParameters(YTimerParameters timerParameters) {
+        if (timerParameters.getTrigger() == YWorkItemTimer.Trigger.Never) {
+            timerParameters = null;
+        }
         getTask().setTimerParameters(timerParameters);
     }
 

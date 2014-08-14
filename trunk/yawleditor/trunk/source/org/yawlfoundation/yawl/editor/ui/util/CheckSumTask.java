@@ -56,4 +56,16 @@ public class CheckSumTask extends AbstractCheckSumTask {
         return s.toString();
     }
 
+
+    private int getBuildNumber() {
+        String prevBuild = getProjectProperty("build.number");
+        try {
+            return Integer.parseInt(prevBuild) + 1;
+        }
+        catch (NumberFormatException nfe) {
+            return 0;
+        }
+    }
+
+
 }

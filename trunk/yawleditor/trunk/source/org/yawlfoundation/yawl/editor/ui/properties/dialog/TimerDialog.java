@@ -91,7 +91,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
 
     public YTimerParameters getContent() {
-        return neverButton.isSelected() || cancelButtonSelected() ? null : getValue();
+        return cancelButtonSelected() ? null : getValue();
     }
 
 
@@ -167,6 +167,9 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
     private YTimerParameters getValue() {
         YTimerParameters timerParameters = new YTimerParameters();
+        if (neverButton.isSelected()) {
+            timerParameters.set(getTrigger(), (Date) null);
+        }
         if (exactlyButton.isSelected()) {
             timerParameters.set(getTrigger(), getDateValue());
         }
