@@ -131,11 +131,9 @@ public class VersionDiffer {
         }
         _newVersion = ! getLatestVersion().equals(getCurrentVersion());
 
-        if (! _newVersion) {
-            Map<String, FileNode> latestMap = getFileMap(_latest.getFileList());
-            Map<String, FileNode> currentMap = getFileMap(_current.getFileList());
-            compareMaps(latestMap, currentMap);
-        }
+        Map<String, FileNode> latestMap = getFileMap(_latest.getFileList());
+        Map<String, FileNode> currentMap = getFileMap(_current.getFileList());
+        compareMaps(latestMap, currentMap);
     }
 
 

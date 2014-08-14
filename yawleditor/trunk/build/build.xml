@@ -431,7 +431,7 @@
 
         <!-- increment build number & date -->
         <propertyfile file="${build.dir}/build.properties">
-            <entry key="build.number" type="int" default="0" operation="+"/>
+            <entry key="build.number" type="int" default="0" operation="+" pattern="000"/>
             <entry key="build.date" type="date" value="now" pattern="yyyy-MM-dd HH.mm.ss"/>
         </propertyfile>
 

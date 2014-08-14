@@ -58,7 +58,7 @@ public class TimerPropertyEditor extends DialogPropertyEditor {
         dialog.setVisible(true);
 
         YTimerParameters newDetail = dialog.getContent();
-        if (newDetail != null) {
+        if (newDetail != null) {                               // dialog not cancelled
             NetTaskPair oldPair = pair;
             if (oldPair.hasMultipleTasks()) {
                 pair = new NetTaskPair(oldPair.getNet(), oldPair.getVertexSet());
