@@ -20,6 +20,10 @@ package org.yawlfoundation.yawl.editor.core.controlflow;
 
 import org.yawlfoundation.yawl.elements.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Michael Adams
  * @date 31/07/13
@@ -253,8 +257,8 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
                 // a new flow at an XOR-split becomes the new default
                 unsetDefaultFlow((YTask) source);
-                flow.setOrdering(source.getPostsetElements().size() -1);
                 flow.setIsDefaultFlow(true);
+                rationaliseOrdering((YTask) source);
             }
             else if (splitType == YTask._OR) {
                 flow.setIsDefaultFlow(! hasDefaultFlow((YTask) source));
@@ -293,10 +297,23 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
     // only called for XOR splits
     private void unsetDefaultFlow(YTask task) {
-        for (YFlow flow : task.getPostsetFlows()) {
-            if (flow.isDefaultFlow()) {
-                flow.setIsDefaultFlow(false);
-                flow.setXpathPredicate(DEFAULT_PREDICATE);
+        if (task.getSplitType() == YTask._XOR) {
+            for (YFlow flow : task.getPostsetFlows()) {
+                if (flow.isDefaultFlow()) {
+                    flow.setIsDefaultFlow(false);
+                    flow.setXpathPredicate(DEFAULT_PREDICATE);
+                }
+            }
+        }
+    }
+
+
+    private void rationaliseOrdering(YTask task) {
+        if (task.getSplitType() == YTask._XOR) {
+            List<YFlow> flowList = new ArrayList<YFlow>(task.getPostsetFlows());
+            Collections.sort(flowList);
+            for (int i = 0; i < flowList.size() - 1; i++) {   // last one is default
+                flowList.get(i).setEvalOrdering(i);
             }
         }
     }
