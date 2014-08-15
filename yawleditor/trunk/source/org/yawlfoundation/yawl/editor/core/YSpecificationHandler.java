@@ -185,10 +185,7 @@ public class YSpecificationHandler {
      * @throws IllegalIdentifierException if the identifier contains XML reserved chars
      */
     public void setURI(String uri) throws IllegalIdentifierException {
-        if (isValidXMLIdentifier(uri)) {
-            _specification.setURI(uri);
-        }
-        else throw new IllegalIdentifierException("Invalid or Empty Specification URI");
+        _specification.setURI(uri);
     }
 
     /** @return the specification's URI (i.e. its name) */

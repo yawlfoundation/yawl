@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.editor.ui.properties;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
-import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.LogPredicateScope;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -52,13 +51,12 @@ public class NetProperties extends YPropertiesBean {
     public String getUri() { return specHandler.getURI(); }
 
     public void setUri(String uri) {
-        try {
-            specHandler.setURI(uri);
-        }
-        catch (IllegalIdentifierException iie) {
-            showWarning("Invalid Specification Name",
-                  "Specification Name cannot be blank or contain invalid XML characters");
+        if (StringUtil.isNullOrEmpty(uri)) {
+            showWarning("Invalid Specification Name", "Specification Name cannot be blank");
             firePropertyChange("Uri", specHandler.getURI());
+        }
+        else {
+            specHandler.setURI(uri);
         }
     }
 
