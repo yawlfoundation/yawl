@@ -619,18 +619,14 @@
              classname="org.yawlfoundation.yawl.util.CheckSumTask"
              classpath="${classes.dir}"/>
 
-    <!-- build checksums.xml for future update comparisons -->
-    <target name="checksums">
-        <checkSums rootdir="${basedir}" todir="${output.dir}" includes="*.jar"/>
-    </target>
-
 
     <!-- increment build number & date -->
     <target name="updateBuildProperties">
         <propertyfile file="${build.dir}/build.properties">
-            <entry key="${target}.build.number" type="int" default="0" operation="+"/>
+            <entry key="${target}.build.number" type="int" default="0" operation="+"
+                    pattern="0000"/>
             <entry key="${target}.build.date" type="date" value="now"
-                   pattern="yyyy-MM-dd HH.mm.ss"/>
+                    pattern="yyyy-MM-dd HH.mm.ss"/>
         </propertyfile>
     </target>
 
@@ -901,8 +897,6 @@
 
         <!-- adjust hbm.xml files depending on db chosen -->
         <antcall target="configureHbmXML"/>
-
-        <!--<antcall target="checksums"/>-->
     </target>
 
     <!--
@@ -1064,7 +1058,7 @@
         <checksum file="${output.dir}/yawl.war"/>
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${engine.app.name}" file="${engine.app.name}.xml"
+                   appname="${engine.app.name}"
                    includes="*.jar *.xml *.properties"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
@@ -1139,7 +1133,7 @@
         <checksum file="${output.dir}/${wsInvoker.app.name}.war"/>
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${wsInvoker.app.name}" file="${wsInvoker.app.name}.xml"
+                   appname="${wsInvoker.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -1216,7 +1210,7 @@
         <checksum file="${output.dir}/${smsInvoker.app.name}.war"/>
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${smsInvoker.app.name}" file="${smsInvoker.app.name}.xml"
+                   appname="${smsInvoker.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -1347,7 +1341,7 @@
         <checksum file="${output.dir}/${worklet.app.name}.war"/>
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${worklet.app.name}" file="${worklet.app.name}.xml"
+                   appname="${worklet.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <delete dir="${temp.dir}/${worklet.app.name}"/>
@@ -1504,7 +1498,7 @@
         <checksum file="${output.dir}/${resource.app.name}.war"/>
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${resource.app.name}" file="${resource.app.name}.xml"
+                   appname="${resource.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <!-- 7. Remove temp build area -->
@@ -1726,7 +1720,7 @@
         </jar>
         <checksum file="${output.dir}/${monitor.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${monitor.app.name}" file="${monitor.app.name}.xml"
+                   appname="${monitor.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <delete dir="${temp.dir}/${monitor.app.name}"/>
@@ -1925,7 +1919,7 @@
             <fileset dir="${temp.dir}/${cost.app.name}"/>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${cost.app.name}" file="${cost.app.name}.xml"
+                   appname="${cost.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -1996,7 +1990,7 @@
             <fileset dir="${temp.dir}/${twitter.app.name}"/>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${twitter.app.name}" file="${twitter.app.name}.xml"
+                   appname="${twitter.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2059,7 +2053,7 @@
             <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${mail.app.name}" file="${mail.app.name}.xml"
+                   appname="${mail.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2137,7 +2131,7 @@
             <fileset dir="${temp.dir}/${scheduling.app.name}"/>
         </war>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${scheduling.app.name}" file="${scheduling.app.name}.xml"
+                   appname="${scheduling.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2215,7 +2209,6 @@
         <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${digitalSignature.app.name}"
-                   file="${digitalSignature.app.name}.xml"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2285,7 +2278,7 @@
         </jar>
         <checksum file="${output.dir}/${mailSender.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${mailSender.app.name}" file="${mailSender.app.name}.xml"
+                   appname="${mailSender.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2336,7 +2329,7 @@
         </jar>
         <checksum file="${output.dir}/${docStore.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${docStore.app.name}" file="${docStore.app.name}.xml"
+                   appname="${docStore.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
@@ -2402,7 +2395,7 @@
         </jar>
         <checksum file="${output.dir}/${proclet.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${proclet.app.name}" file="${proclet.app.name}.xml"
+                   appname="${proclet.app.name}"
                    excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
 
         <antcall target="updateBuildProperties">

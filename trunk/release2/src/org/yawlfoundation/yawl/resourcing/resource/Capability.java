@@ -52,6 +52,9 @@ public class Capability extends AbstractResourceAttribute implements Comparable 
         reconstitute(e);
     }
 
+
+    public void setLabel(String label) { setCapability(label); }
+
     public String getCapability() { return _capability; }
 
     public void setCapability(String capability) {

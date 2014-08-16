@@ -1822,7 +1822,7 @@ public abstract class YTask extends YExternalNetElement {
 
     public void setTimerParameters(YTimerParameters timerParameters) {
         _timerParams = timerParameters;
-        _timerVariable = new YTimerVariable(this);
+        _timerVariable = (_timerParams != null) ? new YTimerVariable(this) : null;
     }
 
 

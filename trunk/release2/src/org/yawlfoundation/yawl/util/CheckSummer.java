@@ -57,4 +57,17 @@ public class CheckSummer {
         }
     }
 
+
+    public static String getMD5Hex(byte[] bytes) throws IOException {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(bytes);
+            byte[] hash = md.digest();
+            return String.format("%032x", new BigInteger(1, hash));
+        }
+        catch (NoSuchAlgorithmException nsae) {
+            throw new IOException(nsae.getMessage());
+        }
+    }
+
 }

@@ -2,7 +2,7 @@ package org.yawlfoundation.yawl.launch.components;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
-import org.yawlfoundation.yawl.launch.YLauncher;
+import org.yawlfoundation.yawl.launch.YControlPanel;
 import org.yawlfoundation.yawl.launch.util.TomcatUtil;
 
 import javax.swing.*;
@@ -26,7 +26,7 @@ public class OutputDialog extends JDialog {
         setResizable(true);
         setModal(false);
         setMinimumSize(new Dimension(600, 400));
-        setTitle("YAWL " + YLauncher.VERSION + " Output Log Window");
+        setTitle("YAWL " + YControlPanel.VERSION + " Output Log Window");
         setLocationByPlatform(true);
         buildUI();
         startTailer();
