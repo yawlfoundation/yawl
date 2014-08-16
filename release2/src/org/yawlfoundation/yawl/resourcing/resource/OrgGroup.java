@@ -70,6 +70,8 @@ public class OrgGroup extends AbstractResourceAttribute implements Comparable {
     }
 
 
+    public void setLabel(String label) { setGroupName(label); }
+
     public String getGroupName() {
         return _groupName;
     }

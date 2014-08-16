@@ -64,6 +64,8 @@ public class Position extends AbstractResourceAttribute implements Comparable {
     }
 
 
+    public void setLabel(String label) { setTitle(label); }
+
     public String getPositionID() {
         return _positionID;
     }

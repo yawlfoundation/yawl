@@ -134,6 +134,13 @@ public abstract class AbstractCheckSumTask extends Task {
     }
 
 
+    protected void writeToFile(File f, String content) throws IOException {
+        BufferedWriter buf = new BufferedWriter(new FileWriter(f));
+        buf.write(content, 0, content.length());
+        buf.close();
+    }
+
+
     /***********************************************************************/
 
     private void createOutputXML(String rootDir, String toDir, String file)
@@ -176,13 +183,5 @@ public abstract class AbstractCheckSumTask extends Task {
     private String removeLastChar(String s) {
         return s.substring(0, s.length()-1);
     }
-
-
-    private void writeToFile(File f, String content) throws IOException {
-        BufferedWriter buf = new BufferedWriter(new FileWriter(f));
-        buf.write(content, 0, content.length());
-        buf.close();
-    }
-
 
 }

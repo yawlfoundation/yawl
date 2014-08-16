@@ -12,22 +12,19 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.*;
-import java.util.List;
 
 /**
  * @author Michael Adams
  * @date 4/08/2014
  */
-public class YLauncher extends JFrame {
+public class YControlPanel extends JFrame {
 
     private ButtonPanel _buttonPanel;
     private EngineMonitor _engineMonitor;
 
     public static final String VERSION = "3.0";
 
-    public YLauncher() {
+    public YControlPanel() {
         super();
         _engineMonitor = new EngineMonitor();
         buildUI();
@@ -44,7 +41,7 @@ public class YLauncher extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new YLauncher().setVisible(true);
+                new YControlPanel().setVisible(true);
             }
         });
     }

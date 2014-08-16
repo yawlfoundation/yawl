@@ -9,100 +9,108 @@ import java.io.IOException;
  */
 public class CheckSumTask extends AbstractCheckSumTask {
 
+
     public String toXML(File baseDir, CheckSummer summer) throws IOException {
-        StringBuilder s = new StringBuilder();
-        s.append(XML_HEADER).append('\n');
-        s.append(COMMENT).append('\n');
-        s.append("<build>\n");
-        appendVersion(s);
-        appendLibs(s, baseDir, summer);
-        appendApp(s, baseDir, summer);
-        s.append("</build>");
-        return s.toString();
+        File checksumsFile = getChecksumsFile(baseDir);
+        XNode root = parse(checksumsFile);
+        if (root == null) {
+            throw new IOException("Error locating or parsing checksums file");
+        }
+        root.getChild("version").setText(getVersion());
+        root.getChild("timestamp").setText(now());
+        addLibs(root, baseDir, summer);
+        addYAWLLib(root, baseDir, summer);
+        addApp(root, baseDir, summer);
+        return root.toPrettyString(true);
     }
 
 
-    private void appendVersion(StringBuilder s) {
-        s.append("\t<version>").append(getProjectProperty("app.version"))
-                .append("</version>\n");
-        s.append("\t<build>").append(getBuildNumber(getAppName())).append("</build>\n");
-        s.append("\t<timestamp>").append(now()).append("</timestamp>\n");
-    }
-
-
-    private void appendLibs(StringBuilder s, File baseDir, CheckSummer summer) {
-        s.append("\t<lib>\n");
-        for (File file : getFileList(getDir(baseDir, "lib.dir"))) {
+    private void addLibs(XNode root, File baseDir, CheckSummer summer) {
+        StringBuilder md5s = new StringBuilder();
+        XNode libNode = root.getChild("lib");
+        libNode.removeChildren();
+        for (File file : getFileList(getLibDir(baseDir))) {
             if (shouldBeIncluded(file)) {
-                appendFile(s, file, summer, null);
+                md5s.append(addFile(libNode, file, summer, null));
             }
         }
-        appendYAWLLib(s, baseDir, summer);
-        s.append("\t</lib>\n");
+        libNode.addAttribute("hash", getMD5Hex(md5s.toString(), summer));
     }
 
 
-    private void appendApp(StringBuilder s, File baseDir, CheckSummer summer) {
+    private void addApp(XNode root, File baseDir, CheckSummer summer) {
         String appName = getAppName();
-        s.append("\t<webapp name=\"").append(appName).append("\">\n");
-        appendAppFiles(s, appName, baseDir, summer);
-        appendAppLibs(s, appName);
-        s.append("\t</webapp>\n");
+        XNode appNode = getAppNode(root.getChild("webapps"), appName);
+        appNode.addChild("build", getBuildNumber(appName));
+        addAppFiles(appNode, appName, baseDir, summer);
+        addAppLibs(appNode, appName);
     }
 
 
-    private void appendAppFiles(StringBuilder s, String appName, File baseDir,
-                                CheckSummer summer) {
-        File fileDir = getFileDir(getTempDir(baseDir), appName);
-        s.append("\t\t<files>\n");
-        for (File file : getFileList(fileDir)) {
-            if (shouldBeIncluded(file)) {
-                appendFile(s, file, summer, fileDir);
-            }
-        }
-        s.append("\t\t</files>\n");
+    private XNode getAppNode(XNode webappsNode, String appName) {
+        XNode appNode = webappsNode.getOrAddChild(appName);
+        appNode.removeChildren();
+        return appNode;
     }
 
 
+     private void addAppFiles(XNode node, String appName, File baseDir,
+                                 CheckSummer summer) {
+         File appDir = getAppDir(baseDir, appName);
+         XNode fileNode = node.addChild("files");
+         for (File file : getFileList(appDir)) {
+             if (shouldBeIncluded(file)) {
+                 addFile(fileNode, file, summer, appDir);
+             }
+         }
+     }
 
-    private void appendAppLibs(StringBuilder s, String appName) {
-        s.append("\t\t<lib>\n");
-        for (String member : getPropertyList("webapp_" + appName + ".libs")) {
-            s.append("\t\t\t<file name=\"")
-             .append(member)
-             .append("\"/>\n");
-        }
-        s.append("\t\t</lib>\n");
+
+     private void addAppLibs(XNode node, String appName) {
+         XNode libNode = node.addChild("lib");
+         for (String member : getPropertyList("webapp_" + appName + ".libs")) {
+             XNode fileNode = libNode.addChild("file");
+             fileNode.addAttribute("name", member);
+         }
+     }
+
+
+    private void addYAWLLib(XNode root, File baseDir, CheckSummer summer) {
+        XNode yawlLibNode = root.getOrAddChild("yawllib");
+        yawlLibNode.removeChildren();
+        File outputDir = getOutputDir(baseDir);
+        File yawlJar = new File(outputDir, "yawl-lib-" + getVersion() + ".jar");
+        addFile(yawlLibNode, yawlJar, summer, null);
     }
 
 
-    private void appendYAWLLib(StringBuilder s, File baseDir, CheckSummer summer) {
-        File outputDir = getDir(baseDir, "output.dir");
-        String version = getProjectProperty("app.version");
-        File yawlJar = new File(outputDir, "yawl-lib-" + version + ".jar");
-        appendFile(s, yawlJar, summer, null);
-    }
-
-
-    private void appendFile(StringBuilder s, File file, CheckSummer summer, File dir) {
+    private String addFile(XNode node, File file, CheckSummer summer, File dir) {
         String fileName = dir == null ? file.getName() :
                 getRelativePath(dir, file.getAbsolutePath());
-        s.append("\t\t");
-        if (dir != null) s.append("\t");
-        s.append("<file name=\"")
-                .append(fileName)
-                .append("\" md5=\"").append(getMD5Hex(file, summer))
-                .append("\" size=\"").append(file.length())
-                .append("\" timestamp=\"")
-                .append(formatTimestamp(file.lastModified()))
-                .append("\"/>\n");
 
+        XNode fileNode = node.addChild("file");
+        fileNode.addAttribute("name", fileName);
+        String md5 = getMD5Hex(file, summer);
+        fileNode.addAttribute("md5", md5);
+        fileNode.addAttribute("size", file.length());
+        fileNode.addAttribute("timestamp", formatTimestamp(file.lastModified()));
+        return md5;
     }
 
 
     private String getMD5Hex(File file, CheckSummer summer) {
         try {
             return summer.getMD5Hex(file);
+        }
+        catch (IOException ioe) {
+            return "";
+        }
+    }
+
+
+    private String getMD5Hex(String s, CheckSummer summer) {
+        try {
+            return summer.getMD5Hex(s.getBytes());
         }
         catch (IOException ioe) {
             return "";
@@ -127,8 +135,8 @@ public class CheckSumTask extends AbstractCheckSumTask {
     }
 
 
-    private String getBuildDate(String appName) {
-        return getProjectProperty(appName + ".build.date");
+    private String getVersion() {
+        return getProjectProperty("app.version");
     }
 
 
@@ -137,12 +145,26 @@ public class CheckSumTask extends AbstractCheckSumTask {
     }
 
 
-    private File getTempDir(File baseDir) {
-        return new File(baseDir, getProjectProperty("temp.dir"));
+    private File getLibDir(File baseDir) { return getDir(baseDir, "lib.dir"); }
+
+    private File getTempDir(File baseDir) { return getDir(baseDir, "temp.dir"); }
+
+    private File getOutputDir(File baseDir) { return getDir(baseDir, "output.dir"); }
+
+    private File getChecksumsDir(File baseDir) { return getDir(baseDir, "checksums.dir"); }
+
+
+    private File getAppDir(File baseDir, String appName) {
+        return new File(getTempDir(baseDir), appName);
     }
 
-    private File getFileDir(File buildDir, String appName) {
-        return new File(buildDir, appName);
+
+    private File getChecksumsFile(File baseDir) {
+        return new File(getChecksumsDir(baseDir), "checksums.xml");
+    }
+
+    private XNode parse(File f) {
+        return new XNodeParser().parse(StringUtil.fileToString(f));
     }
 
 }

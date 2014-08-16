@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.launch.preferences;
 
-import org.yawlfoundation.yawl.launch.YLauncher;
+import org.yawlfoundation.yawl.launch.YControlPanel;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -30,7 +30,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationByPlatform(true);
-        setTitle("YAWL " + YLauncher.VERSION + " Control Panel Options");
+        setTitle("YAWL " + YControlPanel.VERSION + " Control Panel Options");
         _prefs = new UserPreferences();
         buildUI();
         load();

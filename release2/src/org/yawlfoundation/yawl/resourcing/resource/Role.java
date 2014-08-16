@@ -49,6 +49,9 @@ public class Role extends AbstractResourceAttribute implements Comparable {
     }
 
 
+    public void setLabel(String label) { setName(label); }
+
+
     public String getName() { return _role; }
 
     public void setName(String role) {

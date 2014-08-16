@@ -50,6 +50,8 @@ public abstract class AbstractResourceAttribute {
     protected AbstractResourceAttribute() {}
 
 
+    public abstract void setLabel(String label);
+
     public void save() { getOrgDataSet().updateResourceAttribute(this); }
 
     public void setPersisting(boolean persisting) {
