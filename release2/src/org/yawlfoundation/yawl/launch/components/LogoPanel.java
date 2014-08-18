@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.launch.components;
 
+import org.simplericity.macify.eawt.DefaultApplication;
 import org.yawlfoundation.yawl.launch.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.launch.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.launch.pubsub.Publisher;
@@ -11,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ public class LogoPanel extends JPanel implements ActionListener, EngineStatusLis
     private EngineMonitor _engineMonitor;
     private JLabel _lblIcon;
     private int _waitIndex;
+    private DefaultApplication _macApp;     // OS X only
 
 
     public LogoPanel(EngineMonitor monitor) {
@@ -34,6 +37,7 @@ public class LogoPanel extends JPanel implements ActionListener, EngineStatusLis
         setBorder(new EmptyBorder(0,0,10,0));
         setLayout(new BorderLayout());
         buildIconMap();
+        setMacApp();
         buildUI();
         Publisher.addEngineStatusListener(this);
     }
@@ -56,14 +60,27 @@ public class LogoPanel extends JPanel implements ActionListener, EngineStatusLis
     }
 
 
+    private void setMacApp() {
+        String os = System.getProperty("os.name");
+        if (os != null && os.toLowerCase().startsWith("mac")) {
+            _macApp = new DefaultApplication();
+        }
+    }
+
+
     private void buildUI() {
-        _lblIcon = new JLabel(_iconMap.get("Stopped"));
+        _lblIcon = new JLabel();
         add(_lblIcon, BorderLayout.CENTER);
+        setLogo("Stopped");
     }
 
 
     private void setLogo(String name) {
-        _lblIcon.setIcon(_iconMap.get(name));
+        ImageIcon icon = _iconMap.get(name);
+        _lblIcon.setIcon(icon);
+        if (_macApp != null) {
+            _macApp.setApplicationIconImage((BufferedImage) icon.getImage());
+        }
     }
 
 

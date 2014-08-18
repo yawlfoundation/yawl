@@ -30,7 +30,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationByPlatform(true);
-        setTitle("YAWL " + YControlPanel.VERSION + " Control Panel Options");
+        setTitle("YAWL Control Panel Options");
         _prefs = new UserPreferences();
         buildUI();
         load();
@@ -85,7 +85,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
     private JPanel getTopPanel() {
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setBorder(new CompoundBorder(
-                new TitledBorder("When Control Panel starts"),
+                new TitledBorder("When Control Panel Starts:"),
                 new EmptyBorder(5,5,5,5)));
         _cbxStart = makeCheckBox("Start Engine if not already running", KeyEvent.VK_S);
         _cbxUpdates = makeCheckBox("Check for updates", KeyEvent.VK_C);
@@ -100,7 +100,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
     private JPanel getCentrePanel() {
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setBorder(new CompoundBorder(
-                new TitledBorder("When Engine starts"),
+                new TitledBorder("When Engine Starts:"),
                 new EmptyBorder(5, 5, 5, 5)));
         _cbxLogon = makeCheckBox("Go to Logon page in browser", KeyEvent.VK_G);
         panel.add(_cbxLogon);
@@ -111,7 +111,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
     private JPanel getBottomPanel() {
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setBorder(new CompoundBorder(
-                new TitledBorder("When control panel exits"),
+                new TitledBorder("When Control Panel Exits:"),
                 new EmptyBorder(5, 5, 5, 5)));
         _cbxStop = makeCheckBox("Stop Engine if running", KeyEvent.VK_P);
         panel.add(_cbxStop);

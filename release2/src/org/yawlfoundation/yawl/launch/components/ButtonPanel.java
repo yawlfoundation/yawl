@@ -1,9 +1,12 @@
 package org.yawlfoundation.yawl.launch.components;
 
 import org.yawlfoundation.yawl.launch.preferences.PreferencesDialog;
+import org.yawlfoundation.yawl.launch.preferences.UserPreferences;
 import org.yawlfoundation.yawl.launch.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.launch.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.launch.pubsub.Publisher;
+import org.yawlfoundation.yawl.launch.update.UpdateDialog;
+import org.yawlfoundation.yawl.launch.update.UpdateDialogLoader;
 import org.yawlfoundation.yawl.launch.util.TomcatUtil;
 
 import javax.swing.*;
@@ -28,6 +31,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
     private JButton btnPreferences;
     private JFrame _mainWindow;
     private OutputDialog _outputDialog;
+    private UpdateDialogLoader _updateDialogLoader;
 
 
     public ButtonPanel(JFrame mainWindow) {
@@ -37,6 +41,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         setLayout(new GridLayout(0,1));
         addButtons();
         Publisher.addEngineStatusListener(this);
+        performUserPreferencesOnStart();
     }
 
 
@@ -46,10 +51,10 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
             doStartOrStop();
         }
         else if (cmd.equals("Logon")) {
-           showLogonPage();
+            showLogonPage();
         }
         else if (cmd.equals("Updates")) {
-
+            showUpdateDialog();
         }
         else if (cmd.equals("Output Log")) {
             if (_outputDialog == null || ! _outputDialog.isVisible()) {
@@ -67,6 +72,11 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         if (status == EngineStatus.Running) {
             btnStartStop.setText("Stop");
             btnStartStop.setToolTipText("Stop the YAWL Engine");
+            if (new UserPreferences().showLogonPageOnEngineStart()) {
+                ActionEvent event = new ActionEvent(this,
+                        ActionEvent.ACTION_PERFORMED, "Logon");
+                actionPerformed(event);
+            }
         }
         else if (status == EngineStatus.Stopped) {
             btnStartStop.setText("Start");
@@ -98,6 +108,29 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
+    }
+
+
+    private void performUserPreferencesOnStart() {
+        UserPreferences prefs = new UserPreferences();
+        ActionEvent event;
+        EngineStatus status = Publisher.getCurrentStatus();
+        if (prefs.openOutputWindowOnStartup()) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Output Log");
+            actionPerformed(event);
+        }
+        if (prefs.startEngineOnStartup() && status == EngineStatus.Stopped) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Start");
+            actionPerformed(event);
+        }
+        else if (prefs.showLogonPageOnEngineStart() && status == EngineStatus.Running) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Logon");
+            actionPerformed(event);
+        }
+        if (prefs.checkForUpdatesOnStartup()) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Updates");
+            actionPerformed(event);
+        }
     }
 
 
@@ -157,6 +190,17 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
             catch (IOException ioe) {
                 showError("Error when stopping Engine: " + ioe.getMessage());
             }
+        }
+    }
+
+
+    private void showUpdateDialog() {
+        if (_updateDialogLoader != null && _updateDialogLoader.isDialogActive()) {
+            _updateDialogLoader.toFront();
+        }
+        else {
+            _updateDialogLoader = new UpdateDialogLoader(_mainWindow);
+            _updateDialogLoader.execute();
         }
     }
 

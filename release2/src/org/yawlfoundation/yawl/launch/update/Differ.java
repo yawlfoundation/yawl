@@ -44,17 +44,17 @@ public class Differ {
 
 
     public boolean hasUpdate(String appName) {
-        return isEqual(getCurrentBuild(appName), getLatestBuild(appName));
+        return isDifferent(getCurrentBuild(appName), getLatestBuild(appName));
     }
 
 
     public boolean hasLibChange() {
-        return isEqual(_current.getLibHash(), _latest.getLibHash());
+        return isDifferent(_current.getLibHash(), _latest.getLibHash());
     }
 
 
     public boolean hasYawlLibChange() {
-        return isEqual(_current.getYawlLibHash(), _latest.getYawlLibHash());
+        return isDifferent(_current.getYawlLibHash(), _latest.getYawlLibHash());
     }
 
 
@@ -70,6 +70,23 @@ public class Differ {
     public List<UpdateList> getUpdatesList() {
         return diff();
     }
+
+    public List<String> getWebAppNames() {
+        return _latest.getWebAppNames();
+    }
+
+    public List<String> getInstalledWebAppNames() {
+        List<String> installed = new ArrayList<String>();
+        List<String> available = _current.getWebAppNames();
+        File webAppsDir = new File(TomcatUtil.getCatalinaHome(), "webapps");
+        for (File f : getDirList(webAppsDir)) {
+            String name = f.getName();
+            if (available.contains(name)) installed.add(name);
+        }
+        return installed;
+    }
+
+
 
 
 //    public long getDownloadSize() {
@@ -164,18 +181,6 @@ public class Differ {
     }
 
 
-    private List<String> getInstalledWebAppNames() {
-        List<String> installed = new ArrayList<String>();
-        List<String> available = _current.getWebAppNames();
-        File webAppsDir = new File(TomcatUtil.getCatalinaHome(), "webapps");
-        for (File f : getDirList(webAppsDir)) {
-            String name = f.getName();
-            if (available.contains(name)) installed.add(name);
-        }
-        return installed;
-    }
-
-
     private List<File> getDirList(File f) {
         List<File> dirList = new ArrayList<File>();
         File[] files = f.listFiles();
@@ -188,7 +193,7 @@ public class Differ {
     }
 
 
-    private boolean isEqual(String one, String two) {
+    private boolean isDifferent(String one, String two) {
         return ! (one == null || two == null || one.equals(two));
     }
 

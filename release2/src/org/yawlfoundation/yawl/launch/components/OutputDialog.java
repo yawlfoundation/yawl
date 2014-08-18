@@ -18,7 +18,7 @@ import java.io.File;
  */
 public class OutputDialog extends JDialog {
 
-    private JTextArea _textArea;
+    private AliasedTextArea _textArea;
     private Tailer _tailer;
 
     public OutputDialog(JFrame mainWindow) {
@@ -38,7 +38,7 @@ public class OutputDialog extends JDialog {
     private void buildUI() {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(8,8,8,8));
-        _textArea = new JTextArea();
+        _textArea = new AliasedTextArea();
         _textArea.setForeground(Color.WHITE);
         _textArea.setBackground(Color.BLACK);
         _textArea.setBorder(new EmptyBorder(2, 4, 2, 0));
@@ -84,6 +84,22 @@ public class OutputDialog extends JDialog {
                 }
             });
         }
+    }
+
+
+    class AliasedTextArea extends JTextArea {
+
+        public AliasedTextArea() { super(); }
+
+        public void paint(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            RenderingHints rh = new RenderingHints(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+            g2.setRenderingHints(rh);
+            super.paint(g);
+        }
+
     }
 
 }
