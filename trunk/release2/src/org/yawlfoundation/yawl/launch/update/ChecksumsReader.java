@@ -13,24 +13,24 @@ import java.util.*;
  */
 public class ChecksumsReader {
 
-    private XNode _node;
+    private XNode _root;
 
     protected ChecksumsReader(File f) {
         load(f);
     }
 
 
-    protected String getVersion() { return getValue(_node, "version"); }
+    protected String getVersion() { return getValue(_root, "version"); }
 
-    protected String getTimestamp() { return getValue(_node, "timestamp"); }
+    protected String getTimestamp() { return getValue(_root, "timestamp"); }
 
 
     protected XNode getLibNode() {
-        return _node != null ? _node.getChild("lib") : null;
+        return _root != null ? _root.getChild("lib") : null;
     }
 
     protected XNode getWebAppsNode() {
-        return _node != null ? _node.getChild("webapps") : null;
+        return _root != null ? _root.getChild("webapps") : null;
     }
 
     protected XNode getAppNode(String appName) {
@@ -64,6 +64,7 @@ public class ChecksumsReader {
         return names;
     }
 
+
     protected List<XNode> getRequiredLibs(List<String> appNames) {
         Set<String> requiredLibNames = getRequiredLibNames(appNames);
         List<XNode> requiredLibs = new ArrayList<XNode>();
@@ -83,7 +84,7 @@ public class ChecksumsReader {
 
 
     protected XNode getYawlLibNode() {
-        return _node != null ? _node.getChild("yawllib") : null;
+        return _root != null ? _root.getChild("yawllib") : null;
     }
 
 
@@ -113,7 +114,7 @@ public class ChecksumsReader {
 
     private void load(File checkSumsFile) {
         if (checkSumsFile.exists()) {
-            _node = new XNodeParser().parse(StringUtil.fileToString(checkSumsFile));
+            _root = new XNodeParser().parse(StringUtil.fileToString(checkSumsFile));
         }
     }
 
