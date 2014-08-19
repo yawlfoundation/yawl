@@ -4,6 +4,7 @@ import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
 import org.yawlfoundation.yawl.launch.YControlPanel;
 import org.yawlfoundation.yawl.launch.util.TomcatUtil;
+import org.yawlfoundation.yawl.launch.util.WindowUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,11 +27,11 @@ public class OutputDialog extends JDialog {
         setResizable(true);
         setModal(false);
         setMinimumSize(new Dimension(600, 400));
-        setTitle("YAWL " + YControlPanel.VERSION + " Output Log Window");
-        setLocationByPlatform(true);
+        setTitle("YAWL " + YControlPanel.VERSION + " Output Log");
         buildUI();
         startTailer();
         addOnCloseHandler();
+        setLocation(WindowUtil.calcLocation(mainWindow, this));
         setVisible(true);
     }
 

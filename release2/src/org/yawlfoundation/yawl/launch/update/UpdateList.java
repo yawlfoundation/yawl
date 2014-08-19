@@ -3,7 +3,9 @@ package org.yawlfoundation.yawl.launch.update;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -26,9 +28,9 @@ public class UpdateList {
     }
 
 
-    protected void addUpdate(FileNode node) { add(_downloads, node); }
+    protected void addDownload(FileNode node) { add(_downloads, node); }
 
-    protected void addUpdate(XNode xNode) { add(_downloads, xNode); }
+    protected void addDownload(XNode xNode) { add(_downloads, xNode); }
 
 
     protected void addDeletion(FileNode node) { add(_deletes, node); }
@@ -41,14 +43,14 @@ public class UpdateList {
     protected boolean isAppList() { return _appName != null; }
 
 
-    protected boolean hasUpdates() { return ! _downloads.isEmpty(); }
+    protected boolean hasDownloads() { return ! _downloads.isEmpty(); }
 
     protected boolean hasDeletions() { return ! _deletes.isEmpty(); }
 
-    protected boolean isEmpty() { return ! (hasUpdates() || hasDeletions()); }
+    protected boolean isEmpty() { return ! (hasDownloads() || hasDeletions()); }
 
 
-    protected List<String> getUpdateNames() {
+    protected List<String> getDownloadNames() {
         return getNames(_downloads);
     }
 
@@ -67,16 +69,29 @@ public class UpdateList {
     }
 
 
+    protected Map<String, String> getMd5Map() {
+        Map<String, String> map = new HashMap<String, String>();
+        for (FileNode node : _downloads) {
+             map.put(node.getName(), node.getMd5());
+        }
+        return map;
+    }
+
     private void add(List<FileNode> list, FileNode node) { list.add(node); }
 
     private void add(List<FileNode> list, XNode node) { list.add(new FileNode(node)); }
 
     private List<String> getNames(List<FileNode> list) {
         List<String> names = new ArrayList<String>();
+        String prefix = getPathPrefix();
         for (FileNode node : list) {
-             names.add(node.getName());
+             names.add(prefix + node.getName());
         }
         return names;
+    }
+
+    private String getPathPrefix() {
+        return isAppList() ? "webapps/" + _appName  + "/" : "lib/";
     }
 
 }

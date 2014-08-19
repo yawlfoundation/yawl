@@ -48,4 +48,8 @@ public class UpdateRow {
 
     public void setInstallable(boolean installable) { _installable = installable ; }
 
+    public boolean hasUpdates() {
+        return hasNewVersion() || isRemoving() || isAdding();
+    }
+
 }

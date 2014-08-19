@@ -21,6 +21,11 @@ public class Publisher {
     }
 
 
+    public static void removeEngineStatusListener(EngineStatusListener listener) {
+        _listeners.remove(listener);
+    }
+
+
     public static void statusChange(EngineStatus status) {
         for (EngineStatusListener listener : _listeners) {
             listener.statusChanged(status);

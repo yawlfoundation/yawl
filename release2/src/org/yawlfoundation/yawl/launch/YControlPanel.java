@@ -63,9 +63,11 @@ public class YControlPanel extends JFrame {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10,10,10,10));
         content.add(buildLeftPanel(), BorderLayout.CENTER);
-        content.add(new ButtonPanel(this), BorderLayout.EAST);
+        ButtonPanel bp = new ButtonPanel(this);
+        content.add(bp, BorderLayout.EAST);
         getContentPane().add(content);
         pack();
+        bp.performUserPreferencesOnStart();
     }
 
 

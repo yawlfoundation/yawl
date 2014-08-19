@@ -21,6 +21,10 @@ public class UpdateTable extends JTable {
         init(differ);
     }
 
+    public boolean hasUpdates() { return getTableModel().hasUpdates(); }
+
+    public void refresh(Differ differ) { getTableModel().setDiffer(differ); }
+
 
     private void init(Differ differ) {
         setModel(new UpdateTableModel(differ));
@@ -32,10 +36,9 @@ public class UpdateTable extends JTable {
         setSelectionBackground(new Color(202,202,202));
         setRowHeight(getRowHeight() + 8);
         setColumnWidths();
-        java.util.List<UpdateRow> rows = ((UpdateTableModel) getModel()).getRows();
+        java.util.List<UpdateRow> rows = getTableModel().getRows();
         setDefaultRenderer(String.class, new UpdateRowRenderer(rows));
         setDefaultRenderer(Boolean.class, new UpdateRowRenderer(rows));
-    //    setPreferredScrollableViewportSize(new Dimension(300, getRowHeight()*rows));
     }
 
 
@@ -56,4 +59,7 @@ public class UpdateTable extends JTable {
         getColumnModel().getColumn(3).setPreferredWidth(50);
         getColumnModel().getColumn(4).setPreferredWidth(70);
     }
+
+
+    private UpdateTableModel getTableModel() { return ((UpdateTableModel) getModel()); }
 }

@@ -54,6 +54,14 @@ public class ChecksumsReader {
 
     protected List<XNode> getLibList() { return getChildren(getLibNode()); }
 
+    protected Map<String, FileNode> getLibMap() {
+        Map<String, FileNode> map = new HashMap<String, FileNode>();
+        for (XNode node : getLibList()) {
+            map.put(node.getAttributeValue("name"), new FileNode(node));
+        }
+        return map;
+    }
+
     protected List<XNode> getWebappsList() { return getChildren(getWebAppsNode()); }
 
     protected List<String> getWebAppNames() {
