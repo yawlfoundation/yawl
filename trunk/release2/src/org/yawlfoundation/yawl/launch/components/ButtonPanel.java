@@ -41,7 +41,6 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         setLayout(new GridLayout(0,1));
         addButtons();
         Publisher.addEngineStatusListener(this);
-        performUserPreferencesOnStart();
     }
 
 
@@ -86,6 +85,29 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
     }
 
 
+    public void performUserPreferencesOnStart() {
+        UserPreferences prefs = new UserPreferences();
+        ActionEvent event;
+        boolean tomcatIsRunning = TomcatUtil.isRunning();
+        if (prefs.openOutputWindowOnStartup()) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Output Log");
+            actionPerformed(event);
+        }
+        if (prefs.startEngineOnStartup() && ! tomcatIsRunning) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Start");
+            actionPerformed(event);
+        }
+        else if (prefs.showLogonPageOnEngineStart() && tomcatIsRunning) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Logon");
+            actionPerformed(event);
+        }
+        if (prefs.checkForUpdatesOnStartup()) {
+            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Updates");
+            actionPerformed(event);
+        }
+    }
+
+
     private void addButtons() {
         btnStartStop = createButton("Start", "Start the YAWL Engine");
         btnLogon = createButton("Logon", "Go to the YAWL Logon Page");
@@ -108,29 +130,6 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
-    }
-
-
-    private void performUserPreferencesOnStart() {
-        UserPreferences prefs = new UserPreferences();
-        ActionEvent event;
-        EngineStatus status = Publisher.getCurrentStatus();
-        if (prefs.openOutputWindowOnStartup()) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Output Log");
-            actionPerformed(event);
-        }
-        if (prefs.startEngineOnStartup() && status == EngineStatus.Stopped) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Start");
-            actionPerformed(event);
-        }
-        else if (prefs.showLogonPageOnEngineStart() && status == EngineStatus.Running) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Logon");
-            actionPerformed(event);
-        }
-        if (prefs.checkForUpdatesOnStartup()) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Updates");
-            actionPerformed(event);
-        }
     }
 
 

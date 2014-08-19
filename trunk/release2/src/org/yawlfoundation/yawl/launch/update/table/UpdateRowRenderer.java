@@ -14,9 +14,9 @@ public class UpdateRowRenderer extends DefaultTableCellRenderer {
 
     private java.util.List<UpdateRow> _rows;
 
-    private static final Color REMOVING = new Color(255, 24, 14);
-    private static final Color UPDATEABLE = new Color(230, 230, 84);
-    private static final Color ADDING = new Color(7, 192, 38);
+    private static final Color REMOVING = new Color(215, 24, 14);
+    private static final Color UPDATEABLE = new Color(5, 163, 203);
+    private static final Color ADDING = new Color(7, 167, 38);
 
     public UpdateRowRenderer(java.util.List<UpdateRow> rows) {
         _rows = rows;
@@ -29,14 +29,14 @@ public class UpdateRowRenderer extends DefaultTableCellRenderer {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
         UpdateRow updateRow = _rows.get(row);
-        if (updateRow.hasNewVersion()) {
-            setForeground(UPDATEABLE);
+        if (updateRow.isRemoving()) {
+            setForeground(REMOVING);
         }
         else if (updateRow.isAdding()) {
             setForeground(ADDING);
         }
-        else if (updateRow.isRemoving()) {
-            setForeground(REMOVING);
+        else if (updateRow.hasNewVersion()) {
+            setForeground(UPDATEABLE);
         }
         else setForeground(Color.BLACK);
 

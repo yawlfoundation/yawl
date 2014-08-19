@@ -21,12 +21,28 @@ public class UpdateTableModel extends AbstractTableModel {
     protected static final int COL_INSTALL = 4;
 
     private List<UpdateRow> _rows;
+    private Differ _differ;
 
     public UpdateTableModel(Differ differ) {
         super();
-        _rows = initRows(differ);
+        setDiffer(differ);
     }
 
+    public boolean hasUpdates() {
+        for (UpdateRow row : _rows) {
+            if (row.hasUpdates()) return true;
+        }
+        return false;
+    }
+
+    // refresh rows
+    public void setDiffer(Differ differ) {
+        _differ = differ;
+        _rows = initRows();
+        fireTableDataChanged();
+    }
+
+    public Differ getDiffer() { return _differ; }
 
     public List<UpdateRow> getRows() { return _rows; }
 
@@ -67,8 +83,8 @@ public class UpdateTableModel extends AbstractTableModel {
     }
 
 
-    private List<UpdateRow> initRows(Differ differ) {
-        return new UpdateRowFactory(differ).get();
+    private List<UpdateRow> initRows() {
+        return new UpdateRowFactory(_differ).get();
     }
 
 }

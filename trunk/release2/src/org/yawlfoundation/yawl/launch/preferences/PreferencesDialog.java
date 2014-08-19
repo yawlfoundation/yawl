@@ -29,12 +29,12 @@ public class PreferencesDialog extends JDialog implements ActionListener {
         setModal(true);
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLocationByPlatform(true);
         setTitle("YAWL Control Panel Options");
         _prefs = new UserPreferences();
         buildUI();
         load();
         pack();
+        setLocationByPlatform(true);
     }
 
 

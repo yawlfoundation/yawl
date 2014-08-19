@@ -14,7 +14,7 @@ public class Differ {
 
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
-
+    private List<UpdateList> _updates;
 
     public Differ(File latest, File current) {
         _latest = new ChecksumsReader(latest);
@@ -68,7 +68,8 @@ public class Differ {
 
 
     public List<UpdateList> getUpdatesList() {
-        return diff();
+        if (_updates == null) _updates = diff();
+        return _updates;
     }
 
     public List<String> getWebAppNames() {
@@ -87,15 +88,48 @@ public class Differ {
     }
 
 
+    public List<String> getInstalledLibNames() {
+        List<String> installed = new ArrayList<String>();
+        File libDir = new File(TomcatUtil.getCatalinaHome(), "lib");
+        for (File f : getFileList(libDir)) {
+            installed.add(f.getName());
+        }
+        return installed;
+
+    }
+
+    public UpdateList getAppFiles(String appName, boolean adding) {
+        UpdateList upList = new UpdateList(appName);
+        for (XNode node : _latest.getAppFileList(appName)) {
+            if (adding) upList.addDownload(node);
+            else upList.addDeletion(node);
+        }
+        return upList;
+    }
 
 
-//    public long getDownloadSize() {
-//        long size = 0;
-//        for (UpdateList updateList : _updates) {
-//            size += updateList.getTotalUpdateSize();
-//        }
-//        return size;
-//    }
+    // for new installs
+    public UpdateList getAppLibs(String appName) {
+        List<String> installed = getInstalledLibNames();
+        UpdateList upList = new UpdateList(null);
+        Map<String, FileNode> libMap  = _latest.getLibMap();
+        for (XNode node : _latest.getAppLibList(appName)) {
+            String name = node.getName();
+            if (! installed.contains(name)) {
+                FileNode fileNode = libMap.get(name);
+                if (fileNode != null) upList.addDownload(node);
+            }
+        }
+        return upList;
+    }
+
+    public Set<String> getRequiredLibNames() {
+        Set<String> libNames = new HashSet<String>();
+        for (XNode node : _latest.getRequiredLibs(getInstalledWebAppNames())) {
+            libNames.add(node.getAttributeValue("name"));
+        }
+        return libNames;
+    }
 
 
     private List<UpdateList> diff() {
@@ -168,7 +202,7 @@ public class Differ {
             }
 
             // latest entry is not in current, or different md5's, so add to download list
-            updateList.addUpdate(node);
+            updateList.addDownload(node);
         }
 
         // if current entry not in latest, add to delete list
@@ -190,6 +224,19 @@ public class Differ {
             }
         }
         return dirList;
+    }
+
+
+    // non-recursive search
+    private List<File> getFileList(File f) {
+        List<File> fileList = new ArrayList<File>();
+        File[] files = f.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (!file.isDirectory()) fileList.add(file);
+            }
+        }
+        return fileList;
     }
 
 
