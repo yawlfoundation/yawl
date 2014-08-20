@@ -244,6 +244,8 @@
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
     <property name="log4j" value="log4j-1.2.16.jar"/>
+    <!-- launcher -->
+    <property name="macify" value="macify-1.4.jar"/>
     <!-- mul -->
     <property name="mail" value="mail.jar"/>
     <!-- mss -->
@@ -410,6 +412,10 @@
                      ${jung-3d-demos} ${jung-algorithms} ${jung-api} ${jung-api-tests}
                      ${jung-graph} ${jung-io} ${jung-jai} ${jung-jai-samples}
                      ${jung-jai-samples} ${jung-samples} ${jung-visualization}"/>
+
+    <property name="controlpanel.libs"
+              value="${macify} ${commonsIO}"/>
+
 
     <!--
         Per webapp dependency lists
@@ -598,6 +604,7 @@
 
     <path id="cp.etc">
         <pathelement location="${lib.dir}/${twitter4j}"/>
+        <pathelement location="${lib.dir}/${macify}"/>
     </path>
 
     <!--
@@ -616,9 +623,12 @@
         from where it is used for auto updating
     -->
     <taskdef name="checkSums"
-             classname="org.yawlfoundation.yawl.util.CheckSumTask"
-             classpath="${classes.dir}"/>
-
+             classname="org.yawlfoundation.yawl.util.CheckSumTask">
+        <classpath>
+            <pathelement path="${classes.dir}"/>
+            <pathelement path="antTask"/>
+        </classpath>
+    </taskdef>
 
     <!-- increment build number & date -->
     <target name="updateBuildProperties">
@@ -1060,7 +1070,8 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${engine.app.name}"
                    includes="*.jar *.xml *.properties"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <delete dir="${temp.dir}/${engine.app.name}"/>
     </target>
@@ -1134,7 +1145,8 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${wsInvoker.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${wsInvoker.app.name}"/>
@@ -1211,7 +1223,8 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${smsInvoker.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${smsInvoker.app.name}"/>
@@ -1342,7 +1355,8 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${worklet.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <delete dir="${temp.dir}/${worklet.app.name}"/>
     </target>
@@ -1499,7 +1513,8 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${resource.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${temp.dir}/${resource.app.name}"/>
@@ -1721,7 +1736,8 @@
         <checksum file="${output.dir}/${monitor.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${monitor.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <delete dir="${temp.dir}/${monitor.app.name}"/>
     </target>
@@ -1909,9 +1925,6 @@
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
             <fileset dir="${classes.dir}${packageRoot}/cost"/>
         </copy>
-        <copy todir="${temp.dir}/${cost.app.name}/graphics">
-            <fileset dir="${graphics.dir}"/>
-        </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
             <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
         </copy>
@@ -1920,7 +1933,8 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${cost.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${cost.app.name}"/>
@@ -1978,9 +1992,6 @@
         <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/${twitter.app.name}">
             <fileset dir="${classes.dir}${packageRoot}/${twitter.app.name}"/>
         </copy>
-        <copy todir="${temp.dir}/${twitter.app.name}/graphics">
-            <fileset dir="${graphics.dir}"/>
-        </copy>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF"
               file="${build.dir}/${twitter.app.name}/web.xml"/>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes"
@@ -1991,7 +2002,8 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${twitter.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${twitter.app.name}"/>
@@ -2054,7 +2066,8 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mail.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mail.app.name}"/>
@@ -2125,6 +2138,8 @@
             <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
             <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
         </copy>
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF"
+               file="${build.dir}/${mail.app.name}/web.xml"/>
 
         <war destfile="${output.dir}/${scheduling.app.name}.war"
              webxml="${build.dir}/${scheduling.app.name}/web.xml">
@@ -2132,7 +2147,8 @@
         </war>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${scheduling.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${scheduling.app.name}"/>
@@ -2209,7 +2225,8 @@
         <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${digitalSignature.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${digitalSignature.app.name}"/>
@@ -2279,7 +2296,8 @@
         <checksum file="${output.dir}/${mailSender.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mailSender.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mailSender.app.name}"/>
@@ -2330,7 +2348,8 @@
         <checksum file="${output.dir}/${docStore.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${docStore.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${docStore.app.name}"/>
@@ -2396,7 +2415,8 @@
         <checksum file="${output.dir}/${proclet.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${proclet.app.name}"
-                   excludes="WEB-INF/lib/* classes/org/* hibernate.properties"/>
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${proclet.app.name}"/>
@@ -2452,6 +2472,30 @@
         <copy todir="${output.dir}"
               file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
     </target>
+
+    <target name="build_controlPanel.jar" depends="compile">
+        <tstamp/>
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${macify}"/>
+        </unzip>
+        <jar destfile="${output.dir}/YawlControlPanel-${app.version}.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/controlpanel/**/*
+                       org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/CheckSummer.class
+                       org/yawlfoundation/yawl/util/XNode*.class">
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/simplericity/macify/eawt/**/*"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.controlpanel.Launcher"/>
+            </manifest>
+        </jar>
+     </target>
 
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
