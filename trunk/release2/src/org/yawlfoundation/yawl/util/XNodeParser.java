@@ -83,7 +83,7 @@ public class XNodeParser {
         init();
         try {
             if ((s == null) || (! s.trim().startsWith("<"))) {
-                throw new YAWLException("bad input string");
+                throw new IllegalArgumentException("bad input string");
             }
 
             // handle any comments before or after the root element
