@@ -7,6 +7,9 @@ import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.util.CheckSummer;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -76,9 +79,11 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 1. Start the downloads -> wait for finish at propertyChange
     private void download() {
         List<UpdateList> updates = getUpdatesList();
-        if (updates == null) return;
+        updates.addAll(_installs);
+        if (updates == null || updates.isEmpty()) return;
         _downloads = getDownloadList(updates);
         _deletions = getDeletionList(updates);
+        if (_downloads.isEmpty() && _deletions.isEmpty()) return;
         long downloadSize = getDownloadSize(updates);
         _progressDialog.setDownloadSize(downloadSize);
         _downloader = new Downloader(UpdateChecker.SOURCE_URL,
@@ -90,6 +95,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private List<String> getDownloadList(List<UpdateList> updates) {
+        consolidateLibs(updates);
         List<String> fileNames = new ArrayList<String>();
         for (UpdateList list : updates) {
              fileNames.addAll(list.getDownloadNames());
@@ -153,6 +159,22 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
+    private List<UpdateList> consolidateLibs(List<UpdateList> updates) {
+        List<UpdateList> appList = new ArrayList<UpdateList>();
+        UpdateList libUpdateList = new UpdateList(null);
+        for (UpdateList upList : updates) {
+            if (upList.isAppList()) {
+                appList.add(upList);
+            }
+            else {
+                libUpdateList.merge(upList);
+            }
+        }
+        if (! libUpdateList.isEmpty()) appList.add(libUpdateList);
+        return appList;
+    }
+
+
     // 2. VERIFY, complete if fails, -> stopEngine
     private void processDownloadCompleted() {
         if (_downloader.hasErrors()) {
@@ -172,6 +194,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void complete(boolean success) {
         if (success) {
+            updateServiceRegistration();
             File checkSum = getLocalCheckSumFile();
             ((UpdateDialog) _progressDialog.getParent()).refresh(
                     new Differ(checkSum, checkSum));
@@ -213,11 +236,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             try {
                 _progressDialog.setIndeterminate(true);
                 _progressDialog.setText("Stopping Engine...");
-                TomcatUtil.stop();
-                Publisher.announceStoppingStatus();
+                if (TomcatUtil.stop()) Publisher.announceStoppingStatus();
+                else {
+                    showError("Failed to stop Engine.");
+                    complete(false);
+                }
             }
             catch (IOException ioe) {
-                showError("Falied to stop Engine.");
+                showError("Failed to stop Engine.");
                 complete(false);
             }
         }
@@ -228,10 +254,13 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 6. START -> wait at statusChange
     private void startEngine() {
         try {
-            _progressDialog.setText("Starting Engine...");
-            TomcatUtil.start();
-            Publisher.announceStartingStatus();
-
+            Thread.sleep(5000);
+            _progressDialog.setText("Restarting Engine...");
+            if (TomcatUtil.start()) Publisher.announceStartingStatus();
+            else showError("Failed to restart Engine.");
+        }
+        catch (InterruptedException ignore) {
+            //
         }
         catch (IOException ignore) {
             showError("Failed to restart Engine.");
@@ -253,8 +282,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
         File tmpDir = getTmpDir();
         for (String fileName : _downloads) {
+            String destName = (fileName.startsWith("lib") ?  "yawl" : "") + fileName;
             File source = makeFile(tmpDir.getAbsolutePath(), fileName);
-            File target = makeFile(tomcatDir.getAbsolutePath(), fileName);
+            File target = makeFile(tomcatDir.getAbsolutePath(), destName);
             copy(source, target);
         }
         for (String fileName : _deletions) {
@@ -318,7 +348,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void doUninstalls(File tomcatRoot) {
         List<String> webappsToRemove = new ArrayList<String>();
         for (UpdateList updateList : _installs) {
-            if (updateList.hasDeletions()) {
+            if (updateList.hasDeletions() && updateList.isAppList()) {
                 webappsToRemove.add(updateList.getAppName());
             }
         }
@@ -326,6 +356,43 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             purgeDir(makeFile(tomcatRoot.getAbsolutePath(), "webapps/" + name));
         }
         consolidateLibDir(tomcatRoot);
+    }
+
+
+    private void updateServiceRegistration() {
+        Registrar registrar = new Registrar();
+        for (UpdateList updateList : _installs) {
+            if (updateList.isAppList()) {
+                String appName = updateList.getAppName();
+                if (updateList.hasDeletions()) {
+                    try {
+                        if (!registrar.remove(appName)) {
+                            showError("Failed to deregister service:" + appName);
+                        }
+                    }
+                    catch (IOException ioe) {
+                        showError("Failed to deregister service:" + appName);
+                    }
+                }
+                else if (updateList.hasDownloads()) {
+                    WebXmlReader webXml = new WebXmlReader(appName);
+                    String password = webXml.getContextParam("EngineLogonPassword");
+                    String mapping = webXml.getServletMapping("InterfaceB_Servlet");
+                    if (password != null) {
+                        String url = mapping == null ? null :
+                                "http://localhost:8080/" + appName + mapping;
+                        try {
+                            if (!registrar.add(appName, password, url)) {
+                                showError("Failed to register service:" + appName);
+                            }
+                        }
+                        catch (IOException ioe) {
+                            showError("Failed to register service:" + appName);
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -358,7 +425,42 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
+    class WebXmlReader {
 
+        XNode _root;
 
+        WebXmlReader(String name) {
+            File tomcatDir = new File(TomcatUtil.getCatalinaHome());
+            File webXmlFile = new File(tomcatDir, "webapps/" + name + "WEB-INF/web.xml");
+            _root = new XNodeParser().parse(StringUtil.fileToString(webXmlFile));
+        }
+
+        String getContextParam(String name) {
+            if (_root != null) {
+                for (XNode paramNode : _root.getChildren("context-param")) {
+                    String paramName = paramNode.getChildText("param-name");
+                    if (paramName != null && paramName.equals(name)) {
+                        return paramNode.getChildText("param-value");
+                    }
+                }
+            }
+            return null;
+        }
+
+        String getServletMapping(String name) {
+            if (_root != null) {
+                for (XNode mappingNode : _root.getChildren("servlet-mapping")) {
+                    String mappingName = mappingNode.getChildText("servlet-name");
+                    if (mappingName != null && mappingName.equals(name)) {
+                        String urlPattern = mappingNode.getChildText("url-pattern");
+                        return (urlPattern != null && urlPattern.equals("/*")) ? "/" :
+                                urlPattern;
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
 
 }

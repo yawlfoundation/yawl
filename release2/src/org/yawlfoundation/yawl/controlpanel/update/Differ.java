@@ -90,7 +90,7 @@ public class Differ {
 
     public List<String> getInstalledLibNames() {
         List<String> installed = new ArrayList<String>();
-        File libDir = new File(TomcatUtil.getCatalinaHome(), "lib");
+        File libDir = new File(TomcatUtil.getCatalinaHome(), "yawllib");
         for (File f : getFileList(libDir)) {
             installed.add(f.getName());
         }
@@ -114,10 +114,10 @@ public class Differ {
         UpdateList upList = new UpdateList(null);
         Map<String, FileNode> libMap  = _latest.getLibMap();
         for (XNode node : _latest.getAppLibList(appName)) {
-            String name = node.getName();
+            String name = node.getAttributeValue("name");
             if (! installed.contains(name)) {
                 FileNode fileNode = libMap.get(name);
-                if (fileNode != null) upList.addDownload(node);
+                if (fileNode != null) upList.addDownload(fileNode);
             }
         }
         return upList;

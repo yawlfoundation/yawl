@@ -2,10 +2,7 @@ package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -13,13 +10,14 @@ import java.util.Map;
  */
 public class UpdateList {
 
-    private final List<FileNode> _downloads;
-    private final List<FileNode> _deletes;
-    private final String _appName;
+    private final Set<FileNode> _downloads;
+    private final Set<FileNode> _deletes;
+    private final String _appName;                 // null for lib
+
 
     protected UpdateList(String appName) {
-        _downloads = new ArrayList<FileNode>();
-        _deletes = new ArrayList<FileNode>();
+        _downloads = new HashSet<FileNode>();
+        _deletes = new HashSet<FileNode>();
         _appName = appName;
     }
 
@@ -78,11 +76,18 @@ public class UpdateList {
         return map;
     }
 
-    private void add(List<FileNode> list, FileNode node) { list.add(node); }
 
-    private void add(List<FileNode> list, XNode node) { list.add(new FileNode(node)); }
+    protected void merge(UpdateList other) {
+        _downloads.addAll(other._downloads);
+        _deletes.addAll(other._deletes);
+    }
 
-    private List<String> getNames(List<FileNode> list) {
+
+    private void add(Set<FileNode> list, FileNode node) { list.add(node); }
+
+    private void add(Set<FileNode> list, XNode node) { list.add(new FileNode(node)); }
+
+    private List<String> getNames(Set<FileNode> list) {
         List<String> names = new ArrayList<String>();
         String prefix = getPathPrefix();
         for (FileNode node : list) {
@@ -93,6 +98,11 @@ public class UpdateList {
 
     private String getPathPrefix() {
         return isAppList() ? "webapps/" + _appName  + "/" : "lib/";
+    }
+
+    public String toString() {
+        return (isAppList() ? _appName : "lib") + " " + _downloads.size() + "/" +
+                _deletes.size();
     }
 
 }

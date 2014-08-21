@@ -69,25 +69,24 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private void monitorStarting() {
         _timer.setDelay(STARTUP_SHUTDOWN_PERIOD);
-        if (! _timer.isRunning()) _timer.start();
+        _timer.restart();
     }
 
 
     private void monitorRunning() {
         _timer.setDelay(MONITOR_PERIOD);
-        if (! _timer.isRunning()) _timer.start();
+        _timer.restart();
     }
 
 
     private void monitorStopping() {
         _timer.setDelay(STARTUP_SHUTDOWN_PERIOD);
-        if (! _timer.isRunning()) _timer.start();
+        _timer.restart();
     }
 
 
     private void handleStop() {
-        if (_timer.isRunning()) _timer.stop();
-
+        _timer.stop();
     }
 
 
