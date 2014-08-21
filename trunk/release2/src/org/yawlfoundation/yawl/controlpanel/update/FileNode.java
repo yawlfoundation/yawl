@@ -28,4 +28,6 @@ class FileNode {
 
 
     public boolean matches(FileNode other) { return md5.equals(other.md5); }
+
+    public String toString() { return name; }
 }

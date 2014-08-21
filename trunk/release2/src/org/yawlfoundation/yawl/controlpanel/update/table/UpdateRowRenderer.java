@@ -33,7 +33,7 @@ public class UpdateRowRenderer extends DefaultTableCellRenderer {
         else if (updateRow.isAdding()) {
             setForeground(ADDING);
         }
-        else if (updateRow.hasNewVersion()) {
+        else if (updateRow.hasNewVersion() && updateRow.isInstalled()) {
             setForeground(UPDATEABLE);
         }
         else setForeground(Color.BLACK);

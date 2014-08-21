@@ -78,15 +78,14 @@ public class OutputDialog extends JDialog {
         public void handle(final String line) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    _textArea.setEditable(true);
                     _textArea.append(line + "\n");
-                    _textArea.setCaretPosition(_textArea.getText().length());
-                    _textArea.setEditable(false);
                 }
             });
         }
     }
 
+
+    /**********************************************************************/
 
     class AliasedTextArea extends JTextArea {
 

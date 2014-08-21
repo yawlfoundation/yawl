@@ -2473,20 +2473,30 @@
               file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
     </target>
 
+
     <target name="build_controlPanel.jar" depends="compile">
         <tstamp/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
-            <fileset dir="${lib.dir}" includes="${macify}"/>
+            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec}"/>
         </unzip>
         <jar destfile="${output.dir}/YawlControlPanel-${app.version}.jar"
              basedir="${classes.dir}"
              includes="org/yawlfoundation/yawl/controlpanel/**/*
                        org/yawlfoundation/yawl/util/StringUtil.class
                        org/yawlfoundation/yawl/util/CheckSummer.class
+                       org/yawlfoundation/yawl/util/PasswordEncryptor.class
                        org/yawlfoundation/yawl/util/XNode*.class">
             <fileset dir="${enumeratedClasses}"
-                     includes="org/simplericity/macify/eawt/**/*"/>
+                     includes="org/simplericity/macify/eawt/**/*
+                               org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Implementation-Version"

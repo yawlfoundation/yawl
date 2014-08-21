@@ -39,7 +39,7 @@ public class UpdateTableModel extends AbstractTableModel {
     public void setDiffer(Differ differ) {
         _differ = differ;
         _rows = initRows();
-        fireTableDataChanged();
+        fireTableRowsUpdated(0, getRowCount()-1);
     }
 
     public Differ getDiffer() { return _differ; }

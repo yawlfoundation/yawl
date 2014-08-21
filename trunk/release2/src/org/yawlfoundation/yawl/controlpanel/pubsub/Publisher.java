@@ -17,20 +17,22 @@ public class Publisher {
 
 
     public static void addEngineStatusListener(EngineStatusListener listener) {
-        _listeners.add(listener);
+        synchronized (_listeners) { _listeners.add(listener); }
     }
 
 
     public static void removeEngineStatusListener(EngineStatusListener listener) {
-        _listeners.remove(listener);
+        synchronized (_listeners) { _listeners.remove(listener); }
     }
 
 
     public static void statusChange(EngineStatus status) {
-        for (EngineStatusListener listener : _listeners) {
-            listener.statusChanged(status);
+        synchronized (_listeners) {
+            for (EngineStatusListener listener : _listeners) {
+                listener.statusChanged(status);
+            }
+            _currentStatus = status;
         }
-        _currentStatus = status;
     }
 
 
