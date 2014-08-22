@@ -137,17 +137,36 @@ public class Differ {
         List<UpdateList> updates = new ArrayList<UpdateList>();
         compareYAWLLib(updates);
         compareWebApps(updates);
+        compareControlPanel(updates);
         return updates;
     }
 
 
     private void compareYAWLLib(List<UpdateList> updates) throws IllegalStateException {
-        List<XNode> currentYawl = new ArrayList<XNode>();
-        currentYawl.add(_current.getYawlLibNode());
-        List<XNode> latestYawl = new ArrayList<XNode>();
-        latestYawl.add(_latest.getYawlLibNode());
-        UpdateList updateList = compareFileLists(latestYawl, currentYawl, null);
-        if (! updateList.isEmpty()) updates.add(updateList);
+        UpdateList updateList = compareFileNodes(_current.getYawlLibNode(),
+                _latest.getYawlLibNode(), null);
+        if (updateList != null) updates.add(updateList);
+    }
+
+
+    private void compareControlPanel(List<UpdateList> updates) throws IllegalStateException {
+        UpdateList updateList = compareFileNodes(_current.getControlPanelFileNode(),
+                _latest.getControlPanelFileNode(), "controlpanel");
+        if (updateList != null) updates.add(updateList);
+    }
+
+
+    private UpdateList compareFileNodes(XNode currentNode, XNode latestNode, String appName) {
+        UpdateList updateList = null;
+        if (! (currentNode == null || latestNode == null)) {
+            String currentMd5 = currentNode.getAttributeValue("md5");
+            String latestMd5 = latestNode.getAttributeValue("md5");
+            if (! (currentMd5 == null || latestMd5 == null || currentMd5.equals(latestMd5))) {
+                updateList = new UpdateList(appName);
+                updateList.addDownload(latestNode);
+            }
+        }
+        return updateList;
     }
 
 

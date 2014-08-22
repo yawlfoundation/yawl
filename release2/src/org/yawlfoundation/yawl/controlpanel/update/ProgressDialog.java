@@ -61,6 +61,7 @@ public class ProgressDialog extends JDialog {
         JPanel panel = new JPanel(new GridLayout(0,1,5,5));
         panel.setBorder(new EmptyBorder(10,10,10,10));
         _message = new JLabel("Downloading updates...");
+        _message.setBorder(new EmptyBorder(0,30,0,30));
         panel.add(_message);
         panel.add(createProgressBar());
         return panel;

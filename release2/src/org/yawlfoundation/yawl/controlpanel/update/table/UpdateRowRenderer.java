@@ -10,15 +10,9 @@ import java.awt.*;
  */
 public class UpdateRowRenderer extends DefaultTableCellRenderer {
 
-    private java.util.List<UpdateRow> _rows;
-
     private static final Color REMOVING = new Color(215, 24, 14);
-    private static final Color UPDATEABLE = new Color(5, 163, 203);
+    private static final Color UPDATEABLE = new Color(11, 70, 203);
     private static final Color ADDING = new Color(7, 167, 38);
-
-    public UpdateRowRenderer(java.util.List<UpdateRow> rows) {
-        _rows = rows;
-    }
 
 
     public Component getTableCellRendererComponent(JTable table, Object value,
@@ -26,7 +20,7 @@ public class UpdateRowRenderer extends DefaultTableCellRenderer {
                                                    int row, int column) {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        UpdateRow updateRow = _rows.get(row);
+        UpdateRow updateRow = ((UpdateTable) table).getTableModel().getRows().get(row);
         if (updateRow.isRemoving()) {
             setForeground(REMOVING);
         }

@@ -96,8 +96,10 @@ public class UpdateList {
         return names;
     }
 
+    // todo: file seps
     private String getPathPrefix() {
-        return isAppList() ? "webapps/" + _appName  + "/" : "lib/";
+        return isAppList() ? _appName.equals("controlpanel") ? "controlpanel/" :
+                "webapps/" + _appName  + "/" : "lib/";
     }
 
     public String toString() {

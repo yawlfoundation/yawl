@@ -2505,7 +2505,12 @@
                            value="org.yawlfoundation.yawl.controlpanel.Launcher"/>
             </manifest>
         </jar>
-     </target>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="controlpanel"/>
+        <antcall target="updateBuildProperties">
+            <param name="target" value="controlpanel"/>
+        </antcall>
+    </target>
 
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->

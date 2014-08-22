@@ -6,10 +6,8 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
 import org.yawlfoundation.yawl.util.CheckSummer;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -194,10 +192,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void complete(boolean success) {
         if (success) {
-            updateServiceRegistration();
             File checkSum = getLocalCheckSumFile();
             ((UpdateDialog) _progressDialog.getParent()).refresh(
                     new Differ(checkSum, checkSum));
+            updateServiceRegistration();
         }
         Publisher.removeEngineStatusListener(this);
         _progressDialog.setVisible(false);
@@ -254,7 +252,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 6. START -> wait at statusChange
     private void startEngine() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
             _progressDialog.setText("Restarting Engine...");
             if (TomcatUtil.start()) Publisher.announceStartingStatus();
             else showError("Failed to restart Engine.");
@@ -353,7 +351,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             }
         }
         for (String name : webappsToRemove) {
-            purgeDir(makeFile(tomcatRoot.getAbsolutePath(), "webapps/" + name));
+            purgeDir(new File(tomcatRoot.getAbsolutePath() + "/webapps/" + name));
         }
         consolidateLibDir(tomcatRoot);
     }
@@ -377,7 +375,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 else if (updateList.hasDownloads()) {
                     WebXmlReader webXml = new WebXmlReader(appName);
                     String password = webXml.getContextParam("EngineLogonPassword");
-                    String mapping = webXml.getServletMapping("InterfaceB_Servlet");
+                    String mapping = webXml.getIBServletMapping();
                     if (password != null) {
                         String url = mapping == null ? null :
                                 "http://localhost:8080/" + appName + mapping;
@@ -399,8 +397,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void consolidateLibDir(File tomcatRoot) {
         Set<String> requiredLibs = _differ.getRequiredLibNames();
         for (String lib : _differ.getInstalledLibNames()) {
-            if (requiredLibs.contains(lib)) {
-                delete(tomcatRoot, lib);
+            if (!requiredLibs.contains(lib)) {
+                delete(tomcatRoot, "yawllib/" + lib);
             }
         }
     }
@@ -421,46 +419,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                     file.delete();
                 }
             }
+            dir.delete();
         }
-    }
-
-
-    class WebXmlReader {
-
-        XNode _root;
-
-        WebXmlReader(String name) {
-            File tomcatDir = new File(TomcatUtil.getCatalinaHome());
-            File webXmlFile = new File(tomcatDir, "webapps/" + name + "WEB-INF/web.xml");
-            _root = new XNodeParser().parse(StringUtil.fileToString(webXmlFile));
-        }
-
-        String getContextParam(String name) {
-            if (_root != null) {
-                for (XNode paramNode : _root.getChildren("context-param")) {
-                    String paramName = paramNode.getChildText("param-name");
-                    if (paramName != null && paramName.equals(name)) {
-                        return paramNode.getChildText("param-value");
-                    }
-                }
-            }
-            return null;
-        }
-
-        String getServletMapping(String name) {
-            if (_root != null) {
-                for (XNode mappingNode : _root.getChildren("servlet-mapping")) {
-                    String mappingName = mappingNode.getChildText("servlet-name");
-                    if (mappingName != null && mappingName.equals(name)) {
-                        String urlPattern = mappingNode.getChildText("url-pattern");
-                        return (urlPattern != null && urlPattern.equals("/*")) ? "/" :
-                                urlPattern;
-                    }
-                }
-            }
-            return null;
-        }
-
     }
 
 }

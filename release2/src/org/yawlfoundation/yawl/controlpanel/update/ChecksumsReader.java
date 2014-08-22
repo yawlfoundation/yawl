@@ -38,6 +38,15 @@ public class ChecksumsReader {
         return webappsNode != null ? webappsNode.getChild(appName) : null;
     }
 
+    protected XNode getControlPanelNode() {
+        return _root != null ? _root.getChild("controlpanel") : null;
+    }
+
+    protected XNode getControlPanelFileNode() {
+        XNode node = getControlPanelNode();
+        return node != null ? node.getChild("file") : null;
+    }
+
     protected List<XNode> getAppFileList(String appName) {
         return getAppList(appName, "files");
     }
@@ -86,7 +95,8 @@ public class ChecksumsReader {
 
 
     protected String getBuildNumber(String appName) {
-        XNode appNode = getAppNode(appName);
+        XNode appNode = appName.equals("controlpanel") ? getControlPanelNode() :
+                getAppNode(appName);
         return appNode != null ? appNode.getChildText("build") : null;
     }
 
