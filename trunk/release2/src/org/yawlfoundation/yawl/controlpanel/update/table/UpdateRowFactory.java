@@ -24,18 +24,25 @@ public class UpdateRowFactory {
         List<String> installedApps = _differ.getInstalledWebAppNames();
         List<UpdateRow> rows = new ArrayList<UpdateRow>();
         for (String name : _differ.getWebAppNames()) {
-            AppEnum appEnum = AppEnum.fromString(name);
-            if (appEnum == null) continue;
-            String desc = appEnum.getDescription();
-            String current = _differ.getCurrentBuild(name);
-            String latest = _differ.getLatestBuild(name);
-            boolean installed = installedApps.contains(name);
-            UpdateRow row = new UpdateRow(name, desc, current, latest, installed);
-            row.setInstallable(appEnum.isInstallable());
-            rows.add(row);
+            UpdateRow row = newRow(name, installedApps.contains(name));
+            if (row != null) rows.add(newRow(name, installedApps.contains(name)));
         }
+        rows.add(newRow("controlpanel", true));
         Collections.sort(rows, new UpdateRowComparator());
         return rows;
+    }
+
+
+    private UpdateRow newRow(String name, boolean installed) {
+        AppEnum appEnum = AppEnum.fromString(name);
+        if (appEnum == null) return null;
+
+        String desc = appEnum.getDescription();
+        String current = _differ.getCurrentBuild(name);
+        String latest = _differ.getLatestBuild(name);
+        UpdateRow row = new UpdateRow(name, desc, current, latest, installed);
+        row.setInstallable(appEnum.isInstallable());
+        return row;
     }
 
 

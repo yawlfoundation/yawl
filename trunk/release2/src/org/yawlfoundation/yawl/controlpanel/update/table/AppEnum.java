@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public enum AppEnum {
 
+    controlpanel("This YAWL Control Panel application", -1, false),
     yawl("The core YAWL Engine", 0, false),
     resourceService("Handles the resource perspective", 1, false),
     documentStore("Stores files-as-data for processes", 2, false),

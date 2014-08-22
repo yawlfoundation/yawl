@@ -7,7 +7,9 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +23,8 @@ public class TomcatUtil {
 
     public static boolean start() throws IOException {
         if (! isRunning()) {
+            checkSizeOfLog();
+            removePidFile();
             executeCmd(createStartCommandList());
             return true;
         }
@@ -170,6 +174,22 @@ public class TomcatUtil {
     private static void addEnvParameters(ProcessBuilder pb) {
    //     Map<String, String> env = pb.environment();
    //     env.put(key, value);
+    }
+
+
+    // rename catalina.out if its too big - tomcat will create a new one on startup
+    private static void checkSizeOfLog() {
+        File log = new File(getCatalinaHome(), "logs/catalina.out");
+        if (log.exists() && log.length() > (1024 * 1024 * 5)) {              // 5mb
+            String suffix = "." + new SimpleDateFormat("yyyyMMdd").format(new Date());
+            log.renameTo(new File(log.getAbsolutePath() + suffix));
+        }
+    }
+
+
+    private static void removePidFile() {
+        File pidTxt = new File(getCatalinaHome(), "catalina_pid.txt");
+        if (pidTxt.exists()) pidTxt.delete();
     }
 
 }

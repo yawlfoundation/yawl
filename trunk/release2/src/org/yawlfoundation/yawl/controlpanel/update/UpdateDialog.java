@@ -1,6 +1,9 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
+import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
+import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTable;
 import org.yawlfoundation.yawl.controlpanel.util.WindowUtil;
 
@@ -9,6 +12,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -17,7 +22,7 @@ import java.beans.PropertyChangeListener;
  * @date 4/08/2014
  */
 public class UpdateDialog extends JDialog
-        implements ActionListener, PropertyChangeListener {
+        implements ActionListener, PropertyChangeListener, EngineStatusListener {
 
     private UpdateTable _table;
     private JButton _btnUpdate;
@@ -27,10 +32,11 @@ public class UpdateDialog extends JDialog
         super(mainWindow);
         setResizable(false);
         setModal(false);
-        setSize(new Dimension(600, 425));
+        setSize(new Dimension(600, 455));
         setTitle("YAWL " + YControlPanel.VERSION + " Updates");
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        addOnCloseHandler(this);
         buildUI(differ);
+        Publisher.addEngineStatusListener(this);
         Point p = WindowUtil.calcLocation(mainWindow, this);
         setLocation(p.x + 30, p.y + 30);
     }
@@ -43,16 +49,26 @@ public class UpdateDialog extends JDialog
     }
 
 
-    public void propertyChange(PropertyChangeEvent event) {
-        _btnUpdate.setEnabled(_table.hasUpdates());
-    }
+    public void propertyChange(PropertyChangeEvent event) { enableButton(); }
 
+    public void statusChanged(EngineStatus status) { enableButton(); }
 
     public void refresh(Differ differ) {
         _table.refresh(differ);
     }
 
     protected UpdateTable getTable() { return _table; }
+
+
+    private void addOnCloseHandler(final EngineStatusListener listener) {
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                Publisher.removeEngineStatusListener(listener);
+                dispose();
+            }
+        });
+    }
 
 
     private void buildUI(Differ differ) {
@@ -85,6 +101,11 @@ public class UpdateDialog extends JDialog
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
+    }
+
+
+    private void enableButton() {
+        _btnUpdate.setEnabled(_table.hasUpdates() && ! Publisher.isTransientStatus());
     }
 
 }

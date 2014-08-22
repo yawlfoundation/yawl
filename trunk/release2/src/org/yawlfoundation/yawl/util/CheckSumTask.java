@@ -40,12 +40,27 @@ public class CheckSumTask extends AbstractCheckSumTask {
 
     private void addApp(XNode root, File baseDir, CheckSummer summer) {
         String appName = getAppName();
-        XNode appNode = getAppNode(root.getChild("webapps"), appName);
-        appNode.addChild("build", getBuildNumber(appName));
-        addAppFiles(appNode, appName, baseDir, summer);
-        addAppLibs(appNode, appName);
+        if (appName.equals("controlpanel")) {
+            addControlPanel(root, baseDir, summer);
+        }
+        else {
+            XNode appNode = getAppNode(root.getChild("webapps"), appName);
+            appNode.addChild("build", getBuildNumber(appName));
+            addAppFiles(appNode, appName, baseDir, summer);
+            addAppLibs(appNode, appName);
+        }
     }
 
+
+    private void addControlPanel(XNode root, File baseDir, CheckSummer summer) {
+        XNode panelNode = root.getOrAddChild("controlpanel");
+        panelNode.removeChildren();
+        panelNode.addChild("build", getBuildNumber("controlpanel"));
+        File outputDir = getOutputDir(baseDir);
+        File jar = new File(outputDir, "YawlControlPanel-" + getVersion() + ".jar");
+        addFile(panelNode, jar, summer, null);
+
+    }
 
     private XNode getAppNode(XNode webappsNode, String appName) {
         XNode appNode = webappsNode.getOrAddChild(appName);

@@ -4,6 +4,7 @@ import org.yawlfoundation.yawl.controlpanel.update.table.AppEnum;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -32,7 +33,7 @@ public class Registrar {
 
 
     public boolean remove(String name) throws IOException {
-        return isYAWLService(name) ? removeService(name) : removeApp(name);
+        return isYAWLService(name) ? removeService(getServiceUri(name)) : removeApp(name);
     }
 
 
@@ -53,6 +54,7 @@ public class Registrar {
         return successful(send(params));
     }
 
+
     private boolean addApp(String name, String password) throws IOException {
         _handle = connect();
         Map<String, String> params = prepareParamMap("createAccount", _handle);
@@ -64,6 +66,7 @@ public class Registrar {
 
 
     private boolean removeService(String uri) throws IOException {
+        if (uri == null) return false;
         _handle = connect();
         Map<String, String> params = prepareParamMap("removeYAWLService", _handle);
         params.put("serviceURI", uri);
@@ -78,6 +81,23 @@ public class Registrar {
         return successful(send(params));
     }
 
+
+    private String getServiceUri(String name) throws IOException {
+        _handle = connect();
+        Map<String, String> params = prepareParamMap("getYAWLServices", _handle);
+        String xml = (send(params));
+        if (successful(xml)) {
+            XNode node = new XNodeParser().parse(StringUtil.wrap(xml, "temp"));
+            if (node != null) {
+                for (XNode service : node.getChildren()) {
+                    if (service.getChildText("servicename").equals(name)) {
+                        return node.getAttributeValue("id");
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 
     private String connect() throws IOException {

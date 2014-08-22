@@ -23,7 +23,10 @@ public class UpdateTable extends JTable {
 
     public boolean hasUpdates() { return getTableModel().hasUpdates(); }
 
-    public void refresh(Differ differ) { getTableModel().setDiffer(differ); }
+    public void refresh(Differ differ) {
+        getTableModel().setDiffer(differ);
+        clearSelection();
+    }
 
 
     private void init(Differ differ) {
@@ -36,9 +39,8 @@ public class UpdateTable extends JTable {
         setSelectionBackground(new Color(202,202,202));
         setRowHeight(getRowHeight() + 8);
         setColumnWidths();
-        java.util.List<UpdateRow> rows = getTableModel().getRows();
-        setDefaultRenderer(String.class, new UpdateRowRenderer(rows));
-        setDefaultRenderer(Boolean.class, new UpdateRowRenderer(rows));
+        setDefaultRenderer(String.class, new UpdateRowRenderer());
+        setDefaultRenderer(Boolean.class, new UpdateRowRenderer());
     }
 
 
@@ -61,5 +63,5 @@ public class UpdateTable extends JTable {
     }
 
 
-    private UpdateTableModel getTableModel() { return ((UpdateTableModel) getModel()); }
+    protected UpdateTableModel getTableModel() { return ((UpdateTableModel) getModel()); }
 }
