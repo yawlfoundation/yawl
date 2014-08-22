@@ -118,8 +118,8 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    private String getTmpDir() {
-        return System.getProperty("java.io.tmpdir") + File.separator;
+    private File getTmpDir() {
+        return new File(System.getProperty("java.io.tmpdir"));
     }
 
 

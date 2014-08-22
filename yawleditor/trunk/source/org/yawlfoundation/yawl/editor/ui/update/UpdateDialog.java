@@ -64,8 +64,8 @@ public class UpdateDialog extends JDialog
         _differ = differ;
         setContentPane(addContent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(YAWLEditor.getInstance());
         pack();
+        setLocationRelativeTo(YAWLEditor.getInstance());
     }
 
 

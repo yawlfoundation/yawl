@@ -469,9 +469,15 @@
         	<arg value="-J-Dhttp.proxyHost=${proxy.host}"/>
         	<arg value="-J-Dhttp.proxyPort=${proxy.port}"/>
 
+            <!-- custom tags -->
+            <tag name="date" scope="all" description="Created/Last Date:"/>
+            <tag name="pre" scope="all" description="Precondition:"/>
+            <tag name="post" scope="all" description="Postcondition:"/>
+
         	<fileset dir="${source.dir}" defaultexcludes="yes">
         		<include name="**/*.java" />
         		<exclude name="**/Test*.java" />
+                <exclude name="**/CheckSumTask.java"/>
         	</fileset>
         	<classpath>
         		<pathelement location="../${engine.lib.jar.path}" />

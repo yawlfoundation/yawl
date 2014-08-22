@@ -42,7 +42,6 @@ public class NetCellFactory {
      * @param point The point on the net canvas to insert the condition at.
      * @return a reference to the newly created condition.
      */
-
     public static Condition insertCondition(NetGraph net, Point2D point) {
         YCondition yCondition = getHandler().addCondition(net.getName(), "C");
         Condition newCondition = new Condition(point, yCondition);
@@ -95,8 +94,8 @@ public class NetCellFactory {
     }
 
     /**
-     * Creates a new multiple composite task and inserts at the specified point of the given net.
-     * A reference to the newly created task is returned.
+     * Creates a new multiple composite task and inserts at the specified point of the
+     * given net. A reference to the newly created task is returned.
      * @param net The net to insert the task into.
      * @param point The point on the net canvas to insert the task at.
      * @return a reference to the newly created task.
@@ -109,6 +108,14 @@ public class NetCellFactory {
     }
 
 
+    /**
+     * Creates a new flow between two elements of the given net.
+     * A reference to the newly created flow is returned.
+     * @param net The net to insert the task into.
+     * @param sourceID The identifier of the source element.
+     * @param targetID The identifier of the target element.
+     * @return a reference to the newly created flow.
+     */
     public static YAWLFlowRelation insertFlow(NetGraph net, String sourceID,
                                               String targetID) {
         YCompoundFlow yFlow = getHandler().addFlow(net.getName(), sourceID, targetID);
