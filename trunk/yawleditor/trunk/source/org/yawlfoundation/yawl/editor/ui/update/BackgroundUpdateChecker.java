@@ -67,7 +67,7 @@ public class BackgroundUpdateChecker implements PropertyChangeListener {
             SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();
             if (stateValue == SwingWorker.StateValue.DONE) {
                 if (_checker.hasError()) {
-                    showMessage("Error " + _checker.getErrorMessage());
+                    showMessage(_checker.getErrorMessage());
                 }
                 else if (_checker.isNewVersion() || _checker.hasUpdate()) {
                     new UpdateDialog(_checker.getDiffer()).setVisible(true);
