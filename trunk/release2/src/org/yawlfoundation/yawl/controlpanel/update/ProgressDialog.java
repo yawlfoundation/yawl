@@ -47,6 +47,9 @@ public class ProgressDialog extends JDialog {
     }
 
 
+    public void move() { setLocationRelativeTo(getParent());}
+
+
     private void init() {
         setAlwaysOnTop(true);
         setModal(false);

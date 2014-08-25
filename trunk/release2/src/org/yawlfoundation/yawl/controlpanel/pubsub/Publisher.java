@@ -46,6 +46,12 @@ public class Publisher {
                _currentStatus == EngineStatus.Stopping;
     }
 
+    public static void abortStarting() {
+        if (_currentStatus == EngineStatus.Starting) {
+            announceStoppedStatus();
+        }
+    }
+
 
     public static void announceStoppedStatus() { statusChange(EngineStatus.Stopped); }
 

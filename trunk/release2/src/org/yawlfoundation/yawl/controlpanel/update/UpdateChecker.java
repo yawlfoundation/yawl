@@ -74,7 +74,8 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
 
 
     private File loadCurrentCheckSums() throws IOException {
-        File current = new File(TomcatUtil.getCatalinaHome() + "/yawllib", CHECKSUM_FILE);
+        File current = new File(TomcatUtil.getCatalinaHome() +
+                File.separator + "yawllib", CHECKSUM_FILE);
         if (! current.exists()) {
             throw new IOException("Unable to determine current build version");
         }

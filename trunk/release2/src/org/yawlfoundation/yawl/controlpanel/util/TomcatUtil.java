@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -20,6 +21,8 @@ public class TomcatUtil {
 
     private static int SERVER_PORT = -1;
     private static URL ENGINE_URL;
+    private static final String TOMCAT_VERSION = "7.0.55";
+    private static final String CATALINA_HOME = deriveCatalinaHome();
 
     public static boolean start() throws IOException {
         if (! isRunning()) {
@@ -47,7 +50,7 @@ public class TomcatUtil {
 
 
     public static String getCatalinaHome() {
-        return System.getenv("CATALINA_HOME");
+        return CATALINA_HOME;
     }
 
 
@@ -84,7 +87,7 @@ public class TomcatUtil {
          try {
              HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
              httpConnection.setRequestMethod("HEAD");
-             httpConnection.setConnectTimeout(500);
+             httpConnection.setConnectTimeout(2000);
              return httpConnection.getResponseCode() == 200;
          }
          catch (IOException ioe) {
@@ -142,9 +145,8 @@ public class TomcatUtil {
 
     private static List<String> createCommandList(boolean isStart) {
         List<String> cmdList = new ArrayList<String>();
-        String extn = getScriptExtn();
-        String cmd = getCatalinaHome() + "/bin/catalina." + extn;
-        if (extn.endsWith("sh")) {
+        String cmd = buildCmd();
+        if (cmd.endsWith("sh")) {
             cmdList.add("bash");
             cmdList.add("-c");
             cmdList.add(cmd + (isStart ? " start" : " stop -force"));
@@ -155,6 +157,18 @@ public class TomcatUtil {
             cmdList.add(cmd + (isStart ? " start" : " stop"));
         }
         return cmdList;
+    }
+
+
+    private static String buildCmd() {
+        StringBuilder s = new StringBuilder();
+        s.append(getCatalinaHome())
+         .append(FileUtil.SEP)
+         .append("bin")
+         .append(FileUtil.SEP)
+         .append("catalina.")
+         .append(getScriptExtn());
+        return s.toString();
     }
 
 
@@ -172,8 +186,8 @@ public class TomcatUtil {
 
 
     private static void addEnvParameters(ProcessBuilder pb) {
-   //     Map<String, String> env = pb.environment();
-   //     env.put(key, value);
+        Map<String, String> env = pb.environment();
+        env.put("CATALINA_HOME", CATALINA_HOME);
     }
 
 
@@ -190,6 +204,23 @@ public class TomcatUtil {
     private static void removePidFile() {
         File pidTxt = new File(getCatalinaHome(), "catalina_pid.txt");
         if (pidTxt.exists()) pidTxt.delete();
+    }
+
+
+    private static String deriveCatalinaHome() {
+        try {
+            File thisJar = FileUtil.getJarFile();
+            if (thisJar != null && thisJar.getAbsolutePath().endsWith(".jar")) {
+                String rootPath = FileUtil.buildPath(thisJar.getParentFile().getParent(),
+                        "engine", "apache-tomcat-" + TOMCAT_VERSION);
+                System.out.println(rootPath);
+                return rootPath;
+            }
+        }
+        catch (URISyntaxException use) {
+            //
+        }
+        return System.getenv("CATALINA_HOME");         // fallback
     }
 
 }

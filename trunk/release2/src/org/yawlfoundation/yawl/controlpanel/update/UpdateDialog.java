@@ -10,10 +10,7 @@ import org.yawlfoundation.yawl.controlpanel.util.WindowUtil;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -26,6 +23,7 @@ public class UpdateDialog extends JDialog
 
     private UpdateTable _table;
     private JButton _btnUpdate;
+    private Updater _updater;
 
 
     public UpdateDialog(JFrame mainWindow, Differ differ) {
@@ -44,7 +42,8 @@ public class UpdateDialog extends JDialog
 
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("Update")) {
-            new Updater(this).start();
+            _updater = new Updater(this);
+            _updater.start();
         }
     }
 
@@ -70,6 +69,20 @@ public class UpdateDialog extends JDialog
         });
     }
 
+
+    private void addOnMoveHandler() {
+        addComponentListener( new ComponentListener() {
+            public void componentResized(ComponentEvent e) {}
+
+            public void componentMoved(ComponentEvent e) {
+                if (_updater != null) _updater.dialogMoved();
+            }
+
+            public void componentShown(ComponentEvent e) {}
+
+            public void componentHidden(ComponentEvent e) {}
+        });
+    }
 
     private void buildUI(Differ differ) {
         JPanel content = new JPanel(new BorderLayout());

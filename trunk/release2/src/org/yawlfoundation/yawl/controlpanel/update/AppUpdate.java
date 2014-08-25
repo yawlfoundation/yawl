@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.*;
@@ -8,20 +9,20 @@ import java.util.*;
  * @author Michael Adams
  * @date 12/08/2014
  */
-public class UpdateList {
+public class AppUpdate {
 
     private final Set<FileNode> _downloads;
     private final Set<FileNode> _deletes;
     private final String _appName;                 // null for lib
 
 
-    protected UpdateList(String appName) {
+    protected AppUpdate(String appName) {
         _downloads = new HashSet<FileNode>();
         _deletes = new HashSet<FileNode>();
         _appName = appName;
     }
 
-    protected UpdateList() {
+    protected AppUpdate() {
         this(null);
     }
 
@@ -40,6 +41,10 @@ public class UpdateList {
 
     protected boolean isAppList() { return _appName != null; }
 
+    protected boolean isControlPanelApp() {
+        return isAppList() && _appName.equals("controlpanel");
+    }
+
 
     protected boolean hasDownloads() { return ! _downloads.isEmpty(); }
 
@@ -48,14 +53,9 @@ public class UpdateList {
     protected boolean isEmpty() { return ! (hasDownloads() || hasDeletions()); }
 
 
-    protected List<String> getDownloadNames() {
-        return getNames(_downloads);
-    }
+    protected List<String> getDownloadNames() { return getNames(_downloads); }
 
-
-    protected List<String> getDeletionNames() {
-        return getNames(_deletes);
-    }
+    protected List<String> getDeletionNames() { return getNames(_deletes); }
 
 
     protected long getTotalUpdateSize() {
@@ -77,7 +77,7 @@ public class UpdateList {
     }
 
 
-    protected void merge(UpdateList other) {
+    protected void merge(AppUpdate other) {
         _downloads.addAll(other._downloads);
         _deletes.addAll(other._deletes);
     }
@@ -86,6 +86,7 @@ public class UpdateList {
     private void add(Set<FileNode> list, FileNode node) { list.add(node); }
 
     private void add(Set<FileNode> list, XNode node) { list.add(new FileNode(node)); }
+
 
     private List<String> getNames(Set<FileNode> list) {
         List<String> names = new ArrayList<String>();
@@ -98,8 +99,9 @@ public class UpdateList {
 
     // todo: file seps
     private String getPathPrefix() {
-        return isAppList() ? _appName.equals("controlpanel") ? "controlpanel/" :
-                "webapps/" + _appName  + "/" : "lib/";
+        char sep = FileUtil.SEP;
+        return (isAppList() ? _appName.equals("controlpanel") ? "controlpanel" :
+                "webapps" + sep + _appName : "lib") + sep;
     }
 
     public String toString() {

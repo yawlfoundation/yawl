@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.tailer.Tailer;
 import org.yawlfoundation.yawl.controlpanel.tailer.TailerListenerAdapter;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
@@ -76,6 +77,9 @@ public class OutputDialog extends JDialog {
 
     class TailerAppendListener extends TailerListenerAdapter {
         public void handle(final String line) {
+            if (line.startsWith("ERROR: transport error 202:")) {
+                Publisher.abortStarting();
+            }
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     _textArea.append(line + "\n");
