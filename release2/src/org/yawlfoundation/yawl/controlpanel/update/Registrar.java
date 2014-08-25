@@ -48,7 +48,8 @@ public class Registrar {
 
 
     private boolean addService(String name, String password, String url) throws IOException {
-        _handle = connect();
+        if (getServiceUri(name) != null) return true;      // service already registered
+        connect();
         Map<String, String> params = prepareParamMap("newYAWLService", _handle);
         params.put("service", getServiceTransport(name, password, url));
         return successful(send(params));
@@ -56,7 +57,8 @@ public class Registrar {
 
 
     private boolean addApp(String name, String password) throws IOException {
-        _handle = connect();
+        if (appExists(name)) return true;            // app already registered
+        connect();
         Map<String, String> params = prepareParamMap("createAccount", _handle);
         params.put("userID", name);
         params.put("password", PasswordEncryptor.encrypt(password, null));
@@ -66,8 +68,8 @@ public class Registrar {
 
 
     private boolean removeService(String uri) throws IOException {
-        if (uri == null) return false;
-        _handle = connect();
+        if (uri == null) return true;             // service already deregistered
+        connect();
         Map<String, String> params = prepareParamMap("removeYAWLService", _handle);
         params.put("serviceURI", uri);
         return successful(send(params));
@@ -75,7 +77,8 @@ public class Registrar {
 
 
     private boolean removeApp(String name) throws IOException {
-        _handle = connect();
+        if (! appExists(name)) return true;      // app already deregistered
+        connect();
         Map<String, String> params = prepareParamMap("deleteAccount", _handle);
         params.put("userID", name);
         return successful(send(params));
@@ -83,7 +86,7 @@ public class Registrar {
 
 
     private String getServiceUri(String name) throws IOException {
-        _handle = connect();
+        connect();
         Map<String, String> params = prepareParamMap("getYAWLServices", _handle);
         String xml = (send(params));
         if (successful(xml)) {
@@ -91,7 +94,7 @@ public class Registrar {
             if (node != null) {
                 for (XNode service : node.getChildren()) {
                     if (service.getChildText("servicename").equals(name)) {
-                        return node.getAttributeValue("id");
+                        return service.getAttributeValue("id");
                     }
                 }
             }
@@ -100,7 +103,15 @@ public class Registrar {
     }
 
 
-    private String connect() throws IOException {
+    private boolean appExists(String name) throws IOException {
+        connect();
+        Map<String, String> params = prepareParamMap("getClientAccount", _handle);
+        params.put("userID", name);
+        return successful(send(params));
+    }
+
+
+    private void connect() throws IOException {
         if (_handle == null) {
             Map<String, String> paramMap = prepareParamMap("connect", null);
             paramMap.put("userID", "admin");
@@ -112,7 +123,6 @@ public class Registrar {
             }
             _handle = response;
         }
-        return _handle;
     }
 
 

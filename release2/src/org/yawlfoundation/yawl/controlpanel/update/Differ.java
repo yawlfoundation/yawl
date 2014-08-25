@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -14,7 +15,7 @@ public class Differ {
 
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
-    private List<UpdateList> _updates;
+    private List<AppUpdate> _updates;
 
     public Differ(File latest, File current) {
         _latest = new ChecksumsReader(latest);
@@ -67,7 +68,7 @@ public class Differ {
     }
 
 
-    public List<UpdateList> getUpdatesList() throws IllegalStateException {
+    public List<AppUpdate> getUpdatesList() throws IllegalStateException {
         if (_updates == null) _updates = diff();
         return _updates;
     }
@@ -80,7 +81,7 @@ public class Differ {
         List<String> installed = new ArrayList<String>();
         List<String> available = _current.getWebAppNames();
         File webAppsDir = new File(TomcatUtil.getCatalinaHome(), "webapps");
-        for (File f : getDirList(webAppsDir)) {
+        for (File f : FileUtil.getDirList(webAppsDir)) {
             String name = f.getName();
             if (available.contains(name)) installed.add(name);
         }
@@ -91,15 +92,15 @@ public class Differ {
     public List<String> getInstalledLibNames() {
         List<String> installed = new ArrayList<String>();
         File libDir = new File(TomcatUtil.getCatalinaHome(), "yawllib");
-        for (File f : getFileList(libDir)) {
+        for (File f : FileUtil.getFileList(libDir)) {
             installed.add(f.getName());
         }
         return installed;
 
     }
 
-    public UpdateList getAppFiles(String appName, boolean adding) {
-        UpdateList upList = new UpdateList(appName);
+    public AppUpdate getAppFiles(String appName, boolean adding) {
+        AppUpdate upList = new AppUpdate(appName);
         for (XNode node : _latest.getAppFileList(appName)) {
             if (adding) upList.addDownload(node);
             else upList.addDeletion(node);
@@ -109,9 +110,9 @@ public class Differ {
 
 
     // for new installs
-    public UpdateList getAppLibs(String appName) {
+    public AppUpdate getAppLibs(String appName) {
         List<String> installed = getInstalledLibNames();
-        UpdateList upList = new UpdateList(null);
+        AppUpdate upList = new AppUpdate(null);
         Map<String, FileNode> libMap  = _latest.getLibMap();
         for (XNode node : _latest.getAppLibList(appName)) {
             String name = node.getAttributeValue("name");
@@ -128,13 +129,17 @@ public class Differ {
         for (XNode node : _latest.getRequiredLibs(getInstalledWebAppNames())) {
             libNames.add(node.getAttributeValue("name"));
         }
+
+        // checksums.xml and the yawl lib jar are also needed in the lib dir
+        libNames.add(UpdateChecker.CHECKSUM_FILE);
+        libNames.add(_latest.getYawlLibNode().getAttributeValue("name"));
         return libNames;
     }
 
 
-    private List<UpdateList> diff() throws IllegalStateException {
+    private List<AppUpdate> diff() throws IllegalStateException {
         if (_latest == null || _current == null) return Collections.emptyList();
-        List<UpdateList> updates = new ArrayList<UpdateList>();
+        List<AppUpdate> updates = new ArrayList<AppUpdate>();
         compareYAWLLib(updates);
         compareWebApps(updates);
         compareControlPanel(updates);
@@ -142,54 +147,54 @@ public class Differ {
     }
 
 
-    private void compareYAWLLib(List<UpdateList> updates) throws IllegalStateException {
-        UpdateList updateList = compareFileNodes(_current.getYawlLibNode(),
+    private void compareYAWLLib(List<AppUpdate> updates) throws IllegalStateException {
+        AppUpdate appUpdate = compareFileNodes(_current.getYawlLibNode(),
                 _latest.getYawlLibNode(), null);
-        if (updateList != null) updates.add(updateList);
+        if (appUpdate != null) updates.add(appUpdate);
     }
 
 
-    private void compareControlPanel(List<UpdateList> updates) throws IllegalStateException {
-        UpdateList updateList = compareFileNodes(_current.getControlPanelFileNode(),
+    private void compareControlPanel(List<AppUpdate> updates) throws IllegalStateException {
+        AppUpdate appUpdate = compareFileNodes(_current.getControlPanelFileNode(),
                 _latest.getControlPanelFileNode(), "controlpanel");
-        if (updateList != null) updates.add(updateList);
+        if (appUpdate != null) updates.add(appUpdate);
     }
 
 
-    private UpdateList compareFileNodes(XNode currentNode, XNode latestNode, String appName) {
-        UpdateList updateList = null;
+    private AppUpdate compareFileNodes(XNode currentNode, XNode latestNode, String appName) {
+        AppUpdate appUpdate = null;
         if (! (currentNode == null || latestNode == null)) {
             String currentMd5 = currentNode.getAttributeValue("md5");
             String latestMd5 = latestNode.getAttributeValue("md5");
             if (! (currentMd5 == null || latestMd5 == null || currentMd5.equals(latestMd5))) {
-                updateList = new UpdateList(appName);
-                updateList.addDownload(latestNode);
+                appUpdate = new AppUpdate(appName);
+                appUpdate.addDownload(latestNode);
             }
         }
-        return updateList;
+        return appUpdate;
     }
 
 
-    private void compareWebApps(List<UpdateList> updates) throws IllegalStateException {
+    private void compareWebApps(List<AppUpdate> updates) throws IllegalStateException {
         List<String> installedWebAppNames = getInstalledWebAppNames();
         for (String appName : installedWebAppNames) {
             if (hasUpdate(appName)) {
-                UpdateList updateList = compareFileLists(
+                AppUpdate appUpdate = compareFileLists(
                         _latest.getAppFileList(appName),
                         _current.getAppFileList(appName), appName);
-                if (! updateList.isEmpty()) updates.add(updateList);
+                if (! appUpdate.isEmpty()) updates.add(appUpdate);
             }
         }
         if (hasLibChange()) {
-            UpdateList updateList = compareFileLists(
+            AppUpdate appUpdate = compareFileLists(
                     _latest.getRequiredLibs(installedWebAppNames),
                     _current.getRequiredLibs(installedWebAppNames), null);
-            if (! updateList.isEmpty()) updates.add(updateList);
+            if (! appUpdate.isEmpty()) updates.add(appUpdate);
         }
     }
 
 
-    private UpdateList compareFileLists(List<XNode> latestList, List<XNode> currentList,
+    private AppUpdate compareFileLists(List<XNode> latestList, List<XNode> currentList,
                                   String appName) throws IllegalStateException {
         checkNotNullOrEmpty(latestList);
         checkNotNullOrEmpty(currentList);
@@ -209,11 +214,11 @@ public class Differ {
     }
 
 
-    private UpdateList compareMaps(Map<String, FileNode> latestMap,
+    private AppUpdate compareMaps(Map<String, FileNode> latestMap,
                              Map<String, FileNode> currentMap,
                              String appName) {
 
-        UpdateList updateList = new UpdateList(appName);
+        AppUpdate appUpdate = new AppUpdate(appName);
         for (String fileName : latestMap.keySet()) {
             FileNode node = latestMap.get(fileName);
 
@@ -223,41 +228,16 @@ public class Differ {
             }
 
             // latest entry is not in current, or different md5's, so add to download list
-            updateList.addDownload(node);
+            appUpdate.addDownload(node);
         }
 
         // if current entry not in latest, add to delete list
         for (String fileName : currentMap.keySet()) {
             if (! latestMap.containsKey(fileName)) {
-                updateList.addDeletion(currentMap.get(fileName));
+                appUpdate.addDeletion(currentMap.get(fileName));
             }
         }
-        return updateList;
-    }
-
-
-    private List<File> getDirList(File f) {
-        List<File> dirList = new ArrayList<File>();
-        File[] files = f.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) dirList.add(file);
-            }
-        }
-        return dirList;
-    }
-
-
-    // non-recursive search
-    private List<File> getFileList(File f) {
-        List<File> fileList = new ArrayList<File>();
-        File[] files = f.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (!file.isDirectory()) fileList.add(file);
-            }
-        }
-        return fileList;
+        return appUpdate;
     }
 
 

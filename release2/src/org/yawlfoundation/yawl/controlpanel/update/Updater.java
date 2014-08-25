@@ -5,18 +5,15 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
-import org.yawlfoundation.yawl.util.CheckSummer;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.*;
 
 /**
@@ -30,7 +27,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private Downloader _downloader;
     private List<String> _downloads;
     private List<String> _deletions;
-    private List<UpdateList> _installs;
+    private List<AppUpdate> _installs;
+    private boolean _updatingThis;
+
 
 
     public Updater(UpdateDialog updateDialog) {
@@ -55,7 +54,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 _progressDialog.setIndeterminate(false);
             }
             else if (stateValue == SwingWorker.StateValue.DONE) {
-                processDownloadCompleted();
+                if (event.getSource() instanceof Verifier) {
+                    verifyCompleted(((Verifier) event.getSource()));
+                }
+                else {
+                    processDownloadCompleted();
+                }
              }
         }
         else if (event.getPropertyName().equals("progress")) {
@@ -68,15 +72,21 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 4. Wait for STOP -> copy,  or START -> complete
     public void statusChanged(EngineStatus status) {
         switch (status) {
-            case Stopped : copy(); break;
+            case Stopped : doUpdates(); break;
             case Running : complete(true); break;
         }
     }
 
 
+    public void dialogMoved() {
+        if (_progressDialog != null && _progressDialog.isVisible()) {
+            _progressDialog.move();
+        }
+    }
+
     // 1. Start the downloads -> wait for finish at propertyChange
     private void download() {
-        List<UpdateList> updates = getUpdatesList();
+        List<AppUpdate> updates = getUpdatesList();
         updates.addAll(_installs);
         if (updates == null || updates.isEmpty()) return;
         _downloads = getDownloadList(updates);
@@ -86,33 +96,36 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         _progressDialog.setDownloadSize(downloadSize);
         _downloader = new Downloader(UpdateChecker.SOURCE_URL,
                 UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
-                downloadSize, getTmpDir());
+                downloadSize, FileUtil.getTmpDir());
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
     }
 
 
-    private List<String> getDownloadList(List<UpdateList> updates) {
+    private List<String> getDownloadList(List<AppUpdate> updates) {
         consolidateLibs(updates);
         List<String> fileNames = new ArrayList<String>();
-        for (UpdateList list : updates) {
-             fileNames.addAll(list.getDownloadNames());
+        for (AppUpdate list : updates) {
+            if (list.isControlPanelApp()) {
+                _updatingThis = true;
+            }
+            fileNames.addAll(list.getDownloadNames());
         }
         return fileNames;
     }
 
 
-    private List<String> getDeletionList(List<UpdateList> updates) {
+    private List<String> getDeletionList(List<AppUpdate> updates) {
         List<String> fileNames = new ArrayList<String>();
-        for (UpdateList list : updates) {
+        for (AppUpdate list : updates) {
              fileNames.addAll(list.getDeletionNames());
         }
         return fileNames;
     }
 
 
-    private List<UpdateList> getInstallList(List<UpdateRow> updateRows) {
-        List<UpdateList> upList = new ArrayList<UpdateList>();
+    private List<AppUpdate> getInstallList(List<UpdateRow> updateRows) {
+        List<AppUpdate> upList = new ArrayList<AppUpdate>();
         for (UpdateRow row : updateRows) {
             String appName = row.getName();
             if (row.isAdding()) {
@@ -128,17 +141,17 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private Map<String,String> getMd5Map() {
-        List<UpdateList> updatesList = getUpdatesList();
+        List<AppUpdate> updatesList = getUpdatesList();
         if (updatesList == null) return null;
         Map<String,String> map = new HashMap<String, String>();
-        for (UpdateList list : updatesList) {
+        for (AppUpdate list : updatesList) {
              map.putAll(list.getMd5Map());
         }
         return map;
     }
 
 
-    private List<UpdateList> getUpdatesList() {
+    private List<AppUpdate> getUpdatesList() {
         try {
             return _differ.getUpdatesList();
         }
@@ -148,27 +161,27 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
     }
 
-    private long getDownloadSize(List<UpdateList> updates) {
+    private long getDownloadSize(List<AppUpdate> updates) {
        long fileSizes = 0;
-        for (UpdateList list : updates) {
+        for (AppUpdate list : updates) {
              fileSizes += list.getTotalUpdateSize();
         }
         return fileSizes;
     }
 
 
-    private List<UpdateList> consolidateLibs(List<UpdateList> updates) {
-        List<UpdateList> appList = new ArrayList<UpdateList>();
-        UpdateList libUpdateList = new UpdateList(null);
-        for (UpdateList upList : updates) {
+    private List<AppUpdate> consolidateLibs(List<AppUpdate> updates) {
+        List<AppUpdate> appList = new ArrayList<AppUpdate>();
+        AppUpdate libAppUpdate = new AppUpdate(null);
+        for (AppUpdate upList : updates) {
             if (upList.isAppList()) {
                 appList.add(upList);
             }
             else {
-                libUpdateList.merge(upList);
+                libAppUpdate.merge(upList);
             }
         }
-        if (! libUpdateList.isEmpty()) appList.add(libUpdateList);
+        if (! libAppUpdate.isEmpty()) appList.add(libAppUpdate);
         return appList;
     }
 
@@ -178,15 +191,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         if (_downloader.hasErrors()) {
             showError("Failed to download updates.");
             complete(false);
-            return;
         }
-        if (!verify()) {
-            showError("Downloaded files failed verification.");
-            complete(false);
-            return;
+        else {
+            verify();
         }
-        Publisher.addEngineStatusListener(this);
-        stopEngine();
     }
 
 
@@ -199,32 +207,32 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
         Publisher.removeEngineStatusListener(this);
         _progressDialog.setVisible(false);
+        if (_updatingThis) restartApp();
     }
 
 
-    private boolean verify() {
+    private void verify() {
+        _progressDialog.setIndeterminate(true);
         _progressDialog.setText("Verifying downloads...");
-        File targetDir = _downloader.getTargetDir();
-        CheckSummer summer = new CheckSummer();
-        Map<String, String> md5Map = getMd5Map();
-        if (md5Map == null) return false;
-        for (String file : md5Map.keySet()) {
-            String fileName = targetDir.getAbsolutePath() + File.separator + file;
-            try {
-                if (! summer.compare(fileName, md5Map.get(file))) {
-                    return false;
-                }
-            }
-            catch (IOException ioe) {
-                return false;
+        Verifier verifier = new Verifier(getMd5Map());
+        verifier.addPropertyChangeListener(this);
+        verifier.execute();
+    }
+
+
+    private void verifyCompleted(Verifier verifier) {
+        try {
+            if (verifier.get()) {
+                Publisher.addEngineStatusListener(this);
+                stopEngine();
+                return;
             }
         }
-        return true;
-    }
-
-
-    private File getTmpDir() {
-        return new File(System.getProperty("java.io.tmpdir"));
+        catch (Exception fallThrough) {
+            //
+        }
+        showError("Downloaded files failed verification.");
+        complete(false);
     }
 
 
@@ -274,105 +282,93 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    // 5. COPY in new files -> startEngine
-    private void copy()  {
-        _progressDialog.setText("Updating files...");
+    private void doUpdates() {
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
-        File tmpDir = getTmpDir();
-        for (String fileName : _downloads) {
-            String destName = (fileName.startsWith("lib") ?  "yawl" : "") + fileName;
-            File source = makeFile(tmpDir.getAbsolutePath(), fileName);
-            File target = makeFile(tomcatDir.getAbsolutePath(), destName);
-            copy(source, target);
-        }
-        for (String fileName : _deletions) {
-            delete(tomcatDir, fileName);
-        }
-
-        // copy downloaded checksums.xml to lib
-        File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
-        File target = makeFile(tomcatDir.getAbsolutePath() + "/yawllib",
-                UpdateChecker.CHECKSUM_FILE);
-        copy(source, target);
-
+        doUpdates(tomcatDir);
+        doDeletions(tomcatDir);
         doUninstalls(tomcatDir);
+        consolidateLibDir(tomcatDir);
         startEngine();
     }
 
 
-    private File getLocalCheckSumFile() {
-        return new File(TomcatUtil.getCatalinaHome() + "/yawllib/" +
-                UpdateChecker.CHECKSUM_FILE);
-    }
-
-
-    private File makeFile(String path, String fileName) {
-        if (fileName.contains("/")) {
-            int sepPos = fileName.lastIndexOf('/');
-            String dirPart = fileName.substring(0, sepPos);
-            String filePart = fileName.substring(sepPos + 1);
-            File dir = new File(path + File.separator + dirPart);
-            dir.mkdirs();
-            return new File(dir, filePart);
+    // 5. COPY in new files -> startEngine
+    private File doUpdates(File tomcatDir)  {
+        _progressDialog.setText("Updating files...");
+        File tmpDir = FileUtil.getTmpDir();
+        for (String fileName : _downloads) {
+            String destName = (fileName.startsWith("lib") ?  "yawl" : "") + fileName;
+            File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
+            File target = FileUtil.makeFile(tomcatDir.getAbsolutePath(), destName);
+            copy(source, target);
         }
-        return new File(path, fileName);
+
+        // copy downloaded checksums.xml to lib
+        File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
+        File target = getLocalCheckSumFile();
+        copy(source, target);
+
+        return tomcatDir;
     }
 
 
-    private void copy(File sourceFile, File targetFile) {
-        FileChannel sourceChannel = null;
-        FileChannel targetChannel = null;
+    private void copy(File source, File target) {
         try {
-            sourceChannel = new FileInputStream(sourceFile).getChannel();
-            targetChannel = new FileOutputStream(targetFile).getChannel();
-            targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+            FileUtil.copy(source, target);
         }
         catch (IOException ioe) {
-            showError("Failed to copy file: " + sourceFile.getName());
+            showError("Failed to copy file: " + target.getName() +
+                    "\n" + ioe.getMessage());
             complete(false);
-        }
-        finally {
-            try {
-                if (sourceChannel != null) sourceChannel.close();
-                if (targetChannel != null) targetChannel.close();
-            }
-            catch (IOException ignore) {
-                //
-            }
         }
     }
 
+    private File getLocalCheckSumFile() {
+        return new File(FileUtil.buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
+                UpdateChecker.CHECKSUM_FILE));
+    }
+
+
+    private void doDeletions(File tomcatRoot) {
+        for (String fileName : _deletions) {
+            FileUtil.delete(tomcatRoot, fileName);
+        }
+    }
 
     private void doUninstalls(File tomcatRoot) {
         List<String> webappsToRemove = new ArrayList<String>();
-        for (UpdateList updateList : _installs) {
-            if (updateList.hasDeletions() && updateList.isAppList()) {
-                webappsToRemove.add(updateList.getAppName());
+        for (AppUpdate appUpdate : _installs) {
+            if (appUpdate.hasDeletions() && appUpdate.isAppList()) {
+                webappsToRemove.add(appUpdate.getAppName());
             }
         }
         for (String name : webappsToRemove) {
-            purgeDir(new File(tomcatRoot.getAbsolutePath() + "/webapps/" + name));
+            String path = FileUtil.buildPath(tomcatRoot.getAbsolutePath(), "webapps", name);
+            FileUtil.purgeDir(new File(path));
         }
-        consolidateLibDir(tomcatRoot);
     }
 
 
     private void updateServiceRegistration() {
         Registrar registrar = new Registrar();
-        for (UpdateList updateList : _installs) {
-            if (updateList.isAppList()) {
-                String appName = updateList.getAppName();
-                if (updateList.hasDeletions()) {
+        for (AppUpdate appUpdate : _installs) {
+            if (appUpdate.isAppList()) {
+                boolean success;
+                String appName = appUpdate.getAppName();
+                if (appUpdate.hasDeletions()) {
                     try {
-                        if (!registrar.remove(appName)) {
-                            showError("Failed to deregister service:" + appName);
-                        }
+                        success = registrar.remove(appName);
                     }
                     catch (IOException ioe) {
-                        showError("Failed to deregister service:" + appName);
+                        success = false;
+                    }
+                    if (! success) {
+                        showError("Service '" + appName + "' has been successfully " +
+                                "removed, but\n" +
+                                "failed to deregister from the YAWL Engine.");
                     }
                 }
-                else if (updateList.hasDownloads()) {
+                else if (appUpdate.hasDownloads()) {
                     WebXmlReader webXml = new WebXmlReader(appName);
                     String password = webXml.getContextParam("EngineLogonPassword");
                     String mapping = webXml.getIBServletMapping();
@@ -380,17 +376,22 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                         String url = mapping == null ? null :
                                 "http://localhost:8080/" + appName + mapping;
                         try {
-                            if (!registrar.add(appName, password, url)) {
-                                showError("Failed to register service:" + appName);
-                            }
+                            success = registrar.add(appName, password, url);
+                        } catch (IOException ioe) {
+                            success = false;
                         }
-                        catch (IOException ioe) {
-                            showError("Failed to register service:" + appName);
-                        }
+                    }
+                    else success = false;
+
+                    if (! success) {
+                        showError("Service '" + appName + "' has been successfully " +
+                                "added, but\n" +
+                                "failed to register with the YAWL Engine.");
                     }
                 }
             }
         }
+        registrar.disconnect();
     }
 
 
@@ -398,28 +399,27 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         Set<String> requiredLibs = _differ.getRequiredLibNames();
         for (String lib : _differ.getInstalledLibNames()) {
             if (!requiredLibs.contains(lib)) {
-                delete(tomcatRoot, "yawllib/" + lib);
+                FileUtil.delete(tomcatRoot, FileUtil.buildPath("yawllib", lib));
             }
         }
     }
 
 
-    private void delete(File root, String fileName) {
-        File toDelete = makeFile(root.getAbsolutePath(), fileName);
-        if (toDelete.exists()) toDelete.delete();
-    }
+    private void restartApp() {
+        String javaBin = System.getProperty("java.home") + File.separator +
+                "bin" + File.separator + "java";
+        try {
+            java.util.List<String> command = new ArrayList<String>();
+            command.add(javaBin);
+            command.add("-jar");
+            command.add(FileUtil.getJarFile().getPath());
 
-
-    private void purgeDir(File dir) {
-        if (dir != null) {
-            File[] fileList = dir.listFiles();
-            if (fileList != null) {
-                for (File file : fileList) {
-                    if (file.isDirectory()) purgeDir(file);
-                    file.delete();
-                }
-            }
-            dir.delete();
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            System.exit(0);
+        }
+        catch (Exception e) {
+            showError("Failed to restart the Control Panel. Please restart manually.");
         }
     }
 

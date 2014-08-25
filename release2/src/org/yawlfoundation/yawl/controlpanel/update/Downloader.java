@@ -34,9 +34,6 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     }
 
 
-    protected File getTargetDir() { return _targetDir; }
-
-
     protected boolean hasErrors() {
         for (DownloadWorker worker : _workerMap.keySet()) {
             if (worker.hasErrors()) return true;
