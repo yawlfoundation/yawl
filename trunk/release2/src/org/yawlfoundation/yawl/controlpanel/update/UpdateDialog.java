@@ -8,7 +8,9 @@ import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTable;
 import org.yawlfoundation.yawl.controlpanel.util.WindowUtil;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -24,6 +26,8 @@ public class UpdateDialog extends JDialog
     private UpdateTable _table;
     private JButton _btnUpdate;
     private Updater _updater;
+    private ProgressPanel _progessPanel;
+    private JLayeredPane _layeredPane;
 
 
     public UpdateDialog(JFrame mainWindow, Differ differ) {
@@ -53,10 +57,14 @@ public class UpdateDialog extends JDialog
     public void statusChanged(EngineStatus status) { enableButton(); }
 
     public void refresh(Differ differ) {
+        _progessPanel.setVisible(false);
         _table.refresh(differ);
     }
 
+
     protected UpdateTable getTable() { return _table; }
+
+    protected ProgressPanel getProgressPanel() { return _progessPanel; }
 
 
     private void addOnCloseHandler(final EngineStatusListener listener) {
@@ -70,28 +78,27 @@ public class UpdateDialog extends JDialog
     }
 
 
-    private void addOnMoveHandler() {
-        addComponentListener( new ComponentListener() {
-            public void componentResized(ComponentEvent e) {}
-
-            public void componentMoved(ComponentEvent e) {
-                if (_updater != null) _updater.dialogMoved();
-            }
-
-            public void componentShown(ComponentEvent e) {}
-
-            public void componentHidden(ComponentEvent e) {}
-        });
-    }
 
     private void buildUI(Differ differ) {
-        JPanel content = new JPanel(new BorderLayout());
-        content.setBorder(new EmptyBorder(8, 8, 8, 8));
         _table = new UpdateTable(differ);
         _table.addPropertyChangeListener(this);
+
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBorder(new EmptyBorder(8, 8, 8, 8));
         content.add(new JScrollPane(_table), BorderLayout.CENTER);
         content.add(getButtonBar(), BorderLayout.SOUTH);
-        add(content);
+        content.setBounds(0, 0, 600, 430);
+
+        _progessPanel = new ProgressPanel();
+        _progessPanel.setBounds(150, 0, 300, 70);
+        _progessPanel.setVisible(false);
+
+        _layeredPane = new JLayeredPane();
+        _layeredPane.add(content, new Integer(0));
+        _layeredPane.add(_progessPanel, new Integer(1));
+        _layeredPane.moveToFront(_progessPanel);
+
+        add(_layeredPane);
     }
 
 
@@ -100,7 +107,7 @@ public class UpdateDialog extends JDialog
         panel.setBorder(new EmptyBorder(10, 0, 0, 0));
         _btnUpdate = createButton("Update",
                 "Update to latest versions (blue rows)\n" +
-                "and install (green rows) and uninstall (red rows) selections");
+                        "and install (green rows) and uninstall (red rows) selections");
         panel.add(_btnUpdate);
         return panel;
     }

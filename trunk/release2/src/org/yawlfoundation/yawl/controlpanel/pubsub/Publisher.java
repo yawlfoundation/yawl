@@ -30,13 +30,16 @@ public class Publisher {
 
     // using iterator to avoid concurrent modification exceptions (via add & remove)
     public static void statusChange(EngineStatus status) {
-        _currentStatus = status;
-        synchronized (_listeners) {
-            for (EngineStatusListener listener : _listeners) {
-                listener.statusChanged(status);
+        if (status != _currentStatus) {
+            _currentStatus = status;
+            synchronized (_listeners) {
+                for (EngineStatusListener listener : _listeners) {
+                    listener.statusChanged(status);
+                }
             }
         }
     }
+
 
 
     public static EngineStatus getCurrentStatus() { return  _currentStatus; }

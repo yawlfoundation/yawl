@@ -15,7 +15,6 @@ public class Differ {
 
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
-    private List<AppUpdate> _updates;
 
     public Differ(File latest, File current) {
         _latest = new ChecksumsReader(latest);
@@ -58,9 +57,20 @@ public class Differ {
         return isDifferent(_current.getYawlLibHash(), _latest.getYawlLibHash());
     }
 
+    public boolean hasControlPanelChange() {
+        return isDifferent(_current.getControlPanelHash(), _latest.getControlPanelHash());
+    }
+
+    public String getNewJarName() {
+        XNode node = _latest.getControlPanelFileNode();
+        return node != null ? node.getAttributeValue("name") : null;
+    }
+
 
     public boolean hasUpdates() {
-        if (hasLibChange() || hasYawlLibChange()) return true;      // short circuit
+        if (hasLibChange() || hasYawlLibChange() || hasControlPanelChange()) {
+            return true;      // short circuit
+        }
         for (String appName : getInstalledWebAppNames()) {
             if (hasUpdate(appName)) return true;
         }
@@ -69,8 +79,7 @@ public class Differ {
 
 
     public List<AppUpdate> getUpdatesList() throws IllegalStateException {
-        if (_updates == null) _updates = diff();
-        return _updates;
+        return diff();
     }
 
     public List<String> getWebAppNames() {
@@ -113,7 +122,7 @@ public class Differ {
     public AppUpdate getAppLibs(String appName) {
         List<String> installed = getInstalledLibNames();
         AppUpdate upList = new AppUpdate(null);
-        Map<String, FileNode> libMap  = _latest.getLibMap();
+        Map<String, FileNode> libMap = _latest.getLibMap();
         for (XNode node : _latest.getAppLibList(appName)) {
             String name = node.getAttributeValue("name");
             if (! installed.contains(name)) {
@@ -130,9 +139,11 @@ public class Differ {
             libNames.add(node.getAttributeValue("name"));
         }
 
-        // checksums.xml and the yawl lib jar are also needed in the lib dir
+        // checksums.xml,the yawl lib jar & props files are also needed in the lib dir
         libNames.add(UpdateChecker.CHECKSUM_FILE);
         libNames.add(_latest.getYawlLibNode().getAttributeValue("name"));
+        libNames.add("log4j.properties");
+        libNames.add("hibernate.properties");
         return libNames;
     }
 

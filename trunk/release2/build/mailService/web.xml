@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-  ~ Copyright (c) 2004-2011 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~
@@ -18,11 +18,7 @@
   ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
-
-<web-app>
+<web-app version="2.4">
 
     <!-- General description of your web application -->
 

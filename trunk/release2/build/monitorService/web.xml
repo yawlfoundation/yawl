@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!--<!DOCTYPE web-app-->
-    <!--PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.4//EN"-->
-    <!--"http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">-->
-
-
 <web-app version="2.4">
 
     <!-- General description of your web application -->

@@ -56,8 +56,9 @@ public class XNodeParser {
     public XNode parse(String s) {
         if (s == null) return null;
 
-        // remove any header
+        // remove any headers
         if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 2).trim();
+        if (s.startsWith("<!DOCTYPE")) s = s.substring(s.indexOf('>') + 2).trim();
 
         // if well-formedness check required use JDOM to check it
         if (_check && (JDOMUtil.stringToElement(s) == null)) return null;

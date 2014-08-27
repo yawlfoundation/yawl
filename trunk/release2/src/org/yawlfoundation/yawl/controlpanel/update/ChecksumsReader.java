@@ -15,12 +15,12 @@ public class ChecksumsReader {
 
     private XNode _root;
 
-    protected ChecksumsReader(File f) {
+    public ChecksumsReader(File f) {
         load(f);
     }
 
 
-    protected String getVersion() { return getValue(_root, "version"); }
+    public String getVersion() { return getValue(_root, "version"); }
 
     protected String getTimestamp() { return getValue(_root, "timestamp"); }
 
@@ -38,11 +38,11 @@ public class ChecksumsReader {
         return webappsNode != null ? webappsNode.getChild(appName) : null;
     }
 
-    protected XNode getControlPanelNode() {
+    public XNode getControlPanelNode() {
         return _root != null ? _root.getChild("controlpanel") : null;
     }
 
-    protected XNode getControlPanelFileNode() {
+    public XNode getControlPanelFileNode() {
         XNode node = getControlPanelNode();
         return node != null ? node.getChild("file") : null;
     }
@@ -114,6 +114,12 @@ public class ChecksumsReader {
 
     protected String getYawlLibHash() {
         XNode node = getYawlLibNode();
+        return node != null ? node.getAttributeValue("md5") : null;
+    }
+
+
+    protected String getControlPanelHash() {
+        XNode node = getControlPanelFileNode();
         return node != null ? node.getAttributeValue("md5") : null;
     }
 

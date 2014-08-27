@@ -4,8 +4,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -193,7 +192,7 @@ public class TomcatUtil {
 
     // rename catalina.out if its too big - tomcat will create a new one on startup
     private static void checkSizeOfLog() {
-        File log = new File(getCatalinaHome(), "logs/catalina.out");
+        File log = new File(FileUtil.buildPath(getCatalinaHome(), "logs", "catalina.out"));
         if (log.exists() && log.length() > (1024 * 1024 * 5)) {              // 5mb
             String suffix = "." + new SimpleDateFormat("yyyyMMdd").format(new Date());
             log.renameTo(new File(log.getAbsolutePath() + suffix));
@@ -220,7 +219,27 @@ public class TomcatUtil {
         catch (URISyntaxException use) {
             //
         }
-        return System.getenv("CATALINA_HOME");         // fallback
+        return "/Users/adamsmj/Documents/Subversion/installer/YAWL3/engine/apache-tomcat-7.0.55";
+ //       return System.getenv("CATALINA_HOME");         // fallback
+    }
+
+
+    private static void captureError(Process p) {
+        StringWriter out = new StringWriter(2048);
+        InputStream is = p.getErrorStream();
+        InputStreamReader isr = new InputStreamReader(is);
+        char[] buffer = new char[2048];
+        int count;
+        try {
+            while ((count = isr.read(buffer)) > 0)
+                out.write(buffer, 0, count);
+
+            isr.close();
+        }
+        catch (IOException ioe) {
+            //
+        }
+        System.out.println(out.toString());
     }
 
 }

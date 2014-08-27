@@ -22,26 +22,28 @@ import java.util.*;
  */
 public class Updater implements PropertyChangeListener, EngineStatusListener {
 
-    private ProgressDialog _progressDialog;
-    private Differ _differ;
+    private final UpdateDialog _updateDialog;
+    private final ProgressPanel _progressPanel;
+    private final Differ _differ;
+    private final List<AppUpdate> _installs;
     private Downloader _downloader;
     private List<String> _downloads;
     private List<String> _deletions;
-    private List<AppUpdate> _installs;
     private boolean _updatingThis;
 
 
 
     public Updater(UpdateDialog updateDialog) {
+        _updateDialog = updateDialog;
+        _progressPanel = updateDialog.getProgressPanel();
         UpdateTableModel model = (UpdateTableModel) updateDialog.getTable().getModel();
         _differ = model.getDiffer();
         _installs = getInstallList(model.getRows());
-        _progressDialog = new ProgressDialog(updateDialog);
     }
 
 
     public void start() {
-        _progressDialog.setVisible(true);
+        _progressPanel.setVisible(true);
         download();
     }
 
@@ -51,7 +53,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         if (event.getPropertyName().equals("state")) {
             SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();
             if (stateValue == SwingWorker.StateValue.STARTED) {
-                _progressDialog.setIndeterminate(false);
+                _progressPanel.setIndeterminate(false);
             }
             else if (stateValue == SwingWorker.StateValue.DONE) {
                 if (event.getSource() instanceof Verifier) {
@@ -64,7 +66,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
         else if (event.getPropertyName().equals("progress")) {
             int progress = (Integer) event.getNewValue();
-            _progressDialog.update(progress);
+            _progressPanel.update(progress);
         }
     }
 
@@ -78,12 +80,6 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    public void dialogMoved() {
-        if (_progressDialog != null && _progressDialog.isVisible()) {
-            _progressDialog.move();
-        }
-    }
-
     // 1. Start the downloads -> wait for finish at propertyChange
     private void download() {
         List<AppUpdate> updates = getUpdatesList();
@@ -93,7 +89,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         _deletions = getDeletionList(updates);
         if (_downloads.isEmpty() && _deletions.isEmpty()) return;
         long downloadSize = getDownloadSize(updates);
-        _progressDialog.setDownloadSize(downloadSize);
+        _progressPanel.setDownloadSize(downloadSize);
         _downloader = new Downloader(UpdateChecker.SOURCE_URL,
                 UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
                 downloadSize, FileUtil.getTmpDir());
@@ -189,7 +185,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 2. VERIFY, complete if fails, -> stopEngine
     private void processDownloadCompleted() {
         if (_downloader.hasErrors()) {
-            showError("Failed to download updates.");
+            StringBuilder s = new StringBuilder();
+            s.append("Failed to download updates.\n");
+            for (String error : _downloader.getErrors()) {
+                s.append('\t').append(error).append('\n');
+            }
+            showError(s.toString());
             complete(false);
         }
         else {
@@ -201,19 +202,18 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void complete(boolean success) {
         if (success) {
             File checkSum = getLocalCheckSumFile();
-            ((UpdateDialog) _progressDialog.getParent()).refresh(
-                    new Differ(checkSum, checkSum));
+            _updateDialog.refresh(new Differ(checkSum, checkSum));
             updateServiceRegistration();
+            if (_updatingThis) restartApp();
         }
         Publisher.removeEngineStatusListener(this);
-        _progressDialog.setVisible(false);
-        if (_updatingThis) restartApp();
+        _progressPanel.setVisible(false);
     }
 
 
     private void verify() {
-        _progressDialog.setIndeterminate(true);
-        _progressDialog.setText("Verifying downloads...");
+        _progressPanel.setIndeterminate(true);
+        _progressPanel.setText("Verifying downloads...");
         Verifier verifier = new Verifier(getMd5Map());
         verifier.addPropertyChangeListener(this);
         verifier.execute();
@@ -240,8 +240,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void stopEngine() {
         if (Publisher.getCurrentStatus() == EngineStatus.Running) {
             try {
-                _progressDialog.setIndeterminate(true);
-                _progressDialog.setText("Stopping Engine...");
+                _progressPanel.setIndeterminate(true);
+                _progressPanel.setText("Stopping Engine...");
                 if (TomcatUtil.stop()) Publisher.announceStoppingStatus();
                 else {
                     showError("Failed to stop Engine.");
@@ -253,7 +253,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 complete(false);
             }
         }
-        else statusChanged(EngineStatus.Stopped);
+        else doUpdates();
     }
 
 
@@ -261,12 +261,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void startEngine() {
         try {
             Thread.sleep(2000);
-            _progressDialog.setText("Restarting Engine...");
-            if (TomcatUtil.start()) Publisher.announceStartingStatus();
-            else showError("Failed to restart Engine.");
         }
         catch (InterruptedException ignore) {
-            //
+           //
+        }
+        try {
+            _progressPanel.setText("Restarting Engine...");
+            if (TomcatUtil.start()) Publisher.announceStartingStatus();
+            else showError("Failed to restart Engine.");
         }
         catch (IOException ignore) {
             showError("Failed to restart Engine.");
@@ -275,14 +277,16 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private void showError(String message) {
-        _progressDialog.setVisible(false);
-        JOptionPane.showMessageDialog(_progressDialog.getParent(),
+        _progressPanel.setVisible(false);
+        JOptionPane.showMessageDialog(_progressPanel.getParent(),
                 "Update error: " + message,
                 "Update Error", JOptionPane.ERROR_MESSAGE);
     }
 
 
     private void doUpdates() {
+        _progressPanel.setIndeterminate(true);
+        _progressPanel.setText("Updating files...");
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
         doUpdates(tomcatDir);
         doDeletions(tomcatDir);
@@ -294,12 +298,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     // 5. COPY in new files -> startEngine
     private File doUpdates(File tomcatDir)  {
-        _progressDialog.setText("Updating files...");
         File tmpDir = FileUtil.getTmpDir();
         for (String fileName : _downloads) {
-            String destName = (fileName.startsWith("lib") ?  "yawl" : "") + fileName;
             File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
-            File target = FileUtil.makeFile(tomcatDir.getAbsolutePath(), destName);
+            File target = getCopyTarget(tomcatDir, fileName);
             copy(source, target);
         }
 
@@ -322,6 +324,20 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             complete(false);
         }
     }
+
+
+    private File getCopyTarget(File tomcatDir, String fileName) {
+        String targetName = fileName;
+        File targetRoot = tomcatDir;
+        if (fileName.startsWith("lib")) {
+            targetName = "yawl" + fileName;
+        }
+        else if (fileName.startsWith("controlpanel")) {
+            targetRoot = tomcatDir.getParentFile().getParentFile();    // up two dirs
+        }
+        return FileUtil.makeFile(targetRoot.getAbsolutePath(), targetName);
+    }
+
 
     private File getLocalCheckSumFile() {
         return new File(FileUtil.buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
@@ -398,6 +414,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void consolidateLibDir(File tomcatRoot) {
         Set<String> requiredLibs = _differ.getRequiredLibNames();
         for (String lib : _differ.getInstalledLibNames()) {
+            if (lib.startsWith("h2-")) continue;          // h2 db driver is also needed
             if (!requiredLibs.contains(lib)) {
                 FileUtil.delete(tomcatRoot, FileUtil.buildPath("yawllib", lib));
             }
@@ -409,6 +426,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         String javaBin = System.getProperty("java.home") + File.separator +
                 "bin" + File.separator + "java";
         try {
+            String appPath = FileUtil.getJarFile().getPath();
+            if (! new File(appPath).exists()) {
+                appPath = getPathForNewAppName(appPath);
+                if (appPath == null) {
+                    throw new IllegalArgumentException();
+                }
+            }
+
             java.util.List<String> command = new ArrayList<String>();
             command.add(javaBin);
             command.add("-jar");
@@ -422,5 +447,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             showError("Failed to restart the Control Panel. Please restart manually.");
         }
     }
+
+
+    private String getPathForNewAppName(String appPath) {
+        return appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1) +
+                _differ.getNewJarName();
+    }
+
 
 }
