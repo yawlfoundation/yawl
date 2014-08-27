@@ -1,15 +1,19 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.tailer.Tailer;
 import org.yawlfoundation.yawl.controlpanel.tailer.TailerListenerAdapter;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WindowUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -69,7 +73,8 @@ public class OutputDialog extends JDialog {
 
 
     private File getLogFile() {
-        return new File(TomcatUtil.getCatalinaHome() + "/logs/catalina.out");
+        return new File(FileUtil.buildPath(TomcatUtil.getCatalinaHome(),
+                "logs", "catalina.out"));
     }
 
 
@@ -79,6 +84,9 @@ public class OutputDialog extends JDialog {
         public void handle(final String line) {
             if (line.startsWith("ERROR: transport error 202:")) {
                 Publisher.abortStarting();
+            }
+            else if (line.startsWith("INFO: Server startup ")) {
+                new WaitThenAnnounce(3000, EngineStatus.Running);
             }
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
@@ -104,6 +112,22 @@ public class OutputDialog extends JDialog {
             super.paint(g);
         }
 
+    }
+
+
+    /**********************************************************************/
+
+    class WaitThenAnnounce {
+
+        WaitThenAnnounce(int msecs, final EngineStatus status) {
+            Timer timer = new Timer(msecs, new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    Publisher.statusChange(status);
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
     }
 
 }

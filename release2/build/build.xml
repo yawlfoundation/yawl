@@ -437,7 +437,7 @@
 
     <property name="webapp_yawlWSInvoker.libs"
               value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j} ${xerces}
-                     ${commonsCodec} ${commonsLang} README.html"/>
+                     ${commonsCodec} ${commonsLang}"/>
 
     <property name="webapp_yawlSMSInvoker.libs"
               value="${jdom} ${log4j} ${commonsCodec} ${xerces}"/>
@@ -674,6 +674,7 @@
                      build_Standalone,
                      build_sourcecode,
                      build_YResourceServiceClient.jar,
+                     build_controlPanel.jar,
                      javadoc">
     </target>
 
@@ -888,8 +889,10 @@
         </copy>
 
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
-            <fileset dir="${classes.dir}" includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
-                     excludes="org/yawlfoundation/yawl/engine/gui"/>
+            <fileset dir="${classes.dir}"
+                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
+                     excludes="org/yawlfoundation/yawl/engine/gui/**/*
+                               org/yawlfoundation/yawl/controlpanel/**/*"/>
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
             </manifest>
@@ -989,7 +992,7 @@
     <target name="configureH2HbmXML" if="use_h2">
         <replace dir="${classes.dir}${packageRoot}" token="type=&quot;binary&quot;"
                  value="type=&quot;binary&quot; length=&quot;5242880&quot;">
-            <include name="**/engine/interfce/WorkItemRecord.hbm.xml"/>
+            <include name="**/documentStore/YDocument.hbm.xml"/>
         </replace>
     </target>
 

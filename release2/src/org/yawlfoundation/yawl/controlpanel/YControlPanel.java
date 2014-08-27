@@ -24,7 +24,6 @@ import java.net.URL;
  */
 public class YControlPanel extends JFrame {
 
-    private ButtonPanel _buttonPanel;
     private EngineMonitor _engineMonitor;
 
     public static final String VERSION = "3.0";

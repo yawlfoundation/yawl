@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
+import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateDialogLoader;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 
@@ -101,8 +102,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
             actionPerformed(event);
         }
         if (prefs.checkForUpdatesOnStartup()) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Updates");
-            actionPerformed(event);
+            new BackgroundChecker(this);
         }
     }
 

@@ -68,7 +68,8 @@ public class YDefClientsLoader {
 
     private void load() {
         _log.info("Loading default client and service account details - Starts");
-        InputStream in = getClass().getResourceAsStream(_propsFile);
+        InputStream in = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(_propsFile);
         if (in != null) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             try {

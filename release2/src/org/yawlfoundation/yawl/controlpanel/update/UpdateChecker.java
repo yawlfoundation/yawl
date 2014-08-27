@@ -31,6 +31,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     public Void doInBackground() {
         try {
             checkURLAvailable(BASE_URL);
+//            _differ = new Differ(loadCurrentCheckSums(), loadCurrentCheckSums());
             _differ = new Differ(loadLatestCheckSums(), loadCurrentCheckSums());
         }
         catch (IOException ioe) {
