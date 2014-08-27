@@ -335,13 +335,25 @@ public class UpdateDialog extends JDialog
 
 
     private void restartApp() throws URISyntaxException, IOException {
+        String appPath = getJarFile().getPath();
+        if (! new File(appPath).exists()) {
+            appPath = getPathForNewAppName(appPath);
+            if (appPath == null) {
+                JOptionPane.showMessageDialog(this,
+                    "The Editor has been updated, but could not be auto-restarted.\n" +
+                    "Please restart manually",
+                    "Update Completed", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+        }
+
         String javaBin = System.getProperty("java.home") + File.separator +
                 "bin" + File.separator + "java";
 
         java.util.List<String> command = new ArrayList<String>();
         command.add(javaBin);
         command.add("-jar");
-        command.add(getJarFile().getPath());
+        command.add(appPath);
         command.add("-updated");
 
         ProcessBuilder builder = new ProcessBuilder(command);
@@ -353,6 +365,12 @@ public class UpdateDialog extends JDialog
     private File getJarFile() throws URISyntaxException {
         return new File(this.getClass().getProtectionDomain()
                         .getCodeSource().getLocation().toURI());
+    }
+
+
+    private String getPathForNewAppName(String appPath) {
+        return appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1) +
+                _differ.getNewEditorJarName();
     }
 
 }

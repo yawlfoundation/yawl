@@ -69,6 +69,9 @@ public class VersionDiffer {
 
     public boolean isNewVersion() { return _newVersion; }
 
+    public String getNewEditorJarName() {
+        return _latest.getEditorJarName();
+    }
 
     public List<String> getDownloadList() {
         List<String> list = new ArrayList<String>();

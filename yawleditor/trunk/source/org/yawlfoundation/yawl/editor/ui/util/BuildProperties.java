@@ -60,6 +60,16 @@ public class BuildProperties {
                 Collections.<XNode>emptyList();
     }
 
+    public String getEditorJarName() {
+        for (XNode node : getFileList()) {
+            String name = node.getAttributeValue("name");
+            if (name.startsWith("YAWLEditor")) {
+                return name;
+            }
+        }
+        return null;
+    }
+
 
     private void load(File checkSumsFile) {
         if (checkSumsFile.exists()) {
