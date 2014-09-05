@@ -1563,12 +1563,14 @@
             <fileset dir="${enumeratedClasses}"
                      includes="org/apache/commons/codec/BinaryEncoder.class
                                org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
                                org/apache/commons/codec/Encoder.class
                                org/apache/commons/codec/Decoder.class
                                org/apache/commons/codec/EncoderException.class
                                org/apache/commons/codec/DecoderException.class
-                               org/apache/commons/codec/binary/Base64.class
                                org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
+                               org/apache/commons/codec/binary/Base64.class
                                org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
@@ -2458,10 +2460,13 @@
             <fileset dir="${enumeratedClasses}"
                      includes="org/apache/commons/codec/BinaryEncoder.class
                                org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
                                org/apache/commons/codec/Encoder.class
                                org/apache/commons/codec/Decoder.class
                                org/apache/commons/codec/EncoderException.class
                                org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
                                org/apache/commons/codec/binary/Base64.class
                                org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>
@@ -2494,10 +2499,13 @@
                      includes="org/simplericity/macify/eawt/**/*
                                org/apache/commons/codec/BinaryEncoder.class
                                org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
                                org/apache/commons/codec/Encoder.class
                                org/apache/commons/codec/Decoder.class
                                org/apache/commons/codec/EncoderException.class
                                org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
                                org/apache/commons/codec/binary/Base64.class
                                org/apache/commons/codec/binary/StringUtils.class"/>
             <manifest>

@@ -8,7 +8,9 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -46,7 +48,8 @@ public class AboutDialog extends JDialog {
 
     private JPanel createContent() {
         JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-        panel.setBorder(new EmptyBorder(12,12,12,12));
+        panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
+                new EmptyBorder(12,12,12,12)));
         panel.setBackground(BACK_COLOUR);
         panel.add(getLabel());
         addMouseListener(panel);

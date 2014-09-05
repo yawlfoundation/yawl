@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
+ * Checks for updates in the background. Informs user only if updates are available
  * @author Michael Adams
  * @date 26/08/2014
  */
@@ -24,6 +25,7 @@ public class BackgroundChecker implements PropertyChangeListener {
     }
 
 
+    // state events from UpdateChecker (SwingWorker)
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getPropertyName().equals("state")) {
             SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();

@@ -6,6 +6,8 @@ import org.yawlfoundation.yawl.util.XNode;
 import java.util.*;
 
 /**
+ * Manages the set of files to download (installs & updates) or delete (uninstalls) for
+ * a particular webapp or set of library jars.
  * @author Michael Adams
  * @date 12/08/2014
  */
@@ -20,10 +22,6 @@ public class AppUpdate {
         _downloads = new HashSet<FileNode>();
         _deletes = new HashSet<FileNode>();
         _appName = appName;
-    }
-
-    protected AppUpdate() {
-        this(null);
     }
 
 
@@ -69,9 +67,8 @@ public class AppUpdate {
 
     protected Map<String, String> getMd5Map() {
         Map<String, String> map = new HashMap<String, String>();
-        String prefix = getPathPrefix();
         for (FileNode node : _downloads) {
-             map.put(prefix + node.getName(), node.getMd5());
+             map.put(fixPath(node.getName()), node.getMd5());
         }
         return map;
     }
@@ -90,19 +87,20 @@ public class AppUpdate {
 
     private List<String> getNames(Set<FileNode> list) {
         List<String> names = new ArrayList<String>();
-        String prefix = getPathPrefix();
         for (FileNode node : list) {
-             names.add(prefix + node.getName());
+             names.add(fixPath(node.getName()));
         }
         return names;
     }
 
-    // todo: file seps
-    private String getPathPrefix() {
+
+    private String fixPath(String path) {
         char sep = FileUtil.SEP;
+        if (sep == '\\') path = path.replace('/', sep);
         return (isAppList() ? _appName.equals("controlpanel") ? "controlpanel" :
-                "webapps" + sep + _appName : "lib") + sep;
+                "webapps" + sep + _appName : "lib") + sep + path;
     }
+
 
     public String toString() {
         return (isAppList() ? _appName : "lib") + " " + _downloads.size() + "/" +

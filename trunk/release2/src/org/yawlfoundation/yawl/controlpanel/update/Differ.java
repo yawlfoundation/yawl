@@ -8,9 +8,11 @@ import java.io.File;
 import java.util.*;
 
 /**
+ * Collects the sets of different builds and files between two checksums.xml files
  * @author Michael Adams
  * @date 12/08/2014
  */
+
 public class Differ {
 
     private ChecksumsReader _latest;

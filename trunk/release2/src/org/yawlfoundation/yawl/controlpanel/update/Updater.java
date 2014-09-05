@@ -30,7 +30,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private List<String> _downloads;
     private List<String> _deletions;
     private boolean _updatingThis;
-
+    private boolean _cycled;
 
 
     public Updater(UpdateDialog updateDialog) {
@@ -43,8 +43,19 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     public void start() {
-        _progressPanel.setVisible(true);
-        download();
+        List<AppUpdate> updates = getUpdatesList();
+        updates.addAll(_installs);
+        if (! updates.isEmpty()) {
+            _progressPanel.setVisible(true);
+            _downloads = getDownloadList(updates);
+            _deletions = getDeletionList(updates);
+            if (! _downloads.isEmpty()) {
+                download(updates);            // download and verify updated/new files
+            }
+            else if (! _deletions.isEmpty()) {
+                stopEngine();                 // stop engine then do deletions
+            }
+        }
     }
 
 
@@ -81,13 +92,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     // 1. Start the downloads -> wait for finish at propertyChange
-    private void download() {
-        List<AppUpdate> updates = getUpdatesList();
-        updates.addAll(_installs);
-        if (updates == null || updates.isEmpty()) return;
-        _downloads = getDownloadList(updates);
-        _deletions = getDeletionList(updates);
-        if (_downloads.isEmpty() && _deletions.isEmpty()) return;
+    private void download(List<AppUpdate> updates) {
         long downloadSize = getDownloadSize(updates);
         _progressPanel.setDownloadSize(downloadSize);
         _downloader = new Downloader(UpdateChecker.SOURCE_URL,
@@ -153,7 +158,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
         catch (IllegalStateException ise) {
             showError(ise.getMessage());
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -223,7 +228,6 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void verifyCompleted(Verifier verifier) {
         try {
             if (verifier.get()) {
-                Publisher.addEngineStatusListener(this);
                 stopEngine();
                 return;
             }
@@ -238,7 +242,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     // 3. STOP ENGINE -> wait until stopped at statusChanged event
     private void stopEngine() {
+        Publisher.addEngineStatusListener(this);
         if (Publisher.getCurrentStatus() == EngineStatus.Running) {
+            _cycled = true;
             try {
                 _progressPanel.setIndeterminate(true);
                 _progressPanel.setText("Stopping Engine...");
@@ -266,12 +272,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
            //
         }
         try {
-            _progressPanel.setText("Restarting Engine...");
+            _progressPanel.setText((_cycled ? "Res" : "S") + "tarting Engine...");
             if (TomcatUtil.start()) Publisher.announceStartingStatus();
             else showError("Failed to restart Engine.");
         }
-        catch (IOException ignore) {
-            showError("Failed to restart Engine.");
+        catch (Exception whatever) {
+            showError("Problem starting Engine.");
         }
     }
 
