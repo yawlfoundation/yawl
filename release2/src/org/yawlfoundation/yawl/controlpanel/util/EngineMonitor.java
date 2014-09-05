@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 /**
  * @author Michael Adams
@@ -87,6 +88,14 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private void handleStop() {
         _timer.stop();
+        if (FileUtil.isWindows()) {
+            try {
+                TomcatUtil.killTomcatProcess();
+            }
+            catch (IOException ignore) {
+                //
+            }
+        }
     }
 
 

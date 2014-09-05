@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateDialogLoader;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 
 import javax.swing.*;
@@ -26,9 +27,6 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
     private JButton btnStartStop;
     private JButton btnLogon;
-    private JButton btnUpdate;
-    private JButton btnOutput;
-    private JButton btnPreferences;
     private JFrame _mainWindow;
     private OutputDialog _outputDialog;
     private UpdateDialogLoader _updateDialogLoader;
@@ -38,7 +36,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         super();
         _mainWindow = mainWindow;
         setBorder(new EmptyBorder(0, 10, 0, 0));
-        setLayout(new GridLayout(0, 1));
+        configLayout();
         addButtons();
         Publisher.addEngineStatusListener(this);
     }
@@ -109,15 +107,17 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
     private void addButtons() {
         btnStartStop = createButton("Start", "Start the YAWL Engine");
-        btnLogon = createButton("Logon", "Go to the YAWL Logon Page");
-        btnUpdate = createButton("Updates", "Check for Updates");
-        btnOutput = createButton("Output Log", "Show Output Log Window");
-        btnPreferences = createButton("Preferences", "Set or Check Preferences");
         add(btnStartStop);
+        btnLogon = createButton("Logon", "Go to the YAWL Logon Page");
         add(btnLogon);
-        add(btnUpdate);
-        add(btnOutput);
-        add(btnPreferences);
+        add(createButton("Updates", "Check for Updates"));
+
+        // windows doesn't need the output window
+        if (! FileUtil.isWindows()) {
+            add(createButton("Output Log", "Show Output Log Window"));
+        }
+
+        add(createButton("Preferences", "Set or Check Preferences"));
     }
 
 
@@ -125,7 +125,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         JButton button = new JButton(label);
         button.setActionCommand(label);
         button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(100, 25));
+        button.setPreferredSize(new Dimension(110, 25));
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
@@ -213,6 +213,13 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
                 status == EngineStatus.Stopping);
         btnStartStop.setEnabled(! waiting);
         btnLogon.setEnabled(status == EngineStatus.Running);
+    }
+
+
+    private void configLayout() {
+        GridLayout layout = new GridLayout(0, 1);
+        if (FileUtil.isWindows()) layout.setVgap(10);
+        setLayout(layout);
     }
 
 }

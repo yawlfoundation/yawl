@@ -37,6 +37,9 @@ public class ProgressPanel extends JPanel {
             _bar.setMaximum(100);
             _bar.setValue(0);
         }
+        else if (indeterminate) {
+            _bar.setString("");
+        }
         _bar.setIndeterminate(indeterminate);
     }
 

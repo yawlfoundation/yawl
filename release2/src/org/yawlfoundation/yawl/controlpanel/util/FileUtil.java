@@ -129,4 +129,10 @@ public class FileUtil {
         return StringUtil.join(Arrays.asList(files), SEP);
     }
 
+
+    public static boolean isWindows() {
+        String os = System.getProperty("os.name");
+        return os != null && os.toLowerCase().startsWith("win");
+    }
+
 }

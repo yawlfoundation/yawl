@@ -5,7 +5,9 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 /**
@@ -16,9 +18,9 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
 
     private JLabel _statusLabel;
 
-    private static final Color STOPPED = new Color(255, 128, 128);
-    private static final Color WAITING = new Color(230, 230, 64);
-    private static final Color RUNNING = new Color(96, 192, 96);
+    private static final Color STOPPED = new Color(255, 54, 53);
+    private static final Color WAITING = new Color(253, 235, 14);
+    private static final Color RUNNING = new Color(25, 192, 37);
 
     private static final String STOPPED_TEXT  = "Stopped";
     private static final String STARTING_TEXT = "Starting";
@@ -35,11 +37,17 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
 
     public void statusChanged(EngineStatus status) {
         switch (status) {
-            case Stopped  : setBackground(STOPPED); setText(STOPPED_TEXT); break;
-            case Stopping : setBackground(WAITING); setText(STOPPING_TEXT); break;
-            case Starting : setBackground(WAITING); setText(STARTING_TEXT); break;
-            case Running  : setBackground(RUNNING); setText(RUNNING_TEXT); break;
+            case Stopped  : setColors(STOPPED); setText(STOPPED_TEXT); break;
+            case Stopping : setColors(WAITING); setText(STOPPING_TEXT); break;
+            case Starting : setColors(WAITING); setText(STARTING_TEXT); break;
+            case Running  : setColors(RUNNING); setText(RUNNING_TEXT); break;
         }
+    }
+
+
+    private void setColors(Color backColor) {
+        setBackground(backColor);
+        _statusLabel.setForeground(backColor == WAITING ? Color.DARK_GRAY : Color.WHITE);
     }
 
 
@@ -49,7 +57,8 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
 
 
     private void buildUI() {
-        setBorder(new EmptyBorder(10, 0, 10, 10));
+        setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
+                new EmptyBorder(10, 0, 10, 10)));
         setPreferredSize(new Dimension(175,40));
         setMinimumSize(new Dimension(175,40));
         setMaximumSize(new Dimension(175,40));
@@ -65,7 +74,7 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
         _statusLabel = new JLabel("", SwingConstants.CENTER);
         _statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         _statusLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
-        _statusLabel.setForeground(new Color(96,96,96));
+        _statusLabel.setForeground(Color.WHITE);
         _statusLabel.setFont(_statusLabel.getFont().deriveFont(Font.BOLD));
         return _statusLabel;
     }

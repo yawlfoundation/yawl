@@ -41,7 +41,7 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
         byte[] buffer = new byte[bufferSize];
         int progress = 0;
         try {
-            URL webFile = new URL(_urlBase + _fileName + _urlSuffix);
+            URL webFile = new URL(_urlBase + _fileName.replace('\\', '/') + _urlSuffix);
             makeDir(_fileName);
             String fileTo = _tmpDir + File.separator + _fileName;
             BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
@@ -66,6 +66,7 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
             inStream.close();
         }
         catch (Exception e) {
+            e.printStackTrace();
             _errorMsg = e.getMessage();
         }
 
@@ -74,9 +75,10 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
 
 
     private void makeDir(String name) {
-        int pos = name.lastIndexOf(File.separatorChar);
+        char sep = File.separatorChar;
+        int pos = name.lastIndexOf(sep);
         if (pos > -1) {
-            new File(_tmpDir, name.substring(0, pos)).mkdirs();
+            new File(_tmpDir.getAbsolutePath() + sep + name.substring(0, pos + 1)).mkdirs();
         }
     }
 

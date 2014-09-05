@@ -7,10 +7,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -83,16 +80,24 @@ public class TomcatUtil {
 
 
     public static boolean isResponsive(URL url) {
-         try {
-             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-             httpConnection.setRequestMethod("HEAD");
-             httpConnection.setConnectTimeout(2000);
-             return httpConnection.getResponseCode() == 200;
-         }
-         catch (IOException ioe) {
-             return false;
-         }
-     }
+        try {
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection.setRequestMethod("HEAD");
+            httpConnection.setConnectTimeout(2000);
+            return httpConnection.getResponseCode() == 200;
+        }
+        catch (IOException ioe) {
+            return false;
+        }
+    }
+
+
+    public static void killTomcatProcess() throws IOException {
+        if (FileUtil.isWindows()) {
+            executeCmd(Arrays.asList("TASKKILL", "/F", "/FI",
+                    "\"WINDOWTITLE eq Tomcat\"", "/IM", "java.exe"));
+        }
+    }
 
 
     /*************************************************************************/
@@ -153,7 +158,8 @@ public class TomcatUtil {
         else {
             cmdList.add("cmd");
             cmdList.add("/c");
-            cmdList.add(cmd + (isStart ? " start" : " stop"));
+            cmdList.add(cmd);
+            cmdList.add(isStart ? "start" : "stop");
         }
         return cmdList;
     }
@@ -179,8 +185,7 @@ public class TomcatUtil {
 
 
     private static String getScriptExtn() {
-        String os = System.getProperty("os.name");
-        return (os != null && os.toLowerCase().startsWith("win")) ? "bat" : "sh";
+        return FileUtil.isWindows() ? "bat" : "sh";
     }
 
 
@@ -212,15 +217,14 @@ public class TomcatUtil {
             if (thisJar != null && thisJar.getAbsolutePath().endsWith(".jar")) {
                 String rootPath = FileUtil.buildPath(thisJar.getParentFile().getParent(),
                         "engine", "apache-tomcat-" + TOMCAT_VERSION);
-                System.out.println(rootPath);
                 return rootPath;
             }
         }
         catch (URISyntaxException use) {
             //
         }
-        return "/Users/adamsmj/Documents/Subversion/installer/YAWL3/engine/apache-tomcat-7.0.55";
- //       return System.getenv("CATALINA_HOME");         // fallback
+   //     return "/Users/adamsmj/Documents/Subversion/installer/build/deploy/engine/apache-tomcat-7.0.55";
+        return System.getenv("CATALINA_HOME");         // fallback
     }
 
 

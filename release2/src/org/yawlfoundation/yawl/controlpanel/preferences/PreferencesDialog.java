@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.preferences;
 
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -47,18 +49,22 @@ public class PreferencesDialog extends JDialog implements ActionListener {
     private void load() {
         _cbxStart.setSelected(_prefs.startEngineOnStartup());
         _cbxUpdates.setSelected(_prefs.checkForUpdatesOnStartup());
-        _cbxOutput.setSelected((_prefs.openOutputWindowOnStartup()));
         _cbxLogon.setSelected(_prefs.showLogonPageOnEngineStart());
         _cbxStop.setSelected(_prefs.stopEngineOnExit());
+        if (_cbxOutput != null) {
+            _cbxOutput.setSelected((_prefs.openOutputWindowOnStartup()));
+        }
     }
 
 
     private void save() {
         _prefs.setStartEngineOnStartup(_cbxStart.isSelected());
         _prefs.setCheckForUpdatesOnStartup(_cbxUpdates.isSelected());
-        _prefs.setOpenOutputWindowOnStartup(_cbxOutput.isSelected());
         _prefs.setShowLogonPageOnEngineStart(_cbxLogon.isSelected());
         _prefs.setStopEngineOnExit(_cbxStop.isSelected());
+        if (_cbxOutput != null) {
+            _prefs.setOpenOutputWindowOnStartup(_cbxOutput.isSelected());
+        }
     }
 
 
@@ -87,10 +93,15 @@ public class PreferencesDialog extends JDialog implements ActionListener {
                 new EmptyBorder(5,5,5,5)));
         _cbxStart = makeCheckBox("Start Engine if not already running", KeyEvent.VK_S);
         _cbxUpdates = makeCheckBox("Check for updates", KeyEvent.VK_C);
-        _cbxOutput = makeCheckBox("Open Output Log window", KeyEvent.VK_O);
         panel.add(_cbxStart);
         panel.add(_cbxUpdates);
-        panel.add(_cbxOutput);
+
+        // no output dialog needed for windows users
+        if (! FileUtil.isWindows()) {
+            _cbxOutput = makeCheckBox("Open Output Log window", KeyEvent.VK_O);
+            panel.add(_cbxOutput);
+        }
+
         return panel;
     }
 

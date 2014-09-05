@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.*;
 
 /**
+ * Read methods for checksums.xml
  * @author Michael Adams
  * @date 12/08/2014
  */
