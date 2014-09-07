@@ -433,14 +433,14 @@ public class YAWLReachabilityUtils{
         switch (task.getJoinType()){
             case YTask._AND:
             case YTask._OR: {
-                for (YExternalNetElement netElement : task.getPresetElements()) {
+                for (YNetElement netElement : task.getPresetElements()) {
                     locations.remove(netElement);
                 }
                 successors.addMarking(new YMarking(locations));
                 break;
             }
             case YTask._XOR: {
-                for (YExternalNetElement netElement : task.getPresetElements()) {
+                for (YNetElement netElement : task.getPresetElements()) {
                     //if it is marked
                     if (locations.contains(netElement)) {
                         locations.remove(netElement);
@@ -471,8 +471,8 @@ public class YAWLReachabilityUtils{
             case YTask._AND: {
                 YSetOfMarkings temp = new YSetOfMarkings();
                 for (YMarking M : successors.getMarkings()) {
-                    List<YNetElement> slocations = M.getLocations();
-                    for (YExternalNetElement netElement : task.getPostsetElements()) {
+                    List<YNetElement> slocations = new ArrayList<YNetElement>(M.getLocations());
+                    for (YNetElement netElement : task.getPostsetElements()) {
                         slocations.add(netElement);
                     }
                     temp.addMarking(new YMarking(slocations));
@@ -484,9 +484,9 @@ public class YAWLReachabilityUtils{
             case YTask._OR: { //generate combinations
                 YSetOfMarkings temp = new YSetOfMarkings();
                 for (YMarking M : successors.getMarkings()) {
-                    for (Set<YExternalNetElement> subSet : generateCombinations(
+                    for (Set<YNetElement> subSet : generateCombinations(
                                             task.getPostsetElements())) {
-                        List<YNetElement> slocations = M.getLocations();
+                        List<YNetElement> slocations = new ArrayList<YNetElement>(M.getLocations());
                         slocations.addAll(subSet);
                         temp.addMarking(new YMarking(slocations));
                     }
@@ -498,7 +498,7 @@ public class YAWLReachabilityUtils{
             case YTask._XOR: {
                 YSetOfMarkings temp = new YSetOfMarkings();
                 for (YMarking M : successors.getMarkings()) {
-                    List<YNetElement> slocations = M.getLocations();
+                    List<YNetElement> slocations = new ArrayList<YNetElement>(M.getLocations());
                     for (YExternalNetElement netElement : task.getPostsetElements()) {
                         slocations.add(netElement);
                         temp.addMarking(new YMarking(slocations));
@@ -513,11 +513,11 @@ public class YAWLReachabilityUtils{
         return successors;
     }
 
-    private Set<Set<YExternalNetElement>> generateCombinations(
+    private Set<Set<YNetElement>> generateCombinations(
             Set<YExternalNetElement> elementSet) {
-        Set<Set<YExternalNetElement>> subSets = new HashSet<Set<YExternalNetElement>>();
+        Set<Set<YNetElement>> subSets = new HashSet<Set<YNetElement>>();
         for (int i=1; i <= elementSet.size(); i++) {
-            Set<Set<YExternalNetElement>> subSet = generateCombination(elementSet, i);
+            Set<Set<YNetElement>> subSet = generateCombination(elementSet, i);
             subSets.addAll(subSet);
         }
         return subSets;
@@ -568,13 +568,13 @@ public class YAWLReachabilityUtils{
      * This method is used to generate combinations of markings for 
      * comparison. 
      */
-    private Set<Set<YExternalNetElement>> generateCombination(
+    private Set<Set<YNetElement>> generateCombination(
             Set<YExternalNetElement> netElements, int count) {
-        Set<Set<YExternalNetElement>> subSets = new HashSet<Set<YExternalNetElement>>();
-        List<YExternalNetElement> elementList = new ArrayList<YExternalNetElement>(netElements);
+        Set<Set<YNetElement>> subSets = new HashSet<Set<YNetElement>>();
+        List<YNetElement> elementList = new ArrayList<YNetElement>(netElements);
         CombinationGenerator generator = new CombinationGenerator(elementList.size(), count);
         while (generator.hasMore()) {
-            Set<YExternalNetElement> combSubSet = new HashSet<YExternalNetElement>();
+            Set<YNetElement> combSubSet = new HashSet<YNetElement>();
             int[] indices = generator.getNext();
             for (int index : indices) {
                 combSubSet.add(elementList.get(index));
@@ -667,7 +667,7 @@ public class YAWLReachabilityUtils{
 
 
     public static Set<YExternalNetElement> convertToYawlMappings(YExternalNetElement e){
-        Set<YExternalNetElement> mappings = e.getYawlMappings();
+        Set<YExternalNetElement> mappings = new HashSet<YExternalNetElement>(e.getYawlMappings());
         for (YExternalNetElement innerEle : mappings) {
             mappings.addAll(innerEle.getYawlMappings());
         }

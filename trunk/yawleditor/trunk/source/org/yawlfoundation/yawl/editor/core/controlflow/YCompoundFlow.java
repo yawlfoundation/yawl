@@ -237,9 +237,9 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
         }
         else {
 
-            // source or target is explicit condition
-            source.removePostsetFlow(_flowFromSource);
-            target.removePresetFlow(_flowFromSource);
+            // current source or target is explicit condition
+            getSource().removePostsetFlow(_flowFromSource);
+            getTarget().removePresetFlow(_flowFromSource);
         }
         YCompoundFlow flow = new YCompoundFlow(source, target);
         setPropertiesOnMove(flow);

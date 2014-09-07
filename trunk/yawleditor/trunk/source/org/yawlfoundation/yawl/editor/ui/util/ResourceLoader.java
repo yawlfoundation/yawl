@@ -26,6 +26,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
+/** loads images & icons */
 public class ResourceLoader {
 
     private static final String resourcesPath =
