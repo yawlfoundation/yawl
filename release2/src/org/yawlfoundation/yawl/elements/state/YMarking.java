@@ -34,11 +34,11 @@ public class YMarking {
 
 
     public YMarking(YIdentifier identifier) {
-        _locations = new Vector<YNetElement>(identifier.getLocations());
+        this(identifier.getLocations());
     }
 
     public YMarking(List<YNetElement> locations) {
-        _locations = locations;
+        _locations = new Vector<YNetElement>(locations);
     }
 
 
