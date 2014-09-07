@@ -85,7 +85,7 @@ class AboutEditorDialog extends JDialog {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(5,5,5,5));
         panel.setBackground(BACK_COLOUR);
-        JLabel logo = new JLabel(ResourceLoader.getIcon("yawlLogo.png"));
+        JLabel logo = new JLabel(ResourceLoader.getIcon("yawlEditorLogo.png"));
         panel.add(logo);
         addMouseListener(logo);
         addMouseListener(panel);

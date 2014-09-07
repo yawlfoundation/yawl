@@ -480,6 +480,7 @@
                 <exclude name="**/CheckSumTask.java"/>
         	</fileset>
         	<classpath>
+
         		<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />
         		<fileset refid="neededEngineDeps" />

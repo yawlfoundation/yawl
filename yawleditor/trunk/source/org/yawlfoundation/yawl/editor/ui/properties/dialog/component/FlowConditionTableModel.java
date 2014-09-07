@@ -109,7 +109,7 @@ class FlowConditionTableModel extends AbstractTableModel {
 
     public void setFlows(List<YAWLFlowRelation> list) {
         flows = list;
-        sortFlows();
+ //       sortFlows();
         fireTableRowsUpdated(0, getRowCount() - 1);
     }
 

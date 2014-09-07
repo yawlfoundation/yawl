@@ -68,7 +68,7 @@ public class MacListener extends ApplicationAdapter {
 
 
     private void setIcon() {
-        String path = "/org/yawlfoundation/yawl/editor/ui/resources/yawlLogo.png";
+        String path = "/org/yawlfoundation/yawl/editor/ui/resources/yawlEditorLogo.png";
         InputStream in = getClass().getResourceAsStream(path);
         try {
             application.setApplicationIconImage(ImageIO.read(in));
