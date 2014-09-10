@@ -118,6 +118,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         }
 
         add(createButton("Preferences", "Set or Check Preferences"));
+        enableButtons(EngineStatus.Stopped);   // to begin with
     }
 
 
@@ -125,7 +126,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         JButton button = new JButton(label);
         button.setActionCommand(label);
         button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(110, 25));
+        button.setPreferredSize(new Dimension(120, 25));
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
