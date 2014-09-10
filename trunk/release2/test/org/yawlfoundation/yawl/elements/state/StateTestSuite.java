@@ -21,7 +21,6 @@ public class StateTestSuite extends TestSuite {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(TestYIdentifier.class);
         suite.addTestSuite(TestYMarking.class);
-        suite.addTestSuite(TestYOrJoinUtils.class);
         suite.addTestSuite(TestYSetOfMarkings.class);
         return suite;
     }

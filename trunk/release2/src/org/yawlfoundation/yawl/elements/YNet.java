@@ -29,8 +29,6 @@ import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YMarking;
-import org.yawlfoundation.yawl.elements.state.YOrJoinUtils;
-import org.yawlfoundation.yawl.elements.state.YSetOfMarkings;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -380,52 +378,6 @@ public final class YNet extends YDecomposition {
         }
         // don't waste time on an orjoin with no tokens in preset
         return false;
-    }
-
-
-    /**
-     * Not used since Moe added a new OR algorithm to the system.
-     * @param orJoin the orjoin
-     * @param actualMarking
-     * @param currentlyConsideredMarking
-     * @param markingsAlreadyConsidered
-     * @return whether or not the orjoin is enabled.
-     */
-    protected boolean determineEnabledness(YTask orJoin, YMarking actualMarking,
-                                         YMarking currentlyConsideredMarking,
-                                         YSetOfMarkings markingsAlreadyConsidered) {
-        Set tasks = YOrJoinUtils.reduceToEnabled(currentlyConsideredMarking, orJoin);
-        while (tasks.size() > 0) {
-            YTask task = YOrJoinUtils.pickOptimalEnabledTask(
-                    tasks, orJoin, currentlyConsideredMarking, markingsAlreadyConsidered);
-            tasks.remove(task);
-            YSetOfMarkings markingSet = currentlyConsideredMarking.reachableInOneStep(task, orJoin);
-            while (markingSet.size() > 0) {
-                YMarking aMarking = markingSet.removeAMarking();
-                if (aMarking.isBiggerEnablingMarkingThan(actualMarking, orJoin)) {
-                    return false;
-                } else if (aMarking.deadLock(orJoin)) {
-                    continue;
-                }
-                boolean skip = false;
-                for (Iterator markingsIterator = markingsAlreadyConsidered.getMarkings().iterator();
-                     markingsIterator.hasNext() && !skip;) {
-                    YMarking consideredMarking = (YMarking) markingsIterator.next();
-                    if (aMarking.strictlyGreaterThanOrEqualWithSupports(consideredMarking)) {
-                        skip = true;
-                    }
-                    if (aMarking.strictlyLessThanWithSupports(consideredMarking)) {
-                        skip = true;
-                    }
-                }
-                if (skip) {
-                    continue;
-                }
-                markingsAlreadyConsidered.addMarking(aMarking);
-                return determineEnabledness(orJoin, actualMarking, aMarking, markingsAlreadyConsidered);
-            }
-        }
-        return true;
     }
 
 
