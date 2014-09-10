@@ -149,7 +149,7 @@ public class PreferencesDialog extends JDialog implements ActionListener {
     private JButton createButton(String caption) {
         JButton btn = new JButton(caption);
         btn.setActionCommand(caption);
-        btn.setPreferredSize(new Dimension(75,25));
+        btn.setPreferredSize(new Dimension(85,25));
         btn.addActionListener(this);
         return btn;
     }
