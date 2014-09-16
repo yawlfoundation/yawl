@@ -1,0 +1,762 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us">
+  <head>
+    <title>Sexy Combo 2.1.3 demo page</title>
+
+<!--
+    <script type="text/javascript" src="jquery.sexy-combo-2.1.3\examples\jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="jquery.sexy-combo-2.1.3\examples\jquery.bgiframe.min.js"></script>
+
+    <link href="jquery.sexy-combo-2.1.3/css/sexy-combo.css" rel="stylesheet" type="text/css" />
+    <link href="jquery.sexy-combo-2.1.3/css/sexy/sexy.css" rel="stylesheet" type="text/css" />
+	<link href="jquery.sexy-combo-2.1.3/css/custom/custom.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="jquery.sexy-combo-2.1.3/jquery.sexy-combo.js"></script>
+
+-->
+
+
+
+
+
+
+<script type="text/javascript" src="jquery/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="jquery/jquery-ui-1.8.2.js"></script>
+<script type="text/javascript" src="JS_Calendar2.1/js_calendar.js" charset="ISO-8859-1"></script>
+<script type="text/javascript" src="json/json_sans_eval.js"></script>
+<script type="text/javascript" src="perikles.js"></script>
+
+<script type="text/javascript" src="jquery.sexy-combo-2.1.3/jquery.sexy-combo.js"></script>
+<script type="text/javascript" src="jquery.sexy-combo-2.1.3/examples/jquery.bgiframe.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="jquery/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="JS_Calendar2.1/js_calendar.css">
+<link rel="stylesheet" type="text/css" href="perikles.css">
+
+<link rel="stylesheet" type="text/css" href="jquery.sexy-combo-2.1.3/css/sexy-combo.css">
+<link rel="stylesheet" type="text/css" href="jquery.sexy-combo-2.1.3/css/sexy/sexy.css">
+<link rel="stylesheet" type="text/css" href="jquery.sexy-combo-2.1.3/css/custom/custom.css">
+
+
+    <script type="text/javascript" >
+    $(function () {
+
+    	$("#basic-combo").sexyCombo();
+
+    	$.sexyCombo.deactivate("#basic-combo");
+    	$("#activate").bind("click", function () {
+    		$.sexyCombo.activate("#basic-combo");
+    	});
+
+    	$("#empty-combo").sexyCombo({
+    		emptyText: "Choose a state..."
+    	});
+
+    	$("#autofill-combo").sexyCombo({
+    		autoFill: true
+    	});
+
+    	$("#selected-combo").sexyCombo({
+    		triggerSelected: true
+    	});
+
+    	$("#up-combo").sexyCombo();
+
+    	$("#filter-combo").sexyCombo({
+    		filterFn: function () {
+    			return true;
+    		}
+    	});
+
+    	$("#mixed-combo").sexyCombo({
+    		emptyText: "Choose a state",
+    		autoFill: true,
+    		skin: "custom"
+    	});
+
+    	var data = [];
+    	$("#selectbox").children().each(function () {
+    		var $this = $(this);
+    		data.push({
+    			value: $this.attr("value"),
+    			text: $this.text()
+    		});
+    	});
+
+    	$.sexyCombo.create({
+    		name: "static-combo",
+    		id: "static-combo",
+    		container: "#static-container",
+    		data: data
+    	});
+
+    	data[0].selected = true;
+    	$.sexyCombo.create({
+    		name: "static-selected-combo",
+    		id: "static-selected-combo",
+    		container: "#static-selected",
+    		data: data,
+    		triggerSelected: true
+    	});
+
+    	$.sexyCombo.create({
+    		name: "ajax-combo",
+    		id: "ajax-combo",
+    		container: "#ajax-container",
+    		url: "example.json"
+    	});
+
+    	$("#multiple-combo").sexyCombo();
+
+    	var logEvent = function (msg) {
+    		return;
+    		var $eventLogger = $("#event-logger");
+    		$eventLogger.html($eventLogger.html() + msg + "<br />");
+    	};
+
+    	$("#event-combo").sexyCombo({
+
+    		showListCallback: function () {
+    			logEvent("Dropdown list appeared.");
+    		},
+
+    		hideListCallback: function () {
+    			logEvent("Dropdown list disappeared.");
+    		},
+
+    		initCallback: function () {
+    			logEvent("Initialization...");
+    		},
+
+    		initEventsCallback: function () {
+    			logEvent("Events initialized.");
+    		},
+
+    		changeCallback: function () {
+    			logEvent("Combo value is changed. Text input value is " + this.getTextValue() +
+    	    			". Hidden input value is " + this.getHiddenValue());
+    		},
+
+    		textChangeCallback: function () {
+    			logEvent("Text input's value is changed. Current value is " + this.getTextValue());
+    		}
+    	});
+
+    });
+    </script>
+  </head>
+  <body>
+    <h1>Sexy Combo demo page</h1>
+    <p>
+    The combobox below is a very basic example of using <em>Sexy Combo</em>.
+    </p>
+    <p>
+      <label for="basic-combo">Choose the state:</label><br />
+      <select id="basic-combo" name="basic-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska Alaska Alaska Alaska Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT">Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+
+    </p>
+
+
+
+    <p>
+    The next combobox makes use of <code>emptyText</code> configuration option, which allows you to specify which text will be displayed in the combobox when it has no value.
+    </p>
+    <p>
+      <label for="empty-combo">Choose the state:</label><br />
+      <select id="empty-combo" name="empty-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT" selected>Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+    <p>
+    <code>autoFill</code> configuration option allows us to perform autofilling on the combobox. When the user begin to input value to the combobox, it is autofilled with the first item of the dropdown list.
+    </p>
+    <p>
+      <label for="autofill-combo">Choose the state:</label><br />
+      <select id="autofill-combo" name="autofill-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT" selected>Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+    <p>
+    If <code>triggerSelected</code> configuration option is set to <code>true</code>, the selected value of the selectbox will be initial value of the combo.
+    </p>
+    <p>
+      <label for="selected-combo">Choose the state:</label><br />
+      <select id="selected-combo" name="selected-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT" selected>Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+
+
+    <p>
+    You can pass your own function that performs filtering, i.e. determines which options should appear in the dropdown list. In the combobox below all options are shown in the dropdown list.
+    </p>
+    <p>
+      <label for="filter-combo">Choose the state:</label><br />
+      <select id="filter-combo" name="filter-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT" selected>Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+
+    <p>
+    Of course you can combine various config options to reach amazing results that fit your own needs.
+    </p>
+    <p>
+      <label for="mixed-combo">Choose the state:</label><br />
+      <select id="mixed-combo" name="mixed-combo"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT" selected>Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+
+    <p>
+    The combobox below is created without using an existing selectbox. Data for the options is provided in the code directly.
+    </p>
+    <p>
+      <label for="static-combo">Choose a state:</label><br />
+      <div id="static-container"></div>
+    </p>
+
+    <p>
+    This example is similar to the previous, but we also specify option that will be selected:
+    </p>
+    <p>
+        <label for="static-selected-combo">Choose a state:</label><br />
+	<div id="static-selected"></div>
+    </p>
+
+    <p>
+    Data can be not only a local array, but also a JSON object on the remote server. All you need is to specify the URL of this object. If you want to run this example, the plugin should be put on the web server.
+    </p>
+    <p>
+        <label for="ajax-combo">Choose a state:</label><br />
+	<div id="ajax-container"></div>
+    </p>
+
+
+    <p>
+    Combos can also be multiple, which means that the user can select more than one value. You can choose any number of the states from the combobox below, separating values with comma.
+    </p>
+    <p>
+      <label for="multiple-combo">Choose the states:</label><br />
+      <select id="multiple-combo" name="multiple-combo"  size="3" multiple="true">
+        <option value="AL" selected>Alabama</option>
+        <option value="AK" selected>Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT">Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+
+    <p>
+    You can pass a number of callback functions as config options. These functions are called after certain events occur (for example, the dropdown list appears).
+    </p>
+    <p>
+      <label for="event-combo">Choose the states:</label><br />
+      <select id="event-combo" name="event-combo">
+        <option value="AL" selected>Alabama</option>
+        <option value="AK" selected>Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT">Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+    <div id="event-logger" style="color: red;'"></div>
+
+
+    <p>
+    All this combos originally looked like:
+    </p>
+    <p>
+      <label for="selectbox">Choose the state:</label><br />
+      <select id="selectbox" name="selectbox"  size="1">
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+
+        <option value="DE">Delaware</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+
+        <option value="UT">Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+      </select>
+    </p>
+    <div id="log" style="margin-top: 50px;"></div>
+  </body>
+</html>

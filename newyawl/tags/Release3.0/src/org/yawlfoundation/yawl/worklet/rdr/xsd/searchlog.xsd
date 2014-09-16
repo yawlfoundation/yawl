@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="searchResult">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+                <xs:element name="specid" type="xs:string"/>
+                <xs:element name="specversion" type="xs:double"/>
+                <xs:element name="specuri" type="xs:string"/>
+                <xs:element name="taskid" type="xs:string"/>
+                <xs:element name="caseid" type="xs:string"/>
+                <xs:element name="worklets">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="worklet" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="workletName"/>
+                                        <xs:element type="xs:string" name="runningcaseid"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="extype" type="xs:string"/>
+                <xs:element name="lastNode">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element type="xs:nonNegativeInteger" name="satisfied"/>
+                            <xs:element type="xs:nonNegativeInteger" name="tested"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="casedata" type="xs:anyType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

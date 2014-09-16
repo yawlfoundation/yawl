@@ -1,0 +1,38 @@
+10	Developing Enterprise Java Applications with J2EE and UML (Copy 1)	Ahmed and Umrysh	Addison-Wesley, USA	Library	CIS	
+13	Developing Enterprise Java Applications with J2EE and UML (Copy 2)	Ahmed and Umrysh	Addison-Wesley, USA	Library	CIS	Redcone
+2	Professional XML Meta Data	Ahmed et al	Wrox Press Ltd, UK	Library	CIS	
+6	Web Services - Concepts, Architectures and Applications	Alonso et al	Springer, Berlin	Library	CIS	
+11	Building Java Enterprise Applications Vol 1: Architecture	Brett McLaughlin	O'Reilly	Library	CIS	Redcone
+7	B2B Integration - Concepts and Architecture	Christoph Bussler	Springer, Berlin	Library	CIS	
+28	HTML & XHTML: The Definitive Guide (4th Edition)	Chuck Musciano and Bill Kennedy	O'Reilly	Library	CIS	Redcone
+4	Component Software. Beyond Object-Oriented Programming - 2nd Edition	Clemens Szyperski	ACM Press, NY	Library	CIS	
+35	Component Software - Beyond Object-Oriented Programming	Clems Szyperski	Addison-Wesley	Library		
+14	Requirements Analysis - From Business Views to Architecture	David C Hay	Prentice Hall PTR, USA	Library	CIS	
+23	Data Model Patterns: Conventions of Thought	David C Hay	Dorset House Publishing	Library	CIS	
+27	JavaScript: The Definitive Guide (4th Edition)	David Flanagan	O'Reilly	Library	CIS	Redcone
+17	Web Services and Service-Oriented Architectures - The Savvy Manager's Guide. (Your Roadmap to Emerging IT)	Douglas K Barry	Morgan Kaufmann Publishers	Library	CIS	
+9	Securities Lending Repurchase Agreements	Frank Fabozzi	Frank J Fabozzi and Associates, USA	Library	CIS	
+24	The Latex Companion	Goosens, Mittelbach and Samarin	Addison-Wesley	Library	CIS	Redcone
+18	Database Support for Workflow Management - The WIDE Project	Grefen, Pernici and Sanchez	Kluwer Academic Publishers	Library	CIS	
+5	Design & Control of Workflow Processes - Business Process Management for the Service Industry	Halo A Reijers	Springer, Berlin	Library	CIS	
+25	Designing Concurrent, Distributed, and Real-Time Applications with UML	Hassan Gomaa	Addison-Wesley	Library	CIS	
+29	Encyclopedia of Information Systems Vol 1	Hossein Bidgoli - Editor in Chief	Academic Press	Library	ISMRG / Michael Rosemann	
+30	Encyclopedia of Information Systems Vol 2	Hossein Bidgoli - Editor in Chief	Academic Press	Library	ISMRG / Michael Rosemann	
+31	Encyclopedia of Information Systems Vol 3	Hossein Bidgoli - Editor in Chief	Academic Press	Library	ISMRG / Michael Rosemann	
+32	Encyclopedia of Information Systems Vol 4	Hossein Bidgoli - Editor in Chief	Academic Press	Library	ISMRG / Michael Rosemann	
+36	Design and Use of Software Architectures - Adopting and evolving a product-line approach	Jan Bosch	ACM Press	Library		
+1	ebXML	Kotok and Webber	New Riders, Indiana	Library	CIS	
+20	Excellence in Practice: Innovation and Excellence in Workflow and Imaging	Layna Fischer	Future Strategies, Inc	Library	CIS	
+22	Analysis Patterns - Reusable Object models	Martin Fowler	Addison-Wesley	Library	CIS	
+37	Information Management	Michael Middleton	Centre for Information Studies	Library		
+19	Web Service Patterns: Java Edition	Paul B Monday	Springer-Verlag	Library	CIS	
+34	Learning to Teach in Higher Education	Paul Ramsden	Taylor and Francis Group	Library		
+12	Enterprise JavaBeans. Third Edition	Richard Monson-Haefel	O'Reilly	Library	CIS	Redcone
+16	Communicating and Mobile Systems: The p-calculus	Robin Milner	Cambridge University Press	Library	CIS	
+33	The End of the Stupor - Australia Towards the Third Millenium	Ronald Conway	Sun Books	Library		
+15	Pattern-Oriented Softward Architecture, Volume 2: Patterns for Concurrent and Networked Objects	Schmidt et al	Wiley & Sons Ltd	Library	CIS	
+3	SOAP - Cross Platform Web Service Developmen't using XML	Scott Seely	Prentice Hall PTL, USA	Library	CIS	
+8	Essential XML Quick Reference. A Programmer's Reference to XML, Xpath,XSLT, XML Schema, SOAP and More	Skonnard and Gudgin	Addison-Wesley, USA	Library	CIS	
+26	Information Modelling and Relational Databases: From Conceptual Analysis to Logical Design	Terry Halpin	Morgan Kaufmann Publishers	Library	CIS	Redcone
+21	Business Rules and Information Systems: Aligning IT with Business Goals	Tony Morgan	Addison-Wesley	Library	CIS	
+38	Monumentos del Patrimonio de la Humanidad en Espana	Unesco	BBVA	Library		
