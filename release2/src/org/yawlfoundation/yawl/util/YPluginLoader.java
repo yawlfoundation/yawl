@@ -23,10 +23,7 @@ import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -274,7 +271,8 @@ public class YPluginLoader extends URLClassLoader {
                 processJAR(mask, plugins, (JarURLConnection) connection);
             }
             else if (connection instanceof FileURLConnection) {
-                String[] fileList = new File(url.getPath()).list();
+                String filePath = URLDecoder.decode(url.getPath(), "UTF-8");
+                String[] fileList = new File(filePath).list();
                 if (fileList != null) {
                     for (String file : fileList) {
                         String fileName = new File(pkgPath, file).getPath();
