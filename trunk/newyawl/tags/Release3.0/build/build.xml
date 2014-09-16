@@ -1,0 +1,2820 @@
+<project name="YAWL Runtime" default="buildWebApps" basedir="./..">
+
+    <!--
+        YAWL Engine and Services Ant build script
+        
+        As a convention, only those targets normally run directly are given a
+        description attribute. Targets are split into categories and listed in
+        a rough 'top-down' order for ease of understanding.
+        
+        NB: We need to use overwrite="true" for all copy operations involving
+        filtered files, since Ant (despite the filtering to create a new file)
+        only uses the date/time of the original template file to determine if
+        it needs to copy or not. So, without overwrite on, the build won't copy
+        and filtered files when the token values change due to altered
+        build.properties entries. Similarly when overwriting already existing
+        files which may have a newer creation date than our copy for overwriting
+        here.
+    -->
+
+
+    <!-- =========INITIAL PROPERTIES, FILTERS, PATHS & FILESETS============ -->
+
+    <!--
+        Load properties from properties file and set up filters
+    -->
+    <property file="build/build.properties"/>
+    <filter token="HIBERNATE_LOGGING_LEVEL" value="${hibernate.logging.level}"/>
+    <filter token="YAWL_LOGGING_LEVEL" value="${yawl.logging.level}"/>
+    <filter token="ROOT_LOGGING_LEVEL" value="${root.logging.level}"/>
+    <filter token="WORKLET_LOGGING_LEVEL" value="${worklet.logging.level}"/>
+    <filter token="RESOURCE_LOGGING_LEVEL" value="${resource.logging.level}"/>
+    <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
+    <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
+
+    <property name="app.version" value="3.0"/>
+    <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
+                                           Mike Fowler et al."/>
+
+    <!--
+        Tomcat root (environment setting takes priority over build.properties value)
+    -->
+    <property environment="env"/>
+
+    <condition property="CATALINA_HOME" value="${env.CATALINA_HOME}">
+        <isset property="env.CATALINA_HOME"/>
+    </condition>
+    <condition property="CATALINA_HOME" value="${catalina.home}">
+        <and>
+            <not>
+                <isset property="env.CATALINA_HOME"/>
+            </not>
+            <isset property="catalina.home"/>
+        </and>
+    </condition>
+
+    <!--
+        Source and resource directories
+    -->
+    <property name="build.dir" value="build"/>
+    <property name="temp.dir" value="temp"/>
+    <property name="classes.dir" value="classes"/>
+    <property name="graphics.dir" value="graphics"/>
+    <property name="output.dir" value="output"/>
+    <property name="checksums.dir" value="checksums"/>
+    <property name="schema.dir" value="schema"/>
+    <property name="src.dir" value="src"/>
+    <property name="test.dir" value="test"/>
+    <property name="lib.dir" value="${build.dir}/3rdParty/lib"/>
+    <property name="properties.dir" value="${build.dir}/properties"/>
+    <property name="javadoc.dir" value="${output.dir}/javadoc"/>
+    <property name="webapps.dir" value="${CATALINA_HOME}/webapps"/>
+    <property name="sharedLibs.dir" value="${CATALINA_HOME}/lib"/>
+    <property name="enumeratedClasses" value="${temp.dir}/enumerated3rdPartyClasses"/>
+    <property name="packageRoot" value="/org/yawlfoundation/yawl"/>
+    <property name="webinf.dir" value="/WEB-INF/classes${packageRoot}"/>
+    <property name="analyzer.dir" value="${build.dir}/analyzer"/>
+
+    <!--
+        Application names (matching directories for source files)
+    -->
+    <property name="engine.app.name" value="yawl"/>
+    <property name="wsInvoker.app.name" value="yawlWSInvoker"/>
+    <property name="smsInvoker.app.name" value="yawlSMSInvoker"/>
+    <property name="worklet.app.name" value="workletService"/>
+    <property name="resource.app.name" value="resourceService"/>
+    <property name="monitor.app.name" value="monitorService"/>
+    <property name="digitalSignature.app.name" value="digitalSignature"/>
+    <property name="mailSender.app.name" value="mailSender"/>
+    <property name="test.app.name" value="testService"/>
+    <property name="cost.app.name" value="costService"/>
+    <property name="twitter.app.name" value="twitterService"/>
+    <property name="mail.app.name" value="mailService"/>
+    <property name="scheduling.app.name" value="schedulingService"/>
+    <property name="docStore.app.name" value="documentStore"/>
+    <property name="proclet.app.name" value="procletService"/>
+
+    <!--
+        Properties for all third-party libraries
+        !!Include all JARs used here in alphabetical property name order!!
+
+        Postfix comments indicate the services that use each jar, as follows:
+          - dbd: Database driver
+          - dss: DigitalSignature Service
+          - eng: the Engine
+          - hbn: Hibernate dependencies (used by several services)
+          - jsf: JSF dependencies (used by the Resource and Monitor Services)
+          - mss: MailSender Service
+          - mul: used by multiple services
+          - prl: Proclet Service
+          - sch: Scheduling Service
+          - sml: Simple Mail Service
+          - twi: Twitter Service
+          - wsi: WSInvoker Service
+          - xsd: schema validation (used by several services)
+    -->
+    <property name="activation" value="activation.jar"/>
+    <!-- wsi, mss -->
+    <property name="antlr" value="antlr-2.7.7.jar"/>
+    <!-- hbn -->
+    <property name="apacheSoap" value="apache_soap-2_3_1.jar"/>
+    <!-- wsi -->
+    <property name="axis" value="axis-1.1RC2.jar"/>
+    <!-- wsi -->
+    <property name="bcmail" value="bcmail-jdk15-139.jar"/>
+    <!-- dss -->
+    <property name="bcprov" value="bcprov-jdk15-139.jar"/>
+    <!-- dss -->
+    <property name="c3p0" value="c3p0-0.9.1.jar"/>
+    <!-- hbn -->
+    <property name="collections-generic" value="collections-generic-4.01.jar"/>
+    <!-- prl -->
+    <property name="colt" value="colt-1.2.0.jar"/>
+    <!-- prl -->
+    <property name="common" value="common.jar"/>
+    <!-- eng, xsd -->
+    <property name="commonsBeanutils" value="commons-beanutils.jar"/>
+    <!-- eng Dom -->
+    <property name="commonsCodec" value="commons-codec-1.9.jar"/>
+    <!-- mul -->
+    <property name="commonsCollections" value="commons-collections-3.2.1.jar"/>
+    <!-- hbn -->
+    <property name="commonsDbcp" value="commons-dbcp-1.3.jar"/>
+    <!-- sch -->
+    <property name="commonsDigester" value="commons-digester.jar"/>
+    <!-- mul -->
+    <property name="commonsDiscovery" value="commons-discovery.jar"/>
+    <!-- wsi -->
+    <property name="commonsFileupload" value="commons-fileupload-1.2.2.jar"/>
+    <!-- jsf, dss, mss -->
+    <property name="commonsIO" value="commons-io-2.0.1.jar"/>
+    <!-- jsf, dss, mss -->
+    <property name="commonsLang" value="commons-lang-2.3.jar"/>
+    <!-- mul -->
+    <property name="commonsLogging" value="commons-logging-1.1.1.jar"/>
+    <!-- mul -->
+    <property name="commonsPool" value="commons-pool-1.5.4.jar"/>
+    <!-- sch -->
+    <property name="concurrent" value="concurrent-1.3.4.jar"/>
+    <!-- prl -->
+    <property name="derby" value="derbyclient.jar"/>
+    <!-- dbd -->
+    <property name="dom4j" value="dom4j-1.6.1.jar"/>
+    <!-- hbn -->
+    <property name="ecore" value="ecore.jar"/>
+    <!-- eng, xsd -->
+    <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
+    <!-- hbn -->
+    <property name="h2" value="h2-1.3.176.jar"/>
+    <!-- dbd -->
+    <property name="hibernate" value="hibernate3.jar"/>
+    <!-- mul -->
+    <property name="hibernate-c3p0" value="hibernate-c3p0-4.1.9.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-core" value="hibernate-core-4.1.9.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-commons"
+              value="hibernate-commons-annotations-4.0.1.Final.jar"/>
+    <!-- mul -->
+    <property name="hibernate-ehcache" value="hibernate-ehcache-4.1.9.Final.jar"/>
+    <!-- hbn -->
+    <property name="hibernate-jpa" value="hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+    <!-- hbn -->
+    <property name="hsql" value="hsqldb.jar"/>
+    <!-- dbd -->
+    <property name="javaAssist" value="javassist-3.17.1-GA.jar"/>
+    <!-- hbn -->
+    <property name="jaxen" value="jaxen-1.1.6.jar"/>
+    <!-- eng, sch -->
+    <property name="jaxrpc" value="jaxrpc.jar"/>
+    <!-- wsi -->
+    <property name="jboss-logging" value="jboss-logging-3.1.0.GA.jar"/>
+    <!-- hbn -->
+    <property name="jboss-transaction"
+              value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+    <!-- hbn -->
+    <property name="jdom" value="jdom-2.0.5.jar"/>
+    <!-- mul -->
+    <property name="jsf-api" value="jsf-api.jar"/>
+    <!-- jsf -->
+    <property name="jsf-appbase" value="appbase.jar"/>
+    <!-- jsf -->
+    <property name="jsf-cl" value="jsfcl.jar"/>
+    <!-- jsf -->
+    <property name="jsf-dataprovider" value="dataprovider.jar"/>
+    <!-- jsf -->
+    <property name="jsf-defaulttheme-gray" value="defaulttheme-gray.jar"/>
+    <!-- jsf -->
+    <property name="jsf-errorhandler" value="errorhandler.jar"/>
+    <!-- jsf -->
+    <property name="jsf-impl" value="jsf-impl.jar"/>
+    <!-- jsf -->
+    <property name="jsf-rowset" value="rowset.jar"/>
+    <!-- jsf -->
+    <property name="jsf-standard" value="standard.jar"/>
+    <!-- jsf -->
+    <property name="jsf-webui" value="webui.jar"/>
+    <!-- jsf -->
+    <property name="json" value="json.jar"/>
+    <!-- sch -->
+    <property name="jstl" value="jstl.jar"/>
+    <!-- jsf -->
+    <property name="jung-3d" value="jung-3d-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-3d-demos" value="jung-3d-demos-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-algorithms" value="jung-algorithms-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-api" value="jung-api-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-api-tests" value="jung-api-2.0-tests.jar"/>
+    <!-- prl -->
+    <property name="jung-graph" value="jung-graph-impl-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-io" value="jung-io-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-jai" value="jung-jai-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-jai-samples" value="jung-jai-samples-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-samples" value="jung-samples-2.0.jar"/>
+    <!-- prl -->
+    <property name="jung-visualization" value="jung-visualization-2.0.jar"/>
+    <!-- prl -->
+    <property name="junit" value="junit-4.10.jar"/>
+    <!-- mul -->
+    <property name="log4j" value="log4j-1.2.16.jar"/>
+    <!-- launcher -->
+    <property name="macify" value="macify-1.4.jar"/>
+    <!-- mul -->
+    <property name="mail" value="mail.jar"/>
+    <!-- mss -->
+    <property name="mailapi" value="mailapi.jar"/>
+    <!-- sml -->
+    <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
+    <!-- dbd -->
+    <property name="oracle" value="ojdbc6_9.jar"/>
+    <!-- dbd -->
+    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>
+    <!-- dbd -->
+    <property name="saaj" value="saaj.jar"/>
+    <!-- wsi -->
+    <property name="saxon" value="saxon9.jar"/>
+    <!-- mul -->
+    <property name="saxonapi" value="saxon9-s9api.jar"/>
+    <!-- mul -->
+    <property name="saxondom" value="saxon9-dom.jar"/>
+    <!-- mul -->
+    <property name="saxonjdom" value="saxon9-jdom.jar"/>
+    <!-- mul -->
+    <property name="servlet" value="servlet-api.jar"/>
+    <!-- mul -->
+    <property name="simplemail" value="simple-java-mail-v1.8.jar"/>
+    <!-- sml -->
+    <property name="slf4j" value="slf4j-api-1.6.1.jar"/>
+    <!-- hbn -->
+    <property name="slf4j-log4j" value="slf4j-log4j12-1.6.0.jar"/>
+    <!-- hbn -->
+    <property name="smtp" value="smtp.jar"/>
+    <!-- sml -->
+    <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>
+    <!-- twi -->
+    <property name="ucp" value="ucp.jar"/>
+    <!-- sch -->
+    <property name="wsdl4j" value="wsdl4j-20030807.jar"/>
+    <!-- wsi -->
+    <property name="wsif" value="wsif.jar"/>
+    <!-- prl -->
+    <property name="xalan" value="xalan.jar"/>
+    <!-- sch -->
+    <property name="xdb" value="xdb.jar"/>
+    <!-- sch -->
+    <property name="xerces" value="xercesImpl.jar"/>
+    <!-- mul -->
+    <property name="xmlparserv" value="xmlparserv2.jar"/>
+    <!-- sch -->
+    <property name="xmlunit" value="xmlunit-1.3.jar"/>
+    <!-- sch -->
+
+    <!--
+        Filters and properties for per-database-type operations, using
+        the database.* properties in the build.properties file.
+        As is, this script only supports DBs with drivers included above,
+        which corresponds to the pre-prepared hibernate properties
+        template files (in the properties directory). It should be
+        fairly apparent how to add other DBs as required (the 'master'
+        hibernate.properties includes DBs that have at some point worked).
+        
+        NOTE
+        
+        Unlike other DBs, a Derby build will not work at runtime with the
+        standard stop/start/apply-SQL-script method (as in the User Guide).
+        This is due to required differing table structures, meaning that
+        table creation cannot be automated at first startup as for other DBs.
+    -->
+
+    <filter token="DB_Path" value="${database.path}"/>
+    <filter token="DB_User" value="${database.user}"/>
+    <filter token="DB_Password" value="${database.password}"/>
+
+    <condition property="dbClient" value="${mysql}">
+        <equals arg1="${database.type}" arg2="mysql"/>
+    </condition>
+    <condition property="dbClient" value="${postgres8}">
+        <or>
+            <equals arg1="${database.type}" arg2="postgres8"/>
+            <equals arg1="${database.type}" arg2="postgres"/>
+            <not>
+                <isset property="database.type"/>
+            </not>
+        </or>
+    </condition>
+    <condition property="dbClient" value="${derby}">
+        <equals arg1="${database.type}" arg2="derby"/>
+    </condition>
+    <condition property="dbClient" value="${h2}">
+        <equals arg1="${database.type}" arg2="h2"/>
+    </condition>
+    <condition property="dbClient" value="${hsql}">
+        <equals arg1="${database.type}" arg2="hypersonic"/>
+    </condition>
+    <condition property="dbClient" value="${oracle}">
+        <equals arg1="${database.type}" arg2="oracle"/>
+    </condition>
+
+    <condition property="use_mysql" value="true">
+        <equals arg1="${database.type}" arg2="mysql"/>
+    </condition>
+    <condition property="use_postgres8" value="true">
+        <or>
+            <equals arg1="${database.type}" arg2="postgres8"/>
+            <equals arg1="${database.type}" arg2="postgres"/>
+            <not>
+                <isset property="database.type"/>
+            </not>
+        </or>
+    </condition>
+    <condition property="use_derby" value="true">
+        <equals arg1="${database.type}" arg2="derby"/>
+    </condition>
+    <condition property="use_h2" value="true">
+        <equals arg1="${database.type}" arg2="h2"/>
+    </condition>
+    <condition property="use_hypersonic" value="true">
+        <equals arg1="${database.type}" arg2="hypersonic"/>
+    </condition>
+    <condition property="use_oracle" value="true">
+        <equals arg1="${database.type}" arg2="oracle"/>
+    </condition>
+
+    <!--
+        JAR grouping properties. Used to define JAR groupings for dependencies
+        (cf. groupings for compilation classpaths).
+
+        !!!NB!!! This includes properties for the dependencies of each webapp,
+        since these are reused for both shared and dedicated Tomcat builds
+    -->
+    <property name="persistence.libs"
+              value="${antlr} ${commonsCollections} ${dom4j} ${ehcache}
+                     ${hibernate-c3p0} ${hibernate-core} ${hibernate-commons}
+                     ${hibernate-ehcache} ${hibernate-jpa} hibernate.cfg.xml
+                     ${javaAssist} ${jboss-logging} ${jboss-transaction} ${c3p0}
+                     ${slf4j} ${slf4j-log4j}"/>
+
+    <property name="xsd.libs"
+              value="${common} ${ecore}"/>
+
+    <property name="jsf.libs"
+              value="${jsf-appbase} ${jsf-api} ${jsf-impl} ${jsf-cl} ${jsf-webui}
+                     ${commonsDigester} ${commonsBeanutils} ${commonsFileupload}
+                     ${commonsIO} ${commonsLogging} ${jsf-standard} ${jstl} ${jsf-rowset}
+                     ${jsf-dataprovider} ${jsf-errorhandler} ${jsf-defaulttheme-gray}"/>
+
+    <property name="wsif.libs"
+              value="${wsif} ${axis} ${commonsDiscovery} ${commonsLogging}
+                     ${activation} ${jaxrpc} ${saaj} ${wsdl4j}"/>
+
+    <property name="common.libs"
+              value="${junit} ${saxon} ${jdom} ${log4j}"/>
+
+    <property name="saxon.libs"
+              value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
+
+    <property name="simplemail.libs"
+              value="${mailapi} ${simplemail} ${smtp}"/>
+
+    <property name="scheduling.libs"
+              value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
+                     ${xdb} ${xalan} ${xmlparserv} ${xmlunit}"/>
+
+    <property name="proclet.libs"
+              value="${collections-generic} ${colt} ${concurrent} ${jung-3d} 
+                     ${jung-3d-demos} ${jung-algorithms} ${jung-api} ${jung-api-tests}
+                     ${jung-graph} ${jung-io} ${jung-jai} ${jung-jai-samples}
+                     ${jung-jai-samples} ${jung-samples} ${jung-visualization}"/>
+
+    <property name="controlpanel.libs"
+              value="${macify} ${commonsIO}"/>
+
+
+    <!--
+        Per webapp dependency lists
+    -->
+
+    <property name="webapp_yawl.libs"
+              value="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces}
+                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}"/>
+
+    <property name="webapp_resourceService.libs"
+              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+                     ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
+                     ${xerces} ${saxon.libs}"/>
+
+    <property name="webapp_workletService.libs"
+              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+                     ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
+                     ${commonsCodec}"/>
+
+    <property name="webapp_yawlWSInvoker.libs"
+              value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j} ${xerces}
+                     ${commonsCodec} ${commonsLang}"/>
+
+    <property name="webapp_yawlSMSInvoker.libs"
+              value="${jdom} ${log4j} ${commonsCodec} ${xerces}"/>
+
+    <property name="webapp_digitalSignature.libs"
+              value="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
+                     ${commonsFileupload} ${bcmail} ${bcprov} ${xerces}"/>
+
+    <property name="webapp_mailSender.libs"
+              value="${jdom} ${log4j} ${mail} ${activation}
+                     ${commonsIO} ${commonsFileupload} ${commonsCodec} ${xerces}"/>
+
+    <property name="webapp_monitorService.libs"
+              value="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
+                     ${commonsLogging} ${commonsCollections} ${commonsCodec} ${xerces}"/>
+
+    <property name="webapp_twitterService.libs"
+              value="${jdom} ${log4j} ${twitter4j} ${commonsCodec} ${xerces}"/>
+
+    <property name="webapp_mailService.libs"
+              value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
+
+    <property name="webapp_schedulingService.libs"
+              value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
+                     ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool} ${xerces}"/>
+
+    <property name="webapp_testService.libs"
+              value="${jdom} ${xerces} ${log4j} ${twitter4j} ${commonsIO}
+                     ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+
+    <property name="webapp_costService.libs"
+              value="${jdom} ${xerces} ${log4j} ${persistence.libs}
+                      ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
+
+    <property name="webapp_documentStore.libs"
+              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
+
+    <property name="webapp_procletService.libs"
+              value="${persistence.libs} ${commonsCodec} ${proclet.libs}
+                      ${dbClient} ${jdom} ${log4j} ${xerces}"/>
+
+    <!--
+        JAR grouping properties for compilation classpath usage
+    -->
+
+    <path id="cp.compile">
+        <pathelement location="${lib.dir}/${junit}"/>
+        <pathelement location="${lib.dir}/${xerces}"/>
+        <pathelement location="${lib.dir}/${saxon}"/>
+        <pathelement location="${lib.dir}/${saxonapi}"/>
+        <pathelement location="${lib.dir}/${saxondom}"/>
+        <pathelement location="${lib.dir}/${saxonjdom}"/>
+        <pathelement location="${lib.dir}/${jdom}"/>
+        <pathelement location="${lib.dir}/${servlet}"/>
+        <pathelement location="${lib.dir}/${log4j}"/>
+
+        <!-- Include all elements that Tomcat exposes to applications -->
+        <pathelement location="${CATALINA_HOME}/lib"/>
+    </path>
+
+    <path id="cp.standard">
+        <pathelement path="${classes.dir}"/>
+    </path>
+
+    <path id="cp.wsif">
+        <pathelement location="${lib.dir}/${wsif}"/>
+        <pathelement location="${lib.dir}/${axis}"/>
+        <pathelement location="${lib.dir}/${commonsDiscovery}"/>
+        <pathelement location="${lib.dir}/${commonsLogging}"/>
+        <pathelement location="${lib.dir}/${jaxrpc}"/>
+        <pathelement location="${lib.dir}/${saaj}"/>
+        <pathelement location="${lib.dir}/${wsdl4j}"/>
+    </path>
+
+    <path id="cp.xsd">
+        <pathelement location="${lib.dir}/${common}"/>
+        <pathelement location="${lib.dir}/${ecore}"/>
+    </path>
+
+    <path id="cp.persist">
+        <pathelement location="${lib.dir}/${antlr}"/>
+        <pathelement location="${lib.dir}/${commonsCollections}"/>
+        <pathelement location="${lib.dir}/${dom4j}"/>
+        <pathelement location="${lib.dir}/${ehcache}"/>
+        <pathelement location="${lib.dir}/${hibernate-c3p0}"/>
+        <pathelement location="${lib.dir}/${hibernate-core}"/>
+        <pathelement location="${lib.dir}/${hibernate-commons}"/>
+        <pathelement location="${lib.dir}/${hibernate-ehcache}"/>
+        <pathelement location="${lib.dir}/${hibernate-jpa}"/>
+        <pathelement location="${lib.dir}/${dbClient}"/>
+        <pathelement location="${javaAssist}"/>
+        <pathelement location="${jboss-logging}"/>
+        <pathelement location="${jboss-transaction}"/>
+    </path>
+
+    <path id="cp.apacheCommons">
+        <pathelement location="${lib.dir}/${commonsBeanutils}"/>
+        <pathelement location="${lib.dir}/${commonsCodec}"/>
+        <pathelement location="${lib.dir}/${commonsDbcp}"/>
+        <pathelement location="${lib.dir}/${commonsDigester}"/>
+        <pathelement location="${lib.dir}/${commonsFileupload}"/>
+        <pathelement location="${lib.dir}/${commonsLang}"/>
+        <pathelement location="${lib.dir}/${commonsIO}"/>
+        <pathelement location="${lib.dir}/${commonsPool}"/>
+    </path>
+
+    <path id="cp.jsf">
+        <pathelement location="${lib.dir}/${jsf-appbase}"/>
+        <pathelement location="${lib.dir}/${jsf-api}"/>
+        <pathelement location="${lib.dir}/${jsf-cl}"/>
+        <pathelement location="${lib.dir}/${jsf-impl}"/>
+        <pathelement location="${lib.dir}/${jsf-webui}"/>
+        <pathelement location="${lib.dir}/${jsf-standard}"/>
+        <pathelement location="${lib.dir}/${jstl}"/>
+        <pathelement location="${lib.dir}/${jsf-rowset}"/>
+        <pathelement location="${lib.dir}/${jsf-dataprovider}"/>
+        <pathelement location="${lib.dir}/${jsf-errorhandler}"/>
+        <pathelement location="${lib.dir}/${jsf-defaulttheme-gray}"/>
+    </path>
+
+    <path id="cp.ds">
+        <pathelement location="${lib.dir}/${bcmail}"/>
+        <pathelement location="${lib.dir}/${bcprov}"/>
+    </path>
+
+    <path id="cp.mail">
+        <pathelement location="${lib.dir}/${mail}"/>
+        <pathelement location="${lib.dir}/${activation}"/>
+    </path>
+
+    <path id="cp.scheduling">
+        <pathelement location="${lib.dir}/${json}"/>
+        <pathelement location="${lib.dir}/${jaxen}"/>
+        <pathelement location="${lib.dir}/${ucp}"/>
+        <pathelement location="${lib.dir}/${dbClient}"/>
+        <pathelement location="${lib.dir}/${xdb}"/>
+        <pathelement location="${lib.dir}/${xalan}"/>
+        <pathelement location="${lib.dir}/${xmlparserv}"/>
+        <pathelement location="${lib.dir}/${xmlunit}"/>
+    </path>
+
+    <path id="cp.simplemail">
+        <pathelement location="${lib.dir}/${mailapi}"/>
+        <pathelement location="${lib.dir}/${simplemail}"/>
+        <pathelement location="${lib.dir}/${smtp}"/>
+    </path>
+
+    <path id="cp.proclet">
+        <pathelement location="${lib.dir}/${collections-generic}"/>
+        <pathelement location="${lib.dir}/${colt}"/>
+        <pathelement location="${lib.dir}/${concurrent}"/>
+        <pathelement location="${lib.dir}/${jung-3d}"/>
+        <pathelement location="${lib.dir}/${jung-3d-demos}"/>
+        <pathelement location="${lib.dir}/${jung-algorithms}"/>
+        <pathelement location="${lib.dir}/${jung-api}"/>
+        <pathelement location="${lib.dir}/${jung-api-tests}"/>
+        <pathelement location="${lib.dir}/${jung-graph}"/>
+        <pathelement location="${lib.dir}/${jung-io}"/>
+        <pathelement location="${lib.dir}/${jung-jai}"/>
+        <pathelement location="${lib.dir}/${jung-jai-samples}"/>
+        <pathelement location="${lib.dir}/${jung-samples}"/>
+        <pathelement location="${lib.dir}/${jung-visualization}"/>
+    </path>
+
+    <path id="cp.etc">
+        <pathelement location="${lib.dir}/${twitter4j}"/>
+        <pathelement location="${lib.dir}/${macify}"/>
+    </path>
+
+    <!--
+        Condition using user-set build.properties value to determine whether
+        a dedicated (all JARs in Tomcat lib) or shared (all JARs per webapp)
+        Tomcat build is performed
+    -->
+
+    <condition property="tomcat.isDedicated" value="true">
+        <equals arg1="${tomcat.treatAsDedicated}" arg2="true"/>
+    </condition>
+
+
+    <!--
+        This custom task writes checksum data for all files in a release build,
+        from where it is used for auto updating
+    -->
+    <taskdef name="checkSums"
+             classname="org.yawlfoundation.yawl.util.CheckSumTask">
+        <classpath>
+            <pathelement path="${classes.dir}"/>
+            <pathelement path="antTask"/>
+        </classpath>
+    </taskdef>
+
+    <!-- increment build number & date -->
+    <target name="updateBuildProperties">
+        <propertyfile file="${build.dir}/build.properties">
+            <entry key="${target}.build.number" type="int" default="0" operation="+"
+                    pattern="0000"/>
+            <entry key="${target}.build.date" type="date" value="now"
+                    pattern="yyyy-MM-dd HH.mm.ss"/>
+        </propertyfile>
+    </target>
+
+
+
+    <!-- =================MAIN YAWL SERVICES BUILD TARGETS================= -->
+
+    <!--
+        Build all YAWL server WAR files
+    -->
+    <target name="buildWebApps" description="Build all WARs"
+            depends="build_engine.war,
+                     build_SMS_Invoker.war,
+                     build_WS_Invoker.war,
+                     build_workletService.war,
+                     build_resourceService.war,
+                     build_monitorService.war,
+                     build_costService.war,
+                     build_twitterService.war,
+                     build_schedulingService.war,
+                     build_digitalSignature.war,
+                     build_mailSender.war,
+                     build_mailService.war,
+                     build_procletService.war,
+                     build_docStore.war">
+    </target>
+
+    <!--
+        Build everything: WARs, javadoc, source ZIP, YAWL Standalone,
+        resource service client
+    -->
+
+    <target name="buildAll" description="Build all release-required material"
+            depends="buildWebApps,
+                     build_Standalone,
+                     build_sourcecode,
+                     build_YResourceServiceClient.jar,
+                     build_controlPanel.jar,
+                     javadoc">
+    </target>
+
+    <!--
+        Create Javadoc API documentation.  Normally, this is only required
+        when preparing a distribution release, but is available as a separate
+        target for independent creation
+    -->
+
+    <target name="javadoc" depends="compile"
+            description="Create Javadoc API documentation">
+
+        <mkdir dir="${javadoc.dir}/docs/api"/>
+        <javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}/docs/api"
+                 packagenames="org.yawlfoundation.yawl.*" author="true"
+                 version="true" windowtitle="YAWL Version ${app.version}">
+
+            <arg value="-J-Dhttp.proxyHost=${proxy.host}"/>
+            <arg value="-J-Dhttp.proxyPort=${proxy.port}"/>
+
+            <!-- titles, headers & footers -->
+            <doctitle>
+                <![CDATA[<h1>YAWL Environment version 3.0</h1>]]></doctitle>
+            <bottom>
+                <![CDATA[<i>Copyright &#169; 2004-2014 The YAWL Foundation.</i>]]></bottom>
+
+            <!-- custom tags -->
+            <tag name="date" scope="all" description="Created/Last Date:"/>
+            <tag name="pre" scope="all" description="Precondition:"/>
+            <tag name="post" scope="all" description="Postcondition:"/>
+
+            <!-- links to 3rd party javadocs -->
+            <link offline="false" href="http://download.oracle.com/javase/6/docs/api/"/>
+            <link offline="false" href="http://www.jdom.org/docs/apidocs/"/>
+            <link offline="false" href="http://www.bouncycastle.org/docs/mdocs1.5/"/>
+            <link offline="false"
+                  href="http://simple-java-mail.googlecode.com/svn/trunk/javadoc/users/"/>
+
+            <!-- referenced class paths -->
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath refid="cp.mail"/>
+            <classpath refid="cp.scheduling"/>
+            <classpath refid="cp.simplemail"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.etc"/>
+        </javadoc>
+    </target>
+
+    <!--
+        Build single JAR of YAWL with its standalone GUI and all dependencies
+    included 'statically'
+    -->
+
+    <target name="build_Standalone" depends="compile"
+            description="Build YAWL Standalone application (single JAR)">
+
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}"
+                     includes="${persistence.libs} ${xsd.libs} ${common.libs}
+                               ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
+                               ${commonsCodec} ${jaxen}"
+                     excludes="hibernate.cfg.xml"/>
+        </unzip>
+
+        <jar destfile="${output.dir}/YAWL_Standalone_${app.version}.jar">
+            <fileset dir="${classes.dir}" excludes="junit junit3.8.1"/>
+            <fileset dir="${enumeratedClasses}"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Main-Class"
+                           value="org/yawlfoundation/yawl/engine/gui/TabbedEngineGUI"/>
+            </manifest>
+        </jar>
+        <checksum file="${output.dir}/YAWL_Standalone_${app.version}.jar"/>
+        <delete dir="${enumeratedClasses}"/>
+    </target>
+
+    <!--
+        Create ZIP file of all source code
+    -->
+
+    <target name="build_sourcecode" depends="compile"
+            description="Create ZIP file of source code (for release)">
+
+        <copy todir="${classes.dir}">
+            <fileset dir="${test.dir}" excludes="**/*.java"/>
+        </copy>
+        <copy todir="${output.dir}/engine/src">
+            <fileset dir="${src.dir}" includes="org/yawlfoundation/**"/>
+        </copy>
+        <copy todir="${output.dir}/engine/build">
+            <fileset dir="${build.dir}"/>
+        </copy>
+        <copy todir="${output.dir}/engine/exampleSpecs">
+            <fileset dir="exampleSpecs"/>
+        </copy>
+        <copy todir="${output.dir}/engine/graphics">
+            <fileset dir="${graphics.dir}"/>
+        </copy>
+        <copy todir="${output.dir}/engine/schema">
+            <fileset dir="${schema.dir}"/>
+        </copy>
+        <jar destfile="${output.dir}/YAWL_sourceCode_${app.version}.zip">
+            <fileset dir="${output.dir}/engine"/>
+        </jar>
+        <checksum file="${output.dir}/YAWL_sourceCode_${app.version}.zip"/>
+        <copy todir="${output.dir}/engine/test">
+            <fileset dir="${test.dir}"/>
+        </copy>
+        <jar destfile="${output.dir}/YAWL_SourceAndTestCode_${app.version}.zip">
+            <fileset dir="${output.dir}/engine"/>
+        </jar>
+        <checksum file="${output.dir}/YAWL_SourceAndTestCode_${app.version}.zip"/>
+        <delete dir="${output.dir}/engine"/>
+    </target>
+
+    <!--
+        Copy examples and schema files in
+    -->
+
+    <target name="copy">
+        <copy todir="./exampleSpecs/xml">
+            <fileset dir="./schema" includes="*.xsd"/>
+        </copy>
+        <copy todir="${src.dir}${packageRoot}/unmarshal">
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${test.dir}${packageRoot}/unmarshal">
+            <fileset dir="./exampleSpecs/xml" includes="MakeRecordings.xml"/>
+        </copy>
+        <copy todir="${test.dir}${packageRoot}/engine">
+            <fileset dir="./exampleSpecs/xml" includes="MakeRecordings(Beta4).xml"/>
+        </copy>
+    </target>
+
+    <!--
+        Clean the build environment
+    -->
+
+    <target name="clean" depends="copy">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${javadoc.dir}"/>
+        <delete dir="${output.dir}"/>
+
+        <delete dir="${temp.dir}/${engine.app.name}"/>
+        <delete dir="${temp.dir}/${wsInvoker.app.name}"/>
+        <delete dir="${temp.dir}/${smsInvoker.app.name}"/>
+        <delete dir="${temp.dir}/${worklet.app.name}"/>
+        <delete dir="${temp.dir}/${resource.app.name}"/>
+        <delete dir="${temp.dir}/${monitor.app.name}"/>
+        <delete dir="${temp.dir}/${test.app.name}"/>
+        <delete dir="${temp.dir}/${cost.app.name}"/>
+        <delete dir="${temp.dir}/${twitter.app.name}"/>
+        <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
+        <delete dir="${temp.dir}/${mailSender.app.name}"/>
+        <delete dir="${temp.dir}/${mail.app.name}"/>
+        <delete dir="${temp.dir}/${scheduling.app.name}"/>
+        <delete dir="${temp.dir}/${docStore.app.name}"/>
+        <delete dir="${temp.dir}/${proclet.app.name}"/>
+    </target>
+
+    <!--
+        Initialise build environment
+    -->
+
+    <target name="init" depends="clean">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${output.dir}"/>
+        <mkdir dir="${checksums.dir}"/>
+    </target>
+
+    <!--
+        Compile main project source into ${classes.dir}, and produce
+        library JAR of all non-GUI Java source (for use by Editor builds).
+        This also prepares the Log4J properties file in the classes area,
+        setting logging levels as specified in the properties file (this
+        filtered version will then be used to build all webapps)
+    -->
+
+    <target name="compile" depends="init, configureDatabaseAccess">
+        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
+               deprecation="true" verbose="true">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.mail"/>
+            <classpath refid="cp.simplemail"/>
+            <classpath refid="cp.scheduling"/>
+            <classpath refid="cp.proclet"/>
+            <classpath refid="cp.etc"/>
+        </javac>
+
+        <!-- copy in specification schema files -->
+        <copy todir="${classes.dir}${packageRoot}/unmarshal">
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}" includes="**/*.hbm.xml"/>
+        </copy>
+
+        <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
+            <fileset dir="${classes.dir}"
+                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
+                     excludes="org/yawlfoundation/yawl/engine/gui/**/*
+                               org/yawlfoundation/yawl/controlpanel/**/*"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+            </manifest>
+        </jar>
+        <checksum file="${output.dir}/yawl-lib-${app.version}.jar"/>
+
+        <!-- copy in non-java files from source (ie. files that don't need compiling) -->
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+
+        <!-- prepare Log4J properties file -->
+        <copy filtering="true" overwrite="true"
+              file="${properties.dir}/log4j.properties" todir="${classes.dir}"/>
+
+        <!-- adjust hbm.xml files depending on db chosen -->
+        <antcall target="configureHbmXML"/>
+    </target>
+
+    <!--
+        Configure appropriate driver and Hibernate properties for persistence.
+        Adjusted properties file used for all later builds
+    -->
+
+    <target name="configureDatabaseAccess"
+            depends="hibernate_postgres8, hibernate_mysql, hibernate_derby,
+                     hibernate_h2, hibernate_hypersonic, hibernate_oracle">
+
+        <echo message="Set up Hibernate properties for ${database.type}"/>
+    </target>
+
+    <target name="hibernate_postgres8" if="use_postgres8">
+        <copy file="${properties.dir}/hibernate.properties.postgres8"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_mysql" if="use_mysql">
+        <copy file="${properties.dir}/hibernate.properties.mysql"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_derby" if="use_derby">
+        <copy file="${properties.dir}/hibernate.properties.derby"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_h2" if="use_h2">
+        <copy file="${properties.dir}/hibernate.properties.h2"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_hypersonic" if="use_hypersonic">
+        <copy file="${properties.dir}/hibernate.properties.hypersonic"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+    <target name="hibernate_oracle" if="use_oracle">
+        <copy file="${properties.dir}/hibernate.properties.oracle"
+              filtering="true" overwrite="true"
+              tofile="${classes.dir}/hibernate.properties"/>
+    </target>
+
+
+    <!--
+        Adjust specific hibernate properties for the type of database selected.
+    -->
+
+    <target name="configureHbmXML" depends="configureOracleHbmXML, configureH2HbmXML">
+        <echo message="Adjusted hibernate properties for ${database.type} database"/>
+    </target>
+
+    <target name="configureOracleHbmXML" if="use_oracle">
+        <replace dir="${classes.dir}${packageRoot}" token="rowid" value="row_id">
+            <include name="**/resourcing/datastore/eventlog/*.hbm.xml"/>
+            <include name="**/logging/table/YAuditEvent.hbm.xml"/>
+        </replace>
+        <replace dir="${classes.dir}${packageRoot}" token="type=&quot;text&quot;"
+                 value="type=&quot;string&quot; length=&quot;4000&quot;">
+            <include name="**/engine/interfce/WorkItemRecord.hbm.xml"/>
+            <include name="**/logging/table/YLogDataType.hbm.xml"/>
+            <include name="**/resourcing/resource/Participant.hbm.xml"/>
+            <include name="**/resourcing/resource/NonHumanResource.hbm.xml"/>
+            <include name="**/scheduling/Case.hbm.xml"/>
+            <include name="**/worklet/admin/AdministrationTask.hbm.xml"/>
+            <include name="**/worklet/exception/CaseMonitor.hbm.xml"/>
+            <include name="**/worklet/exception/HandlerRunner.hbm.xml"/>
+            <include name="**/worklet/selection/CheckedOutChildItem.hbm.xml"/>
+        </replace>
+    </target>
+
+    <!-- H2 binary types default to length 255, so override to 5Mb -->
+    <target name="configureH2HbmXML" if="use_h2">
+        <replace dir="${classes.dir}${packageRoot}" token="type=&quot;binary&quot;"
+                 value="type=&quot;binary&quot; length=&quot;5242880&quot;">
+            <include name="**/documentStore/YDocument.hbm.xml"/>
+        </replace>
+    </target>
+
+    <!--
+        Build the engine (yawl webapp) WAR
+    -->
+
+    <target name="build_engine.war" depends="compile, build_engine_SharedTomcat">
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"
+                     includes="**/*.class **/*.hbm.xml *.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/logging/table">
+            <fileset dir="${classes.dir}${packageRoot}/logging/table"
+                     includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/schema/internal">
+            <fileset dir="${classes.dir}${packageRoot}/schema/internal"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="*.class *.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}${webinf.dir}/cost/interfce"
+              file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
+
+        <copy todir="${temp.dir}/${engine.app.name}/WEB-INF"
+              file="${build.dir}/engine/web.xml"/>
+
+        <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes"
+              file="${classes.dir}${packageRoot}/engine/defaultClients.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${engine.app.name}"/>
+        </antcall>
+
+        <propertyfile file="${build.dir}/engine/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+        <copy file="${build.dir}/engine/version.properties"
+              tofile="${temp.dir}/${engine.app.name}/WEB-INF/classes/version.properties"/>
+        <jar destfile="${output.dir}/yawl.war">
+            <fileset dir="${temp.dir}/${engine.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/yawl.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${engine.app.name}"
+                   includes="*.jar *.xml *.properties"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <delete dir="${temp.dir}/${engine.app.name}"/>
+    </target>
+
+    <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_yawl.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the Web Service invoker WAR
+    -->
+
+    <target name="build_WS_Invoker.war"
+            depends="compile, build_WS_Invoker_SharedTomcat">
+
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class
+                               CharsetFilter.class PasswordEncryptor.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/engine/interfce/interfaceA">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="*.class *.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/schema"
+              file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
+
+        <copy todir="${temp.dir}/${wsInvoker.app.name}${webinf.dir}/wsif">
+            <fileset dir="${classes.dir}${packageRoot}/wsif">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/wsif">
+                <include name="*.jsp"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${wsInvoker.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${wsInvoker.app.name}.war">
+            <fileset dir="${temp.dir}/${wsInvoker.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${wsInvoker.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${wsInvoker.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${wsInvoker.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${wsInvoker.app.name}"/>
+    </target>
+
+    <target name="build_WS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_yawlWSInvoker.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the SMS service invoker WAR
+    -->
+
+    <target name="build_SMS_Invoker.war"
+            depends="compile, build_SMS_Invoker_SharedTomcat">
+
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class
+                               CharsetFilter.class PasswordEncryptor.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/engine/interfce/interfaceA">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/smsModule">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}/graphics">
+            <fileset dir="${graphics.dir}"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/smsModule">
+            <fileset dir="${classes.dir}${packageRoot}/smsModule">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${smsInvoker.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${smsInvoker.app.name}.war">
+            <fileset dir="${temp.dir}/${smsInvoker.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${smsInvoker.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${smsInvoker.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${smsInvoker.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${smsInvoker.app.name}"/>
+    </target>
+
+    <target name="build_SMS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_yawlSMSInvoker.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the worklet service WAR
+    -->
+
+    <target name="build_workletService.war"
+            depends="compile, build_workletService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YClient.class YExternalClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/cost/interfce"
+              file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements" includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/elements/state">
+            <fileset dir="${classes.dir}${packageRoot}/elements/state"
+                     includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions" includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogDataItem.class YLogDataItemList.class
+                               YLogPredicate.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema" includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class SchemaValidator.class
+                       SchemaForSchemaValidator.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet"
+              file="${classes.dir}${packageRoot}/worklet/WorkletService.class"/>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/rdr">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/rdr"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/selection">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/selection"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/support">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/support"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/exception">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/exception"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/admin">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/admin"
+                     includes="*.class *.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}"
+              file="${build.dir}/${worklet.app.name}/welcome/welcome.htm"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/repository">
+            <fileset dir="${build.dir}/${worklet.app.name}/repository"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/graphics">
+            <fileset dir="${build.dir}/${worklet.app.name}/welcome/graphics"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/graphics"
+              file="${graphics.dir}/common.css"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/graphics"
+              file="${graphics.dir}/subtext.jpg"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/graphics"
+              file="${graphics.dir}/yawl.swf"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/jsp">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/jsp"/>
+        </copy>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${worklet.app.name}"/>
+        </antcall>
+
+        <propertyfile file="${build.dir}/${worklet.app.name}/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+        <copy file="${build.dir}/${worklet.app.name}/version.properties"
+              tofile="${temp.dir}/${worklet.app.name}/WEB-INF/classes/version.properties"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF"
+              file="${build.dir}/${worklet.app.name}/web.xml"/>
+        <jar destfile="${output.dir}/${worklet.app.name}.war">
+            <fileset dir="${temp.dir}/${worklet.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${worklet.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${worklet.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <delete dir="${temp.dir}/${worklet.app.name}"/>
+    </target>
+
+    <target name="build_workletService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_workletService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the resource service WAR
+    -->
+
+    <target name="build_resourceService.war"
+            depends="compile, build_resourceService_SharedTomcat">
+
+        <!-- 1. Copy required yawl classes into dir structure -->
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class
+                               YAbstractSession.class YSessionTimer.class
+                               ISessionCache.class YSessionTimer$TimeOut.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/cost/interfce"
+              file="${classes.dir}${packageRoot}/cost/interfce/CostGatewayClient.class"/>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/documentStore">
+            <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                     includes="DocumentStoreClient.class YDocument.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements" includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/elements/state">
+            <fileset dir="${classes.dir}${packageRoot}/elements/state"
+                     includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YSchemaBuildingException.class YDataStateException.class
+                               YSyntaxException.class YAWLException.class
+                               YDataQueryException.class YStateException.class
+                               YQueryException.class YAuthenticationException.class
+                               YPersistenceException.class YDataValidationException.class
+                               YLogException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogDataItem.class YLogDataItemList.class
+                       YLogPredicate.class YLogPredicateParser.class
+                       YXESBuilder.class XESTimestampComparator.class"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="*.class"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/schema/internal">
+            <fileset dir="${classes.dir}${packageRoot}/schema/internal"
+                     includes="*.class"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class SchemaValidator.class
+                       SchemaForSchemaValidator.class XMLValidator.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     excludes="Hibernate*.class Sessions*.class YIdentifierBag.class
+                               YNetElementDocoParser.class"/>
+        </copy>
+
+        <!-- 2. copy resourcing classes to relevant dirs -->
+        <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/resourcing">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing"
+                     includes="**/*.class **/*.xml **/YawlUI.properties"/>
+        </copy>
+
+        <!-- 2b. Copy required resourcing support files into dir root -->
+        <copy todir="${temp.dir}/${resource.app.name}"
+              file="${build.dir}/${resource.app.name}/welcome/welcome.htm"/>
+
+        <!-- 2c. Copy in graphics for welcome page -->
+        <copy todir="${temp.dir}/${resource.app.name}/graphics">
+            <fileset dir="${build.dir}/${resource.app.name}/welcome/graphics"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}/graphics"
+              file="${graphics.dir}/common.css"/>
+        <copy todir="${temp.dir}/${resource.app.name}/graphics"
+              file="${graphics.dir}/subtext.jpg"/>
+        <copy todir="${temp.dir}/${resource.app.name}/graphics"
+              file="${graphics.dir}/yawl.swf"/>
+
+        <!-- 2c(i). Copy in resources for jsps -->
+        <copy todir="${temp.dir}/${resource.app.name}/resources">
+            <fileset dir="${build.dir}/${resource.app.name}/resources"/>
+        </copy>
+
+        <!-- 2d. Copy in jsps -->
+        <copy todir="${temp.dir}/${resource.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"
+                     includes="*.jsp *.jspf *.html"/>
+        </copy>
+        <copy file="${classes.dir}${packageRoot}/resourcing/datastore/orgdata/LDAPSource.properties"
+              todir="${temp.dir}/${resource.app.name}/WEB-INF/classes"/>
+        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF">
+            <fileset dir="${build.dir}/${resource.app.name}/jsf_xml"
+                     includes="*.xml"/>
+        </copy>
+        <propertyfile file="${build.dir}/${resource.app.name}/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${resource.app.name}"/>
+        </antcall>
+
+        <copy file="${build.dir}/${resource.app.name}/version.properties"
+              tofile="${temp.dir}/${resource.app.name}/WEB-INF/classes/version.properties"/>
+
+        <!-- 5. Copy web.xml file into dir structure -->
+        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF"
+              file="${build.dir}/${resource.app.name}/web.xml"/>
+
+        <!-- 6. create Web Archive file -->
+        <jar destfile="${output.dir}/${resource.app.name}.war">
+            <fileset dir="${temp.dir}/${resource.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${resource.app.name}.war"/>
+
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${resource.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <!-- 7. Remove temp build area -->
+        <delete dir="${temp.dir}/${resource.app.name}"/>
+    </target>
+
+    <target name="build_resourceService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_resourceService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the resource service client JAR
+    -->
+
+    <target name="build_YResourceServiceClient.jar" depends="compile">
+        <tstamp/>
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
+        </unzip>
+        <jar destfile="${output.dir}/YResourceServiceClient.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClient.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/WorkQueueGatewayClientAdapter.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClientAdapter.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayClient.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceGatewayException.class
+                       org/yawlfoundation/yawl/resourcing/rsInterface/ResourceMarshaller.class
+                       org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
+                       org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                       org/yawlfoundation/yawl/engine/interfce/ServletUtils.class
+                       org/yawlfoundation/yawl/engine/YSpecificationID.class
+                       org/yawlfoundation/yawl/elements/YSpecVersion.class
+                       org/yawlfoundation/yawl/util/JDOMUtil.class
+                       org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/XNode*.class
+                       org/yawlfoundation/yawl/util/PasswordEncryptor.class">
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+            </manifest>
+        </jar>
+        <checksum file="${output.dir}/YResourceServiceClient.jar"/>
+    </target>
+
+    <!--
+        Build the simulator JAR
+    -->
+
+    <target name="build_simulator.jar" depends="compile">
+        <mkdir dir="${output.dir}/simulator"/>
+        <mkdir dir="${output.dir}/simulator/lib"/>
+        <copy todir="${output.dir}/simulator">
+            <fileset dir="${classes.dir}${packageRoot}/simulation" excludes="*.class"/>
+        </copy>
+        <copy todir="${output.dir}/simulator/lib">
+            <fileset dir="${lib.dir}"
+                     includes="${servlet} ${jdom} ${log4j} ${xerces} ${commonsCodec}"/>
+        </copy>
+
+        <copy todir="${output.dir}/simulator/lib" file="${classes.dir}/log4j.properties"/>
+        <copy todir="${output.dir}/simulator/lib"
+              file="${output.dir}/yawl-lib-${app.version}.jar"/>
+
+        <jar destfile="${output.dir}/simulator/YSimulator.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/simulation/*.class">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.simulation.YSimulator"/>
+                <attribute name="Class-Path"
+                           value="lib/${servlet} lib/${jdom} lib/${log4j}
+                                  lib/${commonsCodec} lib/${xerces}
+                                  lib/yawl-lib-${app.version}.jar"/>
+            </manifest>
+        </jar>
+
+        <zip destfile="${output.dir}/YSimulator.zip" basedir="${output.dir}/simulator"/>
+
+    </target>
+
+    <target name="build_costModelUploader.jar" depends="compile">
+        <jar destfile="${output.dir}/ModelUploader.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/cost/interfce/ModelUpload.class">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.cost.interfce.ModelUpload"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--
+        Build the monitor service WAR
+    -->
+
+    <target name="build_monitorService.war"
+            depends="compile, build_monitorService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/interfce/interfaceE"
+              file="${classes.dir}${packageRoot}/engine/interfce/interfaceE/YLogGatewayClient.class"/>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/instance">
+            <fileset dir="${classes.dir}${packageRoot}/engine/instance"
+                     excludes="InstanceCache.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"
+                     includes="YWorkItem.class YSpecificationID.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YSchemaBuildingException.class YDataStateException.class
+                               YSyntaxException.class YAWLException.class
+                               YStateException.class YQueryException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/elements/state">
+            <fileset dir="${classes.dir}${packageRoot}/elements/state"
+                     includes="YIdentifier.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogDataItem.class YLogDataItemList.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/logging/table"
+              file="${classes.dir}${packageRoot}/logging/table/YLogEvent.class"/>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class CharsetFilter.class
+                               PasswordEncryptor.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
+                     includes="ErrorServlet.class WorkItemRecord.class
+                               AuthenticationConfig.class
+                               Interface_Client.class ServletUtils.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/resourcing/jsf">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf"
+                     includes="MessagePanel*.class Font*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
+                     includes="AbstractResource.class Participant.class
+                               UserPrivileges.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"
+                     includes="ResourceGatewayException.class ResourceLogGatewayClient.class
+                               ResourceMarshaller.class ResourceGatewayClient.class
+                               ResourceGatewayClientAdapter.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/resourcing/datastore/eventlog">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/datastore/eventlog"
+                     includes="ResourceEvent.class BaseEvent.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}${webinf.dir}/monitor">
+            <fileset dir="${classes.dir}${packageRoot}/monitor"
+                     includes="**/*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}/resources">
+            <fileset dir="${build.dir}/${monitor.app.name}/resources"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/monitor/jsf/jsp"
+                     includes="*.jsp *.jspf *.html"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF">
+            <fileset dir="${build.dir}/${monitor.app.name}/jsf_xml"
+                     includes="*.xml"/>
+        </copy>
+        <propertyfile file="${build.dir}/${monitor.app.name}/version.properties">
+            <entry key="Version" value="${app.version}"/>
+            <entry key="BuiltBy" value="${user.name}"/>
+            <entry key="BuildDate" type="date" value="now"/>
+            <entry key="BuildNumber" default="0" type="int" operation="+" value="1"/>
+            <entry key="JavaVersion" value="${java.version}"/>
+            <entry key="OS" value="${os.name}"/>
+            <entry key="OSVersion" value="${os.version}"/>
+        </propertyfile>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${monitor.app.name}"/>
+        </antcall>
+
+        <copy file="${build.dir}/${monitor.app.name}/version.properties"
+              tofile="${temp.dir}/${monitor.app.name}/WEB-INF/classes/version.properties"/>
+        <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF"
+              file="${build.dir}/${monitor.app.name}/web.xml"/>
+        <jar destfile="${output.dir}/${monitor.app.name}.war">
+            <fileset dir="${temp.dir}/${monitor.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${monitor.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${monitor.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <delete dir="${temp.dir}/${monitor.app.name}"/>
+    </target>
+
+    <target name="build_monitorService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_monitorService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the test service WAR
+    -->
+
+    <target name="build_testService.war"
+            depends="compile, build_testService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/documentStore">
+            <fileset dir="${classes.dir}${packageRoot}/documentStore"
+                     includes="DocumentStoreClient.class YDocument.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class XMLValidator.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/cost">
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YDataSchemaCache.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogPredicate.class YLogPredicateParser.class
+                               XESTimestampComparator.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/datastore">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/datastore"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/allocators">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/allocators"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/filters">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/filters"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/constraints">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/constraints"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/interactions">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/interactions"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/util"
+              file="${classes.dir}${packageRoot}/util/PasswordEncryptor.class"/>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/resourcing/jsf/dynform"
+              file="${classes.dir}${packageRoot}/resourcing/jsf/dynform/DynTextParser.class"/>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/worklet">
+            <fileset dir="${classes.dir}${packageRoot}/worklet" excludes="**/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}${webinf.dir}/${test.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${test.app.name}"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}/graphics">
+            <fileset dir="${graphics.dir}"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${test.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${test.app.name}.war">
+            <fileset dir="${temp.dir}/${test.app.name}"/>
+        </jar>
+        <delete dir="${temp.dir}/${test.app.name}"/>
+    </target>
+
+    <target name="build_testService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the cost service WAR
+    -->
+
+    <target name="build_costService.war"
+            depends="compile, build_costService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class XMLValidator.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/logging">
+            <fileset dir="${classes.dir}${packageRoot}/logging"
+                     includes="YLogPredicate.class YLogPredicateParser.class
+                               XESTimestampComparator.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/resourcing/util"
+              file="${classes.dir}${packageRoot}/util/PasswordEncryptor.class"/>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
+            <fileset dir="${classes.dir}${packageRoot}/cost"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${cost.app.name}.war">
+            <fileset dir="${temp.dir}/${cost.app.name}"/>
+        </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${cost.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${cost.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${cost.app.name}"/>
+    </target>
+
+
+    <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_costService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the Twitter service WAR
+    -->
+
+    <target name="build_twitterService.war"
+            depends="compile, build_twitterService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/engine">
+            <fileset dir="${classes.dir}${packageRoot}/engine"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}${webinf.dir}/${twitter.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${twitter.app.name}"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF"
+              file="${build.dir}/${twitter.app.name}/web.xml"/>
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes"
+              file="${build.dir}/${twitter.app.name}/twitter4j.properties"/>
+
+        <jar destfile="${output.dir}/${twitter.app.name}.war">
+            <fileset dir="${temp.dir}/${twitter.app.name}"/>
+        </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${twitter.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${twitter.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${twitter.app.name}"/>
+    </target>
+
+    <target name="build_twitterService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_twitterService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the simple mail service WAR
+    -->
+
+    <target name="build_mailService.war"
+            depends="compile, build_mailService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/elements/data">
+            <fileset dir="${classes.dir}${packageRoot}/elements/data"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class PasswordEncryptor.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}${webinf.dir}/${mail.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${mail.app.name}"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF"
+              file="${build.dir}/${mail.app.name}/web.xml"/>
+
+        <jar destfile="${output.dir}/${mail.app.name}.war">
+            <fileset dir="${temp.dir}/${mail.app.name}"/>
+        </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${mail.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${mail.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${mail.app.name}"/>
+    </target>
+
+    <target name="build_mailService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_mailService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+         Build the scheduling service WAR
+     -->
+
+    <target name="build_schedulingService.war"
+            depends="compile, build_schedulingService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/resource">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/resource"
+                     excludes="**/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     excludes="**/*.hbm.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/exceptions"
+              file="${classes.dir}${packageRoot}/exceptions/YAWLException.class"/>
+
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/schema">
+            <fileset dir="${classes.dir}${packageRoot}/schema"
+                     includes="XSDType.class YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="JDOMUtil.class StringUtil.class CharsetFilter.class
+                               PasswordEncryptor.class XNode*.class
+                               HibernateEngine.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}${webinf.dir}/scheduling">
+            <fileset dir="${classes.dir}${packageRoot}/scheduling"/>
+        </copy>
+
+        <copy todir="${temp.dir}/${scheduling.app.name}">
+            <fileset dir="${build.dir}/${scheduling.app.name}/resources"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+            <fileset dir="${build.dir}/${scheduling.app.name}/properties"/>
+            <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
+        </copy>
+        <copy todir="${temp.dir}/${mail.app.name}/WEB-INF"
+               file="${build.dir}/${mail.app.name}/web.xml"/>
+
+        <war destfile="${output.dir}/${scheduling.app.name}.war"
+             webxml="${build.dir}/${scheduling.app.name}/web.xml">
+            <fileset dir="${temp.dir}/${scheduling.app.name}"/>
+        </war>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${scheduling.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${scheduling.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${scheduling.app.name}"/>
+    </target>
+
+    <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_schedulingService.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+       Build the digital signature service WAR
+   -->
+
+    <target name="build_digitalSignature.war"
+            depends="compile, build_digitalSignature_SharedTomcat">
+
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/resourcing/rsInterface">
+            <fileset dir="${classes.dir}${packageRoot}/resourcing/rsInterface"
+                     includes="WorkQueueGatewayClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${digitalSignature.app.name}">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}/resources">
+            <fileset dir="${build.dir}/${digitalSignature.app.name}/resources"/>
+        </copy>
+        <mkdir dir="${temp.dir}/${digitalSignature.app.name}/files"/>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}${webinf.dir}/${digitalSignature.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${digitalSignature.app.name}">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${digitalSignature.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${digitalSignature.app.name}.war">
+            <fileset dir="${temp.dir}/${digitalSignature.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${digitalSignature.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${digitalSignature.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
+    </target>
+
+    <target name="build_digitalSignature_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_digitalSignature.libs}"/>
+        </copy>
+    </target>
+
+    <!--
+        Build the YAWL Mail Sender Service WebApplication
+    -->
+
+    <target name="build_mailSender.war"
+            depends="compile, build_mailSender_SharedTomcat">
+
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="**/*.class **/*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/unmarshal">
+            <fileset dir="${classes.dir}${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
+            <fileset dir="${schema.dir}" includes="*.xsd"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceB"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${mailSender.app.name}">
+                <exclude name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}/resources">
+            <fileset dir="${build.dir}/${mailSender.app.name}/resources"/>
+        </copy>
+        <mkdir dir="${temp.dir}/${mailSender.app.name}/files"/>
+        <copy todir="${temp.dir}/${mailSender.app.name}${webinf.dir}/${mailSender.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${mailSender.app.name}">
+                <include name="*.class"/>
+            </fileset>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${mailSender.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${mailSender.app.name}.war">
+            <fileset dir="${temp.dir}/${mailSender.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${mailSender.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${mailSender.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${mailSender.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${mailSender.app.name}"/>
+    </target>
+
+    <target name="build_mailSender_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_mailSender.libs}"/>
+        </copy>
+    </target>
+
+
+    <target name="build_docStore.war"
+            depends="compile, build_docStore_SharedTomcat">
+
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/${docStore.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${docStore.app.name}"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"
+                     includes="YAWLServiceReference.class YVerifiable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
+                     includes="YHttpServlet.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"
+                     includes="StringUtil.class CharsetFilter.class Sessions*.class
+                          PasswordEncryptor.class HibernateEngine.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
+            <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>
+        </copy>
+        <jar destfile="${output.dir}/${docStore.app.name}.war">
+            <fileset dir="${temp.dir}/${docStore.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${docStore.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${docStore.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${docStore.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${docStore.app.name}"/>
+    </target>
+
+    <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_documentStore.libs}"/>
+        </copy>
+    </target>
+
+
+    <target name="build_procletService.war"
+            depends="compile, build_procletEditor.jar, build_procletService_SharedTomcat">
+
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}">
+            <fileset dir="${classes.dir}${packageRoot}/${proclet.app.name}"
+                     excludes="**/editor/**"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/authentication">
+            <fileset dir="${classes.dir}${packageRoot}/authentication"
+                     includes="YExternalClient.class YClient.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/elements">
+            <fileset dir="${classes.dir}${packageRoot}/elements"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine"
+              file="${classes.dir}${packageRoot}/engine/YSpecificationID.class"/>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/engine/interfce">
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/exceptions">
+            <fileset dir="${classes.dir}${packageRoot}/exceptions"
+                     includes="YAWLException.class"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/schema"
+              file="${classes.dir}${packageRoot}/schema/YSchemaVersion.class"/>
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/unmarshal"
+              file="${classes.dir}${packageRoot}/unmarshal/YDecompositionParser.class"/>
+
+        <copy todir="${temp.dir}/${proclet.app.name}${webinf.dir}/util">
+            <fileset dir="${classes.dir}${packageRoot}/util"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF"
+              file="${build.dir}/${proclet.app.name}/web.xml"/>
+
+        <copy todir="${temp.dir}/${proclet.app.name}"
+              file="${output.dir}/procletEditor.jar"/>
+        <copy todir="${temp.dir}/${proclet.app.name}">
+            <fileset dir="${build.dir}/${proclet.app.name}" excludes="web.xml"/>
+        </copy>
+
+        <jar destfile="${output.dir}/${proclet.app.name}.war">
+            <fileset dir="${temp.dir}/${proclet.app.name}"/>
+        </jar>
+        <checksum file="${output.dir}/${proclet.app.name}.war"/>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${proclet.app.name}"
+                   excludes="WEB-INF/lib/* classes/org/*
+                             log4j.properties hibernate.properties"/>
+
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${proclet.app.name}"/>
+        </antcall>
+
+        <delete dir="${temp.dir}/${proclet.app.name}"/>
+    </target>
+
+    <target name="build_procletService_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+        <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_procletService.libs}"/>
+        </copy>
+    </target>
+
+
+    <target name="build_procletEditor.jar" depends="compile">
+        <tstamp/>
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${commonsCodec}"/>
+        </unzip>
+        <jar destfile="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/procletService/**/*
+                       org/yawlfoundation/yawl/engine/interfce/interfaceB/**/*.class
+                       org/yawlfoundation/yawl/engine/interfce/Interface_Client.class
+                       org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                       org/yawlfoundation/yawl/engine/interfce/ServletUtils.class
+                       org/yawlfoundation/yawl/engine/YSpecificationID.class
+                       org/yawlfoundation/yawl/elements/YSpecVersion.class
+                       org/yawlfoundation/yawl/util/**">
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.procletService.editor.Editor"/>
+            </manifest>
+        </jar>
+        <copy todir="${output.dir}"
+              file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
+    </target>
+
+
+    <target name="build_controlPanel.jar" depends="compile">
+        <tstamp/>
+        <mkdir dir="${enumeratedClasses}"/>
+        <unzip dest="${enumeratedClasses}">
+            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec}"/>
+        </unzip>
+        <jar destfile="${output.dir}/YawlControlPanel-${app.version}.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/controlpanel/**/*
+                       org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/CheckSummer.class
+                       org/yawlfoundation/yawl/util/PasswordEncryptor.class
+                       org/yawlfoundation/yawl/util/XNode*.class">
+            <fileset dir="${enumeratedClasses}"
+                     includes="org/simplericity/macify/eawt/**/*
+                               org/apache/commons/codec/BinaryEncoder.class
+                               org/apache/commons/codec/BinaryDecoder.class
+                               org/apache/commons/codec/Charsets.class
+                               org/apache/commons/codec/Encoder.class
+                               org/apache/commons/codec/Decoder.class
+                               org/apache/commons/codec/EncoderException.class
+                               org/apache/commons/codec/DecoderException.class
+                               org/apache/commons/codec/binary/BaseNCodec.class
+                               org/apache/commons/codec/binary/BaseNCodec$Context.class
+                               org/apache/commons/codec/binary/Base64.class
+                               org/apache/commons/codec/binary/StringUtils.class"/>
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+                <attribute name="Main-Class"
+                           value="org.yawlfoundation.yawl.controlpanel.Launcher"/>
+            </manifest>
+        </jar>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="controlpanel"/>
+        <antcall target="updateBuildProperties">
+            <param name="target" value="controlpanel"/>
+        </antcall>
+    </target>
+
+
+    <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
+
+    <!--
+        Main deployment targets. The build and deploy tasks support the
+        user-defined tomcat.treatAsDedicated flag. If dedicated,
+        memory use is minimised by having all libraries and log4j settings in
+        the main shared Tomcat lib folder. If not (shared), each webapp has its
+        own set of required libraries and log4j settings, which significantly
+        increases permgen usage (so consider increasing permgen space from the
+        default 64m via a -XX:MaxPermSize=Nm startup Java option).
+    -->
+
+    <target name="deployWebapps"
+            description="Build and deploy all web apps"
+            depends="deployCoreWebapps,
+                     deployMonitorService,
+                     deployDigitalSignature,
+                     deployMailSender,
+                     deployTestService,
+                     deployCostService,
+                     deployTwitterService,
+                     deploySchedulingService,
+                     deployDocStore,
+                     deployProcletService,
+                     deployNonCoreSharedLibs">
+    </target>
+
+    <target name="deployCoreWebapps"
+            description="Build and deploy core web apps (engine, worklet, resource, WS invoker, SMS)"
+            depends="deployEngine,
+                     deployWorkletService,
+                     deployResourceService,
+                     deployWsInvoker,
+                     deploySMS,
+                     deployMailService,
+                     deployCoreSharedLibs">
+    </target>
+
+    <!--
+    Actual deployment (plain copy) tasks
+    -->
+
+    <target name="deployEngine" depends="build_engine.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${engine.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployWorkletService" depends="build_workletService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${worklet.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployResourceService" depends="build_resourceService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${resource.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployWsInvoker" depends="build_WS_Invoker.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${wsInvoker.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deploySMS" depends="build_SMS_Invoker.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${smsInvoker.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployMonitorService" depends="build_monitorService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${monitor.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployDigitalSignature" depends="build_digitalSignature.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${digitalSignature.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployMailSender" depends="build_mailSender.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${mailSender.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployTestService" depends="build_testService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${test.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployCostService" depends="build_costService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${cost.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployDocStore" depends="build_docStore.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${docStore.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployProcletService" depends="build_procletService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${proclet.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployTwitterService" depends="build_twitterService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${twitter.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deployMailService" depends="build_mailService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${mail.app.name}.war"/>
+        </copy>
+    </target>
+
+    <target name="deploySchedulingService" depends="build_schedulingService.war">
+        <copy todir="${webapps.dir}">
+            <fileset file="${output.dir}/${scheduling.app.name}.war"/>
+        </copy>
+    </target>
+
+    <!--
+       Copies to Tomcat shared lib folder if this is a dedicated Tomcat installation
+   -->
+
+    <target name="deployCoreSharedLibs" if="tomcat.isDedicated">
+        <copy overwrite="true" todir="${sharedLibs.dir}">
+            <fileset dir="${lib.dir}"
+                     includes="${webapp_yawl.libs}
+                               ${webapp_resourceService.libs}
+                               ${webapp_yawlWSInvoker.libs}
+                               ${webapp_yawlSMSInvoker.libs}
+                               ${webapp_mailService.libs}
+                               ${webapp_workletService.libs}"/>
+        </copy>
+        <copy overwrite="true" todir="${sharedLibs.dir}">
+            <fileset dir="${classes.dir}"
+                     includes="log4j.properties hibernate.properties"/>
+        </copy>
+    </target>
+
+    <target name="deployNonCoreSharedLibs" if="tomcat.isDedicated">
+        <copy overwrite="true" todir="${sharedLibs.dir}">
+            <fileset dir="${lib.dir}"
+                     includes="${webapp_digitalSignature.libs}
+                               ${webapp_mailSender.libs}
+                               ${webapp_monitorService.libs}
+                               ${webapp_twitterService.libs}
+                               ${webapp_schedulingService.libs}
+                               ${webapp_testService.libs}
+                               ${webapp_costService.libs}
+                               ${webapp_procletService.libs}"/>
+        </copy>
+    </target>
+
+    <!-- ===================== TEST-RELATED TARGETS======================== -->
+
+    <!--
+        Run the unit tests
+    -->
+
+    <target name="unitTest" depends="compile-test">
+        <junit printsummary="withOutAndErr" fork="true">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath refid="cp.ds"/>
+            <classpath refid="cp.mail"/>
+            <classpath>
+                <pathelement location="${lib.dir}/${junit}"/>
+                <pathelement path="${java.class.path}"/>
+                <pathelement path="${classes.dir}"/>
+            </classpath>
+            <formatter type="plain"/>
+            <test name="org.yawlfoundation.yawl.TestAllYAWLSuites"/>
+        </junit>
+    </target>
+
+    <!--
+        Run the resourcing tests
+    -->
+
+    <target name="resourcingtest" depends="compile-test">
+        <java classname="org.yawlfoundation.yawl.resourcing.ResourcingTestSuite"
+              fork="true" failonerror="false">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+            <classpath refid="cp.apacheCommons"/>
+            <classpath refid="cp.jsf"/>
+            <classpath>
+                <pathelement location="${lib.dir}/${javaAssist}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!--
+        Compile test source code
+    -->
+
+    <target name="compile-test" depends="compile">
+        <copy todir="${classes.dir}">
+            <fileset dir="${test.dir}" excludes="**/*.java"/>
+        </copy>
+        <javac srcdir="${test.dir}" destdir="${classes.dir}">
+            <classpath refid="cp.standard"/>
+            <classpath refid="cp.compile"/>
+            <classpath refid="cp.wsif"/>
+            <classpath refid="cp.xsd"/>
+            <classpath refid="cp.persist"/>
+        </javac>
+    </target>
+
+
+    <!-- =====================MISC UTILITY TARGETS========================= -->
+
+    <!--
+        Cleans out Intellij .dependency-info to force re-compile
+    -->
+
+    <target name="removeDependancyInfo"
+            description="Force Intellij recompile by cleaning out .dependency-info">
+
+        <delete dir="${classes.dir}/.dependency-info"/>
+    </target>
+
+    <!--
+        ZIP up all material in output folder
+    -->
+
+    <target name="zipOutput"
+            description="ZIP up output folder">
+        <jar destfile="YAWLOutput.zip">
+            <fileset dir="${output.dir}"/>
+        </jar>
+    </target>
+
+
+    <!--
+        Produces a mapping of libraries used by all output wars & jars, which can
+        be used to identify unused libraries
+    -->
+    <target name="analyze" depends="buildWebApps">
+        <taskdef name="jaranalyzer"
+                 classname="com.kirkk.analyzer.textui.JarAnalyzerTask">
+            <classpath>
+                <pathelement path="${analyzer.dir}/jaranalyzer-1.2.jar"/>
+                <pathelement path="${analyzer.dir}/lib/bcel-5.2.jar"/>
+                <pathelement path="${analyzer.dir}/lib/jakarta-regexp-1.3.jar"/>
+                <pathelement path="${analyzer.dir}/lib"/>
+            </classpath>
+        </taskdef>
+
+        <delete dir="${temp.dir}/analyze"/>
+        <mkdir dir="${temp.dir}/analyze"/>
+        <copy todir="${temp.dir}/analyze">
+             <fileset dir="${lib.dir}"/>
+             <fileset dir="${output.dir}" includes="*.war *.jar"/>
+        </copy>
+        <move todir="${temp.dir}/analyze">
+          <fileset dir="${temp.dir}/analyze"/>
+          <mapper type="glob" from="*.war" to="*.jar"/>
+        </move>
+
+        <jaranalyzer srcdir="${temp.dir}/analyze"
+                     destfile="${analyzer.dir}/dependencies.xml"
+                     summaryclass="com.kirkk.analyzer.textui.XMLUISummary"
+                     packageFilter="java.*;javax.*;" />
+
+        <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
+              style="${analyzer.dir}/jaranalyzer.xsl"/>
+
+        <delete dir="${temp.dir}/analyze"/>
+    </target>
+
+
+</project>
