@@ -135,6 +135,7 @@ public class YPluginLoader extends URLClassLoader {
             }
         }
         catch (Throwable t) {
+            t.printStackTrace();
             // fall through
         }
         return null ;
