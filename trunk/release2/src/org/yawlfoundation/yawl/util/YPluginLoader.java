@@ -135,8 +135,7 @@ public class YPluginLoader extends URLClassLoader {
             }
         }
         catch (Throwable t) {
-            t.printStackTrace();
-            // fall through
+            _log.error("Failed to load class: " + instanceName, t);
         }
         return null ;
     }

@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -1027,14 +1028,20 @@ public class userWorkQueues extends AbstractPageBean {
 
             // complete button can enable if the item has no parameters OR
             // it has updated data and that data can validate
-            btnComplete.setDisabled(! (emptyItem || (wir.getUpdatedData() != null &&
-                     ((DynFormFactory) getBean("DynFormFactory")).validateInputs())));
+            btnComplete.setDisabled(! (emptyItem || validateSavedData(wir)));
 
             // set 'New Instance' button (not a task priv but convenient to do it here)
             String niAllowed = wir.getAllowsDynamicCreation();
             boolean canCreate = (niAllowed != null) && niAllowed.equalsIgnoreCase("true");
             btnNewInstance.setDisabled(!(canCreate && _rm.canAddNewInstance(wir)));
         }
+    }
+
+    /** @return true if the wir has updated data AND it validates against schema */
+    private boolean validateSavedData(WorkItemRecord wir) {
+        Element data = wir.getUpdatedData();
+        return data != null &&
+               _rm.checkWorkItemDataAgainstSchema(wir, data).startsWith("<success");
     }
 
 

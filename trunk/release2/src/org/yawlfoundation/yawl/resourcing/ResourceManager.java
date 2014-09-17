@@ -1477,7 +1477,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
+    public String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
         String result = "<success/>";
         if (!data.getName().equals(wir.getTaskName().replace(' ', '_'))) {
             result = fail(
@@ -2383,10 +2383,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         return outputs;
     }
 
-    private Map<String, FormParameter> mapParamList(List params) {
+    private Map<String, FormParameter> mapParamList(List<YParameter> params) {
         Map<String, FormParameter> result = new HashMap<String, FormParameter>();
-        for (Object obj : params) {
-            YParameter param = (YParameter) obj;
+        for (YParameter param : params) {
             FormParameter fp = new FormParameter(param);
             result.put(param.getName(), fp);
         }
@@ -2518,20 +2517,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             result = new DataSchemaBuilder(schemaMap).build(taskInfo);
         } catch (Exception e) {
             _log.error("Could not retrieve schema for workitem parameters", e);
-        }
-        return result;
-    }
-
-
-    public Map<String, FormParameter> getCaseInputParams(YSpecificationID spec) {
-        Map<String, FormParameter> result = new HashMap<String, FormParameter>();
-        SpecificationData specData = getSpecData(spec);
-        if (specData != null) {
-            List<YParameter> inputs = specData.getInputParams();
-            for (YParameter input : inputs) {
-                FormParameter param = new FormParameter(input);
-                result.put(param.getName(), param);
-            }
         }
         return result;
     }

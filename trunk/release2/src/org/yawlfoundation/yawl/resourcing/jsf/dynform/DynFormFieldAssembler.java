@@ -388,8 +388,10 @@ public class DynFormFieldAssembler {
     }
 
     private YAttributeMap getAttributeMap(String name) {
+        YAttributeMap map = new YAttributeMap();
         FormParameter param = _params.get(name);
-        return (param != null) ? param.getAttributes() : new YAttributeMap();
+        if (param != null) map.set(param.getAttributes());
+        return map;
     }
 
     

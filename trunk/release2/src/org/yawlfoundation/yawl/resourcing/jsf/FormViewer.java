@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.DynamicForm;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
@@ -72,9 +72,9 @@ public class FormViewer {
         if (result == null) {
             _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
 
-            DynFormFactory factory = _sb.getDynFormFactoryInstance();
-            factory.setDisplayedWIR(wir);
-            if (factory.initDynForm("YAWL " + _sb.getYawlVersion() + " - Edit Work Item")) {
+            DynamicForm factory = _sb.getDynFormFactoryInstance();
+            String title = "YAWL " + _sb.getYawlVersion() + " - Edit Work Item";
+            if (factory.makeForm(title, null, _sb.getTaskSchema(wir), wir)) {
                 result = "showDynForm" ;
             }
             else {
