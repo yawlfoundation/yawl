@@ -23,6 +23,7 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Button;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.DynamicForm;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
@@ -199,10 +200,10 @@ public class visualiser extends AbstractPageBean {
         }
 
         _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
-        DynFormFactory df = (DynFormFactory) getBean("DynFormFactory");
-        df.setHeaderText("Edit Work Item: " + selectedWIR.getCaseID());
-        df.setDisplayedWIR(selectedWIR);
-        if (df.initDynForm("YAWL 2.0 - Edit Work Item")) {
+        DynamicForm df = (DynamicForm) getBean("DynFormFactory");
+        String title = "YAWL 3.0 - Edit Work Item";
+        String header = "Edit Work Item: " + selectedWIR.getCaseID();
+        if (df.makeForm(title, header, _sb.getTaskSchema(selectedWIR), selectedWIR)) {
             _sb.setVisualiserReferred(true);
             _sb.setVisualiserEditedWIR(selectedWIR);
             return "showDynForm" ;

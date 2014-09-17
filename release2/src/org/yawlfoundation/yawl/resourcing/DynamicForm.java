@@ -1,6 +1,9 @@
 package org.yawlfoundation.yawl.resourcing;
 
-import java.util.Map;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -8,36 +11,54 @@ import java.util.Map;
  */
 public interface DynamicForm {
 
-    public static final int CASE_START = 0;
-    public static final int WORK_ITEM = 1;
-
     /**
      * Build and show a form to capture the work item's output data values.
      *
-     * @param formType              one of CASE_START (to capture values for net-level input
-     *                              parameters on case start) or WORK_ITEM (to display input
-     *                              parameters and capture output parameters for a work item)
-     * @param title                 The title to show in the browser window or tab
-     * @param data                  An XML String containing the data input values with which to
-     *                              populate the form
-     * @param schema                An XSD schema of the data types and attributes to display
-     * @param userDefinedAttributes a Map of key-value pairs representing user-
-     *                              defined attributes which may be used to
-     *                              configure the form's layout and display
-     * @return true if creating and showing the form is successful
+     * @param title  The form's title
+     * @param header A header text for the form top
+     * @param schema An XSD schema of the data types and attributes to display
+     * @param wir    The work item record to build the form for
+     * @return true if form creation is successful
      */
-    public boolean showForm(int formType, String title, String data, String schema,
-                            Map<String, String> userDefinedAttributes);
+    public boolean makeForm(String title, String header, String schema, WorkItemRecord wir);
+
 
 
     /**
-     * Gets the work item data list on completion of the form. The data list must be
+     * Build and show a form to capture the input data values on a case start.
+     *
+     * @param title      The form's title
+     * @param header     A header text for the form top
+     * @param schema     An XSD schema of the data types and attributes to display
+     * @param parameters a list of the root net's input parameters
+     * @return true if form creation is successful
+     */
+    public boolean makeForm(String title, String header, String schema,
+                            List<YParameter> parameters);
+
+
+    /**
+     * Gets the form's data list on completion of the form. The data list must be
      * a well-formed XML string representing the expected data structure for the work
-     * item. The opening and closing tag must be the name of task of which the work
-     * item is an instance.
+     * item or case start. The opening and closing tag must be the name of task of which
+     * the work item is an instance, or of the root net name of the case instance.
      *
      * @return A well-formed XML String of the work item's output data values
      */
     public String getDataList();
+
+
+    /**
+     * Gets a list of component identifiers that represent documents managed by the
+     * doc store service. Only for case-level forms.
+     *
+     * When a document is uploaded to the Document Store at case start, the upload occurs
+     * before the case has been launched and thus there is not yet a case id allocated.
+     * Once the case launch is successful, this method should be called to associate the
+     * case id with the already uploaded document.
+     *
+     * @return a List of Long identifiers
+     */
+    public List<Long> getDocComponentIDs();
 
 }

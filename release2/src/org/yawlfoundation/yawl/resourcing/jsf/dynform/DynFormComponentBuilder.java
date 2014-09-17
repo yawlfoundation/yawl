@@ -24,6 +24,7 @@ import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
 import com.sun.rave.web.ui.model.Option;
+import org.yawlfoundation.yawl.resourcing.jsf.FontUtil;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -74,7 +75,7 @@ public class DynFormComponentBuilder {
         String name = field.getName();
         SubPanel subPanel = new SubPanel();
         subPanel.setName(name);
-        subPanel.setId(_factory.createUniqueID("sub" + name));
+        subPanel.setId(createUniqueID("sub" + name));
         if ((! name.startsWith("choice")) && field.isFieldContainer())
             subPanel.getChildren().add(makeHeaderText(null, name)) ;
 
@@ -225,7 +226,7 @@ public class DynFormComponentBuilder {
 
     public Label makeSimpleLabel(String text) {
         Label label = new Label() ;
-        label.setId(_factory.createUniqueID("lbl" + _factory.despace(text)));
+        label.setId(createUniqueID("lbl" + _factory.despace(text)));
         label.setText(parseText(text) + ": ");
         return label;
     }
@@ -233,7 +234,7 @@ public class DynFormComponentBuilder {
 
     public StaticText makeHeaderText(String text, String defText) {
         StaticText header = new StaticText() ;
-        header.setId(_factory.createUniqueID("stt" + defText));
+        header.setId(createUniqueID("stt" + defText));
         String headerText = (text != null) ? text : _factory.enspace(defText);
         header.setText(headerText);
         header.setStyleClass("dynFormPanelHeader");
@@ -247,7 +248,7 @@ public class DynFormComponentBuilder {
 
     public Checkbox makeCheckbox(DynFormField input) {
         Checkbox cbox = new Checkbox();
-        cbox.setId(_factory.createUniqueID("cbx" + input.getName()));
+        cbox.setId(createUniqueID("cbx" + input.getName()));
         cbox.setSelected((input.getValue() != null) &&
                           input.getValue().equalsIgnoreCase("true")) ;
         cbox.setDisabled(isDisabled(input));
@@ -261,7 +262,7 @@ public class DynFormComponentBuilder {
 
     public Calendar makeCalendar(DynFormField input) {
         Calendar cal = new Calendar();
-        cal.setId(_factory.createUniqueID("cal" + input.getName()));
+        cal.setId(createUniqueID("cal" + input.getName()));
         cal.setSelectedDate(createDate(input.getValue(), -1));       // default to today
         cal.setDateFormatPatternHelp("");
         cal.setDisabled(isDisabled(input));
@@ -318,7 +319,7 @@ public class DynFormComponentBuilder {
 
     public DropDown makeEnumeratedList(DynFormField input) {
         DropDown dropdown = new DropDown();
-        dropdown.setId(_factory.createUniqueID("cal" + input.getName()));
+        dropdown.setId(createUniqueID("cal" + input.getName()));
         dropdown.setStyleClass(getInputStyleClass(input));
         dropdown.setStyle(makeStyle(dropdown, input)) ;
         dropdown.setItems(getEnumeratedList(input));
@@ -348,7 +349,7 @@ public class DynFormComponentBuilder {
 
     public TextArea makeTextArea(DynFormField input) {
         TextArea textarea = new TextArea();
-        textarea.setId(_factory.createUniqueID("txa" + input.getName()));
+        textarea.setId(createUniqueID("txa" + input.getName()));
         textarea.setStyleClass(getInputStyleClass(input));
         textarea.setStyle(makeStyle(textarea, input));
         textarea.setDisabled(isDisabled(input));
@@ -368,7 +369,7 @@ public class DynFormComponentBuilder {
 
     public TextField makeTextField(DynFormField input) {
         TextField textField = new TextField() ;
-        textField.setId(_factory.createUniqueID("txt" + input.getName()));
+        textField.setId(createUniqueID("txt" + input.getName()));
         textField.setStyleClass(getInputStyleClass(input));
         textField.setStyle(makeStyle(textField, input));
         textField.setDisabled(isDisabled(input));
@@ -385,7 +386,7 @@ public class DynFormComponentBuilder {
         DynFormField name = input.getSubField("name");
         DynFormField id = input.getSubField("id");
         TextField textField = makeTextField(name);
-        String uniqueID = _factory.createUniqueID("doc" + input.getName());
+        String uniqueID = createUniqueID("doc" + input.getName());
         boolean inputOnly = input.isInputOnly();
         DocComponent docField =
                 new DocComponent(id.getValue(), name.getValue(), uniqueID, textField, inputOnly);
@@ -400,7 +401,7 @@ public class DynFormComponentBuilder {
 
     public RadioButton makeRadioButton(DynFormField input) {
         RadioButton rb = new RadioButton();
-        rb.setId(_factory.createUniqueID("rb" + input.getName()));
+        rb.setId(createUniqueID("rb" + input.getName()));
         rb.setLabel("");
         rb.setName(input.getChoiceID());               // same name means same rb group
         rb.setStyle(makeStyle(rb, input));
@@ -413,7 +414,7 @@ public class DynFormComponentBuilder {
 
     private StaticTextBlock makeStaticTextBlock(DynFormField input, String text) {
         StaticTextBlock block = new StaticTextBlock() ;
-        block.setId(_factory.createUniqueID("stb"));
+        block.setId(createUniqueID("stb"));
         block.setText(parseText(text));
         block.setStyle(String.format("position: absolute; text-align: left; left: 10px; %s;",
                 input.getUserDefinedFontStyle()));
@@ -424,7 +425,7 @@ public class DynFormComponentBuilder {
 
     private FlatPanel makeFlatPanel() {
         FlatPanel line = new FlatPanel();                                        
-        line.setId(_factory.createUniqueID("fpl"));
+        line.setId(createUniqueID("fpl"));
         line.setStyle("position: absolute; background-color: black; left: 10px; height: 2px;");
         return line;
     }
@@ -435,7 +436,7 @@ public class DynFormComponentBuilder {
         if (size.getHeight() < 0) return null;
        
         ImageComponent image = new ImageComponent();
-        image.setId(_factory.createUniqueID("img"));
+        image.setId(createUniqueID("img"));
         image.setUrl(imagePath);
         image.setHeight((int) size.getHeight());
         image.setWidth((int) size.getWidth());
@@ -566,6 +567,8 @@ public class DynFormComponentBuilder {
         // use field's udFont first, then form's, then default (via formfonts)
         Font font = input.getFont();
         if (font == null) font = _factory.getFormFonts().getFormFont();
-        return _factory.getTextWidth(text, font);
+        return FontUtil.getTextWidth(text, font);
     }
+
+    private String createUniqueID(String id) { return IdGenerator.uniquify(id); }
 }

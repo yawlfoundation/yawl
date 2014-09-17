@@ -48,7 +48,7 @@ public class SubPanelCloner {
     private SubPanel cloneSubPanel(SubPanel panel) {
         SubPanel newPanel = panel.clone() ;
         String name = newPanel.getName();
-        newPanel.setId(_factory.createUniqueID("sub" + name));
+        newPanel.setId(createUniqueID("sub" + name));
 
         // clone panel content
         Hashtable<UIComponent, Integer> tops = new Hashtable<UIComponent, Integer>();
@@ -127,7 +127,7 @@ public class SubPanelCloner {
         Label oldLabel = (Label) label ;
         Label newLabel = new Label() ;
         newLabel.setText(oldLabel.getText());
-        newLabel.setId(_factory.createUniqueID(oldLabel.getId())) ;
+        newLabel.setId(createUniqueID(oldLabel.getId())) ;
         newLabel.setRequiredIndicator(oldLabel.isRequiredIndicator());
         newLabel.setStyle(oldLabel.getStyle());
         newLabel.setStyleClass(oldLabel.getStyleClass());
@@ -140,7 +140,7 @@ public class SubPanelCloner {
         TextField oldField = (TextField) field ;
         TextField newField = new TextField() ;
         newField.setText(oldField.getText());
-        newField.setId(_factory.createUniqueID(oldField.getId()));
+        newField.setId(createUniqueID(oldField.getId()));
         newField.setRequired(oldField.isRequired());
         newField.setDisabled(oldField.isDisabled());
         newField.setStyleClass(oldField.getStyleClass());
@@ -155,7 +155,7 @@ public class SubPanelCloner {
         Calendar oldField = (Calendar) field ;
         Calendar newField = new Calendar() ;
         newField.setDateFormatPatternHelp("");
-        newField.setId(_factory.createUniqueID(oldField.getId()));
+        newField.setId(createUniqueID(oldField.getId()));
         newField.setSelectedDate(oldField.getSelectedDate());
         newField.setDisabled(oldField.isDisabled());
         newField.setRequired(oldField.isRequired());
@@ -171,7 +171,7 @@ public class SubPanelCloner {
     public UIComponent cloneCheckbox(UIComponent field) {
         Checkbox oldCbox = (Checkbox) field ;
         Checkbox newCbox = new Checkbox() ;
-        newCbox.setId(_factory.createUniqueID(oldCbox.getId()));
+        newCbox.setId(createUniqueID(oldCbox.getId()));
         newCbox.setSelected(oldCbox.isChecked()) ;
         newCbox.setRequired(oldCbox.isRequired());
         newCbox.setDisabled(oldCbox.isDisabled());
@@ -184,7 +184,7 @@ public class SubPanelCloner {
     public UIComponent cloneDropDown(UIComponent field) {
         DropDown oldDrop = (DropDown) field ;
         DropDown newDrop = new DropDown() ;
-        newDrop.setId(_factory.createUniqueID(oldDrop.getId()));
+        newDrop.setId(createUniqueID(oldDrop.getId()));
         newDrop.setStyleClass(oldDrop.getStyleClass());
         newDrop.setStyle(oldDrop.getStyle()) ;
         newDrop.setItems(oldDrop.getItems());
@@ -196,7 +196,7 @@ public class SubPanelCloner {
     public RadioButton cloneRadioButton(UIComponent field) {
         RadioButton oldRadio = (RadioButton) field;
         RadioButton newRadio = new RadioButton();
-        newRadio.setId(_factory.createUniqueID(oldRadio.getId()));
+        newRadio.setId(createUniqueID(oldRadio.getId()));
         newRadio.setName(oldRadio.getName() + _rbGroupID);                // new rb group
         newRadio.setSelected(oldRadio.getSelected());
         newRadio.setStyle(oldRadio.getStyle());
@@ -208,7 +208,7 @@ public class SubPanelCloner {
     public UIComponent cloneStaticText(UIComponent field) {
         StaticText oldStatic = (StaticText) field ;
         StaticText newStatic = new StaticText() ;
-        newStatic.setId(_factory.createUniqueID(oldStatic.getId()));
+        newStatic.setId(createUniqueID(oldStatic.getId()));
         newStatic.setText(oldStatic.getText());
         newStatic.setStyleClass(oldStatic.getStyleClass());
         return newStatic;
@@ -239,5 +239,7 @@ public class SubPanelCloner {
         }
         if (! processed.isEmpty()) _factory.addSubPanelControllerMap(processed);
     }
+
+    private String createUniqueID(String id) { return IdGenerator.uniquify(id); }
 
 }

@@ -35,6 +35,12 @@ public class FontUtil {
     }
 
 
+    public static int getTextWidth(String s, Font font) {
+        if ((s == null) || (s.length() == 0)) return 0;
+        return (int) Math.ceil(getFontMetrics(s, font).getWidth());
+    }
+
+
     
     static class FontBox extends JComponent {
 

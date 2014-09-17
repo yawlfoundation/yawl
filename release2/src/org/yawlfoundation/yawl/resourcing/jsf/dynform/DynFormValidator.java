@@ -41,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Michael Adams
@@ -50,7 +51,7 @@ import java.util.List;
 public class DynFormValidator {
 
     private MessagePanel _msgPanel;
-    private Hashtable<UIComponent, DynFormField> _componentFieldLookup;
+    private Map<UIComponent, DynFormField> _componentFieldLookup;
 
     public final static String NS_URI = XMLConstants.W3C_XML_SCHEMA_NS_URI;
     public final static String NS_PREFIX = "xsd";
@@ -58,7 +59,6 @@ public class DynFormValidator {
     private final String _ns = XMLConstants.W3C_XML_SCHEMA_NS_URI;
     private final SchemaFactory _factory = SchemaFactory.newInstance(_ns);
     private final ErrorHandler _errorHandler = new ErrorHandler();
-    private final Logger _log = Logger.getLogger(this.getClass());
 
 
     public DynFormValidator() {
@@ -67,7 +67,7 @@ public class DynFormValidator {
 
     
     public boolean validate(PanelLayout panel,
-                            Hashtable<UIComponent, DynFormField> componentFieldLookup,
+                            Map<UIComponent, DynFormField> componentFieldLookup,
                             MessagePanel msgPanel) {
 
         _componentFieldLookup = componentFieldLookup;
@@ -157,7 +157,10 @@ public class DynFormValidator {
         DynFormField input = _componentFieldLookup.get(field);
         if ((input != null) && (! input.hasSkipValidationAttribute())) {
             if (input.isRequired() && (field.getText() == null)) {
-                _msgPanel.error("Field '" + input.getLabelText() + "' requires a value.\n");
+                if (_msgPanel != null) {
+                    _msgPanel.error("Field '" + input.getLabelText() +
+                            "' requires a value.\n");
+                }
                 result = false;
             }
         }
@@ -213,7 +216,9 @@ public class DynFormValidator {
     private boolean validateRequired(DynFormField input, String value) {
         boolean result = true;
         if (input.isRequired() && isEmptyValue(value)) {
-            _msgPanel.error("Field '" + input.getLabelText() + "' requires a value.\n");
+            if (_msgPanel != null) {
+                _msgPanel.error("Field '" + input.getLabelText() + "' requires a value.\n");
+            }
             result = false;
         }
         return result;
@@ -339,11 +344,14 @@ public class DynFormValidator {
             value = input.getRestriction().getFractionDigits();
             msg = "The value in field '%s' must have exactly %s digits after the decimal point.";
         }
-        if (msg != null) _msgPanel.error(String.format(msg, name, value));
+        if (! (msg == null || _msgPanel == null)) {
+            _msgPanel.error(String.format(msg, name, value));
+        }
     }
 
 
     private void addErrorMessage(DynFormField input, String value) {
+        if (_msgPanel == null) return;
         String msg = input.getAlertText();
         if (msg == null) {
             String base = "The value '%s' is not valid for field '%s'. " +
@@ -358,6 +366,7 @@ public class DynFormValidator {
     
      private void addValidationErrorMessage(String value, String fieldName,
                                             String type, boolean untreated) {
+         if (_msgPanel == null) return;
          String name = untreated ? normaliseFieldName(fieldName) : fieldName ;
          String msg  =
              String.format("Invalid value '%s' in field '%s', expecting a valid %s value",
@@ -416,7 +425,7 @@ public class DynFormValidator {
             }
         }
         catch (SAXException se) {
-            _msgPanel.error(se.getMessage());
+            if (_msgPanel != null) _msgPanel.error(se.getMessage());
             se.printStackTrace();
         }
         catch (IOException e) {

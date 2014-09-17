@@ -23,7 +23,7 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
  *
  * Author: Michael Adams
  * Creation Date: 19/01/2008
- * Refactored 10/08/2008 - 04/2010
+ * Refactored 10/08/2008 - 04/2010 - 09/2014
  */
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
@@ -34,11 +34,14 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
+import org.apache.log4j.Logger;
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.DynamicForm;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.FontUtil;
+import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -60,9 +63,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
     private void _init() throws Exception { }
 
-    /**
-     * ************************************************************************
-     */
+    /**************************************************************************/
 
     // components & settings of the dynamic form that are managed by this factory object
 
@@ -129,43 +130,49 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     public void setFocus(String s) { focus = s; }
 
 
-    /**
-     * ************************************************************************
-     */
-
-    // a running set of component id's - used to ensure id uniqueness
-    private Set<String> _usedIDs = new HashSet<String>();
+    /***************************************************************************/
 
     // the set of generated subpanels on the current form
-    private Hashtable<String, SubPanelController> _subPanelTable =
-            new Hashtable<String, SubPanelController>();
+    private Map<String, SubPanelController> _subPanelTable =
+            new HashMap<String, SubPanelController>();
 
     // a map of inputs to the textfields they generated (required for validation)
-    private Hashtable<UIComponent, DynFormField> _componentFieldTable;
+    private Map<UIComponent, DynFormField> _componentFieldTable;
 
     // a map of the non-SubPanel components of the outermost panel and their y-coords
-    private Hashtable<UIComponent, Integer> _outermostTops =
-            new Hashtable<UIComponent, Integer>();
+    private Map<UIComponent, Integer> _outermostTops = new HashMap<UIComponent, Integer>();
 
-    // used to maintain the 'status' of the component add process
-    protected enum ComponentType {
-        nil, panel, field, radio, line, textblock, image
-    }
+    // a reference to the sessionbean
+    private SessionBean _sb = (SessionBean) getBean("SessionBean");
+
+    // the workitem's extended attributes (decomposition level) *
+    private DynFormUserAttributes _userAttributes;
+
+    // the object that manufactures the form's fields *
+    private DynFormFieldAssembler _fieldAssembler;
+
+    // the wir currently populating the form
+    private WorkItemRecord _displayedWIR;
+
+    // user defined fonts store
+    private DynFormFont _formFonts;
+
+    // overall height in pixels of the generated form
+    private int _overallHeight;
 
     // some constants for layout arithmetic
-    static final int Y_DEF_INCREMENT = 10;     // default gap between components
+    static final int Y_DEF_INCREMENT = 10;          // default gap between components
     static final int Y_CHOICE_DECREMENT = 20;   // dec of y coord for choice container top
-    static final int SUBPANEL_INSET = 10;      // gap between panel side walls
+    static final int SUBPANEL_INSET = 10;           // gap between panel side walls
     static final int OUTER_PANEL_TO_BUTTONS = 20;   // gap from panel bottom to buttons
-    static final int OUTER_PANEL_TOP = 80;      // top (y) coord of outer panel
-    static final int OUTER_PANEL_LEFT = 0;      // left (x) coord of outer panel
-    static final int FORM_BUTTON_WIDTH = 76;    // buttons under outer panel
+    static final int OUTER_PANEL_LEFT = 0;          // left (x) coord of outer panel
+    static final int FORM_BUTTON_WIDTH = 76;        // buttons under outer panel
     static final int FORM_BUTTON_HEIGHT = 30;
-    static final int FORM_BUTTON_GAP = 15;      // ... and the gap between them
+    static final int FORM_BUTTON_GAP = 15;          // ... and the gap between them
     static final int BOTTOM_PANEL_HEIGHT = 20;
     static final int X_LABEL_OFFSET = 10;
     static final int DEFAULT_FIELD_OFFSET = 125;
-    static final int DEFAULT_PANEL_BASE_WIDTH = 250;         // width of innermost panel
+    static final int DEFAULT_PANEL_BASE_WIDTH = 250;       // width of innermost panel
     static final int DEFAULT_FIELD_WIDTH = 145;
     static final int DEFAULT_LABEL_FIELD_GAP = 20;
     static final int CHECKBOX_FIELD_WIDTH = 10;
@@ -178,174 +185,217 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     static int FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
 
 
-    /*********************************************************************************/
-
-    /**
-     * a reference to the sessionbean
-     */
-    private SessionBean _sb = (SessionBean) getBean("SessionBean");
-
-    /**
-     * the workitem's extended attributes (decomposition level) *
-     */
-    private DynFormUserAttributes _userAttributes;
-
-    /**
-     * the object that manufactures the form's fields *
-     */
-    private DynFormFieldAssembler _fieldAssembler;
-
-    // the wir currently populating the form
-    private WorkItemRecord _displayedWIR;
-
-    // user defined fonts store
-    private DynFormFont _formFonts;
-
-    // overall height in pixels of the generated form
-    private int _overallHeight;
-
-    public WorkItemRecord getDisplayedWIR() { return _displayedWIR; }
-
-    public void setDisplayedWIR(WorkItemRecord wir) { _displayedWIR = wir; }
-
+    /*******************************************************************************/
+    // INTERFACE METHOD IMPLEMENTATIONS
 
     /**
      * Build and show a form to capture the work item's output data values.
      *
-     * @param formType              one of CASE_START (to capture values for net-level input
-     *                              parameters on case start) or WORK_ITEM (to display input
-     *                              parameters and capture output parameters for a work item)
-     * @param title                 The form's title
-     * @param data                  An XML String containing the data input values with which to
-     *                              populate the form
-     * @param schema                An XSD schema of the data types and attributes to display
-     * @param userDefinedAttributes a Map of key-value pairs representing user-
-     *                              defined attributes which may be used to
-     *                              configure the form's layout and display
-     * @return true if creating and showing the form is successful
+     * @param title  The form's title
+     * @param header A header text for the form top
+     * @param schema An XSD schema of the data types and attributes to display
+     * @param wir    the work item record
+     * @return true if form creation is successful
      */
-    public boolean showForm(int formType, String title, String data, String schema,
-                            Map<String, String> userDefinedAttributes) {
-        setTitle(title);
+    public boolean makeForm(String title, String header, String schema, WorkItemRecord wir) {
+        reset();
+        _userAttributes = new DynFormUserAttributes(wir.getAttributeTable());
+        _displayedWIR = wir;
+        setShowBanner();
+        return buildForm(title, header, schema, getWorkItemData(wir), getParamInfo(wir));
+     }
 
-        // start with a clean form
+
+    /**
+     * Build and show a form to capture the input data values on a case start.
+     *
+     * @param title      The form's title
+     * @param header     A header text for the form top
+     * @param schema     An XSD schema of the data types and attributes to display
+     * @param parameters a list of the root net's input parameters
+     * @return true if form creation is successful
+     */
+    public boolean makeForm(String title, String header, String schema,
+                            List<YParameter> parameters) {
+        reset();
+        return buildForm(title, header, schema, null, getCaseParamMap(parameters));
+    }
+
+
+    /**
+     * Gets the form's data list on completion of the form. The data list must be
+     * a well-formed XML string representing the expected data structure for the work
+     * item or case start. The opening and closing tag must be the name of task of which
+     * the work item is an instance, or of the root net name of the case instance.
+     *
+     * @return A well-formed XML String of the work item's output data values
+     */
+    public String getDataList() {
+        return new DataListGenerator(this).generate(compPanel, _fieldAssembler.getFieldList());
+    }
+
+
+    public List<Long> getDocComponentIDs() {
+        List<Long> ids = new ArrayList<Long>();
+        for (Object o : compPanel.getChildren()) {
+            if (o instanceof DocComponent) {
+                DocComponent docComponent = (DocComponent) o;
+                ids.add(docComponent.getID());
+            }
+        }
+        return ids;
+    }
+
+
+    /***********************************************************************************/
+
+    public void processOccursAction(SubPanel panel, String btnType) {
+        if (btnType.equals("+"))
+            addSubPanel(panel);
+        else
+            removeSubPanel(panel);
+
+        // resize outermost panel
+        sizeAndPositionContent(compPanel);
+    }
+
+
+    public int getFormWidth() {
+        int btnCount = getNumberOfVisibleButtons();
+        int btnBlockWidth = (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
+        return Math.max(btnBlockWidth, getOuterPanelWidth());
+    }
+
+
+    public int getFormHeight() { return _overallHeight; }
+
+
+    public void resetFormHeight() { _overallHeight = -1; }
+
+
+    public boolean validateInputs(boolean reportErrors) {
+        MessagePanel msgPanel = reportErrors ? _sb.getMessagePanel() : null;
+        return new DynFormValidator().validate(compPanel, _componentFieldTable, msgPanel);
+    }
+
+
+    protected Button makeOccursButton(String name, String text) {
+        Button button = new Button();
+        button.setId(createUniqueID("btn" + name));
+        button.setText(text);
+        button.setNoTextPadding(true);
+        button.setMini(true);
+        button.setEscape(false);
+        button.setStyleClass("dynformOccursButton");
+        button.setImmediate(true);
+        button.setActionListener(bindOccursButtonListener());
+        if (text.equals("+"))
+            button.setToolTip("Add another content set to this panel");
+        else {
+            button.setToolTip("Remove a content set from this panel");
+            button.setDisabled(true);         // can't have less than one panel instance
+        }
+        return button;
+    }
+
+
+    protected String getDefaultFormName() { return _fieldAssembler.getFormName(); }
+
+
+    protected DynFormField getFieldForComponent(UIComponent component) {
+        return (component != null) ? _componentFieldTable.get(component) : null;
+    }
+
+
+    protected void addSubPanelControllerMap(Map<String, SubPanelController> map) {
+        for (SubPanelController controller : map.values()) {
+            _subPanelTable.put(createUniqueID("clonedGroup"), controller);
+        }
+    }
+
+
+    protected void addClonedFieldToTable(TextField orig, TextField clone) {
+        DynFormField field = _componentFieldTable.get(orig);
+        if (field != null) {
+            _componentFieldTable.put(clone, field);
+        }
+    }
+
+
+    protected String enspace(String text) { return replaceInternalChars(text, '_', ' '); }
+
+
+    protected String despace(String text) { return replaceInternalChars(text, ' ', '_'); }
+
+
+    private void reset() {
+        IdGenerator.clear();
         compPanel.getChildren().clear();
-        _usedIDs.clear();
         _subPanelTable.clear();
         _outermostTops.clear();
+        _displayedWIR = null;
+        _userAttributes = null;
 
         // reset default widths
         X_FIELD_OFFSET = DEFAULT_FIELD_OFFSET;
         PANEL_BASE_WIDTH = DEFAULT_PANEL_BASE_WIDTH;
         FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
+    }
 
-        _userAttributes = (formType == DynamicForm.CASE_START) ? null :
-                new DynFormUserAttributes(userDefinedAttributes);
 
+    private boolean buildForm(String title, String header, String schema, String data,
+                              Map<String, FormParameter> paramMap) {
         try {
-            _fieldAssembler = new DynFormFieldAssembler(schema, data, getParamInfo());
-        } catch (DynFormException dfe) {
-            dfe.printStackTrace();
+            _fieldAssembler = new DynFormFieldAssembler(schema, data, paramMap);
+        }
+        catch (DynFormException dfe) {
+            Logger.getLogger(this.getClass()).error("Failed to build dynamic form", dfe);
             return false;
         }
         setFormFonts();
-        setTitleAndBanner();
-        buildForm();
-
-        return true;
-    }
-
-    /**
-     * Initialises a new dynamic form
-     *
-     * @param title the page title
-     * @return true if form is successfully initialised
-     */
-    public boolean initDynForm(String title) {
         setTitle(title);
-
-        // start with a clean form
-        compPanel.getChildren().clear();
-        _usedIDs.clear();
-        _subPanelTable.clear();
-        _outermostTops.clear();
-
-        // reset default widths 
-        X_FIELD_OFFSET = DEFAULT_FIELD_OFFSET;
-        PANEL_BASE_WIDTH = DEFAULT_PANEL_BASE_WIDTH;
-        FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
-
-        // get schema and data for case/workitem
-        try {
-            String schema = getSchema();
-            if (schema != null) {
-                String data = getInstanceData();
-                _userAttributes = getUserAttributes();
-                _fieldAssembler = new DynFormFieldAssembler(schema, data, getParamInfo());
-                setFormFonts();
-                setTitleAndBanner();
-                buildForm();
-            }
-            return (schema != null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    /**
-     * @return the data schema for the case/item to be displayed
-     */
-    private String getSchema() {
-        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            return _sb.getCaseSchema();
-        else
-            return _sb.getTaskSchema(_displayedWIR);
-    }
-
-
-    /**
-     * @return the instance data for the currently displayed case/workitem
-     */
-    private String getInstanceData() {
-        return (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel) ?
-                null : getWorkItemData();
+        setHeader(header);
+        buildForm();
+        return true;
     }
 
 
     /**
      * @return a map of case or workitem parameters [param name, param] *
      */
-    private Map<String, FormParameter> getParamInfo() {
-        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            return _sb.getCaseParams();
-        else
-            return ((ApplicationBean) getBean("ApplicationBean")).getWorkItemParams(_displayedWIR);
+    private Map<String, FormParameter> getParamInfo(WorkItemRecord wir) {
+        return ((ApplicationBean) getBean("ApplicationBean")).getWorkItemParams(wir);
     }
+
+
+    private Map<String, FormParameter> getCaseParamMap(List<YParameter> paramList) {
+        Map<String, FormParameter> map = new HashMap<String, FormParameter>();
+        if (paramList != null) {
+            for (YParameter param : paramList) {
+                 map.put(param.getName(), new FormParameter(param));
+            }
+        }
+        return map;
+    }
+
 
 
     /**
      * @return the decomposition-level extended attributes *
      */
-    private DynFormUserAttributes getUserAttributes() {
-        if (_sb.getDynFormType() == ApplicationBean.DynFormType.netlevel)
-            return null;
-        else {
-            if (_displayedWIR == null) return null;
-            return new DynFormUserAttributes(_displayedWIR.getAttributeTable());
-        }
-    }
+    private DynFormUserAttributes getUserAttributes() { return _userAttributes; }
 
 
     /**
      * @return the data of the displayed workitem *
      */
-    protected String getWorkItemData() {
-        if (_displayedWIR == null) return null;
-        Element data = (_displayedWIR.getUpdatedData() != null) ?
-                _displayedWIR.getUpdatedData() :
-                _displayedWIR.getDataList();
+    protected String getWorkItemData() { return getWorkItemData(_displayedWIR); }
+
+
+    private String getWorkItemData(WorkItemRecord wir) {
+        if (wir == null) return null;
+        Element data = wir.getUpdatedData() != null ? wir.getUpdatedData() :
+                wir.getDataList();
         return JDOMUtil.elementToStringDump(data);
     }
 
@@ -370,19 +420,23 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private void setTitleAndBanner() {
-        if (getAttributes() != null) {                  // if case level, attrs are null
+    private void setHeader(String header) {
 
-            // set user defined title if any, or a default if not
-            String title = getAttributeValue("title");
-            if (title == null) title = "Edit Work Item: " + _displayedWIR.getCaseID();
-            setHeaderText(title);
-
-            // hide the banner if user requested
-            boolean hide = getAttributes().getBooleanValue("hideBanner");
-            _sb.setShowYAWLBanner(!hide);
+        // set user defined header if any, or a default if not
+        if (getAttributes() != null) {
+            if (header == null) header = getAttributeValue("title");
+            if (header == null) header = "Edit Work Item: " + _displayedWIR.getCaseID();
         }
+        setHeaderText(header);
     }
+
+
+    // hide the banner if user requested
+    private void setShowBanner() {
+        boolean hide = getAttributes() != null && getAttributes().getBooleanValue("hideBanner");
+        _sb.setShowYAWLBanner(!hide);
+    }
+
 
     private void buildForm() {
         DynFormComponentBuilder builder = new DynFormComponentBuilder(this);
@@ -577,20 +631,15 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         return height;
     }
 
-    protected int getFieldHeight(UIComponent component) {
+    private int getFieldHeight(UIComponent component) {
         DynFormField field = _componentFieldTable.get(component);
         return (field != null) ? getFieldHeight(field) : DEFAULT_FIELD_HEIGHT;
     }
 
-    protected int getFieldHeight(DynFormField field) {
+    private int getFieldHeight(DynFormField field) {
         Font font = field.getFont();
         if (font == null) font = _formFonts.getFormFont();
         return (int) Math.ceil(FontUtil.getFontMetrics("dummyText", font).getHeight());
-    }
-
-    protected int getTextWidth(String s, Font font) {
-        if ((s == null) || (s.length() == 0)) return 0;
-        return (int) Math.ceil(FontUtil.getFontMetrics(s, font).getWidth());
     }
 
 
@@ -720,17 +769,6 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    public List<Long> getDocComponentIDs() {
-        List<Long> ids = new ArrayList<Long>();
-        for (Object o : compPanel.getChildren()) {
-            if (o instanceof DocComponent) {
-                DocComponent docComponent = (DocComponent) o;
-                ids.add(docComponent.getID());
-            }
-        }
-        return ids;
-    }
-
     private void setTopStyle(UIComponent component, int top) {
         String style = getStyle(component);
         if (style == null) style = "";
@@ -815,31 +853,12 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    protected Button makeOccursButton(String name, String text) {
-        Button button = new Button();
-        button.setId(createUniqueID("btn" + name));
-        button.setText(text);
-        button.setNoTextPadding(true);
-        button.setMini(true);
-        button.setEscape(false);
-        button.setStyleClass("dynformOccursButton");
-        button.setImmediate(true);
-        button.setActionListener(bindOccursButtonListener());
-        if (text.equals("+"))
-            button.setToolTip("Add another content set to this panel");
-        else {
-            button.setToolTip("Remove a content set from this panel");
-            button.setDisabled(true);         // can't have less than one panel instance
-        }
-        return button;
-    }
-
-
     private MethodBinding bindOccursButtonListener() {
         Application app = FacesContext.getCurrentInstance().getApplication();
         return app.createMethodBinding("#{dynForm.btnOccursAction}",
                 new Class[]{ActionEvent.class});
     }
+
 
     private boolean isFirstRadioGroupMember(List content, String groupID) {
         for (Object component : content) {
@@ -853,33 +872,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    protected String createUniqueID(String id) {
-        char[] idChars = id.toCharArray();
-        StringBuilder cleanChars = new StringBuilder(idChars.length);
-
-        // only letter, digit, underscore or dash allowed for an id
-        for (char c : idChars) {
-            if (Character.isJavaIdentifierPart(c) && c != '$') {
-                cleanChars.append(c);
-            }
-        }
-        String cleanid = cleanChars.toString();
-        int suffix = 0;
-        while (_usedIDs.contains(cleanid + ++suffix)) ;
-        String result = cleanid + suffix;
-        _usedIDs.add(result);
-        return result;
-    }
-
-
-    protected String getDefaultFormName() {
-        return _fieldAssembler.getFormName();
-    }
-
-
-    protected DynFormField getFieldForComponent(UIComponent component) {
-        return (component != null) ? _componentFieldTable.get(component) : null;
-    }
+    private String createUniqueID(String id) { return IdGenerator.uniquify(id); }
 
 
     private int getMaxDepthLevel() {
@@ -934,13 +927,6 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    protected void addSubPanelControllerMap(Map<String, SubPanelController> map) {
-        for (SubPanelController controller : map.values()) {
-            _subPanelTable.put(createUniqueID("clonedGroup"), controller);
-        }
-    }
-
-
     private void removeSubPanelController(SubPanel panel) {
         _subPanelTable.remove(panel.getName());
     }
@@ -957,14 +943,6 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    protected void addClonedFieldToTable(TextField orig, TextField clone) {
-        DynFormField field = _componentFieldTable.get(orig);
-        if (field != null) {
-            _componentFieldTable.put(clone, field);
-        }
-    }
-
-
     private void repositionOutermostFields(int startingY, int adjustment) {
         for (UIComponent component : _outermostTops.keySet()) {
             int top = _outermostTops.get(component);
@@ -977,58 +955,12 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    public void processOccursAction(SubPanel panel, String btnType) {
-        if (btnType.equals("+"))
-            addSubPanel(panel);
-        else
-            removeSubPanel(panel);
-
-        // resize outermost panel
-        sizeAndPositionContent(compPanel);
-    }
-
-
-    public String getDataList() {
-        return new DataListGenerator(this).generate(compPanel, _fieldAssembler.getFieldList());
-    }
-
-
-    public int getFormWidth() {
-        int btnCount = getNumberOfVisibleButtons();
-        int btnBlockWidth = (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
-        return Math.max(btnBlockWidth, getOuterPanelWidth());
-    }
-
-    protected int getOuterPanelWidth() {
+    private int getOuterPanelWidth() {
         return PANEL_BASE_WIDTH + (SUBPANEL_INSET * 2 * (getMaxDepthLevel() + 2));
     }
 
 
-    public int getFormHeight() {
-        return _overallHeight;
-    }
-
-    public void resetFormHeight() { _overallHeight = -1; }
-
-    public boolean validateInputs() {
-        return new DynFormValidator().validate(compPanel, _componentFieldTable,
-                _sb.getMessagePanel());
-    }
-
-
-    private DynFormUserAttributes getAttributes() {
-        return _userAttributes;
-    }
-
-
-    protected String enspace(String text) {
-        return replaceInternalChars(text, '_', ' ');
-    }
-
-
-    protected String despace(String text) {
-        return replaceInternalChars(text, ' ', '_');
-    }
+    private DynFormUserAttributes getAttributes() { return _userAttributes; }
 
 
     // replaces each internally occurring 'pre' char with a 'post' char

@@ -192,9 +192,6 @@ public class dynForm extends AbstractPageBean {
      * @return a reference to the referring page
      */
     public String btnOK_action() {
-//        if (! getDynFormFactory().validateInputs())
-//            return null;
-//
         return saveForm();
     }
 
@@ -205,8 +202,7 @@ public class dynForm extends AbstractPageBean {
      * @return a reference to the referring page
      */
     public String btnComplete_action() {
-        if (! getDynFormFactory().validateInputs())
-            return null;
+        if (! getDynFormFactory().validateInputs(true)) return null;
 
         _sb.setCompleteAfterEdit(true);
         return saveForm();

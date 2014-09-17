@@ -19,37 +19,40 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.io.Serializable;
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  *  Adds a few extra members to a YParameter object, so it can be used to populate
  *  JSF pages.
  *
  *  @author Michael Adams
- *  Date: 9/01/2008
+ *  Date: 9/01/2008 (updated 09/2014)
  */
-public class FormParameter extends YParameter implements Serializable {
+public class FormParameter implements Serializable {
 
-    private String _value ;
-    private boolean _inputOnly ;
-    private boolean _required ;
+    private String _name;
+    private String _dataType;
+    private String _value;
+    private boolean _inputOnly;
+    private boolean _required;
+    private Map<String, String> _attributes;
 
-    public FormParameter() {}
 
-    // Constructor - casts a YParameter UP
-    public FormParameter(YParameter param) {
-        super(param.getParentDecomposition(), param.getParamTypeStr()) ;
-        setInitialValue(param.getInitialValue());
-        setDataTypeAndName(param.getDataTypeName(), param.getName(),
-                           param.getDataTypeNameSpace());
-        setDocumentation(param.getDocumentation());
-        setOrdering(param.getOrdering());
-        setElementName(param.getElementName());
-        setAttributes(param.getAttributes());
+    public FormParameter(String name, String dataType, Map<String, String> attributes) {
+        _name = name;
+        _dataType = dataType;
+        _attributes = attributes;
     }
+
+
+    public FormParameter(YParameter parameter) {
+        _name = parameter.getName();
+        _dataType = parameter.getDataTypeName();
+        _attributes = parameter.getAttributes();
+    }
+
 
     public String getValue() { return _value; }
 
@@ -64,11 +67,17 @@ public class FormParameter extends YParameter implements Serializable {
     public void setRequired(boolean required) { _required = required; }
 
     public boolean isReadOnly() {
-        Hashtable table = getAttributes();
-        if (table != null) {
-            String readOnly = (String) table.get("readOnly");
-            return (readOnly != null) && readOnly.equalsIgnoreCase("true") ;
+        if (_attributes != null) {
+            String value = _attributes.get("readOnly");
+            return value != null && value.equalsIgnoreCase("true");
         }
         return false;
     }
+
+
+    public String getName() { return _name; }
+
+    public String getDataTypeName() { return _dataType; }
+
+    public Map<String, String> getAttributes() { return _attributes; }
 }

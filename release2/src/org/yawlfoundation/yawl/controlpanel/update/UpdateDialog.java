@@ -59,6 +59,7 @@ public class UpdateDialog extends JDialog
     public void refresh(Differ differ) {
         _progessPanel.setVisible(false);
         _table.refresh(differ);
+        enableButton();               // will disable due to no pending/selected updates
     }
 
 

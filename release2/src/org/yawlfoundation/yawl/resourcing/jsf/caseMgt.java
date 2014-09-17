@@ -26,6 +26,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.resourcing.DynamicForm;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
@@ -477,8 +478,8 @@ public class caseMgt extends AbstractPageBean {
 
 
     /** @return a reference to the session scoped factory bean. */
-    private DynFormFactory getDynFormFactory() {
-        return (DynFormFactory) getBean("DynFormFactory");
+    private DynamicForm getDynFormFactory() {
+        return (DynamicForm) getBean("DynFormFactory");
     }
 
     
@@ -794,10 +795,10 @@ public class caseMgt extends AbstractPageBean {
                 _sb.setDynFormType(ApplicationBean.DynFormType.netlevel);
                 _sb.setLoadedSpecListChoice(specData);
 
-                DynFormFactory df = getDynFormFactory();
-                df.setHeaderText("Starting an Instance of: " + specData.getID());
+                String header = "Starting an Instance of: " + specData.getID();
                 String title = "YAWL " + _sb.getYawlVersion() + " Case Management - Launch Case";
-                if (df.initDynForm(title)) {
+                if (getDynFormFactory().makeForm(title, header, _sb.getCaseSchema(),
+                        specData.getInputParams())) {
                     return "showDynForm" ;
                 }
                 else {
@@ -823,7 +824,7 @@ public class caseMgt extends AbstractPageBean {
         List<Long> docCompIDs = null;
         if (_sb.isCaseLaunch()) {
             caseData = getDynFormFactory().getDataList();
-            docCompIDs = getDynFormFactory().getDocComponentIDs();
+            docCompIDs = ((DynFormFactory)getDynFormFactory()).getDocComponentIDs();
             _sb.setCaseLaunch(false);
         }
         try {
