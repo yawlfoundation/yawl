@@ -34,7 +34,7 @@ public class UpdateDialog extends JDialog
         super(mainWindow);
         setResizable(false);
         setModal(false);
-        setSize(new Dimension(600, 455));
+        setSize(new Dimension(600, 480));
         setTitle("YAWL " + YControlPanel.VERSION + " Updates");
         addOnCloseHandler(this);
         buildUI(differ);
@@ -88,7 +88,7 @@ public class UpdateDialog extends JDialog
         content.setBorder(new EmptyBorder(8, 8, 8, 8));
         content.add(new JScrollPane(_table), BorderLayout.CENTER);
         content.add(getButtonBar(), BorderLayout.SOUTH);
-        content.setBounds(0, 0, 600, 430);
+        content.setBounds(0, 0, 600, 455);
 
         _progessPanel = new ProgressPanel();
         _progessPanel.setBounds(150, 0, 300, 70);
@@ -127,6 +127,15 @@ public class UpdateDialog extends JDialog
 
     private void enableButton() {
         _btnUpdate.setEnabled(_table.hasUpdates() && ! Publisher.isTransientStatus());
+        setButtonTip();
+    }
+
+
+    private void setButtonTip() {
+        _btnUpdate.setToolTipText(_btnUpdate.isEnabled() ?
+                "Update to latest versions (blue rows)\n" +
+                "and install (green rows) and uninstall (red rows) selections" :
+                "No updates available");
     }
 
 }

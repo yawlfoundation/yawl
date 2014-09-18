@@ -17,10 +17,13 @@ public class Differ {
 
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
+    private AppUpdate _mandatory;
+
 
     public Differ(File latest, File current) {
         _latest = new ChecksumsReader(latest);
         _current = new ChecksumsReader(current);
+  //      _mandatory = new MandatoryUpdates().get();
     }
 
     public String getLatestVersion() { return _latest.getVersion(); }
@@ -63,6 +66,10 @@ public class Differ {
         return isDifferent(_current.getControlPanelHash(), _latest.getControlPanelHash());
     }
 
+    public boolean hasMandatoryUpdates() {
+        return _mandatory != null && _mandatory.hasDownloads();
+    }
+
     public String getNewJarName() {
         XNode node = _latest.getControlPanelFileNode();
         return node != null ? node.getAttributeValue("name") : null;
@@ -70,7 +77,8 @@ public class Differ {
 
 
     public boolean hasUpdates() {
-        if (hasLibChange() || hasYawlLibChange() || hasControlPanelChange()) {
+        if (hasLibChange() || hasYawlLibChange() || hasControlPanelChange()
+                || hasMandatoryUpdates()) {
             return true;      // short circuit
         }
         for (String appName : getInstalledWebAppNames()) {
@@ -156,6 +164,7 @@ public class Differ {
         compareYAWLLib(updates);
         compareWebApps(updates);
         compareControlPanel(updates);
+        if (hasMandatoryUpdates()) updates.add(_mandatory);
         return updates;
     }
 

@@ -94,6 +94,9 @@
     <property name="docStore.app.name" value="documentStore"/>
     <property name="proclet.app.name" value="procletService"/>
 
+    <!--example files-->
+    <property name="off.app.name" value="orderfulfillment"/>
+
     <!--
         Properties for all third-party libraries
         !!Include all JARs used here in alphabetical property name order!!
@@ -106,6 +109,7 @@
           - jsf: JSF dependencies (used by the Resource and Monitor Services)
           - mss: MailSender Service
           - mul: used by multiple services
+          - off: orderfulfillment example
           - prl: Proclet Service
           - sch: Scheduling Service
           - sml: Simple Mail Service
@@ -130,6 +134,8 @@
     <property name="collections-generic" value="collections-generic-4.01.jar"/>
     <!-- prl -->
     <property name="colt" value="colt-1.2.0.jar"/>
+    <!--off-->
+    <property name="cos" value="cos.jar"/>
     <!-- prl -->
     <property name="common" value="common.jar"/>
     <!-- eng, xsd -->
@@ -183,6 +189,14 @@
     <property name="hsql" value="hsqldb.jar"/>
     <!-- dbd -->
     <property name="javaAssist" value="javassist-3.17.1-GA.jar"/>
+    <!--off-->
+    <property name="jaxb1" value="jaxb1-impl.jar"/>
+    <!--off-->
+    <property name="jaxb-api" value="jaxb-api.jar"/>
+    <!--off-->
+    <property name="jaxb-impl" value="jaxb-impl.jar"/>
+    <!--off-->
+    <property name="jaxb-xjc" value="jaxb-xjc.jar"/>
     <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.6.jar"/>
     <!-- eng, sch -->
@@ -192,6 +206,8 @@
     <!-- hbn -->
     <property name="jboss-transaction"
               value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+    <!-- off -->
+    <property name="jdom1" value="jdom.jar"/>
     <!-- hbn -->
     <property name="jdom" value="jdom-2.0.5.jar"/>
     <!-- mul -->
@@ -216,6 +232,8 @@
     <property name="jsf-webui" value="webui.jar"/>
     <!-- jsf -->
     <property name="json" value="json.jar"/>
+    <!-- sch -->
+    <property name="jsr" value="jsr173_1.0_api.jar"/>
     <!-- sch -->
     <property name="jstl" value="jstl.jar"/>
     <!-- jsf -->
@@ -252,6 +270,8 @@
     <property name="mailapi" value="mailapi.jar"/>
     <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
+    <!-- off -->
+    <property name="orderfulfillment" value="orderfulfillment.jar"/>
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
     <!-- dbd -->
@@ -280,6 +300,8 @@
     <property name="twitter4j" value="twitter4j-core-2.1.8.jar"/>
     <!-- twi -->
     <property name="ucp" value="ucp.jar"/>
+    <!-- off -->
+    <property name="uploadbean" value="uploadbean.jar"/>
     <!-- sch -->
     <property name="wsdl4j" value="wsdl4j-20030807.jar"/>
     <!-- wsi -->
@@ -413,8 +435,9 @@
                      ${jung-graph} ${jung-io} ${jung-jai} ${jung-jai-samples}
                      ${jung-jai-samples} ${jung-samples} ${jung-visualization}"/>
 
-    <property name="controlpanel.libs"
-              value="${macify} ${commonsIO}"/>
+    <property name="controlpanel.libs" value="${macify} ${commonsIO}"/>
+
+    <property name="jaxb.libs" value="${jaxb1} ${jaxb-api} ${jaxb-impl} ${jaxb-xjc}"/>
 
 
     <!--
@@ -478,6 +501,10 @@
     <property name="webapp_procletService.libs"
               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
                       ${dbClient} ${jdom} ${log4j} ${xerces}"/>
+
+    <property name="webapp_orderfulfillment.libs"
+              value="${activation} ${cos} ${jaxb.libs} ${jdom1} ${jsr}
+                     ${orderfulfillment} ${log4j} ${servlet} ${uploadbean}"/>
 
     <!--
         JAR grouping properties for compilation classpath usage
@@ -1537,6 +1564,19 @@
         Build the resource service client JAR
     -->
 
+    <target name="checksumOrderFulfilment">
+        <copy todir="${temp.dir}/${off.app.name}">
+            <fileset dir="${basedir}/exampleSpecs/orderfulfillment/"/>
+        </copy>
+        <antcall target="updateBuildProperties">
+            <param name="target" value="${off.app.name}"/>
+        </antcall>
+        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   appname="${off.app.name}"/>
+        <delete dir="${temp.dir}/${off.app.name}"/>
+    </target>
+
+
     <target name="build_YResourceServiceClient.jar" depends="compile">
         <tstamp/>
         <mkdir dir="${enumeratedClasses}"/>
@@ -2484,6 +2524,8 @@
 
     <target name="build_controlPanel.jar" depends="compile">
         <tstamp/>
+        <copy todir="${classes.dir}${packageRoot}/controlpanel/update"
+              file="${src.dir}${packageRoot}/controlpanel/update/mandatory.xml"/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec}"/>

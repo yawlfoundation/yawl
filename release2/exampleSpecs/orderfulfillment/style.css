@@ -1,0 +1,213 @@
+#logo{
+	background-image:url(img/genko_logo2.png);
+	background-repeat: no-repeat;
+
+	background-position: left top;
+
+	padding-top:125px;
+
+}
+
+body{
+background-image:url(img/branch.png);
+margin-left:50px;
+margin-right:50px;
+}
+
+/* ----------------Regular Components---------------- */
+input, select, h2,strong{
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+.InputReadOnly {
+    background-color:#e0e0e0;
+    color: black;
+}
+
+textarea{
+	font-family:Arial, Helvetica, sans-serif;
+	width:95%;
+}
+
+fieldset {  
+	margin-top: 1em;  
+	padding: 1em;  
+	border: 1px solid #BFBAB0;  
+	/*background-color:#E1F0FF;*/
+	background-color:#D9E1CC
+	
+}
+
+legend {  
+	padding: 0;  
+	color: #000;  
+	font-size:18px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+/* ----------------Validation---------------- */
+.error {border-color:red;}
+.valid { }
+
+
+/* ----------------Trackpoint Divs---------------- */
+
+#trackpoint{
+	float:left;
+	width:60%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#trackpointDelete{
+	float:left;
+	clear:right;
+	min-width:50px;
+}
+
+#trackpointActions{
+	float:left;
+	clear:both;
+}
+
+/* ----------------Packages Divs---------------- */
+#packageEntry{
+	clear:both;
+}
+#packageid{
+	float:left;
+	width:30%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#packagesVolume{
+	float:left;
+	width:20%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#packagesDelete{
+	float:left;
+	clear:right;
+	min-width:50px;
+}
+
+#packagesActions{
+	float:left;
+	clear:both;
+}
+
+/*------------------Trackpoint Notice Divs--------------*/
+#trackpointNoticeEntry{
+	clear:both;
+}
+#trackpointOrderNumber, #trackpointShipmentNumber, #trackpointTrackpoint, #trackpointArrivalTime, #trackpointDepartureTime, #trackpointNotes{
+	float:left;
+	width:15%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+/* ----------------Order Lines Divs---------------- */
+#orderLines{
+	clear:both;
+	border:1px solid gray;
+	padding: .5em;
+}
+
+#orderLineNumber, #orderUnitCode, #orderUnitQuantity{
+	float:left;
+	width:10%;
+	min-width:100px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#orderUnitDescription{
+	float:left;
+	width:40%;
+	min-width:200px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#orderAction{
+	float:left;
+	width:10%;
+	min-width:80px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#orderLinesDelete{
+	float:left;
+	clear:right;
+	min-width:50px;
+}
+
+#orderLinesActions{
+	float:left;
+	clear:both;
+}
+/* ----------------Div Tags---------------- */
+#label{
+	float:left;
+	width:15%;
+	min-width:150px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#field{
+	float:left;
+	width:80%;
+	min-width:100px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#managerlabel{
+	float:left;
+	width:30%;
+	min-width:150px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#managerfield{
+	float:left;
+	width:65%;
+	min-width:100px;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#entry{
+	clear:both;
+	width:100%;
+	min-width:800px;
+}
+
+#address{
+	float:left;
+	width:99%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+
+#name{
+	float:left;
+	width:33%;
+	font-family:Arial, Helvetica, sans-serif;
+	clear:both;
+}
+
+#city, #state, #postcode, #phone, #fax, #businessnumber{
+	float:left;
+	width:33%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+/* ----------------Components---------------- */
+#linenumber, #unitcode, #unitquantity{
+	width:90px;
+}
+
+#companyaddress, #credit_companyname, #credit_companyaddress{
+ 	width:98.5%;
+}
+#orderremarks{
+	width:100%;
+}
+
+#companyphone, #companyfax, #companybusinessnumber, #companycity, #companystate, #companypostcode, #credit_companyphone, #credit_companyfax, #credit_companybusinessnumber, #credit_companycity, #credit_companystate, #credit_companypostcode, #companyname{
+	width:95%;
+}
+
+#claimsdeadlineyears, #claimsdeadlinemonths, #claimsdeadlinedays, #claimsdeadlinehours, #claimsdeadlineminutes, #claimsdeadlineseconds{
+	width:50px;
+}

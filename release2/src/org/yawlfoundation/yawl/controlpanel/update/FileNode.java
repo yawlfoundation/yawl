@@ -11,7 +11,7 @@ class FileNode {
 
     private String name;
     private String md5;
-    private int size;
+    private long size;
 
     public FileNode(XNode node) {
         name = node.getAttributeValue("name");
