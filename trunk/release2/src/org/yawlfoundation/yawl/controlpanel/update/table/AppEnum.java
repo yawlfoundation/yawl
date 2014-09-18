@@ -17,12 +17,13 @@ public enum AppEnum {
     digitalSignature("Adds secure digital signatures to tasks", 4, true),
     mailService("Send emails from tasks", 5, true),
     monitorService("Provides basic process monitoring", 6, true),
-    procletService("Handles inter-process communications", 7, true),
-    schedulingService("Schedules resources for future tasks", 8, true),
-    twitterService("Sends Twitter status messages from tasks", 9, true),
-    workletService("Handles flexibility and exception handling", 10, true),
-    yawlSMSInvoker("Sends text messages from tasks", 11, true),
-    yawlWSInvoker("Invokes external web services from tasks", 12, true);
+    orderfulfillment("Custom forms for orderfulfillment example", 7, true),
+    procletService("Handles inter-process communications", 8, true),
+    schedulingService("Schedules resources for future tasks", 9, true),
+    twitterService("Sends Twitter status messages from tasks", 10, true),
+    workletService("Handles flexibility and exception handling", 11, true),
+    yawlSMSInvoker("Sends text messages from tasks", 12, true),
+    yawlWSInvoker("Invokes external web services from tasks", 13, true);
 
 
     private final String _description;

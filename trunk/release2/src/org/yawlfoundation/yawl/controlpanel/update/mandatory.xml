@@ -1,0 +1,13 @@
+<checksums>
+  <lib>
+    <file name="cos.jar" md5="a0e00d3b6d24e6085bceea5384881903" size="48585" timestamp="2014-03-25T23:53:27"/>
+    <file name="jaxb-api.jar" md5="b0eeab50371074380eebcb9df30a15c2" size="73081" timestamp="2014-03-25T23:53:27"/>
+    <file name="jaxb-impl.jar" md5="f97631ad1a29f726b5f81a670ecaed4a" size="787619" timestamp="2014-03-25T23:53:27"/>
+    <file name="jaxb-xjc.jar" md5="108abd6d0fbff92780166dbea046ec26" size="2989016" timestamp="2014-03-25T23:53:27"/>
+    <file name="jaxb1-impl.jar" md5="f5c861d88691c8b89be20772fe94693e" size="980576" timestamp="2014-03-25T23:53:27"/>
+    <file name="jdom.jar" md5="adf67fc5dcf48e1593640ad7e02f6ad4" size="153115" timestamp="2014-03-25T23:53:27"/>
+    <file name="jsr173_1.0_api.jar" md5="2f2b2a2065808b2c8c44888ba14306f5" size="46047" timestamp="2014-03-25T23:53:27"/>
+    <file name="orderfulfillment.jar" md5="130d9c9b78c4332d202f9b3751a4a655" size="161555" timestamp="2014-03-25T23:53:27"/>
+    <file name="uploadbean.jar" md5="cbd3eec6e0573e38d65e89fdd11b9895" size="32471" timestamp="2014-03-25T23:53:27"/>
+  </lib>
+</checksums>  

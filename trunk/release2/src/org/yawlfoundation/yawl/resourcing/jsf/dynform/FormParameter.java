@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -80,4 +81,12 @@ public class FormParameter implements Serializable {
     public String getDataTypeName() { return _dataType; }
 
     public Map<String, String> getAttributes() { return _attributes; }
+
+    public YVariable getYVariable() {
+        YVariable variable = new YVariable();
+        variable.setDataTypeAndName(_dataType, _name, null);
+        variable.setAttributes(_attributes);
+        variable.setInitialValue(_value);
+        return variable;
+    }
 }
