@@ -22,7 +22,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
@@ -72,20 +71,10 @@ public abstract class TypeValueBuilder {
      * @return a corresponding FormParameter
      */
     protected FormParameter getParameter(VariableRow row) {
-        try {
-
-            // exception here if no current specification (should never occur)
-            String ns = getDataHandler().getDataSchemaNamespace().toString();
-
-            FormParameter param = new FormParameter();
-            param.setInitialValue(row.getValue());
-            param.setDataTypeAndName(row.getDataType(), row.getName(), ns);
-            param.setAttributes(row.getAttributes());
-            return param;
-        }
-        catch (YDataHandlerException ydhe) {
-            return null;
-        }
+        FormParameter param = new FormParameter(row.getName(), row.getDataType(),
+                row.getAttributes());
+        param.setValue(row.getValue());
+        return param;
     }
 
 
