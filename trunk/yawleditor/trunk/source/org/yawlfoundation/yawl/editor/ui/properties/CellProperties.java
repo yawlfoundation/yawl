@@ -323,6 +323,11 @@ public class CellProperties extends NetProperties {
             String label = decomposition.getName();
             graph.setElementLabel(vertex, label != null ? label : decomposition.getID());
         }
+        else if (decomposition == null) {
+            YTask task = (YTask) vertex.getYAWLElement();
+            task.getDataMappingsForTaskStarting().clear();
+            task.getDataMappingsForTaskCompletion().clear();
+        }
         setDirty();
         graph.setSelectionCell(vertex.getParent());
         Publisher.getInstance().publishState(GraphState.ElementsSelected,

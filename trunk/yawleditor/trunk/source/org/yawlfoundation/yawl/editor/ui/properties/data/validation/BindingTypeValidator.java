@@ -159,8 +159,11 @@ public class BindingTypeValidator extends TypeValueBuilder {
      */
     private String getDataSchema(Map<String, FormParameter> paramMap) {
         Map<String, Element> elementMap = assembleMap(getSpecHandler().getSchema());
-        return new DataSchemaBuilder(elementMap).buildSchema(
-                    _rootName, new ArrayList<FormParameter>(paramMap.values()));
+        List<YVariable> variables = new ArrayList<YVariable>();
+        for (FormParameter parameter : paramMap.values()) {
+            variables.add(parameter.getYVariable());
+        }
+        return new DataSchemaBuilder(elementMap).buildSchema(_rootName, variables);
     }
 
 
@@ -205,11 +208,9 @@ public class BindingTypeValidator extends TypeValueBuilder {
      * @return a corresponding FormParameter
      */
     private FormParameter getParameter(YVariable variable) {
-        FormParameter param = new FormParameter();
-        param.setInitialValue(variable.getInitialValue());
-        param.setDataTypeAndName(variable.getDataTypeName(), variable.getPreferredName(),
-                variable.getDataTypeNameSpace());
-        param.setAttributes(variable.getAttributes());
+        FormParameter param = new FormParameter(variable.getPreferredName(),
+                variable.getDataTypeName(), variable.getAttributes());
+        param.setValue(variable.getInitialValue());
         return param;
     }
 
