@@ -20,15 +20,13 @@ package org.yawlfoundation.yawl.worklet.selection;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.worklet.support.DBManager;
+import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-// import org.apache.log4j.Logger;
-
 
 
 /** The CheckedOutItem class maintains, for a workitem that has been 
@@ -104,9 +102,7 @@ public class CheckedOutItem {
 
     // update the persisted object
     public void persistThis() {
-        DBManager dbMgr = DBManager.getInstance(false);
-        if ((dbMgr != null) && dbMgr.isPersisting())
-            dbMgr.persist(this, DBManager.DB_UPDATE);
+        Persister.getInstance().insert(this);
     }
 
 

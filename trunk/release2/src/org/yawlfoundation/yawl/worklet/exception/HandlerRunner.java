@@ -243,7 +243,7 @@ public class HandlerRunner extends WorkletRecord {
 
     /** Stringifies some data members for persistence purposes */
     private void initPersistedData() {
-        _rdrConcStr = JDOMUtil.elementToStringDump(_rdrConc.getConclusion());
+        _rdrConcStr = JDOMUtil.elementToStringDump(_rdrConc.toElement());
         _caseID = _parentMonitor.getCaseID() ;
         _id = this.hashCode();
     }
@@ -375,8 +375,8 @@ public class HandlerRunner extends WorkletRecord {
             eReason.setText(String.valueOf(_reasonType));
 
             // add the nodeids to the relevent elements
-            eSatisfied.setText(_searchPair[0].getNodeIdAsString()) ;
-            eTested.setText(_searchPair[1].getNodeIdAsString()) ;
+            eSatisfied.setText(_searchPair.getLastTrueNode().getNodeIdAsString()) ;
+            eTested.setText(_searchPair.getLastEvaluatedNode().getNodeIdAsString()) ;
             eLastNode.addContent(eSatisfied) ;
             eLastNode.addContent(eTested) ;
 

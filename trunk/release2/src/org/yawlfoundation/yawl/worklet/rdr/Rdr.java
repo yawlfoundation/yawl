@@ -185,7 +185,7 @@ public class Rdr {
     private RdrNode addNode(RdrTree tree, RdrNode node, RdrConclusion conc)
             throws RdrException {
         if (conc != null) {
-            RdrNode parent = conc.getParentNode();
+            RdrNode parent = conc.getLastPair().getParentForNewNode();
             if (parent != null) {
 
                 // don't add a duplicate node as a new child
@@ -194,7 +194,7 @@ public class Rdr {
                             "identical to its parent.");
                 }
                 node.setParent(parent);
-                return tree.addNode(node, parent, conc.isLastPairEqual());
+                return tree.addNode(node, parent, conc.getLastPair().isPairEqual());
             }
             throw new RdrException("Failed to add node: Could not locate parent node.");
         }

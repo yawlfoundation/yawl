@@ -24,11 +24,14 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.support.DBManager;
 import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 
 /** The CaseMonitor class manages a dataset of descriptors for each case started in the
@@ -239,9 +242,7 @@ public class CaseMonitor {
 
     /** updates the persisted object after changes (if persisting) */
     private void persistThis() {
-        DBManager dbMgr = DBManager.getInstance(false);
-        if ((dbMgr != null) && dbMgr.isPersisting())
-             dbMgr.persist(this, DBManager.DB_UPDATE);
+        Persister.getInstance().insert(this);
     }
 
     //***************************************************************************//

@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.worklet.support;
 import org.apache.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -67,13 +68,13 @@ public class EventLogger {
      *  @param parentCaseId - the case id of the original workitem
      *  @param xType - the reason for raising a worklet case (maps to WorkletService.XTYPE)
      */
-    public static void log(DBManager mgr, String event, String caseId, YSpecificationID specId,
-                           String taskId, String parentCaseId, int xType) {
+    public static void log(String event, String caseId,
+                           YSpecificationID specId, String taskId,
+                           String parentCaseId, int xType) {
 
-        if (mgr != null) {
-            WorkletEvent we = new WorkletEvent(event, caseId, specId, taskId,
-                    parentCaseId, xType);
-            mgr.persist(we, DBManager.DB_INSERT);
+        if (Persister.getInstance().isPersisting()) {
+            Persister.insert(new WorkletEvent(event, caseId, specId, taskId,
+                                parentCaseId, xType));
         }
         else {
             logToCSV(event, caseId, specId, taskId, parentCaseId, xType);
@@ -110,8 +111,8 @@ public class EventLogger {
      *  @param event - the type of event to log
      *  @param wir - the workitem that triggered the event
      */
-    public static void log(DBManager mgr, String event, WorkItemRecord wir, int xType) {
-        log(mgr, event, wir.getCaseID(), new YSpecificationID(wir),
+    public static void log(String event, WorkItemRecord wir, int xType) {
+        log(event, wir.getCaseID(), new YSpecificationID(wir),
                 wir.getTaskID(), "", xType);
     }
 

@@ -22,7 +22,7 @@ package org.yawlfoundation.yawl.cost.data;
 * @author Michael Adams
 * @date 24/10/11
 */
-class FunctionParameter {
+public class FunctionParameter {
 
     private long parameterID;                 // hibernate primary key
     protected String key;

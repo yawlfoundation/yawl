@@ -59,6 +59,8 @@ import java.util.List;
 
 public class RdrSet {
 
+    private long id;                       // for Hibernate
+
     private YSpecificationID _specID ;
     private String _processName;
     private boolean _hasRules = false ;    // some specs will have no rules defined

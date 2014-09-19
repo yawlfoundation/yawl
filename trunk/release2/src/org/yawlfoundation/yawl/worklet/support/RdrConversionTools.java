@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
+import org.yawlfoundation.yawl.worklet.rdr.RdrPair;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 
 import java.util.*;
@@ -89,14 +90,13 @@ public class RdrConversionTools {
      * @param tree - the tree that contains these two nodes
      * @return  - the reconstructed pair of nodes
      */
-    public static RdrNode[] stringToSearchPair(String s, RdrTree tree) {
+    public static RdrPair stringToSearchPair(String s, RdrTree tree) {
 
-        RdrNode[] result = null ;
+        RdrPair result = null ;
         if ((s != null) && (s.length() > 0)) {
             String[] nodeStr = s.split(":::");             // ':::' separates the 2 nodes
-            result = new RdrNode[2];
-            result[0] = stringToNode(nodeStr[0], tree);    // convert each to a node
-            result[1] = stringToNode(nodeStr[1], tree);
+            return new RdrPair(stringToNode(nodeStr[0], tree),
+                    stringToNode(nodeStr[1], tree));
         }
         return result ;
     }

@@ -21,9 +21,7 @@ package org.yawlfoundation.yawl.cost;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.cost.data.CostModel;
-import org.yawlfoundation.yawl.cost.data.CostModelCache;
-import org.yawlfoundation.yawl.cost.data.HibernateEngine;
+import org.yawlfoundation.yawl.cost.data.*;
 import org.yawlfoundation.yawl.cost.evaluate.Predicate;
 import org.yawlfoundation.yawl.cost.evaluate.PredicateEvaluator;
 import org.yawlfoundation.yawl.cost.log.Annotator;
@@ -32,11 +30,10 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.resource.Participant;
-import org.yawlfoundation.yawl.resourcing.resource.Role;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClient;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceLogGatewayClient;
 import org.yawlfoundation.yawl.schema.SchemaHandler;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -69,10 +66,11 @@ public class CostService implements InterfaceX_Service {
 
     private Logger _log = Logger.getLogger(this.getClass());
 
+
     private CostService() {
         _models = new ConcurrentHashMap<YSpecificationID, CostModelCache>();
         _evaluator = new PredicateEvaluator();
-        _dataEngine = HibernateEngine.getInstance(true);
+        _dataEngine = new HibernateEngine(true, getPersistingClasses());
         restore();
     }
 
@@ -443,6 +441,19 @@ public class CostService implements InterfaceX_Service {
 
     private void appendEvents(List<ResourceEvent> eventList, String log) {
         eventList.addAll(parseEventLog(log));
+    }
+
+
+    private Set<Class> getPersistingClasses() {
+        Set<Class> classSet = new HashSet<Class>();
+        classSet.add(CostModel.class);
+        classSet.add(CostDriver.class);
+        classSet.add(CostFunction.class);
+        classSet.add(CostMapping.class);
+        classSet.add(CostType.class);
+        classSet.add(DriverFacet.class);
+        classSet.add(FunctionParameter.class);
+        return classSet;
     }
 
     /**

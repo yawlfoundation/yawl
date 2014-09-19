@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,9 +32,7 @@ public class RdrCache {
     
     private Map<String, RdrSet> _cache;
     
-    public RdrCache() {
-        _cache = new Hashtable<String, RdrSet>();
-    }
+    public RdrCache() { _cache = new HashMap<String, RdrSet>(); }
 
 
     public Map<String, RdrSet> getAll() { return _cache; }

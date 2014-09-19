@@ -92,8 +92,7 @@ public enum RuleType {
     }
 
     public static RuleType fromString(String s) {
-            return (s != null) ? fromStringMap.get(s) : null;
-        }
-
+        return (s != null) ? fromStringMap.get(s) : null;
+    }
 
 }

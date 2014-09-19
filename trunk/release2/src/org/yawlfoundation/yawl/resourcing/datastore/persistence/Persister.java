@@ -44,11 +44,6 @@ public final class Persister implements Serializable {
     private HibernateEngine _db ;
     private static Persister _me;
 
-    // persistence actions
-    private static final int _UPDATE = HibernateEngine.DB_UPDATE;
-    private static final int _DELETE = HibernateEngine.DB_DELETE;
-    private static final int _INSERT = HibernateEngine.DB_INSERT;
-
 
     private Persister() {
         _db = HibernateEngine.getInstance(true) ; 
@@ -58,7 +53,6 @@ public final class Persister implements Serializable {
     public static Persister getInstance() {
         if (_me == null) _me = new Persister();
         return _me ;
-
     }
 
    /*******************************************************************************/
@@ -116,8 +110,6 @@ public final class Persister implements Serializable {
 
     public Transaction beginTransaction() { return _db.beginTransaction(); }
 
-    public Transaction getTransaction() { return _db.getTransaction(); }
-
     public Transaction getOrBeginTransaction() { return _db.getOrBeginTransaction(); }
 
     public Object load(Class claz, Serializable key) { return _db.load(claz, key); }
@@ -147,34 +139,34 @@ public final class Persister implements Serializable {
        return retObj ;
     }
 
-    public boolean update(Object obj) { return _db.exec(obj, _UPDATE); }
+    public boolean update(Object obj) { return _db.exec(obj, HibernateEngine.DB_UPDATE); }
 
-    public boolean delete(Object obj) { return _db.exec(obj, _DELETE); }
+    public boolean delete(Object obj) { return _db.exec(obj, HibernateEngine.DB_DELETE); }
 
-    public boolean insert(Object obj) { return _db.exec(obj, _INSERT); }
+    public boolean insert(Object obj) { return _db.exec(obj, HibernateEngine.DB_INSERT); }
 
     public boolean update(Object obj, Transaction tx) {
-        return (tx != null) ? _db.exec(obj, _UPDATE, tx) : update(obj);
+        return (tx != null) ? _db.exec(obj, HibernateEngine.DB_UPDATE, tx) : update(obj);
     }
 
     public boolean delete(Object obj, Transaction tx) {
-        return (tx != null) ? _db.exec(obj, _DELETE, tx) : delete(obj);
+        return (tx != null) ? _db.exec(obj, HibernateEngine.DB_DELETE, tx) : delete(obj);
     }
 
     public boolean insert(Object obj, Transaction tx) {
-        return (tx != null) ? _db.exec(obj, _INSERT, tx): insert(obj);
+        return (tx != null) ? _db.exec(obj, HibernateEngine.DB_INSERT, tx): insert(obj);
     }
 
     public boolean update(Object obj, boolean commit) {
-        return _db.exec(obj, _UPDATE, commit);
+        return _db.exec(obj, HibernateEngine.DB_UPDATE, commit);
     }
 
     public boolean delete(Object obj, boolean commit) {
-        return _db.exec(obj, _DELETE, commit);
+        return _db.exec(obj, HibernateEngine.DB_DELETE, commit);
     }
 
     public boolean insert(Object obj, boolean commit) {
-        return _db.exec(obj, _INSERT, commit);
+        return _db.exec(obj, HibernateEngine.DB_INSERT, commit);
     }
 
 }

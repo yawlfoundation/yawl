@@ -36,7 +36,7 @@ import java.util.Set;
  *  @author Michael Adams
  *  @date 03/08/2007
  *
- *  last update: 26/08/2010 (for v2.2)
+ *  last update: 18/09/2014 (for v3.0+)
  */
 
 public class HibernateEngine {
@@ -49,9 +49,6 @@ public class HibernateEngine {
     // reference to Hibernate
     private static SessionFactory _factory = null;
 
-    // instance reference
-    private static HibernateEngine _me;
-
     private static boolean _persistOn = false;
     private static final Logger _log = Logger.getLogger(HibernateEngine.class);
 
@@ -62,31 +59,15 @@ public class HibernateEngine {
     /***********************************/
 
     /** The constuctor - called from getInstance() */
-    private HibernateEngine(boolean persistenceOn, Set<Class> classes, Properties props)
+    public HibernateEngine(boolean persistenceOn, Set<Class> classes, Properties props)
             throws HibernateException {
         _persistOn = persistenceOn;
         initialise(classes, props);
     }
 
 
-    /** returns the current HibernateEngine instance */
-    public static HibernateEngine getInstance(boolean persistenceOn, Set<Class> classes) {
-        return getInstance(persistenceOn, classes, null);
-    }
-    
-    
-    public static HibernateEngine getInstance(boolean persistenceOn, Set<Class> classes,
-                                              Properties props) {
-        if (_me == null) {
-            try {
-                _me = new HibernateEngine(persistenceOn, classes, props);
-            }
-            catch (HibernateException he) {
-                _persistOn = false ;
-                _log.error("Could not initialise database connection.", he);
-            }
-        }
-        return _me;
+    public HibernateEngine(boolean persistenceOn, Set<Class> classes) {
+        this(persistenceOn, classes, null);
     }
 
 
@@ -133,6 +114,8 @@ public class HibernateEngine {
         }
      }
 
+
+    public void setPersisting(boolean persist) { _persistOn = persist; }
 
 
     /** @return true if this instance is persisting */

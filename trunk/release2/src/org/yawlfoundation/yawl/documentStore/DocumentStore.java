@@ -59,7 +59,7 @@ public class DocumentStore extends YHttpServlet {
         // setup database connection
         Set<Class> persistedClasses = new HashSet<Class>();
         persistedClasses.add(YDocument.class);
-        _db = HibernateEngine.getInstance(true, persistedClasses);
+        _db = new HibernateEngine(true, persistedClasses);
 
 
         // set up session connections

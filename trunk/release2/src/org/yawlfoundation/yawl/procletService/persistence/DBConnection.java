@@ -54,7 +54,7 @@ public class DBConnection {
          persistedClasses.add(StoredPortConnection.class);
          persistedClasses.add(StoredProcletBlock.class);
          persistedClasses.add(StoredProcletPort.class);
-         _db = HibernateEngine.getInstance(true, persistedClasses, props);
+         _db = new HibernateEngine(true, persistedClasses, props);
     }
 
 

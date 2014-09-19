@@ -58,7 +58,7 @@ public class DataMapper {
         Set<Class> persistedClasses = new HashSet<Class>();
         persistedClasses.add(Mapping.class);
         persistedClasses.add(Case.class);
-        _db = HibernateEngine.getInstance(true, persistedClasses);
+        _db = new HibernateEngine(true, persistedClasses);
     }
 
 	/**
