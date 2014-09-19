@@ -27,10 +27,7 @@ import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
-import org.yawlfoundation.yawl.worklet.rdr.RdrSet;
-import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
-import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdr.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,7 +49,7 @@ public class WorkletRecord {
     protected CaseMap _runners = new CaseMap() ;  // executing caseid <==> name mapping
     protected WorkItemRecord _wir ;          // the child workitem
     protected Element _datalist ;            // data passed to this workitem
-    protected RdrNode[] _searchPair ;        // rule pair returned from search
+    protected RdrPair _searchPair ;        // rule pair returned from search
     protected RuleType _reasonType ;         // why the worklet was raised
     protected static Logger _log ;           // log file for debug messages
 
@@ -90,7 +87,7 @@ public class WorkletRecord {
     }
 
 
-    public void setSearchPair(RdrNode[] pair) {
+    public void setSearchPair(RdrPair pair) {
         _searchPair = pair ;
         if (_hasPersisted) persistThis();
     }
@@ -148,7 +145,7 @@ public class WorkletRecord {
     }
 
 
-    public RdrNode[] getSearchPair() {
+    public RdrPair getSearchPair() {
         return _searchPair ;
     }
 
@@ -246,8 +243,7 @@ public class WorkletRecord {
     }
 
     public String get_searchPairStr() {
-        if (_searchPair != null)
-            _searchPairStr = SearchPairToString(_searchPair);
+        if (_searchPair != null) _searchPairStr = _searchPair.toString();
         return _searchPairStr ;
     }
 
@@ -287,9 +283,7 @@ public class WorkletRecord {
 
 
     protected void persistThis() {
-        DBManager dbMgr = DBManager.getInstance(false);
-        if ((dbMgr != null) && dbMgr.isPersisting())
-             dbMgr.persist(this, DBManager.DB_UPDATE);
+        Persister.getInstance().insert(this);
     }
 
 
@@ -347,8 +341,8 @@ public class WorkletRecord {
             }
 
             // add the nodeids to the relevent elements
-            eSatisfied.setText(_searchPair[0].getNodeIdAsString()) ;
-            eTested.setText(_searchPair[1].getNodeIdAsString()) ;
+            eSatisfied.setText(_searchPair.getLastTrueNode().getNodeIdAsString()) ;
+            eTested.setText(_searchPair.getLastEvaluatedNode().getNodeIdAsString()) ;
             eLastNode.addContent(eSatisfied) ;
             eLastNode.addContent(eTested) ;
 
@@ -439,8 +433,8 @@ public class WorkletRecord {
         s.append("SEARCH PAIR: ");
         if (_searchPair != null) {
             s.append(Library.newline);
-            Library.appendLine(s, "Last Satisfied Node", _searchPair[0].toXML());
-            Library.appendLine(s, "Last Tested Node", _searchPair[1].toXML());
+            Library.appendLine(s, "Last Satisfied Node", _searchPair.getLastTrueNode().toXML());
+            Library.appendLine(s, "Last Tested Node", _searchPair.getLastEvaluatedNode().toXML());
         }
         else s.append("null");
 

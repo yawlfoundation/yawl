@@ -31,13 +31,17 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
-import org.yawlfoundation.yawl.worklet.rdr.*;
+import org.yawlfoundation.yawl.worklet.rdr.Rdr;
+import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
+import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.*;
@@ -143,12 +147,12 @@ public class WorkletService extends InterfaceBWebsideController {
     private AdminTasksManager _adminTasksMgr = new AdminTasksManager();   // admin tasks
 
 
-    protected boolean _persisting;                     // is persistence enabled?
-    protected DBManager _dbMgr;                        // manages persistence
-    private static Logger _log;                        // debug log4j file
-    private String _workletsDir;                       // where the worklet specs are
-    private static WorkletService _me;                 // reference to self
-    private static ExceptionService _exService;        // reference to ExceptionService
+    protected boolean _persisting;                      // is persistence enabled?
+    protected HibernateEngine _db;                      // manages persistence
+    private static Logger _log;                         // debug log4j file
+    private String _workletsDir;                        // where the worklet specs are
+    private static WorkletService _me;                  // reference to self
+    private static ExceptionService _exService;         // reference to ExceptionService
     protected WorkletEventServer _server;               // announces events
     protected Rdr _rdr;                                 // rule set interface
     private boolean _initCompleted = false;             // has engine initialised?
@@ -233,9 +237,11 @@ public class WorkletService extends InterfaceBWebsideController {
         _workletsDir = Library.wsWorkletsDir;
         _persisting = Library.wsPersistOn;
 
-        // init persistence class
-        if (_dbMgr == null) _dbMgr = DBManager.getInstance(_persisting);
-        _persisting = (_dbMgr != null);                 // turn it off if no connection
+        // init persistence engine
+        if (_db == null) {
+            _db = Persister.getInstance(_persisting);
+        }
+        _persisting = (_db != null);                 // turn it off if no connection
 
         // reload running cases data
         if ((_persisting) && (!restored)) restoreDataSets();
@@ -243,7 +249,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     public void shutdown() {
-        if (_dbMgr != null) _dbMgr.closeFactory();
+        if (_db != null) _db.closeFactory();
         _server.shutdownListeners();
     }
 
@@ -322,7 +328,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 if (cancelled) {
                     _handledWorkItems.remove(itemId);
-                    if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
+                    Persister.delete(coItem);
                     _log.info("Removed from handled child workitems: " + itemId);
 
                     // remove child and if last child also remove parent
@@ -334,7 +340,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         _log.info("No more child cases running for workitem: " +
                                 parentId);
                         _handledParentItems.remove(parentId);
-                        if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
+                        Persister.delete(coParent);
                         _log.info("Completed handling of workitem: " + parentId);
                     }
                 } else _log.error("Could not cancel worklets for item: " + itemId);
@@ -395,7 +401,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
                     if (cancelWorkletList(coItem)) {
                         _handledWorkItems.remove(itemID);
-                        if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
+                        Persister.delete(coItem);
                         _log.info("Removed from handled child workitems: " + itemID);
 
                         // remove child and if last child also remove parent
@@ -407,8 +413,7 @@ public class WorkletService extends InterfaceBWebsideController {
                             _log.info("No more child cases running for workitem: " +
                                     parentId);
                             _handledParentItems.remove(parentId);
-                            if (_persisting)
-                                _dbMgr.persist(coParent, DBManager.DB_DELETE);
+                            Persister.delete(coParent);
                             _log.info("Completed handling of workitem: " + parentId);
                         }
                     } else _log.error("Could not cancel worklets for item: " + itemID);
@@ -549,10 +554,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // if this is a replace, update only
                 if (_handledParentItems.containsKey(itemId)) {
-                    if (_persisting) _dbMgr.persist(coParent, DBManager.DB_UPDATE);
+                    Persister.update(coParent);
                 } else {
                     _handledParentItems.put(itemId, coParent);
-                    if (_persisting) _dbMgr.persist(coParent, DBManager.DB_INSERT);
+                    Persister.insert(coParent);
                 }
                 success = true;            // at least one worklet launched
             } else
@@ -591,7 +596,7 @@ public class WorkletService extends InterfaceBWebsideController {
         CheckedOutChildItem cociOrig = _handledWorkItems.get(origWorkItemId);
 
         // log the worklet's case completion event
-        EventLogger.log(_dbMgr, EventLogger.eComplete, caseId,
+        EventLogger.log(EventLogger.eComplete, caseId,
                 new YSpecificationID(cociOrig.getItem()), "",
                 cociOrig.getItem().getCaseID(), -1);
 
@@ -634,7 +639,7 @@ public class WorkletService extends InterfaceBWebsideController {
         RdrConclusion result = tree.search(coChild.getSearchData());
 
         // null result means no rule matched context
-        if (! (result == null || result.nullConclusion())) {
+        if (! (result == null || result.isNullConclusion())) {
             String wSelected = result.getTarget(1);
 
             _log.info("Rule search returned worklet(s): " + wSelected);
@@ -647,15 +652,15 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // remember this handling (if not a replace)
                 if (_handledWorkItems.containsKey(childId)) {
-                    if (_persisting) _dbMgr.persist(coChild, DBManager.DB_UPDATE);
+                    Persister.update(coChild);
                 } else {
                     _handledWorkItems.put(childId, coChild);
                     if (_persisting) {
-                        _dbMgr.persist(coChild, DBManager.DB_INSERT);
+                        Persister.insert(coChild);
                         coChild.ObjectPersisted();
                     }
                 }
-                _server.announceSelection(coChild, result.getLastTrueNode());
+                _server.announceSelection(coChild, result.getLastPair().getLastTrueNode());
             }
             else _log.warn("Could not launch worklet(s): " + wSelected);
         }
@@ -706,14 +711,15 @@ public class WorkletService extends InterfaceBWebsideController {
                 coItem = coParent.getCheckedOutChildItem(i);
                 cancelWorkletList(coItem);
                 _handledWorkItems.remove(coItem.getItemId());
-                if (_persisting) _dbMgr.persist(coItem, DBManager.DB_DELETE);
+                if (_persisting) _db.exec(coItem, HibernateEngine.DB_DELETE, false);
                 _log.info("Removed from handled child workitems: " + wir.getID());
             }
 
             // ... and remove the parent
             _handledParentItems.remove(coParent.getItem().getID());
-            if (_persisting) _dbMgr.persist(coParent, DBManager.DB_DELETE);
+            if (_persisting) _db.exec(coParent, HibernateEngine.DB_DELETE, false);
             coParent.removeAllChildren();
+            _db.commit();
             _log.info("Completed handling of workitem: " + coParent.getItem().getID());
         } else _log.error("Could not connect to engine");
     }
@@ -789,14 +795,14 @@ public class WorkletService extends InterfaceBWebsideController {
             // if its 'fired' check it out
             if (WorkItemRecord.statusFired.equals(itemRec.getStatus())) {
                 if (checkOutWorkItem(itemRec))
-                    EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1);
+                    EventLogger.log(EventLogger.eCheckOut, itemRec, -1);
             }
 
             // if its 'executing', it means it got checked out with the parent
             else if (WorkItemRecord.statusExecuting.equals(itemRec.getStatus())) {
                 _log.info("   child already checked out with parent: " +
                         itemRec.getID());
-                EventLogger.log(_dbMgr, EventLogger.eCheckOut, itemRec, -1);
+                EventLogger.log(EventLogger.eCheckOut, itemRec, -1);
             }
         }
 
@@ -879,7 +885,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // and remove it from the dynamic execution datasets
                 _handledWorkItems.remove(childItem.getID());
-                if (_persisting) _dbMgr.persist(coci, DBManager.DB_DELETE);
+                Persister.delete(coci);
                 _log.info("Removed from handled child workitems: " +
                         childItem.getID());
 
@@ -889,7 +895,7 @@ public class WorkletService extends InterfaceBWebsideController {
                     _log.info("No more child cases running for workitem: " +
                             parentId);
                     _handledParentItems.remove(parentId);
-                    if (_persisting) _dbMgr.persist(coiParent, DBManager.DB_DELETE);
+                    Persister.delete(coiParent);
                     _log.info("Completed handling of workitem: " + parentId);
                 }
             } else _log.warn("Could not check in child workitem: " + childItem.getID());
@@ -919,7 +925,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 if (successful(result)) {
 
                     // log the successful checkin event
-                    EventLogger.log(_dbMgr, EventLogger.eCheckIn, wir, -1);
+                    EventLogger.log(EventLogger.eCheckIn, wir, -1);
                     _log.info("Successful checkin of work item: " + wir.getID());
                     return true;
                 } else {
@@ -968,7 +974,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             // log the rollback checkout event
             if (eventType == null) eventType = EventLogger.eDecline;
-            EventLogger.log(_dbMgr, eventType, wir, -1);
+            EventLogger.log(eventType, wir, -1);
             return true;
         } catch (IOException ioe) {
             _log.error("IO Exception with undo checkout: " + wir.getID(), ioe);
@@ -1158,7 +1164,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 wr.addRunner(caseId, wName);
 
                 // log launch event
-                EventLogger.log(_dbMgr, EventLogger.eLaunch, caseId, specID, "",
+                EventLogger.log(EventLogger.eLaunch, caseId, specID, "",
                         wr.getCaseID(), wr.getReasonType().ordinal());
                 _log.info("Launched case for worklet " + wName +
                         " with ID: " + caseId);
@@ -1268,7 +1274,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             // log successful cancellation event
             YSpecificationID specID = new YSpecificationID(coci.getItem());
-            EventLogger.log(_dbMgr, EventLogger.eCancel, caseid, specID,
+            EventLogger.log(EventLogger.eCancel, caseid, specID,
                     "", coci.getItem().getCaseID(), -1);
             _log.info("Worklet case successfully cancelled: " + caseid);
 
@@ -1710,7 +1716,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         AdministrationTask adminTask =
                 _adminTasksMgr.addTask(caseID, title, scenario, process, taskType);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT);
+        Persister.insert(adminTask);
 
         // suspend case pending admin action
         _exService.suspendCase(caseID);
@@ -1726,7 +1732,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         AdministrationTask adminTask =
                 _adminTasksMgr.addTask(caseID, itemID, title, scenario, process, taskType);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_INSERT);
+        Persister.insert(adminTask);
 
         // suspend item pending admin action
         _exService.suspendWorkItem(itemID);
@@ -1748,7 +1754,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     public void completeAdminTask(String adminTaskID) {
         AdministrationTask adminTask = _adminTasksMgr.removeTask(adminTaskID);
-        if (_persisting) _dbMgr.persist(adminTask, DBManager.DB_DELETE);
+        Persister.delete(adminTask);
     }
 
     //***************************************************************************//
@@ -1794,7 +1800,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private Map<String, CheckedOutItem> restoreHandledParentItems() {
         Map<String, CheckedOutItem> result = new Hashtable<String, CheckedOutItem>();
-        List items = _dbMgr.getObjectsForClass(CheckedOutItem.class.getName());
+        List items = _db.getObjectsForClass(CheckedOutItem.class.getName());
 
         if (items != null) {
             for (Object o : items) {
@@ -1814,7 +1820,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private Map<String, CheckedOutChildItem> restoreHandledChildItems() {
         Map<String, CheckedOutChildItem> result = new HashMap<String, CheckedOutChildItem>();
-        List items = _dbMgr.getObjectsForClass(CheckedOutChildItem.class.getName());
+        List items = _db.getObjectsForClass(CheckedOutChildItem.class.getName());
 
         if (items != null) {
             for (Object o : items) {
@@ -1853,7 +1859,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private AdminTasksManager restoreAdminTasksManager() {
         AdminTasksManager result = new AdminTasksManager();
-        List items = _dbMgr.getObjectsForClass(AdministrationTask.class.getName());
+        List items = _db.getObjectsForClass(AdministrationTask.class.getName());
 
         if (items != null) {
             for (Object o : items) {

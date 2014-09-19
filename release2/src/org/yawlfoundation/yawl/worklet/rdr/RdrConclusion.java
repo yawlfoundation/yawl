@@ -25,71 +25,49 @@ import org.yawlfoundation.yawl.worklet.exception.ExletAction;
 import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
- *  This class stores a returned conclusion from a selected RdrNode.
- *
- *  The conclusion is a JDOM Element consisting of a number of children of the form:
- *      <_n>
- *        <action>someAction</action>
- *        <target>someTarget</target>
- *      <_n>
- *
- *    where n is an ordinal number that indicates an ordering or sequence of the
- *    primitives that form the conclusion.
+ *  This class represents the conclusion primitives of an RdrNode rule.
  *
  *  @author Michael Adams
  *  v0.8, 04-09/2006
  */
 public class RdrConclusion {
 
-    private XNode _conclusion = null ;
-    private RdrNode[] _pair = null ;       // stored here for wr.saveSearchResults()
+    private long id;                      // for hibernate
+
+    private List<Primitive> _primitives;
+    private RdrPair _pair = null ;       // stored here for wr.saveSearchResults()
 
     public RdrConclusion() { }
 
-    public RdrConclusion(Element conc) {
+    public RdrConclusion(Element conc) { parseSteps(conc); }
 
-        // a search for an exception handler returns an element with the text "null"
-        // when none of the nodes conditions evaluates to true - that is, there is
-        // no exception to be handled. Thus, we only want to set the conclusion if
-        // something other than "null" is returned - i.e. an exception has been identified.
-        if ((! (conc == null || conc.getText().equals("null"))) && conc.getContentSize() > 0)
-            setConclusion(conc) ;
-    }
-    
 
     public void setConclusion(Element conc) {
         parseSteps(conc);
     }
 
-    public Element getConclusion() {
-        return _conclusion != null ? _conclusion.toElement() : null;
-    }
 
     public String getAction(int i) {
-        return getText(i - 1, "action");
+        Primitive p = getPrimitive(i);
+        return p != null ? p.action : null;
     }
 
     public String getTarget(int i) {
-        return getText(i - 1, "target");
+        Primitive p = getPrimitive(i);
+        return p != null ? p.target : null;
     }
 
-    private String getText(int index, String child) {
-        XNode step = _conclusion.getChild(index);
-        return step != null ? step.getChildText(child) : "";
-    }
 
     public int getCount() {
-        return _conclusion != null ? _conclusion.getChildCount() : 0;
+        return _primitives != null ? _primitives.size() : 0;
     }
-    
-    
+
+
     public void setSelectionPrimitive(String workletName) {
-        _conclusion = null;                        // only one prim allowed for selection
+        _primitives = null;                        // only one prim allowed for selection
         addPrimitive("select", workletName);
     }
 
@@ -110,25 +88,77 @@ public class RdrConclusion {
 
 
     public boolean equals(Object o) {
-        return _conclusion != null && (o instanceof RdrConclusion) &&
-                ((RdrConclusion) o)._conclusion != null &&
-                _conclusion.toString().equals(((RdrConclusion) o)._conclusion.toString());
+        if (_primitives == null) return false;
+        if (o instanceof RdrConclusion) {
+            RdrConclusion other = (RdrConclusion) o;
+            if (other._primitives == null) return false;
+            return _primitives.equals(other._primitives);
+        }
+        return false;
     }
 
     public int hashCode() {
-        return _conclusion != null ? _conclusion.toString().hashCode() : 17 * 31;
+        return _primitives != null ? _primitives.hashCode() : 17 * 31;
+    }
+
+
+    public boolean isNullConclusion() { return (getCount() == 0); }
+
+
+    public String toString() {
+        XNode node = toXNode();
+        return node != null ? node.toPrettyString() : null;
+    }
+
+
+    public Element toElement() {
+        XNode node = toXNode();
+        return node != null ? node.toElement() : null;
+    }
+
+    
+    public String toXML() {
+        return toString();
+    }
+
+
+    public XNode toXNode() {
+        if (! (_primitives == null || _primitives.isEmpty())) {
+            XNode node = new XNode("conclusion");
+            for (Primitive p : _primitives) {
+                XNode primitive = new XNode("step");
+                primitive.addAttribute("index", p.index);
+                primitive.addChild("action", p.action);
+                primitive.addChild("target", p.target);
+                node.addChild(primitive);
+            }
+            return node;
+        }
+        return null;
+    }
+
+    
+    public void fromXML(String xml) {
+        XNode node = new XNodeParser().parse(xml);
+        if (node != null) parseSteps(node.toElement());
+    }
+
+
+    public RdrPair getLastPair() { return _pair ; }
+
+    public void setLastPair(RdrPair pair) { _pair = pair ; }
+
+
+    // primitive indexes start at 1, not zero
+    private Primitive getPrimitive(int index) {
+        return _primitives != null && index < _primitives.size() ?
+                _primitives.get(index - 1) : null;
     }
 
 
     private void addPrimitive(String action, String target) {
-        XNode primitive = new XNode("step");
-        primitive.addAttribute("index", getCount() + 1);
-        primitive.addChild("action", action);
-        primitive.addChild("target", target);
-        if (_conclusion == null) {
-            _conclusion = new XNode("conclusion");
-        }
-        _conclusion.addChild(primitive);
+        if (_primitives == null) _primitives = new ArrayList<Primitive>();
+        _primitives.add(new Primitive(_primitives.size() + 1, action, target));
     }
 
 
@@ -148,64 +178,26 @@ public class RdrConclusion {
     }
 
     private void rationaliseSteps(Map<Integer, Element> sortedMap) {
-        _conclusion = new XNode("conclusion");
+        _primitives = new ArrayList<Primitive>();
         int i = 1;
         for (Element step : sortedMap.values()) {
-            XNode stepNode = _conclusion.addChild("step");
-            stepNode.addAttribute("index", i++);
-            stepNode.addChild("action", step.getChildText("action"));
-            stepNode.addChild("target", step.getChildText("target"));
+            String action = step.getChildText("action");
+            String target = step.getChildText("target");
+            _primitives.add(new Primitive(i++, action, target));
         }
     }
 
-    public boolean nullConclusion() {
-        return (getCount() == 0);
-    }
 
-    public String toString() {
-        return _conclusion != null ? _conclusion.toPrettyString() : null;
-    }
-    
-    public String toXML() {
-        return toString();
-    }
+    /*******************************************************************************/
 
-    public XNode toXNode() {
-        return _conclusion;
+    private class Primitive implements Comparable<Primitive> {
+        int index;
+        String action;
+        String target;
+
+        Primitive(int i, String a, String t) { index = i; action = a; target = t; }
+
+        public int compareTo(Primitive other) {return index - other.index; }
     }
-
-    
-    public void fromXML(String xml) {
-        _conclusion = new XNodeParser().parse(xml);
-    }
-
-
-    public RdrNode[] getLastPair() {
-        return _pair ;
-    }
-
-    public void setLastPair(RdrNode[] pair) {
-        _pair = pair ;
-    }
-
-    public boolean isLastPairEqual() {
-        return _pair != null && _pair[0] == _pair[1];
-    }
-
-    public RdrNode getParentNode() {
-        if (_pair != null) {
-            return isLastPairEqual() ? getLastTrueNode() : getLastSearchedNode();
-        }
-        return null;
-    }
-
-    public RdrNode getLastTrueNode() {
-        return (_pair != null) ? _pair[0] : null;
-    }
-
-    public RdrNode getLastSearchedNode() {
-        return (_pair != null) ? _pair[1] : null;
-    }
-
 
 }

@@ -46,12 +46,13 @@ import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 
 public class RdrNode {
 	
+    private int id;                                      // for hibernate & toString
+
 	// node members
     private RdrNode parent = null;
     private RdrNode trueChild = null;
     private RdrNode falseChild = null;
 
-    private int nodeId;   
     private String condition;
     private RdrConclusion conclusion;
     private Element cornerstone;
@@ -84,7 +85,7 @@ public class RdrNode {
     			   Element pConclusion,
     			   Element pCornerStone) {
  
-       nodeId        = id;
+ //      this.id = id;                                    // id added by Hibernate
        parent        = pParent;
        trueChild     = pTrueChild;
        falseChild    = pFalseChild;
@@ -136,7 +137,7 @@ public class RdrNode {
      *  @param cornerstone - the data set that led to the creation of this node
 	 */
     public RdrNode(String condition, RdrConclusion conclusion, Element cornerstone) {
-    	this(-1, null, null, null, condition, conclusion.getConclusion(), cornerstone) ;
+    	this(-1, null, null, null, condition, conclusion.toElement(), cornerstone) ;
     }
 
 //===========================================================================//
@@ -145,11 +146,11 @@ public class RdrNode {
     // GETTERS //
     
     public int getNodeId(){
-        return nodeId;
+        return id;
     }
     
     public String getNodeIdAsString() {
-    	return String.valueOf(nodeId);
+    	return String.valueOf(id);
     }
 
     public String getCondition() {
@@ -187,11 +188,11 @@ public class RdrNode {
     // SETTERS //
     
     public void setNodeId(int id) {
-        nodeId = id;
+        this.id = id;
     }
     
     public void setNodeId(String id) {
-    	nodeId = Integer.parseInt(id) ;
+    	this.id = Integer.parseInt(id) ;
     }
 
     public void setCondition(String newCondition) {
@@ -259,34 +260,33 @@ public class RdrNode {
     *  @return a two node array: [0] the last satisfied node 
     *                            [1] the last node searched
     */
-    
-    public RdrNode[] recursiveSearch(Element caseData, RdrNode lastTrueNode){
-        RdrNode[] pair = new RdrNode[2];
+    public RdrPair search(Element caseData, RdrNode lastTrueNode) {
+        RdrPair pair = null;
         ConditionEvaluator ce = new ConditionEvaluator();
         try {
 	        if (ce.evaluate(condition, caseData)) { // if condition evals to True
 	            if (trueChild == null) {            // ...and no exception rule
-	                pair[0] = this;                 // this is last satisfied
-	                pair[1] = this;                 // and last searched
+
+                    // this is last satisfied and last searched
+                    pair = new RdrPair(this, this);
 	            }
 	            else {                              // test the exception rule
-	                pair = trueChild.recursiveSearch(caseData, this);
+	                pair = trueChild.search(caseData, this);
 	            }
 	        }
 	        else {                                  // if condition evals to False
 	            if (falseChild == null) {           // ...and no if-not rule
-	                pair[0] = lastTrueNode;         // pass on last satisfied
-	                pair[1] = this;                 // and this is last searched
+
+                    // pass on last satisfied, and this is last searched
+	                pair = new RdrPair(lastTrueNode, this);
 	            }
 	            else {                              // test the next if-not rule
-	                pair = falseChild.recursiveSearch(caseData,lastTrueNode);
+	                pair = falseChild.search(caseData, lastTrueNode);
 	            }
 	        }
 	    }
 	    catch( RdrConditionException rde ) {        // bad condition found
             _log.error("Search Exception", rde) ;
-            pair[0] = null ;
-            pair[1] = null ;
       }
       return pair ;
    }
@@ -296,7 +296,7 @@ public class RdrNode {
     /** returns a String representation of this node */
     public String toString(){
         StringBuilder s = new StringBuilder("RDR Node: ");
-        s.append("id-").append(nodeId);
+        s.append("id-").append(id);
         if (parent != null) s.append(" parent-").append(parent.getNodeId());
         return s.toString();
     }
@@ -311,7 +311,7 @@ public class RdrNode {
     public XNode toXNode() {
         XNode node = new XNode("ruleNode");
         if (_attributes != null) node.addAttributes(_attributes);
-        node.addChild("id", nodeId);
+        node.addChild("id", id);
         node.addChild("parent", parent != null ? parent.getNodeId() : -1);
         node.addChild("trueChild", trueChild != null ? trueChild.getNodeId() : -1);
         node.addChild("falseChild", falseChild != null ? falseChild.getNodeId() : -1);
@@ -336,7 +336,7 @@ public class RdrNode {
      */
     protected void fromXNode(XNode xNode) {
         if (xNode != null) {
-            nodeId = StringUtil.strToInt(xNode.getChildText("id"), -1);
+            id = StringUtil.strToInt(xNode.getChildText("id"), -1);
             parent = null;
             trueChild = null;
             falseChild = null;
@@ -349,7 +349,18 @@ public class RdrNode {
         }
     }
 
+
+    // For Hibernate
+
+    private String getCornerstoneString() {
+        return JDOMUtil.elementToString(cornerstone);
+    }
+
+    private void setCornerstoneString(String css) {
+        cornerstone = JDOMUtil.stringToElement(css);
+    }
+
 //===========================================================================//
 //===========================================================================//
-	
+
 }

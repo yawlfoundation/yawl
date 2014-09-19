@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
@@ -38,10 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Enumeration;
 
 /**
  * The WorkletGateway class acts as a gateway between the Worklet Selection
@@ -261,7 +256,7 @@ public class WorkletGateway extends YHttpServlet {
         }
         if (conclusion == null) {
             return fail("No rules found for parameters");
-        } else if (conclusion.nullConclusion()) {
+        } else if (conclusion.isNullConclusion()) {
             return fail("No rule was satisfied for data parameters");
         }
         return conclusion.toXML();

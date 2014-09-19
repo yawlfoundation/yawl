@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -51,10 +50,12 @@ import java.util.Map;
 
 public class RdrTree {
 
-    private String _taskId = null ;           // task rules are for, null for case level
-    private RdrNode _rootNode = null;
-    private RdrNode[] _lastPair = new RdrNode[2];     // see search()
-    private YAttributeMap _attributes;
+    private long id;                         // for hibernate
+
+    private String taskId = null ;           // task rules are for, null for case level
+    private RdrNode rootNode = null;
+    private RdrPair lastPair = null;         // see search()
+    private YAttributeMap attributes;
 
 
     /** Default constructor */
@@ -66,7 +67,7 @@ public class RdrTree {
      *  @param taskId - id of task that this tree will support
      */
      public RdrTree(String taskId) {
-    	_taskId = taskId ;
+    	this.taskId = taskId ;
     }
 
 //===========================================================================//
@@ -74,25 +75,25 @@ public class RdrTree {
     // GETTERS //
     
     public RdrNode getRootNode() {
-        return _rootNode;
+        return rootNode;
     }
 
     
     public String getTaskId() {
-        return _taskId;
+        return taskId;
     }
-    
-    public RdrNode[] getLastPair() {
-        return(_lastPair);
-    }
-    
+
+
+    public RdrPair getLastPair() { return (lastPair); }
+
+
     /**
      * Gets the RdrNode for the id passed
      * @param id - the node id of the node to find
      * @return the node identified by the id, or null if this tree has no matching node
      */
     public RdrNode getNode(int id) {
-       return getNode(_rootNode, id) ;
+       return getNode(rootNode, id) ;
     }
 
 
@@ -116,7 +117,7 @@ public class RdrTree {
      * @return a List of all node conditions
      */
     public List<String> getAllConditions() {
-        return getAllConditions(_rootNode);
+        return getAllConditions(rootNode);
     }
 
 
@@ -136,7 +137,7 @@ public class RdrTree {
     }
 
     protected YAttributeMap getAttributes() {
-        return _attributes != null ? _attributes : new YAttributeMap();
+        return attributes != null ? attributes : new YAttributeMap();
     }
   
 //===========================================================================//
@@ -144,18 +145,18 @@ public class RdrTree {
     // SETTERS //
     
     public void setRootNode(RdrNode root) {
-    	_rootNode = root ;
+    	rootNode = root ;
     }
     
 
     public void setTaskId(String id) {
-    	_taskId = id ;
+    	taskId = id ;
     }
 
     public void setAttributes(String rdrSetName, RuleType rType) {
-        _attributes = new YAttributeMap();
-        _attributes.put("ruleset", rdrSetName);
-        _attributes.put("ruletype", rType.name());
+        attributes = new YAttributeMap();
+        attributes.put("ruleset", rdrSetName);
+        attributes.put("ruletype", rType.name());
     }
 
 
@@ -171,8 +172,8 @@ public class RdrTree {
     public RdrConclusion search(Element caseData) {
     	
     	// recursively search each node in the tree    	
-        _lastPair = _rootNode.recursiveSearch(caseData, _rootNode);
-        return _lastPair[0] != null ? _lastPair[0].getConclusion() : null;
+        lastPair = rootNode.search(caseData, rootNode);
+        return lastPair != null ? lastPair.getLastTrueNode().getConclusion() : null;
     }  
     
 //===========================================================================//
@@ -198,7 +199,7 @@ public class RdrTree {
     
     
     public RdrNode addNode(RdrNode newNode, RdrNode parentNode, boolean trueBranch) {
-    	newNode.setNodeId(nodeCount());                          // root id=0
+    //	newNode.setNodeId(nodeCount());                          // root id=0
         newNode.setParent(parentNode);
         if (trueBranch) {
             parentNode.setTrueChild(newNode);
@@ -230,7 +231,7 @@ public class RdrTree {
      * @return the number of nodes in the tree
      */
     private int nodeCount() {
-        return countNodes(_rootNode);
+        return countNodes(rootNode);
     }
     
 //===========================================================================//
@@ -238,7 +239,7 @@ public class RdrTree {
 	/** returns a String representation of this tree */
     public String dump(){
     	String n = Library.newline ;
-    	return n + "Task ID: " + _taskId + n + n + dump(_rootNode) ;
+    	return n + "Task ID: " + taskId + n + n + dump(rootNode) ;
     }
     
     /** recursively adds each node to a String representation of the tree */
@@ -276,31 +277,31 @@ public class RdrTree {
            s.append(dump(root.getFalseChild()));    // recurse false branch
       }
         return s.toString() ;
-     } 
+    }
 
     public String toString() {
-        return "task: " + _taskId + ", nodes: " + nodeCount();
+        return "task: " + taskId + ", nodes: " + nodeCount();
     }
-    
+
+
     public String toXML() {
         return toXNode().toPrettyString();
     }
-   
-    public XNode toXNode() {
-        return toXNode("tree");    // default
-    }
-      
-    
+
+
+    public XNode toXNode() { return toXNode("tree"); }   // default
+
+
     public XNode toXNode(String name) {
         XNode treeNode;
-        if (_taskId != null) {
+        if (taskId != null) {
             treeNode = new XNode("task");
-            treeNode.addAttribute("name", _taskId);
+            treeNode.addAttribute("name", taskId);
         }
         else treeNode = new XNode(name);
-        treeNode.addAttributes(getAttributes());
 
-        treeNode.addChildren(toXNodeList(_rootNode));
+        treeNode.addAttributes(getAttributes());
+        treeNode.addChildren(toXNodeList(rootNode));
         return treeNode;
     }
 

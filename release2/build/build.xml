@@ -1473,7 +1473,7 @@
 
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
-                     excludes="Hibernate*.class Sessions*.class YIdentifierBag.class
+                     excludes="Sessions*.class YIdentifierBag.class
                                YNetElementDocoParser.class"/>
         </copy>
 

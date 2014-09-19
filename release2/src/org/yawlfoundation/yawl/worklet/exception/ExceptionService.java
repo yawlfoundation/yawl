@@ -35,9 +35,9 @@ import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
-import org.yawlfoundation.yawl.worklet.support.DBManager;
 import org.yawlfoundation.yawl.worklet.support.EventLogger;
 import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -249,7 +249,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     // create new monitor for case - will live until case completes
                     monitor = new CaseMonitor(specID, caseID, data);
                     _monitoredCases.put(caseID, monitor);
-                    if (_persisting) _dbMgr.persist(monitor, DBManager.DB_INSERT);
+                    Persister.insert(monitor);
                     checkConstraints(monitor, preCheck);
 
                     // if check item event received before case initialised, call it now
@@ -358,7 +358,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     wir.getTaskName();
         }
         else {
-            if (! conc.nullConclusion()) {                // we have a handler
+            if (! conc.isNullConclusion()) {                // we have a handler
                 msg = ruleType.toLongString() + " exception raised for work item: " +
                         wir.getID();
                 raiseException(monitor, conc, wir, ruleType);
@@ -399,7 +399,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             _log.info("No " + sType + "-case constraints defined for spec: " +
                     monitor.getSpecID());
         else {
-            if (! conc.nullConclusion()) {                // there's been a violation
+            if (! conc.isNullConclusion()) {                // there's been a violation
                 _log.info("Case " + monitor.getCaseID() + " failed " + sType +
                         "-case constraints");
                 raiseException(monitor, conc, sType, xType) ;
@@ -436,7 +436,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (conc == null)
             _log.info("No " + sType + "-task constraints defined for task: " + taskID);
         else {
-            if (! conc.nullConclusion()) {                    // there's been a violation
+            if (! conc.isNullConclusion()) {                    // there's been a violation
                 _log.info("Workitem " + itemID + " failed " + sType +  "-task constraints");
                 raiseException(monitor, conc, wir, xType) ;
             }
@@ -486,11 +486,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             HandlerRunner hr = new HandlerRunner(cmon, conc, xType) ;
             cmon.addHandlerRunner(hr, sType);
             if (_persisting) {
-                _dbMgr.persist(hr, DBManager.DB_INSERT);
+                Persister.insert(hr);
                 hr.ObjectPersisted();
             }
             _server.announceException(cmon.getCaseID(), cmon.getCaseData(),
-                    conc.getLastTrueNode(), xType);
+                    conc.getLastPair().getLastTrueNode(), xType);
             processException(hr) ;
         }
         else _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -512,11 +512,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             HandlerRunner hr = new HandlerRunner(cmon, wir, conc, xType) ;
             cmon.addHandlerRunner(hr, wir.getID());
             if (_persisting) {
-                _dbMgr.persist(hr, DBManager.DB_INSERT);
+                Persister.insert(hr);
                 hr.ObjectPersisted();
             }
             _server.announceException(wir, cmon.getCaseData(),
-                    conc.getLastTrueNode(), xType);
+                    conc.getLastPair().getLastTrueNode(), xType);
             processException(hr) ;
         }
         else  _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -550,7 +550,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // in the sequence is a compensatory task)
         if (! hr.hasNextAction() && ! hr.hasRunningWorklet()) {
             mon.removeHandlerRunner(hr);
-            if (_persisting) _dbMgr.persist(hr, DBManager.DB_DELETE);
+            Persister.delete(hr);
         }
 
         // if case is completed and all exception handling is done, remove the record
@@ -765,7 +765,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         String event = cancelled ? EventLogger.eCancel : EventLogger.eComplete;
         YSpecificationID specID = runner.getItem() != null ?
                 new YSpecificationID(runner.getItem()) : getSpecIDForCaseID(caseId);
-        EventLogger.log(_dbMgr, event, caseId, specID, "", runner.getCaseID(), -1) ;
+        EventLogger.log(event, caseId, specID, "", runner.getCaseID(), -1) ;
 
         runner.removeRunnerByCaseID(caseId);       // worklet's case id no longer needed
 
@@ -1384,7 +1384,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         _log.info("Worklet case running for the cancelled parent case " +
                                 "has id of: " + caseIdToCancel) ;
 
-                        EventLogger.log(_dbMgr, EventLogger.eCancel, caseIdToCancel,
+                        EventLogger.log(EventLogger.eCancel, caseIdToCancel,
                                 new YSpecificationID(hr.getItem()), "", caseID, -1) ;
 
                         removeCase(caseIdToCancel);
@@ -1396,7 +1396,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 // unpersist the runner if its a 'top-level' parent
                 monitor.removeHandlerRunner(hr);
                 if (_persisting && ! isWorkletCase(caseID))
-                    _dbMgr.persist(hr, DBManager.DB_DELETE);
+                    Persister.delete(hr);
             }
             if (! runnerFound) _log.info("No worklets running for cancelled case: "
                     + caseID);
@@ -1562,7 +1562,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /** completes case monitoring by performing housekeeping for the (completed) case */
     private void completeCaseMonitoring(CaseMonitor monitor, String caseID) {
         _monitoredCases.remove(caseID);
-        if (_persisting) _dbMgr.persist(monitor, DBManager.DB_DELETE);
+        Persister.delete(monitor);
         _log.info("Exception monitoring complete for case " + caseID);
     }
 
@@ -1827,7 +1827,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
             // remove monitor's runner for cancelled worklet
             mon.removeHandlerRunner(hr);
-            if (_persisting) _dbMgr.persist(hr, DBManager.DB_DELETE);
+            Persister.delete(hr);
 
             // go through the process again, depending on the exception type
             switch (xType) {
@@ -1901,7 +1901,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         HandlerRunner runner ;
 
         // retrieve persisted runner objects from database
-        List items = _dbMgr.getObjectsForClass(HandlerRunner.class.getName());
+        List items = _db.getObjectsForClass(HandlerRunner.class.getName());
 
         if (items != null) {
             for (Object o : items) {
@@ -1925,7 +1925,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         Map<String, CaseMonitor> result = new Hashtable<String, CaseMonitor>();
 
         // retrieve persisted monitor objects from database
-        List items = _dbMgr.getObjectsForClass(CaseMonitor.class.getName());
+        List items = _db.getObjectsForClass(CaseMonitor.class.getName());
 
         if (items != null) {
             for (Object o : items) {
