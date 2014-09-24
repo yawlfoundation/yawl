@@ -54,7 +54,6 @@ public class RdrTree {
 
     private String taskId = null ;           // task rules are for, null for case level
     private RdrNode rootNode = null;
-    private RdrPair lastPair = null;         // see search()
     private YAttributeMap attributes;
 
 
@@ -80,11 +79,9 @@ public class RdrTree {
 
     
     public String getTaskId() {
-        return taskId;
+        return taskId != null ? taskId : RdrSet.CASE_LEVEL_TREE_FLAG;
     }
 
-
-    public RdrPair getLastPair() { return (lastPair); }
 
 
     /**
@@ -167,14 +164,13 @@ public class RdrTree {
     *  @param caseData - a JDOM Element that contains the set of data
     *         attributes and values that are used to evaluate the conditional
     *         expressions
-    *  @return the conclusion of the last node satisfied
+    *  @return the pair of nodes resulting from the rule evaluation
     */ 
-    public RdrConclusion search(Element caseData) {
+    public RdrPair search(Element caseData) {
     	
     	// recursively search each node in the tree    	
-        lastPair = rootNode.search(caseData, rootNode);
-        return lastPair != null ? lastPair.getLastTrueNode().getConclusion() : null;
-    }  
+        return rootNode.search(caseData, rootNode);
+    }
     
 //===========================================================================//
 
@@ -321,7 +317,7 @@ public class RdrTree {
     }
     
     private void fromXNode(XNode node) {
-        Map<Integer, RdrNode> nodeMap = new Hashtable<Integer, RdrNode>();
+        Map<Long, RdrNode> nodeMap = new Hashtable<Long, RdrNode>();
         if (node != null) {
             
             // 2 passes - one to unmarshal the nodes, one to link them

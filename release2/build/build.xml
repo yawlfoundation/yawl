@@ -1325,7 +1325,7 @@
               file="${classes.dir}${packageRoot}/worklet/WorkletService.class"/>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/rdr">
             <fileset dir="${classes.dir}${packageRoot}/worklet/rdr"
-                     includes="*.class"/>
+                     includes="*.class *.xml"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/selection">
             <fileset dir="${classes.dir}${packageRoot}/worklet/selection"

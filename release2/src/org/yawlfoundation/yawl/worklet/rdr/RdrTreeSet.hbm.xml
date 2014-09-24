@@ -23,27 +23,22 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode">
+	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet" table="RdrTreeSet">
 
-	    <id name="id" column="rdrnodeid" type="long" access="field">
+	    <id name="id" column="rdrtreesetid" type="long" access="field">
     		<generator class="native"/>
     	</id>
 
-        <many-to-one name="parent" cascade="all"
-                     class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
-                     not-null="false"/>
-        <many-to-one name="trueChild" cascade="all"
-                     class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
-                     not-null="false"/>
-        <many-to-one name="falseChild" cascade="all"
-                     class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
-                     not-null="false"/>
-        <many-to-one name="conclusion" cascade="all"
-                     class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
+        <set name="treeSet" cascade="all">
+            <key column="rdrtreesetid"/>
+            <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTree"/>
+        </set>
 
-        <property name="condition"/>
-        <property name="description" type="text"/>
-        <property name="cornerstoneString" type="text"/>
+        <property name="_ruleType" column="ruletype" access="field">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
+            </type>
+        </property>
 
 	</class>
 	

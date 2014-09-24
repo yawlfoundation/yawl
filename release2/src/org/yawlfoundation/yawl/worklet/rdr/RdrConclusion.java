@@ -37,7 +37,7 @@ public class RdrConclusion {
 
     private long id;                      // for hibernate
 
-    private List<Primitive> _primitives;
+    private List<RdrPrimitive> _primitives;
     private RdrPair _pair = null ;       // stored here for wr.saveSearchResults()
 
     public RdrConclusion() { }
@@ -51,13 +51,13 @@ public class RdrConclusion {
 
 
     public String getAction(int i) {
-        Primitive p = getPrimitive(i);
-        return p != null ? p.action : null;
+        RdrPrimitive p = getPrimitive(i);
+        return p != null ? p.getAction() : null;
     }
 
     public String getTarget(int i) {
-        Primitive p = getPrimitive(i);
-        return p != null ? p.target : null;
+        RdrPrimitive p = getPrimitive(i);
+        return p != null ? p.getTarget() : null;
     }
 
 
@@ -125,11 +125,11 @@ public class RdrConclusion {
     public XNode toXNode() {
         if (! (_primitives == null || _primitives.isEmpty())) {
             XNode node = new XNode("conclusion");
-            for (Primitive p : _primitives) {
+            for (RdrPrimitive p : _primitives) {
                 XNode primitive = new XNode("step");
-                primitive.addAttribute("index", p.index);
-                primitive.addChild("action", p.action);
-                primitive.addChild("target", p.target);
+                primitive.addAttribute("index", p.getIndex());
+                primitive.addChild("action", p.getAction());
+                primitive.addChild("target", p.getTarget());
                 node.addChild(primitive);
             }
             return node;
@@ -150,15 +150,15 @@ public class RdrConclusion {
 
 
     // primitive indexes start at 1, not zero
-    private Primitive getPrimitive(int index) {
-        return _primitives != null && index < _primitives.size() ?
+    private RdrPrimitive getPrimitive(int index) {
+        return _primitives != null && index <= _primitives.size() ?
                 _primitives.get(index - 1) : null;
     }
 
 
     private void addPrimitive(String action, String target) {
-        if (_primitives == null) _primitives = new ArrayList<Primitive>();
-        _primitives.add(new Primitive(_primitives.size() + 1, action, target));
+        if (_primitives == null) _primitives = new ArrayList<RdrPrimitive>();
+        _primitives.add(new RdrPrimitive(_primitives.size() + 1, action, target));
     }
 
 
@@ -178,26 +178,14 @@ public class RdrConclusion {
     }
 
     private void rationaliseSteps(Map<Integer, Element> sortedMap) {
-        _primitives = new ArrayList<Primitive>();
+        _primitives = new ArrayList<RdrPrimitive>();
         int i = 1;
         for (Element step : sortedMap.values()) {
             String action = step.getChildText("action");
             String target = step.getChildText("target");
-            _primitives.add(new Primitive(i++, action, target));
+            _primitives.add(new RdrPrimitive(i++, action, target));
         }
     }
 
-
-    /*******************************************************************************/
-
-    private class Primitive implements Comparable<Primitive> {
-        int index;
-        String action;
-        String target;
-
-        Primitive(int i, String a, String t) { index = i; action = a; target = t; }
-
-        public int compareTo(Primitive other) {return index - other.index; }
-    }
 
 }

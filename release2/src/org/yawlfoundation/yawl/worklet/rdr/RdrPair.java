@@ -9,6 +9,8 @@ public class RdrPair {
     private RdrNode lastTrue;
     private RdrNode lastEvaluated;
 
+    public RdrPair() { }
+
     public RdrPair(RdrNode lTrue, RdrNode lEvaluated) {
         lastTrue = lTrue;
         lastEvaluated = lEvaluated;
@@ -29,6 +31,17 @@ public class RdrPair {
 
 
     public RdrNode getLastEvaluatedNode() { return lastEvaluated; }
+
+
+    public RdrConclusion getConclusion() {
+        return lastTrue != null ? lastTrue.getConclusion() : null;
+    }
+
+
+    public boolean hasNullConclusion() {
+        RdrConclusion conclusion = getConclusion();
+        return conclusion == null || conclusion.isNullConclusion();
+    }
 
 
     public String toString() {

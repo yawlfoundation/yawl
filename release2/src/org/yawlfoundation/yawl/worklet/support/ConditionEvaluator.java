@@ -66,74 +66,20 @@ import java.util.Vector;
 public class ConditionEvaluator {
 
     // define the operators
-    private String[] _NumericOps = { "+", "-", "*", "/" } ;
-    private String[] _CompareOps = { "=", "!=", ">", ">=", "<", "<=" } ;
-    private String[] _BooleanOps = { "&", "|" } ;
-    private String[] _UnaryOps   = { "+", "-", "!" } ;
-    private String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
+    private static final String[] _NumericOps = { "+", "-", "*", "/" } ;
+    private static final String[] _CompareOps = { "=", "!=", ">", ">=", "<", "<=" } ;
+    private static final String[] _BooleanOps = { "&", "|" } ;
+    private static final String[] _UnaryOps   = { "+", "-", "!" } ;
+    private static final String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
             "<", ">", "!=", "=", "&", "|", "!"} ;
 
-    private String _condition = null ;        // the condition to be evaluated
-    private Element _dataList ;               // the list of variables & values
+    private static final Logger _log = Logger.getLogger(ConditionEvaluator.class);
 
-    private static Logger _log = Logger.getLogger(ConditionEvaluator.class);
-
-    /**
-     * CONSTRUCTORS
-     */
 
     public ConditionEvaluator() {
         _log.setLevel(Level.ERROR);
     }
 
-
-    public ConditionEvaluator(String cond, Element datalist) {
-        this();
-        _condition = cond ;
-        _dataList = datalist ;
-    }
-
-    //==========================================================================//
-
-    /**
-     * PUBLIC METHODS A - SETTERS & GETTERS
-     */
-
-    public void setCondition(String cond) {
-        _condition = cond ;
-    }
-
-
-    public String getCondition() {
-        return _condition ;
-    }
-
-
-    public void setDatalist(Element e) {
-        _dataList = e ;
-    }
-
-
-    public Element getDataList() {
-        return _dataList ;
-    }
-
-    //==========================================================================//
-
-    /**
-     * PUBLIC METHODS B - TWO EVALUATE() VERSIONS
-     */
-
-    /**
-     *  Evaluates a previously supplied condition using a previously 
-     *  supplied datalist. 
-     *
-     *  Throws an RdrConditionException if those two items have not been
-     *  previously supplied.
-     */
-    public boolean evaluate() throws RdrConditionException {
-        return evaluate(_condition, _dataList);
-    }
 
     /**
      *  Evaluate the condition using the datalist of variables and values.
@@ -142,30 +88,29 @@ public class ConditionEvaluator {
      *
      *  @return the boolean result of the evaluation
      */
-    public boolean evaluate(String cond, Element dlist) throws RdrConditionException {
+    public boolean evaluate(String cond, Element data) throws RdrConditionException {
         if (cond == null) {
             throw new RdrConditionException("Cannot evaluate tree: condition is null");
         }
-        if (dlist == null) {
+        if (data == null) {
             throw new RdrConditionException("Cannot evaluate tree: data element is null");
         }
 
         String result;
-        _dataList = dlist ;
 
         // DEBUG: log received items
-        _log.info("received condition: " + cond );
-        _log.info("data = " + JDOMUtil.elementToString(dlist)) ;
+        _log.info("received condition: " + cond);
+        _log.info("data = " + JDOMUtil.elementToString(data)) ;
 
         // check if it's an XQuery or cost predicate
         if (cond.startsWith("{") || cond.startsWith("/")) {
-            result = evaluateXQuery(cond);
+            result = evaluateXQuery(cond, data);
         }
         else if (cond.startsWith("cost(")) {
-            result = new CostPredicateEvaluator().evaluate(cond, dlist);
+            result = new CostPredicateEvaluator().evaluate(cond, data);
         }
         else {
-            result = parseAndEvaluate(cond) ;            // evaluate ordinary condition
+            result = parseAndEvaluate(cond, data) ;            // evaluate ordinary condition
         }
 
         // if a boolean result, return it
@@ -257,15 +202,15 @@ public class ConditionEvaluator {
 
 
     /** @return true if expression is a literal value (string or numeric) */
-    private boolean isLiteralValue(String s) {
-        return isString(s) || isBoolean(s) || isNumber(s) || !isVarName(s) ;
+    private boolean isLiteralValue(String s, Element data) {
+        return isString(s) || isBoolean(s) || isNumber(s) || !isVarName(s, data) ;
     }
 
 
     /** @return true if expression is the name of a child of the _datalist
      *          Element (i.e. is the name of an item of data) */
-    private boolean isVarName(String s) {
-        Element var = _dataList != null ? _dataList.getChild(s) : null ;
+    private boolean isVarName(String s, Element data) {
+        Element var = data != null ? data.getChild(s) : null ;
         return (var != null) ;
     }
 
@@ -387,14 +332,6 @@ public class ConditionEvaluator {
         if (counter == 0) return new String(array);
 
         throw new RdrConditionException("Invalid expression: unbalanced parentheses");
-
-//        int closer = s.indexOf(')', fadPos);
-//        StringBuilder result = new StringBuilder(s) ;
-//        result.deleteCharAt(fadPos);
-//        result.insert(fadPos, '[');
-//        result.deleteCharAt(closer);
-//        result.insert(closer, ']');
-//        return result.toString() ;
     }
 
 
@@ -486,11 +423,11 @@ public class ConditionEvaluator {
      */
 
 
-    private String evaluateXQuery(String expr) throws RdrConditionException {
+    private String evaluateXQuery(String expr, Element data) throws RdrConditionException {
         try {
             if (expr.startsWith("{")) expr = deQuote(expr);      // remove braces
             String query = String.format("boolean(%s)", expr);
-            return SaxonUtil.evaluateQuery(query, new Document(_dataList));
+            return SaxonUtil.evaluateQuery(query, new Document(data));
         }
         catch (SaxonApiException sae) {
             throw new RdrConditionException("Invalid XPath expression (" + expr + ").");
@@ -714,7 +651,7 @@ public class ConditionEvaluator {
 
 
     /** parses and evaluates expression 's' using operator precedence */
-    private String parseAndEvaluate(String s) throws RdrConditionException {
+    private String parseAndEvaluate(String s, Element data) throws RdrConditionException {
 
         String subExpr, ans ;
         String[] tokens ;
@@ -730,9 +667,9 @@ public class ConditionEvaluator {
             }
             else {
                 // evaluate parenthesised sub-expressions first
-                subExpr = extractSubExpr(s) ;                // get ( subexpr )
-                ans = parseAndEvaluate(deQuote(subExpr)) ;   // recurse
-                s = replaceStr(s, subExpr, ans) ;            // insert result
+                subExpr = extractSubExpr(s) ;                      // get ( subexpr )
+                ans = parseAndEvaluate(deQuote(subExpr), data) ;   // recurse
+                s = replaceStr(s, subExpr, ans) ;                  // insert result
             }
             parIndex = s.indexOf('(');
         }
@@ -753,7 +690,7 @@ public class ConditionEvaluator {
         // while the expression has more operators, evaluate a part
         while (opIndex > -1) {
             ans = evalExpression(tokens[opIndex-1], tokens[opIndex],
-                    tokens[opIndex+1]) ;
+                    tokens[opIndex+1], data) ;
             tokens = reduceTokens(tokens, opIndex, ans) ;
 
             if (_log.isDebugEnabled())
@@ -765,7 +702,7 @@ public class ConditionEvaluator {
 
         // one token left - can be boolean string or single (boolean) function call
         if (isFunctionCall(tokens[0]))
-            tokens[0] = evalFunction(tokens[0]);
+            tokens[0] = evalFunction(tokens[0], data);
         if (negation) {
             tokens[0] = tokens[0].equalsIgnoreCase("true") ? "false" : "true";
         }
@@ -780,16 +717,16 @@ public class ConditionEvaluator {
      *  @param operator - as the name implies
      *  @param rOp - the right operand
      */
-    private String evalExpression(String lOp, String operator, String rOp)
+    private String evalExpression(String lOp, String operator, String rOp, Element data)
             throws RdrConditionException {
 
         // if either op is a function call, replace it with its evaluation
-        if (isFunctionCall(lOp)) lOp = getFunctionResult(lOp) ;
-        if (isFunctionCall(rOp)) rOp = getFunctionResult(rOp) ;
+        if (isFunctionCall(lOp)) lOp = getFunctionResult(lOp, data) ;
+        if (isFunctionCall(rOp)) rOp = getFunctionResult(rOp, data) ;
 
         // if either op is a varname, replace it with its value
-        if (!isLiteralValue(lOp)) lOp = getVarValue(lOp) ;
-        if (!isLiteralValue(rOp)) rOp = getVarValue(rOp) ;
+        if (!isLiteralValue(lOp, data)) lOp = getVarValue(lOp, data) ;
+        if (!isLiteralValue(rOp, data)) rOp = getVarValue(rOp, data) ;
 
         // make sure any data variables used contain valid data
         if ((lOp.equals("undefined")) || (rOp.equals("undefined") ) ||
@@ -820,7 +757,7 @@ public class ConditionEvaluator {
      * @param func the function to call
      * @return the result of the function
      */
-    private String evalFunction(String func) throws RdrConditionException {
+    private String evalFunction(String func, Element data) throws RdrConditionException {
         String funcName, varName, varValue, result ;
         Map<String, String> args = new HashMap<String, String>() ;
 
@@ -828,7 +765,7 @@ public class ConditionEvaluator {
         String[] argList = parseArgsList(func);
         for (String arg : argList) {
             varName = arg.trim();
-            varValue = getVarValue(varName);
+            varValue = getVarValue(varName, data);
             args.put(varName, varValue);
         }
 
@@ -847,8 +784,8 @@ public class ConditionEvaluator {
     }
 
     /** translates a bad result to 'undefined' */
-    private String getFunctionResult(String func) throws RdrConditionException {
-        String result = evalFunction(func);
+    private String getFunctionResult(String func, Element data) throws RdrConditionException {
+        String result = evalFunction(func, data);
         if ((result == null) || (result.length() == 0))
             result = "undefined" ;
         return result ;
@@ -856,15 +793,15 @@ public class ConditionEvaluator {
 
 
     /** retrieves the value for a variable or function from the datalist Element */
-    private String getVarValue(String var) {
+    private String getVarValue(String var, Element data) {
         String result ;
         _log.debug("in getVarValue, var = " + var) ;
 
         // var "this" refers to the workitem associated with the task named in this rule
         if (var.equalsIgnoreCase("this"))
-            result = getThisData() ;
+            result = getThisData(data);
         else
-            result = _dataList.getChildText(var) ;
+            result = data.getChildText(var) ;
 
         if ((result == null) || (result.length() == 0))
             result = "undefined" ;
@@ -881,9 +818,9 @@ public class ConditionEvaluator {
     }
 
     /** get the value of the 'this' argument */
-    private String getThisData() {
+    private String getThisData(Element data) {
         String result = null;
-        Element eThis = _dataList.getChild("process_info").getChild("workItemRecord");
+        Element eThis = data.getChild("process_info").getChild("workItemRecord");
         if (eThis != null) result = JDOMUtil.elementToString(eThis);
         return result;
     }

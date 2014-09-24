@@ -39,7 +39,7 @@ import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.rdr.Rdr;
-import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
+import org.yawlfoundation.yawl.worklet.rdr.RdrPair;
 import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
@@ -636,18 +636,18 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("Processing worklet substitution for workitem: " + childId);
 
         // select appropriate worklet
-        RdrConclusion result = tree.search(coChild.getSearchData());
+        RdrPair pair = tree.search(coChild.getSearchData());
 
         // null result means no rule matched context
-        if (! (result == null || result.isNullConclusion())) {
-            String wSelected = result.getTarget(1);
+        if (! (pair == null || pair.hasNullConclusion())) {
+            String wSelected = pair.getConclusion().getTarget(1);
 
             _log.info("Rule search returned worklet(s): " + wSelected);
             coChild.setExType(RuleType.ItemSelection);
 
             if (launchWorkletList(coChild, wSelected)) {
                 // save the search results (if later rule append is needed)
-                coChild.setSearchPair(tree.getLastPair());
+                coChild.setSearchPair(pair);
                 coChild.saveSearchResults();
 
                 // remember this handling (if not a replace)
@@ -660,7 +660,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         coChild.ObjectPersisted();
                     }
                 }
-                _server.announceSelection(coChild, result.getLastPair().getLastTrueNode());
+                _server.announceSelection(coChild, pair.getLastTrueNode());
             }
             else _log.warn("Could not launch worklet(s): " + wSelected);
         }
@@ -1831,7 +1831,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
                 // restore link child <--> parent
                 CheckedOutItem parent = _handledParentItems.get(coci.get_parentID());
-                parent.addChild(coci);
+                if (parent != null) parent.addChild(coci);
 
                 // rebuild search pair nodes
                 coci.rebuildSearchPair(coci.getSpecID(),

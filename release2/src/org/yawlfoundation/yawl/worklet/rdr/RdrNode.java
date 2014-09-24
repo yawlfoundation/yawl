@@ -46,7 +46,7 @@ import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 
 public class RdrNode {
 	
-    private int id;                                      // for hibernate & toString
+    private long id;                                      // for hibernate & toString
 
 	// node members
     private RdrNode parent = null;
@@ -60,7 +60,8 @@ public class RdrNode {
 
     private YAttributeMap _attributes;
 
-    private Logger _log = Logger.getLogger(this.getClass());
+    private static final ConditionEvaluator EVALUATOR = new ConditionEvaluator();
+    private static final Logger _log = Logger.getLogger(RdrNode.class);
 
 
     /** Default constructor */
@@ -85,7 +86,7 @@ public class RdrNode {
     			   Element pConclusion,
     			   Element pCornerStone) {
  
- //      this.id = id;                                    // id added by Hibernate
+ //      this.id = id;                           // id added by Hibernate
        parent        = pParent;
        trueChild     = pTrueChild;
        falseChild    = pFalseChild;
@@ -145,7 +146,7 @@ public class RdrNode {
 
     // GETTERS //
     
-    public int getNodeId(){
+    public long getNodeId(){
         return id;
     }
     
@@ -262,30 +263,30 @@ public class RdrNode {
     */
     public RdrPair search(Element caseData, RdrNode lastTrueNode) {
         RdrPair pair = null;
-        ConditionEvaluator ce = new ConditionEvaluator();
+
         try {
-	        if (ce.evaluate(condition, caseData)) { // if condition evals to True
-	            if (trueChild == null) {            // ...and no exception rule
+	        if (EVALUATOR.evaluate(condition, caseData)) {  // if condition evals to True
+	            if (trueChild == null) {                    // ...and no exception rule
 
                     // this is last satisfied and last searched
                     pair = new RdrPair(this, this);
 	            }
-	            else {                              // test the exception rule
+	            else {                                      // test the exception rule
 	                pair = trueChild.search(caseData, this);
 	            }
 	        }
-	        else {                                  // if condition evals to False
-	            if (falseChild == null) {           // ...and no if-not rule
+	        else {                                         // if condition evals to False
+	            if (falseChild == null) {                  // ...and no if-not rule
 
                     // pass on last satisfied, and this is last searched
 	                pair = new RdrPair(lastTrueNode, this);
 	            }
-	            else {                              // test the next if-not rule
+	            else {                                     // test the next if-not rule
 	                pair = falseChild.search(caseData, lastTrueNode);
 	            }
 	        }
 	    }
-	    catch( RdrConditionException rde ) {        // bad condition found
+	    catch (RdrConditionException rde) {               // bad condition found
             _log.error("Search Exception", rde) ;
       }
       return pair ;

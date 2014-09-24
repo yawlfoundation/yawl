@@ -25,16 +25,17 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion" table="RdrConclusion">
 
-	    <id name="id" type="long" access="field">
-    		<generator class="assigned"/>
+	    <id name="id" column="rdrconclusionid" type="long" access="field">
+    		<generator class="native"/>
     	</id>
 
-        <list name="_primitives" access="field">
-            <key column="primitive" not-null="true"/>
-            <composite-element class="RdrConclusion$Primitive">
-                <property name="index"/>
-                <property name="action"/>
-                <property name="target"/>
+        <list name="_primitives" access="field" cascade="all">
+            <key column="rdrprimitiveid" not-null="true"/>
+            <list-index column="listindex"/>
+            <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
+                <property name="index" access="field"/>
+                <property name="action" access="field"/>
+                <property name="target" access="field"/>
             </composite-element>
         </list>
 

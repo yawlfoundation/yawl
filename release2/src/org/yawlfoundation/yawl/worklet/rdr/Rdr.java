@@ -244,10 +244,11 @@ public class Rdr {
 
     private RdrConclusion getConclusion(RdrTree tree, Element data) {
         if (tree != null) {
-            RdrConclusion conc = tree.search(data);
-            if (conc != null) {
-                conc.setLastPair(tree.getLastPair());
-                return conc;
+            RdrPair pair = tree.search(data);
+            if (pair != null) {
+                RdrConclusion conclusion = pair.getConclusion();
+                conclusion.setLastPair(pair);
+                return conclusion;
             }
         }
         return null ;
@@ -265,8 +266,7 @@ public class Rdr {
 
     private RdrTree getTree(RdrSet ruleSet, String taskID, RuleType rType) {
         if (! ruleSet.hasRules()) return null;
-        RdrTree tree = rType.isCaseLevelType() ? ruleSet.getTree(rType) :
-               ruleSet.getTree(rType, taskID) ;
+        RdrTree tree = ruleSet.getTree(rType, taskID) ;
         if (tree != null) tree.setAttributes(ruleSet.getName(), rType);
         return tree;
     }

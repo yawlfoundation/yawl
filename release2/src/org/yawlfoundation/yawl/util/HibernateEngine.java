@@ -80,6 +80,7 @@ public class HibernateEngine {
             if (props != null) {
                 _cfg.setProperties(props);
             }
+            _cfg.setProperty("hibernate.show_sql", "true");
 
             // add each persisted class to config
             for (Class persistedClass : classes) {

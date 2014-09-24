@@ -27,9 +27,9 @@ import java.util.Map;
  */
 public enum RuleType {
     CasePreconstraint("PreCaseConstraint", "Pre-case constraint violation"),
-    CasePostconstaint("PostCaseConstraint", "Post-case constraint violation"),
+    CasePostconstraint("PostCaseConstraint", "Post-case constraint violation"),
     ItemPreconstraint("ItemPreConstraint", "Workitem pre-constraint violation"),
-    ItemPostconstaint("ItemPostConstraint", "Workitem post-constraint violation"),
+    ItemPostconstraint("ItemPostConstraint", "Workitem post-constraint violation"),
     ItemAbort("ItemAbort", "Workitem abort"),
     ItemTimeout("ItemTimeout", "Workitem timeout"),
     ItemResourceUnavailable("ResourceUnavailable", "Resource unavailable"),
@@ -58,7 +58,7 @@ public enum RuleType {
     public boolean isCaseLevelType() {
         switch (this) {
             case CasePreconstraint:
-            case CasePostconstaint:
+            case CasePostconstraint:
             case CaseExternalTrigger:  return true;
         }
         return false;
