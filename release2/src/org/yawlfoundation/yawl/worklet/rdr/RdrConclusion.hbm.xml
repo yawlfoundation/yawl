@@ -29,7 +29,7 @@
     		<generator class="native"/>
     	</id>
 
-        <list name="_primitives" access="field" cascade="all">
+        <list name="_primitives" access="field" cascade="all" lazy="false">
             <key column="rdrprimitiveid" not-null="true"/>
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">

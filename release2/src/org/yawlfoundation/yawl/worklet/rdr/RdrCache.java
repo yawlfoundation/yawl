@@ -46,9 +46,6 @@ public class RdrCache {
             set = new RdrSetLoader().load(specID);              // load rules from store
             put(specID.getUri(), set);
         }
-        else {
-            Persister.update(set);                              // reattach to session
-        }
         return set;
     }
     
@@ -80,9 +77,6 @@ public class RdrCache {
         if (set == null) {
             set = new RdrSetLoader().load(name);               // loads rules from store
             put(name, set);
-        }
-        else {
-            Persister.update(set);                              // reattach to session
         }
         return set;
     }

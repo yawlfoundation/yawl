@@ -41,7 +41,7 @@
 
         <property name="_processName" column="processname" access="field"/>
 
-        <set name="treeSet" cascade="all">
+        <set name="treeSet" cascade="all" lazy="false">
             <key column="rdrsetid"/>
             <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet"/>
         </set>

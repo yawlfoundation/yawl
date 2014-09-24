@@ -29,16 +29,16 @@
     		<generator class="native"/>
     	</id>
 
-        <many-to-one name="parent" cascade="all"
+        <many-to-one name="parent" cascade="all" lazy="false"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="trueChild" cascade="all"
+        <many-to-one name="trueChild" cascade="all" lazy="false"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="falseChild" cascade="all"
+        <many-to-one name="falseChild" cascade="all" lazy="false"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="false"/>
-        <many-to-one name="conclusion" cascade="all"
+        <many-to-one name="conclusion" cascade="all" lazy="false"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
 
         <property name="condition"/>
