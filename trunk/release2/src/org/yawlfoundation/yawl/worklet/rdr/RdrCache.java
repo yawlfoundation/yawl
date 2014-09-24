@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +43,11 @@ public class RdrCache {
         if (specID == null) return null;
         RdrSet set = _cache.get(specID.getUri());
         if (set == null) {
-            set = new RdrSet(specID);               // loads rules from store
+            set = new RdrSetLoader().load(specID);              // load rules from store
             put(specID.getUri(), set);
+        }
+        else {
+            Persister.update(set);                              // reattach to session
         }
         return set;
     }
@@ -74,8 +78,11 @@ public class RdrCache {
         if (name == null) return null;
         RdrSet set = _cache.get(name);
         if (set == null) {
-            set = new RdrSet(name);               // loads rules from store
+            set = new RdrSetLoader().load(name);               // loads rules from store
             put(name, set);
+        }
+        else {
+            Persister.update(set);                              // reattach to session
         }
         return set;
     }

@@ -119,7 +119,7 @@ public class JDOMUtil {
 
     public synchronized static Document fileToDocument(File file) {
         try {
-            return (file != null) ? _builder.build(file) : null ;
+            return (file != null && file.exists()) ? _builder.build(file) : null ;
         }
         catch (JDOMException jde) {
             _log.error("JDOMException loading file into Document, filepath = " +

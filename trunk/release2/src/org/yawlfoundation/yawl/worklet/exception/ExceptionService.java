@@ -389,7 +389,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private void checkConstraints(CaseMonitor monitor, boolean pre) {
         RdrConclusion conc ;       // the conclusion from a set of rules, if any
         String sType = pre ? "pre" : "post";
-        RuleType xType = pre ? RuleType.CasePreconstraint : RuleType.CasePostconstaint;
+        RuleType xType = pre ? RuleType.CasePreconstraint : RuleType.CasePostconstraint;
 
         // get the exception handler that would result from a constraint violation
         conc = getExceptionHandler(monitor, null, xType) ;
@@ -427,7 +427,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         String itemID = wir.getID();
         String taskID = wir.getTaskName() ;
         String sType = pre? "pre" : "post";
-        RuleType xType = pre? RuleType.ItemPreconstraint : RuleType.ItemPostconstaint;
+        RuleType xType = pre? RuleType.ItemPreconstraint : RuleType.ItemPostconstraint;
 
         // get the exception handler that would result from a constraint violation
         conc = getExceptionHandler(monitor, taskID, xType) ;
@@ -1832,9 +1832,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             // go through the process again, depending on the exception type
             switch (xType) {
                 case CasePreconstraint : checkConstraints(mon, true); break;
-                case CasePostconstaint : checkConstraints(mon, false); break;
+                case CasePostconstraint: checkConstraints(mon, false); break;
                 case ItemPreconstraint : checkConstraints(mon, wir, true); break;
-                case ItemPostconstaint : checkConstraints(mon, wir, false); break;
+                case ItemPostconstraint: checkConstraints(mon, wir, false); break;
                 case ItemAbort         : break ;   // not yet implemented
                 case ItemTimeout :
                     if (wir != null) handleTimeoutEvent(wir, wir.getTaskID()); break ;

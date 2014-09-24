@@ -427,7 +427,7 @@ public class CaseMonitor {
         switch (xType) {
             case CasePreconstraint :
                 result = getPreCaseHandlerRunner(); break ;
-            case CasePostconstaint :
+            case CasePostconstraint:
                 result = getPostCaseHandlerRunner(); break ;
             case CaseExternalTrigger :
                 result = getCaseExternalHandlerRunner(); break ;

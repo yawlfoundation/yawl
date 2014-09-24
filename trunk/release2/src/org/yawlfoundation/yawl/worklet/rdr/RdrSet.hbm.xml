@@ -25,8 +25,8 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrSet" table="RdrSet">
 
-	    <id name="id" type="long" access="field">
-    		<generator class="assigned"/>
+	    <id name="id" column="rdrsetid" type="long" access="field">
+    		<generator class="native"/>
     	</id>
 
         <component name="_specID"
@@ -39,59 +39,12 @@
             <property name="uri" column="specURI"/>
         </component>
 
-        <property name="_processName" access="field"/>
+        <property name="_processName" column="processname" access="field"/>
 
-        <many-to-one name="_specPreTree" class="RdrTree" not-null="false" access="field"/>
-        <many-to-one name="_specPostTree" class="RdrTree" not-null="false" access="field"/>
-        <many-to-one name="_specExternalTree" class="RdrTree" not-null="false" access="field"/>
-
-        <map name="_selectionTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_preTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_postTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_abortTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_timeoutTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_resourceTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_violationTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
-
-        <map name="_externalTrees" access="field">
-            <key column="id"/>
-            <map-key column="taskid" type="string"/>
-            <one-to-many class="RdrTree"/>
-        </map>
+        <set name="treeSet" cascade="all">
+            <key column="rdrsetid"/>
+            <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet"/>
+        </set>
 
 	</class>
 	

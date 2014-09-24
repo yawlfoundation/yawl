@@ -25,11 +25,13 @@
 
 	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrTree" table="RdrTree">
 
-	    <id name="id" type="long" access="field">
-    		<generator class="assigned"/>
+	    <id name="id" column="rdrtreeid" type="long" access="field">
+    		<generator class="native"/>
     	</id>
 
-        <many-to-one name="rootNode" class="RdrNode" not-null="true"/>
+        <many-to-one name="rootNode" cascade="all"
+                     class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
+                     not-null="true"/>
 
         <property name="taskId" column="taskid"/>
 

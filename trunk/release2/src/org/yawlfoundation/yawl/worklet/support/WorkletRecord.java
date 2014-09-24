@@ -259,16 +259,8 @@ public class WorkletRecord {
 
     public void rebuildSearchPair(YSpecificationID specID, String taskID) {
 
-        RdrSet ruleSet = new RdrSet(specID);                  // make a new set
-        RdrTree tree ;
-
-        if (_reasonType.isCaseLevelType()) {
-            tree = ruleSet.getTree(_reasonType);
-        }
-        else {
-            tree = ruleSet.getTree(_reasonType, taskID) ;
-        }
-
+        RdrSet ruleSet = new RdrSetLoader().load(specID);                  // make a new set
+        RdrTree tree = ruleSet.getTree(_reasonType, taskID);
         if (tree != null)
             _searchPair = RdrConversionTools.stringToSearchPair(_searchPairStr, tree);
     }
