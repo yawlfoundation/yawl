@@ -102,7 +102,7 @@ public class CheckedOutItem {
 
     // update the persisted object
     public void persistThis() {
-        Persister.getInstance().insert(this);
+        Persister.getInstance().update(this);
     }
 
 

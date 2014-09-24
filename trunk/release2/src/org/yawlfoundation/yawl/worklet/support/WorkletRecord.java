@@ -275,7 +275,7 @@ public class WorkletRecord {
 
 
     protected void persistThis() {
-        Persister.getInstance().insert(this);
+        Persister.getInstance().update(this);
     }
 
 

@@ -265,7 +265,7 @@ public class Rdr {
 
 
     private RdrTree getTree(RdrSet ruleSet, String taskID, RuleType rType) {
-        if (! ruleSet.hasRules()) return null;
+        if (ruleSet == null || ! ruleSet.hasRules()) return null;
         RdrTree tree = ruleSet.getTree(rType, taskID) ;
         if (tree != null) tree.setAttributes(ruleSet.getName(), rType);
         return tree;

@@ -242,7 +242,7 @@ public class CaseMonitor {
 
     /** updates the persisted object after changes (if persisting) */
     private void persistThis() {
-        Persister.getInstance().insert(this);
+        Persister.getInstance().update(this);
     }
 
     //***************************************************************************//
