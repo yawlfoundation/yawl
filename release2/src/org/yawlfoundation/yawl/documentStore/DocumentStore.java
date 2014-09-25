@@ -293,17 +293,21 @@ public class DocumentStore extends YHttpServlet {
         }
 
         // get the db properties from hibernate.properties
+        Properties p = loadHibernateProperties(context);
+        if (p == null) return;                  // couldn't find hibernate.properties
+
         Connection connection = null;
-        Properties p = new Properties();
         try {
-            p.load(context.getResourceAsStream("/WEB-INF/classes/hibernate.properties"));
             String dialect = p.getProperty("hibernate.dialect");
 
             // proceed only if this is a H2 database
             if (dialect != null && dialect.equals("org.hibernate.dialect.H2Dialect")) {
                 Class.forName(p.getProperty("hibernate.connection.driver_class"));
-                connection = DriverManager.getConnection(
-                        p.getProperty("hibernate.connection.url"));
+                String url = p.getProperty("hibernate.connection.url");
+                if (url == null) return;                         // nothing to connect to
+
+                url = url.replace("${catalina.base}", System.getenv("CATALINA_HOME"));
+                connection = DriverManager.getConnection(url);
                 if (connection != null) {
 
                     // get the YDOC column size, and increase if required
@@ -333,19 +337,29 @@ public class DocumentStore extends YHttpServlet {
     }
 
 
-    private void deregisterDbDriver() {
-        Enumeration<Driver> drivers = DriverManager.getDrivers();
-        while (drivers.hasMoreElements()) {
-            Driver driver = drivers.nextElement();
-            try {
-                DriverManager.deregisterDriver(driver);
-                Logger.getLogger(this.getClass()).info(
-                        "Deregistered JDBC driver: " + driver);
-            } catch (SQLException e) {
-                Logger.getLogger(this.getClass()).warn(
-                        "Unable to deregister JDBC driver " + driver, e);
+    private Properties loadHibernateProperties(ServletContext context) {
+        try {
+
+            // for enterprise builds, hibernate.properties is in the 'classes' dir
+            InputStream is = context.getResourceAsStream("/WEB-INF/classes/hibernate.properties");
+
+            // for installer builds, its in the 'yawllib' dir
+            if (is == null) {
+                File f = new File(System.getenv("CATALINA_HOME") + "/yawllib/hibernate.properties");
+                if (f != null && f.exists()) {
+                    is = new FileInputStream(f);
+                }
+            }
+
+            if (is != null) {
+                Properties p = new Properties();
+                p.load(is);
+                return p;
             }
         }
+        catch (Exception fallthough) { }
+
+        return null;
     }
 
 }

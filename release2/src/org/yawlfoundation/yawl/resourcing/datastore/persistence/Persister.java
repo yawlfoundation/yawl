@@ -41,19 +41,16 @@ import java.util.Map;
 
 public final class Persister implements Serializable {
 
-    private HibernateEngine _db ;
-    private static Persister _me;
+    private static final HibernateEngine _db = HibernateEngine.getInstance(true);
+    private static final Persister INSTANCE = new Persister();
 
 
-    private Persister() {
-        _db = HibernateEngine.getInstance(true) ; 
-    }
+    private Persister() { }
+
 
     // only want one persister instance at runtime
-    public static Persister getInstance() {
-        if (_me == null) _me = new Persister();
-        return _me ;
-    }
+    public static Persister getInstance() { return INSTANCE; }
+
 
    /*******************************************************************************/
 
