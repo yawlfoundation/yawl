@@ -47,9 +47,9 @@ public class HibernateEngine {
     public static final int DB_INSERT = 2;
 
     // reference to Hibernate
-    private static SessionFactory _factory = null;
+    private SessionFactory _factory = null;
+    private boolean _persistOn = false;
 
-    private static boolean _persistOn = false;
     private static final Logger _log = Logger.getLogger(HibernateEngine.class);
 
 
@@ -80,7 +80,7 @@ public class HibernateEngine {
             if (props != null) {
                 _cfg.setProperties(props);
             }
-            _cfg.setProperty("hibernate.show_sql", "true");
+//            _cfg.setProperty("hibernate.show_sql", "true");
 
             // add each persisted class to config
             for (Class persistedClass : classes) {

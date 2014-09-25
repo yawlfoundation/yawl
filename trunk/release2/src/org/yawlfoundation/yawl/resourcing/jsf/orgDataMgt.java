@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /*
@@ -423,7 +424,14 @@ public class orgDataMgt extends AbstractPageBean {
         if (fileName.length() > 0) {
             if (fileName.endsWith(".ybkp")) {
                 DataBackupEngine importer = new DataBackupEngine();
-                List<String> result = importer.importOrgData(uploadedFile.getAsString());
+                String xml;
+                try {
+                    xml = new String(uploadedFile.getBytes(), "UTF-8");
+                }
+                catch (UnsupportedEncodingException uee) {
+                    xml = uploadedFile.getAsString();
+                }
+                List<String> result = importer.importOrgData(xml);
                 if (! ((result == null) || result.isEmpty())) {
                     if (result.size() == 1) {
                         msgPanel.error(result);
