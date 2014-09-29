@@ -29,7 +29,7 @@
     		<generator class="native"/>
     	</id>
 
-        <many-to-one name="rootNode" cascade="all" lazy="false"
+        <many-to-one name="rootNode" cascade="all"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrNode"
                      not-null="true"/>
 

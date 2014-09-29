@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.worklet.exception.HandlerRunner;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
+import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,7 +44,8 @@ public class Persister extends HibernateEngine {
     private static Class[] classes = {
             CheckedOutItem.class, CheckedOutChildItem.class, AdministrationTask.class,
             CaseMonitor.class, HandlerRunner.class, WorkletEvent.class, RdrNode.class,
-            RdrTree.class, RdrTreeSet.class, RdrSet.class, RdrConclusion.class
+            RdrTree.class, RdrTreeSet.class, RdrSet.class, RdrConclusion.class,
+            LaunchEvent.class
     };
 
     private static Persister _me;

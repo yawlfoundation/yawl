@@ -23,22 +23,34 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrTreeSet" table="RdrTreeSet">
+	<class name="org.yawlfoundation.yawl.worklet.selection.LaunchEvent"
+           table="WorkletLaunchLog">
 
-	    <id name="id" column="rdrtreesetid" type="long" access="field">
+	    <id name="id" column="eventid" type="long">
     		<generator class="native"/>
     	</id>
 
-        <set name="treeSet" cascade="all">
-            <key column="rdrtreesetid"/>
-            <one-to-many class="org.yawlfoundation.yawl.worklet.rdr.RdrTree"/>
-        </set>
+        <component name="specId"
+                   class="org.yawlfoundation.yawl.engine.YSpecificationID">
+            <property name="identifier" column="specId"/>
+            <component name="version"
+                       class="org.yawlfoundation.yawl.elements.YSpecVersion">
+                <property name="version" column="specVersion"/>
+            </component>
+            <property name="uri" column="specURI"/>
+        </component>
 
-        <property name="_ruleType" column="ruletype" access="field">
+        <property name="ruleType">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">org.yawlfoundation.yawl.worklet.rdr.RuleType</param>
             </type>
         </property>
+
+        <property name="taskId"/>
+        <property name="itemId"/>
+        <property name="parentCaseId"/>
+        <property name="launchedCaseId"/>
+        <property name="data"/>
 
 	</class>
 	

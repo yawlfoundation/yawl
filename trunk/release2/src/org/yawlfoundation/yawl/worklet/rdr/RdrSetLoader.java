@@ -56,8 +56,6 @@ public class RdrSetLoader {
     }
 
 
-    /*******************************************************************************/
-
     public Map<RuleType, RdrTreeSet> load(Document doc) {
         if (doc == null) return Collections.emptyMap();  // no such file or unsuccessful load
         Map<RuleType, RdrTreeSet> treeMap = new HashMap<RuleType, RdrTreeSet>();
@@ -103,6 +101,8 @@ public class RdrSetLoader {
         }
     }
 
+
+    /*******************************************************************************/
 
     /**
      * Constructs a rule tree for each set of constraint rules in the rules file
@@ -254,6 +254,8 @@ public class RdrSetLoader {
     }
 
 
+    /********************************************************************************/
+
     private RdrSet loadSet(YSpecificationID specID) {
         String id = specID.getIdentifier();
         String whereClause = id != null ? "_specID.identifier='" + id + "'" :
@@ -272,6 +274,4 @@ public class RdrSetLoader {
         return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
     }
 
-
-//===========================================================================//
 }

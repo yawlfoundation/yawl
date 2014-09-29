@@ -76,7 +76,7 @@ public class HandlerRunner extends WorkletRecord {
         _actionCount = _rdrConc.getCount();
         _isItemSuspended = false;
         _isCaseSuspended = false ;
-        _searchPair = rdrConc.getLastPair();
+//        _searchPair = rdrConc.getLastPair();
         _log = Logger.getLogger(this.getClass());
         initPersistedData() ;
     }
@@ -318,89 +318,6 @@ public class HandlerRunner extends WorkletRecord {
 
         return s.toString();
     }
-
-
-        /**
-     * writes the node id's for the nodes returned from the rdr search
-     * and the data for the current workitem, to a file for later
-     * input into the 'add rule' process, if required
-     */
-    public void saveSearchResults() {
-
-        // create the required components for the output file
-        Document doc = new Document(new Element("searchResult")) ;
-        Element eLastNode = new Element("lastNode") ;
-        Element eSatisfied = new Element("satisfied") ;
-        Element eTested = new Element("tested") ;
-        Element eId = new Element("id") ;
-        Element eSpecid = new Element("specid") ;
-        Element eSpecVersion = new Element("specversion") ;
-        Element eSpecURI = new Element("specuri") ;
-        Element eTaskid = new Element("taskid") ;
-        Element eCaseid = new Element("caseid") ;
-        Element eCaseData = new Element("casedata") ;
-        Element eReason = new Element("extype") ;
-        Element eWorklets = new Element("worklets") ;
-
-        try {
-            // transfer the workitem's data items to the file
-            for (Element e : getDatalist().getChildren()) {
-                eCaseData.addContent(e.clone());
-            }
-
-           // set values for case identifiers
-           eSpecid.setText(_parentMonitor.getSpecID().getIdentifier());
-           eSpecVersion.setText(_parentMonitor.getSpecID().getVersionAsString());
-           eSpecURI.setText(_parentMonitor.getSpecID().getUri());
-           eCaseid.setText(_parentMonitor.getCaseID());
-
-           if (_wir != null) {
-               // set values for the workitem identifiers (item-level exception)
-               eId.setText(_wir.getID()) ;
-               eTaskid.setText(Library.getTaskNameFromId(_wir.getTaskID()));
-            }
-
-            // add the worklet names and case ids
-            for (String wName : _runners.getAllWorkletNames()) {
-                Element eWorkletName = new Element("workletName");
-                Element eRunningCaseId = new Element("runningcaseid");
-                Element eWorklet = new Element("worklet");
-                eWorkletName.setText(wName);
-                eRunningCaseId.setText(_runners.getCaseID(wName));
-                eWorklet.addContent(eWorkletName);
-                eWorklet.addContent(eRunningCaseId);
-                eWorklets.addContent(eWorklet);
-            }
-
-            eReason.setText(String.valueOf(_reasonType));
-
-            // add the nodeids to the relevent elements
-            eSatisfied.setText(_searchPair.getLastTrueNode().getNodeIdAsString()) ;
-            eTested.setText(_searchPair.getLastEvaluatedNode().getNodeIdAsString()) ;
-            eLastNode.addContent(eSatisfied) ;
-            eLastNode.addContent(eTested) ;
-
-            // add the elements to the document
-            Element root = doc.getRootElement();
-            root.addContent(eId) ;
-            root.addContent(eSpecid);
-            root.addContent(eSpecVersion);
-            root.addContent(eSpecURI);
-            root.addContent(eTaskid);
-            root.addContent(eCaseid);
-            root.addContent(eWorklets) ;
-            root.addContent(eReason);
-            root.addContent(eLastNode) ;
-            root.addContent(eCaseData) ;
-
-            // create the output file
-            saveDocument(createFileName(), doc) ;
-        }
-        catch (IllegalAddException iae) {
-            _log.error("Exception when adding content", iae) ;
-        }
-     }
-
 
 }  // end HandlerRunner class
 

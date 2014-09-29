@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.support.RdrException;
 
 import java.util.Map;
@@ -34,28 +33,28 @@ import java.util.Map;
  */
 public class Rdr {
 
-    protected RdrCache _rdrCache = new RdrCache();              // rule set cache
+    protected RdrSetLoader _loader = new RdrSetLoader();
 
     public Rdr() {}
 
-    public RdrConclusion evaluate(YSpecificationID specID, Element data, RuleType rType) {
+    public RdrPair evaluate(YSpecificationID specID, Element data, RuleType rType) {
         return getConclusion(specID, null, data, rType);
     }
 
-    public RdrConclusion evaluate(String processName, Element data, RuleType rType) {
+    public RdrPair evaluate(String processName, Element data, RuleType rType) {
         return getConclusion(processName, null, data, rType);
     }
 
-    public RdrConclusion evaluate(WorkItemRecord wir, Element data, RuleType rType) {
+    public RdrPair evaluate(WorkItemRecord wir, Element data, RuleType rType) {
         return getConclusion(new YSpecificationID(wir), wir.getTaskID(), data, rType);
     }
 
-    public RdrConclusion evaluate(YSpecificationID specID, String taskID, Element data,
+    public RdrPair evaluate(YSpecificationID specID, String taskID, Element data,
                                   RuleType rType) {
         return getConclusion(specID, taskID, data, rType);
     }
 
-    public RdrConclusion evaluate(String processName, String taskID, Element data, RuleType rType) {
+    public RdrPair evaluate(String processName, String taskID, Element data, RuleType rType) {
         return getConclusion(processName, taskID, data, rType);
     }
 
@@ -109,33 +108,13 @@ public class Rdr {
 
 
     public RdrSet getRdrSet(YSpecificationID specID) {
-        return _rdrCache.get(specID);
+        return _loader.load(specID);
     }
 
     public RdrSet getRdrSet(String processName) {
-        return _rdrCache.get(processName);
+        return _loader.load(processName);
     }
 
-
-    public RdrSet refreshRdrSet(YSpecificationID specID) {
-        return _rdrCache.refresh(specID);
-    }
-
-    public RdrSet refreshRdrSet(String processName) {
-        return _rdrCache.refresh(processName);
-    }
-
-    public boolean containsRdrSet(YSpecificationID specID) {
-        return _rdrCache.contains(specID);
-    }
-
-    public boolean containsRdrSet(String processName) {
-        return _rdrCache.contains(processName);
-    }
-    
-    public Map<String, RdrSet> getAllCachedRdrSets() {
-        return _rdrCache.getAll();
-    }
 
     public RdrTree getRdrTree(YSpecificationID specID, RuleType rType) {
         return getTree(specID, null, rType);
@@ -166,7 +145,7 @@ public class Rdr {
         RdrNode addedNode = null;
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
-            addedNode = addNode(tree, node, getConclusion(tree, node.getCornerStone()));
+            addedNode = addNode(tree, node);
         }
         else {
             tree = new RdrTree(taskID);
@@ -176,16 +155,15 @@ public class Rdr {
         }
         if (addedNode != null) {
             set.save();
-            _rdrCache.update(set);
         }
         return addedNode;
     }
 
 
-    private RdrNode addNode(RdrTree tree, RdrNode node, RdrConclusion conc)
-            throws RdrException {
-        if (conc != null) {
-            RdrNode parent = conc.getLastPair().getParentForNewNode();
+    private RdrNode addNode(RdrTree tree, RdrNode node) throws RdrException {
+        RdrPair pair = tree.search(node.getCornerStone());
+        if (pair != null) {
+            RdrNode parent = pair.getParentForNewNode();
             if (parent != null) {
 
                 // don't add a duplicate node as a new child
@@ -194,7 +172,7 @@ public class Rdr {
                             "identical to its parent.");
                 }
                 node.setParent(parent);
-                return tree.addNode(node, parent, conc.getLastPair().isPairEqual());
+                return tree.addNode(node, parent, pair.isPairEqual());
             }
             throw new RdrException("Failed to add node: Could not locate parent node.");
         }
@@ -224,35 +202,23 @@ public class Rdr {
      * @return an RdrConclusion representing an exception handling process,
      *         or null if no rules are defined for these criteria
      */
-    private RdrConclusion getConclusion(YSpecificationID specID, String taskID,
+    private RdrPair getConclusion(YSpecificationID specID, String taskID,
                                         Element data, RuleType rType) {
-        if (specID != null) {
-            return getConclusion(getTree(specID, taskID, rType), data);
-        }
-        return null ;
+        return specID != null ? evaluate(getTree(specID, taskID, rType), data) : null;
     }
 
 
-    private RdrConclusion getConclusion(String processName, String taskID,
+    private RdrPair getConclusion(String processName, String taskID,
                                         Element data, RuleType rType) {
-        if (processName != null) {
-            return getConclusion(getTree(processName, taskID, rType), data);
-        }
-        return null ;
+        return processName != null ? evaluate(getTree(processName, taskID, rType), data)
+                : null;
     }
 
 
-    private RdrConclusion getConclusion(RdrTree tree, Element data) {
-        if (tree != null) {
-            RdrPair pair = tree.search(data);
-            if (pair != null) {
-                RdrConclusion conclusion = pair.getConclusion();
-                conclusion.setLastPair(pair);
-                return conclusion;
-            }
-        }
-        return null ;
+    private RdrPair evaluate(RdrTree tree, Element data) {
+        return tree != null ? tree.search(data) : null;
     }
+
 
     private RdrTree getTree(YSpecificationID specID, String taskID, RuleType rType) {
         return getTree(getRdrSet(specID), taskID, rType);     // load rules for spec

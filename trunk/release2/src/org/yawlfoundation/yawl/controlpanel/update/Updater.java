@@ -228,7 +228,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void verifyCompleted(Verifier verifier) {
         try {
             if (verifier.get()) {
-                stopEngine();
+                if (onlyUpdatingControlPanel()) {
+                    doUpdates();
+                }
+                else {
+                    stopEngine();
+                }
                 return;
             }
         }
@@ -298,7 +303,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         doDeletions(tomcatDir);
         doUninstalls(tomcatDir);
         consolidateLibDir(tomcatDir);
-        startEngine();
+        if (onlyUpdatingControlPanel()) {
+            complete(true);
+        }
+        else startEngine();
     }
 
 
@@ -306,9 +314,11 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
         for (String fileName : _downloads) {
-            File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
-            File target = getCopyTarget(tomcatDir, fileName);
-            copy(source, target);
+            if (! isControlPanelFileName(fileName)) {            // do CP last
+                File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
+                File target = getCopyTarget(tomcatDir, fileName);
+                copy(source, target);
+            }
         }
 
         // copy downloaded checksums.xml to lib
@@ -338,10 +348,35 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         if (fileName.startsWith("lib")) {
             targetName = "yawl" + fileName;
         }
-        else if (fileName.startsWith("controlpanel")) {
+        else if (isControlPanelFileName(fileName)) {
             targetRoot = tomcatDir.getParentFile().getParentFile();    // up two dirs
         }
         return FileUtil.makeFile(targetRoot.getAbsolutePath(), targetName);
+    }
+
+
+    private boolean isControlPanelFileName(String fileName) {
+        return fileName.startsWith("controlpanel");
+    }
+
+
+    private boolean onlyUpdatingControlPanel() {
+        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0));
+    }
+
+
+    private boolean updateThis() {
+        File tmpDir = FileUtil.getTmpDir();
+        File tomcatDir = new File(TomcatUtil.getCatalinaHome());
+        for (String fileName : _downloads) {
+            if (isControlPanelFileName(fileName)) {
+                File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
+                File target = getCopyTarget(tomcatDir, fileName);
+                copy(source, target);
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -429,6 +464,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private void restartApp() {
+        if (! updateThis()) {
+            JOptionPane.showMessageDialog(_progressPanel.getParent(),
+                    "The update has completed successfully, but the control panel " +
+                    "was unable to restart itself automatically. Please close then " +
+                    "restart the control panel manually to use the updated version.",
+                    "Update Completed", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         String javaBin = System.getProperty("java.home") + File.separator +
                 "bin" + File.separator + "java";
         try {

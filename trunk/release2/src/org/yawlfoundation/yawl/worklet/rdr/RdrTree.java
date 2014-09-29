@@ -18,12 +18,14 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
+import org.hibernate.Hibernate;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -168,8 +170,15 @@ public class RdrTree {
     */ 
     public RdrPair search(Element caseData) {
     	
-    	// recursively search each node in the tree    	
+    	// recursively search each node in the tree
         return rootNode.search(caseData, rootNode);
+//
+//        RdrPair pair = rootNode.search(caseData, rootNode);
+//        if (pair != null) {
+//            Hibernate.initialize(pair.getLastTrueNode());
+//            Hibernate.initialize(pair.getLastEvaluatedNode());
+//        }
+//        return pair;
     }
     
 //===========================================================================//
