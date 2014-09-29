@@ -242,24 +242,24 @@ public class WorkletGateway extends YHttpServlet {
         String taskID = req.getParameter("taskid");
         YSpecificationID specID = makeSpecID(req);
         String processName = req.getParameter("name");
-        RdrConclusion conclusion;
+        RdrPair pair;
         if (specID != null) {
-            conclusion = _rdr.evaluate(specID, taskID, data, rType);
+            pair = _rdr.evaluate(specID, taskID, data, rType);
         } else if (processName != null) {
-            conclusion = _rdr.evaluate(processName, taskID, data, rType);
+            pair = _rdr.evaluate(processName, taskID, data, rType);
         } else {
             String wirStr = req.getParameter("wir");
             if (wirStr == null) return fail(
                     "No specification, process name or work item record provided for evaluation");
             WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-            conclusion = _rdr.evaluate(wir, data, rType);
+            pair = _rdr.evaluate(wir, data, rType);
         }
-        if (conclusion == null) {
+        if (pair == null) {
             return fail("No rules found for parameters");
-        } else if (conclusion.isNullConclusion()) {
+        } else if (pair.hasNullConclusion()) {
             return fail("No rule was satisfied for data parameters");
         }
-        return conclusion.toXML();
+        return pair.getConclusion().toXML();
     }
 
     private String process(HttpServletRequest req) {

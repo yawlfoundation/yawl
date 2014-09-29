@@ -31,9 +31,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSide
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
-import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
-import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
-import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.EventLogger;
 import org.yawlfoundation.yawl.worklet.support.Library;
@@ -350,18 +348,18 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         monitor.addProcessInfo(wir);
 
         // get the exception handler for this task (if any)
-        RdrConclusion conc = getExceptionHandler(monitor, wir.getTaskName(), ruleType);
+        RdrPair pair = getExceptionHandler(monitor, wir.getTaskName(), ruleType);
 
-        // if conc is null there's no rules defined for this type of constraint
-        if (conc == null) {
+        // if pair is null there's no rules defined for this type of constraint
+        if (pair == null) {
             msg = "No " + ruleType.toLongString() + " rules defined for workitem: " +
                     wir.getTaskName();
         }
         else {
-            if (! conc.isNullConclusion()) {                // we have a handler
+            if (! pair.hasNullConclusion()) {                // we have a handler
                 msg = ruleType.toLongString() + " exception raised for work item: " +
                         wir.getID();
-                raiseException(monitor, conc, wir, ruleType);
+                raiseException(monitor, pair, wir, ruleType);
             }
             else {                      // there are rules but the item passes
                 msg = "Workitem '" + wir.getID() + "' has passed " +
@@ -387,22 +385,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param pre true for pre-constraints, false for post-constraints
      */
     private void checkConstraints(CaseMonitor monitor, boolean pre) {
-        RdrConclusion conc ;       // the conclusion from a set of rules, if any
+        RdrPair pair;       // the conclusion from a set of rules, if any
         String sType = pre ? "pre" : "post";
         RuleType xType = pre ? RuleType.CasePreconstraint : RuleType.CasePostconstraint;
 
         // get the exception handler that would result from a constraint violation
-        conc = getExceptionHandler(monitor, null, xType) ;
+        pair = getExceptionHandler(monitor, null, xType) ;
 
-        // if conc is null there's no rules defined for this type of constraint
-        if (conc == null)
+        // if pair is null there's no rules defined for this type of constraint
+        if (pair == null)
             _log.info("No " + sType + "-case constraints defined for spec: " +
                     monitor.getSpecID());
         else {
-            if (! conc.isNullConclusion()) {                // there's been a violation
+            if (! pair.hasNullConclusion()) {                // there's been a violation
                 _log.info("Case " + monitor.getCaseID() + " failed " + sType +
                         "-case constraints");
-                raiseException(monitor, conc, sType, xType) ;
+                raiseException(monitor, pair, sType, xType) ;
             }
             else {                                // there are rules but the case passes
                 _server.announceConstraintPass(monitor.getCaseID(),
@@ -423,22 +421,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param pre true for pre-constraints, false for post-constraints
      */
     private void checkConstraints(CaseMonitor monitor, WorkItemRecord wir, boolean pre) {
-        RdrConclusion conc ;       // the conclusion from a set of rules, if any
+        RdrPair pair;       // the conclusion from a set of rules, if any
         String itemID = wir.getID();
         String taskID = wir.getTaskName() ;
         String sType = pre? "pre" : "post";
         RuleType xType = pre? RuleType.ItemPreconstraint : RuleType.ItemPostconstraint;
 
         // get the exception handler that would result from a constraint violation
-        conc = getExceptionHandler(monitor, taskID, xType) ;
+        pair = getExceptionHandler(monitor, taskID, xType) ;
 
-        // if conc is null there's no rules defined for this type of constraint
-        if (conc == null)
+        // if pair is null there's no rules defined for this type of constraint
+        if (pair == null)
             _log.info("No " + sType + "-task constraints defined for task: " + taskID);
         else {
-            if (! conc.isNullConclusion()) {                    // there's been a violation
+            if (! pair.hasNullConclusion()) {                    // there's been a violation
                 _log.info("Workitem " + itemID + " failed " + sType +  "-task constraints");
-                raiseException(monitor, conc, wir, xType) ;
+                raiseException(monitor, pair, wir, xType) ;
             }
             else {                                  // there are rules but the case passes
                 _server.announceConstraintPass(wir, monitor.getCaseData(), xType);
@@ -460,7 +458,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @return an RdrConclusion representing an exception handling process,
      *         or null if no rules are defined for these criteria
      */
-    private RdrConclusion getExceptionHandler(CaseMonitor monitor, String taskID, 
+    private RdrPair getExceptionHandler(CaseMonitor monitor, String taskID,
                                               RuleType xType) {
         if (monitor != null) {
             return _rdr.evaluate(monitor.getSpecID(), taskID, monitor.getCaseData(), xType);
@@ -475,22 +473,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * process, then starting the processing of it
      *
      * @param cmon the CaseMonitor for the case that 'owns' the exception
-     * @param conc represents the exception handling process
+     * @param pair represents the exception handling process
      * @param sType the type of exception triggered (as a string)
      * @param xType the int descriptor of the exception type (WorkletService xType)
      */
-    private void raiseException(CaseMonitor cmon, RdrConclusion conc, String sType,
+    private void raiseException(CaseMonitor cmon, RdrPair pair, String sType,
                                 RuleType xType){
         if (connected()) {
             _log.debug("Invoking exception handling process for Case: " + cmon.getCaseID());
-            HandlerRunner hr = new HandlerRunner(cmon, conc, xType) ;
+            HandlerRunner hr = new HandlerRunner(cmon, pair.getConclusion(), xType) ;
             cmon.addHandlerRunner(hr, sType);
             if (_persisting) {
                 Persister.insert(hr);
                 hr.ObjectPersisted();
             }
             _server.announceException(cmon.getCaseID(), cmon.getCaseData(),
-                    conc.getLastPair().getLastTrueNode(), xType);
+                    pair.getLastTrueNode(), xType);
             processException(hr) ;
         }
         else _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -501,22 +499,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /**
      * Raises an item-level exception - see above for more info
      * @param cmon the CaseMonitor for the case that 'owns' the exception
-     * @param conc represents the exception handling process
+     * @param pair represents the exception handling process
      * @param wir the WorkItemRecord of the item that triggered the event
      * @param xType the int descriptor of the exception type (WorkletService xType)
      */
-    private void raiseException(CaseMonitor cmon, RdrConclusion conc,
+    private void raiseException(CaseMonitor cmon, RdrPair pair,
                                 WorkItemRecord wir, RuleType xType){
         if (connected()) {
             _log.debug("Invoking exception handling process for item: " + wir.getID());
-            HandlerRunner hr = new HandlerRunner(cmon, wir, conc, xType) ;
+            HandlerRunner hr = new HandlerRunner(cmon, wir, pair.getConclusion(), xType) ;
             cmon.addHandlerRunner(hr, wir.getID());
             if (_persisting) {
                 Persister.insert(hr);
                 hr.ObjectPersisted();
             }
             _server.announceException(wir, cmon.getCaseData(),
-                    conc.getLastPair().getLastTrueNode(), xType);
+                    pair.getLastTrueNode(), xType);
             processException(hr) ;
         }
         else  _log.error("Could not connect to YAWL Engine to handle Exception") ;
@@ -603,7 +601,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 // launch & run compensatory worklet
                 String workletList = runner.getNextTarget();
                 if (launchWorkletList(runner, workletList)) {
-                    runner.saveSearchResults();
+                    runner.logLaunchEvent();
                 }
                 else _log.error("Unable to load compensatory worklet(s), will ignore: " +
                     workletList);
@@ -1728,17 +1726,17 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             monitor.addTrigger(trigger);               // add trigger value to case data
 
             // get the exception handler for this trigger
-            RdrConclusion conc = getExceptionHandler(monitor, taskID, xLevel);
+            RdrPair pair = getExceptionHandler(monitor, taskID, xLevel);
 
-            // if conc is null there's no rules defined for this type of constraint
-            if (conc == null)
+            // if pair is null there's no rules defined for this type of constraint
+            if (pair == null)
                 _log.error("No external exception rules defined for spec: " +
                         monitor.getSpecID() +
                         ". Unable to raise exception for '" + trigger + "'");
             else if (wir == null)
-                raiseException(monitor, conc, "external", xLevel);
+                raiseException(monitor, pair, "external", xLevel);
             else
-                raiseException(monitor, conc, wir, xLevel);
+                raiseException(monitor, pair, wir, xLevel);
 
             monitor.removeTrigger();
         }
@@ -1758,7 +1756,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (monitor == null) {
             monitor = new CaseMonitor(new YSpecificationID(wir), caseID, null);
         }
-        raiseException(monitor, conclusion, wir, ruleType);
+        RdrNode dummyNode = new RdrNode(-1);
+        dummyNode.setConclusion(conclusion);
+        RdrPair dummyPair = new RdrPair(dummyNode, dummyNode);
+        raiseException(monitor, dummyPair, wir, ruleType);
         return StringUtil.wrap(ruleType.toLongString() +
                 " exception raised for work item: " + wir.getID(), "result");
     }

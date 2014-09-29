@@ -28,16 +28,17 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.*;
+import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-/** The WorkletRecord class maintains a generic dataset for derived classes
+/** The WorkletRecord class maintains a generic dataset for classes
  *  that manage a currently running worklet for a 'parent' process.
  *
- * It is implemented by selection.CheckedOutChildItem and exception.HandlerRunner
+ * It is extended by selection.CheckedOutChildItem and exception.HandlerRunner
  *
  *  @author Michael Adams
  *  @version 0.8, 04-09/2006
@@ -49,13 +50,11 @@ public class WorkletRecord {
     protected CaseMap _runners = new CaseMap() ;  // executing caseid <==> name mapping
     protected WorkItemRecord _wir ;          // the child workitem
     protected Element _datalist ;            // data passed to this workitem
-    protected RdrPair _searchPair ;        // rule pair returned from search
     protected RuleType _reasonType ;         // why the worklet was raised
     protected static Logger _log ;           // log file for debug messages
 
     protected String _persistID ;            // unique id field for persistence
     protected boolean _hasPersisted = false; // set to true when row is inserted
-    protected String _searchPairStr ;        // intermediate str for persistence
     protected String _wirStr ;               // intermediate str for persistence
     protected String _runningCaseIdStr ;     // intermediate str for persistence
     protected String _runningWorkletStr ;     // intermediate str for persistence
@@ -72,7 +71,7 @@ public class WorkletRecord {
 
     public void setItem(WorkItemRecord w) {
         _wir = w ;
-        if (_hasPersisted) persistThis();
+        persistThis();
     }
 
 
@@ -83,30 +82,24 @@ public class WorkletRecord {
 
     public void addRunner(String caseID, String wName) {
         _runners.addCase(caseID, wName);
-        if (_hasPersisted) persistThis();
-    }
-
-
-    public void setSearchPair(RdrPair pair) {
-        _searchPair = pair ;
-        if (_hasPersisted) persistThis();
+        persistThis();
     }
 
 
     public void setExType(RuleType xType) {
         _reasonType = xType;
-        if (_hasPersisted) persistThis();
+        persistThis();
     }
 
 
     public void removeRunnerByCaseID(String caseID) {
         _runners.removeCase(caseID) ;
-        if (_hasPersisted) persistThis();
+        persistThis();
     }
 
     public void removeRunnerByWorkletName(String wName) {
         _runners.removeWorklet(wName);
-        if (_hasPersisted) persistThis();
+        persistThis();
     }
 
     public void removeAllCases() {
@@ -145,11 +138,6 @@ public class WorkletRecord {
     }
 
 
-    public RdrPair getSearchPair() {
-        return _searchPair ;
-    }
-
-
     public Set<String> getRunningCaseIds() {
         return _runners.getAllCaseIDs() ;                      // the worklet case ids
     }
@@ -159,17 +147,6 @@ public class WorkletRecord {
         return _datalist ;
     }
 
-    public Element getSearchData() {
-        Element processData = _wir.getDataList().clone();
-
-        //convert the wir contents to an Element
-        Element wirElement = JDOMUtil.stringToElement(_wir.toXML()).detach();
-
-        Element eInfo = new Element("process_info");     // new Element for process data
-        eInfo.addContent(wirElement);
-        processData.addContent(eInfo);                     // add element to case data
-        return processData;
-    }
 
     public String getCaseID() {
         return _wir.getCaseID();            // the originating workitem's case id
@@ -238,32 +215,12 @@ public class WorkletRecord {
     }
 
 
-    protected void set_searchPairStr(String s) {
-        _searchPairStr = s;
-    }
+    protected void set_searchPairStr(String s) { }
 
-    public String get_searchPairStr() {
-        if (_searchPair != null) _searchPairStr = _searchPair.toString();
-        return _searchPairStr ;
-    }
+    public String get_searchPairStr() { return ""; }
 
+    public void rebuildSearchPair(YSpecificationID specID, String taskID) { }
 
-    private String SearchPairToString(RdrNode[] pair) {
-        String result = "";
-        if (pair[0] != null) {
-            result = pair[0].toXML() + ":::" + pair[1].toXML();
-        }
-        return result ;
-    }
-
-
-    public void rebuildSearchPair(YSpecificationID specID, String taskID) {
-
-        RdrSet ruleSet = new RdrSetLoader().load(specID);                  // make a new set
-        RdrTree tree = ruleSet.getTree(_reasonType, taskID);
-        if (tree != null)
-            _searchPair = RdrConversionTools.stringToSearchPair(_searchPairStr, tree);
-    }
 
     public void restoreCaseMap() {
         _runners.restore(_runningCaseIdStr, _runningWorkletStr) ;
@@ -275,7 +232,7 @@ public class WorkletRecord {
 
 
     protected void persistThis() {
-        Persister.getInstance().update(this);
+        if (_hasPersisted) Persister.update(this);
     }
 
 
@@ -288,117 +245,17 @@ public class WorkletRecord {
      * and the data for the current workitem, to a file for later
      * input into the 'add rule' process, if required
      */
-    public void saveSearchResults() {
+    public void logLaunchEvent() {
 
-        // create the required components for the output file
-        Document doc = new Document(new Element("searchResult")) ;
-        Element eLastNode = new Element("lastNode") ;
-        Element eSatisfied = new Element("satisfied") ;
-        Element eTested = new Element("tested") ;
-        Element eId = new Element("id") ;
-        Element eSpecid = new Element("specid") ;
-        Element eSpecVersion = new Element("specversion") ;
-        Element eSpecURI = new Element("specuri") ;
-        Element eTaskid = new Element("taskid") ;
-        Element eCaseid = new Element("caseid") ;
-        Element eCaseData = new Element("casedata") ;
-        Element eReason = new Element("extype") ;
-        Element eWorklets = new Element("worklets") ;
-
-        try {
-            // transfer the workitem's data items to the file
-            for (Element dataItem : _datalist.getChildren()) {
-                eCaseData.addContent(dataItem.clone());
-            }
-
-            //set values for the workitem identifiers
-            eId.setText(_wir.getID()) ;
-            eSpecid.setText(_wir.getSpecIdentifier());
-            eSpecVersion.setText(_wir.getSpecVersion());
-            eSpecURI.setText(_wir.getSpecURI());
-            eTaskid.setText(_wir.getTaskName());
-            eCaseid.setText(_wir.getCaseID());
-            eReason.setText(String.valueOf(_reasonType));
-
-            // add the worklet names and case ids
-            for (String wName : _runners.getAllWorkletNames()) {
-                Element eWorkletName = new Element("workletName") ;
-                Element eRunningCaseId = new Element("runningcaseid") ;
-                Element eWorklet = new Element("worklet");
-                eWorkletName.setText(wName) ;
-                eRunningCaseId.setText(_runners.getCaseID(wName)) ;
-                eWorklet.addContent(eWorkletName);
-                eWorklet.addContent(eRunningCaseId);
-                eWorklets.addContent(eWorklet);
-            }
-
-            // add the nodeids to the relevent elements
-            eSatisfied.setText(_searchPair.getLastTrueNode().getNodeIdAsString()) ;
-            eTested.setText(_searchPair.getLastEvaluatedNode().getNodeIdAsString()) ;
-            eLastNode.addContent(eSatisfied) ;
-            eLastNode.addContent(eTested) ;
-
-            // add the elements to the document
-            Element root = doc.getRootElement();
-            root.addContent(eId) ;
-            root.addContent(eSpecid);
-            root.addContent(eSpecVersion);
-            root.addContent(eSpecURI);
-            root.addContent(eTaskid);
-            root.addContent(eCaseid);
-            root.addContent(eWorklets) ;
-            root.addContent(eReason);
-            root.addContent(eLastNode) ;
-            root.addContent(eCaseData) ;
-
-             // create the output file
-             saveDocument(createFileName(), doc) ;
-         }
-        catch (IllegalAddException iae) {
-            WorkletRecord._log.error("Exception when adding content", iae) ;
+        // add the worklet names and case ids
+        for (String wName : _runners.getAllWorkletNames()) {
+            LaunchEvent event = new LaunchEvent(_wir, _reasonType,
+                    _runners.getCaseID(wName), JDOMUtil.elementToString(_datalist));
+            Persister.insert(event);
         }
+
      }
 
-
-     /** saves a JDOM Document to a file */
-     protected void saveDocument(String fileName, Document doc)   {
-        try {
-           FileOutputStream fos = new FileOutputStream(fileName);
-           XMLOutputter xop = new XMLOutputter(Format.getPrettyFormat());
-           xop.output(doc, fos);
-           fos.flush();
-           fos.close();
-      }
-      catch (IOException ioe){
-          _log.error("IO Exception in saving Document to file", ioe) ;
-      }
-   }
-
-    protected String createFileName() {
-        // build file name from workitem and worklet identifiers
-        String extn = ".xws";
-        String counter = "" ;
-        int i = 0 ;
-        StringBuilder fName = new StringBuilder(Library.wsSelectedDir) ;
-        fName.append(getCaseID()) ;                         // begin with caseID
-        fName.append("_") ;
-        fName.append(getSpecID()) ;                         // then spec id
-        fName.append("_") ;
-        fName.append(_reasonType.toString());
-
-        // if item-level, add the task name also
-        if (_wir != null) {
-            fName.append("_");
-            fName.append(_wir.getTaskID());
-        }
-
-        String result = fName.toString();
-        while (Library.fileExists(result + counter + extn)) {
-            counter = "_" + ++i;
-        }
-
-        return (result + counter + extn);
-    }
 
 //===========================================================================//
 
@@ -421,14 +278,6 @@ public class WorkletRecord {
 
         Library.appendLine(s, "WORKLET NAMES", _runners.getWorkletCSVList());
         Library.appendLine(s, "RUNNING CASE IDs", _runners.getCaseIdCSVList());
-
-        s.append("SEARCH PAIR: ");
-        if (_searchPair != null) {
-            s.append(Library.newline);
-            Library.appendLine(s, "Last Satisfied Node", _searchPair.getLastTrueNode().toXML());
-            Library.appendLine(s, "Last Tested Node", _searchPair.getLastEvaluatedNode().toXML());
-        }
-        else s.append("null");
 
         s.append(Library.newline);
         return s.toString() ;

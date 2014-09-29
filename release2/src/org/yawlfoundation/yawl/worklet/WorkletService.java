@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.*;
 import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -38,10 +39,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
-import org.yawlfoundation.yawl.worklet.rdr.Rdr;
-import org.yawlfoundation.yawl.worklet.rdr.RdrPair;
-import org.yawlfoundation.yawl.worklet.rdr.RdrTree;
-import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
 import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.support.*;
@@ -518,31 +516,26 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private boolean handleWorkletSelection(WorkItemRecord wir) {
         YSpecificationID specId = new YSpecificationID(wir);
-        String taskId = wir.getTaskName();
         String itemId = wir.getID();
-        RdrTree selectionTreeForTask;                   // rules for task
-        CheckedOutItem coParent;                        // record of item
-        CheckedOutChildItem coChild;                    // child item rec.
-        int childIndex = 0;
         boolean success = false;
 
         _log.info("Received workitem for worklet substitution: " + itemId);
         _log.info("   specId = " + specId);
 
-        // locate rdr ruleset for this task
-        selectionTreeForTask = getTree(specId, taskId, RuleType.ItemSelection);
-
-        if (selectionTreeForTask != null) {
+        // locate rdr conclusion for this task, if any
+        RdrPair pair = evaluate(wir);
+        if (! (pair == null || pair.hasNullConclusion())) {
 
             // OK - this workitem has an associated ruleset so check it out
             // all the child items also get checked out here
             _log.info("Ruleset found for workitem: " + itemId);
-            coParent = checkOutItem(wir);
+            CheckedOutItem coParent = checkOutItem(wir);
 
             // launch a worklet case for each checked out child workitem
+            int childIndex = 0;
             while (childIndex < coParent.getChildCount()) {
-                coChild = coParent.getCheckedOutChildItem(childIndex);
-                processWorkItemSubstitution(selectionTreeForTask, coChild);
+                CheckedOutChildItem coChild = coParent.getCheckedOutChildItem(childIndex);
+                processWorkItemSubstitution(pair, coChild);
 
                 // if no worklet launched for this item, it's been removed
                 // from the parent, so don't increment the loop counter
@@ -571,7 +564,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 coParent.setThreshold(threshold);
                 logSelectionForMISummary(coParent, taskInfo);
             }
-        } else _log.warn("Rule set does not contain rules for task: " + taskId +
+        } else _log.warn("Rule set does not contain rules for task: " + wir.getTaskName() +
                 " OR No rule set found for specId: " + specId);
         return success;
     }
@@ -628,15 +621,10 @@ public class WorkletService extends InterfaceBWebsideController {
      *                workitem is an instance of
      * @param coChild - the info record of the checked out workitem
      */
-    private void processWorkItemSubstitution(RdrTree tree,
+    private void processWorkItemSubstitution(RdrPair pair,
                                              CheckedOutChildItem coChild) {
-
         String childId = coChild.getItem().getID();
-
         _log.info("Processing worklet substitution for workitem: " + childId);
-
-        // select appropriate worklet
-        RdrPair pair = tree.search(coChild.getSearchData());
 
         // null result means no rule matched context
         if (! (pair == null || pair.hasNullConclusion())) {
@@ -646,9 +634,9 @@ public class WorkletService extends InterfaceBWebsideController {
             coChild.setExType(RuleType.ItemSelection);
 
             if (launchWorkletList(coChild, wSelected)) {
-                // save the search results (if later rule append is needed)
-                coChild.setSearchPair(pair);
-                coChild.saveSearchResults();
+
+                // save the launch event(s) (if later rule append is needed)
+                coChild.logLaunchEvent();
 
                 // remember this handling (if not a replace)
                 if (_handledWorkItems.containsKey(childId)) {
@@ -1046,11 +1034,11 @@ public class WorkletService extends InterfaceBWebsideController {
 
         // try yawl first
         String result = String.format("%s%s%s", _workletsDir, workletName, ".yawl");
-        if (Library.fileExists(result)) return result;
+        if (new File(result).exists()) return result;
 
         // no good? try xml next
         result = String.format("%s%s%s", _workletsDir, workletName, ".xml");
-        if (Library.fileExists(result)) return result;
+        if (new File(result).exists()) return result;
 
         return null;
     }
@@ -1226,11 +1214,11 @@ public class WorkletService extends InterfaceBWebsideController {
                 // refresh ruleset to pickup newly added rule
                 refreshRuleSet(specId);
 
-                RdrTree tree = getTree(specId, taskId, RuleType.ItemSelection);
+                RdrPair pair = evaluate(specId, taskId, getSearchData(coci.getItem()));
 
-                if (tree != null) {
+                if (pair != null) {
                     _log.info("Ruleset found for workitem: " + coci.getItemId());
-                    processWorkItemSubstitution(tree, coci);
+                    processWorkItemSubstitution(pair, coci);
 
                     Map<String, String> cases = coci.getCaseMapAsCSVList();
                     result += "done. " + Library.newline +
@@ -1371,6 +1359,51 @@ public class WorkletService extends InterfaceBWebsideController {
         return JDOMUtil.elementToString(wlData);
     }
 
+
+    private RdrPair evaluate(WorkItemRecord wir) {
+        try {
+            Element data = JDOMUtil.stringToElement(
+                    _interfaceBClient.getStartingDataSnapshot(wir.getID(), _sessionHandle));
+            if (data != null) {
+                Element searchData = getSearchData(wir, data);
+                return evaluate(new YSpecificationID(wir), wir.getTaskName(), searchData);
+            }
+        }
+        catch (IOException fallthrough) {
+
+        }
+        return null;
+    }
+
+
+    private RdrPair evaluate(YSpecificationID specID, String taskID, Element data) {
+        if (data != null) {
+            RdrTree tree = getTree(specID, taskID, RuleType.ItemSelection);
+            if (tree != null) return tree.search(data);
+        }
+        return null;
+    }
+
+
+    private Element getSearchData(WorkItemRecord wir) {
+        return getSearchData(wir, wir.getDataList());
+    }
+
+
+    private Element getSearchData(WorkItemRecord wir, Element data) {
+        Element processData = data.clone();
+
+        //convert the wir contents to an Element
+        Element wirElement = JDOMUtil.stringToElement(wir.toXML()).detach();
+
+        Element eInfo = new Element("process_info");     // new Element for process data
+        eInfo.addContent(wirElement);
+        processData.addContent(eInfo);                     // add element to case data
+        return processData;
+    }
+
+
+
     //***************************************************************************//
     //***************************************************************************//
 
@@ -1391,19 +1424,9 @@ public class WorkletService extends InterfaceBWebsideController {
      * Reloads the rule set from file (after a rule update) for the spec passed
      */
     public void refreshRuleSet(YSpecificationID specID) {
-        _rdr.refreshRdrSet(specID);
+        // _rdr.refreshRdrSet(specID);
     }
 
-    //***************************************************************************//
-
-    /**
-     * loads the rule set for a spec (if not already loaded)
-     */
-    public void loadTree(YSpecificationID specID) {
-        if (!_rdr.containsRdrSet(specID)) {
-            _rdr.getRdrSet(specID);               // forces a load
-        }
-    }
 
     //***************************************************************************//
 
@@ -1473,50 +1496,6 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("   Worklets launched: " + coParent.getChildCount());
     }
 
-    //***************************************************************************//
-
-    //   /**
-    //    * DEBUG: writes the list of input params to the log for each
-    //    * specification loaded
-    //    */
-    //   private void iterateAllSpecsInputParams(){
-    //
-    //        ArrayList specs = _loadedSpecs ;
-    //
-    //           // for each spec
-    //        Iterator sitr = specs.iterator();
-    //           while (sitr.hasNext()) {
-    //            SpecificationData spec = (SpecificationData) sitr.next() ;
-    //            ArrayList params = (ArrayList) spec.getInputParams() ;
-    //            _log.info("Specification " + spec.getSpecURI() +
-    //                       " has these input params:");
-    //
-    //            // and for each param
-    //             Iterator pitr = params.iterator();
-    //               while (pitr.hasNext()) {
-    //               YParameter y = (YParameter) pitr.next() ;
-    //               _log.info(y.toXML());
-    //            }
-    //        }
-    //   }
-
-    //***************************************************************************//
-
-    /**
-     * DEBUG: writes the status & datalist of each child of a
-     * checked out workitem to the log
-     */
-    private void attemptToGetChildDataList(WorkItemRecord w) {
-        List<WorkItemRecord> children = getChildren(w.getID());
-        if (children != null) {
-            for (WorkItemRecord wir : children) {
-                _log.info("workitem child '" + wir.getID() + "' has a status of " +
-                        wir.getStatus());
-                _log.info("workitem child '" + wir.getID() + "' has a datalist of ... ");
-                _log.info(wir.getDataListString());
-            }
-        }
-    }
 
     //***************************************************************************//
 
@@ -1546,7 +1525,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         _log.info("4. Rule Sets");
         _log.info("------------");
-        iterateMap(new HashMap(_rdr.getAllCachedRdrSets()));
+//        iterateMap(new HashMap(_rdr.getAllCachedRdrSets()));
         _log.info(" ");
 
         _log.info("5. Loaded Specs");
@@ -1799,14 +1778,13 @@ public class WorkletService extends InterfaceBWebsideController {
      * restores hashmap of checked out parent workitems from persistence
      */
     private Map<String, CheckedOutItem> restoreHandledParentItems() {
-        Map<String, CheckedOutItem> result = new Hashtable<String, CheckedOutItem>();
+        Map<String, CheckedOutItem> result = new HashMap<String, CheckedOutItem>();
         List items = _db.getObjectsForClass(CheckedOutItem.class.getName());
 
         if (items != null) {
             for (Object o : items) {
                 CheckedOutItem coi = (CheckedOutItem) o;
                 coi.setItem(RdrConversionTools.xmlStringtoWIR(coi.get_wirStr()));  // restore wir
-                loadTree(coi.getSpecId());             // needed when child items restore
                 result.put(coi.getParentID(), coi);
             }
         }

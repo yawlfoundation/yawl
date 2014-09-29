@@ -138,7 +138,7 @@ public class WorkletEventServer extends Interface_Client {
      */
     public void announceException(WorkItemRecord wir, Element caseData,
                                   RdrNode node, RuleType rType) {
-        if (hasListeners()) {
+        if (hasListeners() && node.getNodeId() > -1) {                // -1 = dummy node
             Map<String, String> params = prepareParams(Event.ItemException);
             params.put("wir", wir.toXML());
             announce(params, caseData, node, rType);

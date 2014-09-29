@@ -465,7 +465,7 @@ public class EngineGatewayImpl implements EngineGateway {
             if (data == null) {
                 return failureMessage("Work item has no decomposition");
             }
-            return successMessage(JDOMUtil.elementToString(data));
+            return JDOMUtil.elementToString(data);
         }
         catch (YAWLException e) {
             return failureMessage(e.getMessage());
