@@ -55,7 +55,7 @@ public class ResourceLoader {
         try {
             InputStream in = ResourceLoader.class.getResourceAsStream(path);
             final byte[] imageByteBuffer = convertToByteArray(in);
-            in.close();
+            if (in != null) in.close();
             return new ImageIcon(imageByteBuffer);
         } catch (Exception e) {
             Logger.getLogger(ResourceLoader.class).warn(

@@ -124,6 +124,7 @@ public class YControlFlowHandler {
         checkSpecificationExists();
         String uniqueID = checkID(net.getID());
         if (! uniqueID.equals(net.getID())) net.setID(uniqueID);
+        net.setSpecification(_specification);
         _specification.addDecomposition(net);
         return uniqueID;
     }
@@ -173,6 +174,7 @@ public class YControlFlowHandler {
         checkSpecificationExists();
         String uniqueID = checkID(decomposition.getID());
         if (! uniqueID.equals(decomposition.getID())) decomposition.setID(uniqueID);
+        decomposition.setSpecification(_specification);
         _specification.addDecomposition(decomposition);
         return uniqueID;
     }

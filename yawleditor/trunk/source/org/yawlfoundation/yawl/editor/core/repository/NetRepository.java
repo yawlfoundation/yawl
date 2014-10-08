@@ -49,15 +49,34 @@ public class NetRepository extends DecompositionRepoMap {
      * @param name a reference name for the net decomposition
      * @param description a description of it
      * @param net the net decomposition to add
+     * @param layoutXML net layout information (may be null)
      * @return whether the add was successful
      */
-    public String add(String name, String description, YNet net) {
+    public String add(String name, String description, YNet net, String layoutXML) {
         String uniqueName = super.add(name, description, net);
         Set<String> containedIds = addContainedDecompositions(net);
         if (! containedIds.isEmpty()) {
             addDecompositionIdMappings(uniqueName, containedIds);
         }
+        if (layoutXML != null) {
+            addLayout(uniqueName, layoutXML);
+        }
+        if (! (containedIds.isEmpty() && layoutXML == null)) {
+            save();   // updates
+        }
         return uniqueName;
+    }
+
+
+    /**
+     * Adds a net decomposition to the repository
+     * @param name a reference name for the net decomposition
+     * @param description a description of it
+     * @param net the net decomposition to add
+     * @return whether the add was successful
+     */
+    public String add(String name, String description, YNet net) {
+        return add(name, description, net, null);
     }
 
 
@@ -70,6 +89,16 @@ public class NetRepository extends DecompositionRepoMap {
         RepoRecord record = getRecord(name);
         return record != null ? parseRecord(record.getValue()) :
                 Collections.<YDecomposition>emptySet();
+    }
+
+
+    public XNode getLayout(String name) throws YSyntaxException {
+        RepoRecord record = getRecord(name);
+        if (record != null) {
+            XNode rootNode = parseNetRecord(record.getValue());
+            return rootNode != null ? rootNode.getChild("layout") : null;
+        }
+        return null;
     }
 
 
@@ -122,7 +151,15 @@ public class NetRepository extends DecompositionRepoMap {
         RepoRecord record = getRecord(name);
         if (record != null) {
             record.setValue(convertToXML(ids) + record.getValue());
-            save();
+        }
+        return record != null;
+    }
+
+
+    protected boolean addLayout(String name, String layoutXML) {
+        RepoRecord record = getRecord(name);
+        if (record != null) {
+            record.setValue(record.getValue() + StringUtil.wrap(layoutXML, "layout"));
         }
         return record != null;
     }
@@ -151,26 +188,39 @@ public class NetRepository extends DecompositionRepoMap {
     }
 
 
+    protected XNode parseNetRecord(String xml) throws YSyntaxException {
+        if (xml == null) return null;
+        if (parser == null) parser = new XNodeParser();
+        xml = StringUtil.wrap(xml, "temp");
+        XNode rootNode = parser.parse(xml);
+        if (rootNode == null) {
+            throw new YSyntaxException("Invalid repository record structure.");
+        }
+        return rootNode;
+    }
+
     /**
      * Creates a decomposition from its XML description
      * @param xml the XML to parse
      * @return the populated task decomposition
      */
     protected Set<YDecomposition> parseRecord(String xml) throws YSyntaxException {
-        if (xml == null) return Collections.emptySet();
-        if (parser == null) parser = new XNodeParser();
-        xml = StringUtil.wrap(xml, "temp");
-        XNode rootNode = parser.parse(xml);
+        XNode rootNode = parseNetRecord(xml);
         XNode netNode = rootNode.getChild("decomposition");
         XNode taskDecompositionsNode = rootNode.getChild("taskDecompositions");
-        return netNode == null ? null : unmarshalNet(netNode, taskDecompositionsNode);
+        return netNode == null ? null :
+                unmarshalNet(netNode, taskDecompositionsNode);
     }
 
 
-    protected Set<YDecomposition> unmarshalNet(XNode netNode, XNode taskDecompositionsNode)
+    protected Set<YDecomposition> unmarshalNet(XNode netNode,
+                                               XNode taskDecompositionsNode)
             throws YSyntaxException {
         if (shellSpecification == null) shellSpecification = createShellSpecification();
         XNode specNode = shellSpecification.getChild("specification");
+        if (specNode == null) {
+            throw new YSyntaxException("Invalid repository record structure.");
+        }
         addXsiAttribute(netNode);
         specNode.addChild(netNode);
         Set<XNode> addedNodes = new HashSet<XNode>();

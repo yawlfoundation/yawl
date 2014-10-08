@@ -165,9 +165,9 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setHide(boolean value) { set("hide", value); }
 
 
-    public String getHideIf() { return get("hide"); }
+    public String getHideIf() { return get("hideIf"); }
 
-    public void setHideIf(String value) { set("hide", value); }
+    public void setHideIf(String value) { set("hideIf", value); }
 
 
     public String getImageAbove() { return get("image-above"); }

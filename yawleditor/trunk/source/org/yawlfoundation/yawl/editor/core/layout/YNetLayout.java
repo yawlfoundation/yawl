@@ -299,8 +299,12 @@ public class YNetLayout {
         return _flows.remove(sourceID + "::" + targetID);
     }
 
+    public String toXML() {
+        XNode node = toXNode();
+        return node != null ? node.toPrettyString() : null;
+    }
 
-    /*********************************************************************/
+
 
     /**
      * Parses the layout content for this net, and populates its layout tree. This
@@ -308,7 +312,7 @@ public class YNetLayout {
      * @param netNode the XML node describing this net's layout
      * @throws YLayoutParseException
      */
-    protected void parse(XNode netNode) throws YLayoutParseException {
+    public void parse(XNode netNode) throws YLayoutParseException {
         setBounds(YLayoutUtil.parseRect(netNode.getChild("bounds"), _nbrFormatter));
         setViewport(YLayoutUtil.parseRect(netNode.getChild("viewport"), _nbrFormatter));
         parseFillColor(netNode.getAttributeValue("bgColor"));
@@ -329,6 +333,8 @@ public class YNetLayout {
         }
     }
 
+
+    /*********************************************************************/
 
     /**
      * Creates an XNode representation of this net's layout, to generate its XML

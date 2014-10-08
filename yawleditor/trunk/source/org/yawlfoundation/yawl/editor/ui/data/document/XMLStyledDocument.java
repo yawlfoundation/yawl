@@ -33,6 +33,8 @@ import java.util.List;
 */
 public class XMLStyledDocument extends AbstractXMLStyledDocument {
 
+    private DataSchemaValidator _schemaValidator;
+
      public XMLStyledDocument(ValidityEditorPane editor) {
         super(editor);
     }
@@ -45,7 +47,8 @@ public class XMLStyledDocument extends AbstractXMLStyledDocument {
         catch (UnsupportedEncodingException uee) {
             content = getEditor().getText();
         }
-        return new DataSchemaValidator().validateSchema(content);
+        if (_schemaValidator == null) _schemaValidator = new DataSchemaValidator();
+        return _schemaValidator.validateSchema(content);
     }
 
     public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
