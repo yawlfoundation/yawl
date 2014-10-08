@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
+import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
@@ -29,15 +31,24 @@ import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDia
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.NetReloader;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutImporter;
+import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.schema.internal.YInternalType;
+import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.text.NumberFormat;
+import java.util.*;
 
 public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
@@ -100,6 +111,10 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
             if (gateway != null) {
                 getHandler().addTaskDecomposition(gateway);
             }
+            Set<String> unknownTypes = getUnknownDataTypes(gateway);
+            if (! unknownTypes.isEmpty()) {
+                warnOnUnknownTypes(unknownTypes);
+            }
         }
         catch (Exception e) {
             // ?
@@ -109,6 +124,7 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     private void loadNet(String name) {
         try {
+            Set<String> unknownTypes = new HashSet<String>();
             YNet net = null;
 
             // have to load the task decompositions first
@@ -120,13 +136,18 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                 else {
                     getHandler().addTaskDecomposition((YAWLServiceGateway) decomposition);
                 }
+                unknownTypes.addAll(getUnknownDataTypes(decomposition));
             }
             if (net != null) {
                 getHandler().addNet(net);
                 NetGraph graph = new NetGraph(net);
                 SpecificationModel.getNets().add(graph.getNetModel());
-                new NetReloader().reload(graph);
                 YAWLEditor.getNetsPane().openNet(graph);
+                new NetReloader().reload(graph);
+                setNetLayout(net, graph);
+            }
+            if (! unknownTypes.isEmpty()) {
+                warnOnUnknownTypes(unknownTypes);
             }
         }
         catch (Exception e) {
@@ -137,5 +158,71 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     private YControlFlowHandler getHandler() {
         return SpecificationModel.getHandler().getControlFlowHandler();
+    }
+
+
+    private void setNetLayout(YNet net, NetGraph graph)
+            throws YSyntaxException, YLayoutParseException {
+        YNetLayout layout = null;
+        XNode layoutNode = repository.getNetRepository().getLayout(net.getID());
+        if (layoutNode != null) {
+            layout = new YNetLayout(net, NumberFormat.getInstance(Locale.getDefault()));
+            layout.parse(layoutNode.getChild());
+        }
+        if (layout != null) {
+            LayoutImporter.setNetLayout(graph.getNetModel(), layout);
+            graph.getGraphLayoutCache().reload();
+        }
+        else {
+            new DefaultLayoutArranger().layoutNet(graph.getNetModel());
+        }
+    }
+
+
+    private Set<String> getUnknownDataTypes(YDecomposition decomposition) {
+        Set<String> unknownDataTypes = new HashSet<String>();
+        Set<String> udTypeNames = getHandler().getSpecification()
+                .getDataValidator().getPrimaryTypeNames();
+        for (YParameter input : decomposition.getInputParameters().values()) {
+            String dataType = input.getDataTypeNameUnprefixed();
+            if (XSDType.isBuiltInType(dataType) || YInternalType.isType(dataType) ||
+                    udTypeNames.contains(dataType)) {
+                continue;
+            }
+            unknownDataTypes.add(dataType);
+        }
+        return unknownDataTypes;
+    }
+
+
+    private void warnOnUnknownTypes(Set<String> types) {
+        boolean multiple = types.size() > 1;
+        String message = "The decomposition" + (multiple? "s" : "") +
+                " imported from the repository contain" + (multiple? "" : "s") +
+                "\nvariables with the following unknown data type"
+                + (multiple? "s" : "") + ":\n\n" + listDataTypes(types) +
+                "\n\nUntil a definition for each listed data type is created, or\n" +
+                "imported from the repository if it exists there, this\n" +
+                "specification will not validate successfully.";
+        JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message,
+                "Unknown Data Types in Imported Decompositions",
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+
+    private String listDataTypes(Set<String> types) {
+        java.util.List<String> sortedList = new ArrayList<String>(types);
+        Collections.sort(sortedList);
+        StringBuilder s = new StringBuilder("  - ");
+        int lineLimit = 55;
+        for (String typeName : sortedList) {
+            if (s.length() + typeName.length() > lineLimit) {
+                lineLimit = s.length() + 55;
+                s.append("\n    ");
+            }
+            s.append(typeName).append(", ");
+        }
+        s.replace(s.length()-2, s.length()-1, ".");
+        return s.toString();
     }
 }

@@ -66,6 +66,8 @@
               value="${root.class.name}-configuration-${version}.jar" />
     <property name="decoratortoolbar.plugin.jar.name"
               value="${root.class.name}-decobar-${version}.jar" />
+    <property name="worklet.plugin.jar.name"
+              value="${root.class.name}-worklet-${version}.jar" />
     <property name="icons.jar.name"
               value="${root.class.name}-icons.jar" />
     <property name="jgraph.jar.name"
@@ -280,6 +282,50 @@
 
 
     <!--
+   		Builds the decorator toolbar plugin jar and copies it to the output plugins dir
+   	-->
+    <target name="check.workletPlugin">
+        <uptodate property="workletPlugin.uptodate"
+                  targetfile="${output.dir}/plugins/${worklet.plugin.jar.name}">
+            <srcfiles dir="${source.dir}/${package.base.dir}/worklet/"
+                      includes="**/*"/>
+        </uptodate>
+        <echo message="Worklet plugin jar is up to date: ${decobar.uptodate}"/>
+    </target>
+
+    <target name="buildWorkletPluginJar"
+            depends="compile, check.workletPlugin"
+            unless="workletPlugin.uptodate"
+  	        description="Build the worklet plugin">
+
+        <echo message="Building jar: ${worklet.plugin.jar.name}"/>
+        <mkdir dir="${output.dir}/plugins" />
+
+        <manifestclasspath property="worklet.manifest.cp"
+     			jarfile="${output.dir}/plugins/${worklet.plugin.jar.name}">
+     		<classpath>
+     			<fileset dir="${output.dir}/lib" includes="*.jar" />
+                <fileset dir="${output.dir}" includes="${ui.jar.name}"/>
+     		</classpath>
+     	</manifestclasspath>
+        <manifest file="worklet.mf">
+         	<attribute name="Class-Path" value="${worklet.manifest.cp}" />
+        </manifest>
+
+        <copy toDir="${classes.dir}/${package.base.dir}/worklet/menu/icon">
+            <fileset dir="${source.dir}/${package.base.dir}/worklet/menu/icon"/>
+        </copy>
+
+        <jar jarfile="${output.dir}/plugins/${worklet.plugin.jar.name}"
+             basedir="${classes.dir}"
+             manifest="worklet.mf"
+             includes="${package.base.dir}/worklet/**" />
+        <copy file="${output.dir}/plugins/${worklet.plugin.jar.name}"
+              todir="${deploy.dir}"/>
+        <delete file="worklet.mf"/>
+    </target>
+
+    <!--
    		Builds the editor analyser jar and copies it to the output lib dir
    	-->
     <target name="check.analyser">
@@ -419,7 +465,7 @@
     <target name="buildJars"
             depends="buildAnalyserJar, buildCoreJar, buildJGraphJar, buildBounceJar,
                      buildResourcesJar, buildUIJar, buildDecoratorToolBarPluginJar,
-                     buildConfigurationPluginJar"
+                     buildConfigurationPluginJar, buildWorkletPluginJar"
             description="Builds all jars and copies required libraries"/>
 
     <!--
@@ -540,6 +586,7 @@
             <include name="${package.dir}/ui/util/CheckSumTask.java"/>
             <include name="${package.base.dir}/configuration/ConfigurationPlugin.java"/>
             <include name="${package.base.dir}/decobar/DecoratorToolbarPlugin.java"/>
+            <include name="${package.base.dir}/worklet/WorkletRulesPlugin.java"/>
             <classpath>
             	<pathelement location="../${engine.lib.jar.path}" />
         		<fileset refid="editorOnlyDeps" />

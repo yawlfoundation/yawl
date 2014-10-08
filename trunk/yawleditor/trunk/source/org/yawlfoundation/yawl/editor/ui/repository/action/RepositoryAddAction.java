@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
+import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -27,6 +29,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.AddDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutExporter;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
@@ -82,7 +85,8 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
                     break;
                 case NetDecomposition:
                     YNet selectedNet = YAWLEditor.getNetsPane().getSelectedYNet();
-                    repo.getNetRepository().add(name, description, selectedNet);
+                    repo.getNetRepository().add(name, description, selectedNet,
+                            getNetLayoutXML(selectedNet));
                     break;
                 case ExtendedAttributes:
                     repo.getExtendedAttributesRepository().add(name, description,
@@ -118,8 +122,16 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
         return vertex != null ? ((YAWLAtomicTask) vertex).getDecomposition() : null;
     }
 
+
     private void showError(String message, String title) {
         JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
                 JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    private String getNetLayoutXML(YNet net) {
+        YLayout layout = new LayoutExporter().parse();
+        YNetLayout netLayout = layout.getNetLayout(net.getID());
+        return netLayout.toXML();
     }
 }

@@ -24,6 +24,10 @@ import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class PluginsMenu extends JMenu {
 
@@ -64,15 +68,30 @@ public class PluginsMenu extends JMenu {
 
 
     private void addPlugins() {
+        List<JMenuItem> itemList = new ArrayList<JMenuItem>();
         for (YEditorPlugin plugin : YPluginHandler.getInstance().getPlugins()) {
             JMenu subMenu = plugin.getPluginMenu();
             if (subMenu != null) {
-                add(subMenu);
+                itemList.add(subMenu);
             }
             AbstractAction action = plugin.getPluginMenuAction();
             if (action != null) {
-                add(new YAWLMenuItem(action));
+                itemList.add(new YAWLMenuItem(action));
             }
         }
+
+        // sort the menu items
+        Collections.sort(itemList, new Comparator<JMenuItem>() {
+            public int compare(JMenuItem mi1, JMenuItem mi2) {
+                if (mi1 == null || mi1.getText() == null) return -1;
+                if (mi2 == null || mi2.getText() == null) return 1;
+                return mi1.getText().compareTo(mi2.getText());
+            }
+        });
+
+        for (JMenuItem item : itemList) {
+            add(item);
+        }
     }
+
 }

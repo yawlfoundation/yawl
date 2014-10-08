@@ -65,7 +65,7 @@ public class LayoutImporter {
     }
 
 
-    private static void setNetLayout(NetGraphModel netModel, YNetLayout netLayout) {
+    public static void setNetLayout(NetGraphModel netModel, YNetLayout netLayout) {
         NetRootSorter rootMap = new NetRootSorter(netModel.getRoots());
         NetGraph graph = netModel.getGraph();
 

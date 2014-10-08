@@ -199,7 +199,7 @@ public class YPluginHandler {
 
 
     public java.util.List<JToolBar> getToolBars() {
-        java.util.List<JToolBar> barSet = new ArrayList<JToolBar>();
+        java.util.List<JToolBar> barList = new ArrayList<JToolBar>();
         for (YEditorPlugin plugin : getPlugins()) {
             try {
                 JToolBar bar = plugin.getToolbar();
@@ -210,19 +210,19 @@ public class YPluginHandler {
                     }
                     bar.setOrientation(JToolBar.HORIZONTAL);
                     bar.setComponentPopupMenu(new PluginToolBarPopupMenu(bar));
-                    barSet.add(bar);
+                    barList.add(bar);
                 }
             }
             catch (Exception e) {
                 warn(plugin, e);
             }
         }
-        Collections.sort(barSet, new Comparator<JToolBar>() {
+        Collections.sort(barList, new Comparator<JToolBar>() {
             public int compare(JToolBar bar1, JToolBar bar2) {
                 return bar1.getName().compareTo(bar2.getName());
             }
         });
-        return barSet;
+        return barList;
     }
 
     private void warn(YEditorPlugin plugin, Exception e) {

@@ -22,8 +22,8 @@ import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.*;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.elements.*;
 
 import java.awt.*;
@@ -61,7 +61,6 @@ public class NetReloader {
             flowSet.addAll(element.getPostsetFlows());
         }
         addFlows(graph, flowSet, conditions);
-        new DefaultLayoutArranger().layoutNet(graph.getNetModel());
     }
 
 
@@ -121,8 +120,11 @@ public class NetReloader {
         }
         if (task != null) {
             graph.addElement(task);
-            String name = task.getName();
-            if (name != null) graph.setElementLabel(task, name);
+            String name = yTask.getName();
+            if (! (name == null || name.equals("element"))) {
+                graph.setElementLabel(task, name);
+            }
+            setTaskDecorators(yTask, task, graph.getNetModel());
             vertices.put(task.getID(), task);
         }
     }
@@ -134,6 +136,34 @@ public class NetReloader {
             graph.connect(flow, vertices.get(flow.getSourceID()),
                     vertices.get(flow.getTargetID()));
         }
+    }
+
+
+    private void setTaskDecorators(YTask engineTask, YAWLTask editorTask,
+                                   NetGraphModel netModel) {
+        netModel.setJoinDecorator(editorTask, engineToEditorJoin(engineTask),
+                JoinDecorator.getDefaultPosition());
+        netModel.setSplitDecorator(editorTask, engineToEditorSplit(engineTask),
+                SplitDecorator.getDefaultPosition());
+    }
+
+
+    private int engineToEditorJoin(YTask engineTask) {
+        switch (engineTask.getJoinType()) {
+            case YTask._AND : return Decorator.AND_TYPE;
+            case YTask._OR  : return Decorator.OR_TYPE;
+            case YTask._XOR : return Decorator.XOR_TYPE;
+        }
+        return Decorator.XOR_TYPE;
+    }
+
+    private int engineToEditorSplit(YTask engineTask) {
+        switch (engineTask.getSplitType()) {
+            case YTask._AND : return Decorator.AND_TYPE;
+            case YTask._OR  : return Decorator.OR_TYPE;
+            case YTask._XOR : return Decorator.XOR_TYPE;
+        }
+        return Decorator.AND_TYPE;
     }
 
 
