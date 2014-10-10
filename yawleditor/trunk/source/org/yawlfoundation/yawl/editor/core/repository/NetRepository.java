@@ -87,7 +87,7 @@ public class NetRepository extends DecompositionRepoMap {
      */
     public Set<YDecomposition> getNetAndDecompositions(String name) throws YSyntaxException {
         RepoRecord record = getRecord(name);
-        return record != null ? parseRecord(record.getValue()) :
+        return record != null ? parseNetRecord(record.getValue()) :
                 Collections.<YDecomposition>emptySet();
     }
 
@@ -95,7 +95,7 @@ public class NetRepository extends DecompositionRepoMap {
     public XNode getLayout(String name) throws YSyntaxException {
         RepoRecord record = getRecord(name);
         if (record != null) {
-            XNode rootNode = parseNetRecord(record.getValue());
+            XNode rootNode = parseRecord(record.getValue());
             return rootNode != null ? rootNode.getChild("layout") : null;
         }
         return null;
@@ -188,7 +188,7 @@ public class NetRepository extends DecompositionRepoMap {
     }
 
 
-    protected XNode parseNetRecord(String xml) throws YSyntaxException {
+    protected XNode parseRecord(String xml) throws YSyntaxException {
         if (xml == null) return null;
         if (parser == null) parser = new XNodeParser();
         xml = StringUtil.wrap(xml, "temp");
@@ -204,37 +204,14 @@ public class NetRepository extends DecompositionRepoMap {
      * @param xml the XML to parse
      * @return the populated task decomposition
      */
-    protected Set<YDecomposition> parseRecord(String xml) throws YSyntaxException {
-        XNode rootNode = parseNetRecord(xml);
-        XNode netNode = rootNode.getChild("decomposition");
-        XNode taskDecompositionsNode = rootNode.getChild("taskDecompositions");
-        return netNode == null ? null :
-                unmarshalNet(netNode, taskDecompositionsNode);
-    }
+    protected Set<YDecomposition> parseNetRecord(String xml) throws YSyntaxException {
+        XNode specNode = getSpecificationNode();
+        specNode.addChildren(parseDecompositionNodes(xml));
 
-
-    protected Set<YDecomposition> unmarshalNet(XNode netNode,
-                                               XNode taskDecompositionsNode)
-            throws YSyntaxException {
-        if (shellSpecification == null) shellSpecification = createShellSpecification();
-        XNode specNode = shellSpecification.getChild("specification");
-        if (specNode == null) {
-            throw new YSyntaxException("Invalid repository record structure.");
-        }
-        addXsiAttribute(netNode);
-        specNode.addChild(netNode);
-        Set<XNode> addedNodes = new HashSet<XNode>();
-        for (String xml : getTaskDecompositionXMLSet(taskDecompositionsNode)) {
-            XNode decompositionNode = parser.parse(xml);
-            if (decompositionNode != null) {
-                decompositionNode.addAttribute("xsi:type", "WebServiceGatewayFactsType");
-                addedNodes.add(specNode.addChild(decompositionNode));
-            }
-        }
         YSpecification specification = YMarshal.unmarshalSpecifications(
                 shellSpecification.toString(true), false).get(0);
-        specNode.removeChild(netNode);
-        for (XNode node : addedNodes) specNode.removeChild(node);
+
+        resetSpecificationNode();                       // reset shell for next time
 
         Set<YDecomposition> decompositions = new HashSet<YDecomposition>();
         for (YDecomposition decomposition : specification.getDecompositions()) {
@@ -243,6 +220,61 @@ public class NetRepository extends DecompositionRepoMap {
             }
         }
         return decompositions;
+    }
+
+
+    protected Set<XNode> parseDecompositionNodes(String xml)
+            throws YSyntaxException {
+        Set<XNode> parsedNodes = new HashSet<XNode>();
+        XNode rootNode = parseRecord(xml);
+        XNode netNode = rootNode.getChild("decomposition");
+        if (netNode != null) {
+            XNode taskDecompositionsNode = rootNode.getChild("taskDecompositions");
+            parsedNodes.addAll(parseDecompositionNodes(netNode, taskDecompositionsNode));
+        }
+        return parsedNodes;
+    }
+
+
+    protected Set<XNode> parseDecompositionNodes(XNode netNode,
+                                                 XNode taskDecompositionsNode)
+                throws YSyntaxException {
+        Set<XNode> parsedNodes = new HashSet<XNode>();
+        addXsiAttribute(netNode);
+        parsedNodes.add(netNode);
+        String netID = netNode.getAttributeValue("id");
+        for (String xml : extractSubNets(taskDecompositionsNode, netID)) {
+            parsedNodes.addAll(parseDecompositionNodes(xml));    // recurse for subnets
+        }
+        for (String xml : getTaskDecompositionXMLSet(taskDecompositionsNode)) {
+            XNode decompositionNode = parser.parse(xml);
+            if (decompositionNode != null) {
+                decompositionNode.addAttribute("xsi:type", "WebServiceGatewayFactsType");
+                parsedNodes.add(decompositionNode);
+            }
+        }
+        return parsedNodes;
+    }
+
+
+    protected XNode getSpecificationNode() throws YSyntaxException {
+        if (shellSpecification == null) shellSpecification = createShellSpecification();
+        XNode specNode = shellSpecification.getChild("specification");
+        if (specNode == null) {
+            throw new YSyntaxException("Invalid repository record structure.");
+        }
+        return specNode;
+    }
+
+    protected void resetSpecificationNode() throws YSyntaxException{
+        XNode specNode = getSpecificationNode();
+        Set<XNode> toRemove = new HashSet<XNode>();
+        for (XNode child : specNode.getChildren("decomposition")) {
+            if (child.getAttributeValue("isRootNet") == null) {
+                toRemove.add(child);
+            }
+        }
+        for (XNode node : toRemove) specNode.removeChild(node);
     }
 
 
@@ -264,6 +296,27 @@ public class NetRepository extends DecompositionRepoMap {
         }
         return YRepository.getInstance().getTaskDecompositionRepository()
                 .getValues(nameSet);
+    }
+
+
+    private Set<String> extractSubNets(XNode node, String netID) {
+        if (node == null) return Collections.emptySet();
+
+        Set<String> valueSet = new HashSet<String>();
+        Set<XNode> toRemove = new HashSet<XNode>();
+        for (XNode child : node.getChildren()) {
+            RepoRecord record = getRecord(child.getText());
+            if (record != null) {
+                String desc = record.getDescription();
+                if (desc != null && desc.equals("Stored as required by storage of " + netID)) {
+                    valueSet.add(record.getValue());
+                    toRemove.add(child);
+                }
+            }
+        }
+
+        for (XNode child : toRemove) node.removeChild(child);
+        return valueSet;
     }
 
 }
