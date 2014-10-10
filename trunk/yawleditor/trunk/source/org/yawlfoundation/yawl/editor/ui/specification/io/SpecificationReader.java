@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
+import org.yawlfoundation.yawl.editor.ui.specification.DecoratorUtil;
 import org.yawlfoundation.yawl.editor.ui.specification.InvalidResourceReferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
@@ -270,7 +271,7 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
     private void addTask(YTask yTask, NetGraphModel netModel) {
         YAWLTask editorTask = createEditorTask(yTask);
         addElement(netModel.getGraph(), editorTask);
-        setTaskDecorators(yTask, editorTask, netModel);
+        DecoratorUtil.setTaskDecorators(yTask, editorTask, netModel);
         _elementMap.put(yTask, editorTask);
     }
 
@@ -294,15 +295,6 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
         graph.addElement(vertex);
         String label = vertex.getName();
         if (label != null) graph.setElementLabel(vertex, label);
-    }
-
-
-    private void setTaskDecorators(YTask engineTask, YAWLTask editorTask,
-                                   NetGraphModel netModel) {
-        netModel.setJoinDecorator(editorTask, engineToEditorJoin(engineTask),
-                JoinDecorator.getDefaultPosition());
-        netModel.setSplitDecorator(editorTask, engineToEditorSplit(engineTask),
-                SplitDecorator.getDefaultPosition());
     }
 
 
@@ -375,45 +367,7 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
     private void removeUnnecessaryDecorators() {
         for (NetGraphModel net : SpecificationModel.getNets())
-            removeUnnecessaryDecorators(net);
-    }
-
-
-    private void removeUnnecessaryDecorators(NetGraphModel editorNet) {
-        for (YAWLTask editorTask : NetUtilities.getAllTasks(editorNet)) {
-            if (editorTask.hasJoinDecorator() && editorTask.getIncomingFlowCount() < 2) {
-                editorNet.setJoinDecorator(
-                        editorTask,
-                        JoinDecorator.NO_TYPE,
-                        JoinDecorator.NOWHERE
-                );
-            }
-            if (editorTask.hasSplitDecorator() && editorTask.getOutgoingFlowCount() < 2) {
-                editorNet.setSplitDecorator(
-                        editorTask,
-                        SplitDecorator.NO_TYPE,
-                        SplitDecorator.NOWHERE
-                );
-            }
-        }
-    }
-
-    private int engineToEditorJoin(YTask engineTask) {
-        switch (engineTask.getJoinType()) {
-            case YTask._AND : return Decorator.AND_TYPE;
-            case YTask._OR  : return Decorator.OR_TYPE;
-            case YTask._XOR : return Decorator.XOR_TYPE;
-        }
-        return Decorator.XOR_TYPE;
-    }
-
-    private int engineToEditorSplit(YTask engineTask) {
-        switch (engineTask.getSplitType()) {
-            case YTask._AND : return Decorator.AND_TYPE;
-            case YTask._OR  : return Decorator.OR_TYPE;
-            case YTask._XOR : return Decorator.XOR_TYPE;
-        }
-        return Decorator.AND_TYPE;
+            DecoratorUtil.removeUnnecessaryDecorators(net);
     }
 
 

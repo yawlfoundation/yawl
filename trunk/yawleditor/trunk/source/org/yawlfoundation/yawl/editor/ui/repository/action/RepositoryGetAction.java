@@ -38,7 +38,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.internal.YInternalType;
@@ -125,20 +125,20 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
     private void loadNet(String name) {
         try {
             Set<String> unknownTypes = new HashSet<String>();
-            YNet net = null;
+            Set<YNet> nets = new HashSet<YNet>();                   // may have subnets
 
             // have to load the task decompositions first
             for (YDecomposition decomposition : repository.getNetRepository()
                     .getNetAndDecompositions(name)) {
                 if (decomposition instanceof YNet) {
-                    net = (YNet) decomposition;
+                    nets.add((YNet) decomposition);
                 }
                 else {
                     getHandler().addTaskDecomposition((YAWLServiceGateway) decomposition);
                 }
                 unknownTypes.addAll(getUnknownDataTypes(decomposition));
             }
-            if (net != null) {
+            for (YNet net : nets) {
                 getHandler().addNet(net);
                 NetGraph graph = new NetGraph(net);
                 SpecificationModel.getNets().add(graph.getNetModel());
@@ -146,12 +146,15 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                 new NetReloader().reload(graph);
                 setNetLayout(net, graph);
             }
+            if (nets.size() > 1) {
+                YAWLEditor.getNetsPane().setSelectedTab(name);
+            }
             if (! unknownTypes.isEmpty()) {
                 warnOnUnknownTypes(unknownTypes);
             }
         }
         catch (Exception e) {
-            // ?
+            e.printStackTrace();
         }
     }
 
@@ -183,15 +186,25 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
         Set<String> unknownDataTypes = new HashSet<String>();
         Set<String> udTypeNames = getHandler().getSpecification()
                 .getDataValidator().getPrimaryTypeNames();
-        for (YParameter input : decomposition.getInputParameters().values()) {
-            String dataType = input.getDataTypeNameUnprefixed();
-            if (XSDType.isBuiltInType(dataType) || YInternalType.isType(dataType) ||
-                    udTypeNames.contains(dataType)) {
-                continue;
+        Set<YVariable> variables = new HashSet<YVariable>();
+        variables.addAll(decomposition.getInputParameters().values());
+        variables.addAll(decomposition.getOutputParameters().values());
+        if (decomposition instanceof YNet) {
+            variables.addAll(((YNet) decomposition).getLocalVariables().values());
+        }
+        for (YVariable variable : variables) {
+            String dataType = variable.getDataTypeNameUnprefixed();
+            if (! isValidDataType(dataType, udTypeNames)) {
+                unknownDataTypes.add(dataType);
             }
-            unknownDataTypes.add(dataType);
         }
         return unknownDataTypes;
+    }
+
+
+    private boolean isValidDataType(String dataType, Set<String> udTypeNames) {
+        return XSDType.isBuiltInType(dataType) || YInternalType.isType(dataType) ||
+                            udTypeNames.contains(dataType);
     }
 
 
