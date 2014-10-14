@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFieldAssembler;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.Collections;
@@ -165,7 +166,13 @@ public abstract class TypeValueBuilder {
     private String getSampleValue(DynFormField field) {
         if (field.isSimpleField()) {
             if (field.hasEnumeratedValues()) {
-                return field.getEnumeratedValues().get(0);
+                List<String> enumValues = field.getEnumeratedValues();
+
+                // need a valid enum value (not the first, might be added 'optional')
+                for (int i = enumValues.size() -1; i >= 0; i--) {
+                    String value = enumValues.get(i);
+                    if (!StringUtil.isNullOrEmpty(value)) return value;
+                }
             }
             if (field.hasRestriction()) {
                 return new RestrictionSampleValueGenerator(field.getRestriction())

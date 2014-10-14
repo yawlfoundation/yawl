@@ -27,7 +27,8 @@ public class RestrictionSampleValueGenerator {
 
     public String generateValue() {
         if (_restriction.hasEnumeration()) {
-            return _restriction.getEnumeration().get(0);
+            List<String> enums = _restriction.getEnumeration();
+            return enums.get(enums.size() -1);
         }
         if (_restriction.hasMinInclusive()) {
             return _restriction.getMinInclusive();
