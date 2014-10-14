@@ -86,11 +86,6 @@ public class Validator {
                     "Should all atomic tasks in the net have no decomposition?");
             messageString = messageString.replaceAll("from i to o",
                     "between the input and output conditions");
-//            messageString = messageString.replaceAll("InputCondition", "Input Condition");
-//            messageString = messageString.replaceAll("OutputCondition", "Output Condition");
-//            messageString = messageString.replaceAll("ExternalCondition", "Condition");
-//            messageString = messageString.replaceAll("AtomicTask", "Atomic Task");
-//            messageString = messageString.replaceAll("CompositeTask", "Composite Task");
             messageString = messageString.replaceAll("The net \\(Net:", "The net (");
             messageString = messageString.replaceAll("composite task must contain a net",
                     "must unfold to some net");

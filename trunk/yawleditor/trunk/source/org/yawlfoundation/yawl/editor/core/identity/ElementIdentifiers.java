@@ -18,14 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.core.identity;
 
-import org.yawlfoundation.yawl.elements.YDecomposition;
-import org.yawlfoundation.yawl.elements.YNet;
-import org.yawlfoundation.yawl.elements.YNetElement;
-import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Keeps track of all net element identifiers for a specification to ensure they
@@ -155,7 +150,7 @@ public class ElementIdentifiers {
         String original = element.getID();
         ElementIdentifier id = rationalise(new ElementIdentifier(original));
         if (! id.toString().equals(original)) {
-            element.setID(id.toString());
+            updateElement(element, id);
             return id.toString();
         }
         return null;
@@ -179,6 +174,26 @@ public class ElementIdentifiers {
             _identifiers.put(label, suffixes);            // init store
         }
         return suffixes;
+    }
+
+
+    private void updateElement(YNetElement element, ElementIdentifier identifier) {
+        String oldID = element.getID();
+        String newID = identifier.toString();
+        element.setID(newID);
+
+        // update any output bindings that refer to the task id
+        if (element instanceof YTask) {
+            YTask task = (YTask) element;
+            Map<String, String> outputBindings = task.getDataMappingsForTaskCompletion();
+            Set<String> oldBindings = new HashSet<String>(outputBindings.keySet());
+            for (String binding : oldBindings) {
+                String target = outputBindings.get(binding);
+                String newBinding = binding.replace("/" + oldID + "/", "/" + newID + "/");
+                outputBindings.remove(binding);
+                outputBindings.put(newBinding, target);
+            }
+        }
     }
 
 }
