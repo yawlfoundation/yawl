@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.editor.ui.data.editorpane;
 import org.bounce.text.LineNumberMargin;
 import org.bounce.text.xml.XMLFoldingMargin;
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
+import org.yawlfoundation.yawl.editor.ui.swing.JUtilities;
+import org.yawlfoundation.yawl.editor.ui.swing.MoreDialog;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
@@ -29,6 +31,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.List;
 
@@ -40,6 +44,7 @@ public class ProblemReportingEditorPane extends JPanel
     private JTextArea errorBar;
     private JPanel rowHeader;
     private boolean showLineNumbers = true;
+    private List<String> detailedErrors;
 
 
     public ProblemReportingEditorPane(ValidityEditorPane editor) {
@@ -119,14 +124,21 @@ public class ProblemReportingEditorPane extends JPanel
 
 
     public void showProblems(List<String> problemList) {
-        if (problemList != null && problemList.size() > 0) {
+        if (! (problemList == null || problemList.isEmpty())) {
 
             // remove the dummy element name from error message
-            errorBar.setText(problemList.get(0).replace(" 'foo_bar'", ""));
+            String topMessage = problemList.get(0).replace(" 'foo_bar'", "");
+            if (problemList.size() > 1) {
+                topMessage += " [Click for more...]";
+                problemList.remove(0);
+                detailedErrors = problemList;
+            }
+            errorBar.setText(topMessage);
             errorBar.setCaretPosition(0);
             setProblemPanelForeground(true);
         }
         else {
+            detailedErrors = null;
             errorBar.setText("OK");
             setProblemPanelForeground(false);
         }
@@ -148,12 +160,28 @@ public class ProblemReportingEditorPane extends JPanel
         Font font = errorBar.getFont().deriveFont(11f);
         errorBar.setFont(font);
         errorBar.setEditable(false);
+        errorBar.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent mouseEvent) {
+                showDetails();
+                super.mouseClicked(mouseEvent);
+            }
+        });
+
         JScrollPane problemScrollPane = new JScrollPane(errorBar);
         problemScrollPane.setPreferredSize(
                 new Dimension((int) errorBar.getPreferredSize().getWidth(),
                         font.getSize() * 3));
         problemScrollPane.setBorder(new BevelBorder(BevelBorder.LOWERED));
         return problemScrollPane;
+    }
+
+
+    private void showDetails() {
+        if (detailedErrors != null) {
+            MoreDialog dialog = new MoreDialog(JUtilities.getWindow(this), detailedErrors);
+            dialog.setLocationAdjacentTo(errorBar, errorBar.getVisibleRect());
+            dialog.setVisible(true);
+        }
     }
 
 

@@ -100,8 +100,9 @@ public class BindingTypeValidator extends TypeValueBuilder {
                 else {
                     List<String> errors = getDataHandler().validate(_dataTypeName, query);
                     if (! errors.isEmpty()) {
-                        return Arrays.asList("Invalid value for target data type '" +
-                                _dataTypeName + "'");
+                        errors.add(0, "Invalid value for target data type '" +
+                                                        _dataTypeName + "'");
+                        return errors;
                     }
                 }
             }

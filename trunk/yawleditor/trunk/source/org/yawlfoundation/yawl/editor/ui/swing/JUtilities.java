@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 
@@ -34,6 +35,17 @@ import java.util.List;
  */
 
 public class JUtilities {
+
+
+    public static Window getWindow(Component c) {
+        if (c == null) {
+            return YAWLEditor.getInstance();
+        } else if (c instanceof Window) {
+            return (Window) c;
+        } else {
+            return getWindow(c.getParent());
+        }
+    }
 
     /**
      *  Centres the supplied Window in the middle of the screen.
