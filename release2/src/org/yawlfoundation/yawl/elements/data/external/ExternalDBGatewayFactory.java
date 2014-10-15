@@ -18,9 +18,7 @@
 
 package org.yawlfoundation.yawl.elements.data.external;
 
-import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
-import org.yawlfoundation.yawl.util.AbstractPluginFactory;
+import org.yawlfoundation.yawl.util.PluginLoaderUtil;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,16 +33,20 @@ import java.util.Set;
  * @version 2.1
  */
 
-public class ExternalDBGatewayFactory extends AbstractPluginFactory {
+public class ExternalDBGatewayFactory {
 
     private static Map<String, Class<AbstractExternalDBGateway>> _classMap;
 
     private static final String BASE_PACKAGE = "org.yawlfoundation.yawl.elements.data.external.";
     public static final String MAPPING_PREFIX = "#external:";
+    private static final PluginLoaderUtil _loader = new PluginLoaderUtil();
 
 
     private ExternalDBGatewayFactory() { }  // block initialisation - static methods only
 
+    public static void setExternalPaths(String externalPaths) {
+         _loader.setExternalPaths(externalPaths);
+     }
 
     public static boolean isExternalDBMappingExpression(String expression) {
         return (expression != null) && expression.startsWith(MAPPING_PREFIX);
@@ -72,8 +74,8 @@ public class ExternalDBGatewayFactory extends AbstractPluginFactory {
         }
         classname = qualify(classname, "");
         Class<AbstractExternalDBGateway> gatewayClass = getClassMap().get(classname);
-        return (gatewayClass != null) ? newInstance(gatewayClass) :
-                loadInstance(AbstractExternalDBGateway.class, classname);
+        return (gatewayClass != null) ? _loader.newInstance(gatewayClass) :
+                _loader.loadInstance(AbstractExternalDBGateway.class, classname);
     }
 
 
@@ -84,13 +86,13 @@ public class ExternalDBGatewayFactory extends AbstractPluginFactory {
      * @return a List of instantiated allocator objects
      */
     public static Set<AbstractExternalDBGateway> getInstances() {
-        return toInstanceSet(getClassMap().values());
+        return _loader.toInstanceSet(getClassMap().values());
     }
 
 
     private static Map<String, Class<AbstractExternalDBGateway>> getClassMap() {
         if (_classMap == null) {
-            _classMap = load(AbstractExternalDBGateway.class);
+            _classMap = _loader.load(AbstractExternalDBGateway.class);
         }
         return _classMap;
     }

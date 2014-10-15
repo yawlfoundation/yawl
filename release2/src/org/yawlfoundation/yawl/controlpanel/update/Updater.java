@@ -409,7 +409,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void updateServiceRegistration() {
         Registrar registrar = new Registrar();
         for (AppUpdate appUpdate : _installs) {
-            if (appUpdate.isAppList()) {
+            if (appUpdate.isServiceApp()) {
                 boolean success;
                 String appName = appUpdate.getAppName();
                 if (appUpdate.hasDeletions()) {

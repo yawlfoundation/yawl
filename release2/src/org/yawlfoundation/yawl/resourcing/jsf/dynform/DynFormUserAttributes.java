@@ -43,6 +43,10 @@ public class DynFormUserAttributes {
         _attributeMap = attributeMap ;
     }
 
+    public void set(Map<String, String> attributeMap) {
+        _attributeMap = attributeMap ;
+    }
+
 
     public String getValue(String attribute) {
         if (_attributeMap == null) return null;

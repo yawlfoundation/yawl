@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Attribute;
 import org.yawlfoundation.yawl.util.DynamicValue;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -162,7 +163,9 @@ public class YAttributeMap extends Hashtable<String, String> {
     public String toXML(String key) {
         String xml = "";
         String value = getValue(key);
-        if (value != null) xml = String.format("%s=\"%s\"", key, value);
+        if (value != null) {
+            xml = String.format("%s=\"%s\"", key, JDOMUtil.encodeEscapes(value));
+        }
         return xml;
     }
 
@@ -176,7 +179,7 @@ public class YAttributeMap extends Hashtable<String, String> {
     public String toXMLElement(String key) {
         String xml = "";
         String value = getValue(key);
-        if (value != null) xml = StringUtil.wrap(value, key);
+        if (value != null) xml = StringUtil.wrap(JDOMUtil.encodeEscapes(value), key);
         return xml;
     }
 

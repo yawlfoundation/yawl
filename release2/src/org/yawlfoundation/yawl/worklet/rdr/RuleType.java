@@ -36,7 +36,7 @@ public enum RuleType {
     ItemConstraintViolation("ConstraintViolation", "Workitem constraint violation"),
     CaseExternalTrigger("CaseExternal", "Case-level external trigger"),
     ItemExternalTrigger("ItemExternal", "Workitem-level external trigger"),
-    ItemSelection("Selection", "Selection");             // 'pseudo' exception type
+    ItemSelection("Selection", "Worklet Selection");          // 'pseudo' exception type
 
     private String shortForm;
     private String longForm;

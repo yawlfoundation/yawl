@@ -43,6 +43,10 @@ public class AppUpdate {
         return isAppList() && _appName.equals("controlpanel");
     }
 
+    protected boolean isServiceApp() {
+        return isAppList() && ! _appName.equals("orderfulfillment");
+    }
+
 
     protected boolean hasDownloads() { return ! _downloads.isEmpty(); }
 

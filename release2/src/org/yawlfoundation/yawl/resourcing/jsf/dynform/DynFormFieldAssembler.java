@@ -154,7 +154,7 @@ public class DynFormFieldAssembler {
         String minOccurs = eField.getAttributeValue("minOccurs");
         String maxOccurs = eField.getAttributeValue("maxOccurs");
         String name = eField.getAttributeValue("name");
-        String type = eField.getAttributeValue("type");
+        String type = getElementDataType(eField, ns);
 
         if (level == 0) _currentParam = _params.get(name);
 
@@ -207,6 +207,13 @@ public class DynFormFieldAssembler {
         return result;
     }
 
+    private String getElementDataType(Element eField, Namespace ns) {
+        String type = eField.getAttributeValue("type");
+        if (type == null && eField.getChildren().isEmpty()) {
+            type = ns.getPrefix() + ":string";            // default type for element
+        }
+        return type;
+    }
 
     private DynFormField addGroupField(String name, Element eField, Namespace ns,
                                        Element data, String minOccurs, String maxOccurs,
@@ -283,7 +290,12 @@ public class DynFormFieldAssembler {
         input.setMaxoccurs(maxOccurs);
         input.setParam(_currentParam);
         input.setLevel(level);
-        input.setAttributes(new DynFormUserAttributes(getAttributeMap(name)));
+
+        DynFormUserAttributes attributes = new DynFormUserAttributes();
+        if (level == 0) {
+            attributes.set(getAttributeMap(name));
+        }
+        input.setAttributes(attributes);
     }
 
 

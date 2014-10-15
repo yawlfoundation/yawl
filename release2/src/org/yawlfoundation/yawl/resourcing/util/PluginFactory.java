@@ -7,10 +7,8 @@ import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.AbstractDynAttribute;
-import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
-import org.yawlfoundation.yawl.util.AbstractPluginFactory;
+import org.yawlfoundation.yawl.util.PluginLoaderUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YPluginLoader;
 
 import java.util.*;
 
@@ -18,76 +16,81 @@ import java.util.*;
  * @author Michael Adams
  * @date 19/04/2014
  */
-public class PluginFactory extends AbstractPluginFactory {
+public class PluginFactory {
 
     private static Map<String, Class<AbstractFilter>> _filters;
     private static Map<String, Class<AbstractConstraint>> _constraints;
     private static Map<String, Class<AbstractAllocator>> _allocators;
     private static Map<String, Class<AbstractCodelet>> _codelets;
 
-    private final static String BASE_PACKAGE = "org.yawlfoundation.yawl.resourcing.";
+    private static final String BASE_PACKAGE = "org.yawlfoundation.yawl.resourcing.";
+    private static final PluginLoaderUtil _loader = new PluginLoaderUtil();
 
     private PluginFactory() { }
 
 
+    public static void setExternalPaths(String externalPaths) {
+        _loader.setExternalPaths(externalPaths);
+    }
+
     public static Set<AbstractConstraint> getConstraints() {
-        return toInstanceSet(getConstraintMap().values());
+        return _loader.toInstanceSet(getConstraintMap().values());
     }
 
 
     public static Set<AbstractFilter> getFilters() {
-        return toInstanceSet(getFilterMap().values());
+        return _loader.toInstanceSet(getFilterMap().values());
     }
 
 
     public static Set<AbstractAllocator> getAllocators() {
-        return toInstanceSet(getAllocatorMap().values());
+        return _loader.toInstanceSet(getAllocatorMap().values());
     }
 
 
     public static Set<AbstractCodelet> getCodelets() {
-        return toInstanceSet(getCodeletMap().values());
+        return _loader.toInstanceSet(getCodeletMap().values());
     }
 
     public static Set<AbstractDynAttribute> getDynAttributes() {
-        return toInstanceSet(load(AbstractDynAttribute.class).values());
+        return _loader.toInstanceSet(_loader.load(AbstractDynAttribute.class).values());
     }
 
 
     public static AbstractConstraint newConstraintInstance(String name) {
         name = qualify(name, "constraints.");
         Class<AbstractConstraint> constraint = getConstraintMap().get(name);
-        return (constraint != null) ? newInstance(constraint) :
-                loadInstance(AbstractConstraint.class, name);
+        return (constraint != null) ? _loader.newInstance(constraint) :
+                _loader.loadInstance(AbstractConstraint.class, name);
     }
 
 
     public static AbstractFilter newFilterInstance(String name) {
         name = qualify(name, "filters.");
         Class<AbstractFilter> filter = getFilterMap().get(name);
-        return (filter != null) ? newInstance(filter) :
-                loadInstance(AbstractFilter.class, name);
+        return (filter != null) ? _loader.newInstance(filter) :
+                _loader.loadInstance(AbstractFilter.class, name);
     }
 
 
     public static AbstractAllocator newAllocatorInstance(String name) {
         name = qualify(name, "allocators.");
         Class<AbstractAllocator> allocator = getAllocatorMap().get(name);
-        return (allocator != null) ? newInstance(allocator) :
-                loadInstance(AbstractAllocator.class, name);
+        return (allocator != null) ? _loader.newInstance(allocator) :
+                _loader.loadInstance(AbstractAllocator.class, name);
     }
 
 
     public static AbstractCodelet newCodeletInstance(String name) {
         name = qualify(name, "codelets.");
         Class<AbstractCodelet> codelet = getCodeletMap().get(name);
-        return (codelet != null) ? newInstance(codelet) :
-                loadInstance(AbstractCodelet.class, name);
+        return (codelet != null) ? _loader.newInstance(codelet) :
+                _loader.loadInstance(AbstractCodelet.class, name);
     }
 
 
     public static DataSource newDataSourceInstance(String name) {
-        return loadInstance(DataSource.class, qualify(name, "datastore.orgdata."));
+        return _loader.loadInstance(DataSource.class, qualify(name, "datastore.orgdata."));
     }
 
 
@@ -153,28 +156,28 @@ public class PluginFactory extends AbstractPluginFactory {
 
     private static Map<String, Class<AbstractCodelet>> getCodeletMap() {
         if (_codelets == null) {
-            _codelets = load(AbstractCodelet.class);
+            _codelets = _loader.load(AbstractCodelet.class);
         }
         return _codelets;
     }
 
     private static Map<String, Class<AbstractConstraint>> getConstraintMap() {
         if (_constraints == null) {
-            _constraints = load(AbstractConstraint.class);
+            _constraints = _loader.load(AbstractConstraint.class);
         }
         return _constraints;
     }
 
     private static Map<String, Class<AbstractFilter>> getFilterMap() {
         if (_filters == null) {
-            _filters = load(AbstractFilter.class);
+            _filters = _loader.load(AbstractFilter.class);
         }
         return _filters;
     }
 
     private static Map<String, Class<AbstractAllocator>> getAllocatorMap() {
         if (_allocators == null) {
-            _allocators = load(AbstractAllocator.class);
+            _allocators = _loader.load(AbstractAllocator.class);
         }
         return _allocators;
     }
