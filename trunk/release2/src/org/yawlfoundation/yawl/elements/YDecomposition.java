@@ -281,6 +281,10 @@ public abstract class YDecomposition implements Cloneable, YVerifiable {
      */
     public YSpecification getSpecification() { return _specification; }
 
+    public void setSpecification(YSpecification specification) {
+        _specification = specification;
+    }
+
 
     /**
      * Gets those params that bypass the decomposition state space.

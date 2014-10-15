@@ -18,8 +18,10 @@
 
 package org.yawlfoundation.yawl.schema;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -241,14 +243,14 @@ public class XSDType {
             case HEX_BINARY:  return "FF";
             case DOUBLE:
             case FLOAT:       return "3.142";
-            case DATE:        return "2013-01-01";
-            case TIME:        return "12:12:12";
-            case DATETIME:    return "2013-01-01T12:12:12";
+            case DATE:        return getDateTimeValue("yyyy-MM-dd");    // "2013-01-01"
+            case TIME:        return getDateTimeValue("HH:mm:ss");      // "12:12:12";
+            case DATETIME:    return getDateTimeValue("yyyy-MM-dd'T'HH:mm:ss");
             case DURATION:    return "PY2";
-            case GDAY:        return "---01";
-            case GMONTH:      return "--01";
-            case GMONTHDAY:   return "--01-01";
-            case GYEARMONTH:  return "2013-01";
+            case GDAY:        return getDateTimeValue("'---'dd");
+            case GMONTH:      return getDateTimeValue("'--'MM");
+            case GMONTHDAY:   return getDateTimeValue("'--'MM-dd");
+            case GYEARMONTH:  return getDateTimeValue("yyyy-MM");
         }
         return "name";
     }
@@ -334,6 +336,11 @@ public class XSDType {
             typeList.add(getString(i));
         }
         return typeList;
+    }
+
+
+    private static String getDateTimeValue(String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date());
     }
 
 }

@@ -82,9 +82,26 @@ public class RdrConclusion {
     }
 
 
-    public void addPrimitive(ExletAction action, ExletTarget target) {
-        addPrimitive(action.toString(), target.toString());
+    public RdrPrimitive addPrimitive(ExletAction action, ExletTarget target) {
+        return addPrimitive(action.toString(), target.toString());
     }
+
+
+
+
+    // from editor plugin
+    public RdrPrimitive setPrimitive(int index, ExletAction action, ExletTarget target) {
+        if (_primitives == null) _primitives = new ArrayList<RdrPrimitive>();
+        if (_primitives.isEmpty() || index > getCount()) {
+            return addPrimitive(action, target);
+        }
+        else {
+            RdrPrimitive p = new RdrPrimitive(index, action.toString(), target.toString());
+            _primitives.set(index - 1, p);
+            return p;
+        }
+    }
+
 
 
     public boolean equals(Object o) {
@@ -150,15 +167,17 @@ public class RdrConclusion {
 
 
     // primitive indexes start at 1, not zero
-    private RdrPrimitive getPrimitive(int index) {
+    public RdrPrimitive getPrimitive(int index) {
         return _primitives != null && index <= _primitives.size() ?
                 _primitives.get(index - 1) : null;
     }
 
 
-    private void addPrimitive(String action, String target) {
+    public RdrPrimitive addPrimitive(String action, String target) {
         if (_primitives == null) _primitives = new ArrayList<RdrPrimitive>();
-        _primitives.add(new RdrPrimitive(_primitives.size() + 1, action, target));
+        RdrPrimitive p = new RdrPrimitive(_primitives.size() + 1, action, target);
+        _primitives.add(p);
+        return p;
     }
 
 

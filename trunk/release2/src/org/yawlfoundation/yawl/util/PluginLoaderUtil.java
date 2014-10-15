@@ -14,29 +14,29 @@ import java.util.*;
  * @author Michael Adams
  * @date 19/04/2014
  */
-public abstract class AbstractPluginFactory {
+public class PluginLoaderUtil {
 
-    private static String _externalPaths;
+    private String _externalPaths;
 
-    protected AbstractPluginFactory() { }
+    public PluginLoaderUtil() { }
 
 
-    public static void setExternalPaths(String externalPaths) {
+    public void setExternalPaths(String externalPaths) {
         _externalPaths = externalPaths;
     }
 
 
-    protected static <T> Map<String, Class<T>> load(Class<T> clazz) {
+    public <T> Map<String, Class<T>> load(Class<T> clazz) {
         return new YPluginLoader(_externalPaths).loadAsMap(clazz);
     }
 
 
-    protected static <T> T loadInstance(Class<T> clazz, String instanceName) {
+    public <T> T loadInstance(Class<T> clazz, String instanceName) {
         return new YPluginLoader(_externalPaths).getInstance(clazz, instanceName);
     }
 
 
-    protected static <T> T newInstance(Class<T> clazz) {
+    public <T> T newInstance(Class<T> clazz) {
         try {
             return clazz.newInstance();
         }
@@ -46,7 +46,7 @@ public abstract class AbstractPluginFactory {
     }
 
 
-    protected static <T> Set<T> toInstanceSet(Collection<Class<T>> clazzSet) {
+    public <T> Set<T> toInstanceSet(Collection<Class<T>> clazzSet) {
         Set<T> instanceSet = new HashSet<T>();
         for (Class<T> clazz : clazzSet) {
             try {
