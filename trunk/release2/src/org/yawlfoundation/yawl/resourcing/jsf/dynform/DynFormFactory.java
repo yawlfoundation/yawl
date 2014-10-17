@@ -469,7 +469,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private int getStaticTextHeight(StaticText statText) {
+    private double getStaticTextHeight(StaticText statText) {
         Font font;
         if (statText instanceof StaticTextBlock)
             font = ((StaticTextBlock) statText).getFont();
@@ -480,7 +480,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
         int parentWidth = getContainerWidth(statText);
         int lines = (int) Math.ceil(textBounds.getWidth() / (parentWidth - (SUBPANEL_INSET * 2)));
-        return lines * (int) textBounds.getHeight();
+        return lines * textBounds.getHeight();
     }
 
 
@@ -612,8 +612,8 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private int getComponentHeight(UIComponent component) {
-        int height = 0;
+    private double getComponentHeight(UIComponent component) {
+        double height = 0;
         if (component instanceof SubPanel) {
             height = ((SubPanel) component).getHeight();
         } else if (component instanceof StaticText) {
@@ -631,15 +631,15 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         return height;
     }
 
-    private int getFieldHeight(UIComponent component) {
+    private double getFieldHeight(UIComponent component) {
         DynFormField field = _componentFieldTable.get(component);
         return (field != null) ? getFieldHeight(field) : DEFAULT_FIELD_HEIGHT;
     }
 
-    private int getFieldHeight(DynFormField field) {
+    private double getFieldHeight(DynFormField field) {
         Font font = field.getFont();
         if (font == null) font = _formFonts.getFormFont();
-        return (int) Math.ceil(FontUtil.getFontMetrics("dummyText", font).getHeight());
+        return Math.ceil(FontUtil.getFontMetrics("dummyText", font).getHeight());
     }
 
 
@@ -656,9 +656,9 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         // position input fields by setting the left coord
         adjustFieldOffsetsAndWidths(panel.getChildren());
 
-        // calc and set height, width & top of outermost panel
+        // calc and set height (adjusted for field count), width & top of outermost panel
         int width = getFormWidth();
-        int height = setContentTops(panel);
+        int height = (int) (setContentTops(panel) - (countFields(panel) * 1.3));
         int outerPanelTop = getOuterPanelTop(width);
 
         // set the style of the outermost panel and its container
@@ -718,13 +718,13 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private int setContentTops(PanelLayout panel) {
-        int top = 5;
+    private double setContentTops(PanelLayout panel) {
+        double top = 5;
         for (Object o : panel.getChildren()) {
             if (o instanceof SubPanel) {
                 SubPanel subPanel = (SubPanel) o;
                 subPanel.setHeight(setContentTops(subPanel));  // recurse
-                subPanel.setTop(top);
+                subPanel.setTop((int) top);
                 subPanel.assignStyle(getMaxDepthLevel());
                 top += subPanel.getHeight() + Y_DEF_INCREMENT;
             } else {
@@ -733,14 +733,14 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
                     if (component instanceof Label) {
                         top = Math.max(top, 25);                      // if no header
                         if (isComponentVisible(getComponentForLabel(panel, (Label) component))) {
-                            setTopStyle(component, top + LABEL_V_OFFSET);
+                            setTopStyle(component, (int) top + LABEL_V_OFFSET);
                         }
                     } else {
                         if (!(component instanceof StaticText)) {
                             top = Math.max(top, 15);                      // for radio
                         }
                         if (isComponentVisible(component)) {
-                            setTopStyle(component, top);
+                            setTopStyle(component, (int) top);
                             top += getComponentHeight(component) + Y_DEF_INCREMENT;
                         }
                     }
@@ -748,6 +748,17 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
             }
         }
         return top;
+    }
+
+    private int countFields(PanelLayout panel) {
+        int count = 0;
+        for (Object o : panel.getChildren()) {
+            if (o instanceof SubPanel) {
+                count += countFields((SubPanel) o);
+            }
+            else count++;
+        }
+        return count;
     }
 
 
@@ -895,7 +906,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         children.add(children.indexOf(panel) + 1, newPanel);
 
         SubPanel level0Container = panel.getController().addSubPanel(newPanel);
-        int adjustment = newPanel.getHeight() + DynFormFactory.Y_DEF_INCREMENT;
+        int adjustment = (int) newPanel.getHeight() + DynFormFactory.Y_DEF_INCREMENT;
         adjustLayouts(level0Container, adjustment);
     }
 
@@ -903,7 +914,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     private void removeSubPanel(SubPanel panel) {
         SubPanel level0Container = panel.getController().removeSubPanel(panel);
         removeOrphanedControllers(panel);
-        int adjustment = -(panel.getHeight() + DynFormFactory.Y_DEF_INCREMENT);
+        int adjustment = -((int) panel.getHeight() + DynFormFactory.Y_DEF_INCREMENT);
         adjustLayouts(level0Container, adjustment);
 
         UIComponent parent = panel.getParent();

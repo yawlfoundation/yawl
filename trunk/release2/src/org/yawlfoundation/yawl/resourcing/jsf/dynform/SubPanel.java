@@ -32,7 +32,7 @@ import java.util.Hashtable;
 
 public class SubPanel extends PanelLayout implements Cloneable {
 
-    private int height ;
+    private double height ;
     private int width;
     private int top ;
     private String name ;
@@ -53,9 +53,9 @@ public class SubPanel extends PanelLayout implements Cloneable {
 
     // Getters & Setters //
 
-    public int getHeight() { return height; }
+    public double getHeight() { return height; }
 
-    public void setHeight(int height) { this.height = height; }
+    public void setHeight(double height) { this.height = height; }
 
     public int getWidth() { return width; }
 
@@ -106,7 +106,7 @@ public class SubPanel extends PanelLayout implements Cloneable {
                      (maxLevel - controller.getDepthlevel() + 1)) ;
 
         String style = String.format("position: absolute; top: %dpx; left: %dpx; height: %dpx; width: %dpx",
-                                      top, DynFormFactory.SUBPANEL_INSET, height, width);
+                                      top, DynFormFactory.SUBPANEL_INSET, (int) height, width);
 
         // set user-defined background colour (if given)
         String backColour = controller.getUserDefinedBackgroundColour();
@@ -153,7 +153,7 @@ public class SubPanel extends PanelLayout implements Cloneable {
         return top;
     }
 
-    public int incHeight(int amount) {
+    public double incHeight(int amount) {
         height += amount;
         return height;
     }
