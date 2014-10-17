@@ -298,6 +298,7 @@ public class ResourceMap {
 
                     // not piled or chained, distribute in normal manner
                     removeIgnoredParticipants(wir, distributionSet);
+                    removeUnavailableParticipants(distributionSet);
                     if (! distributionSet.isEmpty()) {
                         Participant chosen = doAllocate(distributionSet, wir) ;
                         if (chosen != null) doStart(chosen, wir) ;
@@ -409,6 +410,15 @@ public class ResourceMap {
             }
             distributionSet.removeAll(ignored);
         }
+    }
+
+
+    private void removeUnavailableParticipants(Set<Participant> distributionSet) {
+        Set<Participant> unavailable = new HashSet<Participant>();
+        for (Participant p : distributionSet) {
+            if (! p.isAvailable()) unavailable.add(p);
+        }
+        distributionSet.removeAll(unavailable);
     }
 
 

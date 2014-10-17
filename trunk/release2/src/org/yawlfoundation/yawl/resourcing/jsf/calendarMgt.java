@@ -836,8 +836,10 @@ public class calendarMgt extends AbstractPageBean {
     private boolean validateFields() {
         boolean valid;
         String start = (String) txtStartTime.getText();
+        if (StringUtil.isNullOrEmpty(start)) start = "00:00";
         valid = validateTimeField(start, "Start Time");
         String end = (String) txtEndTime.getText();
+        if (StringUtil.isNullOrEmpty(end)) end = "00:00";
         valid = validateTimeField(end, "End Time") && valid;
         int workload = getWorkloadValue();
         return validateWorkloadField(workload) && valid;
@@ -897,13 +899,14 @@ public class calendarMgt extends AbstractPageBean {
 
 
     private long getTime(String timeStr, boolean start) {
+        if (StringUtil.isNullOrEmpty(timeStr)) timeStr = (start ? "00:00" : "23:59");
         long baseDate = calComponent.getSelectedDate().getTime();
         if (! start) {
             Date duration = calDuration.getSelectedDate();
             if (duration != null) {
                 baseDate = duration.getTime();
             }
-        }    
+        }
         return getTime(timeStr, baseDate);
     }
 
