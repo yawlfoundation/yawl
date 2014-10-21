@@ -76,6 +76,7 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
 
     public Boolean doInBackground() {
+        Publisher.getInstance().publishOpenFileEvent();
         return _fileName != null ? load(_fileName) : load(_specXML, _layoutXML);
     }
 
@@ -168,6 +169,9 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
             YPluginHandler.getInstance().postOpenFile();
             YAWLEditor.getPropertySheet().setVisible(true);
             warnOnInvalidResources();
+        }
+        else {
+            Publisher.getInstance().publishCloseFileEvent();
         }
     }
 
