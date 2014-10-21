@@ -62,6 +62,7 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     public void setID(String id) {
         String oldID = getID();
         super.setID(id);
+        updateFlowMapsOnIdChange(oldID, id);
         _net.refreshNetElementIdentifier(oldID);
     }
 
@@ -269,6 +270,18 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
             return new YNetElementDocoParser(_net.getInternalDataDocument()).parse(_documentation);
         }
         return _documentation;
+    }
+
+
+    private void updateFlowMapsOnIdChange(String oldID, String newID) {
+        for (YExternalNetElement prior : getPresetElements()) {
+            YFlow flow = prior._postsetFlows.remove(oldID);
+            if (flow != null) prior._postsetFlows.put(newID, flow);
+        }
+        for (YExternalNetElement next : getPostsetElements()) {
+            YFlow flow = next._presetFlows.remove(oldID);
+            if (flow != null) next._presetFlows.put(newID, flow);
+        }
     }
     
 
