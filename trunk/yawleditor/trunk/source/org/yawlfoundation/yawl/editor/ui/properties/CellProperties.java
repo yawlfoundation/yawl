@@ -320,8 +320,7 @@ public class CellProperties extends NetProperties {
             graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
         }
         else if (decomposition instanceof YNet) {
-            String label = decomposition.getName();
-            graph.setElementLabel(vertex, label != null ? label : decomposition.getID());
+            graph.setElementLabel(vertex, getLabel(decomposition));
         }
         else if (decomposition == null) {
             YTask task = (YTask) vertex.getYAWLElement();
@@ -333,16 +332,19 @@ public class CellProperties extends NetProperties {
         Publisher.getInstance().publishState(GraphState.ElementsSelected,
                 new GraphSelectionEvent(this, new Object[] {vertex}, new boolean[] {false}));
 
-        // update id if not tied to label
+        // update id if not tied to task label
         String label = getLabel();
         if (decomposition != null && (label == null || ! label.equals(getId()))) {
-            firePropertyChange("id", decomposition.getID());
-            if (label == null) {
-                String newLabel = decomposition.getName();
-                if (newLabel == null) newLabel = decomposition.getID();
-                firePropertyChange("Label", newLabel);
-            }
+            if (label == null) label = getLabel(decomposition);
+            if (idLabelSynch) updateVertexID(label);
+            firePropertyChange("Label", label);
         }
+    }
+
+
+    private String getLabel(YDecomposition decomposition) {
+        String label = decomposition.getName();
+        return label != null ? label : decomposition.getID();
     }
 
 
@@ -603,8 +605,5 @@ public class CellProperties extends NetProperties {
     private boolean shouldEnableSplitConditions() {
         Decorator decorator = ((YAWLTask) vertex).getSplitDecorator();
         return ! (decorator == null || decorator.getType() == SplitDecorator.AND_TYPE);
-//                ||
-//                decorator.getFlowCount() < 2);  // can't trigger after adding new flow
-
     }
 }
