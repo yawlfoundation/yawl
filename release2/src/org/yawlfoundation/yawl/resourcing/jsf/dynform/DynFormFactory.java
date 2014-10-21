@@ -658,7 +658,8 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
         // calc and set height (adjusted for field count), width & top of outermost panel
         int width = getFormWidth();
-        int height = (int) (setContentTops(panel) - (countFields(panel) * 1.3));
+        int height = (int) setContentTops(panel);
+//        int height = (int) (setContentTops(panel) - (countFields(panel) * 1.3));
         int outerPanelTop = getOuterPanelTop(width);
 
         // set the style of the outermost panel and its container
@@ -726,39 +727,30 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
                 subPanel.setHeight(setContentTops(subPanel));  // recurse
                 subPanel.setTop((int) top);
                 subPanel.assignStyle(getMaxDepthLevel());
-                top += subPanel.getHeight() + Y_DEF_INCREMENT;
+                if (subPanel.isVisible()) top += subPanel.getHeight() + Y_DEF_INCREMENT;
             } else {
                 UIComponent component = (UIComponent) o;
-                if (!(component instanceof Button)) {
-                    if (component instanceof Label) {
-                        top = Math.max(top, 25);                      // if no header
-                        if (isComponentVisible(getComponentForLabel(panel, (Label) component))) {
-                            setTopStyle(component, (int) top + LABEL_V_OFFSET);
-                        }
-                    } else {
-                        if (!(component instanceof StaticText)) {
-                            top = Math.max(top, 15);                      // for radio
-                        }
-                        if (isComponentVisible(component)) {
-                            setTopStyle(component, (int) top);
-                            top += getComponentHeight(component) + Y_DEF_INCREMENT;
-                        }
+                if (component instanceof Button) {
+                    continue;
+                }
+                else if (component instanceof Label) {
+                    top = Math.max(top, 25);                      // if no header
+                    if (isComponentVisible(getComponentForLabel(panel, (Label) component))) {
+                        setTopStyle(component, (int) top + LABEL_V_OFFSET);
+                    }
+                } else {
+                    if (!(component instanceof StaticText)) {
+                        top = Math.max(top, 15);                      // for radio
+                    }
+                    if (isComponentVisible(component)) {
+                        setTopStyle(component, (int) top);
+                        top += getComponentHeight(component) + Y_DEF_INCREMENT;
                     }
                 }
             }
+
         }
         return top;
-    }
-
-    private int countFields(PanelLayout panel) {
-        int count = 0;
-        for (Object o : panel.getChildren()) {
-            if (o instanceof SubPanel) {
-                count += countFields((SubPanel) o);
-            }
-            else count++;
-        }
-        return count;
     }
 
 
