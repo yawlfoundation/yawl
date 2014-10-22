@@ -360,38 +360,28 @@ public class YDataHandler {
      * with the new data type, or the 'scope' parameter is invalid
      */
     public boolean setVariableDataType(String decompositionID, String variableName,
-                        String dataType, int scope) throws YDataHandlerException {
+                                       String dataType, int scope) throws YDataHandlerException {
         checkParameterType(scope);
         YDecomposition decomposition = getDecomposition(decompositionID);
-        boolean success = true;
-        if (scope == LOCAL) {
-            if (decomposition instanceof YNet) {
-                YVariable variable = ((YNet) decomposition).getLocalVariables()
-                                        .get(variableName);
-                if (variable == null) {
-                    throw new YDataHandlerException("No variable found with name: " +
-                            variableName);
-                }
-                return setVariableDataType(variable, dataType, variable.getInitialValue());
-            }
-            else raise("Invalid parameter scope for task decomposition: " +
-                    getScopeName(scope));
+        if (scope == LOCAL && ! (decomposition instanceof YNet)) {
+            raise("Invalid parameter scope for task decomposition: " + getScopeName(scope));
         }
-        else {
-            if (scope == INPUT || scope == INPUT_OUTPUT) {
-                success = setVariableDataType(
-                        decomposition.getInputParameters().get(variableName), dataType, null);
-            }
-            if (scope == OUTPUT || scope == INPUT_OUTPUT) {
-                YVariable variable = decomposition.getOutputParameters().get(variableName);
-                if (variable == null) {
-                    throw new YDataHandlerException("No variable found with name: " +
-                            variableName);
-                }
-                success = success && setVariableDataType(
-                        decomposition.getOutputParameters().get(variableName), dataType,
-                        variable.getDefaultValue());
-            }
+        boolean success = true;
+        if (scope == LOCAL || ((decomposition instanceof YNet) && scope == OUTPUT)) {
+            YVariable variable = getVariableFromMap(((YNet) decomposition).getLocalVariables(),
+                    variableName);
+            success = setVariableDataType(variable, dataType, variable.getInitialValue());
+        }
+        if (scope == INPUT || scope == INPUT_OUTPUT) {
+            YVariable variable = getVariableFromMap(decomposition.getInputParameters(),
+                    variableName);
+            success = setVariableDataType(variable, dataType, null);
+        }
+        if (scope == OUTPUT || scope == INPUT_OUTPUT) {
+            YVariable variable = getVariableFromMap(decomposition.getOutputParameters(),
+                    variableName);
+            success = success && setVariableDataType(variable, dataType,
+                    variable.getDefaultValue());
         }
         return success;
     }
@@ -414,35 +404,27 @@ public class YDataHandler {
                            String dataType, String value, int scope) throws YDataHandlerException {
            checkParameterType(scope);
            YDecomposition decomposition = getDecomposition(decompositionID);
-           boolean success = true;
-           if (scope == LOCAL) {
-               if (decomposition instanceof YNet) {
-                   YVariable variable = ((YNet) decomposition).getLocalVariables()
-                                           .get(variableName);
-                   if (variable == null) {
-                       throw new YDataHandlerException("No local variable found with name: " +
-                               variableName);
-                   }
-                   setVariableDataType(variable, dataType, value);
-                   variable.setInitialValue(value);
-               }
-               else raise("Invalid parameter scope for task decomposition: " +
-                       getScopeName(scope));
+           if (scope == LOCAL && ! (decomposition instanceof YNet)) {
+               raise("Invalid parameter scope for task decomposition: " + getScopeName(scope));
            }
-           else {
-               if (scope == INPUT || scope == INPUT_OUTPUT) {
-                   success = setVariableDataType(
-                           decomposition.getInputParameters().get(variableName), dataType, null);
-               }
-               if (scope == OUTPUT || scope == INPUT_OUTPUT) {
-                   YVariable variable = decomposition.getOutputParameters().get(variableName);
-                   if (variable == null) {
-                       throw new YDataHandlerException("No output variable found with name: " +
-                               variableName);
-                   }
-                   success = success && setVariableDataType(variable, dataType, value);
-                   if (success) variable.setDefaultValue(value);
-               }
+           boolean success = true;
+           if (scope == LOCAL || ((decomposition instanceof YNet) && scope == OUTPUT)) {
+               YVariable variable = getVariableFromMap(((YNet) decomposition).getLocalVariables(),
+                       variableName);
+               success = setVariableDataType(variable, dataType, variable.getInitialValue());
+               if (success) variable.setInitialValue(value);
+           }
+           if (scope == INPUT || scope == INPUT_OUTPUT) {
+               YVariable variable = getVariableFromMap(decomposition.getInputParameters(),
+                       variableName);
+               success = setVariableDataType(variable, dataType, null);
+           }
+           if (scope == OUTPUT || scope == INPUT_OUTPUT) {
+               YVariable variable = getVariableFromMap(decomposition.getOutputParameters(),
+                       variableName);
+               success = success && setVariableDataType(variable, dataType,
+                       variable.getDefaultValue());
+               if (success) variable.setDefaultValue(value);
            }
            return success;
        }
@@ -1155,6 +1137,16 @@ public class YDataHandler {
     }
 
 
+    private YVariable getVariableFromMap(Map<String, ? extends YVariable> varMap, String varName)
+            throws YDataHandlerException {
+        YVariable variable = varMap.get(varName);
+        if (variable == null) {
+            raise("No variable found with name: " + varName);
+        }
+        return variable;
+    }
+
+
     /**
      * Updates the decomposition id in an MI join query
      * @param task the MI task
@@ -1402,10 +1394,10 @@ public class YDataHandler {
     private boolean setVariableDataType(YVariable variable, String dataType, String value)
             throws YDataHandlerException {
         if (variable == null) {
-            throw new YDataHandlerException("No matching variable found");
+            raise("No matching variable found");
         }
         if (! (StringUtil.isNullOrEmpty(value) || validate(dataType, value).isEmpty())) {
-            throw new YDataHandlerException("Invalid data type for variable value");
+            raise("Invalid data type for variable value");
         }
         variable.setDataTypeAndName(dataType, variable.getPreferredName(),
                     variable.getDataTypeNameSpace());
@@ -1572,7 +1564,7 @@ public class YDataHandler {
             throws YDataHandlerException{
         String dataType = variable.getDataTypeName();
         if (! (StringUtil.isNullOrEmpty(value) || validate(dataType, value).isEmpty())) {
-            throw new YDataHandlerException("Invalid value for variable data type");
+            raise("Invalid value for variable data type");
         }
     }
 

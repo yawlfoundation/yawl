@@ -339,18 +339,22 @@ public class OutputBindings {
     private String getTarget(Map<String, String> bindings, String taskVarName) {
         String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
         String varTag = '<' + taskVarName + '>';
+
+        // 1st pass: if query starts with var tag, we have a match
         for (String outputQuery : bindings.keySet()) {
             if (outputQuery.startsWith(varTag)) {
                 return bindings.get(outputQuery);
             }
-            else {
-                String xpath = decompKey + taskVarName;
-                if (outputQuery.contains(xpath)) {
-                    int nextCharPos = outputQuery.indexOf(xpath) + xpath.length();
-                    char next = outputQuery.charAt(nextCharPos);
-                    if (next == '/' || next == '}' || next == '<') {
-                        return bindings.get(outputQuery);
-                    }
+        }
+
+        // 2nd pass: next best guess, task var referred to in xpath
+        for (String outputQuery : bindings.keySet()) {
+            String xpath = decompKey + taskVarName;
+            if (outputQuery.contains(xpath)) {
+                int nextCharPos = outputQuery.indexOf(xpath) + xpath.length();
+                char next = outputQuery.charAt(nextCharPos);
+                if (next == '/' || next == '}' || next == '<') {
+                    return bindings.get(outputQuery);
                 }
             }
         }
