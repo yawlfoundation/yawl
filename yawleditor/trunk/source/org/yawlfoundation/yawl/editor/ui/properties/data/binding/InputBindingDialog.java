@@ -117,19 +117,23 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
 
     private String getBindingSource(VariableRow row) {
         String binding = row.getMapping();
-        if (binding == null) return null;
+        if (binding == null) {
+            return getMatchingNetVarName(row);
+        }
         if (binding.contains("#external:")) return binding;
 
         DefaultBinding defBinding = new DefaultBinding(binding);
-        if (defBinding.isCustomBinding() && ! row.isMultiInstance()) return null;
+        if (defBinding.isCustomBinding() && ! row.isMultiInstance()) {
+            return getFirstNetVarWithDataType(row.getDataType());
+        }
 
-        String netVarName = null;
+        String source = null;
         VariableRow netVarRow = getNetVariableRow(defBinding.getVariableName());
         if (netVarRow != null && netVarRow.getElementID().equals(
                 defBinding.getContainerName())) {
-            netVarName = netVarRow.getName();
+            source = netVarRow.getName();
         }
-        return netVarName;
+        return source != null ? source : getFirstNetVarWithDataType(row.getDataType());
     }
 
 
@@ -170,6 +174,25 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
             row.setMapping(formatQuery(undoMap.get(varName), false));
         }
         undoMap.clear();
+    }
+
+
+    // returns the name of the net var row with the same name as the row passed, or if no
+    // match, the name of the first net var row that match the datatype of the row passed
+    private String getMatchingNetVarName(VariableRow row) {
+        VariableRow netVarRow = getNetVariableRow(row.getName());
+        return netVarRow != null ? netVarRow.getName() :
+                getFirstNetVarWithDataType(row.getDataType());
+    }
+
+
+    private String getFirstNetVarWithDataType(String dataType) {
+        for (VariableRow netVarRow : getNetVarList()) {
+            if (netVarRow.getDataType().equals(dataType)) {
+                return netVarRow.getName();
+            }
+        }
+        return null;
     }
 
     private void generateBinding() {
