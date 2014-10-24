@@ -218,7 +218,6 @@ public class YIdentifier {
     public synchronized void clearLocation(YPersistenceManager pmgr, YNetElement condition)
             throws YPersistenceException {
         removeLocation(pmgr, condition);
-        updateThis(pmgr);
     }
 
 

@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.elements;
 
+import org.jdom2.Element;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
@@ -111,6 +113,27 @@ public final class YCompositeTask extends YTask {
                 parentRunner.removeActiveTask(pmgr, this);
             }
         }
+    }
+
+
+    // overridden to allow passthrough of non-mandatory empty elements to subnet
+    protected Element performDataExtraction(String expression, YParameter inputParam)
+            throws YDataStateException, YQueryException {
+
+        Element result = evaluateTreeQuery(expression, _net.getInternalDataDocument());
+
+        // if the param id of empty complex type flag type, don't return the query result
+        // as input data if the flag is not currently set
+        if (inputParam.isEmptyTyped()) {
+            if (!isPopulatedEmptyTypeFlag(expression)) return null;
+        }
+
+        // AJH: Allow option to inhibit schema validation for outbound data.
+        if (_net.getSpecification().getSchemaVersion().isSchemaValidating()
+                && (!skipOutboundSchemaChecks())) {
+            performSchemaValidationOverExtractionResult(expression, inputParam, result);
+        }
+        return result;
     }
 
 
