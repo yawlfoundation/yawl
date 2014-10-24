@@ -543,7 +543,7 @@ public abstract class YTask extends YExternalNetElement {
         Element dataElem = dataDoc.getRootElement();
         for (YParameter param : _decompositionPrototype.getOutputParameters().values()) {
             String defaultValue = param.getDefaultValue();
-            if (defaultValue != null) {
+            if (! StringUtil.isNullOrEmpty(defaultValue)) {
                 Element paramData = dataElem.getChild(param.getPreferredName());
 
                 // if there's an element, but no value, add the default
@@ -558,7 +558,8 @@ public abstract class YTask extends YExternalNetElement {
                     Element defElem = JDOMUtil.stringToElement(
                             StringUtil.wrap(defaultValue, param.getPreferredName()));
                     defElem.setNamespace(dataElem.getNamespace());
-                    dataElem.addContent(param.getOrdering(), defElem.detach());
+                    dataElem.addContent(Math.min(dataElem.getContentSize(), param.getOrdering()),
+                            defElem.detach());
                 }
             }
         }
@@ -1129,7 +1130,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private void performSchemaValidationOverExtractionResult(String expression,
+    protected void performSchemaValidationOverExtractionResult(String expression,
                                                              YParameter param, Element result)
             throws YDataStateException {
         Element tempRoot = new Element(_decompositionPrototype.getID());
@@ -1155,7 +1156,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private Element evaluateTreeQuery(String query, Document document)
+    protected Element evaluateTreeQuery(String query, Document document)
             throws YQueryException {
 
         try {
@@ -1780,7 +1781,7 @@ public abstract class YTask extends YExternalNetElement {
      *
      * @return whether or not to skip validation on task starting.
      */
-    private boolean skipOutboundSchemaChecks() {
+    protected boolean skipOutboundSchemaChecks() {
         return _skipOutboundSchemaChecks;
     }
 

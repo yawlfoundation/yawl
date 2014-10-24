@@ -647,7 +647,13 @@ public class YNetRunner {
 
             List<YIdentifier> caseIDs = task.t_fire(pmgr);
             for (YIdentifier id : caseIDs) {
-                task.t_start(pmgr, id);
+                try {
+                    task.t_start(pmgr, id);
+                }
+                catch (YDataStateException ydse) {
+                    task.rollbackFired(id, pmgr);
+                    ydse.rethrow();
+                }
             }
         }
     }
