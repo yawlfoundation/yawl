@@ -239,7 +239,10 @@ public class BindingTypeValidator extends TypeValueBuilder {
             throws SaxonApiException {
         boolean wrapped = ! (query.startsWith("/") || query.startsWith("bool"));
         if (wrapped) {
-            query = StringUtil.wrap(query, "foo_bar");
+            if (! (query.isEmpty() || query.startsWith("{") || query.startsWith("<"))) {
+                query = "{" + query + "}";
+            }
+            query = StringUtil.wrap(query,"foo_bar");
         }
         String evaluated = SaxonUtil.evaluateQuery(query, dataDocument);
         return wrapped ? StringUtil.unwrap(evaluated) : evaluated;

@@ -257,7 +257,7 @@ public class DataVariableDialog extends JDialog
         this.net = net;
         String title;
         if (! (decomposition == null || task == null)) {
-            title = " Decomposition " + decomposition.getID() +
+            title = "Decomposition " + decomposition.getID() +
                              " [Task: " + task.getID() + "]";
             this.decomposition = decomposition;
             this.task = task.getTask();                         // YTask from YAWLTask
@@ -267,7 +267,7 @@ public class DataVariableDialog extends JDialog
             }
         }
         else {
-            title = " Net " + net.getID();
+            title = "Net " + net.getID();
         }
         setTitle("Data Variables for " + title);
 

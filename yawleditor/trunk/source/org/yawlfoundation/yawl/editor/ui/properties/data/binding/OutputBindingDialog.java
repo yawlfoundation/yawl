@@ -169,7 +169,11 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
              }
         }
 
-        // no match, try on data type
+        // next, see if this task var is inside a larger mapping to a target
+        String target = _outputBindings.getEmbeddedTarget(taskVarRow.getName());
+        if (target != null) return target;
+
+        // still no match, try on data type
         for (VariableRow netVarRow : getNetVarList()) {
              if (netVarRow.getDataType().equals(taskVarRow.getDataType())) {
                  return netVarRow.getDataType();
