@@ -46,6 +46,7 @@ public class UpdateDialog extends JDialog
 
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("Update")) {
+            _btnUpdate.setEnabled(false);
             _updater = new Updater(this);
             _updater.start();
         }

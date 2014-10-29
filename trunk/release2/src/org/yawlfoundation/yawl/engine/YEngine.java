@@ -1549,12 +1549,14 @@ public class YEngine implements InterfaceADesign,
             throws YStateException, YDataStateException, YQueryException,
                    YPersistenceException, YEngineStateException {
         workItem.setExternalLogPredicate(logPredicate);
+        workItem.cancelTimer();                              // if any
         if (completionType != WorkItemCompletion.Fail) {
             announceIfTimeServiceTimeout(netRunner, workItem);
             workItem.setStatusToComplete(_pmgr, completionType);
             Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
             workItem.completeData(_pmgr, doc);
             if (netRunner.completeWorkItemInTask(_pmgr, workItem, doc)) {
+                cleanupCompletedWorkItem(workItem, netRunner, doc);
 
                 /* When a Task is enabled twice by virtue of having two enabling sets of
                  * tokens in the current marking the work items are not created twice.
@@ -1563,7 +1565,6 @@ public class YEngine implements InterfaceADesign,
                  * time to notify the worklists that it is enabled again.*/
                 netRunner.continueIfPossible(_pmgr);
             }
-            cleanupCompletedWorkItem(workItem, netRunner, doc);
         }
         else cancelWorkItem(workItem);
     }
@@ -1863,23 +1864,35 @@ public class YEngine implements InterfaceADesign,
     private void cleanupCompletedWorkItem(YWorkItem workItem, YNetRunner netRunner,
                                           Document data)
             throws YPersistenceException, YStateException {
+//        cancelTimer(workItem);                 // remove any active timer for this item
+        _instanceCache.closeWorkItem(workItem, data);
 
         YWorkItem parent = workItem.getParent();
-
-        // remove any active timer for this item
-        if (workItem.hasTimerStarted()) {
-            YTimer.getInstance().cancelTimerTask(workItem.getIDString());
-        }
-
-        _instanceCache.closeWorkItem(workItem, data);
         if (parent != null) {
-            if (! parent.hasChildren() && parent.hasTimerStarted()) {
-               YTimer.getInstance().cancelTimerTask(parent.getIDString());
-            }
+//            if (! parent.hasChildren() && parent.hasTimerStarted()) {
+//               YTimer.getInstance().cancelTimerTask(parent.getIDString());
+//            }
 
             // If case is suspending, see if we can progress into a fully suspended state
             if (netRunner.isSuspending()) {
                 progressCaseSuspension(_pmgr, parent.getCaseID());
+            }
+        }
+    }
+
+
+    private void cancelTimer(YWorkItem workItem) {
+        if (workItem != null) {
+            if (workItem.hasTimerStarted()) {
+                YTimer.getInstance().cancelTimerTask(workItem.getIDString());
+            }
+            YWorkItem parent = workItem.getParent();
+            if (parent != null && parent.hasTimerStarted()) {
+                Set<YWorkItem> children = parent.getChildren();
+
+                if (children == null || children.size() == 1) {
+                    YTimer.getInstance().cancelTimerTask(parent.getIDString());
+                }
             }
         }
     }

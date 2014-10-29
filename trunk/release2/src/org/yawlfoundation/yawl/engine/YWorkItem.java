@@ -25,6 +25,7 @@ import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.*;
@@ -425,6 +426,25 @@ public class YWorkItem {
                     if (pmgr != null) pmgr.storeObject(timer);
                 }
             }
+        }
+    }
+
+
+    public void cancelTimer() {
+        if (hasTimerStarted()) {
+            YTimer.getInstance().cancelTimerTask(getIDString());
+        }
+        YWorkItem parent = getParent();
+        if (parent != null && parent.hasTimerStarted()) {
+            Set<YWorkItem> children = parent.getChildren();
+            if (children != null) {
+                for (YWorkItem child : children) {
+                    if (! (child.equals(this) || child.hasFinishedStatus())) {
+                        return;          // parent still has active child
+                    }
+                }
+            }
+            YTimer.getInstance().cancelTimerTask(parent.getIDString());
         }
     }
 
