@@ -65,7 +65,6 @@ public class DOMUtil
                                                              "</xsl:stylesheet> ";
     private static Transformer emptyElementXSLT = null;
 
-
     /**
      * Converts a xml String to a DOM Document
      *
