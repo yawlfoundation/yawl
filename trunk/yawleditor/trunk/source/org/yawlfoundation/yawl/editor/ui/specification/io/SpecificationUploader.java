@@ -18,18 +18,28 @@
 
 package org.yawlfoundation.yawl.editor.ui.specification.io;
 
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.validation.Validator;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.CaseParamValueDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.SampleValueGenerator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.SpecificationValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationMessage;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationResultsParser;
+import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -55,7 +65,11 @@ public class SpecificationUploader {
 
 
     public String launchCase() throws IOException {
-        return launchCase(getSpecificationID(), null, null);
+        String caseParams = getCaseParams();
+        if (caseParams == null && ! _specification.getRootNet().getInputParameters().isEmpty()) {
+            return null;
+        }
+        return launchCase(getSpecificationID(), caseParams, null);
     }
 
 
@@ -93,6 +107,44 @@ public class SpecificationUploader {
         List<ValidationMessage> messages = new ValidationResultsParser().parse(errors);
         YAWLEditor.getInstance().showProblemList("Validation Results", messages);
         return errors.isEmpty();
+    }
+
+
+    private String getCaseParams() {
+        YNet rootNet = _specification.getRootNet();
+        List<YParameter> params = getCaseInputParameters(rootNet);
+        if (params.isEmpty() || rootNet.getExternalDataGateway() != null) return null;
+
+        Collections.sort(params);
+        SampleValueGenerator generator = new SampleValueGenerator();
+        String schema = generateSchema(generator, params, rootNet.getID());
+        String sampleValue = generateSampleValues(generator, params, rootNet.getID());
+
+        CaseParamValueDialog dialog = new CaseParamValueDialog(
+                rootNet.getID(), schema, sampleValue);
+        return dialog.showDialog();
+    }
+
+
+    private List<YParameter> getCaseInputParameters(YNet rootNet) {
+        return new ArrayList<YParameter>(rootNet.getInputParameters().values());
+    }
+
+
+    private String generateSampleValues(SampleValueGenerator generator,
+                                        List<YParameter> params, String rootName) {
+        XNode root = new XNode(rootName);
+        for (YParameter param : params) {
+            root.addChild(param.getName(), generator.generate(param));
+        }
+        return root.toPrettyString();
+    }
+
+
+    private String generateSchema( SampleValueGenerator generator,
+                                   List<YParameter> params, String rootName) {
+        Map<String, Element> map = generator.getSchemaMap(_specification.getDataSchema());
+        return new DataSchemaBuilder(map).buildSchema(rootName, params);
     }
 
 }

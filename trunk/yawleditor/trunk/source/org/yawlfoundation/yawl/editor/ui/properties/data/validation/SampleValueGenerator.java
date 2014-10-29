@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.validation;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
@@ -41,23 +42,38 @@ public class SampleValueGenerator extends TypeValueBuilder {
 
 
     public String generate(VariableRow row) {
+        return generate(getParameter(row));
+    }
+
+
+    public String generate(YParameter parameter) {
+        return generate(new FormParameter(parameter));
+    }
+
+
+    public Map<String, Element> getSchemaMap(String schema) {
+        return assembleMap(schema);
+    }
+
+
+    private String generate(FormParameter parameter) {
         String rootName = "root";
         Map<String, Element> elementMap = assembleMap(
                 SpecificationModel.getHandler().getSchema());
         String schema = new DataSchemaBuilder(elementMap).buildSchema(
-                    "data", row.getName(), row.getDataType());
+                    "data", parameter.getName(), parameter.getDataTypeName());
         Map<String, DynFormField> fieldMap =
-                getFieldMap(getParameterMap(row), rootName, schema);
+                getFieldMap(getParameterMap(parameter), rootName, schema);
         XNode root = getDataXNode(
                 new ArrayList<DynFormField>(fieldMap.values()), rootName);
-        XNode varNode = root.getChild(row.getName());
+        XNode varNode = root.getChild(parameter.getName());
         return varNode != null ? StringUtil.unwrap(varNode.toPrettyString()).trim() : null;
     }
 
 
-    private Map<String, FormParameter> getParameterMap(VariableRow row) {
+    private Map<String, FormParameter> getParameterMap(FormParameter parameter) {
         Map<String, FormParameter> map = new HashMap<String, FormParameter>();
-        map.put(row.getName(), getParameter(row));
+        map.put(parameter.getName(), parameter);
         return map;
     }
 

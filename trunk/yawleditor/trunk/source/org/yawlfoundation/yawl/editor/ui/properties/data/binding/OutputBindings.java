@@ -337,17 +337,23 @@ public class OutputBindings {
 
 
     private String getTarget(Map<String, String> bindings, String taskVarName) {
-        String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
         String varTag = '<' + taskVarName + '>';
 
-        // 1st pass: if query starts with var tag, we have a match
+        // if query starts with var tag, we have a match
         for (String outputQuery : bindings.keySet()) {
             if (outputQuery.startsWith(varTag)) {
                 return bindings.get(outputQuery);
             }
         }
+        return null;
+    }
 
-        // 2nd pass: next best guess, task var referred to in xpath
+
+    // returns the target net var if there is a task var XPath embedded within the
+    // output binding for the target net var
+    public String getEmbeddedTarget(String taskVarName) {
+        String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
+        Map<String, String> bindings = _task.getDataMappingsForTaskCompletion();
         for (String outputQuery : bindings.keySet()) {
             String xpath = decompKey + taskVarName;
             if (outputQuery.contains(xpath)) {
