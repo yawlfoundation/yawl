@@ -89,8 +89,10 @@ public class RepositoryListModel extends AbstractListModel {
 
     private List<RepoDescriptor> filter(List<RepoDescriptor> list, String chars) {
         List<RepoDescriptor> filtered = new ArrayList<RepoDescriptor>();
+        String mask = chars.toLowerCase();
         for (RepoDescriptor descriptor : list) {
-            if (descriptor.getName().contains(chars)) {
+            String name = descriptor.getName();
+            if (name != null && name.toLowerCase().contains(mask)) {
                 filtered.add(descriptor);
             }
         }
