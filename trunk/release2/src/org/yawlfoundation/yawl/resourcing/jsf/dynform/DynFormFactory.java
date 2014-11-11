@@ -261,9 +261,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
 
     public int getFormWidth() {
-        int btnCount = getNumberOfVisibleButtons();
-        int btnBlockWidth = (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
-        return Math.max(btnBlockWidth, getOuterPanelWidth());
+        return Math.max(getButtonBlockWidth(), getOuterPanelWidth());
     }
 
 
@@ -278,6 +276,11 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         return new DynFormValidator().validate(compPanel, _componentFieldTable, msgPanel);
     }
 
+
+    protected int getButtonBlockWidth() {
+        int btnCount = getNumberOfVisibleButtons();
+        return (btnCount * FORM_BUTTON_WIDTH) + (FORM_BUTTON_GAP * (btnCount - 1));
+    }
 
     protected Button makeOccursButton(String name, String text) {
         Button button = new Button();
@@ -463,9 +466,10 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         X_FIELD_OFFSET = builder.getMaxLabelWidth() + X_LABEL_OFFSET + DEFAULT_LABEL_FIELD_GAP;
 
         // set the width of the innermost panel content (not including panel insets from
-        // edges) to the greater of the widest image and (the field left offset +
-        // the field width)
-        PANEL_BASE_WIDTH = Math.max(builder.getMaxImageWidth(), X_FIELD_OFFSET + FIELD_WIDTH);
+        // edges) to the greatest of the widest image, the button block and
+        // (the field left offset + the field width)
+        PANEL_BASE_WIDTH = Math.max(builder.getMaxImageWidth(),
+                Math.max(getButtonBlockWidth(), X_FIELD_OFFSET + FIELD_WIDTH));
     }
 
 
@@ -659,7 +663,6 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
         // calc and set height (adjusted for field count), width & top of outermost panel
         int width = getFormWidth();
         int height = (int) setContentTops(panel);
-//        int height = (int) (setContentTops(panel) - (countFields(panel) * 1.3));
         int outerPanelTop = getOuterPanelTop(width);
 
         // set the style of the outermost panel and its container
