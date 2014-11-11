@@ -76,8 +76,8 @@ public class DataListGenerator {
                     parentTag = _factory.getDefaultFormName();
                 }
                 else {
-                    // otherwise the first child is the panel heading (and thus the element name)
-                    parentTag = _factory.despace((String) ((StaticText) children.get(0)).getValue()) ;
+                    // otherwise get the default name of the panel (and thus the element name)
+                    parentTag = _factory.despace(((SubPanel) panel).getName()) ;
                 }
                 result.append("<").append(parentTag).append(">") ;
             }    

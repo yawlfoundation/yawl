@@ -77,7 +77,7 @@ public class DynFormComponentBuilder {
         subPanel.setName(name);
         subPanel.setId(createUniqueID("sub" + name));
         if ((! name.startsWith("choice")) && field.isFieldContainer())
-            subPanel.getChildren().add(makeHeaderText(null, name)) ;
+            subPanel.getChildren().add(makeHeaderText(field.getLabelText(), name)) ;
 
         if (spc != null) {
             spc.storeSubPanel(subPanel);

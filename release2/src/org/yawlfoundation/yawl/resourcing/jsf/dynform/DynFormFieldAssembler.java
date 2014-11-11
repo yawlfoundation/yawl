@@ -270,7 +270,7 @@ public class DynFormFieldAssembler {
                                   String minOccurs, String maxOccurs, int level) {
         String value = (data != null) ? data.getChildText(name) : "";
         DynFormField input = new DynFormField(name, type, value);
-        populateField(input, name, data, minOccurs, maxOccurs, level) ;
+        populateField(input, name, minOccurs, maxOccurs, level) ;
         return input;
     }
 
@@ -279,12 +279,12 @@ public class DynFormFieldAssembler {
                                   String minOccurs, String maxOccurs,int level) {
         if (name == null) name = "choice";
         DynFormField input = new DynFormField(name, subFieldList);
-        populateField(input, name, null, minOccurs, maxOccurs, level) ;
+        populateField(input, name, minOccurs, maxOccurs, level) ;
         return input;
     }
 
 
-    private void populateField(DynFormField input, String name, Element data,
+    private void populateField(DynFormField input, String name,
                                   String minOccurs, String maxOccurs,int level) {
         input.setMinoccurs(minOccurs);
         input.setMaxoccurs(maxOccurs);
