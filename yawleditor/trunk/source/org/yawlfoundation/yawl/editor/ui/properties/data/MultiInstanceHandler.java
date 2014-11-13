@@ -106,11 +106,11 @@ public class MultiInstanceHandler {
             return true;
         }
 
-        String inputBinding = row.getMapping();
+        String inputBinding = row.getBinding();
         String[] itemNameAndType = getItemNameAndType(row.getDataType());
         _dataItemName = itemNameAndType[0];
         _netVarTarget = _outputBindings.getTarget(row.getName());
-        row.setMapping(getAdjustedInputBinding(inputBinding));
+        row.setBinding(getAdjustedInputBinding(inputBinding));
 
         String actualRowName = row.getName();
         setRowProperties(taskTable, row, itemNameAndType[1]);
@@ -148,7 +148,7 @@ public class MultiInstanceHandler {
                                     VariableRow netVarRow) {
         row.setName(row.getName().substring(0, row.getName().lastIndexOf("_Item")));
         row.setDataType(netVarRow.getDataType());
-        row.setMapping(generateBinding(netVarRow));
+        row.setBinding(generateBinding(netVarRow));
 
         if (row.isInputOutput()) {
             _outputBindings.removeBindingForTarget(_dataItemName);
@@ -161,7 +161,7 @@ public class MultiInstanceHandler {
 
     private String generateBinding(VariableRow row) {
         StringBuilder s = new StringBuilder();
-        s.append('/').append(row.getElementID());
+        s.append('/').append(row.getDecompositionID());
         s.append('/').append(row.getName()).append("/*");
         return s.toString();
     }
@@ -258,7 +258,7 @@ public class MultiInstanceHandler {
     }
 
     private String assembleSplitQuery(VariableRow inputRow, String itemName) {
-        String binding = inputRow.getMapping();
+        String binding = inputRow.getBinding();
         StringBuilder s = new StringBuilder();
         s.append("for $s in ");
         s.append(binding.substring(binding.lastIndexOf('/')));

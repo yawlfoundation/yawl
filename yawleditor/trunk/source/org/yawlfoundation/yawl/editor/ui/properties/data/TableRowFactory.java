@@ -33,7 +33,7 @@ import java.util.*;
 public class TableRowFactory {
 
     public List<VariableRow> createRows(YDecomposition decomposition, YTask task) {
-        String elementID = task != null ? task.getID() : decomposition.getID();
+        String decompositionID = decomposition.getID();
         Set<String> ioNames = new HashSet<String>();
         java.util.List<VariableRow> rows = new ArrayList<VariableRow>();
 
@@ -46,7 +46,7 @@ public class TableRowFactory {
                     ioNames.add(name);
                 }
             }
-            rows.add(new VariableRow(input, ioNames.contains(name), elementID));
+            rows.add(new VariableRow(input, ioNames.contains(name), decompositionID));
         }
 
         // add output only
@@ -54,7 +54,7 @@ public class TableRowFactory {
         for (String name : decomposition.getOutputParameterNames()) {
             if (! ioNames.contains(name)) {
                 rows.add(new VariableRow(decomposition.getOutputParameters().get(name),
-                        elementID));
+                        decompositionID));
                 dummyLocalNames.add(name);
             }
         }
@@ -64,7 +64,7 @@ public class TableRowFactory {
             // add locals that weren't created to 'shadow' output-only parameters
             for (YVariable variable : ((YNet) decomposition).getLocalVariables().values()) {
                 if (! dummyLocalNames.contains(variable.getName())) {
-                    rows.add(new VariableRow(variable, elementID));
+                    rows.add(new VariableRow(variable, decompositionID));
                 }
             }
         }

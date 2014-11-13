@@ -80,7 +80,7 @@ class InputBindingViewTableModel extends AbstractTableModel
     public Object getValueAt(int row, int col) {
         VariableRow selected = getVariableAtRow(row);
         switch (col) {
-            case BINDING_COLUMN: return selected.getMapping();
+            case BINDING_COLUMN: return selected.getBinding();
             case VARIABLE_COLUMN: return selected.getName();
             default: return null;
         }
@@ -124,7 +124,7 @@ class InputBindingViewTableModel extends AbstractTableModel
 
     public boolean removeBinding(int row) {
         if (row < getRowCount()) {
-            variableRows.get(row).setMapping(null);
+            variableRows.get(row).setBinding(null);
             fireTableRowsUpdated(row, row);
             return true;
         }

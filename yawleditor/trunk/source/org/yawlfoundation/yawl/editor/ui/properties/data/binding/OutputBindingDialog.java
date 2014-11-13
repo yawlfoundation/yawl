@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataUtils;
 import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
@@ -199,7 +200,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
                             ":" + row.getName());
                 }
                 else {
-                    setEditorText(createBinding(row));
+                    setEditorText(DataUtils.createBinding(row));
                 }
             }
         }

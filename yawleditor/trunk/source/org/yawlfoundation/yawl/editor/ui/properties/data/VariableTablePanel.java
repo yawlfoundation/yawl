@@ -67,12 +67,12 @@ public class VariableTablePanel extends JPanel
 
 
     public VariableTablePanel(java.util.List<VariableRow> rows, TableType tableType,
-                              String netElementName, DataVariableDialog parent) {
+                              String decompositionID, DataVariableDialog parent) {
         this.parent = parent;
         this.tableType = tableType;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10,10,0,10));
-        JScrollPane scrollPane = new JScrollPane(createTable(rows, tableType, netElementName));
+        JScrollPane scrollPane = new JScrollPane(createTable(rows, tableType, decompositionID));
         scrollPane.setSize(new Dimension(tableType.getPreferredWidth(), 180));
         add(populateToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -177,16 +177,16 @@ public class VariableTablePanel extends JPanel
 
     public VariableTablePanel copy() {
         return new VariableTablePanel(table.getVariables(), tableType,
-                table.getNetElementID(), parent);
+                table.getDecompositionID(), parent);
     }
 
     public DataVariableDialog getVariableDialog() { return parent; }
 
     private JTable createTable(java.util.List<VariableRow> rows, TableType tableType,
-                               String netElementName) {
+                               String decompositionID) {
         table = new VariableTable(tableType);
         table.setVariables(rows);
-        table.setNetElementID(netElementName);
+        table.setDecompositionID(decompositionID);
         VariableRowUsageEditor usageEditor = new VariableRowUsageEditor(this);
         table.setDefaultEditor(Integer.class, usageEditor);
         VariableRowStringEditor stringEditor = new VariableRowStringEditor(this);
@@ -319,7 +319,7 @@ public class VariableTablePanel extends JPanel
 
 
     private boolean hasBinding(VariableRow row) {
-        return (row.isInput() && row.getMapping() != null) ||
+        return (row.isInput() && row.getBinding() != null) ||
                (row.isOutput() && parent.getOutputBindings().hasBinding(row.getName()));
     }
 

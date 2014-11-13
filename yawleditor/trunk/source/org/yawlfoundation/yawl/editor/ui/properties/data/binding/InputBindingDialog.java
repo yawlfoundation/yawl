@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 
+import org.yawlfoundation.yawl.editor.ui.properties.data.DataUtils;
 import org.yawlfoundation.yawl.editor.ui.properties.data.MultiInstanceHandler;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.editor.ui.properties.data.validation.BindingTypeValidator;
@@ -63,7 +64,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         }
         else if (action.equals("OK")) {
             VariableRow row = getCurrentRow();
-            row.setMapping(formatQuery(getEditorText(), false));
+            row.setBinding(formatQuery(getEditorText(), false));
             if (row.isMultiInstance()) {
                 getMultiInstanceHandler().setSplitQuery(
                         formatQuery(getMIEditorText(), false));
@@ -104,7 +105,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         String source = getBindingSource(row);
         if (source == null) source = row.getName(); // if no source, guess on name match
         _generatePanel.setSelectedItem(source);
-        setEditorText(row.getMapping());
+        setEditorText(row.getBinding());
     }
 
 
@@ -116,7 +117,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     }
 
     private String getBindingSource(VariableRow row) {
-        String binding = row.getMapping();
+        String binding = row.getBinding();
         if (binding == null) {
             return getMatchingNetVarName(row);
         }
@@ -129,8 +130,8 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
 
         String source = null;
         VariableRow netVarRow = getNetVariableRow(defBinding.getVariableName());
-        if (netVarRow != null && netVarRow.getElementID().equals(
-                defBinding.getContainerName())) {
+        if (netVarRow != null && netVarRow.getDecompositionID().equals(
+                defBinding.getDecompositionID())) {
             source = netVarRow.getName();
         }
         return source != null ? source : getFirstNetVarWithDataType(row.getDataType());
@@ -143,9 +144,9 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
 
     private void handleTaskVarSelection() {
         String binding = getEditorText();
-        if (isValidBinding(binding) && ! binding.equals(getCurrentRow().getMapping())) {
+        if (isValidBinding(binding) && ! binding.equals(getCurrentRow().getBinding())) {
             saveToUndo();
-            getCurrentRow().setMapping(formatQuery(getEditorText(), false));
+            getCurrentRow().setBinding(formatQuery(getEditorText(), false));
         }
         VariableRow row = getSelectedTaskVariableRow();
         BindingTypeValidator validator = getTypeValidator();
@@ -154,7 +155,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         }
         setCurrentRow(row);
         setTargetVariableName(row.getName());
-        setEditorText(row.getMapping());
+        setEditorText(row.getBinding());
     }
 
 
@@ -162,7 +163,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         Map<String, String> undoMap = getUndoMap();
         VariableRow currentRow = getCurrentRow();
         if (! undoMap.containsKey(currentRow.getName())) {
-            undoMap.put(currentRow.getName(), currentRow.getMapping());
+            undoMap.put(currentRow.getName(), currentRow.getBinding());
         }
     }
 
@@ -171,7 +172,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
         Map<String, String> undoMap = getUndoMap();
         for (String varName : undoMap.keySet()) {
             VariableRow row = getTaskVariableRow(varName);
-            row.setMapping(formatQuery(undoMap.get(varName), false));
+            row.setBinding(formatQuery(undoMap.get(varName), false));
         }
         undoMap.clear();
     }
@@ -212,7 +213,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     private void generateBindingFromNetVar(String selectedNetVarName) {
         VariableRow row = getNetVariableRow(selectedNetVarName);
         if (row != null) {
-            setEditorText(createBinding(row));
+            setEditorText(DataUtils.createBinding(row));
         }
     }
 
@@ -229,7 +230,7 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
     private void resetBinding() {
         VariableRow row = getSelectedTaskVariableRow();
         if (row != null) {
-            setEditorText(row.getStartingMapping());
+            setEditorText(row.getStartingBinding());
         }
     }
 

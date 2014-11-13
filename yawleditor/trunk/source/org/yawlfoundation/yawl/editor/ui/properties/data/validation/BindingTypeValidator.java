@@ -239,7 +239,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
             throws SaxonApiException {
         boolean wrapped = ! (query.startsWith("/") || query.startsWith("bool"));
         if (wrapped) {
-            if (! (query.isEmpty() || query.startsWith("{") || query.startsWith("<"))) {
+            if (! (query.isEmpty() || query.contains("{") || query.startsWith("<"))) {
                 query = "{" + query + "}";
             }
             query = StringUtil.wrap(query,"foo_bar");
@@ -256,7 +256,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
      */
     private void setTaskDecompositionID(List<VariableRow> varList) {
         if (! (varList == null || varList.isEmpty())) {
-            _taskDecompositionID = varList.get(0).getElementID();
+            _taskDecompositionID = varList.get(0).getDecompositionID();
         }
     }
 

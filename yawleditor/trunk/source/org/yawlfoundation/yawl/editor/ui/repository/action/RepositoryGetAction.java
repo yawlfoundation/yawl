@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
@@ -139,7 +140,11 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
                 unknownTypes.addAll(getUnknownDataTypes(decomposition));
             }
             for (YNet net : nets) {
-                getHandler().addNet(net);
+                String id = net.getID();
+                String idAdded = getHandler().addNet(net);
+                if (! idAdded.equals(id)) {
+                    getDataHandler().updateDecompositionReferences(id, idAdded);
+                }
                 NetGraph graph = new NetGraph(net);
                 SpecificationModel.getNets().add(graph.getNetModel());
                 YAWLEditor.getNetsPane().openNet(graph);
@@ -161,6 +166,11 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     private YControlFlowHandler getHandler() {
         return SpecificationModel.getHandler().getControlFlowHandler();
+    }
+
+
+    private YDataHandler getDataHandler() {
+        return SpecificationModel.getHandler().getDataHandler();
     }
 
 

@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
 import org.yawlfoundation.yawl.editor.ui.properties.data.DataUtils;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -180,6 +181,17 @@ public class OutputBindings {
         }
         return target;
     }
+
+
+    public String getEmbeddedTarget(String taskVarName) {
+        String xpath = '/' + _task.getDecompositionPrototype().getID() + '/' + taskVarName;
+        String target = getEmbeddedTarget(_netVarBindings, xpath);
+        if (target == null) {
+            target = getEmbeddedTarget(_task.getDataMappingsForTaskCompletion(), taskVarName);
+        }
+        return target;
+    }
+
 
     public String getBindingFromSource(String taskVarName) {
         String netVarName = getTarget(taskVarName);
@@ -345,17 +357,33 @@ public class OutputBindings {
                 return bindings.get(outputQuery);
             }
         }
+
+        // try for a single mapping back to a different net-var name
+        return getSingleEmbeddedTarget(bindings, taskVarName);
+    }
+
+
+    // binding contains a single xpath, and it references the task
+    private String getSingleEmbeddedTarget(Map<String, String> bindings, String taskVarName) {
+        String xpath = '/' + _task.getDecompositionPrototype().getID() + '/' + taskVarName;
+        for (String outputQuery : bindings.keySet()) {
+            if (outputQuery.contains(xpath)) {
+                if (StringUtil.unwrap(outputQuery).contains("<")) continue;
+                int nextCharPos = outputQuery.indexOf(xpath) + xpath.length();
+                char next = outputQuery.charAt(nextCharPos);
+                if (next == '/' || next == '}' || next == '<') {
+                    return bindings.get(outputQuery);
+                }
+            }
+        }
         return null;
     }
 
 
     // returns the target net var if there is a task var XPath embedded within the
     // output binding for the target net var
-    public String getEmbeddedTarget(String taskVarName) {
-        String decompKey = '/' + _task.getDecompositionPrototype().getID() + '/';
-        Map<String, String> bindings = _task.getDataMappingsForTaskCompletion();
+    private String getEmbeddedTarget(Map<String, String> bindings, String xpath) {
         for (String outputQuery : bindings.keySet()) {
-            String xpath = decompKey + taskVarName;
             if (outputQuery.contains(xpath)) {
                 int nextCharPos = outputQuery.indexOf(xpath) + xpath.length();
                 char next = outputQuery.charAt(nextCharPos);

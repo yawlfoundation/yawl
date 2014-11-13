@@ -76,7 +76,7 @@ public class DataUpdater {
                     handleValueChange(row, host);
                 }
 
-                if (isTaskTable(table) && row.isMappingChange()) {
+                if (isTaskTable(table) && row.isBindingChange()) {
                     handleMappingChange(row);         // only task tables have mappings
                 }
                 if (isTaskTable(table) && row.isAttributeChange()) {
@@ -162,7 +162,7 @@ public class DataUpdater {
     // only input mappings handled here - outputs done via output bindings
     private void handleMappingChange(VariableRow row) throws YDataHandlerException {
         if (row.isOutput()) return;
-        String mapping = row.getFullMapping();
+        String mapping = row.getFullBinding();
         if (mapping == null) return;
         String variableName = row.getName();
         _dataHandler.setVariableMapping(_netID, _task.getID(), variableName,
@@ -216,7 +216,7 @@ public class DataUpdater {
             if (! row.isOutput()) {
                 String mapping = DataUtils.unwrapBinding(
                         _task.getDataBindingForInputParam(row.getName()));
-                row.initMapping(mapping);
+                row.initBinding(mapping);
             }
         }
         _table.repaint();
