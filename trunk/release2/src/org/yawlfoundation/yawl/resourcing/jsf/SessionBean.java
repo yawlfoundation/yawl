@@ -30,7 +30,10 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
-import org.yawlfoundation.yawl.resourcing.*;
+import org.yawlfoundation.yawl.resourcing.QueueSet;
+import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.ResourceMap;
+import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.calendar.*;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.jsf.comparator.CalendarRowComparator;
@@ -700,13 +703,14 @@ public class SessionBean extends AbstractSessionBean {
     /*
      * if there's a current session, goto the last active page
      */
-    public void redirectIfActiveSession() {
+    public boolean redirectIfActiveSession() {
         if ((getUserid() != null) && _rm.isActiveSession(getExternalSessionID())) {
 
             // halt the rendering of the current page
             FacesContext.getCurrentInstance().responseComplete();
             try {
                 dispatchToActivePage();
+                return true;
             }
             catch (Exception e) {
 
@@ -715,6 +719,7 @@ public class SessionBean extends AbstractSessionBean {
                 gotoPage("Login.jsp");
             }
         }
+        return false;
     }
 
 

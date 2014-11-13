@@ -178,9 +178,10 @@ public class Login extends AbstractPageBean {
 
 
     public void prerender() {
-        _sb.redirectIfActiveSession();
-        _sb.setActivePage(ApplicationBean.PageRef.Login);
-        renderMessagePanel();
+        if (! _sb.redirectIfActiveSession()) {
+            _sb.setActivePage(ApplicationBean.PageRef.Login);
+            renderMessagePanel();
+        }
     }
 
 
