@@ -35,7 +35,7 @@ public class VariableRow implements Comparable<VariableRow> {
     private Values startValues;
     private Values endValues;
 
-    private String elementID;            // the net of task ID of the variable's owner
+    private String decompositionID;     // the decomposition ID of the variable's owner
     private boolean hasValidName;
     private boolean hasValidValue;
     private boolean multiInstance;
@@ -52,12 +52,12 @@ public class VariableRow implements Comparable<VariableRow> {
         initialiseValidity();
     }
 
-    public VariableRow(YVariable variable, String elementID) {
-        this(variable, false, elementID);
+    public VariableRow(YVariable variable, String decompositionID) {
+        this(variable, false, decompositionID);
     }
 
-    public VariableRow(YVariable variable, boolean isInputOutput, String elementID) {
-        initialise(variable, isInputOutput, elementID);
+    public VariableRow(YVariable variable, boolean isInputOutput, String decompositionID) {
+        initialise(variable, isInputOutput, decompositionID);
     }
 
 
@@ -172,32 +172,32 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    public String getMapping() { return endValues.inputMapping; }
+    public String getBinding() { return endValues.inputBinding; }
 
-    public String getStartingMapping() { return startValues.inputMapping; }
+    public String getStartingBinding() { return startValues.inputBinding; }
 
-    public String getFullMapping() {
-        return isMultiInstance() || isExternalGateway(getMapping()) ? getMapping() :
-                DataUtils.wrapBinding(getName(), getMapping());
+    public String getFullBinding() {
+        return isMultiInstance() || isExternalGateway(getBinding()) ? getBinding() :
+                DataUtils.wrapBinding(getName(), getBinding());
     }
 
 
-    public void setMapping(String mapping) { endValues.inputMapping = mapping; }
+    public void setBinding(String binding) { endValues.inputBinding = binding; }
 
 
-    public void initMapping(String mapping) {
-        startValues.inputMapping = mapping;
-        endValues.inputMapping = mapping;
+    public void initBinding(String binding) {
+        startValues.inputBinding = binding;
+        endValues.inputBinding = binding;
     }
 
-    public boolean isMappingChange() {
-        return ! startValues.equals(startValues.inputMapping, endValues.inputMapping);
+    public boolean isBindingChange() {
+        return ! startValues.equals(startValues.inputBinding, endValues.inputBinding);
     }
 
 
-    public void setElementID(String name) { elementID = name; }
+    public void setDecompositionID(String name) { decompositionID = name; }
 
-    public String getElementID() { return elementID; }
+    public String getDecompositionID() { return decompositionID; }
 
 
     public int getIndex() { return endValues.index; }
@@ -228,7 +228,8 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    private void initialise(YVariable variable, boolean isInputOutput, String netElement) {
+    private void initialise(YVariable variable, boolean isInputOutput,
+                            String decompositionID) {
         startValues = new Values();
         startValues.name = variable.getName();
         startValues.dataType = variable.getDataTypeName();
@@ -254,7 +255,7 @@ public class VariableRow implements Comparable<VariableRow> {
         }
 
         endValues = startValues.copy();
-        setElementID(netElement);
+        setDecompositionID(decompositionID);
         initialiseValidity();
     }
 
@@ -277,8 +278,8 @@ public class VariableRow implements Comparable<VariableRow> {
     }
 
 
-    private boolean isExternalGateway(String mapping) {
-        return ExternalDBGatewayFactory.isExternalDBMappingExpression(mapping);
+    private boolean isExternalGateway(String binding) {
+        return ExternalDBGatewayFactory.isExternalDBMappingExpression(binding);
     }
 
 
@@ -288,8 +289,8 @@ public class VariableRow implements Comparable<VariableRow> {
         int scope;
         int index;
         String value;
-        String inputMapping;
-        String outputMapping;
+        String inputBinding;
+        String outputBinding;
         YAttributeMap attributes;
         YLogPredicate logPredicate;
 
@@ -300,8 +301,8 @@ public class VariableRow implements Comparable<VariableRow> {
             copy.scope = scope;
             copy.index = index;
             copy.value = value;
-            copy.inputMapping = inputMapping;
-            copy.outputMapping = outputMapping;
+            copy.inputBinding = inputBinding;
+            copy.outputBinding = outputBinding;
             copy.attributes = new YAttributeMap(attributes);
             copy.logPredicate = cloneLogPredicate();
             return copy;
@@ -312,8 +313,8 @@ public class VariableRow implements Comparable<VariableRow> {
             Values other = (Values) o;
             return scope == other.scope && equals(name, other.name) &&
                     equals(dataType, other.dataType) && equals(value, other.value) &&
-                    equals(inputMapping, other.inputMapping) &&
-                    equals(outputMapping, other.outputMapping) &&
+                    equals(inputBinding, other.inputBinding) &&
+                    equals(outputBinding, other.outputBinding) &&
                     attributes.equals(other.attributes) &&
                     logPredicateEquals(other);
         }

@@ -19,9 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 
 import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
@@ -101,8 +99,8 @@ public class VariableRowTransferHandler extends TransferHandler {
         VariableRow newVariableRow = new VariableRow(YDataHandler.INPUT_OUTPUT);
         newVariableRow.setName(data.getName());
         newVariableRow.setDataType(data.getDataType());
-        newVariableRow.setElementID(_table.getNetElementID());
-        createMapping(data, newVariableRow);
+        newVariableRow.setDecompositionID(_table.getDecompositionID());
+        createBinding(data, newVariableRow);
         _table.insertRow(row, newVariableRow);
 
         Rectangle rect = _table.getCellRect(row, 0, false);
@@ -157,33 +155,12 @@ public class VariableRowTransferHandler extends TransferHandler {
     }
 
 
-    private void createMapping(VariableRow netRow, VariableRow taskRow) {
+    private void createBinding(VariableRow netRow, VariableRow taskRow) {
         if (taskRow.isInput() || taskRow.isInputOutput()) {
-            taskRow.setMapping(createMapping(netRow));
+            taskRow.setBinding(DataUtils.createBinding(netRow));
         }
         if (taskRow.isOutput() || taskRow.isInputOutput()) {
-            _outputBindings.setBinding(netRow.getName(), createMapping(taskRow));
-        }
-    }
-
-
-    private String createMapping(VariableRow row) {
-        StringBuilder s = new StringBuilder("/");
-        s.append(row.getElementID())
-         .append("/")
-         .append(row.getName())
-         .append("/")
-         .append(getXQuerySuffix(row.getDataType()));
-        return s.toString();
-    }
-
-    private String getXQuerySuffix(String dataType) {
-        try {
-            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                             dataType);
-        }
-        catch (YDataHandlerException ydhe) {
-            return "";
+            _outputBindings.setBinding(netRow.getName(), DataUtils.createBinding(taskRow));
         }
     }
 

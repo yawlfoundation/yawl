@@ -91,9 +91,9 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
 
 
     private boolean hasBinding(VariableRow row) {
-        return (row.isInput() && row.getMapping() != null) ||
+        return (row.isInput() && row.getBinding() != null) ||
                (row.isOutput() && _outputBindings.hasBinding(row.getName())) ||
-               (row.isInputOutput() && row.getMapping() != null &&
+               (row.isInputOutput() && row.getBinding() != null &&
                        _outputBindings.hasBinding(row.getName()));
     }
 

@@ -30,7 +30,7 @@ public class VariableTable extends JSingleSelectTable {
 
     private boolean orderChanged;
     private TableType tableType;
-    private String netElementID; // the id of the net or task the variables belong to
+    private String decompositionID; // the id of the decomposition the variables belong to
 
     public VariableTable(TableType type) {
         super();
@@ -50,9 +50,9 @@ public class VariableTable extends JSingleSelectTable {
 
     public TableType getTableType() { return tableType; }
 
-    public String getNetElementID() { return netElementID; }
+    public String getDecompositionID() { return decompositionID; }
 
-    public void setNetElementID(String name) { netElementID = name; }
+    public void setDecompositionID(String name) { decompositionID = name; }
 
 
     public void setVariables(List<VariableRow> variables) {
@@ -87,7 +87,7 @@ public class VariableTable extends JSingleSelectTable {
         selectRow(row);
         editCellAt(row, 1);
         requestFocusInWindow();
-        getTableModel().getVariableAtRow(row).setElementID(netElementID);
+        getTableModel().getVariableAtRow(row).setDecompositionID(decompositionID);
         orderChanged = true;
     }
 

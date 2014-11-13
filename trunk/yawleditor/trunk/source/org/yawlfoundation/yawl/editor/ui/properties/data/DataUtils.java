@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
@@ -28,8 +30,9 @@ public class DataUtils {
 
     // removes curly braces and xml tags from start and end of binding
     public static String unwrapBinding(String binding) {
-        return binding != null ? binding.replaceAll(
-                "^(\\{*<\\w+>\\{*)|(\\}*</\\w*>\\}*)$", "") : null;
+        String unwrapped = removeSurroundingBraces(binding);
+        unwrapped = StringUtil.unwrap(unwrapped);
+        return removeSurroundingBraces(unwrapped);
     }
 
 
@@ -46,9 +49,45 @@ public class DataUtils {
     }
 
 
+    public static String createBinding(String decompositionID, String varName,
+                                       String dataType) {
+        StringBuilder s = new StringBuilder("/");
+        s.append(decompositionID)
+         .append("/")
+         .append(varName)
+         .append("/")
+         .append(getXQuerySuffix(dataType));
+        return s.toString();
+    }
+
+
+    public static String createBinding(VariableRow row) {
+        return createBinding(row.getDecompositionID(), row.getName(), row.getDataType());
+    }
+
+
+    private static String getXQuerySuffix(String dataType) {
+        try {
+            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
+                             dataType);
+        }
+        catch (YDataHandlerException ydhe) {
+            return "";
+        }
+    }
+
+
     private static boolean needsBrackets(String binding) {
         String s = binding.trim();
         return ! (s.startsWith("<") || s.startsWith("{"));
+    }
+
+
+    private static String removeSurroundingBraces(String binding) {
+        if (binding == null) return null;
+        String s = binding.trim();
+        return (s.startsWith("{") && s.endsWith("}")) ?
+                s.substring(1, s.length() - 1) : s;
     }
 
 }

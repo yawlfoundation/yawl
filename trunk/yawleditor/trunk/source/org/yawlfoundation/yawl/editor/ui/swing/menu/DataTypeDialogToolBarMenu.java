@@ -97,7 +97,7 @@ public class DataTypeDialogToolBarMenu extends YToolBar {
         if (reformat) {
             editor.setText(XMLUtilities.formatXML(editor.getText(), true, false));
         }
-        editor.setCaretPosition(caretPos);
+        editor.setCaretPosition(Math.min(caretPos, editor.getText().length()));
     }
 
 

@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLTask;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindings;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.elements.YCompositeTask;
 import org.yawlfoundation.yawl.elements.YDecomposition;
@@ -163,21 +162,19 @@ public class DataVariableDialog extends JDialog
         String oldName = row.getName();
         if (oldName.isEmpty() || oldName.equals(newName)) return;
 
-        String id = row.getElementID();
+        String id = row.getDecompositionID();
         if (id.equals(net.getID())) {                 // net var name change
             for (VariableRow taskRow : getTaskTable().getVariables()) {
-                if (taskRow.getMapping().contains(id + "/" + oldName + "/")) {
-                    taskRow.setMapping(createMapping(
+                if (taskRow.getBinding().contains(id + "/" + oldName + "/")) {
+                    taskRow.setBinding(DataUtils.createBinding(
                             id, newName, taskRow.getDataType()));
                 }
             }
             outputBindings.renameNetVarTarget(oldName, newName);
         }
         else if (row.isOutput() || row.isInputOutput()) { // task output var name change
-            String oldBinding = createMapping(row.getElementID(),
-                    oldName, row.getDataType());
-            String newBinding = createMapping(row.getElementID(),
-                    newName, row.getDataType());
+            String oldBinding = DataUtils.createBinding(id, oldName, row.getDataType());
+            String newBinding = DataUtils.createBinding(id, newName, row.getDataType());
             outputBindings.replaceBinding(oldName, oldBinding, newBinding);
             outputBindings.renameExternalTarget(oldName, newName);
 
@@ -196,14 +193,15 @@ public class DataVariableDialog extends JDialog
     protected boolean createBinding(VariableRow row, int usage) {
         if (hasMatchingNetVar(row)) {
             if ((usage == YDataHandler.INPUT || usage == YDataHandler.INPUT_OUTPUT)
-                    && row.getMapping() == null) {
-                row.setMapping(createMapping(net.getID(), row.getName(),
-                       row.getDataType()));
+                    && row.getBinding() == null) {
+                row.setBinding(DataUtils.createBinding(net.getID(), row.getName(),
+                        row.getDataType()));
             }
             if ((usage == YDataHandler.OUTPUT || usage == YDataHandler.INPUT_OUTPUT)
                     && outputBindings.getBinding(row.getName()) == null) {
                 outputBindings.setBinding(row.getName(),
-                        createMapping(task.getID(), row.getName(), row.getDataType()));
+                        DataUtils.createBinding(task.getDecompositionPrototype().getID(),
+                                row.getName(), row.getDataType()));
             }
             return true;
         }
@@ -224,28 +222,6 @@ public class DataVariableDialog extends JDialog
             }
         }
         return null;
-    }
-
-
-    private String createMapping(String decompositionID, String varName, String dataType) {
-        StringBuilder s = new StringBuilder("/");
-        s.append(decompositionID)
-         .append("/")
-         .append(varName)
-         .append("/")
-         .append(getXQuerySuffix(dataType));
-        return s.toString();
-    }
-
-
-    private String getXQuerySuffix(String dataType) {
-        try {
-            return SpecificationModel.getHandler().getDataHandler().getXQuerySuffix(
-                             dataType);
-        }
-        catch (YDataHandlerException ydhe) {
-            return "";
-        }
     }
 
 
@@ -324,8 +300,10 @@ public class DataVariableDialog extends JDialog
 
 
     private VariableTablePanel createTablePanel(TableType tableType) {
-        String name = tableType == TableType.Net ? net.getID() : task.getID();
-        return new VariableTablePanel(createTableRows(tableType), tableType, name, this);
+        String decompositionID = tableType == TableType.Net ? net.getID() :
+                task.getDecompositionPrototype().getID();
+        return new VariableTablePanel(
+                createTableRows(tableType), tableType, decompositionID, this);
     }
 
 
@@ -423,12 +401,12 @@ public class DataVariableDialog extends JDialog
                 String miParam = _miHandler.getFormalInputParam();
                 if (miParam != null && row.getName().equals(miParam)) {
                     row.setMultiInstance(true);
-                    row.initMapping(mapping);
+                    row.initBinding(mapping);
                     return;                           // init'ed and done
                 }
             }
         }
-        row.initMapping(DataUtils.unwrapBinding(mapping));
+        row.initBinding(DataUtils.unwrapBinding(mapping));
     }
 
 

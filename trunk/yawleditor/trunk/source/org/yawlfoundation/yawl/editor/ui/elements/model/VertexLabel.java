@@ -61,7 +61,8 @@ public class VertexLabel extends DefaultGraphCell {
     }
 
     public void refreshLabelView() {
-        setUserObject("<html><body style=\"width:" + vertex.getBounds().getWidth() * 3 + "\" align=\"center\">" + label + "</body></html>");
+        setUserObject("<html><body style=\"width:" + vertex.getBounds().getWidth() * 3 +
+                "\" align=\"center\">" + label + "</body></html>");
     }
 
 

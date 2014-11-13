@@ -24,7 +24,7 @@ package org.yawlfoundation.yawl.editor.ui.properties.data.binding;
  */
 public class DefaultBinding {
 
-    private String _containerName;
+    private String _decompositionID;
     private String _variableName;
     private String _suffix;
     private String _dataType;
@@ -39,17 +39,19 @@ public class DefaultBinding {
     }
 
 
-    public DefaultBinding(String containerName, String variableName, String suffix,
+    public DefaultBinding(String decompositionID, String variableName, String suffix,
                           String dataType) {
-        _containerName = containerName;
+        _decompositionID = decompositionID;
         _variableName = variableName;
         _suffix = suffix;
         _dataType = dataType;
     }
 
-    public String getContainerName() { return _containerName; }
+    public String getDecompositionID() { return _decompositionID; }
 
-    public void setContainerName(String containerName) { _containerName = containerName; }
+    public void setDecompositionID(String decompositionID) {
+        _decompositionID = decompositionID;
+    }
 
 
     public String getVariableName() { return _variableName; }
@@ -89,7 +91,7 @@ public class DefaultBinding {
 
         StringBuilder sb = new StringBuilder();
         sb.append('{').append(SEP_CHAR)
-          .append(_containerName).append(SEP_CHAR)
+          .append(_decompositionID).append(SEP_CHAR)
           .append(_variableName).append(SEP_CHAR)
           .append(_suffix)
           .append('}');
@@ -115,7 +117,7 @@ public class DefaultBinding {
             if (Character.isWhitespace(c)) continue;
             if (c == SEP_CHAR) {
                 switch (index) {
-                    case 0: _containerName = s.toString(); break;
+                    case 0: _decompositionID = s.toString(); break;
                     case 1: _variableName = s.toString(); break;
                 }
                 if (s.length() > 0) s.delete(0, s.length());

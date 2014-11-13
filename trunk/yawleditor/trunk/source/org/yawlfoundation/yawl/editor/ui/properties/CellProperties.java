@@ -294,15 +294,21 @@ public class CellProperties extends NetProperties {
     private void renameDecomposition(YDecomposition current) {
         String oldID = current.getID();
         boolean isComposite = (vertex instanceof YAWLCompositeTask);
-        String newID = getDecompositionNameInput("Rename", isComposite);
-        if (! (newID == null || oldID.equals(newID))) {
+        while (true) {
+            String newName = getDecompositionNameInput("Rename", isComposite);
+            String newID = XMLUtilities.toValidXMLName(newName);
+            if (newID == null || oldID.equals(newID)) break;
             try {
-                newID = specHandler.checkID(XMLUtilities.toValidXMLName(newID));
+                newID = flowHandler.checkDecompositionID(newID);
                 specHandler.getDataHandler().renameDecomposition(oldID, newID);
                 if (isComposite) {
                     YAWLEditor.getNetsPane().renameTab(oldID, newID);
                 }
+                if (!newID.equals(newName)) {
+                    current.setName(newName);
+                }
                 firePropertyChange("Decomposition", newID);
+                break;
             }
             catch (YDataHandlerException ydhe) {
                 current.setID(oldID);
@@ -598,7 +604,6 @@ public class CellProperties extends NetProperties {
                 JOptionPane.QUESTION_MESSAGE,
                 null, null,
                 getLabel());
-
     }
 
 
