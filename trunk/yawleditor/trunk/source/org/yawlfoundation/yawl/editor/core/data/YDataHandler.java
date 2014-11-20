@@ -1336,9 +1336,14 @@ public class YDataHandler {
                 removeTaskDecompositionVariable(decomposition, variableName, OUTPUT);
             }
         }
-        else if (newType == LOCAL) {
-            decomposition.removeInputParameter(variableName);
-            return changeOutputScope(decomposition, variableName, newType);
+        else if (newType == LOCAL && (decomposition instanceof YNet)) {
+            YParameter inputParam = decomposition.removeInputParameter(variableName);
+            if (inputParam != null) {
+                decomposition.removeOutputParameter(variableName);
+                YVariable local = newLocalVariable((YNet) decomposition, inputParam);
+                ((YNet) decomposition).setLocalVariable(local);
+            }
+            return inputParam != null;
         }
         return true;
     }
