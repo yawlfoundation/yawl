@@ -94,6 +94,8 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
     public void setMultiInstanceHandler(MultiInstanceHandler miHandler) {
         super.setMultiInstanceHandler(miHandler);
+        _targetPanel.setSelectedItem(miHandler.getOutputTarget());
+        setEditorText(miHandler.getOutputQuery());
         setMIEditorText(miHandler.getJoinQueryUnwrapped());
     }
 

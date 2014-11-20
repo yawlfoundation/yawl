@@ -79,7 +79,7 @@ public class MultiInstanceHandler {
         return target != null ? target : getTaskAttributes().getMIOutputAssignmentVar();
     }
 
-    protected String getOutputQuery() {
+    public String getOutputQuery() {
         String binding = _attributes.getMIFormalOutputQuery();
         return binding != null ? binding : getTaskAttributes().getMIFormalOutputQuery();
     }
