@@ -1652,29 +1652,25 @@ public class SessionBean extends AbstractSessionBean {
     // Methods to initialise page values
 
     public String getInitSpecID() {
-        if (chosenWIR != null) return chosenWIR.getSpecIdentifier();
-        return "" ;
+        return chosenWIR != null ? chosenWIR.getSpecIdentifier() : "";
     }
 
     public void setInitSpecID(String id) {}
 
     public String getInitCaseID() {
-        if (chosenWIR != null) return chosenWIR.getCaseID();
-        return "" ;
+        return chosenWIR != null ? chosenWIR.getCaseID() : "";
     }
 
     public void setInitCaseID(String id) {}
 
     public String getInitTaskID() {
-        if (chosenWIR != null) return chosenWIR.getTaskID();
-        return "" ;
+        return chosenWIR != null ? chosenWIR.getTaskID() : "";
     }
 
     public void setInitTaskID(String id) {}
 
     public String getInitStatus() {
-        if (chosenWIR != null) return chosenWIR.getStatus();
-        return "" ;
+        return chosenWIR != null ? chosenWIR.getStatus() : "";
     }
 
     public void setInitStatus(String id) {}
@@ -1698,8 +1694,13 @@ public class SessionBean extends AbstractSessionBean {
 
     public String getInitCreatedDate() {
         if (chosenWIR != null) {
-            return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                             .format(chosenWIR.getEnablementTimeMs());
+            try {
+                return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+                        .format(chosenWIR.getEnablementTimeMs());
+            }
+            catch (Exception ignore) {
+                // fall through to empty string below
+            }
         }
         return "" ;
     }
