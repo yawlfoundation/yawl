@@ -19,9 +19,11 @@
 package org.yawlfoundation.yawl.editor.ui.properties.dialog;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 
 /**
  * Author: Michael Adams
@@ -31,6 +33,7 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
 
     private JTextArea _textArea;
     private String _text;
+    private KeyListener _consumer;
 
     public TextAreaDialog(Window parent, String text) {
         super(parent);
@@ -45,15 +48,16 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
 
 
     protected JPanel getContent() {
-        JPanel content = new JPanel();
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBorder(new EmptyBorder(7,7,0,7));
         _textArea = new JTextArea(5, 20);
         _textArea.setLineWrap(true);
         _textArea.setWrapStyleWord(true);
         _textArea.setText(_text);
         JScrollPane scrollPane = new JScrollPane(_textArea);
         scrollPane.setPreferredSize(new Dimension(400, 200));
-        content.add(scrollPane);
-        content.add(getButtonBar(this));
+        content.add(scrollPane, BorderLayout.CENTER);
+        content.add(getButtonBar(this), BorderLayout.SOUTH);
         return content;
     }
 
@@ -70,6 +74,32 @@ public class TextAreaDialog extends PropertyDialog implements ActionListener {
 
     public void setText(String text) {
         _text = text;
+    }
+
+
+    public void setEditable(boolean editable) {
+        if (editable) {
+            _textArea.removeKeyListener(_consumer);
+        }
+        else {
+            _consumer = new KeyAdapter() {
+                public void keyTyped(KeyEvent e) {
+                    e.consume();  // ignore event
+                }
+            };
+            _textArea.addKeyListener(_consumer);
+        }
+    }
+
+
+    public void setSelection(int start, int end) {
+        _textArea.select(start, end);
+        try {
+            _textArea.getHighlighter().addHighlight(start, end,
+                    DefaultHighlighter.DefaultPainter);
+        } catch (BadLocationException e) {
+            // just don't highlight
+        }
     }
 
 

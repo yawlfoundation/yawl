@@ -18,11 +18,13 @@
 
 package org.yawlfoundation.yawl.editor.ui.properties.data;
 
+import org.yawlfoundation.yawl.editor.core.data.BindingReference;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
 import org.yawlfoundation.yawl.editor.core.data.YDataHandlerException;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.AbstractDataBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.InputBindingDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.OutputBindingDialog;
+import org.yawlfoundation.yawl.editor.ui.properties.data.binding.references.BindingReferencesDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.data.binding.view.BindingViewDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.LogPredicateDialog;
@@ -56,6 +58,7 @@ public class VariableTablePanel extends JPanel
     private JButton btnDown;
     private JButton btnAdd;
     private JButton btnDel;
+    private JButton btnBindingRefs;
     private JButton btnInMapping;
     private JButton btnOutMapping;
     private JButton btnAutoMapping;
@@ -163,6 +166,9 @@ public class VariableTablePanel extends JPanel
         else if (action.equals("Log")) {
            showLogPredicateDialog();
         }
+        else if (action.equals("BindingRefs")) {
+            showBindingReferencesDialog(table.getSelectedVariable().getName());
+        }
     }
 
     public VariableRow getVariableAtRow(int row) {
@@ -217,6 +223,9 @@ public class VariableTablePanel extends JPanel
             btnLog = toolbar.addButton("log", "Log", " Log Entries ");
             btnMIVar = toolbar.addButton("miVar", "MarkMI", " Mark as MI ");
         }
+        else {
+            btnBindingRefs = toolbar.addButton("bindingref", "BindingRefs", " Find References ");
+        }
         status = new StatusPanel(parent);
         toolbar.add(status);
         return toolbar;
@@ -270,6 +279,21 @@ public class VariableTablePanel extends JPanel
     }
 
 
+    private void showBindingReferencesDialog(String netVarName) {
+        try {
+            java.util.List<BindingReference> references =
+                    getDataHandler().getBindingReferences(parent.getNet(), netVarName);
+            new BindingReferencesDialog(parent, references, netVarName).setVisible(true);
+        }
+        catch (YDataHandlerException ydhe) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + ydhe.getMessage(),
+                    "Get Binding References Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
     private void fixSelectorColumn(JTable table) {
         TableColumn column = table.getColumnModel().getColumn(0);
         column.setPreferredWidth(15);
@@ -295,6 +319,9 @@ public class VariableTablePanel extends JPanel
             btnAutoMapping.setEnabled(enable && shouldEnableAutoBindingButton());
             btnQuickView.setEnabled(enable && hasRowSelected);
             btnLog.setEnabled(enable && hasRowSelected);
+        }
+        else {
+            btnBindingRefs.setEnabled(enable && hasRowSelected);
         }
     }
 
@@ -326,12 +353,16 @@ public class VariableTablePanel extends JPanel
 
     private boolean isValidMIType(String dataType) {
         try {
-            YDataHandler handler = SpecificationModel.getHandler().getDataHandler();
-            return handler.getMultiInstanceItemNameAndType(dataType) != null;
+            return getDataHandler().getMultiInstanceItemNameAndType(dataType) != null;
         }
         catch (YDataHandlerException ydhe) {
             return false;
         }
+    }
+
+
+    private YDataHandler getDataHandler() {
+        return SpecificationModel.getHandler().getDataHandler();
     }
 
 
