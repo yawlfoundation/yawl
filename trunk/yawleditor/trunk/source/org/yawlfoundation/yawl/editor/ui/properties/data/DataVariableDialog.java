@@ -106,6 +106,9 @@ public class DataVariableDialog extends JDialog
     }
 
 
+    public YNet getNet() { return net; }
+
+
     protected void enableButtonsIfValid() {
         boolean allRowsValid = !isInserting && allRowsValid();
         btnApply.setEnabled(allRowsValid && dirty);

@@ -1680,6 +1680,34 @@ public class YDataHandler {
     }
 
 
+    /**
+     * Gets the specification wide set of binding references for all input and output
+     * bindings to/from the net variable with the name provided
+     * @param netVarName the net variable name to search bindings for
+     * @return the list of matching binding references
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<BindingReference> getBindingReferences(String netVarName)
+            throws YDataHandlerException {
+        checkSpecificationExists();
+        return new BindingReferenceFinder().getBindingReferences(_specification, netVarName);
+    }
+
+
+    /**
+     * Gets the set of binding references for all input and output
+     * bindings to/from the net variable with the name provided for a net
+     * @param net the net to search
+     * @param netVarName the net variable name to search bindings for
+     * @return the list of matching binding references
+     * @throws YDataHandlerException if no specification is currently loaded
+     */
+    public List<BindingReference> getBindingReferences(YNet net, String netVarName)
+            throws YDataHandlerException {
+        checkSpecificationExists();
+        return new BindingReferenceFinder().getBindingReferences(net, netVarName);
+    }
+
 
     private DataUtil getUtils() throws YDataHandlerException {
         checkSpecificationExists();
