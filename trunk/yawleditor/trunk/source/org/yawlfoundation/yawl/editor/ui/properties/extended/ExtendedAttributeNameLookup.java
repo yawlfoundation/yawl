@@ -64,6 +64,7 @@ public class ExtendedAttributeNameLookup {
         _attributeToPropertyMap.put("image-below-align", "imageBelowAlign");
         _attributeToPropertyMap.put("line-above", "lineAbove");
         _attributeToPropertyMap.put("line-below", "lineBelow");
+        _attributeToPropertyMap.put("max-field-width", "maxFieldWidth");
         _attributeToPropertyMap.put("text-above", "textAbove");
         _attributeToPropertyMap.put("text-below", "textBelow");
         _attributeToPropertyMap.put("textarea", "textArea");
