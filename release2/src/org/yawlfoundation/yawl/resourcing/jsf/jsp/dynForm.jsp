@@ -36,6 +36,8 @@
                              rel="shortcut icon"
                             type="image/x-icon" url="/resources/favicon.ico"/>
                     
+                    <ui:script binding="#{SessionBean.script}" id="script1"
+                               url="/resources/script.js"/>
                 </ui:head>
                 <ui:body binding="#{dynForm.body1}" id="body1"
                          focus="#{DynFormFactory.focus}"
@@ -92,6 +94,9 @@
 
                         </center>
                     </ui:form>
+                    <ui:script>
+                        limitWidthToWindow();
+                    </ui:script>
                 </ui:body>
             </ui:html>
         </ui:page>

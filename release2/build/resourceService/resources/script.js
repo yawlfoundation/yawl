@@ -1,12 +1,10 @@
-
-
 /*
  *  A set of javascript functions for use by worklist JSF pages
  *
  *  @author Michael Adams
  *  Created: 25/01/2008
- *  Last Date: 25/01/2008
- *  For: YAWL 2.0
+ *  Last Date: 24/11/2014
+ *  For: YAWL 2.0 - 3.0
  */
 /***********************************************************************************/
 
@@ -83,4 +81,23 @@ function editVisualiserWorkItem(itemID) {
     document.getElementById('form1:btnView').click() ;
 }
 
+
+// called from dyn form to limit max width of form to current browser window size
+function limitWidthToWindow() {
+    var mainPanel = document.getElementById('form1:compPanel');
+    var windowWidth = window.innerWidth || document.documentElement.clientWidth
+            || document.body.clientWidth;
+    var formWidth = parseInt(mainPanel.style.width);
+    if (windowWidth < formWidth) {
+        var inputs = mainPanel.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+             if (inputs[i].type == 'text') {
+                 var curWidth = parseInt(inputs[i].style.width);
+                 inputs[i].style.width = (curWidth - (formWidth - windowWidth)) + 'px';
+             }
+        }
+        mainPanel.style.width = (windowWidth - 10) + 'px';
+        document.getElementById('form1:pnlContainer').style.width = windowWidth + 'px';
+    }
+}
 
