@@ -46,8 +46,18 @@ public class DeleteOrphanDecompositionAction extends YAWLOpenSpecificationAction
 
 
     public void actionPerformed(ActionEvent event) {
+        Vector<String> orphans = getOrphanedDecompositionNames();
+        if (orphans.isEmpty()) {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                    "This specification has no orphaned decompositions.\n" +
+                    "Tip: orphaned decompositions are automatically\n" +
+                    "removed whenever a specification is saved to file.",
+                    "Delete Orphaned Decompositions", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         DeleteOrphanDecompositionDialog dialog = new DeleteOrphanDecompositionDialog();
-        dialog.setItems(getOrphanedDecompositionNames());
+        dialog.setItems(orphans);
         dialog.setLocationRelativeTo(YAWLEditor.getInstance());
         dialog.setVisible(true);
 

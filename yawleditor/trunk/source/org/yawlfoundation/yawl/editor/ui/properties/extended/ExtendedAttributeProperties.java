@@ -124,6 +124,11 @@ public class ExtendedAttributeProperties extends YPropertiesBean {
     public void setHideBanner(boolean hideBanner) { set("hideBanner", hideBanner); }
 
 
+    public Integer getMaxFieldWidth() { return getInt("max-field-width"); }
+
+    public void setMaxFieldWidth(Integer width) { set("max-field-width", width); }
+
+
     public Color getPageBackgroundColour() {
         return getColour("page-background-color");
     }

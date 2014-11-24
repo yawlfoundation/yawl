@@ -67,6 +67,8 @@ public class ExtendedAttributesBeanInfo extends YBeanInfo {
                 "Set the font for the heading on the dynamically generated form");
         addProperty("hideBanner", CATEGORY, "Hide Banner",
                 "Hide the YAWL banner at the top of the page when dynamic forms are displayed");
+        addProperty("maxFieldWidth", CATEGORY, "Max Field Width",
+                "Set the maximum width for input fields (in pixels)");
         addProperty("pageBackgroundColour", CATEGORY, "Page Background Colour",
                 "Set the background colour of the page behind the dynamically generated form");
         addProperty("pageBackgroundImage", CATEGORY, "Page Background Image",
