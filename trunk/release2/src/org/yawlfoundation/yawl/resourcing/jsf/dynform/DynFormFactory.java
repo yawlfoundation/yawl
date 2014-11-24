@@ -456,20 +456,24 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
     private void setBaseWidths(DynFormComponentBuilder builder) {
 
-        // set the base width of all input fields
-        FIELD_WIDTH = builder.hasOnlyCheckboxes() ? CHECKBOX_FIELD_WIDTH :
-                Math.max(FIELD_WIDTH, builder.getMaxFieldWidth());
-
         // find the left offset to position fields by getting the composite width of
         // longest label + offset of label start from panel side + the default gap
         // between the end of the label and its field
         X_FIELD_OFFSET = builder.getMaxLabelWidth() + X_LABEL_OFFSET + DEFAULT_LABEL_FIELD_GAP;
 
+        // width of the Cancel/Save/Complete button panel
+        int buttonBlockWidth = getButtonBlockWidth();
+
+        // set the base width of all input fields
+        FIELD_WIDTH = builder.hasOnlyCheckboxes() ? CHECKBOX_FIELD_WIDTH :
+                Math.max(buttonBlockWidth - X_FIELD_OFFSET, getMaxFieldWidth(builder));
+
+
         // set the width of the innermost panel content (not including panel insets from
         // edges) to the greatest of the widest image, the button block and
         // (the field left offset + the field width)
         PANEL_BASE_WIDTH = Math.max(builder.getMaxImageWidth(),
-                Math.max(getButtonBlockWidth(), X_FIELD_OFFSET + FIELD_WIDTH));
+                Math.max(buttonBlockWidth, X_FIELD_OFFSET + FIELD_WIDTH));
     }
 
 
@@ -514,6 +518,14 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
             return ((SubPanel) parent).getWidth();
         } else return PANEL_BASE_WIDTH;
     }
+
+
+    private int getMaxFieldWidth(DynFormComponentBuilder builder) {
+        int udWidth = getAttributes().getMaxFieldWidth();
+        int buildWidth = builder.getMaxFieldWidth();
+        return udWidth > -1 ? Math.min(udWidth, buildWidth) : buildWidth;
+    }
+
 
     private void setStyle(UIComponent component, String style) {
         if ((component instanceof Label))

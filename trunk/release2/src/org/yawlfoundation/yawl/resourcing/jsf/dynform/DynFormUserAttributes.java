@@ -263,6 +263,8 @@ public class DynFormUserAttributes {
         return getValue("text-below");
     }
 
+    public int getMaxFieldWidth() { return getIntegerValue("max-field-width"); }
+
 
     private boolean hasFontAttributes(boolean header) {
         String head = header ? "header-" : "";
