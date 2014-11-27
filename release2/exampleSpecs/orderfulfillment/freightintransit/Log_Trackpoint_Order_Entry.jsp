@@ -181,7 +181,7 @@ if(request.getParameter("Cancel") != null){
 
 	LogTrackpointOrderEntryType ltoet = new LogTrackpointOrderEntryType();
 	ltoet.setTrackpointNotice(tnt);
-	ltoet.setReport(request.getParameter("report"));
+	ltoet.setReport("no report");
 
 	ObjectFactory factory = new org.yawlfoundation.orderfulfilment.log_trackpoint_order_entry.ObjectFactory();
 

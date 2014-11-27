@@ -27,7 +27,7 @@ function validateForm(formName){
     var isInError = false;
     for (var x =0; x < elements.length; x++) {
         var element = elements[x]; 
-		if (element.type == 'text') {
+		if (element.type == 'text' && ! element.readOnly) {
 			var pattern = element.getAttribute("pattern");
 			
 			if (pattern == 'textValidation') {
