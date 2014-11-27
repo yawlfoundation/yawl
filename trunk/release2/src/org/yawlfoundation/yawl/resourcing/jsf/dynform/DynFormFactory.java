@@ -521,7 +521,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
 
     private int getMaxFieldWidth(DynFormComponentBuilder builder) {
-        int udWidth = getAttributes().getMaxFieldWidth();
+        int udWidth = getAttributes() != null ? getAttributes().getMaxFieldWidth() : -1;
         int buildWidth = builder.getMaxFieldWidth();
         return udWidth > -1 ? Math.min(udWidth, buildWidth) : buildWidth;
     }
