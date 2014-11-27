@@ -147,10 +147,7 @@ public class OutputBindingDialog extends AbstractDataBindingDialog {
 
 
     private void setTypeValidator() {
-        if (! getCurrentRow().isMultiInstance()) {
-            setTypeValidator(new BindingTypeValidator(getTaskVarList(),
-                   getTargetDataType()));
-        }
+        setTypeValidator(new BindingTypeValidator(getTaskVarList(), getTargetDataType()));
     }
 
 

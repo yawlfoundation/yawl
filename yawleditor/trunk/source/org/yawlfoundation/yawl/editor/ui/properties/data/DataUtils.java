@@ -86,8 +86,13 @@ public class DataUtils {
     private static String removeSurroundingBraces(String binding) {
         if (binding == null) return null;
         String s = binding.trim();
-        return (s.startsWith("{") && s.endsWith("}")) ?
-                s.substring(1, s.length() - 1) : s;
+        if (s.startsWith("{") && s.endsWith("}")) {
+            String unBraced = s.substring(1, s.length() - 1);
+            if (! (unBraced.contains("{") || unBraced.contains("}"))) {
+                return unBraced;
+            }
+        }
+        return s;
     }
 
 }
