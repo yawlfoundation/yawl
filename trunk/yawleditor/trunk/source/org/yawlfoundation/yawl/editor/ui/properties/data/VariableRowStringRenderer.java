@@ -94,7 +94,8 @@ public class VariableRowStringRenderer extends DefaultCellRenderer {
         return (row.isInput() && row.getBinding() != null) ||
                (row.isOutput() && _outputBindings.hasBinding(row.getName())) ||
                (row.isInputOutput() && row.getBinding() != null &&
-                       _outputBindings.hasBinding(row.getName()));
+                       _outputBindings.hasBinding(row.getName()) ||
+                       _outputBindings.getEmbeddedTarget(row.getName()) != null);
     }
 
 

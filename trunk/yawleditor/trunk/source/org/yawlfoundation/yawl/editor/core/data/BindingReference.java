@@ -45,21 +45,26 @@ public class BindingReference {
 
     public YNet getNet() { return _net; }
 
-    public String getNetID() { return _net.getID(); }
+    public String getNetID() { return _net != null ? _net.getID() : null; }
 
     public YTask getTask() { return _task; }
 
-    public String getTaskID() { return _task.getID(); }
+    public String getTaskID() { return _task != null ? _task.getID() : null; }
 
     public YDecomposition getDecomposition() {
-        return _task.getDecompositionPrototype();
+        return _task != null ? _task.getDecompositionPrototype() : null;
     }
 
-    public String getDecompositionID() { return getDecomposition().getID(); }
+    public String getDecompositionID() {
+        YDecomposition decomposition = getDecomposition();
+        return decomposition != null ? getDecomposition().getID() : null;
+    }
 
     public YVariable getVariable() { return _variable; }
 
-    public String getVariableName() { return _variable.getName(); }
+    public String getVariableName() {
+        return _variable != null ? _variable.getName() : null;
+    }
 
     public String getBinding() { return _binding; }
 

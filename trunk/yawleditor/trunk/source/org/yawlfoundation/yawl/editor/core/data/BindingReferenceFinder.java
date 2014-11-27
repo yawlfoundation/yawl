@@ -40,6 +40,9 @@ public class BindingReferenceFinder {
 
     public List<BindingReference> getBindingReferences(YNet net, String netVarName) {
         List<BindingReference> referenceList = new ArrayList<BindingReference>();
+        if (net.equals(net.getSpecification().getRootNet())) {
+            addRootNetInputParameters(referenceList, net, netVarName);
+        }
         for (YTask task : net.getNetTasks()) {
             getInputReferences(referenceList, net, task, netVarName);
             getOutputReferences(referenceList, net, task, netVarName);
@@ -86,6 +89,21 @@ public class BindingReferenceFinder {
         StringBuilder key = new StringBuilder();
         key.append('/').append(rootID).append('/').append(varName).append('/');
         return binding.contains(key.toString());
+    }
+
+
+    private void addRootNetInputParameters(List<BindingReference> referenceList,
+                                           YNet net, String netVarName) {
+        if (net.equals(net.getSpecification().getRootNet())) {
+            for (String varName : net.getInputParameters().keySet()) {
+                if (varName.equals(netVarName)) {
+                    referenceList.add(new BindingReference(net, null,
+                            net.getInputParameters().get(varName),
+                            "Value supplied on case start"));
+                    break;
+                }
+            }
+        }
     }
 
 }

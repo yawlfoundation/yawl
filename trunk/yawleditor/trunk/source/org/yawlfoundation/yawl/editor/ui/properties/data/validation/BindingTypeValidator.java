@@ -22,7 +22,7 @@ import java.util.*;
  * then a data document filled with sample data that is correct for each element,
  * including restrictions and enumerations. The binding is first evaluated to sample
  * values where necessary by transforming XPath/XQuery expressions to literal values,
- * the compares the evaluated binding to the relevant data type.
+ * then compares the evaluated binding to its corresponding data type.
  *
  * @author Michael Adams
  * @date 1/11/2013
@@ -35,6 +35,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
     private String _taskDecompositionID;
     private Document _dataDocument;
     private boolean _initialised;
+    private boolean _multiInstance;
 
 
     /**
@@ -85,6 +86,14 @@ public class BindingTypeValidator extends TypeValueBuilder {
 
 
     /**
+     * Called from InputBindingDialog to set a flag for MI input variables so that
+     * type evaluations on input bindings can target the child element instead of the
+     * parent element (as defined in the expression)
+     */
+    public void setMultiInstance() { _multiInstance = true; }
+
+
+    /**
      * Validates that the binding matches the data type of the target variable
      * @param binding the binding to validate
      * @return a list of error messages, or an empty list if the binding is valid with
@@ -94,16 +103,16 @@ public class BindingTypeValidator extends TypeValueBuilder {
         if (shouldValidate(binding)) {
             try {
                 String query = evaluateQuery(maskDecompositionID(binding), _dataDocument);
-                if (query.isEmpty()) {
-                    return Arrays.asList("Invalid XPath expression (perhaps spelling?)");
-                }
-                else {
+                if (isValidQuery(query)) {
                     List<String> errors = getDataHandler().validate(_dataTypeName, query);
                     if (! errors.isEmpty()) {
                         errors.add(0, "Invalid value for target data type '" +
                                                         _dataTypeName + "'");
                         return errors;
                     }
+                }
+                else {
+                    return Arrays.asList("Invalid expression (perhaps spelling?)");
                 }
             }
             catch (Exception e) {
@@ -237,17 +246,18 @@ public class BindingTypeValidator extends TypeValueBuilder {
      */
     private String evaluateQuery(String query, Document dataDocument)
             throws SaxonApiException {
-        boolean wrapped = ! (query.startsWith("/") || query.startsWith("bool"));
+        boolean wrapped = query.startsWith("<");
         if (wrapped) {
-            if (! (query.isEmpty() || query.contains("{") || query.startsWith("<"))) {
-                query = "{" + query + "}";
-            }
             query = StringUtil.wrap(query,"foo_bar");
         }
         String evaluated = SaxonUtil.evaluateQuery(query, dataDocument);
+
+        // for an MI input var, the child type is being targeted, so we need to
+        // return the evaluated content of the child element
+        if (_multiInstance) evaluated = StringUtil.unwrap(StringUtil.unwrap(evaluated));
+
         return wrapped ? StringUtil.unwrap(evaluated) : evaluated;
     }
-
 
     /**
      * Sets the decompositionID from a list of variable rows, for task variable
@@ -273,6 +283,17 @@ public class BindingTypeValidator extends TypeValueBuilder {
                     "/" + _rootName + "/").trim();
         }
         return binding.trim();
+    }
+
+
+    /**
+     * An evaluated query is valid if it is not the empty string, or if it is
+     * targeting a string type
+     * @param query the query to check
+     * @return true if as above
+     */
+    private boolean isValidQuery(String query) {
+        return ! query.isEmpty() || _dataTypeName.equals("string");
     }
 
 }

@@ -127,15 +127,18 @@ public class ProblemReportingEditorPane extends JPanel
         if (! (problemList == null || problemList.isEmpty())) {
 
             // remove the dummy element name from error message
-            String topMessage = problemList.get(0).replace(" 'foo_bar'", "");
-            if (problemList.size() > 1) {
-                topMessage += " [Click for more...]";
-                problemList.remove(0);
-                detailedErrors = problemList;
+            String topMessage = problemList.get(0);
+            if (topMessage != null) {
+                topMessage = topMessage.replace(" 'foo_bar'", "");
+                if (problemList.size() > 1) {
+                    topMessage += " [Click for more...]";
+                    problemList.remove(0);
+                    detailedErrors = problemList;
+                }
+                errorBar.setText(topMessage);
+                errorBar.setCaretPosition(0);
+                setProblemPanelForeground(true);
             }
-            errorBar.setText(topMessage);
-            errorBar.setCaretPosition(0);
-            setProblemPanelForeground(true);
         }
         else {
             detailedErrors = null;

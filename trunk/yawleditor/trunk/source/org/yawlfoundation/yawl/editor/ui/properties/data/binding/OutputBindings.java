@@ -187,7 +187,7 @@ public class OutputBindings {
         String xpath = '/' + _task.getDecompositionPrototype().getID() + '/' + taskVarName;
         String target = getEmbeddedTarget(_netVarBindings, xpath);
         if (target == null) {
-            target = getEmbeddedTarget(_task.getDataMappingsForTaskCompletion(), taskVarName);
+            target = getEmbeddedTarget(_task.getDataMappingsForTaskCompletion(), xpath);
         }
         return target;
     }

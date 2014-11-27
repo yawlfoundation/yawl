@@ -110,10 +110,10 @@ public class InputBindingDialog extends AbstractDataBindingDialog {
 
 
     private void setTypeValidator(VariableRow row) {
-        if (! row.isMultiInstance()) {
-            setTypeValidator(new BindingTypeValidator(getNetVarList(),
-                    row.getDataType()));
-        }
+        BindingTypeValidator validator = new BindingTypeValidator(getNetVarList(),
+                            row.getDataType());
+        if (row.isMultiInstance()) validator.setMultiInstance();
+        setTypeValidator(validator);
     }
 
     private String getBindingSource(VariableRow row) {
