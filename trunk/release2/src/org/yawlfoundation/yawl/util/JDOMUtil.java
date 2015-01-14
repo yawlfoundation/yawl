@@ -29,6 +29,11 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
+import org.w3c.dom.ls.LSInput;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.yawlfoundation.yawl.schema.ResourceResolver;
 import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.File;
