@@ -783,7 +783,7 @@
             </manifest>
         </jar>
         <checksum file="${output.dir}/YAWL_Standalone_${app.version}.jar"/>
-        <delete dir="${enumeratedClasses}"/>
+        <delete dir="${enumeratedClasses}" deleteonexit="true"/>
     </target>
 
     <!--
@@ -822,7 +822,7 @@
             <fileset dir="${output.dir}/engine"/>
         </jar>
         <checksum file="${output.dir}/YAWL_SourceAndTestCode_${app.version}.zip"/>
-        <delete dir="${output.dir}/engine"/>
+        <delete dir="${output.dir}/engine" deleteonexit="true"/>
     </target>
 
     <!--
@@ -1103,7 +1103,7 @@
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j.properties hibernate.properties"/>
 
-        <delete dir="${temp.dir}/${engine.app.name}"/>
+        <delete dir="${temp.dir}/${engine.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
@@ -1182,7 +1182,7 @@
             <param name="target" value="${wsInvoker.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${wsInvoker.app.name}"/>
+        <delete dir="${temp.dir}/${wsInvoker.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_WS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
@@ -1260,7 +1260,7 @@
             <param name="target" value="${smsInvoker.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${smsInvoker.app.name}"/>
+        <delete dir="${temp.dir}/${smsInvoker.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_SMS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
@@ -1388,7 +1388,7 @@
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j.properties hibernate.properties"/>
 
-        <delete dir="${temp.dir}/${worklet.app.name}"/>
+        <delete dir="${temp.dir}/${worklet.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_workletService_SharedTomcat" unless="tomcat.isDedicated">
@@ -1547,7 +1547,7 @@
                              log4j.properties hibernate.properties"/>
 
         <!-- 7. Remove temp build area -->
-        <delete dir="${temp.dir}/${resource.app.name}"/>
+        <delete dir="${temp.dir}/${resource.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_resourceService_SharedTomcat" unless="tomcat.isDedicated">
@@ -1573,7 +1573,7 @@
         </antcall>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${off.app.name}"/>
-        <delete dir="${temp.dir}/${off.app.name}"/>
+        <delete dir="${temp.dir}/${off.app.name}" deleteonexit="true"/>
     </target>
 
 
@@ -1784,7 +1784,7 @@
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j.properties hibernate.properties"/>
 
-        <delete dir="${temp.dir}/${monitor.app.name}"/>
+        <delete dir="${temp.dir}/${monitor.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_monitorService_SharedTomcat" unless="tomcat.isDedicated">
@@ -1895,7 +1895,7 @@
         <jar destfile="${output.dir}/${test.app.name}.war">
             <fileset dir="${temp.dir}/${test.app.name}"/>
         </jar>
-        <delete dir="${temp.dir}/${test.app.name}"/>
+        <delete dir="${temp.dir}/${test.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_testService_SharedTomcat" unless="tomcat.isDedicated">
@@ -1985,7 +1985,7 @@
             <param name="target" value="${cost.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${cost.app.name}"/>
+        <delete dir="${temp.dir}/${cost.app.name}" deleteonexit="true"/>
     </target>
 
 
@@ -2054,7 +2054,7 @@
             <param name="target" value="${twitter.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${twitter.app.name}"/>
+        <delete dir="${temp.dir}/${twitter.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_twitterService_SharedTomcat" unless="tomcat.isDedicated">
@@ -2118,7 +2118,7 @@
             <param name="target" value="${mail.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${mail.app.name}"/>
+        <delete dir="${temp.dir}/${mail.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_mailService_SharedTomcat" unless="tomcat.isDedicated">
@@ -2199,7 +2199,7 @@
             <param name="target" value="${scheduling.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${scheduling.app.name}"/>
+        <delete dir="${temp.dir}/${scheduling.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
@@ -2277,7 +2277,7 @@
             <param name="target" value="${digitalSignature.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${digitalSignature.app.name}"/>
+        <delete dir="${temp.dir}/${digitalSignature.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_digitalSignature_SharedTomcat" unless="tomcat.isDedicated">
@@ -2348,7 +2348,7 @@
             <param name="target" value="${mailSender.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${mailSender.app.name}"/>
+        <delete dir="${temp.dir}/${mailSender.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_mailSender_SharedTomcat" unless="tomcat.isDedicated">
@@ -2400,7 +2400,7 @@
             <param name="target" value="${docStore.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${docStore.app.name}"/>
+        <delete dir="${temp.dir}/${docStore.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
@@ -2467,7 +2467,7 @@
             <param name="target" value="${proclet.app.name}"/>
         </antcall>
 
-        <delete dir="${temp.dir}/${proclet.app.name}"/>
+        <delete dir="${temp.dir}/${proclet.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_procletService_SharedTomcat" unless="tomcat.isDedicated">
@@ -2855,7 +2855,7 @@
         <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
               style="${analyzer.dir}/jaranalyzer.xsl"/>
 
-        <delete dir="${temp.dir}/analyze"/>
+        <delete dir="${temp.dir}/analyze" deleteonexit="true"/>
     </target>
 
 
