@@ -105,7 +105,7 @@ public class YMarshal {
             // now check the specification file against its respective schema
             if (schemaValidate) {
                 SchemaHandler validator = new SchemaHandler(version.getSchemaURL());
-                if (! validator.compileAndValidate(JDOMUtil.documentToString(document))) {
+                if (! validator.compileAndValidate(specStr)) {
                     throw new YSyntaxException(
                       " The specification file failed to verify against YAWL's Schema:\n"
                             + validator.getConcatenatedMessage());
