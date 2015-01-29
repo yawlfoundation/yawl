@@ -634,6 +634,53 @@ public class YLogServer {
     }
 
 
+    public String getSpecificationCaseIDs(YSpecificationID specID) {
+        String result;
+        if (connected()) {
+            try {
+                YLogSpecification spec = getSpecification(specID);
+                if (spec != null) {
+                    result = getSpecificationCaseIDs(spec.getRowKey());
+                }
+                else result = "<failure>No records for specification '" +
+                        specID.toString() + "'.</failure>";
+            }
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
+
+        return result;
+    }
+
+
+    public String getSpecificationCaseIDs(long specKey) {
+        String result;
+        if (connected()) {
+            try {
+                YLogSpecification spec = getSpecification(specKey);
+                if (spec == null) return NO_KEY_ERROR;
+
+                XNode node = new XNode("cases");
+                node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
+                node.addAttribute("key", specKey);
+
+                for (Object o : getNetInstanceObjects(spec.getRootNetID())) {
+                    node.addChild("case", ((YLogNetInstance) o).getEngineInstanceID());
+                }
+                result = node.toString();
+            }
+            catch (YPersistenceException ype) {
+                result = GENERAL_ERROR;
+            }
+        }
+        else result = CONNECTION_ERROR;
+
+        return result;
+    }
+
+
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
         if (connected()) {
             try {

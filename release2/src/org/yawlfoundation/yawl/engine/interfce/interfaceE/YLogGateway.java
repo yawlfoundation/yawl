@@ -95,10 +95,7 @@ public class YLogGateway extends HttpServlet {
                         result = _logMgr.getNetInstancesOfSpecification(new Long(key)) ;
                     }
                     else {
-                        String identifier = req.getParameter("identifier");
-                        String version = req.getParameter("version");
-                        String uri = req.getParameter("uri");
-                        YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                        YSpecificationID specID = getSpecificationID(req);
                         result = _logMgr.getNetInstancesOfSpecification(specID) ;
                     }
                 }
@@ -107,10 +104,7 @@ public class YLogGateway extends HttpServlet {
                         result = _logMgr.getCompleteCaseLogsForSpecification(new Long(key)) ;
                     }
                     else {
-                        String identifier = req.getParameter("identifier");
-                        String version = req.getParameter("version");
-                        String uri = req.getParameter("uri");
-                        YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                        YSpecificationID specID = getSpecificationID(req);
                         result = _logMgr.getCompleteCaseLogsForSpecification(specID) ;
                     }
                 }
@@ -119,13 +113,19 @@ public class YLogGateway extends HttpServlet {
                         result = _logMgr.getSpecificationStatistics(new Long(key)) ;
                     }
                     else {
-                        String identifier = req.getParameter("identifier");
-                        String version = req.getParameter("version");
-                        String uri = req.getParameter("uri");
                         long from = strToLong(req.getParameter("from"));
                         long to = strToLong(req.getParameter("to"));
-                        YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                        YSpecificationID specID = getSpecificationID(req);
                         result = _logMgr.getSpecificationStatistics(specID, from, to) ;
+                    }
+                }
+                else if (action.equals("getSpecificationCaseIDs")) {
+                    if (key != null) {
+                        result = _logMgr.getSpecificationCaseIDs(new Long(key));
+                    }
+                    else {
+                        YSpecificationID specID = getSpecificationID(req);
+                        result = _logMgr.getSpecificationCaseIDs(specID);
                     }
                 }
                 else if (action.equals("getCaseEvents")) {
@@ -183,10 +183,7 @@ public class YLogGateway extends HttpServlet {
                     result = _logMgr.getTaskInstancesForTask(caseID, taskName);
                 }
                 else if (action.equals("getSpecificationXESLog")) {
-                    String identifier = req.getParameter("identifier");
-                    String version = req.getParameter("version");
-                    String uri = req.getParameter("uri");
-                    YSpecificationID specID = new YSpecificationID(identifier, version, uri);
+                    YSpecificationID specID = getSpecificationID(req);
                     String withDataStr = req.getParameter("withdata");
                     boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
                     result = _logMgr.getSpecificationXESLog(specID, withData);
@@ -219,6 +216,14 @@ public class YLogGateway extends HttpServlet {
         catch (Exception e) {
             return false;
         }
+    }
+
+
+    private YSpecificationID getSpecificationID(HttpServletRequest req) {
+        String identifier = req.getParameter("identifier");
+        String version = req.getParameter("version");
+        String uri = req.getParameter("uri");
+        return new YSpecificationID(identifier, version, uri);
     }
 
 

@@ -43,6 +43,14 @@
     </context-param>
 
     <context-param>
+        <param-name>EngineLogGateway</param-name>
+        <param-value>http://localhost:8080/yawl/logGateway</param-value>
+        <description>
+            The URL of the engine's log interface.
+        </description>
+    </context-param>
+
+    <context-param>
         <param-name>ResourceServiceLogGateway</param-name>
         <param-value>http://localhost:8080/resourceService/logGateway</param-value>
         <description>

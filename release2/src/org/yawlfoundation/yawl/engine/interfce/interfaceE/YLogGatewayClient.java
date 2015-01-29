@@ -207,7 +207,6 @@ public class YLogGatewayClient extends Interface_Client {
     }
 
 
-
     /**
       * Gets a set of summary statistics for executed instances of the specification
       * data passed
@@ -251,6 +250,38 @@ public class YLogGatewayClient extends Interface_Client {
     public String getSpecificationStatistics(long specKey, String handle)
             throws IOException {
         return performGet("getSpecificationStatistics", "key", specKey, handle);
+    }
+
+
+    /**
+      * Gets the set of case ids for executed instances of the specification
+      * data passed
+      * @param specID the unique identifier of the specification
+      * @param handle an active sessionhandle
+      * @return the resultant String response (log data or error message)
+      * @throws java.io.IOException if there's a problem connecting to the engine
+      */
+    public String getSpecificationCaseIDs(YSpecificationID specID, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationCaseIDs", handle);
+        params.put("identifier", specID.getIdentifier());
+        params.put("version", specID.getVersionAsString());
+        params.put("uri", specID.getUri());
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a set of case ids for executed instances of the specification
+     * key passed
+     * @param specKey the primary key identifier of the specification in its log table
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     */
+    public String getSpecificationCaseIDs(long specKey, String handle)
+            throws IOException {
+        return performGet("getSpecificationCaseIDs", "key", specKey, handle);
     }
 
 

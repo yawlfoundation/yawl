@@ -57,14 +57,14 @@ public class WorkletEvent {
     }
 
     /** getters & setters used by persistence */
-    private String get_event() { return _event; }
-    private String get_caseId() { return _caseId; }
-    private YSpecificationID get_specId() { return _specId; }
-    private String get_taskId() { return _taskId; }
-    private String get_parentCaseId() { return _parentCaseId; }
-    private int get_xType() { return _xType; }
-    private String get_stamp() { return _stamp; }
-    private long get_id() { return _id; }
+    public String get_event() { return _event; }
+    public String get_caseId() { return _caseId; }
+    public YSpecificationID get_specId() { return _specId; }
+    public String get_taskId() { return _taskId; }
+    public String get_parentCaseId() { return _parentCaseId; }
+    public int get_xType() { return _xType; }
+    public String get_stamp() { return _stamp; }
+    public long get_id() { return _id; }
 
     private void set_event(String s) { _event = s; }
     private void set_caseId(String s) { _caseId = s; }

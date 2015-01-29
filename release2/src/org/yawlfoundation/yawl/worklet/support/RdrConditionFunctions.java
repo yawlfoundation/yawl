@@ -75,10 +75,7 @@ public class RdrConditionFunctions {
      */
     public static String execute(String name, Map<String, String> args) {
         String taskInfo = args.get("this");
-        if (name.equalsIgnoreCase("cost")) {
-            return "10";
-        }
-        else if (name.equalsIgnoreCase("isNotCompleted")) {
+        if (name.equalsIgnoreCase("isNotCompleted")) {
             return isNotCompleted(taskInfo);
         }
         else if (name.equalsIgnoreCase("hasTimerExpired")) {

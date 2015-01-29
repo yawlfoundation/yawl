@@ -1,12 +1,12 @@
 package org.yawlfoundation.yawl.cost.evaluate;
 
 import org.yawlfoundation.yawl.cost.CostService;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +19,13 @@ public class Predicate {
     private Set<String> taskList;
     private Set<String> resourceList;
     private Set<String> caseList;
+    private int firstCases;
+    private int lastCases;
+    private int randomCases;
+    private long fromDate;
+    private long toDate;
+    private Set<Integer> dowList;
     private boolean wholeCase;
-    private boolean allCases;
     private boolean averageFlag;
     private boolean minFlag;
     private boolean maxFlag;
@@ -62,7 +67,6 @@ public class Predicate {
                     if (content.length() > 0) {
                         caseList = parseCaseArgs(content);
                     }
-                    if (caseList == null || caseList.isEmpty()) allCases = true;
                 }
                 else throw new CostPredicateParseException(
                         "Unrecognised argument in cost predicate: " + arg);
@@ -87,19 +91,69 @@ public class Predicate {
 
     public void setCaseList(Set<String> caseList) { this.caseList = caseList; }
 
-    public boolean hasCaseList() { return caseList != null; }
+    public boolean hasCaseFilter() { return caseList != null || hasNamedRange(); }
 
+
+    public boolean hasNamedRange() {
+        return firstCases > 0 || lastCases > 0 || randomCases > 0;
+    }
+
+    public Set<String> getNamedRange(List<String> allCaseIDs) {
+        Collections.sort(allCaseIDs, new Comparator<String>() {
+            public int compare(String s, String other) {
+                return StringUtil.strToInt(s, -1) - StringUtil.strToInt(other, -1);
+            }
+        });
+
+        Set<String> range = new HashSet<String>();
+        if (firstCases > 0) {
+            if (allCaseIDs.size() < firstCases) range.addAll(allCaseIDs);
+            else for (int i=0; i < firstCases; i++) range.add(allCaseIDs.get(i));
+        }
+        if (lastCases > 0) {
+            if (allCaseIDs.size() < lastCases) range.addAll(allCaseIDs);
+            else for (int i=allCaseIDs.size() - 1; i >= lastCases; i--)
+                range.add(allCaseIDs.get(i));
+        }
+        if (randomCases > 0) {
+            if (allCaseIDs.size() < randomCases) range.addAll(allCaseIDs);
+            else {
+                Random r = new Random();
+                for (int i=0; i < randomCases; i++) {
+                  range.add(allCaseIDs.remove(r.nextInt(allCaseIDs.size()))); // no duplicate gets
+                }
+            }
+        }
+        return range;
+    }
+
+
+    public List<ResourceEvent> applyDateFilter(List<ResourceEvent> events) {
+        if (! hasDateFilter()) return events;
+        long from = hasFromDate() ? fromDate : 0;
+        long to = hasToDate() ? toDate : Long.MAX_VALUE;
+        List<ResourceEvent> filtered = new ArrayList<ResourceEvent>();
+        for (ResourceEvent event : events) {
+            long timeStamp = event.get_timeStamp();
+            if (timeStamp >= from && timeStamp <= to && meetsDOWCriterion(timeStamp)) {
+                filtered.add(event);
+            }
+        }
+        return filtered;
+    }
 
 
     public boolean isAllTasks() { return ! hasItems(taskList); }
 
     public boolean isAllResources() { return ! hasItems(resourceList); }
 
-    public boolean isAllCases() { return allCases; }
+    public boolean isAllCases() {
+        return (caseList == null || caseList.isEmpty()) && ! hasNamedRange();
+    }
 
     public boolean isWholeCase() { return wholeCase; }
 
-    public boolean isCurrentCaseOnly() { return ! (isAllCases() || hasCaseList()); }
+    public boolean isCurrentCaseOnly() { return ! (isAllCases() || hasCaseFilter()); }
 
     public boolean isSimpleExpression() { return simpleExpression; }
 
@@ -108,6 +162,20 @@ public class Predicate {
     public boolean max() { return maxFlag; }
 
     public boolean min() { return minFlag; }
+
+    public boolean hasFromDate() { return fromDate > 0; }
+
+    public boolean hasToDate() { return toDate > 0; }
+
+    public boolean hasDOWFilter() { return dowList != null; }
+
+    public boolean hasDateFilter() {
+        return hasFromDate() || hasToDate() || hasDOWFilter();
+    }
+
+    public long getFromDate() { return fromDate; }
+
+    public long getToDate() { return toDate; }
 
 
     public double getValue() {
@@ -177,7 +245,7 @@ public class Predicate {
             else if (item.equalsIgnoreCase("min")) {
                  minFlag = true;
             }
-            else {       // plain case id
+            else if (! isBlockArg(item)) {       // plain case id
                 int caseID = StringUtil.strToInt(StringUtil.deQuote(item), -1);
                 if (caseID > 0) {
                     caseSet.add(String.valueOf(caseID));
@@ -188,7 +256,7 @@ public class Predicate {
         }
         if ((averageFlag && maxFlag) || (averageFlag && minFlag) || (minFlag && maxFlag)) {
             throw new CostPredicateParseException(
-                    "At most one of 'min', 'max' or 'average' should be included");
+                    "At most one of 'min', 'max' or 'average' may be included");
         }
         return caseSet;
     }
@@ -215,6 +283,63 @@ public class Predicate {
             throw new CostPredicateParseException(exMsg);
         }
         return caseSet;
+    }
+
+
+    private boolean isBlockArg(String item) {
+        String arg = item.trim().toLowerCase();
+        if (arg.startsWith("first ")) {
+            firstCases = parseInt(arg, 6);
+            return firstCases > -1;
+        }
+        if (arg.startsWith("last ")) {
+            lastCases = parseInt(arg, 5);
+            return lastCases > -1;
+        }
+        if (arg.startsWith("random ")) {
+            randomCases = parseInt(arg, 7);
+            return randomCases > -1;
+        }
+        if (arg.startsWith("from ")) {
+            fromDate = parseDate(arg, 5);
+            return fromDate > 0;
+        }
+        if (arg.startsWith("to ")) {
+            toDate = parseDate(arg, 3);
+            return toDate > 0;
+        }
+        if (arg.startsWith("dow ")) {
+            int dow = parseInt(arg, 4);
+            if (dow > 0 && dow < 8) {
+                if (dowList == null) dowList = new HashSet<Integer>();
+                dowList.add(dow);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private boolean meetsDOWCriterion(long time) {
+        if (! hasDOWFilter()) return true;               // no filter
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(time);
+        int timeDOW = c.get(Calendar.DAY_OF_WEEK);
+        for (int dow : dowList) {
+            if (timeDOW == dow) return true;
+        }
+        return false;
+    }
+
+
+    private int parseInt(String arg, int offset) {
+        return StringUtil.strToInt(arg.substring(offset), -1);
+    }
+
+
+    private long parseDate(String arg, int offset) {
+        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(arg, new ParsePosition(offset));
+        return date != null ? date.getTime() : 0;
     }
 
 
@@ -270,6 +395,5 @@ public class Predicate {
         }
         return false;
     }
-
 
 }

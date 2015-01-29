@@ -66,6 +66,9 @@ public class CostGateway extends HttpServlet {
             String rsLogURI = context.getInitParameter("ResourceServiceLogGateway");
             if (rsLogURI != null) _service.setResourceLogURI(rsLogURI);
 
+            String engineLogURI = context.getInitParameter("EngineLogGateway");
+            if (engineLogURI != null) _service.setEngineLogURI(engineLogURI);
+
             String rsOrgDataURI = context.getInitParameter("ResourceServiceOrgDataGateway");
             if (rsOrgDataURI != null) _service.setResourceOrgDataURI(rsOrgDataURI);
 
