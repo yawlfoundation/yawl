@@ -106,9 +106,6 @@ public class ConditionEvaluator {
         if (cond.startsWith("{") || cond.startsWith("/")) {
             result = evaluateXQuery(cond, data);
         }
-        else if (cond.startsWith("cost(")) {
-            result = new CostPredicateEvaluator().evaluate(cond, data);
-        }
         else {
             result = parseAndEvaluate(cond, data) ;            // evaluate ordinary condition
         }
@@ -218,8 +215,9 @@ public class ConditionEvaluator {
     /** @return true if expression is a registered function name in the
      *  RdrConditionFunctions class */
     private boolean isFunctionName(String s) {
-        return RdrConditionFunctions.isRegisteredFunction(s) ||
-                RdrFunctionLoader.getNames().contains(s) ;
+        return s != null && (isCostFunctionName(s) ||
+                RdrConditionFunctions.isRegisteredFunction(s) ||
+                RdrFunctionLoader.getNames().contains(s)) ;
     }
 
 
@@ -227,6 +225,18 @@ public class ConditionEvaluator {
         return s.endsWith("]") ;
     }
 
+
+    private boolean isCostExpression(String s) {
+        return s.startsWith("cost[") ||
+                s.startsWith("cheapestVariant[") ||
+                s.startsWith("dearestVariant[");
+    }
+
+    private boolean isCostFunctionName(String s) {
+        return s.startsWith("cost") ||
+                s.startsWith("cheapestVariant") ||
+                s.startsWith("dearestVariant");
+    }
 
 
     /** @return true if expression is of the leftop/operator/rightop kind */
@@ -546,7 +556,7 @@ public class ConditionEvaluator {
         v.copyInto(result);
 
         // make sure tokens are ordered correctly
-        if (ValidateTokenization(result))
+        if (validateTokenization(result))
             return result ;
         else throw new RdrConditionException(getMessage(2)) ;
 
@@ -599,13 +609,12 @@ public class ConditionEvaluator {
             tmp++ ;                                       // add one more for the ']'
         }
 
-        if (tmp > -1) return s.substring(start, tmp);
+        if (tmp > 0) return s.substring(start, tmp);
         throw new RdrConditionException("Invalid expression: unbalanced parentheses");
     }
 
 
     private int findCloserIndex(String s, int from, char left, char right) {
-        char[] array = s.toCharArray();
         int counter = 0;
         for (int i = from; i < s.length(); i++) {
             char c = s.charAt(i);
@@ -626,7 +635,7 @@ public class ConditionEvaluator {
 
 
     /** @return true if alltokens are in a valid order (term op term ...) */
-    private boolean ValidateTokenization(String[] a) {
+    private boolean validateTokenization(String[] a) {
 
         //a.length must be odd
         if ((a.length % 2) == 0) return false ;
@@ -661,7 +670,7 @@ public class ConditionEvaluator {
 
         while (parIndex > -1) {
 
-            // special case if () are part of function call
+            // special case if () are part of a cost expression or function call
             if (isFunctionArgumentDelimiter(s, parIndex)) {
                 s = maskArgumentDelimiters(s, parIndex);
             }
@@ -753,11 +762,18 @@ public class ConditionEvaluator {
 
     /**
      * Evaluates a function embedded in a condition
-     * PRE: the function is a member of the ceFunctcions class
+     * PRE: the function is a member of the ceFunctions class
      * @param func the function to call
      * @return the result of the function
      */
     private String evalFunction(String func, Element data) throws RdrConditionException {
+
+        // special case: cost expression
+        if (isCostExpression(func)) {
+            String exp = func.replace('[', '(').replace(']', ')');
+            return new CostPredicateEvaluator().evaluate(exp, data);
+        }
+
         String funcName, varName, varValue, result ;
         Map<String, String> args = new HashMap<String, String>() ;
 
@@ -921,6 +937,7 @@ public class ConditionEvaluator {
 
         try {
             //		    t.p(t.evalExpression("27", "!=", "26")) ;
+            s = "cost(case()) > 5";
             boolean b = t.evaluate(s, e) ;
             t.p("expression: " + s + ", returns: " + b) ;
         }

@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.cost.evaluate.PredicateEvaluator;
 import org.yawlfoundation.yawl.cost.log.Annotator;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
@@ -56,10 +57,12 @@ public class CostService implements InterfaceX_Service {
     private Map<YSpecificationID, CostModelCache> _models;
     private HibernateEngine _dataEngine;
     private PredicateEvaluator _evaluator;
+    private YLogGatewayClient _engineLogClient;
     private InterfaceX_ServiceSideClient _ixClient;    // interface client to engine
     private ResourceLogGatewayClient _rsLogClient;
     private ResourceGatewayClient _rsOrgDataClient;
     private String _rsHandle = null;
+    private String _engineHandle = null;
     private String _engineLogonName;
     private String _engineLogonPassword;
     private static CostService INSTANCE;
@@ -90,6 +93,10 @@ public class CostService implements InterfaceX_Service {
 
     public void setInterfaceXBackend(String uri) {
         _ixClient = new InterfaceX_ServiceSideClient(uri);
+    }
+
+    public void setEngineLogURI(String uri) {
+        _engineLogClient = new YLogGatewayClient(uri);
     }
 
     public void setResourceLogURI(String uri) {
@@ -347,6 +354,16 @@ public class CostService implements InterfaceX_Service {
     }
 
 
+    private String getEngineHandle() throws IOException {
+        if (_engineHandle == null ||
+                ! _engineLogClient.checkConnection(_engineHandle).equalsIgnoreCase("true")) {
+            _engineHandle = _engineLogClient.connect(_engineLogonName, _engineLogonPassword);
+            if (_engineHandle.startsWith("<fail")) throw new IOException();
+        }
+        return _engineHandle;
+    }
+
+
     private String failMsg(String msg) {
         return "<failure>" + msg + "</failure>";
     }
@@ -410,18 +427,42 @@ public class CostService implements InterfaceX_Service {
             appendEvents(eventList,
                     _rsLogClient.getSpecificationEvents(specID, getRSHandle()));
         }
-        else if (predicate.hasCaseList()) {
-            for (String rangeID : predicate.getCaseList()) {
+        else if (predicate.hasCaseFilter()) {
+            Set<String> caseSet = predicate.getCaseList();
+            if (predicate.hasNamedRange()) {
+                if (caseSet == null) caseSet = new HashSet<String>();
+                caseSet.addAll(predicate.getNamedRange(getCaseIDs(specID)));
+            }
+            for (String rangeID : caseSet) {
                 appendEvents(eventList, _rsLogClient.getCaseEvents(rangeID, getRSHandle()));
             }
         }
-        else {
+        else {    // single case
             appendEvents(eventList, _rsLogClient.getCaseEvents(caseID, getRSHandle()));
         }
+        if (predicate.hasDateFilter()) {
+            eventList = predicate.applyDateFilter(eventList);
+        }
         if (eventList.isEmpty()) {
-            throw new IllegalArgumentException("No events found for case " + caseID);
+            throw new IllegalArgumentException("No events found for predicate");
         }
         return eventList;
+    }
+
+
+    private List<String> getCaseIDs(YSpecificationID specID) throws IOException {
+        List<String> caseIDs = new ArrayList<String>();
+        String idString = _engineLogClient.getSpecificationCaseIDs(specID, getEngineHandle());
+        if (_engineLogClient.successful(idString)) {
+            XNode caseNode = new XNodeParser().parse(idString);
+            if (caseNode != null) {
+                for (XNode child : caseNode.getChildren()) {
+                    caseIDs.add(child.getText());
+                }
+            }
+            return caseIDs;
+        }
+        throw new IOException("Error getting cases ids for specification");
     }
 
 
