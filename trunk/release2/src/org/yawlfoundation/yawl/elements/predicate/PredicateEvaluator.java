@@ -9,8 +9,10 @@ import org.yawlfoundation.yawl.elements.state.YIdentifier;
  */
 public interface PredicateEvaluator {
 
-    public boolean accept(String predicate);
+    boolean accept(String predicate);
 
-    public boolean evaluate(YDecomposition decomposition, String predicate, YIdentifier token);
+    String substituteDefaults(String predicate);
+
+    String replace(YDecomposition decomposition, String predicate, YIdentifier token);
 
 }

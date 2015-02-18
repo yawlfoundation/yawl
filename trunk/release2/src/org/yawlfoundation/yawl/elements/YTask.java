@@ -875,17 +875,12 @@ public abstract class YTask extends YExternalNetElement {
             return evaluateTimerPredicate(query, tokenToSend);
         }
 
-        // next check for plugin evaluators
-        PredicateEvaluator evaluator = PredicateEvaluatorCache.getEvaluator(query);
-        if (evaluator != null) {
-            try {
-                return evaluator.evaluate(getDecompositionPrototype(), query, tokenToSend);
-            } catch (Exception e) {
-                return false;
-            }
-        }
+        // next check for plugin evaluator expressions and have the evaluators replace
+        // them with simple values
+        query = PredicateEvaluatorCache.process(getDecompositionPrototype(), query,
+                tokenToSend);
 
-        // so, a standard query - check if it evaluates to true
+        // now we have a standard query - check if it evaluates to true
         String xquery = "boolean(" + query + ")";
         try {
             logger.debug("Evaluating XQuery: " + xquery);
