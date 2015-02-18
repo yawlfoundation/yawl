@@ -6,6 +6,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorCache;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormField;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.util.DataSchemaBuilder;
@@ -36,6 +37,8 @@ public class BindingTypeValidator extends TypeValueBuilder {
     private Document _dataDocument;
     private boolean _initialised;
     private boolean _multiInstance;
+    private ExpressionMatcher _externalMatcher;
+    private ExpressionMatcher _timerMatcher;
 
 
     /**
@@ -102,7 +105,8 @@ public class BindingTypeValidator extends TypeValueBuilder {
     public List<String> validate(String binding) {
         if (shouldValidate(binding)) {
             try {
-                String query = evaluateQuery(maskDecompositionID(binding), _dataDocument);
+                String prepared = maskDecompositionID(substituteExternals(binding));
+                String query = evaluateQuery(prepared, _dataDocument);
                 if (isValidQuery(query)) {
                     List<String> errors = getDataHandler().validate(_dataTypeName, query);
                     if (! errors.isEmpty()) {
@@ -133,6 +137,10 @@ public class BindingTypeValidator extends TypeValueBuilder {
      *                 YVariable required for dynamic forms)
      */
     private void init(final Map<String, FormParameter> paramMap) {
+        _externalMatcher = new ExpressionMatcher("#external:\\w+\\s*:\\w+\\s*");
+        _timerMatcher = new ExpressionMatcher("timer\\(\\w+\\)\\s*!?=\\s*" +
+                               "'(dormant|active|closed|expired)'");
+
         new SwingWorker<Void, Void>() {
 
             @Override
@@ -154,8 +162,7 @@ public class BindingTypeValidator extends TypeValueBuilder {
      * @return true if this binding targets a net or task level variable
      */
     private boolean shouldValidate(String binding) {
-        return (! (binding == null || isBuiltinPredicate(binding) ||
-                _fieldMap == null || _dataTypeName == null));
+        return (! (binding == null || _fieldMap == null || _dataTypeName == null));
 
     }
 
@@ -226,14 +233,13 @@ public class BindingTypeValidator extends TypeValueBuilder {
 
 
     // return true if binding is an external data gateway, timer or cost predicate
-    private boolean isBuiltinPredicate(String binding) {
-        if (binding.startsWith("boolean(")) {
-            binding = binding.replace("boolean(", "").replaceFirst("\\)", "");
+    private String substituteExternals(String binding) {
+        binding = _externalMatcher.replaceAll(binding, "");
+        binding = _timerMatcher.replaceAll(binding, "false");
+        if (PredicateEvaluatorCache.accept(binding)) {
+            binding = PredicateEvaluatorCache.substitute(binding);
         }
-        return binding.matches("^\\s*#external:\\w+\\s*:\\w+\\s*") ||
-               binding.matches("^\\s*timer\\(\\w+\\)\\s*!?=\\s*" +
-                       "'(dormant|active|closed|expired)'\\s*$") ||
-               binding.matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$");
+        return binding;
     }
 
 
