@@ -80,8 +80,8 @@ public class ExternalDBGatewayFactory {
 
 
     /**
-     * Constructs and returns a list of instantiated dynAttribute objects, one for each
-     * of the different dynAttribute classes available in this package
+     * Constructs and returns a list of instantiated objects, one for each
+     * of the different classes available in this package
      *
      * @return a List of instantiated allocator objects
      */
