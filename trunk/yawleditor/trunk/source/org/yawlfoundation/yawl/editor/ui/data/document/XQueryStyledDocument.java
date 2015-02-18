@@ -21,6 +21,8 @@ package org.yawlfoundation.yawl.editor.ui.data.document;
 import net.sf.saxon.s9api.SaxonApiException;
 import org.yawlfoundation.yawl.editor.ui.data.Validity;
 import org.yawlfoundation.yawl.editor.ui.data.editorpane.ValidityEditorPane;
+import org.yawlfoundation.yawl.editor.ui.properties.data.validation.ExpressionMatcher;
+import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorCache;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 
 import java.util.ArrayList;
@@ -32,12 +34,18 @@ public class XQueryStyledDocument extends AbstractXMLStyledDocument {
     private String preEditorText;
     private String postEditorText;
     private List<String> errorList;
+    private ExpressionMatcher externalMatcher;
+    private ExpressionMatcher timerMatcher;
 
     public XQueryStyledDocument(ValidityEditorPane editor) {
         super(editor);
         setDocumentFilter(new IgnoreBadCharactersFilter());
         setPreAndPostEditorText("","");
         errorList = new ArrayList<String>();
+        externalMatcher = new ExpressionMatcher("#external:\\w+\\s*:\\w+\\s*");
+        timerMatcher = new ExpressionMatcher("timer\\(\\w+\\)\\s*!?=\\s*" +
+                               "'(dormant|active|closed|expired)'");
+
     }
 
     public void setPreAndPostEditorText(String preEditorText, String postEditorText) {
@@ -47,32 +55,16 @@ public class XQueryStyledDocument extends AbstractXMLStyledDocument {
 
     public void checkValidity() {
         errorList.clear();
-        String text = getEditor().getText();
         if (isValidating()) {
+            String text = getEditor().getText();
             if (text.equals("")) {
                 errorList.add("Query required");
                 setContentValidity(Validity.INVALID);
                 return;
             }
 
-            // external data gateway
-            if (text.matches("^\\s*#external:\\w+\\s*:\\w+\\s*")) {
-                setContentValidity(Validity.VALID);
-                return;
-            }
-
-            // timer expression
-            if (text.matches(
-                    "^\\s*timer\\(\\w+\\)\\s*!?=\\s*'(dormant|active|closed|expired)'\\s*$")) {
-                setContentValidity(Validity.VALID);
-                return;
-            }
-
-            // cost expression
-            if (text.matches("^\\s*cost\\((\\w*|\\s*)\\)\\s*$")) {
-                setContentValidity(Validity.VALID);
-                return;
-            }
+            // replace external predicate references with dummy values for validation
+            text = substituteExternals(text);
 
             try {
                 SaxonUtil.compileXQuery(preEditorText + text + postEditorText);
@@ -88,6 +80,15 @@ public class XQueryStyledDocument extends AbstractXMLStyledDocument {
                 setContentValidity(Validity.INVALID);
             }
         }
+    }
+
+    private String substituteExternals(String binding) {
+        binding = externalMatcher.replaceAll(binding, "");
+        binding = timerMatcher.replaceAll(binding, "false");
+        if (PredicateEvaluatorCache.accept(binding)) {
+            binding = PredicateEvaluatorCache.substitute(binding);
+        }
+        return binding;
     }
 
     public List<String> getProblemList() {
