@@ -60,11 +60,11 @@ public class ConclusionTablePanel extends JPanel implements ActionListener {
     private JButton btnGraphical;
 
 
-    public ConclusionTablePanel() {
+    public ConclusionTablePanel(JComboBox cbxType) {
         super();
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("Actions"));
-        JScrollPane scrollPane = new JScrollPane(createTable());
+        JScrollPane scrollPane = new JScrollPane(createTable(cbxType));
         scrollPane.setSize(new Dimension(600, 200));
         add(scrollPane, BorderLayout.CENTER);
         add(populateToolBar(), BorderLayout.SOUTH);
@@ -92,8 +92,8 @@ public class ConclusionTablePanel extends JPanel implements ActionListener {
     }
 
 
-    private ConclusionTable createTable() {
-        table = new ConclusionTable();
+    private ConclusionTable createTable(JComboBox cbxType) {
+        table = new ConclusionTable(cbxType);
         return table;
     }
 
