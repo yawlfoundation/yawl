@@ -247,7 +247,7 @@ public class AddRuleDialog extends JDialog
 
 
     private JPanel getConclusionPanel() {
-        _conclusionPanel = new ConclusionTablePanel();
+        _conclusionPanel = new ConclusionTablePanel(_cbxType);
         return _conclusionPanel;
     }
 

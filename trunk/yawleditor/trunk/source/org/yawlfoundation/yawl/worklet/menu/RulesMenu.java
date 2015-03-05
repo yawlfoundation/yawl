@@ -25,8 +25,6 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.VertexContainer;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuItem;
-import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
-import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.worklet.dialog.AddRuleDialog;
 
 import javax.swing.*;
@@ -88,22 +86,6 @@ public class RulesMenu extends JMenu implements FileStateListener, GraphStateLis
     // only enable if task is assigned to the worklet service
     private void setTask(YAWLVertex vertex) {
         selectedTask = (vertex instanceof AtomicTask) ? (AtomicTask) vertex : null;
-//        setEnabled(isWorkletTask());
-    }
-
-
-    private boolean isWorkletTask() {
-        if (selectedTask == null) return false;
-        YAWLServiceGateway decomposition =
-                (YAWLServiceGateway) selectedTask.getDecomposition();
-        if (decomposition != null) {
-            YAWLServiceReference service = decomposition.getYawlService();
-            if (service != null) {
-                String uri = service.getServiceID();
-                return uri != null && uri.contains("workletService/ib");
-            }
-        }
-        return false;
     }
 
 

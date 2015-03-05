@@ -54,7 +54,7 @@ public class ConclusionTableModel extends AbstractTableModel {
     private List<RdrPrimitive> _primitives;
 
 
-    private static final String[] COLUMN_LABELS = { "Action", "Target" };
+    private static final String[] COLUMN_LABELS = { "", "Action", "Target" };
 
 
     public ConclusionTableModel() {
@@ -84,15 +84,19 @@ public class ConclusionTableModel extends AbstractTableModel {
 
 
     public boolean isCellEditable(int row, int column) {
-        return true;
+        return column > 0;
     }
 
 
     public Object getValueAt(int row, int col) {
         if (row < getRowCount()) {
             switch (col) {
-                case 0: return _primitives.get(row).getAction();
-                case 1: return _primitives.get(row).getTarget();
+                case 0: return String.valueOf(row + 1);
+                case 1: return _primitives.get(row).getAction();
+                case 2: {
+                    String target = _primitives.get(row).getTarget();
+                    return target.equals("invalid") ? "" : target;
+                }
             }
         }
         return null;
@@ -100,10 +104,10 @@ public class ConclusionTableModel extends AbstractTableModel {
 
 
     public void setValueAt(Object value, int row, int col) {
-        if (row < getRowCount()) {
+        if (row < getRowCount() && col > 0) {
             switch (col) {
-                case 0: _primitives.get(row).setAction((String) value); break;
-                case 1: _primitives.get(row).setTarget((String) value); break;
+                case 1: _primitives.get(row).setAction(value.toString()); break;
+                case 2: _primitives.get(row).setTarget(value.toString()); break;
             }
             fireTableRowsUpdated(row, row);
         }

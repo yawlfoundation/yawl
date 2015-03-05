@@ -38,7 +38,6 @@ package org.yawlfoundation.yawl.worklet.dialog;
 
 import org.yawlfoundation.yawl.worklet.exception.ExletAction;
 import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
-import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,44 +47,60 @@ import java.util.Vector;
  * @author Michael Adams
  * @date 30/09/2014
  */
-public class ExletTargetCellEditor extends DefaultCellEditor {
+public class ExletTargetCellEditor extends ExletCellEditor {
 
-    private final JComboBox _combo = new JComboBox(getTargets());
+    private JTextField _txtWorklet;
 
-
-    public ExletTargetCellEditor() {
-        super(new JTextField());
-        setClickCountToStart(1);
-    }
+    public ExletTargetCellEditor() { super(); }
 
 
     public Object getCellEditorValue() {
-        return _combo.getSelectedItem();
+        return _txtWorklet != null ? _txtWorklet.getText() :
+                _combo.getSelectedItem();
     }
-
 
     public Component getTableCellEditorComponent(JTable table, Object value,
                                                  boolean isSelected, int row,
                                                  int column) {
         super.getTableCellEditorComponent(table, value, isSelected, row, column);
-        RdrPrimitive primitive = ((ConclusionTable) table).getSelectedPrimitive();
-        if (primitive.getAction().equals(ExletAction.Select.toString())) {
-            // return  list of worklets
+        if (isWorkletAction(table)) {
+            _txtWorklet = new JTextField((String) value);
+            return _txtWorklet;
         }
-
-        _combo.setSelectedItem(value);
-        return _combo;
+        else {
+            _txtWorklet = null;
+            return newComboInstance(table, value);
+        }
     }
 
 
-    private Vector<String> getTargets() {
-        Vector<String> targets = new Vector<String>();
-        for (ExletTarget target : ExletTarget.values()) {
-            if (target != ExletTarget.Invalid) {
-                targets.add(target.toString());
-            }
+    protected Vector<ExletTarget> getItemsForContext(ConclusionTable table) {
+        Vector<ExletTarget> targets = new Vector<ExletTarget>();
+        if (! isItemOnlyAction(table)) {
+            targets.add(ExletTarget.AllCases);
+            targets.add(ExletTarget.AncestorCases);
+            targets.add(ExletTarget.Case);
+        }
+        if (table.getSelectedRuleType().isItemLevelType()) {
+            targets.add(ExletTarget.Workitem);
         }
         return targets;
     }
 
+
+    private ExletAction getSelectedAction(JTable table) {
+        return ((ConclusionTable) table).getSelectedPrimitive().getExletAction();
+    }
+
+
+    private boolean isWorkletAction(JTable table) {
+        ExletAction action = getSelectedAction(table);
+        return action == ExletAction.Compensate || action == ExletAction.Select;
+    }
+
+    private boolean isItemOnlyAction(JTable table) {
+        ExletAction action = getSelectedAction(table);
+        return action == ExletAction.Fail || action == ExletAction.Complete ||
+                action == ExletAction.Restart;
+    }
 }

@@ -39,7 +39,10 @@ package org.yawlfoundation.yawl.worklet.dialog;
 import org.yawlfoundation.yawl.editor.ui.swing.JSingleSelectTable;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
+import javax.swing.*;
+import javax.swing.table.TableColumn;
 import java.util.List;
 
 /**
@@ -48,16 +51,20 @@ import java.util.List;
  */
 public class ConclusionTable extends JSingleSelectTable {
 
-    public ConclusionTable() {
+    JComboBox _cbxType;  // reference to type combo - affects cell rendering
+
+    public ConclusionTable(JComboBox cbxType) {
         super();
+        _cbxType = cbxType;
         setModel(new ConclusionTableModel());
         setRowHeight(getRowHeight() + 5);
         setCellSelectionEnabled(true);
         setRowSelectionAllowed(true);
         setColumnSelectionAllowed(true);
         setFillsViewportHeight(true);            // to allow drops on empty table
-        getColumnModel().getColumn(0).setCellEditor(new ExletActionCellEditor());
-        getColumnModel().getColumn(1).setCellEditor(new ExletTargetCellEditor());
+        getColumnModel().getColumn(1).setCellEditor(new ExletActionCellEditor());
+        getColumnModel().getColumn(2).setCellEditor(new ExletTargetCellEditor());
+        fixSelectorColumn();
     }
 
 
@@ -80,6 +87,11 @@ public class ConclusionTable extends JSingleSelectTable {
     }
 
 
+    public RuleType getSelectedRuleType() {
+        return (RuleType) _cbxType.getSelectedItem();
+    }
+
+
     public void addRow() {
         getTableModel().addRow();
         int row = getRowCount() - 1;
@@ -95,5 +107,14 @@ public class ConclusionTable extends JSingleSelectTable {
             selectRow((row < getRowCount() - 1) ? row : getRowCount() - 1);
         }
     }
+
+
+    private void fixSelectorColumn() {
+        TableColumn column = getColumnModel().getColumn(0);
+        column.setPreferredWidth(15);
+        column.setMaxWidth(15);
+        column.setResizable(false);
+    }
+
 
 }
