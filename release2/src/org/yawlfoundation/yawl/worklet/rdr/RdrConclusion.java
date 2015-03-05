@@ -96,7 +96,7 @@ public class RdrConclusion {
             return addPrimitive(action, target);
         }
         else {
-            RdrPrimitive p = new RdrPrimitive(index, action.toString(), target.toString());
+            RdrPrimitive p = new RdrPrimitive(index, action, target);
             _primitives.set(index - 1, p);
             return p;
         }

@@ -1167,9 +1167,9 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (oneToStart == null)
                 return false;      // problem: no executing children
 
-            // replace the parent in the cache with the executing child
+            // add the executing child to the cache
             oneToStart.setResourceStatus(WorkItemRecord.statusResourceStarted);
-            _workItemCache.replace(wir, oneToStart);
+            _workItemCache.add(oneToStart);
 
             p.getWorkQueues().movetoStarted(wir, oneToStart);
 
@@ -1183,6 +1183,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                 rMap.removeIgnoreList(wir);  // cleanup deallocation list for item (if any)
                 rMap.getSecondaryResources().engage(oneToStart);     // mark SR's as busy
             }
+
+            // now all queue movements are done, remove the parent from cache
+            _workItemCache.remove(wir);
 
             return true;
         } else {

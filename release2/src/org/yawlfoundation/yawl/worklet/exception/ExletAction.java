@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -62,5 +63,7 @@ public enum ExletAction {
         }
         return ExletAction.Invalid;
     }
+
+    public static Set<String> getStrings() { return _fromStringMap.keySet(); }
 
 }
