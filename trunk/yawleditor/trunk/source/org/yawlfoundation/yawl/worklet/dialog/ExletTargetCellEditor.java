@@ -36,11 +36,16 @@
 
 package org.yawlfoundation.yawl.worklet.dialog;
 
+import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.ValueField;
+import org.yawlfoundation.yawl.editor.ui.resourcing.subdialog.ListDialog;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.exception.ExletAction;
 import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
+import org.yawlfoundation.yawl.worklet.model.WorkletListModel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.Vector;
 
 /**
@@ -49,34 +54,52 @@ import java.util.Vector;
  */
 public class ExletTargetCellEditor extends ExletCellEditor {
 
-    private JTextField _txtWorklet;
+    private ValueField _fldWorklet;
+    private final JLabel _lblInvalid = new JLabel("invalid");
+    private ExletAction _currentAction;
 
     public ExletTargetCellEditor() { super(); }
 
 
     public Object getCellEditorValue() {
-        return _txtWorklet != null ? _txtWorklet.getText() :
-                _combo.getSelectedItem();
+        switch (_currentAction) {
+            case Invalid: return "invalid";
+            case Compensate:
+            case Select: return _fldWorklet.getText();
+            default: return _combo.getSelectedItem();
+        }
     }
 
     public Component getTableCellEditorComponent(JTable table, Object value,
                                                  boolean isSelected, int row,
                                                  int column) {
         super.getTableCellEditorComponent(table, value, isSelected, row, column);
-        if (isWorkletAction(table)) {
-            _txtWorklet = new JTextField((String) value);
-            return _txtWorklet;
+        _currentAction = getSelectedAction(table);
+        if (_currentAction.isInvalidAction()) {
+            return _lblInvalid;     // no editing of target without valid action first
+        }
+        if (_currentAction.isWorkletAction()) {
+            _fldWorklet = new ValueField(this, null);
+            _fldWorklet.setText((String) value);
+            return _fldWorklet;
         }
         else {
-            _txtWorklet = null;
             return newComboInstance(table, value);
         }
     }
 
 
+    public void actionPerformed(ActionEvent actionEvent) {
+        if (actionEvent.getActionCommand().equals("ShowDialog")) {
+            showListDialog();
+        }
+        fireEditingStopped();
+    }
+
+
     protected Vector<ExletTarget> getItemsForContext(ConclusionTable table) {
         Vector<ExletTarget> targets = new Vector<ExletTarget>();
-        if (! isItemOnlyAction(table)) {
+        if (! _currentAction.isItemOnlyAction()) {
             targets.add(ExletTarget.AllCases);
             targets.add(ExletTarget.AncestorCases);
             targets.add(ExletTarget.Case);
@@ -93,14 +116,14 @@ public class ExletTargetCellEditor extends ExletCellEditor {
     }
 
 
-    private boolean isWorkletAction(JTable table) {
-        ExletAction action = getSelectedAction(table);
-        return action == ExletAction.Compensate || action == ExletAction.Select;
+    private void showListDialog() {
+        ListDialog dialog = new ListDialog(null, new WorkletListModel(), "Worklets");
+        dialog.setVisible(true);
+        Vector<String> selections = new Vector<String>();
+        for (Object o : dialog.getSelections()) {
+             selections.add((String) o);
+        }
+        _fldWorklet.setText(StringUtil.join(selections, ';'));
     }
 
-    private boolean isItemOnlyAction(JTable table) {
-        ExletAction action = getSelectedAction(table);
-        return action == ExletAction.Fail || action == ExletAction.Complete ||
-                action == ExletAction.Restart;
-    }
 }
