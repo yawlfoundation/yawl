@@ -329,7 +329,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         String result = executeGet(_backEndURIStr, params);
 
         if (successful(result)) {
-            Element e = JDOMUtil.stringToElement(result);
+            Element e = JDOMUtil.stringToElement(stripOuterElement(result));
             if (e != null) {
                 return new YExternalClient(e);
             }
