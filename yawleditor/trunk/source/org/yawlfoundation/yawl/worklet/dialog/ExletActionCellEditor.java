@@ -69,7 +69,6 @@ import java.util.Vector;
  */
 public class ExletActionCellEditor extends ExletCellEditor {
 
-
     public ExletActionCellEditor() { super(); }
 
 
