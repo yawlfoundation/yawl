@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.rdr.*;
@@ -166,6 +167,9 @@ public class WorkletGateway extends YHttpServlet {
                     result = getRdrTree(req);
                 } else if (action.equalsIgnoreCase("getRdrSet")) {
                     result = getRdrSet(req);
+                } else if (action.equalsIgnoreCase("getWorkletNames")) {
+                    boolean withExtn = req.getParameter("extn").equalsIgnoreCase("true");
+                    result = getWorkletNames(withExtn);
                 }
             }
             else {
@@ -420,6 +424,15 @@ public class WorkletGateway extends YHttpServlet {
                 }
             }
         }
+    }
+
+
+    private String getWorkletNames(boolean withExtn) {
+        XNode root = new XNode("workletnames");
+        for (String name : new WorkletList().getAll(withExtn)) {
+            root.addChild("name", name);
+        }
+        return root.toString();
     }
 
 }

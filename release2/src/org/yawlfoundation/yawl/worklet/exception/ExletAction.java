@@ -66,4 +66,18 @@ public enum ExletAction {
 
     public static Set<String> getStrings() { return _fromStringMap.keySet(); }
 
+
+    public boolean isWorkletAction() {
+        return this == ExletAction.Compensate || this == ExletAction.Select;
+    }
+
+    public boolean isItemOnlyAction() {
+        return this == ExletAction.Fail || this == ExletAction.Complete ||
+                this == ExletAction.Restart;
+    }
+
+    public boolean isInvalidAction() {
+        return this == ExletAction.Invalid;
+    }
+
 }

@@ -543,4 +543,18 @@ public class WorkletGatewayClient extends Interface_Client {
         return executeGet(_wsURI, params);
     }
 
+
+    /**
+     * Gets a list of the names of all the worklet files in the repository
+     * @param withExtn true if the file extension is required
+     * @param handle a current sessionhandle to the worklet service
+     * @return an XML representation of the list of worklet file names
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getWorkletNames(boolean withExtn, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getWorkletNames", handle);
+        params.put("extn", String.valueOf(withExtn));
+        return executeGet(_wsURI, params);
+    }
+
 }
