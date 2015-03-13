@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.*;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.YAWLMenuItem;
 import org.yawlfoundation.yawl.worklet.dialog.AddRuleDialog;
+import org.yawlfoundation.yawl.worklet.settings.SettingsDialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -91,6 +92,7 @@ public class RulesMenu extends JMenu implements FileStateListener, GraphStateLis
 
     private void addMenuItems() {
         add(new YAWLMenuItem(new AddRuleAction()));
+        add(new YAWLMenuItem(new SettingsAction()));
     }
 
 
@@ -117,4 +119,24 @@ public class RulesMenu extends JMenu implements FileStateListener, GraphStateLis
         }
 
     }
+
+
+    /******************************************************************************/
+
+    class SettingsAction extends YAWLSelectedNetAction {
+
+        {
+            putValue(Action.SHORT_DESCRIPTION, "Settings");
+            putValue(Action.NAME, "Settings");
+            putValue(Action.LONG_DESCRIPTION, "Worklet Service Connection Settings");
+            putValue(Action.SMALL_ICON, getWorkletMenuIcon("settings"));
+            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            new SettingsDialog().setVisible(true);
+        }
+
+    }
+
 }

@@ -206,7 +206,10 @@ public class YSpecificationHandler {
      * Sets a description of the specification
      * @param desc the description
      */
-    public void setDescription(String desc) { getMetaData().setDescription(desc); }
+    public void setDescription(String desc) {
+        getMetaData().setDescription(desc);
+        _specification.setDocumentation(desc);          // for SpecificationData
+    }
 
     /** @return the specification's description */
     public String getDescription() { return getMetaData().getDescription(); }
