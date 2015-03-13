@@ -44,7 +44,7 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
 
     public void setTarget(String target) {
         this.target = ExletTarget.fromString(target);
-        if (this.target == ExletTarget.Invalid && isValidWorkletAction()) {
+        if (this.target == ExletTarget.Invalid && this.action.isWorkletAction()) {
             worklet = target;
         }
     }
@@ -55,10 +55,5 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
 
 
     public int compareTo(RdrPrimitive other) {return index - other.index; }
-
-
-    private boolean isValidWorkletAction() {
-        return action == ExletAction.Select || action == ExletAction.Compensate;
-    }
 
 }
