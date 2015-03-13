@@ -37,14 +37,19 @@
 package org.yawlfoundation.yawl.worklet.dialog;
 
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.MiniToolBar;
+import org.yawlfoundation.yawl.worklet.client.WorkletClient;
+import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
+import org.yawlfoundation.yawl.worklet.support.ConclusionValidator;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Michael Adams
@@ -54,17 +59,16 @@ public class ConclusionTablePanel extends JPanel implements ActionListener {
 
     private ConclusionTable table;
     private MiniToolBar toolbar;
-
-    private JButton btnAdd;
-    private JButton btnDel;
-    private JButton btnGraphical;
+    private JTextArea _txtStatus;
 
 
-    public ConclusionTablePanel(JComboBox cbxType) {
+    public ConclusionTablePanel(JComboBox cbxType, JTextArea statusArea) {
         super();
+        _txtStatus = statusArea;
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("Actions"));
-        JScrollPane scrollPane = new JScrollPane(createTable(cbxType));
+        table = new ConclusionTable(cbxType);
+        JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setSize(new Dimension(600, 200));
         add(scrollPane, BorderLayout.CENTER);
         add(populateToolBar(), BorderLayout.SOUTH);
@@ -78,6 +82,11 @@ public class ConclusionTablePanel extends JPanel implements ActionListener {
     }
 
 
+    public RdrConclusion getConclusion() {
+        return table.getConclusion();
+    }
+
+
     public void actionPerformed(ActionEvent event) {
         String action = event.getActionCommand();
         if (action.equals("Add")) {
@@ -86,25 +95,48 @@ public class ConclusionTablePanel extends JPanel implements ActionListener {
         else if (action.equals("Del")) {
             table.removeRow();
         }
-        else if (action.equals("Graphical")) {
-
+        else if (action.equals("Validate")) {
+            validateConclusion();
         }
     }
 
 
-    private ConclusionTable createTable(JComboBox cbxType) {
-        table = new ConclusionTable(cbxType);
-        return table;
+    private void validateConclusion() {
+        java.util.List<String> errors = new ConclusionValidator().validate(
+                table.getConclusion(), getWorkletList());
+        updateStatus("==== Action Set Validation ====");
+        if (errors.isEmpty()) {
+            updateStatus("OK");
+        }
+        else for (String msg : errors) {
+            updateStatus(msg);
+        }
+    }
+
+
+    private void updateStatus(String msg) {
+        String currentText = _txtStatus.getText();
+        if (! currentText.isEmpty()) currentText += '\n';
+        _txtStatus.setText(currentText + msg);
+    }
+
+
+    private java.util.List<String> getWorkletList() {
+        try {
+            return new WorkletClient().getWorkletList();
+        }
+        catch (IOException ioe) {
+            return Collections.emptyList();
+        }
     }
 
 
     private JToolBar populateToolBar() {
         toolbar = new MiniToolBar(this);
-        btnAdd = toolbar.addButton("plus", "Add", " Add ");
-        btnDel = toolbar.addButton("minus", "Del", " Remove ");
-        btnGraphical = toolbar.addButton("arrow_up", "Graphical", " Show graphical editor ");
+        toolbar.addButton("plus", "Add", " Add ");
+        toolbar.addButton("minus", "Del", " Remove ");
+        toolbar.addButton("validate", "Validate", " Validate ");
         return toolbar;
     }
-
 
 }

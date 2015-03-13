@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.dialog;
 
+import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.elements.model.AtomicTask;
 import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLAtomicTask;
@@ -31,6 +32,10 @@ import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.worklet.client.WorkletClient;
+import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
 import javax.swing.*;
@@ -43,6 +48,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Vector;
@@ -63,6 +69,7 @@ public class AddRuleDialog extends JDialog
     private JTextField _txtCondition;
     private ConclusionTablePanel _conclusionPanel;
     private DataContextTablePanel _dataContextPanel;
+    private JTextArea _txtStatus;
 
 
     public AddRuleDialog(AtomicTask task) {
@@ -73,8 +80,8 @@ public class AddRuleDialog extends JDialog
         setLocationByPlatform(true);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add(getContent(task));
-        setPreferredSize(new Dimension(800, 500));
-        setMinimumSize(new Dimension(300, 300));
+        setPreferredSize(new Dimension(800, 540));
+        setMinimumSize(new Dimension(800, 540));
         pack();
     }
 
@@ -97,21 +104,22 @@ public class AddRuleDialog extends JDialog
     public void itemStateChanged(ItemEvent event) {
         if (event.getStateChange() == ItemEvent.SELECTED) {
             Object item = event.getItem();
+
+            // if rule change
             if (item instanceof RuleType) {
                 RuleType selectedType = (RuleType) item;
                 enabledTaskCombo(selectedType);
                 if (selectedType.isCaseLevelType()) {
                     _dataContextPanel.setVariables(getDataContext(null));
                 }
-                else if (selectedType == RuleType.ItemSelection) {
-                    // only show worklet tasks in tasks combo
-                }
+                _cbxTask.setEnabled(! selectedType.isCaseLevelType());
             }
             else {    // task combo
                 _dataContextPanel.setVariables(getDataContext((AtomicTask) item));
             }
         }
     }
+
 
     // table selection
     public void valueChanged(ListSelectionEvent event) {
@@ -135,7 +143,7 @@ public class AddRuleDialog extends JDialog
 
     private JPanel getContent(AtomicTask task) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(8,8,8,8));
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
         panel.add(getEntryPanel(task), BorderLayout.CENTER);
         panel.add(getButtonBar(this), BorderLayout.SOUTH);
         return panel;
@@ -144,6 +152,7 @@ public class AddRuleDialog extends JDialog
 
     private JPanel getEntryPanel(AtomicTask task) {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.add(getStatusPanel(), BorderLayout.SOUTH);
         panel.add(getActionPanel(task), BorderLayout.WEST);
         panel.add(getDataPanel(task), BorderLayout.CENTER);
         return panel;
@@ -155,6 +164,19 @@ public class AddRuleDialog extends JDialog
         panel.add(getRulePanel(task), BorderLayout.NORTH);
         panel.add(getDescriptionPanel(), BorderLayout.SOUTH);
         panel.add(getConclusionPanel(), BorderLayout.CENTER);
+        return panel;
+    }
+
+
+    private JPanel getStatusPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new TitledBorder("Messages"));
+        _txtStatus = new JTextArea(4, 20);
+        _txtStatus.setLineWrap(true);
+        _txtStatus.setWrapStyleWord(true);
+        _txtStatus.setEditable(false);
+        _txtStatus.setBackground(new Color(246, 246, 246));
+        panel.add(new JScrollPane(_txtStatus), BorderLayout.CENTER);
         return panel;
     }
 
@@ -229,6 +251,7 @@ public class AddRuleDialog extends JDialog
             combo.setSelectedItem(task);
         }
         combo.addItemListener(this);
+        combo.setEnabled(false);                    // initially pre-case rule selected
         return combo;
     }
 
@@ -236,18 +259,17 @@ public class AddRuleDialog extends JDialog
     private JPanel getDescriptionPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new TitledBorder("Description (optional)"));
-        _txtDescription = new JTextArea(5, 20);
+        _txtDescription = new JTextArea(4, 20);
         _txtDescription.setLineWrap(true);
         _txtDescription.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(_txtDescription);
-        scrollPane.setPreferredSize(new Dimension(300, 80));
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
 
 
     private JPanel getConclusionPanel() {
-        _conclusionPanel = new ConclusionTablePanel(_cbxType);
+        _conclusionPanel = new ConclusionTablePanel(_cbxType, _txtStatus);
         return _conclusionPanel;
     }
 
@@ -269,7 +291,7 @@ public class AddRuleDialog extends JDialog
     protected JButton createButton(String caption, ActionListener listener) {
         JButton btn = new JButton(caption);
         btn.setActionCommand(caption);
-        btn.setPreferredSize(new Dimension(90,25));
+        btn.setPreferredSize(new Dimension(90, 25));
         btn.addActionListener(listener);
         return btn;
     }
@@ -323,7 +345,72 @@ public class AddRuleDialog extends JDialog
 
 
     private void addRule() {
+        YSpecificationID specID = SpecificationModel.getHandler()
+                .getSpecification().getSpecificationID();
+        RuleType rule = (RuleType) _cbxType.getSelectedItem();
+        String taskID = rule.isItemLevelType() ?
+                ((AtomicTask) _cbxTask.getSelectedItem()).getID() : null;
+        String dataRootName = rule.isCaseLevelType() ? specID.getUri() : taskID;
+        RdrNode node = new RdrNode(_txtCondition.getText(),
+                _conclusionPanel.getConclusion(),
+                _dataContextPanel.getDataElement(dataRootName));
 
+        WorkletClient client = new WorkletClient();
+        try {
+            String result = client.addRule(specID, taskID, rule, node);
+            if (client.successful(result)) {
+                reportSuccess("Rule successfully added.");
+            }
+            else reportError(StringUtil.unwrap(result));
+        }
+        catch (IOException ioe) {
+            reportError(ioe.getMessage());
+        }
+
+        // also add service to task for worklet selection
+        if (rule.isItemLevelType()) {
+            YAWLServiceReference service = getServiceReference();
+            if (service != null) {
+                AtomicTask task = (AtomicTask) _cbxTask.getSelectedItem();
+                YDecomposition decomposition = task.getDecomposition();
+                if (decomposition != null) {
+                    ((YAWLServiceGateway) decomposition).setYawlService(service);
+                }
+            }
+        }
     }
+
+
+    private YAWLServiceReference getServiceReference() {
+        for (YAWLServiceReference service : YConnector.getServices()) {
+            String uri = service.getURI();
+            if (uri != null && uri.contains("workletService")) {
+                return service;
+            }
+        }
+        return null;
+    }
+
+    private void reportError(String msg) {
+        updateStatus("========== ERROR ==========");
+        updateStatus(msg);
+        updateStatus("===========================");
+    }
+
+
+    private void reportSuccess(String msg) {
+        updateStatus("========= SUCCESS =========");
+        updateStatus(msg);
+        updateStatus("===========================");
+    }
+
+
+
+    private void updateStatus(String msg) {
+        String currentText = _txtStatus.getText();
+        if (! currentText.isEmpty()) currentText += '\n';
+        _txtStatus.setText(currentText + msg);
+    }
+
 
 }

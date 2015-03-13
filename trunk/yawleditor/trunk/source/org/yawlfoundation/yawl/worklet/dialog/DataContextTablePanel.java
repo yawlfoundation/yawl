@@ -18,7 +18,9 @@
 
 package org.yawlfoundation.yawl.worklet.dialog;
 
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.editor.ui.properties.data.VariableRow;
+import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -53,6 +55,15 @@ public class DataContextTablePanel extends JPanel {
 
     public VariableRow getVariableAtRow(int index) {
         return table.getTableModel().getVariableAtRow(index);
+    }
+
+
+    public Element getDataElement(String rootName) {
+        XNode root = new XNode(rootName);
+        for (VariableRow row : table.getTableModel().getVariables()) {
+            root.addChild(row.getName(), row.getValue());
+        }
+        return root.toElement();
     }
 
 

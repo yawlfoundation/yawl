@@ -19,9 +19,13 @@
 package org.yawlfoundation.yawl.worklet.client;
 
 import org.yawlfoundation.yawl.editor.core.connection.YConnection;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
+import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.settings.SettingsStore;
 import org.yawlfoundation.yawl.worklet.support.WorkletGatewayClient;
 
 import java.io.IOException;
@@ -38,7 +42,6 @@ public class WorkletClient extends YConnection {
 
     private static final String DEFAULT_USERID = "editor";
     private static final String DEFAULT_PASSWORD = "yEditor";
-    private static final String DEFAULT_URL = "http://localhost:8080/workletService/gateway";
 
     private String _userid = DEFAULT_USERID;
     private String _password = DEFAULT_PASSWORD;
@@ -47,21 +50,25 @@ public class WorkletClient extends YConnection {
 
     public WorkletClient() {
         super();
+        String host = SettingsStore.getServiceHost();
+        int port = SettingsStore.getServicePort();
         try {
-            setURL(DEFAULT_URL);
+            setURL(new URL("http", host, port, "workletService/gateway"));
         }
-        catch (Exception e) {}
+        catch (Exception e) {
+            //
+        }
     }
 
-    public WorkletClient(String host, int port) throws MalformedURLException {
+
+    // to test connection params
+    public WorkletClient(String host, int port, String userId, String password)
+            throws MalformedURLException {
         super();
+        setUserID(userId);
+        setPassword(password);
         setURL(new URL("http", host, port, "workletService/gateway"));
     }
-
-    public WorkletClient(String urlStr) { super(urlStr); }
-
-    public WorkletClient(URL url) { super(url); }
-
 
 
     @Override
@@ -136,7 +143,10 @@ public class WorkletClient extends YConnection {
     }
 
 
-    protected boolean isConnected() { return isConnected(_client); }
+    public boolean isConnected() { return isConnected(_client); }
+
+
+    public boolean successful(String msg) { return _client.successful(msg); }
 
 
     /********************************************************************************/
@@ -156,5 +166,13 @@ public class WorkletClient extends YConnection {
         return names;
     }
 
+
+    public String addRule(YSpecificationID specID, String taskID, RuleType rule,
+                          RdrNode node) throws IOException {
+        if (isConnected()) {
+            return _client.addNode(specID, taskID, rule, node, _handle);
+        }
+        throw new IOException("Unable to connect to Worklet Service");
+    }
 
 }
