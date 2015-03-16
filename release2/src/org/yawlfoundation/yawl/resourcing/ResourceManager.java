@@ -1785,7 +1785,24 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public Set<Participant> getWhoCompletedTask(String taskID, WorkItemRecord wir) {
-        return _cache.getTaskCompleters(taskID, wir.getRootCaseID());
+        Set<Participant> completers = _cache.getTaskCompleters(taskID, wir.getRootCaseID());
+        if (completers.isEmpty()) {          // empty if tomcat restarted mid-case
+            LogMiner miner = LogMiner.getInstance();
+            String xml = miner.getTaskEvents(new YSpecificationID(wir), taskID);
+            if (! (xml == null || xml.startsWith("<fail"))) {
+                XNode root = new XNodeParser().parse(xml);
+                for (XNode eventNode : root.getChildren()) {
+                    if (eventNode.getChildText("eventtype").equals("complete")) {
+                        String pid = eventNode.getChildText("resourceid");
+                        Participant p = _orgDataSet.getParticipant(pid);
+                        if (p != null) {
+                            completers.add(p);
+                        }
+                    }
+                }
+            }
+        }
+        return completers;
     }
 
 
