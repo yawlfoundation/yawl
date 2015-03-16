@@ -180,7 +180,25 @@ public class TomcatUtil {
     private static void executeCmd(List<String> cmdList) throws IOException {
         ProcessBuilder pb = new ProcessBuilder(cmdList);
         addEnvParameters(pb);
-        pb.start();
+        final Process process = pb.start();
+
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    InputStreamReader isr = new InputStreamReader(process.getErrorStream());
+                    BufferedReader br = new BufferedReader(isr);
+                    String line = null;
+
+                    while ((line = br.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+                catch (IOException ioe) {
+                    //
+                }
+            }
+        }).start();
+
     }
 
 
@@ -192,6 +210,12 @@ public class TomcatUtil {
     private static void addEnvParameters(ProcessBuilder pb) {
         Map<String, String> env = pb.environment();
         env.put("CATALINA_HOME", CATALINA_HOME);
+        String javaHome = deriveJavaHome();
+        env.put("JAVA_HOME", javaHome);
+
+        // output env (cmd line starts only)
+        System.out.println("Using CATALINA_HOME: " + CATALINA_HOME);
+        System.out.println("Using JAVA_HOME: " + javaHome);
     }
 
 
@@ -223,8 +247,13 @@ public class TomcatUtil {
         catch (URISyntaxException use) {
             //
         }
-   //     return "/Users/adamsmj/Documents/Subversion/installer/build/deploy/engine/apache-tomcat-7.0.55";
         return System.getenv("CATALINA_HOME");         // fallback
+    }
+
+
+    private static String deriveJavaHome() {
+        String javaHome = System.getenv("JAVA_HOME");
+        return javaHome != null ? javaHome : System.getProperty("java.home");
     }
 
 

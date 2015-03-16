@@ -20,10 +20,7 @@ package org.yawlfoundation.yawl.resourcing.util;
 
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -66,9 +63,8 @@ public class FourEyesCache {
 
     public Set<Participant> getCompleters(String taskid) {
         TaskCompleterSet taskSet = _taskTable.get(taskid) ;
-        if (taskSet != null)
-            return taskSet.getCompleters();
-        else return null;
+        return taskSet != null ? taskSet.getCompleters() :
+                new HashSet<Participant>();
     }
 
     
