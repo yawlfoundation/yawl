@@ -18,6 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.core.identity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Stores the used and available suffixes for a particular name. Uses boolean[]
  * rather than BitSet since size will be typically small (i.e. in all but the
@@ -53,16 +56,52 @@ class SuffixStore {
     boolean isDirty() {
         boolean hasUnused = false;                        // assume no unused to begin
         for (boolean isUsed : used) {
-            if (! isUsed) hasUnused = true;               // found one unused
-            else if (hasUnused) return true;              // used, but with prior unused
+            if (! isUsed) {
+                hasUnused = true;                         // found one unused
+            }
+            else {
+                if (hasUnused) return true;               // used, but with prior unused
+            }
         }
         return false;
     }
+
+
+    Set<SuffixPair> rationalise() {
+        Set<SuffixPair> changes = new HashSet<SuffixPair>();
+        int firstFreeSlot = firstFree(0);
+        int lastUsedSlot = lastUsed(size);
+        while (firstFreeSlot > -1 && firstFreeSlot < lastUsedSlot) {
+            changes.add(new SuffixPair(lastUsedSlot, firstFreeSlot));
+            use(firstFreeSlot);
+            free(lastUsedSlot);
+            firstFreeSlot = firstFree(firstFreeSlot);
+            lastUsedSlot = lastUsed(lastUsedSlot);
+        }
+        return changes;
+    }
+
 
     private void growArray(int newSize) {
         boolean[] temp = new boolean[newSize];
         System.arraycopy(used, 0, temp, 0, size);
         used = temp;
         size = newSize;
+    }
+
+
+    private int firstFree(int start) {
+        for (int i = start; i < size; i++) {
+            if (! used[i]) return i;
+        }
+        return -1;  // no free slots
+    }
+
+
+    private int lastUsed(int start) {
+        for (int i = start - 1; i >= 0; i--) {
+            if (used[i]) return i;
+        }
+        return -1;  // no used slots
     }
 }

@@ -118,48 +118,79 @@ public class ElementIdentifiers {
      */
     public Map<String, String> rationaliseIfRequired(YSpecification specification) {
         if (specification != null) {
-            for (SuffixStore store : _identifiers.values()) {
+            Map<String, String> changes = new HashMap<String, String>();
+            for (String id : _identifiers.keySet()) {
+                SuffixStore store = _identifiers.get(id);
                 if (store.isDirty()) {
-                    return rationalise(specification);
+                    changes.putAll(rationalise(specification, id, store));
                 }
             }
+            return changes;
         }
         return Collections.emptyMap();
     }
 
 
-    private Map<String, String> rationalise(YSpecification spec) {
-        clear();
+    // pre: store is dirty
+    private Map<String, String> rationalise(YSpecification specification, String id,
+                                            SuffixStore store) {
         Map<String, String> changes = new HashMap<String, String>();
-        for (YDecomposition decomposition : spec.getDecompositions()) {
-            if (decomposition instanceof YNet) {
-                for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
-                    String oldID = element.getID();
-                    String newID = rationalise(element);
-                    if (newID != null) {
-                        changes.put(oldID, newID);
-                    }
-                }
+        for (SuffixPair pair : store.rationalise()) {
+            String oldID = pair.former(id);
+            String newID = pair.latter(id);
+            YNetElement element = getNetElement(specification, oldID);
+            if (element != null) {
+                updateElement(element, newID);
+                changes.put(pair.former(id), pair.latter(id));
             }
         }
         return changes;
     }
 
 
-    private String rationalise(YNetElement element) {
-        String original = element.getID();
-        ElementIdentifier id = rationalise(new ElementIdentifier(original));
-        if (! id.toString().equals(original)) {
-            updateElement(element, id);
-            return id.toString();
+    private YNetElement getNetElement(YSpecification specification, String id) {
+        for (YDecomposition decomposition : specification.getDecompositions()) {
+            if (decomposition instanceof YNet) {
+                YNetElement element = ((YNet) decomposition).getNetElement(id);
+                if (element != null) return element;
+            }
         }
         return null;
     }
 
 
-    private ElementIdentifier rationalise(ElementIdentifier identifier) {
-        return getIdentifier(identifier.getName());
-    }
+//    private Map<String, String> rationalise(YSpecification spec) {
+//        clear();
+//        Map<String, String> changes = new HashMap<String, String>();
+//        for (YDecomposition decomposition : spec.getDecompositions()) {
+//            if (decomposition instanceof YNet) {
+//                for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
+//                    String oldID = element.getID();
+//                    String newID = rationalise(element);
+//                    if (newID != null) {
+//                        changes.put(oldID, newID);
+//                    }
+//                }
+//            }
+//        }
+//        return changes;
+//    }
+
+
+//    private String rationalise(YNetElement element) {
+//        String original = element.getID();
+//        ElementIdentifier id = rationalise(new ElementIdentifier(original));
+//        if (! id.toString().equals(original)) {
+//            updateElement(element, id);
+//            return id.toString();
+//        }
+//        return null;
+//    }
+
+
+//    private ElementIdentifier rationalise(ElementIdentifier identifier) {
+//        return getIdentifier(identifier.getName());
+//    }
 
 
     /**
@@ -168,18 +199,17 @@ public class ElementIdentifiers {
      * @return the suffix store corresponding to the label
      */
     private SuffixStore getSuffixStore(String label) {
-        SuffixStore suffixes = _identifiers.get(label);
-        if (suffixes == null) {                                // no matching label
-            suffixes = new SuffixStore();
-            _identifiers.put(label, suffixes);            // init store
+        SuffixStore store = _identifiers.get(label);
+        if (store == null) {                                // no matching label
+            store = new SuffixStore();
+            _identifiers.put(label, store);                 // init store
         }
-        return suffixes;
+        return store;
     }
 
 
-    private void updateElement(YNetElement element, ElementIdentifier identifier) {
+    private void updateElement(YNetElement element, String newID) {
         String oldID = element.getID();
-        String newID = identifier.toString();
         element.setID(newID);
 
         // update any output bindings that refer to the task id
