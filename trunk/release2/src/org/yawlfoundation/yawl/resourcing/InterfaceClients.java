@@ -247,7 +247,7 @@ public class InterfaceClients {
      */
     protected boolean connected() {
 
-        // use borrowed mutex for ResourceManager for IB calls
+        // use borrowed mutex from ResourceManager for IB calls
         synchronized(ResourceManager.getInstance().getIBEventMutex()) {
             try {
                 // if not connected
@@ -255,12 +255,18 @@ public class InterfaceClients {
                         (_engineSessionHandle.length() == 0) ||
                         (! checkConnection(_engineSessionHandle))) {
 
+                    if (_interfaceBClient == null) setInterfaceBClient(null);
+
                     _engineSessionHandle = _interfaceBClient.connect(
                             _engineLogonName, _engineLogonPassword);
                 }
             }
             catch (IOException ioe) {
                 _log.error("Exception attempting to connect to engine", ioe);
+            }
+            catch (NullPointerException npe) {
+                _log.error("Failed to initialise Interface B Client");
+                return false;
             }
             return (_interfaceBClient.successful(_engineSessionHandle)) ;
         }

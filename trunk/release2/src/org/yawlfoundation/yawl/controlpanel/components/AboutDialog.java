@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.update.ChecksumsReader;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
@@ -24,7 +25,6 @@ import java.io.File;
  */
 public class AboutDialog extends JDialog {
 
-    private static final String DEFAULT_VERSION = "3.0";
     private static final String DEFAULT_YEAR = "2014";
     private static final Color BACK_COLOUR = new Color(254,254,240);
 
@@ -77,7 +77,7 @@ public class AboutDialog extends JDialog {
 
     private String getVersion(ChecksumsReader props) {
         String version = props.getVersion();
-        return version != null ? version : DEFAULT_VERSION;
+        return version != null ? version : YControlPanel.VERSION;
     }
 
 

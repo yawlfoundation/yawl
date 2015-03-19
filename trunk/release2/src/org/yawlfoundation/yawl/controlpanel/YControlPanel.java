@@ -26,7 +26,7 @@ public class YControlPanel extends JFrame {
 
     private EngineMonitor _engineMonitor;
 
-    public static final String VERSION = "3.0";
+    public static final String VERSION = "3.0.1";
 
     public YControlPanel() {
         super();
