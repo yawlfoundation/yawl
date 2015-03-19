@@ -1,0 +1,138 @@
+                         YAWL Release 3.0.1  19/03/2015
+                        ==============================
+
+This is the version 3.0.1 release of the YAWL Environment. This is a bugfix and
+minor enhancements release, incorporating all of the updates to the YAWL enviroment
+since release 3.0.
+
+QUICK START: After installation, start Tomcat and point a browser to
+             http://localhost:8080/resourceService
+
+
+1. MINIMUM REQUIREMENTS
+-----------------------
+  * Tomcat 7 or higher
+  * Java 6 (1.6) or higher
+
+
+2. CHANGES IN THIS VERSION
+--------------------------
+
+EDITOR:
+
+ * [Enhancement] [Extended Attributes]: Added 'max-field-width' extended attribute
+   (see also resource service dynamic form enhancement).
+ * [Enhancement] [Specification]: Added infomation message to delete orphan decompositions
+   action when there are no orphans to delete.
+ * [Enhancement] [Data Binding]: Added net-level variable binding reference dialog
+   (via the # button on the data variable dialog).
+ * [Enhancement] [Data Binding]: Better filling of values for multiple-instance tasks in
+   Output binding dialog.
+ * [Enhancement] [Data Binding]: Better formatting of XQueries when validating.
+ * [Enhancement] [Data Binding]: Smarter selection of default net varible to generate
+   binding to in the Output binding dialog.
+ * [Enhancement] [Data Binding]: More detailed error messages for binding expressions in
+   data bindings dialogs are now provided, when possible.
+ * [Enhancement] [Repository]: Made filtering over names in repository load dialogs case
+   insensitive.
+ * [Enhancement] [Repository]: Added warning of missing user-defined data types when
+   loading decompositions from the repository.
+ * [Enhancement] [Repository]: Added storage of net layouts with net in repository.
+ * [Enhancement] [Upload & Launch]: Added dialog for inputting case-level parameter values
+   when uploading a specification with case-level input parameters.
+
+ * [Bugfix] [Data]: Changing the datatype of a net-level, output-only variable did not
+   also change that of its 'shadow' local variable.
+ * [Bugfix] [Data Binding]: Output binding dialog selecting incorrect net-level
+   'mapped-to' var in some instances.
+ * [Bugfix] [Data Binding]: Changing net-level variable from Input & Output to Local makes
+    the variable disappear.
+ * [Bugfix] [Data Binding]: Occasional data binding generation errors when decomposition
+   id != task id
+ * [Bugfix] [Specification]: Composite task identifier and label reverting to default
+   values when the specification is saved and reloaded.
+ * [Bugfix] [Specification]: Rationalising element ids on specification load was leaving
+   old ids in some data mappings.
+ * [Bugfix] [Specification]: Removing a decomposition from a task left residual mappings
+   to the decomposition in the task.
+ * [Bugfix] [Data Validation]: Generated sample data for xsd:enumerations was returning
+   incorrect values in some cases.
+ * [Bugfix] [Repository]: Fixed propagation of net rename to data bindings when importing
+   nets from repository.
+ * [Bugfix] [Repository]: Loading a net with subnets from the repository was not loading
+   the subnets.
+ * [Bugfix] [Repository]: A ‘textArea’ extended attribute stored in the repository was not
+   added during a load from repository to a data variable.
+ * [Bugfix] [Repository]: Loading a decomposition from repository did not attach it to
+   the specification for validation purposes.
+ * [Bugfix] [UI]: Mis-sorting of plugin menu items.
+
+
+ENGINE:
+
+ * [Bugfix]: A task with a timer to start on offer, when in tight loop may cause a
+   persistence exception.
+ * [Bugfix]: Cancelling a case after a schema validation error may cause an engine
+   persistence failure in some cases.
+ * [Bugfix] (issue 534): Order fulfilment example missing some library jars in
+   non-enterprise environments.
+ * [Bugfix]: Plugin framework failing to load external jars in non-enterprise
+   environments.
+ * [Bugfix]: Document Store Service not adjusting YDocument table field size from
+   255 bytes in new 3.0 structure for non-enterprise environments.
+ * [Bugfix] (issue 533): External data gateway fails to load if the file path to the
+   engine classes contains one or more spaces or any extended UTF characters.
+
+
+RESOURCE SERVICE:
+
+ * [Enhancement]: Maximum widths for input fields on dynamic forms can now be set via an
+   extended attribute, and in any case are now limited to the width of the browser window.
+ * [Enhancement]: A 'Label' extended attribute on a complex type is displayed as a
+   sub-panel heading on a dynamic form.
+ * [Enhancement]: Dynamic form builder now defaults to string type for elements where no
+   type is provided.
+ * [Enhancement]: Sample date/time values generated from XSDType now show current
+   date/time.
+ * [Enhancement]: Removed inbound validation of previously saved data on dynamic forms.
+
+ * [Bugfix]: Attempting to browse to the login page from an already active session will
+   lock the browser window.
+ * [Bugfix]: Dynamic forms with only boolean fields (i.e. checkboxes) and text above or
+   below extended attribute values rendered too narrowly.
+ * [Bugfix]: In dynamic forms, hidden complex type fields were generating blank space at
+   the bottom of the form.
+ * [Bugfix]: Resources marked as unavailable in calendar sub-service not being removed
+   from work item distribution sets.
+ * [Bugfix]: Extended attribute values not handling XML 'special' characters correctly.
+ * [Bugfix] (issue 535): Org data upload from backup file loses extended character
+   encodings.
+ * [Bugfix]: Plugin framework failing to load external jars in non-enterprise
+   environments.
+ * [Bugfix] (issue 533): External org data fails to load if the file path to the resource
+   service contains one or more spaces or any extended UTF characters.
+
+
+CONTROL PANEL:
+
+ * [Enhancement]: Removed engine restart from control panel update process when control
+   panel app is the only update.
+
+ * [Bugfix]: Control panel erroneously attempted to register the order fulfilment examples
+   as a service.
+
+
+
+
+                          #############################
+
+     Please report any bugs, problems or ideas for enhancements via the YAWL issues page:
+
+                      http://code.google.com/p/yawl/issues/list
+
+     Join the YAWL discussion at:
+
+                      http://yawlfoundation.org/forum
+
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
