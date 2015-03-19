@@ -51,8 +51,8 @@ public class AboutEditorAction extends YAWLBaseAction {
 
 class AboutEditorDialog extends JDialog {
 
-    private static final String DEFAULT_VERSION = "3.0 (beta)";
-    private static final String DEFAULT_YEAR = "2014";
+    private static final String DEFAULT_VERSION = "3.0.1";
+    private static final String DEFAULT_YEAR = "2015";
     private static final Color BACK_COLOUR = new Color(254,254,240);
     private static final String FORUM_URL = "http://yawlfoundation.org/forum";
     private static final String ISSUES_URL = "http://code.google.com/p/yawl/issues/list";
