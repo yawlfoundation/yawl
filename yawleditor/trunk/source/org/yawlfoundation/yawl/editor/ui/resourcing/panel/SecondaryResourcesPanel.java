@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.editor.ui.resourcing.panel;
 import org.yawlfoundation.yawl.editor.core.resourcing.BasicSecondaryResources;
 import org.yawlfoundation.yawl.editor.core.resourcing.GenericNonHumanCategory;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
-import org.yawlfoundation.yawl.editor.ui.resourcing.panel.ResourceTablePanel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTableType;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.NonHumanResourceCategoryTableModel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.NonHumanResourceTableModel;
@@ -85,13 +84,14 @@ public class SecondaryResourcesPanel extends AbstractResourceTabContent {
 
 
     private void createContent(ResourceDialog owner) {
+        setLayout(new BorderLayout());
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 2));
         panel.add(createParticipantTablePanel(owner));
         panel.add(createRoleTablePanel(owner));
         panel.add(createNonHumanResourceTablePanel(owner));
         panel.add(createNonHumanResourceCategoryTablePanel(owner));
-        add(panel);
+        add(panel, BorderLayout.CENTER);
     }
 
 

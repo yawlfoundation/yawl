@@ -145,9 +145,17 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
 
 
     private void createContent(ResourceDialog owner) {
-        add(createOfferPanel(owner));
-        add(createAllocatePanel(owner));
-        add(createStartPanel(owner));
+        setLayout(new BorderLayout());
+        add(createOfferPanel(owner), BorderLayout.CENTER);
+        add(createLowerPanel(owner), BorderLayout.SOUTH);
+    }
+
+
+    private JPanel createLowerPanel(ResourceDialog owner) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(createAllocatePanel(owner), BorderLayout.CENTER);
+        panel.add(createStartPanel(owner), BorderLayout.SOUTH);
+        return panel;
     }
 
     private JPanel createOfferPanel(ResourceDialog owner) {
@@ -174,7 +182,7 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         chkAllocate = createCheckBox("Enable System Allocation", KeyEvent.VK_A, this, owner);
         panel.add(createCheckBoxPanel(chkAllocate), BorderLayout.NORTH);
         panel.add(createAllocatePanelContent(owner), BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(660, 90));
+//        panel.setPreferredSize(new Dimension(660, 90));
         return panel;
     }
 
@@ -183,25 +191,25 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
         panel.setBorder(new TitledBorder("Start"));
         chkStart = createCheckBox("Enable System Start", KeyEvent.VK_S, this, owner);
         panel.add(createCheckBoxPanel(chkStart), BorderLayout.PAGE_START);
-        panel.setPreferredSize(new Dimension(660, 50));
+//        panel.setPreferredSize(new Dimension(660, 50));
         return panel;
     }
 
     private JPanel createOfferPanelContent(ResourceDialog owner) {
         offerPanelContent = new JPanel(new BorderLayout());
-        offerPanelContent.add(createOfferResourceTables(owner), BorderLayout.NORTH);
-        offerPanelContent.add(createOfferFiltersTable(owner), BorderLayout.CENTER);
+        offerPanelContent.add(createOfferResourceTables(owner), BorderLayout.CENTER);
+        offerPanelContent.add(createOfferFiltersTable(owner), BorderLayout.SOUTH);
         return offerPanelContent;
     }
 
 
     private JPanel createAllocatePanelContent(ResourceDialog owner) {
         allocatePanelContent = new JPanel();
-        allocatePanelContent.setBorder(new EmptyBorder(5,10,5,205));
+        allocatePanelContent.setBorder(new EmptyBorder(5, 10, 5, 205));
         allocatePanelContent.add(new JLabel("Allocation Strategy: "));
         cbxAllocations = new JComboBox();
         cbxAllocations.setRenderer(new AllocatorRenderer());
-        cbxAllocations.setPreferredSize(new Dimension(300, 25));
+//        cbxAllocations.setPreferredSize(new Dimension(300, 25));
         cbxAllocations.addActionListener(owner);
         allocatePanelContent.add(cbxAllocations);
         return allocatePanelContent;
@@ -209,7 +217,7 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
 
 
     private JPanel createOfferResourceTables(ResourceDialog owner) {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new GridLayout(1,0));
         ResourceTablePanel tablePanel = new ResourceTablePanel(ResourceTableType.Participant);
         tablePanel.showEditButton(false);
         participantTableModel = (ParticipantTableModel) tablePanel.getTableModel();
@@ -234,11 +242,11 @@ public class PrimaryResourcesPanel extends AbstractResourceTabContent implements
     }
 
     private JPanel createOfferFiltersTable(ResourceDialog owner) {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new BorderLayout());
         filtersPanel = new FiltersPanel(owner);
         constraintsPanel = new ConstraintsPanel(owner, getAllPrecedingTasks(getTask()));
-        panel.add(filtersPanel);
-        panel.add(constraintsPanel);
+        panel.add(filtersPanel, BorderLayout.WEST);
+        panel.add(constraintsPanel, BorderLayout.CENTER);
         return panel;
     }
 

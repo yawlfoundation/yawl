@@ -33,12 +33,13 @@ public class ResourceTable extends JSingleSelectTable {
 
     public ResourceTable(AbstractResourceTableModel model) {
         super();
-        setModel(model);
-        setRowHeight(getRowHeight() + 5);
-        setColumnSelectionAllowed(false);
-        setTableHeader(null);
-        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);  // override
-        setFillsViewportHeight(true);            // to allow drops on empty table
+        init(model);
+    }
+
+
+    public ResourceTable(AbstractResourceTableModel model, int rows) {
+        super(rows);
+        init(model);
     }
 
 
@@ -47,6 +48,16 @@ public class ResourceTable extends JSingleSelectTable {
         setBackground(enabled ? Color.WHITE :
                 UIManager.getDefaults().getColor("TextArea.inactiveBackground"));
         ((AbstractResourceTableModel) getModel()).setEnabled(enabled);
+    }
+
+
+    private void init(AbstractResourceTableModel model) {
+        setModel(model);
+        setRowHeight(getRowHeight() + 5);
+        setColumnSelectionAllowed(false);
+        setTableHeader(null);
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);  // override
+        setFillsViewportHeight(true);            // to allow drops on empty table
     }
 
 }

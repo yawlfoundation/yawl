@@ -82,8 +82,10 @@ public class NonHumanResourceCategoryListModel extends AbstractResourceListModel
 
     private List<GenericNonHumanCategory> filter(List<GenericNonHumanCategory> list, String chars) {
         List<GenericNonHumanCategory> filtered = new ArrayList<GenericNonHumanCategory>();
+        String mask = chars.toLowerCase();
         for (GenericNonHumanCategory r : list) {
-            if (r.getListLabel().contains(chars)) {
+            String label = r.getListLabel();
+            if (label != null && label.toLowerCase().contains(mask)) {
                 filtered.add(r);
             }
         }

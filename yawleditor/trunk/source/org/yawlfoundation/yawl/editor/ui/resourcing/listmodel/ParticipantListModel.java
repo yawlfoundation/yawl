@@ -84,8 +84,10 @@ public class ParticipantListModel extends AbstractResourceListModel {
 
     private List<Participant> filter(List<Participant> list, String chars) {
         List<Participant> filtered = new ArrayList<Participant>();
+        String mask = chars.toLowerCase();
         for (Participant p : list) {
-            if (p.getFullName().contains(chars)) {
+            String name = p.getFullName();
+            if (name != null && name.toLowerCase().contains(mask)) {
                 filtered.add(p);
             }
         }

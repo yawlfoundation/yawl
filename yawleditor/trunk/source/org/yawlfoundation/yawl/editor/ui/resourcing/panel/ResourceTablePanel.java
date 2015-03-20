@@ -54,7 +54,17 @@ public class ResourceTablePanel extends JPanel
         setLayout(new BorderLayout());
         setBorder(new TitledBorder(tableType.getName()));
         JScrollPane scrollPane = new JScrollPane(createTable(tableType));
-        scrollPane.setPreferredSize(tableType.getPreferredSize());
+    //    scrollPane.setPreferredSize(tableType.getPreferredSize());
+        add(createToolBar(), BorderLayout.SOUTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+
+    public ResourceTablePanel(ResourceTableType tableType, int rows) {
+        setLayout(new BorderLayout());
+        setBorder(new TitledBorder(tableType.getName()));
+        JScrollPane scrollPane = new JScrollPane(createTable(tableType, rows));
+    //    scrollPane.setPreferredSize(tableType.getPreferredSize());
         add(createToolBar(), BorderLayout.SOUTH);
         add(scrollPane, BorderLayout.CENTER);
     }
@@ -138,6 +148,14 @@ public class ResourceTablePanel extends JPanel
 
     private JTable createTable(ResourceTableType tableType) {
         table = new ResourceTable(tableType.getModel());
+        table.getSelectionModel().addListSelectionListener(this);
+        table.getModel().addTableModelListener(this);
+        return table;
+    }
+
+
+    private JTable createTable(ResourceTableType tableType, int rows) {
+        table = new ResourceTable(tableType.getModel(), rows);
         table.getSelectionModel().addListSelectionListener(this);
         table.getModel().addTableModelListener(this);
         return table;

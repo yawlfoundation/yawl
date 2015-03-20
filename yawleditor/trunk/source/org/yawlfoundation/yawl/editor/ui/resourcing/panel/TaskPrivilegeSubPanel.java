@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.core.resourcing.TaskPrivilege;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskPrivileges;
 import org.yawlfoundation.yawl.editor.core.resourcing.TaskResourceSet;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceDialog;
-import org.yawlfoundation.yawl.editor.ui.resourcing.panel.ResourceTablePanel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.ResourceTableType;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.ParticipantTableModel;
 import org.yawlfoundation.yawl.editor.ui.resourcing.tablemodel.RoleTableModel;
@@ -55,10 +54,10 @@ public class TaskPrivilegeSubPanel extends JPanel implements ItemListener {
     public TaskPrivilegeSubPanel(String caption, String privilege, ResourceDialog owner) {
         super();
         _privilege = privilege;
-        setLayout(new GridLayout(1,0));
+        setLayout(new GridLayout(1, 0));
         setBorder(new LineBorder(Color.DARK_GRAY));
         createContent(caption, owner);
-        setPreferredSize(new Dimension(660, 90));
+    //    setPreferredSize(new Dimension(660, 90));
     }
 
 
@@ -142,19 +141,19 @@ public class TaskPrivilegeSubPanel extends JPanel implements ItemListener {
     private JPanel createCheckBoxPanel(String caption, ResourceDialog owner) {
         JPanel panel = new JPanel(new GridLayout(2,1));
         _chkPrivilege = new JCheckBox("<html>" + caption + "</html>");
-        _chkPrivilege.setBorder(new EmptyBorder(0,5,0,0));
+        _chkPrivilege.setBorder(new EmptyBorder(0, 5, 0, 0));
         _chkPrivilege.setSelected(false);
         _chkPrivilege.addItemListener(this);
         _chkPrivilege.addItemListener(owner);
         panel.add(_chkPrivilege);
         _chkRestricted = new JCheckBox("Restrict Privilege");
-        _chkRestricted.setBorder(new EmptyBorder(0,30,0,0));
+        _chkRestricted.setBorder(new EmptyBorder(0, 30, 0, 0));
         _chkRestricted.setSelected(false);
         _chkRestricted.setEnabled(false);
         _chkRestricted.addItemListener(this);
         _chkRestricted.addItemListener(owner);
         panel.add(_chkRestricted);
-        panel.setPreferredSize(new Dimension(400,90));
+    //    panel.setPreferredSize(new Dimension(400,90));
         return panel;
     }
 
@@ -164,7 +163,7 @@ public class TaskPrivilegeSubPanel extends JPanel implements ItemListener {
         _participantTableModel = (ParticipantTableModel) tablePanel.getTableModel();
         _participantTableModel.setOwner(owner);
         _participantTableModel.addTableModelListener(tablePanel);
-        tablePanel.setPreferredSize(new Dimension(120,90));
+    //    tablePanel.setPreferredSize(new Dimension(120,90));
         return tablePanel;
     }
 
@@ -179,7 +178,7 @@ public class TaskPrivilegeSubPanel extends JPanel implements ItemListener {
 
 
     private ResourceTablePanel createTablePanel(ResourceTableType tableType) {
-        ResourceTablePanel tablePanel = new ResourceTablePanel(tableType);
+        ResourceTablePanel tablePanel = new ResourceTablePanel(tableType, 4);  // 4 rows
         tablePanel.showEditButton(false);
         tablePanel.setEnabled(false);
         tablePanel.setToolbarOrientation(JToolBar.VERTICAL);

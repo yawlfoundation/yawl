@@ -59,7 +59,9 @@ public class ResourceDialog extends JDialog
         this.task = getTask(task.getID());
         setTitle("Resources for Task " + task.getID());
         add(getContent());
-        setPreferredSize(new Dimension(668, 665));
+ //       setPreferredSize(new Dimension(780, 700));
+        setMinimumSize(new Dimension(610, 615));
+        setResizable(true);
         pack();
     }
 
