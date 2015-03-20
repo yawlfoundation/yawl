@@ -107,6 +107,7 @@ public class PropertiesLoader
             }
             case ElementsSelected: {
                 Object[] cells = _graph.getSelectionCells();
+                if (cells.length == 0) break;
                 if (cells.length > 1) {
                     showMultiCellProperties(cells);
                     break;
