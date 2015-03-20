@@ -99,8 +99,9 @@ public class WorkletListModel extends AbstractResourceListModel {
 
     private List<String> filter(List<String> list, String chars) {
         List<String> filtered = new ArrayList<String>();
+        String mask = chars.toLowerCase();
         for (String s : list) {
-            if (s.contains(chars)) {
+            if (s.toLowerCase().contains(mask)) {
                 filtered.add(s);
             }
         }

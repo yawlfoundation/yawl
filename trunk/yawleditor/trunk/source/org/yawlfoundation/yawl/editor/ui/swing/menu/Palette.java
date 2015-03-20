@@ -29,7 +29,7 @@ public class Palette extends JPanel {
 
     private final java.util.List<PaletteListener> paletteListeners = new ArrayList<PaletteListener>();
 
-    public static enum SelectionState {
+    public enum SelectionState {
         ATOMIC_TASK,
         MULTIPLE_ATOMIC_TASK,
         COMPOSITE_TASK,
@@ -85,12 +85,16 @@ public class Palette extends JPanel {
     }
 
     public void setSelectedState(SelectionState newState) {
-        getButtonWithSelectionState(newState).setSelected(true);
-        publishSelectionState();
+        PaletteButton button = getButtonWithSelectionState(newState);
+        if (button != null) {
+            button.setSelected(true);
+            publishSelectionState();
+        }
     }
 
     public SelectionState getSelectedState() {
-        return getSelectedButton().getSelectionID();
+        PaletteButton button = getSelectedButton();
+        return button != null ? button.getSelectionID() : SelectionState.MARQUEE;
     }
 
     private PaletteButton getSelectedButton() {

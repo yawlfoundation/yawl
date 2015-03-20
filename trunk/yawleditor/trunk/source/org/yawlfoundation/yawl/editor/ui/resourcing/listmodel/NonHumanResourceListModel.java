@@ -83,8 +83,10 @@ public class NonHumanResourceListModel extends AbstractResourceListModel {
 
     private List<NonHumanResource> filter(List<NonHumanResource> list, String chars) {
         List<NonHumanResource> filtered = new ArrayList<NonHumanResource>();
+        String mask = chars.toLowerCase();
         for (NonHumanResource r : list) {
-            if (r.getName().contains(chars)) {
+            String name = r.getName();
+            if (name != null && name.toLowerCase().contains(mask)) {
                 filtered.add(r);
             }
         }

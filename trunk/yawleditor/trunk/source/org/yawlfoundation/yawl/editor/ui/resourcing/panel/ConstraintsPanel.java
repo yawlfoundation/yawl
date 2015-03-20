@@ -51,7 +51,7 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
     public ConstraintsPanel(ResourceDialog owner, Set<YAtomicTask> preTasks) {
         setBorder(new TitledBorder("Constraints"));
         addContent(owner, preTasks);
-        setPreferredSize(new Dimension(425, 145));
+     //   setPreferredSize(new Dimension(425, 145));
     }
 
 
@@ -124,39 +124,39 @@ public class ConstraintsPanel extends JPanel implements ItemListener {
 
 
     private void addContent(ResourceDialog owner, Set<YAtomicTask> preTasks) {
-        setLayout(new BorderLayout());
-        add(createFamTaskPanel(owner, preTasks), BorderLayout.CENTER);
-        add(createFourEyesPanel(owner, preTasks), BorderLayout.SOUTH);
+        setLayout(new GridLayout(0,1));
+        add(createFamTaskPanel(owner, preTasks));
+        add(createFourEyesPanel(owner, preTasks));
     }
 
 
     private JPanel createFamTaskPanel(ResourceDialog owner, Set<YAtomicTask> preTasks) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(24, 5, 8, 5));
+        panel.setBorder(new EmptyBorder(34, 5, 22, 5));
         chkFamTask = createCheckBox("Choose completer(s) of task:", owner);
         cbxFamTask = createCombo(owner, preTasks);
         panel.add(chkFamTask, BorderLayout.CENTER);
         panel.add(cbxFamTask, BorderLayout.EAST);
-        panel.setSize(410, 25);
+    //    panel.setSize(410, 25);
         return panel;
     }
 
 
     private JPanel createFourEyesPanel(ResourceDialog owner, Set<YAtomicTask> preTasks) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(7, 5, 30, 5));
+        panel.setBorder(new EmptyBorder(7, 5, 50, 5));
         chkFourEyes = createCheckBox("Do not choose completer(s) of task:", owner);
         cbxFourEyes = createCombo(owner, preTasks);
         panel.add(chkFourEyes, BorderLayout.CENTER);
         panel.add(cbxFourEyes, BorderLayout.EAST);
-        panel.setSize(410, 25);
+    //    panel.setSize(410, 25);
         return panel;
     }
 
 
     private JComboBox createCombo(ResourceDialog owner, Set<YAtomicTask> preTasks) {
         JComboBox combo = new JComboBox();
-        combo.setPreferredSize(new Dimension(175, 25));
+        combo.setPreferredSize(new Dimension(250, 25));
         combo.addActionListener(owner);
         addItems(combo, preTasks);
         combo.setEnabled(false);

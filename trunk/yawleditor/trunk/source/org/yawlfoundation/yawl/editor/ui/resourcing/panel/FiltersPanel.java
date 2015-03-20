@@ -55,7 +55,7 @@ public class FiltersPanel extends JPanel implements ActionListener {
         orgFilter = new OrgFilter();
         setBorder(new TitledBorder("Filters"));
         addContent();
-        setPreferredSize(new Dimension(210, 145));
+    //    setPreferredSize(new Dimension(210, 145));
     }
 
 
@@ -111,13 +111,13 @@ public class FiltersPanel extends JPanel implements ActionListener {
 
 
     private void addContent() {
-        setLayout(new BorderLayout());
-        txtCapability = new JTextArea();
-        txtOrgStructure = new JTextArea();
-        add(createFilterPanel("Capability", txtCapability), BorderLayout.CENTER);
+        setLayout(new GridLayout(0,1));
+        txtCapability = new JTextArea(3, 20);
+        txtOrgStructure = new JTextArea(3, 20);
+        add(createFilterPanel("Capability", txtCapability));
         JPanel panel = createFilterPanel("Org Structure", txtOrgStructure);
         panel.setBorder(new EmptyBorder(5,0,0,0));
-        add(panel, BorderLayout.SOUTH);
+        add(panel);
     }
 
 
@@ -141,7 +141,7 @@ public class FiltersPanel extends JPanel implements ActionListener {
         textArea.setEditable(false);
         textArea.setBackground(Color.WHITE);
         JScrollPane pane = new JScrollPane(textArea);
-        pane.setPreferredSize(new Dimension(190, 37));
+    //    pane.setPreferredSize(new Dimension(190, 37));
         return pane;
     }
 

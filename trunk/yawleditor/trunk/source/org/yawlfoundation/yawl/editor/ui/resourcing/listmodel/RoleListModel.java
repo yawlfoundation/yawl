@@ -82,9 +82,11 @@ public class RoleListModel extends AbstractResourceListModel {
 
     private List<Role> filter(List<Role> list, String chars) {
         List<Role> filtered = new ArrayList<Role>();
-        for (Role p : list) {
-            if (p.getName().contains(chars)) {
-                filtered.add(p);
+        String mask = chars.toLowerCase();
+        for (Role r : list) {
+            String name = r.getName();
+            if (name != null && name.toLowerCase().contains(mask)) {
+                filtered.add(r);
             }
         }
         return filtered;

@@ -85,8 +85,8 @@
     <property name="forms" value="forms_rt.jar"/>
     <property name="imgscalr" value="imgscalr-lib-4.2.jar"/>
     <property name="jcal" value="jcalendar-1.4.jar"/>
-    <property name="goodies-common" value="jgoodies-common-1.6.0.jar"/>
-    <property name="goodies-looks" value="jgoodies-looks-2.5.3.jar"/>
+    <property name="goodies-common" value="jgoodies-common-1.8.1.jar"/>
+    <property name="goodies-looks" value="jgoodies-looks-2.7.0.jar"/>
     <property name="l2fprod" value="l2fprod-common-all.jar"/>
     <property name="macify" value="macify-1.4.jar"/>
     <property name="servlet" value="servlet-api.jar"/>
