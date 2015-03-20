@@ -350,7 +350,14 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
             YAWLTask selectedCancellationTask =
                      graph.getCancellationSetModel().getTriggeringTask();
             if (selectedCancellationTask != null) {
-                graph.getSelectionModel().setSelectionCell(selectedCancellationTask);
+                VertexContainer container =
+                        (VertexContainer) selectedCancellationTask.getParent();
+                if (container != null) {
+                    graph.getSelectionModel().setSelectionCell(container);
+                }
+                else {
+                    graph.getSelectionModel().setSelectionCell(selectedCancellationTask);
+                }
             }
         }
     }
