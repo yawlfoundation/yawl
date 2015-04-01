@@ -127,6 +127,8 @@ public class UserSettings {
 
     // 'other' settings
     private static final String CHECK_FOR_UPDATES_ON_START = "checkUpdatesOnStart";
+    private static final String POST_UPDATES_COMPLETED = "postUpdatesCompleted";
+
 
     public static Preferences getSettings() { return _prefs; }
 
@@ -615,6 +617,14 @@ public class UserSettings {
 
     public static boolean getCheckForUpdatesOnStart() {
         return getBoolean(CHECK_FOR_UPDATES_ON_START);
+    }
+
+    public static void setPostUpdatesCompleted(boolean completed) {
+        setBoolean(POST_UPDATES_COMPLETED, completed);
+    }
+
+    public static boolean getPostUpdatesCompleted() {
+        return getBoolean(POST_UPDATES_COMPLETED);
     }
 
     public static void setMaxRecentFiles(int max) {

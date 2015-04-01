@@ -75,12 +75,12 @@ public class PreferencesDialog extends JDialog
     private void init() {
         _contentPanels = new ArrayList<PreferencePanel>();
         setModal(true);
-        setResizable(false);
+        setResizable(true);
         setLocationByPlatform(true);
         setTitle("YAWL Editor Preferences");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         add(getContent());
-        setPreferredSize(new Dimension(620, 500));
+        setPreferredSize(new Dimension(700, 600));
         pack();
     }
 
@@ -89,7 +89,7 @@ public class PreferencesDialog extends JDialog
         _mainPanel = new JPanel(new BorderLayout());
         JButtonBar toolbar = new JButtonBar(JButtonBar.VERTICAL);
         toolbar.setUI(new IconPackagerButtonBarUI());
-        toolbar.setPreferredSize(new Dimension(90, 500));
+        toolbar.setPreferredSize(new Dimension(110, 400));
         _mainPanel.add(toolbar, BorderLayout.WEST);
         populateToolbar(toolbar);
         _mainPanel.add(getButtonBar(this), BorderLayout.SOUTH);

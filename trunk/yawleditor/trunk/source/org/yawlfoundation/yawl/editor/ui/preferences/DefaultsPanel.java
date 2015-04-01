@@ -45,7 +45,6 @@ public class DefaultsPanel extends JPanel implements PreferencePanel {
         super();
         _listener = listener;
         addContent();
-        setPreferredSize(new Dimension(500, 400));
     }
 
     public void applyChanges() {

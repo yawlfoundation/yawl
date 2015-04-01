@@ -144,14 +144,14 @@ public class NetCellUtilities {
         net.setGridEnabled(false);
 
         HashMap map = new HashMap();
-        GraphConstants.setBounds(map,newBounds);
-        net.getGraphLayoutCache().editCell(view.getCell(),map);
+        GraphConstants.setBounds(map, newBounds);
+        net.getGraphLayoutCache().editCell(view.getCell(), map);
         net.setGridEnabled(true);
     }
 
 
     public static void applyViewChange(NetGraph net, CellView view) {
-        applyViewChange(net, new CellView[] { view } );
+        applyViewChange(net, new CellView[] { view });
     }
 
 
@@ -167,12 +167,15 @@ public class NetCellUtilities {
         if (cells != null) {
             Rectangle2D r = net.getCellBounds(cells);
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell, 0, (-1 * bounds.getY()) + r.getY());
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) },
+                           0, (-1 * bounds.getY()) + r.getY());
             }
 
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }
@@ -184,13 +187,15 @@ public class NetCellUtilities {
             Rectangle2D r = net.getCellBounds(cells);
             double cy = r.getHeight() / 2;
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell, 0,
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) }, 0,
                         (-1 * bounds.getY()) + r.getY() + cy - bounds.getHeight() / 2);
             }
 
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }
@@ -201,29 +206,34 @@ public class NetCellUtilities {
         if (cells != null) {
             Rectangle2D r = net.getCellBounds(cells);
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell, 0,
-                        (-1 * bounds.getY()) + r.getY() +
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) },
+                        0, (-1 * bounds.getY()) + r.getY() +
                                 r.getHeight() - bounds.getHeight());
             }
-
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }
     }
 
+
     public static void alignCellsAlongLeft(NetGraph net, Object[] cells) {
         if (cells != null) {
             Rectangle2D r = net.getCellBounds(cells);
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell, (-1 * bounds.getX()) + r.getX(), 0);
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) },
+                        (-1 * bounds.getX()) + r.getX(), 0);
             }
 
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }
@@ -234,13 +244,15 @@ public class NetCellUtilities {
             Rectangle2D r = net.getCellBounds(cells);
             double cx = r.getWidth() / 2;
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell,
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) },
                         (-1 * bounds.getX()) + r.getX() + cx - bounds.getWidth() / 2, 0);
             }
 
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }
@@ -251,14 +263,16 @@ public class NetCellUtilities {
         if (cells != null) {
             Rectangle2D r = net.getCellBounds(cells);
             net.getNetModel().beginUpdate();
+            net.clearSelection();
 
             for (Object cell: cells) {
                 Rectangle2D bounds = net.getCellBounds(cell);
-                net.moveElementBy((GraphCell) cell,
+                translateViews(net, new CellView[] { net.getViewFor((GraphCell) cell) },
                         (-1 * bounds.getX())
                                 + r.getX() + r.getWidth() - bounds.getWidth(), 0);
             }
 
+            net.addSelectionCells(cells);
             net.getNetModel().endUpdate();
             net.requestFocus();
         }

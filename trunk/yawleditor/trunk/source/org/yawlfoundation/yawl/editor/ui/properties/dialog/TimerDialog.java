@@ -67,7 +67,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
     }
 
     protected void makeLastAdjustments() {
-        setSize(523, 204);
+        pack();
         setResizable(false);
     }
 
@@ -336,29 +336,28 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
 
     private JPanel buildExpiresWidgetsPanel() {
-        JPanel expiresWidgetsPanel = new JPanel(new BorderLayout());
+        JPanel expiresWidgetsPanel = new JPanel();
+        expiresWidgetsPanel.setLayout(new BoxLayout(expiresWidgetsPanel, BoxLayout.Y_AXIS));
         expiresWidgetsPanel.setBorder(new EmptyBorder(0,0,0,10));
-        expiresWidgetsPanel.add(buildDateTimeValueField(), BorderLayout.NORTH);
-        expiresWidgetsPanel.add(buildDurationValueField(), BorderLayout.CENTER);
-        expiresWidgetsPanel.add(buildVariableComboBox(), BorderLayout.SOUTH);
+        expiresWidgetsPanel.add(buildDateTimeValueField());
+        expiresWidgetsPanel.add(buildDurationValueField());
+        expiresWidgetsPanel.add(buildVariableComboBox());
         return expiresWidgetsPanel;
     }
 
 
     private JPanel buildDateTimeValueField() {
         dateValueField = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
-        dateValueField.setBorder(new EmptyBorder(3,3,3,3));
+        dateValueField.setBorder(new EmptyBorder(3,5,3,3));
         JDateChooser chooser = new JDateChooser();
         chooser.setMinSelectableDate(Calendar.getInstance().getTime());
         chooser.setDate(Calendar.getInstance().getTime());
 
         // workaround for too narrow an edit field
         chooser.setDateFormatString(" dd/MM/yyyy ");
-        chooser.setMinimumSize(chooser.getPreferredSize());
         dateValueField.add(chooser) ;
 
         JTimeSpinner spinner = new JTimeSpinner();
-        spinner.setMinimumSize(spinner.getPreferredSize());
         dateValueField.add(spinner) ;
 
         return dateValueField ;
@@ -367,7 +366,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
     private JPanel buildDurationValueField() {
         JPanel panel = new JPanel();
-        panel.setBorder(new EmptyBorder(3,3,3,3));
+        panel.setBorder(new EmptyBorder(3,0,3,3));
         durationValueField = new JTimeSpinner(JTimeSpinner.DURATION_TYPE);
         durationValueField.setMinimumSize(durationValueField.getPreferredSize());
         panel.add(durationValueField);
@@ -377,7 +376,7 @@ public class TimerDialog extends AbstractDoneDialog implements ActionListener {
 
     private JPanel buildVariableComboBox() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(3,3,3,3));
+        panel.setBorder(new EmptyBorder(3,5,3,3));
         timerVariableComboBox = new TimerDataVariableComboBox();
         panel.add(timerVariableComboBox, BorderLayout.CENTER);
 

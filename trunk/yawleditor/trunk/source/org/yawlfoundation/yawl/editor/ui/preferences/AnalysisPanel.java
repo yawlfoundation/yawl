@@ -87,7 +87,7 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
     private JPanel getContentPanel(ActionListener listener) {
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-
+        content.setBorder(new EmptyBorder(3,3,0,3));
         content.add(getResetNetAnalysisCheckBox(listener));
         content.add(getUseYAWLReductionRulesCheckBox(listener));
         content.add(getUseResetReductionRulesCheckBox(listener));

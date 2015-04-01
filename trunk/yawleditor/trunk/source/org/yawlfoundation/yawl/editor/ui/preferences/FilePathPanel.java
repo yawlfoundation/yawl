@@ -46,7 +46,6 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
     public FilePathPanel(CaretListener listener) {
         super();
         addContent(listener);
-        setPreferredSize(new Dimension(500, 400));
     }
 
 
@@ -82,7 +81,7 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.setBorder(new TitledBorder(title));
         panel.add(buildFileButton(title), BorderLayout.EAST);
-        textField.setPreferredSize(new Dimension(440, 25));
+        textField.setPreferredSize(new Dimension(490, textField.getFont().getSize() + 10));
         textField.addCaretListener(listener);
         panel.add(textField, BorderLayout.CENTER);
         return panel;
@@ -178,7 +177,7 @@ public class FilePathPanel extends JPanel implements PreferencePanel {
         else if (cmd.equals("WofYAWL")) {
             return _fldWofyawl;
         }
-        return null;
+        return new JTextField();     // will never reach
     }
 
 

@@ -34,6 +34,8 @@ import java.util.List;
 public class BuildProperties {
 
     XNode _node;
+    File _checkSumsFile;
+
 
     // default constructor - uses checksums.xml file in lib dir of this installation
     public BuildProperties() {
@@ -60,6 +62,30 @@ public class BuildProperties {
                 Collections.<XNode>emptyList();
     }
 
+
+    public XNode getNode(String nodeName) {
+        return _node != null ? _node.getChild(nodeName) : null;
+    }
+
+
+    public boolean replaceNode(XNode newNode) {
+        XNode oldNode = getNode(newNode.getName());
+        if (oldNode != null) {
+            _node.removeChild(oldNode);
+            _node.addChild(newNode);
+        }
+        return oldNode != null;
+    }
+
+    public boolean write() {
+        if (! (_checkSumsFile == null || _node == null)) {
+            StringUtil.stringToFile(_checkSumsFile, _node.toPrettyString());
+            return true;
+        }
+        return false;
+    }
+
+
     public String getEditorJarName() {
         for (XNode node : getFileList()) {
             String name = node.getAttributeValue("name");
@@ -73,6 +99,7 @@ public class BuildProperties {
 
     private void load(File checkSumsFile) {
         if (checkSumsFile.exists()) {
+            _checkSumsFile = checkSumsFile;
             _node = new XNodeParser().parse(StringUtil.fileToString(checkSumsFile));
         }
     }
