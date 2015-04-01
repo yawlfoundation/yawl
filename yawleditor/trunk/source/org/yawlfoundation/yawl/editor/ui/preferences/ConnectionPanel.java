@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.editor.ui.preferences;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretListener;
 import javax.swing.text.NumberFormatter;
@@ -37,9 +39,8 @@ public class ConnectionPanel extends JPanel {
 
     public ConnectionPanel(String title) {
         super();
-        setBorder(new TitledBorder(title));
+        setBorder(new CompoundBorder(new EmptyBorder(3,3,8,3),new TitledBorder(title)));
         addFields();
-        setPreferredSize(new Dimension(500, 75));
     }
 
 

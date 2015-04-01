@@ -53,7 +53,6 @@ public class ConnectionsPanel extends JPanel
         super();
         addContent(listener);
         loadValues();
-        setPreferredSize(new Dimension(500, 400));
     }
 
 
@@ -83,6 +82,7 @@ public class ConnectionsPanel extends JPanel
 
 
     private void addContent(CaretListener listener) {
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         _enginePanel = new ConnectionPanel("Engine");
         _enginePanel.addCaretListener(listener);
         _enginePanel.addCaretListener(this);
@@ -100,7 +100,6 @@ public class ConnectionsPanel extends JPanel
         content.setBorder(new EmptyBorder(10,0,10,0));
         content.add(getCredentialsFieldsPanel(listener));
         content.add(getButtonPanel(), BorderLayout.SOUTH);
-        content.setPreferredSize(new Dimension(500, 100));
         return content;
     }
 
@@ -121,7 +120,6 @@ public class ConnectionsPanel extends JPanel
         content.add(_userField);
         content.add(new JLabel("Password"));
         content.add(_passwordField);
-        content.setPreferredSize(new Dimension(500, 40));
 
         return content;
     }
@@ -130,7 +128,7 @@ public class ConnectionsPanel extends JPanel
     private JPanel getButtonPanel() {
         JButton testButton = new JButton("Test Connections");
         testButton.addActionListener(this);
-        testButton.setPreferredSize(new Dimension(125, 25));
+        testButton.setPreferredSize(new Dimension(140, 25));
         JPanel panel = new JPanel();
         panel.add(testButton);
         return panel;
@@ -139,6 +137,7 @@ public class ConnectionsPanel extends JPanel
 
     private JPanel getFeedbackPanel() {
         JPanel content = new JPanel(new GridLayout(0,1,10,10));
+        content.setBorder(new EmptyBorder(5,5,150,5));
         _engineTestReply = new JLabel();
         content.add(_engineTestReply);
         _resourceTestReply = new JLabel();

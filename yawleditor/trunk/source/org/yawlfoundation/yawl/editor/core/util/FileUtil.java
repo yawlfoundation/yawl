@@ -235,5 +235,23 @@ public class FileUtil {
     public static String getHomeDir() { return HOME_DIR; }
 
 
+    public static boolean isWindows() {
+        String os = System.getProperty("os.name");
+        return os != null && os.toLowerCase().startsWith("win");
+    }
+
+
+    public static File makeFile(String base, String suffix) {
+        if (suffix.contains("/")) {
+            int sepPos = suffix.lastIndexOf('/');
+            String dirPart = suffix.substring(0, sepPos);
+            String filePart = suffix.substring(sepPos + 1);
+            File dir = new File(base + File.separator + dirPart);
+            dir.mkdirs();
+            return new File(dir, filePart);
+        }
+        return new File(base, suffix);
+    }
+
 
 }

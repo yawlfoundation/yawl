@@ -168,7 +168,8 @@ public class DataVariableDialog extends JDialog
         String id = row.getDecompositionID();
         if (id.equals(net.getID())) {                 // net var name change
             for (VariableRow taskRow : getTaskTable().getVariables()) {
-                if (taskRow.getBinding().contains(id + "/" + oldName + "/")) {
+                String binding = taskRow.getBinding();
+                if (binding != null && binding.contains(id + "/" + oldName + "/")) {
                     taskRow.setBinding(DataUtils.createBinding(
                             id, newName, taskRow.getDataType()));
                 }

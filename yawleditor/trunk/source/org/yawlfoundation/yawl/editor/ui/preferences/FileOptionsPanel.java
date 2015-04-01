@@ -22,7 +22,6 @@ import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -44,7 +43,6 @@ public class FileOptionsPanel extends JPanel implements PreferencePanel {
     public FileOptionsPanel(ActionListener listener) {
         super();
         getContent(listener);
-        setPreferredSize(new Dimension(500, 400));
     }
 
 

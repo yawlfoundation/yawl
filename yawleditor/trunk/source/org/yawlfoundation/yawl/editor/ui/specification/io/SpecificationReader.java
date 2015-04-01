@@ -383,6 +383,7 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
 
     private void showLoadError(String errorMsg) {
+        if (errorMsg == null) errorMsg = "Invalid or corrupt content.";
         JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
                 "Failed to load specification.\n" +
                 (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),

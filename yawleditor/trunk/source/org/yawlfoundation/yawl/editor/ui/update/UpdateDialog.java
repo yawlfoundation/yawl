@@ -145,7 +145,7 @@ public class UpdateDialog extends JDialog
     protected JButton createButton(String caption) {
         JButton btn = new JButton(caption);
         btn.setActionCommand(caption);
-        btn.setPreferredSize(new Dimension(130,25));
+        btn.setPreferredSize(new Dimension(130, 25));
         btn.addActionListener(this);
         return btn;
     }
@@ -282,6 +282,7 @@ public class UpdateDialog extends JDialog
     private void restart() {
         try {
             if (new SpecificationFileHandler().closeFileOnExit()) {
+                UserSettings.setPostUpdatesCompleted(false);
                 replaceApp();
                 restartApp();
             }
@@ -304,39 +305,29 @@ public class UpdateDialog extends JDialog
         File editorDir = getJarFile().getParentFile();
         File tmpDir = getTmpDir();
         for (String fileName : _differ.getDownloadList()) {
-            File source = makeFile(tmpDir.getAbsolutePath(), fileName);
-            File target = makeFile(editorDir.getAbsolutePath(), fileName);
+            File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
+            File target = FileUtil.makeFile(editorDir.getAbsolutePath(), fileName);
             FileUtil.copy(source, target);
         }
         for (String fileName : _differ.getDeleteList()) {
-            File toDelete = makeFile(editorDir.getAbsolutePath(), fileName);
+            File toDelete = FileUtil.makeFile(editorDir.getAbsolutePath(), fileName);
             if (toDelete.exists()) toDelete.delete();
         }
 
         // copy downloaded checksums.xml to lib
         File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
-        File target = makeFile(editorDir.getAbsolutePath() + "/lib",
+        File target = FileUtil.makeFile(editorDir.getAbsolutePath() + "/lib",
                 UpdateChecker.CHECKSUM_FILE);
         FileUtil.copy(source, target);
     }
 
 
-    private File makeFile(String path, String fileName) {
-        if (fileName.contains("/")) {
-            int sepPos = fileName.lastIndexOf('/');
-            String dirPart = fileName.substring(0, sepPos);
-            String filePart = fileName.substring(sepPos + 1);
-            File dir = new File(path + File.separator + dirPart);
-            dir.mkdirs();
-            return new File(dir, filePart);
-        }
-        return new File(path, fileName);
-    }
-
-
     private void restartApp() throws URISyntaxException, IOException {
         String appPath = getJarFile().getPath();
-        if (! new File(appPath).exists()) {
+        String newJarName = _differ.getNewEditorJarName();
+
+        // if jar name has changed
+        if (! (newJarName == null || appPath.endsWith(newJarName))) {
             appPath = getPathForNewAppName(appPath);
             if (appPath == null) {
                 JOptionPane.showMessageDialog(this,
@@ -369,8 +360,14 @@ public class UpdateDialog extends JDialog
 
 
     private String getPathForNewAppName(String appPath) {
-        return appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1) +
+        return appPath == null ? null : getPathPart(appPath) +
                 _differ.getNewEditorJarName();
+    }
+
+
+    private String getPathPart(String appPath) {
+        return appPath == null ? null :
+                appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1);
     }
 
 }
