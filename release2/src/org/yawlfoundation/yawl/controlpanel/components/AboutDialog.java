@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Calendar;
 
 /**
  * @author Michael Adams
@@ -25,8 +26,9 @@ import java.io.File;
  */
 public class AboutDialog extends JDialog {
 
-    private static final String DEFAULT_YEAR = "2014";
     private static final Color BACK_COLOUR = new Color(254,254,240);
+    private static final String DEFAULT_YEAR =
+           String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
 
     public AboutDialog(Point appLocation, Point click) {
@@ -58,7 +60,7 @@ public class AboutDialog extends JDialog {
 
 
     private JLabel getLabel() {
-        ChecksumsReader props = new ChecksumsReader(getLocalCheckSumFile());
+        ChecksumsReader props = new ChecksumsReader(FileUtil.getLocalCheckSumFile());
         StringBuilder s = new StringBuilder();
         s.append("YAWL Control Panel ");
         s.append(getVersion(props));
@@ -115,12 +117,5 @@ public class AboutDialog extends JDialog {
             }
         });
     }
-
-
-    private File getLocalCheckSumFile() {
-        return new File(FileUtil.buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
-                UpdateChecker.CHECKSUM_FILE));
-    }
-
 
 }

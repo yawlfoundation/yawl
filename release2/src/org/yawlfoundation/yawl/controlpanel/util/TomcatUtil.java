@@ -21,18 +21,22 @@ public class TomcatUtil {
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
     public static boolean start() throws IOException {
-        if (! isRunning()) {
+        if (! isEngineRunning()) {                    // yawl isn't running
+            if (isPortActive()) {                        // but localhost:port is responsive
+                throw new IOException("Tomcat port is already in use by another service.\n" +
+                     "Please check/change the port in Preferences and try again.");
+            }
             checkSizeOfLog();
-            removePidFile();
+            removePidFile();                            // if not already removed
             executeCmd(createStartCommandList());
             return true;
         }
-        return false;
+        return false;                                   // already started
     }
 
 
     public static boolean stop() throws IOException {
-        if (isRunning()) {
+        if (isPortActive()) {
             executeCmd(createStopCommandList());
             return true;
         }
@@ -40,8 +44,18 @@ public class TomcatUtil {
     }
 
 
-    public static boolean isRunning() {
-        return isRunning("localhost");
+    public static boolean isPortActive() {
+        return isPortActive("localhost", getTomcatServerPort());
+    }
+
+
+    public static boolean isPortActive(int port) {
+        return isPortActive("localhost", port);
+    }
+
+
+    public static boolean isTomcatRunning() {
+        return pidExists();
     }
 
 
@@ -51,25 +65,36 @@ public class TomcatUtil {
 
 
     public static int getTomcatServerPort() {
+        if (SERVER_PORT < 0) SERVER_PORT = loadTomcatServerPort();
+        return SERVER_PORT;
+    }
+
+
+    public static boolean setTomcatServerPort(int port) {
         XNode root = loadTomcatConfigFile("server.xml");
         if (root != null) {
             XNode service = root.getChild("Service");
             if (service != null) {
                 XNode connector = service.getChild("Connector");
                 if (connector != null) {
-                    return StringUtil.strToInt(connector.getAttributeValue("port"), -1);
+                    connector.addAttribute("port", port);
+                    if (writeTomcatConfigFile("server.xml", root.toPrettyString(true))) {
+                        updateServiceConfigs(getTomcatServerPort(), port);
+                        SERVER_PORT = port;
+                        return true;
+                    }
                 }
             }
         }
-        return -1;
+        return false;
     }
 
 
     public static boolean isEngineRunning() {
         if (ENGINE_URL == null) {
             try {
-                if (SERVER_PORT == -1) SERVER_PORT = getTomcatServerPort();
-                ENGINE_URL = new URL("http", "localhost", SERVER_PORT, "/yawl/ib");
+                ENGINE_URL = new URL("http", "localhost", getTomcatServerPort(),
+                        "/yawl/ib");
             }
             catch (MalformedURLException mue) {
                 return false;
@@ -83,7 +108,8 @@ public class TomcatUtil {
         try {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("HEAD");
-            httpConnection.setConnectTimeout(2000);
+            httpConnection.setConnectTimeout(1000);
+            httpConnection.setReadTimeout(1000);
             return httpConnection.getResponseCode() == 200;
         }
         catch (IOException ioe) {
@@ -102,10 +128,9 @@ public class TomcatUtil {
 
     /*************************************************************************/
 
-    private static boolean isRunning(String host) {
-        if (SERVER_PORT == -1) SERVER_PORT = getTomcatServerPort();
+    private static boolean isPortActive(String host, int port) {
         try {
-            return simplePing(host, SERVER_PORT);
+            return simplePing(host, port);
         }
         catch (IOException ioe) {
             return false;
@@ -124,7 +149,38 @@ public class TomcatUtil {
     }
 
 
+    private static int loadTomcatServerPort() {
+        XNode root = loadTomcatConfigFile("server.xml");
+        if (root != null) {
+            XNode service = root.getChild("Service");
+            if (service != null) {
+                XNode connector = service.getChild("Connector");
+                if (connector != null) {
+                    return StringUtil.strToInt(connector.getAttributeValue("port"), -1);
+                }
+            }
+        }
+        return -1;       // default
+    }
+
+
     private static XNode loadTomcatConfigFile(String filename) {
+        File configFile = getTomcatConfigFile(filename);
+        return (configFile.exists()) ?
+                new XNodeParser().parse(StringUtil.fileToString(configFile)) : null;
+    }
+
+
+    private static boolean writeTomcatConfigFile(String filename, String content) {
+        File configFile = getTomcatConfigFile(filename);
+        if (configFile.exists()) {
+            configFile = StringUtil.stringToFile(configFile, content);
+        }
+        return configFile != null;
+    }
+
+
+    private static File getTomcatConfigFile(String filename) {
         if (!filename.startsWith("conf")) {
             filename = "conf" + File.separator + filename;
         }
@@ -132,8 +188,7 @@ public class TomcatUtil {
         if (!configFile.isAbsolute()) {
             configFile = new File(getCatalinaHome(), filename);
         }
-        return (configFile.exists()) ?
-                new XNodeParser().parse(StringUtil.fileToString(configFile)) : null;
+        return configFile;
     }
 
 
@@ -172,7 +227,7 @@ public class TomcatUtil {
          .append("bin")
          .append(FileUtil.SEP)
          .append("catalina.")
-         .append(getScriptExtn());
+                .append(getScriptExtn());
         return s.toString();
     }
 
@@ -229,9 +284,15 @@ public class TomcatUtil {
     }
 
 
-    private static void removePidFile() {
+    public static void removePidFile() {
         File pidTxt = new File(getCatalinaHome(), "catalina_pid.txt");
         if (pidTxt.exists()) pidTxt.delete();
+    }
+
+
+    private static boolean pidExists() {
+        File pidFile = new File(getCatalinaHome(), "catalina_pid.txt");
+        return pidFile != null && pidFile.exists();
     }
 
 
@@ -257,22 +318,18 @@ public class TomcatUtil {
     }
 
 
-    private static void captureError(Process p) {
-        StringWriter out = new StringWriter(2048);
-        InputStream is = p.getErrorStream();
-        InputStreamReader isr = new InputStreamReader(is);
-        char[] buffer = new char[2048];
-        int count;
-        try {
-            while ((count = isr.read(buffer)) > 0)
-                out.write(buffer, 0, count);
-
-            isr.close();
+    private static boolean updateServiceConfigs(int oldPort, int newPort) {
+        if (oldPort == newPort) return true;
+        String oldChars = ":" + oldPort;
+        String newChars = ":" + newPort;
+        File appsBase = new File(getCatalinaHome(), "webapps");
+        for (File appDir : FileUtil.getDirList(appsBase)) {
+            File webxml = new File(appDir, "WEB-INF" + File.separator + "web.xml");
+            if (webxml.exists()) {
+                StringUtil.replaceInFile(webxml, oldChars, newChars);
+            }
         }
-        catch (IOException ioe) {
-            //
-        }
-        System.out.println(out.toString());
+        return true;
     }
 
 }

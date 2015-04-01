@@ -16,7 +16,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author Michael Adams
@@ -82,7 +81,7 @@ public class YControlPanel extends JFrame {
 
 
     private void initStatus() {
-        if (TomcatUtil.isRunning()) Publisher.announceRunningStatus();
+        if (TomcatUtil.isPortActive()) Publisher.announceRunningStatus();
     }
 
 

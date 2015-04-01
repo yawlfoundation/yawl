@@ -471,6 +471,27 @@ public class StringUtil {
     }
 
 
+    public static boolean replaceInFile(File f, CharSequence oldChars, CharSequence newChars) {
+        String s = fileToString(f);
+        if (s != null) {
+            s = s.replace(oldChars, newChars);
+            stringToFile(f, s);
+        }
+        return s != null;
+    }
+
+
+    public static boolean replaceInFile(String fileName, CharSequence oldChars,
+                                        CharSequence newChars) {
+        String s = fileToString(fileName);
+        if (s != null) {
+            s = s.replace(oldChars, newChars);
+            stringToFile(fileName, s);
+        }
+        return s != null;
+    }
+
+
     public static String extract(String source, String pattern) {
         String extracted = null;
         Pattern p = Pattern.compile(pattern);
