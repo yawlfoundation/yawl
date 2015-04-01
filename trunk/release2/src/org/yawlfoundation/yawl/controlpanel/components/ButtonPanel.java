@@ -27,6 +27,9 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
     private JButton btnStartStop;
     private JButton btnLogon;
+    private JButton btnOutput;
+    private JButton btnUpdates;
+    private JButton btnPreferences;
     private JFrame _mainWindow;
     private OutputDialog _outputDialog;
     private UpdateDialogLoader _updateDialogLoader;
@@ -86,7 +89,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
     public void performUserPreferencesOnStart() {
         UserPreferences prefs = new UserPreferences();
         ActionEvent event;
-        boolean tomcatIsRunning = TomcatUtil.isRunning();
+        boolean tomcatIsRunning = TomcatUtil.isPortActive();
         if (prefs.openOutputWindowOnStartup()) {
             event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Output Log");
             actionPerformed(event);
@@ -110,14 +113,17 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         add(btnStartStop);
         btnLogon = createButton("Logon", "Go to the YAWL Logon Page");
         add(btnLogon);
-        add(createButton("Updates", "Check for Updates"));
+        btnUpdates = createButton("Updates", "Check for Updates");
+        add(btnUpdates);
 
         // windows doesn't need the output window
         if (! FileUtil.isWindows()) {
-            add(createButton("Output Log", "Show Output Log Window"));
+            btnOutput = createButton("Output Log", "Show Output Log Window");
+            add(btnOutput);
         }
 
-        add(createButton("Preferences", "Set or Check Preferences"));
+        btnPreferences = createButton("Preferences", "Set or Check Preferences");
+        add(btnPreferences);
         enableButtons(EngineStatus.Stopped);   // to begin with
     }
 
@@ -213,6 +219,9 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         boolean waiting = (status == EngineStatus.Starting ||
                 status == EngineStatus.Stopping);
         btnStartStop.setEnabled(! waiting);
+        btnUpdates.setEnabled(! waiting);
+        btnPreferences.setEnabled(! waiting);
+        if (btnOutput != null) btnOutput.setEnabled(! waiting);
         btnLogon.setEnabled(status == EngineStatus.Running);
     }
 

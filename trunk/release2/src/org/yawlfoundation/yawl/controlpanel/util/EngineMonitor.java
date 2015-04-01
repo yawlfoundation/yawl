@@ -49,6 +49,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
                 _shuttingDown = false;
                 _shutdownCounter = 0;
                 Publisher.announceStoppedStatus();
+                TomcatUtil.removePidFile();
             }
             else {
                 new Pinger().execute();
@@ -108,7 +109,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
             switch (_currentStatus) {
                 case Starting:
                 case Running:  return TomcatUtil.isEngineRunning();
-                case Stopping: return TomcatUtil.isRunning();
+                case Stopping: return TomcatUtil.isTomcatRunning();
             }
             return false;
         }
@@ -124,9 +125,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
             switch (_currentStatus) {
                 case Starting: { if (result) Publisher.announceRunningStatus(); break; }
                 case Running:  { if (!result) Publisher.announceStoppingStatus(); break; }
-                case Stopping: { if (!result) { _shuttingDown = true; }
-                    break;
-                }
+                case Stopping: { if (!result) _shuttingDown = true; break; }
             }
         }
     }

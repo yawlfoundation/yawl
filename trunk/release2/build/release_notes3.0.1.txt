@@ -22,6 +22,8 @@ EDITOR:
 
  * [Enhancement] [Extended Attributes]: Added 'max-field-width' extended attribute
    (see also resource service dynamic form enhancement).
+ * [Enhancement] [Validation]: Improved validation handling for split predicate
+   expressions defined externally (eg timer, cost, etc).
  * [Enhancement] [Specification]: Added infomation message to delete orphan decompositions
    action when there are no orphans to delete.
  * [Enhancement] [Data Binding]: Added net-level variable binding reference dialog
@@ -66,14 +68,24 @@ EDITOR:
  * [Bugfix] [Repository]: Loading a decomposition from repository did not attach it to
    the specification for validation purposes.
  * [Bugfix] [UI]: Mis-sorting of plugin menu items.
+ * [Bugfix (issue 541)] [Specification]: Rationalising of identifiers removed random net
+   elements from specifications in some very large, non-complete nets.
+ * [Bugfix] [Specification]: Some specifications missing description on reload.
+ * [Bugfix (issue 544)] [Specification]: When loading a specification file that contains
+   a task referencing a non-existent decomposition, the load silently fails.
 
 
 ENGINE:
+
+ * [Enhancement]: Improved handling of validation and processing of externally defined
+   predicate functions.
+ * [Enhancement]: Added 'deleteonexit' attributes to build script for better cleanups.
 
  * [Bugfix]: A task with a timer to start on offer, when in tight loop may cause a
    persistence exception.
  * [Bugfix]: Cancelling a case after a schema validation error may cause an engine
    persistence failure in some cases.
+ * [Bugfix] Incorrect marshalling of YClient via Interface A.
  * [Bugfix] (issue 534): Order fulfilment example missing some library jars in
    non-enterprise environments.
  * [Bugfix]: Plugin framework failing to load external jars in non-enterprise
@@ -82,6 +94,7 @@ ENGINE:
    255 bytes in new 3.0 structure for non-enterprise environments.
  * [Bugfix] (issue 533): External data gateway fails to load if the file path to the
    engine classes contains one or more spaces or any extended UTF characters.
+ * [Bugfix]: Cleaned up order fulfilment example.
 
 
 RESOURCE SERVICE:
@@ -96,6 +109,8 @@ RESOURCE SERVICE:
    date/time.
  * [Enhancement]: Removed inbound validation of previously saved data on dynamic forms.
 
+ * [Bugfix]: Backing table for work item cache may become out of sync with service
+   due to race condition when a work item is removed from the cache.
  * [Bugfix]: Attempting to browse to the login page from an already active session will
    lock the browser window.
  * [Bugfix]: Dynamic forms with only boolean fields (i.e. checkboxes) and text above or
@@ -111,6 +126,10 @@ RESOURCE SERVICE:
    environments.
  * [Bugfix] (issue 533): External org data fails to load if the file path to the resource
    service contains one or more spaces or any extended UTF characters.
+ * [Bugfix]: Rare NullPointerException in InterfaceClients#connect when logging on for
+   the first time.
+ * [Bugfix]: Resource that completed a previous task used for familiar task and
+   separation of duties allocations lost if the engine is restarted mid-case.
 
 
 CONTROL PANEL:
@@ -118,6 +137,8 @@ CONTROL PANEL:
  * [Enhancement]: Removed engine restart from control panel update process when control
    panel app is the only update.
 
+ * [Bugfix]: Dynamically create JAVA_HOME env variable before starting engine if missing;
+   fix for infinite 'Starting Engine' message.
  * [Bugfix]: Control panel erroneously attempted to register the order fulfilment examples
    as a service.
 

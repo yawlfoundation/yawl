@@ -480,7 +480,7 @@ public class YNetRunner {
     public void startWorkItemInTask(YPersistenceManager pmgr, YWorkItem workItem)
             throws YDataStateException, YPersistenceException,
                    YQueryException, YStateException {
-        startWorkItemInTask (pmgr, workItem.getCaseID(), workItem.getTaskID());
+        startWorkItemInTask(pmgr, workItem.getCaseID(), workItem.getTaskID());
     }
 
 
@@ -579,8 +579,8 @@ public class YNetRunner {
                    YPersistenceException {
 
         Set<YTask> enabledTasks = new HashSet<YTask>() ;
-        List<YEnabledTransitionSet.TaskGroup> taskGroups = enabledSet.getEnabledTaskGroups();
-        for (YEnabledTransitionSet.TaskGroup group : taskGroups) {
+        Set<YAtomicTask> emptyTasks = null ;
+        for (YEnabledTransitionSet.TaskGroup group : enabledSet.getAllTaskGroups()) {
             if (group.hasEnabledCompositeTasks()) {
                 YCompositeTask composite = group.getRandomCompositeTaskFromTaskGroup();
                 if (! (enabledTasks.contains(composite) || endOfNetReached())) {
@@ -601,36 +601,34 @@ public class YNetRunner {
                         enabledTasks.add(atomic) ;
                     }
                 }
+                if (groupHasEmptyTask) {            // do empty tasks last
+                    if (emptyTasks == null) emptyTasks = new HashSet<YAtomicTask>();
+                    emptyTasks.addAll(group.getEnabledEmptyTasks());
+                }
             }
         }
+        if (emptyTasks != null) processEmptyTasks(emptyTasks, pmgr);
     }
 
 
     private YAnnouncement fireAtomicTask(YAtomicTask task, String groupID,
-                                                   YPersistenceManager pmgr)
+                                         YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
-                   YPersistenceException {
+            YPersistenceException {
 
-        YAnnouncement announcement = null ;
+        YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
+        if (groupID != null) item.setDeferredChoiceGroupID(groupID);
         YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
+        YAnnouncement announcement = _announcer.createAnnouncement(wsgw.getYawlService(),
+                item, YEngineEvent.ITEM_ADD);
 
-        // if its not an empty task
-        if (wsgw != null) {
-            YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
-            if (groupID != null) item.setDeferredChoiceGroupID(groupID);
-
-            announcement = _announcer.createAnnouncement(wsgw.getYawlService(), item,
-                    YEngineEvent.ITEM_ADD);
-
-            if (_announcer.hasInterfaceXListeners()) {
-                _announcer.announceCheckWorkItemConstraints(item,
-                                                 _net.getInternalDataDocument(), true);
-            }
-            _enabledTasks.add(task);
-            _enabledTaskNames.add(task.getID());
-            if (pmgr != null) pmgr.updateObject(this);
+        if (_announcer.hasInterfaceXListeners()) {
+            _announcer.announceCheckWorkItemConstraints(item,
+                    _net.getInternalDataDocument(), true);
         }
-        else processEmptyTask(task, pmgr);
+        _enabledTasks.add(task);
+        _enabledTaskNames.add(task.getID());
+        if (pmgr != null) pmgr.updateObject(this);
 
         return announcement;
     }
@@ -659,14 +657,30 @@ public class YNetRunner {
     }
 
 
-    protected void processEmptyTask(YAtomicTask task,YPersistenceManager pmgr)
-            throws YDataStateException, YStateException, YQueryException,
-                   YPersistenceException {
+    // fire, start and complete the decomposition-less atomic tasks in situ
+    protected void processEmptyTasks(Set<YAtomicTask> emptyTasks,YPersistenceManager pmgr)
+                throws YDataStateException, YStateException, YQueryException,
+                       YPersistenceException {
 
-        // fire, start and complete the decomposition-less atomic task in situ
-        YIdentifier id = task.t_fire(pmgr).get(0);
-        task.t_start(pmgr, id);
-        completeTask(pmgr, null, task, id, null);
+        Map<YIdentifier, YAtomicTask> identifiers = new HashMap<YIdentifier, YAtomicTask>();
+
+        // must fire & start them all first to avoid race conditions
+        for (YAtomicTask task : emptyTasks) {
+            YIdentifier id = task.t_fire(pmgr).get(0);
+            task.t_start(pmgr, id);
+            identifiers.put(id, task);
+            _busyTasks.add(task);
+        }
+
+        // now they can be completed
+        for (Map.Entry<YIdentifier, YAtomicTask> entry : identifiers.entrySet()) {
+
+            // if net has already completed, ! t_isBusy, so don't attempt to complete
+            YAtomicTask task = entry.getValue();
+            if (task.t_isBusy()) {
+                completeTask(pmgr, null, task, entry.getKey(), null);
+            }
+        }
     }
 
     
@@ -991,7 +1005,7 @@ public class YNetRunner {
                .append(_net.getID())
                .append("] of case [")
                .append(_caseIDForNet.toString())
-               .append("] has successfully completed, there are one or more ")
+               .append("] has successfully completed, there were one or more ")
                .append("tokens remaining in the net, within these elements: [");
 
             msg.append(StringUtils.join(haveTokens, ", "));

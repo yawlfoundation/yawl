@@ -41,24 +41,34 @@ import java.util.*;
 public class YEnabledTransitionSet {
 
     // a table of [place id, set of enabled transitions]
-    private Hashtable<String, TaskGroup> transitions = new Hashtable<String, TaskGroup>();
+    private Map<String, TaskGroup> transitions = new HashMap<String, TaskGroup>();
 
     // the only constructor
     public YEnabledTransitionSet() { }
 
 
     /**
-     * Gets the list of condition ids that are enabling this task
+     * Adds an enabled task to the relevant task group
      * @param task the enabled task
-     * @return a list of condition ids
      */
-    private List<String> getFlowsFromIDs(YTask task) {
-        List<String> result = new ArrayList<String>();
-        for (YFlow flow : task.getPresetFlows()) {
-            YNetElement prior = flow.getPriorElement();
-            if (prior != null) result.add(prior.getID()) ;
-        }
-        return result ;
+    public void add(YTask task) {
+         List<String> presetIDs = getFlowsFromIDs(task) ;
+         for (String id : presetIDs) add(id, task);
+    }
+
+
+    /**
+     * Gets the final set(s) of enabled transitions (one for each enabling place)
+     * @return the list of groups
+     */
+    public List<TaskGroup> getAllTaskGroups() {
+        return new ArrayList<TaskGroup>(transitions.values());
+    }
+
+
+    /** @return true if there are no enabled transitions in this set */
+    public boolean isEmpty() {
+        return transitions.isEmpty();
     }
 
 
@@ -77,39 +87,32 @@ public class YEnabledTransitionSet {
 
 
     /**
-     * Adds an enabled task to the relevant task group
+     * Gets the list of condition ids that are enabling this task
      * @param task the enabled task
+     * @return a list of condition ids
      */
-    public void add(YTask task) {
-         List<String> presetIDs = getFlowsFromIDs(task) ;
-         for (String id : presetIDs) add(id, task);
+    private List<String> getFlowsFromIDs(YTask task) {
+        List<String> result = new ArrayList<String>();
+        for (YFlow flow : task.getPresetFlows()) {
+            YNetElement prior = flow.getPriorElement();
+            if (prior != null) result.add(prior.getID()) ;
+        }
+        return result ;
     }
 
 
-    /**
-     * Gets the final set(s) of enabled transitions (one for each enabling place)
-     * @return the list of groups
-     */
-    public List<TaskGroup> getEnabledTaskGroups() {
-        return new ArrayList<TaskGroup>(transitions.values());
-    }
-
-    /** @return true if there are no enabled transitions in this set */
-    public boolean isEmpty() {
-        return transitions.isEmpty();
-    }
-
-
-  /*********************************************************************************/
+    /*********************************************************************************/
 
     /**
      * A group of YTasks plus an identifier
      */
 
-    public class TaskGroup extends ArrayList<YTask> {
+    public class TaskGroup {
 
         private String _id ;                           // the group id of this group
-
+        private List<YCompositeTask> _compositeTasks;
+        private List<YAtomicTask> _atomicTasks;
+        private List<YAtomicTask> _emptyAtomicTasks;
 
         /** Constructor with no args */
         TaskGroup() {
@@ -128,14 +131,48 @@ public class YEnabledTransitionSet {
 
 
         /**
+         * Add a task to this group
+         * @param task the task to add
+         * @return true if the added task was not already in the group
+         */
+        public boolean add(YTask task) {
+            if (task instanceof YCompositeTask) {
+                return addCompositeTask((YCompositeTask) task);
+            }
+            else if (task instanceof YAtomicTask) {
+                return addAtomicTask((YAtomicTask) task);
+            }
+            return false;
+        }
+
+
+        /**
          * Gets the list of atomic tasks in this group
          * @return the list of enabled atomic tasks
          */
         public List<YAtomicTask> getEnabledAtomicTasks() {
-            List<YAtomicTask> result = new ArrayList<YAtomicTask>();
-            for (YTask task : this)
-                if (task instanceof YAtomicTask) result.add((YAtomicTask) task);
-            return result;
+            return _atomicTasks != null ? _atomicTasks
+                    : Collections.<YAtomicTask>emptyList();
+        }
+
+
+        /**
+         * Gets the list of 'empty' atomic tasks in this group
+         * @return the list of enabled atomic tasks
+         */
+        public List<YAtomicTask> getEnabledEmptyTasks() {
+            return _emptyAtomicTasks != null ? _emptyAtomicTasks
+                    : Collections.<YAtomicTask>emptyList();
+        }
+
+
+        /**
+         * Gets the list of composite tasks in this group
+         * @return the list of enabled composite tasks
+         */
+        public List<YCompositeTask> getEnabledCompositeTasks() {
+            return _compositeTasks != null ? _compositeTasks
+                    : Collections.<YCompositeTask>emptyList();
         }
 
 
@@ -150,34 +187,25 @@ public class YEnabledTransitionSet {
          * @return true if the group contains an empty atomic task.
          */
         public boolean hasEmptyAtomicTask() {
-            for (YAtomicTask task : getEnabledAtomicTasks()) {
-                if (task.getDecompositionPrototype() == null) return true;
-            }
-            return false;
-        }
-
-
-        /**
-         * Gets the list of composite tasks in this group
-         * @return the list of enabled composite tasks
-         */
-        public List<YCompositeTask> getEnabledCompositeTasks() {
-            List<YCompositeTask> result = new ArrayList<YCompositeTask>();
-            for (YTask task : this)
-                if (task instanceof YCompositeTask) result.add((YCompositeTask) task);
-            return result;
+            return getEmptyTaskCount() > 0;
         }
 
 
         /** @return the number of atomic tasks in this group */
         public int getAtomicTaskCount() {
-            return getEnabledAtomicTasks().size();
+            return _atomicTasks != null ? _atomicTasks.size() : 0;
         }
 
 
         /** @return the number of composite tasks in this group */
         public int getCompositeTaskCount() {
-            return getEnabledCompositeTasks().size();
+            return _compositeTasks != null ? _compositeTasks.size() : 0;
+        }
+
+
+        /** @return the number of composite tasks in this group */
+        public int getEmptyTaskCount() {
+            return _emptyAtomicTasks != null ? _emptyAtomicTasks.size() : 0;
         }
 
 
@@ -202,13 +230,31 @@ public class YEnabledTransitionSet {
          * several
          */
         public YCompositeTask getRandomCompositeTaskFromTaskGroup() {
-            List<YCompositeTask> taskList = getEnabledCompositeTasks();
-            switch (taskList.size()) {
+            if (_compositeTasks == null) return null;
+            switch (_compositeTasks.size()) {
                 case 0 : return null;
-                case 1 : return taskList.get(0);
-                default: return taskList.get(new Random().nextInt(taskList.size())) ;
+                case 1 : return _compositeTasks.get(0);
+                default: return _compositeTasks.get(
+                        new Random().nextInt(_compositeTasks.size())) ;
             }
         }
+
+
+        private boolean addCompositeTask(YCompositeTask task) {
+            if (_compositeTasks == null) _compositeTasks = new ArrayList<YCompositeTask>();
+            return _compositeTasks.add(task);
+        }
+
+
+        private boolean addAtomicTask(YAtomicTask task) {
+            if (task.getDecompositionPrototype() == null) {
+                if (_emptyAtomicTasks == null) _emptyAtomicTasks = new ArrayList<YAtomicTask>();
+                return _emptyAtomicTasks.add(task);
+            }
+            if (_atomicTasks == null) _atomicTasks = new ArrayList<YAtomicTask>();
+            return _atomicTasks.add(task);
+        }
+
     }
 
 }

@@ -206,7 +206,9 @@ public class YDecompositionParser {
                     taskID,
                     splitJoinTypes[1], splitJoinTypes[0],
                     (YNet) _decomposition);
-        } else if ("WebServiceGatewayFactsType".equals(decompositionType) || decomposesToID == null) {
+        } else if ("WebServiceGatewayFactsType".equals(decompositionType) ||
+                decomposesToID == null ||                // empty task or no decomp ref
+                decompositionType == null) {             // ref to missing decomp
             task = new YAtomicTask(
                     taskID,
                     splitJoinTypes[1], splitJoinTypes[0],

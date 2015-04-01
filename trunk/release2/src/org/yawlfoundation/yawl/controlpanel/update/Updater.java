@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
@@ -8,6 +10,8 @@ import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
+import org.yawlfoundation.yawl.util.StartMenuUpdater;
+import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -209,6 +213,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             File checkSum = getLocalCheckSumFile();
             _updateDialog.refresh(new Differ(checkSum, checkSum));
             updateServiceRegistration();
+            new UserPreferences().setPostUpdatesCompleted(false);
             if (_updatingThis) restartApp();
         }
         Publisher.removeEngineStatusListener(this);
@@ -282,7 +287,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             else showError("Failed to restart Engine.");
         }
         catch (Exception whatever) {
-            showError("Problem starting Engine.");
+            showError("Problem starting Engine: " + whatever.getMessage());
         }
     }
 
@@ -476,7 +481,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 "bin" + File.separator + "java";
         try {
             String appPath = FileUtil.getJarFile().getPath();
-            if (! new File(appPath).exists()) {
+            String newJarName = _differ.getNewJarName();
+            if (! (newJarName == null || appPath.endsWith(newJarName))) {
                 appPath = getPathForNewAppName(appPath);
                 if (appPath == null) {
                     throw new IllegalArgumentException();
@@ -499,9 +505,13 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private String getPathForNewAppName(String appPath) {
-        return appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1) +
-                _differ.getNewJarName();
+        return appPath == null ? null : getPathPart(appPath) + _differ.getNewJarName();
     }
 
+
+    private String getPathPart(String appPath) {
+        return appPath == null ? null :
+                appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1);
+    }
 
 }

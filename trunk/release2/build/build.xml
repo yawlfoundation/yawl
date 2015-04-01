@@ -2536,6 +2536,8 @@
                        org/yawlfoundation/yawl/util/StringUtil.class
                        org/yawlfoundation/yawl/util/CheckSummer.class
                        org/yawlfoundation/yawl/util/PasswordEncryptor.class
+                       org/yawlfoundation/yawl/util/StartMenuUpdater.class
+                       org/yawlfoundation/yawl/util/StartMenuUpdater$ScriptSettings.class
                        org/yawlfoundation/yawl/util/XNode*.class">
             <fileset dir="${enumeratedClasses}"
                      includes="org/simplericity/macify/eawt/**/*

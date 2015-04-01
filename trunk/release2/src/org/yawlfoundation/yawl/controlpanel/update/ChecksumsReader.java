@@ -23,25 +23,27 @@ public class ChecksumsReader {
 
     public String getVersion() { return getValue(_root, "version"); }
 
+    public XNode getNode(String name) {
+        return _root != null ? _root.getChild(name) : null;
+    }
+
     protected String getTimestamp() { return getValue(_root, "timestamp"); }
 
 
-    protected XNode getLibNode() {
-        return _root != null ? _root.getChild("lib") : null;
-    }
+    protected XNode getLibNode() { return getNode("lib"); }
 
-    protected XNode getWebAppsNode() {
-        return _root != null ? _root.getChild("webapps") : null;
-    }
+
+    protected XNode getWebAppsNode() { return getNode("webapps"); }
+
 
     protected XNode getAppNode(String appName) {
         XNode webappsNode = getWebAppsNode();
         return webappsNode != null ? webappsNode.getChild(appName) : null;
     }
 
-    public XNode getControlPanelNode() {
-        return _root != null ? _root.getChild("controlpanel") : null;
-    }
+
+    public XNode getControlPanelNode() { return getNode("controlpanel"); }
+
 
     public XNode getControlPanelFileNode() {
         XNode node = getControlPanelNode();

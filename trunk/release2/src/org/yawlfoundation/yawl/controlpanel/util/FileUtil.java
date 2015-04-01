@@ -1,10 +1,14 @@
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.List;
  */
 public class FileUtil {
 
+    private static final String HOME_DIR = setHomeDir();
     public static final char SEP = File.separatorChar;
 
 
@@ -125,6 +130,9 @@ public class FileUtil {
     }
 
 
+    public static String getHomeDir() { return HOME_DIR; }
+
+
     public static String buildPath(String... files) {
         return StringUtil.join(Arrays.asList(files), SEP);
     }
@@ -134,5 +142,36 @@ public class FileUtil {
         String os = System.getProperty("os.name");
         return os != null && os.toLowerCase().startsWith("win");
     }
+
+
+    public static File getLocalCheckSumFile() {
+        return new File(buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
+                UpdateChecker.CHECKSUM_FILE));
+    }
+
+
+    private static String setHomeDir() {
+        String result = "";
+        try {
+            Class editorClass = Class.forName("org.yawlfoundation.yawl.controlpanel.Launcher");
+            CodeSource source = editorClass.getProtectionDomain().getCodeSource();
+            if (source != null) {
+                URL location = source.getLocation();
+                String path = URLDecoder.decode(location.getPath(), "UTF-8");
+                if (path.charAt(2) == ':') path = path.substring(1);
+                int lastSep = path.lastIndexOf('/') ;
+                if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
+                if (File.separatorChar != '/')
+                    result = result.replace('/', File.separatorChar);
+            }
+        }
+        catch ( Exception e ) {
+            e.printStackTrace();
+            result = System.getProperty("user.dir");   // default to current working dir
+        }
+        return result;
+    }
+
+
 
 }
