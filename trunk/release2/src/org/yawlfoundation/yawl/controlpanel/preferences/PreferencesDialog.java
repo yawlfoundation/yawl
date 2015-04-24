@@ -177,6 +177,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
                 new EmptyBorder(5, 5, 5, 5)));
         _portField = new JFormattedTextField(getPortValueFormatter());
         _portField.setPreferredSize(new Dimension(75, 25));
+        _portField.setBorder(new EmptyBorder(0,5,0,0));
         _portPanel.add(new JLabel("Port"));
         _portPanel.add(_portField);
         enablePanel(_portPanel, !TomcatUtil.isEngineRunning());

@@ -100,8 +100,9 @@ public class StartMenuUpdater {
                     "goto end\r\n\r\n" +
                     ":editor\r\n" +
                     "cd editor\r\n" +
+                    "shift\r\n" +
                     java + " -Xms256m -Xmx256m -XX:PermSize=128m " +
-                    "-XX:MaxPermSize=128m -jar YAWLEditor3.0.1.jar\r\n" +
+                    "-XX:MaxPermSize=128m -jar YAWLEditor3.0.1.jar \"%1\"\r\n" +
                     "goto end\r\n\r\n" +
                     ":usage\r\n" +
                     "echo USAGE: One of the following\r\n" +
