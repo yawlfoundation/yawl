@@ -74,9 +74,9 @@ public class ResourcingPropertyEditor extends DialogPropertyEditor {
         }
         else {
             JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
-                 "A connection to the " +
-                 "Resource Service has not been established.\n" +
-                 "Please connect to a running Resource Service via the Settings menu.",
+                 "A connection to the Resource Service has not been established.\n" +
+                 "Please connect to a running Resource Service via the Preferences\n" +
+                 "dialog (menu File...Preferences), and try again.",
                  "Service Unavailable", JOptionPane.WARNING_MESSAGE);
             return true;
         }

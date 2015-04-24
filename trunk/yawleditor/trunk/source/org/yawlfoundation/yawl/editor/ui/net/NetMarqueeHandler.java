@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.editor.ui.swing.menu.PaletteBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -43,6 +44,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     private PortView sourcePort, targetPort = null;
     private final NetGraph net;
     private final PaletteBar paletteBar;
+    private int paintPotentialFlowCounter;
 
     private enum State {
         ABOVE_CANVAS,
@@ -177,6 +179,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
             }
             case ABOVE_OUTGOING_PORT: {
                 state = State.DRAWING_FLOW_RELATION;
+                getNet().setCursor(CursorFactory.getCustomCursor(CursorFactory.HIDDEN));
                 break;
             }
             case ABOVE_CANVAS: {
@@ -226,20 +229,20 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
 
         if (state == State.DRAWING_FLOW_RELATION) {
             if (sourcePort != null) {
-                hidePotentialFlow();
                 setCurrentPoint(getNet().snap(event.getPoint()));
-                showPotentialFlow();
+                paintPotentialFlow();
                 PortView portUnderMouse = getPortViewAt(event.getPoint());
                 if (portUnderMouse != null && portUnderMouse != sourcePort &&
                         connectionAllowable(sourcePort, portUnderMouse) &&
                         acceptsIncomingFlows(portUnderMouse)) {
-                    hidePort(targetPort);
-                    targetPort = portUnderMouse;
-                    showPort(targetPort);
+                    if (portUnderMouse != targetPort) {
+                        targetPort = portUnderMouse;
+                        getOverlay().setTarget(net.toScreen(targetPort.getBounds()));
+                    }
                 }
                 if (portUnderMouse == null) {
-                    hidePort(targetPort);
                     targetPort = null;
+                    getOverlay().setTarget(null);
                 }
             }
             event.consume();
@@ -347,7 +350,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                     }
                     default: {
                         hidePort(sourcePort);
-//                        sourcePort = null;
+                        sourcePort = null;
                         setCursorFromPalette();
                         break;
                     }
@@ -365,9 +368,9 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     private void doMouseMovedOverPortProcessing(PortView portView) {
-        if (sourcePort != null && sourcePort != portView) {
-            hidePort(sourcePort);
-        }
+//        if (sourcePort != null && sourcePort != portView) {
+//           // hidePort(sourcePort);
+//        }
         sourcePort = portView;
         showPort(sourcePort);
         matchCursorTo(CursorFactory.FLOW_RELATION);
@@ -387,40 +390,39 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
 
     /**
      * Hides the specified port.
-     * @param thisPort
-     */
 
-    protected void hidePort(PortView thisPort) {
-        if (thisPort != null) {
-            Graphics graphics = getNet().getGraphics();
- //           graphics.setColor(getNet().getBackground());
-//            graphics.setXORMode(getNet().getMarqueeColor());
-            getNet().setXorEnabled(true);
-            showPort(thisPort);
-            getNet().setXorEnabled(false);
-            graphics.setColor(getNet().getForeground());
-        }
+     */
+    protected void hidePort(PortView port) {
+        paintPort(port, false);
     }
+
 
     /**
      * Makes the specified port visible.
      * @param port
      */
-
     protected void showPort(PortView port) {
+        paintPort(port, true);
+    }
+
+
+    protected void paintPort(PortView port, boolean show) {
         if (port != null) {
-            Rectangle2D portBounds = getNet().toScreen(port.getBounds());
-
-            Rectangle2D.Double portViewbox = new Rectangle2D.Double(
-                    portBounds.getX() - PORT_BUFFER/2,
-                    portBounds.getY() - PORT_BUFFER/2,
-                    portBounds.getWidth() + (2 * PORT_BUFFER),
-                    portBounds.getHeight() + (2 * PORT_BUFFER)
+            Rectangle2D portBounds = net.toScreen(port.getBounds());
+//            Point2D adjusted = net.fromScreen(portBounds.get);
+//            Rectangle2D adjustedBounds = new Rectangle2D.Double(
+//                    adjusted.getX(), adjusted.getY(), port.getBounds().getWidth(),
+//                    port.getBounds().getHeight()) ;
+            getOverlay().setMouseOverPort(show ? portBounds : null);
+            net.repaint(
+                    (int) portBounds.getX() - 1,
+                    (int) portBounds.getY() - 1,
+                    (int) portBounds.getWidth() + 2,
+                    (int) portBounds.getHeight() + 2
             );
-
-            getNet().getUI().paintCell(getNet().getGraphics(), port, portViewbox, true);
         }
     }
+
 
     /**
      * This method checks to determine whether the specified port
@@ -471,47 +473,26 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                 (Port) source.getCell(), (Port) target.getCell());
     }
 
-    /**
-     * Hides a potential flow relation.
-     *
-     */
-    private void hidePotentialFlow() {
-        paintPotentialFlow(Color.black, getNet().getBackground(), getNet().getGraphics());
-    }
-
-    /**
-     * Shows a potential flow relation.
-     *
-     */
-    private void showPotentialFlow() {
-        paintPotentialFlow(getNet().getBackground(), Color.black, getNet().getGraphics());
-    }
 
     /**
      * Paints a 'potential' flow from a source port to the current point
      * being tracked by the marquee handler (the point under the mouse).
-     * @param fg
-     * @param bg
-     * @param g
      */
-    protected void paintPotentialFlow(Color fg, Color bg, Graphics g) {
-        g.setColor(fg);
-        g.setXORMode(bg);
+    protected void paintPotentialFlow() {
         if (sourcePort != null && getCurrentPoint() != null) {
-            g.drawLine(
-                    (int) getNet().toScreen(sourcePort.getLocation()).getX(),
-                    (int) getNet().toScreen(sourcePort.getLocation()).getY(),
-                    (int) getCurrentPoint().getX(),
-                    (int) getCurrentPoint().getY()
-            );
+            Rectangle2D preClip = getOverlay().getFlowClip();
+            getOverlay().setLine(new Line2D.Double(portToScreenLocation(sourcePort),
+                    getCurrentPoint()));
+            repaintClip(addClipAreas(preClip, getOverlay().getFlowClip()));
         }
     }
+
 
     /**
      * If there are valid source and target ports specified as a result
      * of a flow relation being drawn, this method will draw a flow connecting
      * these two ports, resulting in a flow relation between the parent elements
-     * of the ports. If the flow woule be invalid, the flow being drawn will
+     * of the ports. If the flow would be invalid, the flow being drawn will
      * be ignored.
      */
     public void connectElementsOrIgnoreFlow() {
@@ -523,10 +504,46 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
                     (YAWLPort) targetPort.getCell()
             );
         }
-        hidePotentialFlow();
-        hidePort(sourcePort);
+        Rectangle2D clip = getOverlay().getFlowClip();
+        getOverlay().clear(); // remove potential flow
         sourcePort = targetPort = null;
         setStartPoint(null);
         setCurrentPoint(null);
+        setCursorFromPalette();
+        repaintClip(clip);
     }
+
+
+    private NetOverlay getOverlay() {
+        return ((NetGraphUI) net.getUI()).getOverlay();
+    }
+
+
+    private Rectangle2D addClipAreas(Rectangle2D c1, Rectangle2D c2) {
+        if (c1 == null) return c2;
+        if (c2 == null) return c1;
+        return c1.createUnion(c2);
+    }
+
+    private Point2D portToScreenLocation(PortView port) {
+        return new Point2D.Double(
+            getNet().toScreen(port.getLocation()).getX(),
+            getNet().toScreen(port.getLocation()).getY());
+    }
+
+
+    private void repaintClip(Rectangle2D clip) {
+        if (clip != null) {
+            net.repaint((int) clip.getX(), (int) clip.getY(),
+                    (int) clip.getWidth(), (int) clip.getHeight());
+        }
+        else net.repaint();
+    }
+
+
+    private Point2D getPortCentre(Rectangle2D portBounds) {
+        return portBounds == null ? null :
+             net.fromScreen(new Point2D.Double(portBounds.getX(), portBounds.getY()));
+    }
+
 }

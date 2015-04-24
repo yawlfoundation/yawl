@@ -332,7 +332,13 @@ public class YSpecificationHandler {
      */
     public void load(String specXML, String layoutXML)
             throws IOException, YSyntaxException, YLayoutParseException {
-        initHandlers(_fileOps.load(specXML, layoutXML));
+        try {
+            initHandlers(_fileOps.load(specXML, layoutXML));
+        }
+        catch (YLayoutParseException ylpe) {
+            initHandlers(_fileOps.getSpecification());
+            throw new YLayoutParseException(ylpe);      // pass it on
+        }
     }
 
 
@@ -341,9 +347,17 @@ public class YSpecificationHandler {
      * @param fileName the absolute name of the file
      * @throws IOException if there are problems loading or reading the file
      * @throws YSyntaxException if the specification XML fails validation
+     * @throws YLayoutParseException if the layout XML fails validation
      */
-    public void load(String fileName) throws IOException, YSyntaxException {
-        initHandlers(_fileOps.load(fileName));
+    public void load(String fileName)
+            throws IOException, YSyntaxException, YLayoutParseException {
+        try {
+            initHandlers(_fileOps.load(fileName));
+        }
+        catch (YLayoutParseException ylpe) {
+            initHandlers(_fileOps.getSpecification());
+            throw new YLayoutParseException(ylpe);      // pass it on
+        }
     }
 
 

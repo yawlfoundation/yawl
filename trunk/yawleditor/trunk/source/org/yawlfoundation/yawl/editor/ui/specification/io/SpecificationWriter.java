@@ -70,8 +70,9 @@ public class SpecificationWriter extends SwingWorker<Boolean, Void> {
                 }
             }
             catch (Exception e) {
+                String msg = e.getMessage() != null ? e.getMessage() : "General Error";
                 showError("The attempt to save this specification to file failed.\n\n" +
-                                "Error message: " + e.getMessage() + "\n ",
+                                "Error message: " + msg + "\n ",
                         "Save File Error");
                 LogWriter.error("Error saving specification to file.", e);
             }

@@ -37,9 +37,16 @@ import java.awt.image.ImageObserver;
  */
 public class NetGraphUI extends BasicGraphUI {
 
+    private NetOverlay overlay;
+    private int i;
+
     public NetGraphUI() {
         super();
+        overlay = new NetOverlay();
     }
+
+
+    public NetOverlay getOverlay() { return overlay; }
 
 
     // overridden to paint view children first (if any), then view, so as to have control
@@ -94,6 +101,10 @@ public class NetGraphUI extends BasicGraphUI {
    		}
    	}
 
+    // draws or removes potential flows
+    protected void paintOverlay(Graphics g) {
+        overlay.paint(g, graph.getBackground());
+    }
 
     private void tileBackgroundImage(Graphics g, ImageIcon icon) {
         ImageObserver observer = icon.getImageObserver();

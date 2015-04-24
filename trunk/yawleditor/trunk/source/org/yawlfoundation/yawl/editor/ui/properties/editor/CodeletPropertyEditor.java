@@ -19,8 +19,12 @@
 package org.yawlfoundation.yawl.editor.ui.properties.editor;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import org.yawlfoundation.yawl.editor.core.YConnector;
+import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.CodeletDialog;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.component.CodeletData;
+
+import javax.swing.*;
 
 /**
  * @author Michael Adams
@@ -46,14 +50,24 @@ public class CodeletPropertyEditor extends DialogPropertyEditor {
 
 
     protected void showDialog() {
-        CodeletDialog dialog = new CodeletDialog();
-        dialog.setSelection(currentCodelet);
-        dialog.setVisible(true);
-        CodeletData newCodelet = dialog.getSelection();
-        if (! (newCodelet == null || newCodelet.equals(currentCodelet))) {
-            CodeletData oldCodelet = currentCodelet;
-            setValue(newCodelet);
-            firePropertyChange(oldCodelet, newCodelet);
+        if (YConnector.isResourceConnected()) {
+            CodeletDialog dialog = new CodeletDialog();
+            dialog.setSelection(currentCodelet);
+            dialog.setVisible(true);
+            CodeletData newCodelet = dialog.getSelection();
+            if (!(newCodelet == null || newCodelet.equals(currentCodelet))) {
+                CodeletData oldCodelet = currentCodelet;
+                setValue(newCodelet);
+                firePropertyChange(oldCodelet, newCodelet);
+            }
+        }
+        else {
+            JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+                 "A connection to the Resource Service has not been established,\n" +
+                 "so the list of available codelets cannot be retrieved. Please\n" +
+                 "connect to a running Resource Service via the Preferences\n" +
+                 "dialog (menu File...Preferences), and try again.",
+                 "Service Unavailable", JOptionPane.WARNING_MESSAGE);
         }
     }
 

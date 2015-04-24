@@ -77,9 +77,16 @@ public class FileOperations {
     }
 
 
-    public YSpecification load(String fileName) throws IOException, YSyntaxException {
-        parse(FileUtil.load(fileName));
-        _fileName = fileName;
+    public YSpecification load(String fileName)
+            throws IOException, YSyntaxException, YLayoutParseException {
+        try {
+            parse(FileUtil.load(fileName));
+            _fileName = fileName;
+        }
+        catch (YLayoutParseException ylpe) {
+            _fileName = fileName;
+            throw new YLayoutParseException(ylpe);   // pass it on
+        }
         return _specification;
     }
 
@@ -124,10 +131,13 @@ public class FileOperations {
         _specification = new YSpecification();
         _specification.setMetaData(new YMetaData());
         _specification.setURI(DEFAULT_SPECIFICATION_URI);
-        _layoutHandler = new LayoutHandler(_specification, null);
+        _layoutHandler = new LayoutHandler(_specification);
         _fileName = null;
         return _specification;
     }
+
+
+    public YSpecification getSpecification() { return _specification; }
 
 
     public String getSpecificationXML() throws IOException {
@@ -151,11 +161,13 @@ public class FileOperations {
         _layoutHandler = null;
     }
 
-    private YSpecification parse(String specXML) throws YSyntaxException {
+    private YSpecification parse(String specXML)
+            throws YSyntaxException, YLayoutParseException {
         List<YSpecification> specifications =
                 YMarshal.unmarshalSpecifications(specXML, false);
         _specification = specifications.get(0);
-        _layoutHandler = new LayoutHandler(_specification, specXML);
+        _layoutHandler = new LayoutHandler(_specification);
+        _layoutHandler.parse(specXML);
         nullifyUnlabelledTaskNames();
         return _specification;
     }

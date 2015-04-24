@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.editor.ui.preferences;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
 
 import javax.swing.*;
@@ -171,10 +170,7 @@ public class ConnectionsPanel extends JPanel
         YConnector.setResourceURL(_resourcePanel.getHost(), _resourcePanel.getPort());
         YConnector.setUserID(getUser());
         YConnector.setPassword(getPassword());
-        boolean isConnected = YAWLEditor.getStatusBar().refreshConnectionStatus();
-        if (isConnected) {
-            SpecificationModel.getHandler().getResourceHandler().resetCache();
-        }
+        YAWLEditor.getStatusBar().refreshConnectionStatus();
     }
 
 

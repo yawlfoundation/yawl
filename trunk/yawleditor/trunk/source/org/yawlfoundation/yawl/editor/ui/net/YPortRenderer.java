@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.net;
 
-import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.PortRenderer;
 
 import java.awt.*;
@@ -36,11 +35,11 @@ public class YPortRenderer extends PortRenderer {
    	 */
    	public void paint(Graphics g) {
    		Dimension d = getSize();
-        Graphics2D g2 = (Graphics2D)g;
+//        Graphics2D g2 = (Graphics2D)g;
    		if (xorEnabled) {
    			g.setColor(graphBackground);
    //         g2.setComposite(AlphaComposite.Clear);
-  // 			g.setXORMode(getForeground());
+   			g.setXORMode(graphBackground);
    		}
         else {
    //         g2.setComposite(AlphaComposite.Src);
@@ -50,24 +49,50 @@ public class YPortRenderer extends PortRenderer {
    		if (preview) {
 //            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
                         // this is the overridden difference: draws a cross instead of a square
-            g2.drawLine(1,1,d.width-3,d.height-3);
-            g2.drawLine(1,d.height-3, d.width-3, 1);
-            g2.setColor(getForeground());
+            g.drawLine(1,1,d.width-3,d.height-3);
+            g.drawLine(1,d.height-3, d.width-3, 1);
+            g.setColor(getForeground());
 
-            if (xorEnabled) {
-                int x = (d.width-2) / 2;
-                int y = (d.height-2) / 2;
-                g2.drawLine(x,y,x,y);
-            }
-   		} else {
-   			g.fillRect(0, 0, d.width, d.height);
+//            if (xorEnabled) {
+//                int x = (d.width-2) / 2;
+//                int y = (d.height-2) / 2;
+//                g2.drawLine(x,y,x,y);
+//            }
+//   		} else {
+   		//	g.fillRect(0, 0, d.width, d.height);
    		}
-   		boolean offset = (GraphConstants.getOffset(view.getAllAttributes()) != null);
-   		if (!offset)
-   			g.fillRect(1, 1, d.width - 2, d.height - 2);
-   		else if (!preview)
-   			g.drawRect(1, 1, d.width - 3, d.height - 3);
+//   		boolean offset = (GraphConstants.getOffset(view.getAllAttributes()) != null);
+//   		if (!offset)
+//   			g.fillRect(1, 1, d.width - 2, d.height - 2);
+//   		else if (!preview)
+//   			g.drawRect(1, 1, d.width - 3, d.height - 3);
    	}
+
+
+//	public void paint(Graphics g) {
+//		Dimension d = getSize();
+//		if (xorEnabled) {
+//			g.setColor(graphBackground);
+//			g.setXORMode(graphBackground);
+//		}
+//		super.paint(g);
+//	//	if (preview) {
+//		//	g.fill3DRect(0, 0, d.width, d.height, true);
+//            g.drawLine(1,1,d.width-3,d.height-3);
+//            g.drawLine(1,d.height-3, d.width-3, 1);
+//	//	} else {
+//		//	g.fillRect(0, 0, d.width, d.height);
+//	//	}
+////		boolean offset = (GraphConstants.getOffset(view.getAllAttributes()) != null);
+////		g.setColor(getForeground());
+////		if (!offset)
+////			g.fillRect(1, 1, d.width - 2, d.height - 2);
+////		else if (!preview)
+////			g.drawRect(1, 1, d.width - 3, d.height - 3);
+//	}
+
+
+
 
 
 }
