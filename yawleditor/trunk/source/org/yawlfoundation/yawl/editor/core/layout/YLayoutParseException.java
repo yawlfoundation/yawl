@@ -55,4 +55,6 @@ public class YLayoutParseException extends Exception {
     public YLayoutParseException(String s, Throwable throwable) {
         super(s, throwable);
     }
+
+    public YLayoutParseException(Throwable throwable) { super(throwable); }
 }

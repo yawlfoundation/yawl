@@ -67,8 +67,8 @@ public class YStatusBar extends JPanel implements SpecificationStateListener {
     }
 
 
-    public boolean refreshConnectionStatus() {
-        return modeIndicator.refresh();
+    public void refreshConnectionStatus() {
+        modeIndicator.refresh();
     }
 
 

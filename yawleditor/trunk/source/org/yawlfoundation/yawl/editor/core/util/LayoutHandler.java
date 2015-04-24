@@ -34,9 +34,8 @@ public class LayoutHandler {
     private YLayout _layout;
 
 
-    protected LayoutHandler(YSpecification specification, String specXML) {
+    protected LayoutHandler(YSpecification specification) {
         _layout = new YLayout(specification);
-        parse(specXML);
     }
 
 
@@ -59,16 +58,12 @@ public class LayoutHandler {
     }
 
 
-    private void parse(String xml) {
+    protected void parse(String xml) throws YLayoutParseException {
         XNode specNode = new XNodeParser().parse(xml);
-        if (specNode != null) {
-            try {
-                _layout.parse(specNode.getChild("layout"));
-            }
-            catch (YLayoutParseException ylpe) {
-                // report?
-            }
+        if (specNode == null) {
+            throw new YLayoutParseException("Invalid layout data in specification");
         }
+        _layout.parse(specNode.getChild("layout"));
     }
 
 

@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.core.YSpecificationHandler;
 import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
 import org.yawlfoundation.yawl.editor.core.resourcing.YResourceHandler;
 import org.yawlfoundation.yawl.editor.core.resourcing.validation.InvalidReference;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -116,6 +117,10 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
             preLoad();
             _handler.load(specXML, layoutXML);
         }
+        catch (YLayoutParseException ylpe) {
+            showLayoutParseWarning();
+            return true;
+        }
         catch (Exception e) {
             showLoadError(e.getMessage());
             return false;
@@ -128,6 +133,10 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
         try {
             preLoad();
             _handler.load(fileName);
+        }
+        catch (YLayoutParseException ylpe) {
+            showLayoutParseWarning();
+            return true;
         }
         catch (Exception e) {
             showLoadError(e.getMessage());
@@ -384,12 +393,29 @@ public class SpecificationReader extends SwingWorker<Boolean, Void> {
 
     private void showLoadError(String errorMsg) {
         if (errorMsg == null) errorMsg = "Invalid or corrupt content.";
-        JOptionPane.showMessageDialog(YAWLEditor.getInstance(),
+        showError(
                 "Failed to load specification.\n" +
                 (errorMsg.length() > 0 ? "Reason: " + errorMsg : ""),
                 "Specification File Load Error",
-                JOptionPane.ERROR_MESSAGE);
+                JOptionPane.ERROR_MESSAGE
+        );
     }
+
+
+    private void showLayoutParseWarning() {
+        showError(
+                "The specification loaded successfully, but the layout data is invalid.\n" +
+                "The editor will attempt a default layout.",
+                "Specification Layout Load Error",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    private void showError(String errorMsg, String title, int msgType) {
+         JOptionPane.showMessageDialog(YAWLEditor.getInstance(), errorMsg, title,
+                 msgType);
+     }
+
 
 
     private void warnOnInvalidResources() {

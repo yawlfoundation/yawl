@@ -65,6 +65,7 @@ public class YNetLayout {
     private Map<String, YTaskLayout> _tasks;
     private Map<String, YConditionLayout> _conditions;
     private Map<String, YFlowLayout> _flows;
+    private Set<String> _missingElements;
 
 
     // hidden constructor
@@ -271,6 +272,18 @@ public class YNetLayout {
         }
     }
 
+
+    public Set<String> getParseWarnings() {
+        if (_missingElements == null) return Collections.emptySet();
+        Set<String> warnings = new HashSet<String>();
+        String msg = "No element with id='%s' in Net '" + _net.getID() + "' ";
+        for (String id : _missingElements) {
+             warnings.add(String.format(msg, id));
+        }
+        return warnings;
+    }
+
+
     /*********************************************************************/
 
     public Map<String, YFlowLayout> getFlowLayoutMap() { return _flows; }
@@ -382,10 +395,9 @@ public class YNetLayout {
         }
         YExternalNetElement element = _net.getNetElement(id);
         if (element == null) {
-            throw new YLayoutParseException("No element with id=" + id +
-                    " in Net '" + _net.getID() + "' ");
+            noteMissingElement(id);
         }
-        if (element instanceof YCondition) {
+        else if (element instanceof YCondition) {
             YConditionLayout conditionLayout =
                     new YConditionLayout((YCondition) element, _nbrFormatter);
             conditionLayout.parse(node);
@@ -405,9 +417,11 @@ public class YNetLayout {
                 getFlowElement(node.getAttributeValue("source"), "source");
         YExternalNetElement target =
                 getFlowElement(node.getAttributeValue("target"), "target");
-        YFlowLayout flowLayout = new YFlowLayout(source, target, _nbrFormatter);
-        flowLayout.parse(node);
-        _flows.put(flowLayout.getID(), flowLayout);
+        if (! (source == null || target == null)) {
+            YFlowLayout flowLayout = new YFlowLayout(source, target, _nbrFormatter);
+            flowLayout.parse(node);
+            _flows.put(flowLayout.getID(), flowLayout);
+        }
     }
 
 
@@ -420,8 +434,7 @@ public class YNetLayout {
         }
         YExternalNetElement element = _net.getNetElement(id);
         if (element == null) {
-            throw new YLayoutParseException("No element with id=" + id +
-                    " for flow " + type + " value in Net '" + _net.getID() + "' ");
+            noteMissingElement(id);
         }
         return element;
     }
@@ -450,5 +463,11 @@ public class YNetLayout {
         if (cancelNode != null) {
             _cancellationTaskID = cancelNode.getText();
         }
+    }
+
+
+    private void noteMissingElement(String id) {
+        if (_missingElements == null) _missingElements = new HashSet<String>();
+        _missingElements.add(id);
     }
 }

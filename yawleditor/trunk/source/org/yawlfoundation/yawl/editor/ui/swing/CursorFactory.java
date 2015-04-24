@@ -30,31 +30,30 @@ public class CursorFactory {
   public static final int COMPOSITE_TASK          = 4;
   public static final int MULTIPLE_ATOMIC_TASK    = 5;
   public static final int MULTIPLE_COMPOSITE_TASK = 6;
-  public static final int DRAG                    = 7;
-  
- 
+  public static final int HIDDEN                  = 7;
+
+
   private static final Point TOP_LEFT = new Point(0,0);
   private static final Point CENTRE = new Point(15,15);
-  
- 
+
+
   private static final Cursor[] cursors = {
-    buildCustomCursor("Selection32",             TOP_LEFT, "Selection"),
-    buildCustomCursor("FlowRelation32",          TOP_LEFT, "FLowRelation"),
-    buildCustomCursor("Condition32",             TOP_LEFT, "Condition"),
-    buildCustomCursor("AtomicTask32",            TOP_LEFT, "AtomicTask"),
-    buildCustomCursor("CompositeTask32",         TOP_LEFT, "CompositeTask"),
-    buildCustomCursor("MultipleAtomicTask32",    TOP_LEFT, "MultipleAtomicTask"),
-    buildCustomCursor("MultipleCompositeTask32", TOP_LEFT, "MultipleAtomicTask"),
-    buildCustomCursor("Drag32",                  CENTRE, "Drag"),
+          buildCustomCursor("Selection32",             TOP_LEFT, "Selection"),
+          buildCustomCursor("FlowRelation32",          TOP_LEFT, "FLowRelation"),
+          buildCustomCursor("Condition32",             TOP_LEFT, "Condition"),
+          buildCustomCursor("AtomicTask32",            TOP_LEFT, "AtomicTask"),
+          buildCustomCursor("CompositeTask32",         TOP_LEFT, "CompositeTask"),
+          buildCustomCursor("MultipleAtomicTask32",    TOP_LEFT, "MultipleAtomicTask"),
+          buildCustomCursor("MultipleCompositeTask32", TOP_LEFT, "MultipleAtomicTask"),
+          buildCustomCursor("Hidden",                  TOP_LEFT, "Hidden"),
   };
-  
+
   public static Cursor getCustomCursor(int cursorType) {
-    return cursors[cursorType];    
+    return cursors[cursorType];
   }
 
   private static Cursor buildCustomCursor(String cursorFileName, Point hotspot, String name) {
-    Image image = ResourceLoader.getCursorIcon(cursorFileName);
-    assert image != null : "Image is null!";
-    return Toolkit.getDefaultToolkit().createCustomCursor(image, hotspot, name);  
+      Image image = ResourceLoader.getCursorIcon(cursorFileName);
+      return Toolkit.getDefaultToolkit().createCustomCursor(image, hotspot, name);
   }
 }

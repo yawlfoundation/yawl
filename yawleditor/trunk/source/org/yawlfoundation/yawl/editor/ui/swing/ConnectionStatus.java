@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.core.YConnector;
 import org.yawlfoundation.yawl.editor.ui.preferences.PreferencesDialog;
+import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.util.ResourceLoader;
 
 import javax.swing.*;
@@ -58,16 +59,13 @@ public class ConnectionStatus extends JPanel implements ActionListener {
     }
 
 
-    public boolean refresh() {
-        engineIndicator.setStatus(YConnector.isEngineConnected());
-        return resourceIndicator.setStatus(YConnector.isResourceConnected());
+    public void refresh() {
+        new ConnectionChecker().execute();
     }
 
 
     // triggered by the 'heartbeat' timer
-    public void actionPerformed(ActionEvent event) {
-        refresh();
-    }
+    public void actionPerformed(ActionEvent event) { refresh(); }
 
 
     private void addIndicators() {
@@ -109,6 +107,9 @@ public class ConnectionStatus extends JPanel implements ActionListener {
         }
 
 
+        boolean isOnline() { return _online; }
+
+
         public boolean setStatus(boolean isOnline) {
             if (_online != isOnline) {             // if there's a status change
                 _online = isOnline;
@@ -132,13 +133,33 @@ public class ConnectionStatus extends JPanel implements ActionListener {
 
     }
 
+    /******************************************************************************/
+
+    class ConnectionChecker extends SwingWorker<Void, Integer> {
+
+        protected Void doInBackground() throws Exception {
+            engineIndicator.setStatus(YConnector.isEngineConnected());
+
+            boolean previouslyOnline = resourceIndicator.isOnline();
+            resourceIndicator.setStatus(YConnector.isResourceConnected());
+            if (! previouslyOnline && resourceIndicator.isOnline()) {
+                SpecificationModel.getHandler().getResourceHandler().resetCache();
+            }
+            return null;
+        }
+
+    }
+
+
     /*******************************************/
 
     // Opens the preferences dialog when an icon or surrounding panel is clicked
     private class PreferencesLauncher extends MouseAdapter {
+
         public void mouseClicked(MouseEvent mouseEvent) {
             new PreferencesDialog().setVisible(true);
             super.mouseClicked(mouseEvent);
         }
+
     }
 }
