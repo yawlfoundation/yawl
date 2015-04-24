@@ -21,7 +21,7 @@ public class TomcatUtil {
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
     public static boolean start() throws IOException {
-        if (! isEngineRunning()) {                    // yawl isn't running
+        if (! isEngineRunning()) {                       // yawl isn't running
             if (isPortActive()) {                        // but localhost:port is responsive
                 throw new IOException("Tomcat port is already in use by another service.\n" +
                      "Please check/change the port in Preferences and try again.");
@@ -29,7 +29,7 @@ public class TomcatUtil {
             checkSizeOfLog();
             removePidFile();                            // if not already removed
             executeCmd(createStartCommandList());
-            return true;
+            return hasStarted(7);
         }
         return false;                                   // already started
     }
@@ -227,7 +227,7 @@ public class TomcatUtil {
          .append("bin")
          .append(FileUtil.SEP)
          .append("catalina.")
-                .append(getScriptExtn());
+         .append(getScriptExtn());
         return s.toString();
     }
 
@@ -313,8 +313,7 @@ public class TomcatUtil {
 
 
     private static String deriveJavaHome() {
-        String javaHome = System.getenv("JAVA_HOME");
-        return javaHome != null ? javaHome : System.getProperty("java.home");
+        return System.getProperty("java.home");
     }
 
 
@@ -331,5 +330,33 @@ public class TomcatUtil {
         }
         return true;
     }
+
+
+    private static boolean hasStarted(int secs) {
+        for (int i=0; i < secs; i++) {
+            pause(1000);
+            if (isPortActive()) return true;
+        }
+        return false;
+    }
+
+
+    protected static void pause(long milliseconds) {
+        Object lock = new Object();
+        long now = System.currentTimeMillis();
+        long finishTime = now + milliseconds;
+        while (now < finishTime) {
+            long timeToWait = finishTime - now;
+            synchronized (lock) {
+                try {
+                    lock.wait(timeToWait);
+                }
+                catch (InterruptedException ex) {
+                }
+            }
+            now = System.currentTimeMillis();
+        }
+    }
+
 
 }

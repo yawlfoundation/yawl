@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>3.0.1</version>
-  <timestamp>2015-04-01 11.46.46</timestamp>
+  <timestamp>2015-04-23 14.59.35</timestamp>
   <lib hash="a828628da49a3429d0d608f56ce1dfbc">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2012-07-19T11:21:26"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2012-07-19T11:21:26"/>
@@ -794,11 +794,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-3.0.1.jar" md5="dc475f8a7b1002c02182ad046bbd12c5" size="2498975" timestamp="2015-04-01T11:46:38"/>
+    <file name="yawl-lib-3.0.1.jar" md5="aeb80f085af6ea0e94ddb9aaf4e93e03" size="2499152" timestamp="2015-04-23T14:59:33"/>
   </yawllib>
   <controlpanel>
-    <build>87</build>
-    <file name="YawlControlPanel-3.0.1.jar" md5="16751b96a24b207a78614e15f0b3acdf" size="274593" timestamp="2015-03-31T13:07:32"/>
+    <build>91</build>
+    <file name="YawlControlPanel-3.0.1.jar" md5="88add88f4698e2c313f716b294142053" size="274608" timestamp="2015-04-23T14:59:35"/>
   </controlpanel>
 </checksums>
 
