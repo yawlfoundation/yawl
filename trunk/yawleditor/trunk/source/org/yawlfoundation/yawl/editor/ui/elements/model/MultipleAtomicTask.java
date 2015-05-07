@@ -71,6 +71,11 @@ public class MultipleAtomicTask extends YAWLTask
     public void setYAWLElement(YTask shadow) {
         super.setTask(shadow);
         _miAttributes = shadow.getMultiInstanceAttributes();
+
+        // needs this to allow analysis of nets containing MI tasks with no data settings
+        if (_miAttributes.getMIFormalInputParam() == null) {
+            _miAttributes.setMIFormalInputParam("null");
+        }
     }
 
 
