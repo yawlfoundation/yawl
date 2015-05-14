@@ -52,7 +52,7 @@ public class YLogGateway extends HttpServlet {
 
     public void init() {
         try {
-            _engine = new EngineGatewayImpl(false) ;            // get engine reference
+            _engine = new EngineGatewayImpl(true) ;            // get engine reference
         }
         catch (YPersistenceException ype) {
              _log.error("Could not connect to YAWL Engine.", ype);

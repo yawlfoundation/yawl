@@ -136,33 +136,39 @@ public final class Persister implements Serializable {
        return retObj ;
     }
 
-    public boolean update(Object obj) { return _db.exec(obj, HibernateEngine.DB_UPDATE); }
+    public synchronized boolean update(Object obj) {
+        return _db.exec(obj, HibernateEngine.DB_UPDATE);
+    }
 
-    public boolean delete(Object obj) { return _db.exec(obj, HibernateEngine.DB_DELETE); }
+    public synchronized boolean delete(Object obj) {
+        return _db.exec(obj, HibernateEngine.DB_DELETE);
+    }
 
-    public boolean insert(Object obj) { return _db.exec(obj, HibernateEngine.DB_INSERT); }
+    public synchronized boolean insert(Object obj) {
+        return _db.exec(obj, HibernateEngine.DB_INSERT);
+    }
 
-    public boolean update(Object obj, Transaction tx) {
+    public synchronized boolean update(Object obj, Transaction tx) {
         return (tx != null) ? _db.exec(obj, HibernateEngine.DB_UPDATE, tx) : update(obj);
     }
 
-    public boolean delete(Object obj, Transaction tx) {
+    public synchronized boolean delete(Object obj, Transaction tx) {
         return (tx != null) ? _db.exec(obj, HibernateEngine.DB_DELETE, tx) : delete(obj);
     }
 
-    public boolean insert(Object obj, Transaction tx) {
+    public synchronized boolean insert(Object obj, Transaction tx) {
         return (tx != null) ? _db.exec(obj, HibernateEngine.DB_INSERT, tx): insert(obj);
     }
 
-    public boolean update(Object obj, boolean commit) {
+    public synchronized boolean update(Object obj, boolean commit) {
         return _db.exec(obj, HibernateEngine.DB_UPDATE, commit);
     }
 
-    public boolean delete(Object obj, boolean commit) {
+    public synchronized boolean delete(Object obj, boolean commit) {
         return _db.exec(obj, HibernateEngine.DB_DELETE, commit);
     }
 
-    public boolean insert(Object obj, boolean commit) {
+    public synchronized boolean insert(Object obj, boolean commit) {
         return _db.exec(obj, HibernateEngine.DB_INSERT, commit);
     }
 

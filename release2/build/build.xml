@@ -36,6 +36,9 @@
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
+    <property name="ant.build.javac.source" value="${target.java.version}"/>
+    <property name="ant.build.javac.target" value="${target.java.version}"/>
+
     <!--
         Tomcat root (environment setting takes priority over build.properties value)
     -->
