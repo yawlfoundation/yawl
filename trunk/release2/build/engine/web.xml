@@ -185,7 +185,7 @@
 		<servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EngineBasedServer
         </servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
     <servlet>
         <servlet-name>InterfaceXServlet</servlet-name>
@@ -196,7 +196,7 @@
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideServer
         </servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>3</load-on-startup>
     </servlet>
 	<servlet>
 		<servlet-name>ErrorServlet</servlet-name>
@@ -204,7 +204,7 @@
             Reports that the URI request found nothing, hence the error report.
         </description>
 		<servlet-class>org.yawlfoundation.yawl.engine.interfce.ErrorServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
+		<load-on-startup>0</load-on-startup>
 	</servlet>
     <servlet>
         <servlet-name>InterfaceEGateway</servlet-name>
@@ -214,7 +214,7 @@
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGateway
         </servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <!-- Define mappings that are used by the servlet container to

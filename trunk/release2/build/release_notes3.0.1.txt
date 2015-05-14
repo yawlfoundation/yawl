@@ -1,4 +1,4 @@
-                         YAWL Release 3.0.1  19/03/2015
+                         YAWL Release 3.0.1  24/04/2015
                         ==============================
 
 This is the version 3.0.1 release of the YAWL Environment. This is a bugfix and
@@ -42,6 +42,8 @@ EDITOR:
  * [Enhancement] [Repository]: Added storage of net layouts with net in repository.
  * [Enhancement] [Upload & Launch]: Added dialog for inputting case-level parameter values
    when uploading a specification with case-level input parameters.
+ * [Enhancement]: Improved responsiveness and graphics when drawing flow between
+   elements.
 
  * [Bugfix] [Data]: Changing the datatype of a net-level, output-only variable did not
    also change that of its 'shadow' local variable.
@@ -73,6 +75,9 @@ EDITOR:
  * [Bugfix] [Specification]: Some specifications missing description on reload.
  * [Bugfix (issue 544)] [Specification]: When loading a specification file that contains
    a task referencing a non-existent decomposition, the load silently fails.
+ * [Bugfix]: Editor briefly pausing intermittently on Windows.
+ * [Bugfix]: Some dialogs (e.g. resourcing, timer, preferences) had incorrect layouts
+   on some Windows installations.
 
 
 ENGINE:
@@ -81,6 +86,8 @@ ENGINE:
    predicate functions.
  * [Enhancement]: Added 'deleteonexit' attributes to build script for better cleanups.
 
+ * [Bugfix (issue 546)]: Where two or more tasks immediately preceded the end condition,
+   a race would occur that caused spurious error meesages passed to client services.
  * [Bugfix]: A task with a timer to start on offer, when in tight loop may cause a
    persistence exception.
  * [Bugfix]: Cancelling a case after a schema validation error may cause an engine
@@ -136,8 +143,10 @@ CONTROL PANEL:
 
  * [Enhancement]: Removed engine restart from control panel update process when control
    panel app is the only update.
+ * [Enhancement]: Added feature to change tomcat port (in Preferences).
+ * [Enhancement]: Much more robust state handling when starting tomcat.
 
- * [Bugfix]: Dynamically create JAVA_HOME env variable before starting engine if missing;
+ * [Bugfix]: Dynamically create JAVA_HOME env variable before starting engine;
    fix for infinite 'Starting Engine' message.
  * [Bugfix]: Control panel erroneously attempted to register the order fulfilment examples
    as a service.
