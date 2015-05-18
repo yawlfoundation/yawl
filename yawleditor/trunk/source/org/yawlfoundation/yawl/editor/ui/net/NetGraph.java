@@ -850,17 +850,17 @@ public class NetGraph extends JGraph {
 
     public void changeVertexBackground(YAWLVertex vertex, Color color) {
         changeCellBackground(vertex,color);
-        if (vertex.getParent() != null && vertex instanceof YAWLTask) {
-            YAWLTask task = (YAWLTask) vertex;
-            if (task.getJoinDecorator() != null) {
-                changeCellBackground(task.getJoinDecorator(),
-                        color);
-            }
-            if (task.getSplitDecorator() != null) {
-                changeCellBackground(task.getSplitDecorator(),
-                        color);
-            }
-        }
+//        if (vertex.getParent() != null && vertex instanceof YAWLTask) {
+//            YAWLTask task = (YAWLTask) vertex;
+//            if (task.getJoinDecorator() != null) {
+//                changeCellBackground(task.getJoinDecorator(),
+//                        color);
+//            }
+//            if (task.getSplitDecorator() != null) {
+//                changeCellBackground(task.getSplitDecorator(),
+//                        color);
+//            }
+//        }
     }
 
     private  void changeCellBackground(GraphCell cell, Color color) {

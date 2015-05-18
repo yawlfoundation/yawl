@@ -274,8 +274,8 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         return flowCount;
     }
 
-    public HashSet getFlows() {
-        HashSet flows = new HashSet();
+    public Set getFlows() {
+        Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
         for (YAWLPort port : getPorts()) {
             flows.addAll(port.getEdges());
         }
@@ -310,8 +310,8 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
         return flows;
     }
 
-    public HashSet<YAWLFlowRelation> getIncomingFlows() {
-        HashSet<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
+    public Set<YAWLFlowRelation> getIncomingFlows() {
+        Set<YAWLFlowRelation> flows = new HashSet<YAWLFlowRelation>();
         for (YAWLPort port : getPorts()) {
             if (port != null) {
                 for (Object o : port.getEdges()) {
@@ -327,21 +327,16 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
 
     public YAWLFlowRelation getOnlyIncomingFlow() {
-        HashSet flows = getIncomingFlows();
-        if (flows.size() == 1) {
-            return (YAWLFlowRelation) flows.iterator().next();
-        }
-        return null;
-
+        Set<YAWLFlowRelation> flows = getIncomingFlows();
+        return flows.size() == 1 ? flows.iterator().next() : null;
     }
+
 
     public YAWLFlowRelation getOnlyOutgoingFlow() {
-        Set flows = getOutgoingFlows();
-        if (flows.size() == 1) {
-            return (YAWLFlowRelation) flows.iterator().next();
-        }
-        return null;
+        Set<YAWLFlowRelation> flows = getOutgoingFlows();
+        return flows.size() == 1 ? flows.iterator().next() : null;
     }
+
 
     public abstract String getType();
 

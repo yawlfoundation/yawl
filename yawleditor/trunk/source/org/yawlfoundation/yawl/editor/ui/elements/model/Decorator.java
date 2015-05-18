@@ -105,7 +105,7 @@ public abstract class Decorator extends DefaultGraphCell
         GraphConstants.setSizeable(map, false);
 
         GraphConstants.setForeground(map, GraphConstants.getForeground(getTask().getAttributes()));
-        GraphConstants.setBackground(map, GraphConstants.getBackground(getTask().getAttributes()));
+//        GraphConstants.setBackground(map, GraphConstants.getBackground(getTask().getAttributes()));
 
         getAttributes().applyMap(map);
     }

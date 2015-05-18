@@ -79,9 +79,6 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
         this.decorator = decorator;
     }
 
-//    public boolean isDecoratingConfigurableTask() {
-//        return (decorator != null) && decorator.getTask().isConfigurable();
-//    }
 
     protected void fillVertex(Graphics graphics, Dimension size) {
         graphics.fillRect(0, 0, size.width - 1, size.height - 1);
@@ -91,7 +88,8 @@ abstract class DecoratorRenderer extends YAWLVertexRenderer {
 
 
     protected void drawVertex(Graphics graphics, Dimension size) {
-        Color fillColor = decorator.getTask().getBackgroundColor();
+    //    Color fillColor = decorator.getTask().getBackgroundColor();
+        Color fillColor = WHITE_FILL;
         switch(decorator.getCardinalPosition()) {
             case Decorator.TOP: {
                 switch(decorator.getType()) {
