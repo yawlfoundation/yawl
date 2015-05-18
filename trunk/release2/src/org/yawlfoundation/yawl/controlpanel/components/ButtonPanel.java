@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
+import org.yawlfoundation.yawl.controlpanel.editor.EditorLauncher;
 import org.yawlfoundation.yawl.controlpanel.preferences.PreferencesDialog;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
@@ -15,9 +16,11 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 /**
  * @author Michael Adams
@@ -29,6 +32,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
     private JButton btnLogon;
     private JButton btnOutput;
     private JButton btnUpdates;
+    private JButton btnEditor;
     private JButton btnPreferences;
     private JFrame _mainWindow;
     private OutputDialog _outputDialog;
@@ -61,6 +65,9 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
                 _outputDialog = new OutputDialog(_mainWindow);
             }
             _outputDialog.toFront();
+        }
+        else if (cmd.equals("Editor")) {
+           startEditor();
         }
         else if (cmd.equals("Preferences")) {
            new PreferencesDialog(_mainWindow).setVisible(true);
@@ -107,6 +114,9 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         }
     }
 
+    // called from editor launcher
+    public void enableEditorButton(boolean enable) { btnEditor.setEnabled(enable); }
+
 
     private void addButtons() {
         btnStartStop = createButton("Start", "Start the YAWL Engine");
@@ -122,6 +132,8 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
             add(btnOutput);
         }
 
+        btnEditor = createButton("Editor", "Start the Process Editor");
+        add(btnEditor);
         btnPreferences = createButton("Preferences", "Set or Check Preferences");
         add(btnPreferences);
         enableButtons(EngineStatus.Stopped);   // to begin with
@@ -230,6 +242,13 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         GridLayout layout = new GridLayout(0, 1);
         if (FileUtil.isWindows()) layout.setVgap(10);
         setLayout(layout);
+    }
+
+
+    private void startEditor() {
+        EditorLauncher editorLauncher = new EditorLauncher(this);
+        editorLauncher.launch();
+        enableEditorButton(false);
     }
 
 }

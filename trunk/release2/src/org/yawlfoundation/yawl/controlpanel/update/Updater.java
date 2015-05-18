@@ -11,6 +11,7 @@ import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
 import org.yawlfoundation.yawl.util.StartMenuUpdater;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
@@ -318,11 +319,15 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // 5. COPY in new files -> startEngine
     private File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
+        int port = TomcatUtil.getTomcatServerPort();
         for (String fileName : _downloads) {
             if (! isControlPanelFileName(fileName)) {            // do CP last
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);
                 copy(source, target);
+                if (port != 8080 && fileName.endsWith("web.xml")) {
+                    updatePort(target, port);
+                }
             }
         }
 
@@ -512,6 +517,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private String getPathPart(String appPath) {
         return appPath == null ? null :
                 appPath.substring(0, appPath.lastIndexOf(File.separatorChar) + 1);
+    }
+
+
+    // update tomcat port in a newly downloaded web.xml if current port is not the default
+    private void updatePort(File webxml, int port) {
+        if (port != 8080) {
+            StringUtil.replaceInFile(webxml, ":8080", ":" + port);
+        }
     }
 
 }

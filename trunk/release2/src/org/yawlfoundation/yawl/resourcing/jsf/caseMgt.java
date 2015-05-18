@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.DynFormFactory;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -1048,13 +1049,14 @@ public class caseMgt extends AbstractPageBean {
         YSpecificationID descriptors = null;
         XNode specNode = new XNodeParser().parse(specxml);
         if (specNode != null) {
-            String schemaVersion = specNode.getAttributeValue("version");
+            YSchemaVersion schemaVersion = YSchemaVersion.fromString(
+                    specNode.getAttributeValue("version"));
             XNode specification = specNode.getChild("specification");
             if (specification != null) {
                 String uri = specification.getAttributeValue("uri");
                 String version = "0.1";
                 String uid = null;
-                if ((schemaVersion != null) && schemaVersion.startsWith("2.")) {
+                if (! (schemaVersion == null || schemaVersion.isBetaVersion())) {
                     XNode metadata = specification.getChild("metaData");
                     version = metadata.getChildText("version");
                     uid = metadata.getChildText("identifier");

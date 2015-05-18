@@ -122,6 +122,9 @@ public class DynFormComponentBuilder {
             if (type.equals("date")) {
                 field = makeCalendar(input);
             }
+//            else if (type.equals("time")) {
+//                field = makeTime(input);
+//            }
             else if (type.equals("YDocumentType")) {
                 field = makeDocumentField(input, label);
             }
@@ -274,6 +277,17 @@ public class DynFormComponentBuilder {
         cal.setVisible(isVisible(input));
         cal.setToolTip(input.getToolTip());
         return cal;
+    }
+
+
+    public Time makeTime(DynFormField input) {
+        Time time = new Time();
+        time.setId(createUniqueID("time" + input.getName()));
+        time.setDisabled(isDisabled(input));
+        time.setStyleClass(getInputStyleClass(input));
+        time.setStyle(makeStyle(time, input));
+        time.setVisible(isVisible(input));
+        return time;
     }
 
     
