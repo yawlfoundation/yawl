@@ -36,7 +36,7 @@ public class LogoPanel extends JPanel implements ActionListener, EngineStatusLis
     public LogoPanel(EngineMonitor monitor) {
         super();
         _engineMonitor = monitor;
-        setBorder(new EmptyBorder(0, 24, 10, 0));
+        setBorder(new EmptyBorder(20, 24, 30, 0));
         setLayout(new BorderLayout());
         setMacApp();
         buildUI();

@@ -51,7 +51,7 @@ public class YControlPanel extends JFrame {
     }
 
 
-    private static String getAppTitle() { return "YAWL " + VERSION + " Control Panel"; }
+    private static String getAppTitle() { return "YAWL Control Panel " + VERSION; }
 
     private void buildUI() {
         setLayout(new BorderLayout());
