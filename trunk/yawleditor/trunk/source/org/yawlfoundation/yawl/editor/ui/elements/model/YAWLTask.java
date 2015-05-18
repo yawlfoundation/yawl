@@ -195,7 +195,7 @@ public abstract class YAWLTask extends YAWLVertex {
         return new Point2D.Double(getBounds().getX(), getBounds().getY());
     }
 
-    public HashSet<YAWLFlowRelation> getIncomingFlows() {
+    public Set<YAWLFlowRelation> getIncomingFlows() {
         if (hasJoinDecorator()) {
             return getJoinDecorator().getFlows();
         }

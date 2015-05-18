@@ -35,8 +35,12 @@ public class NetOverlay {
     Line2D.Double line;
     Point2D targetPort;
     Point2D mouseOverPort;
+    BasicStroke stroke;
+    float scale;
 
-    public NetOverlay() { }
+    public NetOverlay() {
+        setScale(1.0);
+    }
 
 
     public void paint(Graphics g, Color bg) {
@@ -50,6 +54,7 @@ public class NetOverlay {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(bg);
             g2.setXORMode(Color.black);
+            g2.setStroke(stroke);
             g2.draw(line);
             g2.setColor(Color.black);
             g2.setPaintMode();
@@ -64,16 +69,21 @@ public class NetOverlay {
 
     private void paintPort(Graphics g, Point2D centre) {
         Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(Color.DARK_GRAY);
-        g2.draw(new Line2D.Double(centre.getX() - 3, centre.getY() - 3,
-                centre.getX() + 3, centre.getY() + 3));
-        g2.draw(new Line2D.Double(centre.getX() + 3, centre.getY() - 3,
-                centre.getX() - 3, centre.getY() + 3));
+        g2.setColor(Color.RED);
+        g2.setStroke(stroke);
+        float radial = scale * 3;
+        g2.draw(new Line2D.Double(centre.getX() - radial, centre.getY() - radial,
+                centre.getX() + radial, centre.getY() + radial));
+        g2.draw(new Line2D.Double(centre.getX() + radial, centre.getY() - radial,
+                centre.getX() - radial, centre.getY() + radial));
     }
 
 
-    public void setLine(Line2D.Double l) {
-        line = l;
+    public void setLine(Line2D.Double l) { line = l; }
+
+    public void setScale(double s) {
+        scale = (float) s;
+        stroke = new BasicStroke(scale);
     }
 
     public void clear() {
@@ -83,15 +93,13 @@ public class NetOverlay {
     }
 
 
-    public void setTarget(Rectangle2D r) {
-        targetPort = r == null ? null :
-                new Point((int) r.getCenterX(), (int) r.getCenterY());
+    public void setTarget(Rectangle2D rect) {
+        targetPort = getCentre(rect);
     }
 
 
-    public void setMouseOverPort(Rectangle2D r) {
-        mouseOverPort = r == null ? null :
-                new Point((int) r.getCenterX(), (int) r.getCenterY());
+    public void setMouseOverPort(Rectangle2D rect) {
+        mouseOverPort = getCentre(rect);
     }
 
 
@@ -105,31 +113,44 @@ public class NetOverlay {
         double ay = lineStart.getY();
         double zx = lineEnd.getX();
         double zy = lineEnd.getY();
+        double size = getLineHeadSize();
 
-        return new Rectangle2D.Double(Math.min(ax, zx) -10, Math.min(ay, zy) -10,
-                Math.max(ax, zx) + 10, Math.max(ay, zy) +10);
+        return new Rectangle2D.Double(
+                Math.min(ax, zx) - size,
+                Math.min(ay, zy) - size,
+                Math.max(ax, zx) + size,
+                Math.max(ay, zy) + size
+        );
     }
 
 
 
     private Shape createArrowHead(Graphics g) {
         if (line == null) return null;
-        int size = 10;
+        double size = getLineHeadSize();
         Point2D lineStart = line.getP1();
         Point2D lineEnd = line.getP2();
-        int d = (int) Math.max(1, lineEnd.distance(lineStart));
-        int ax = (int) -(size * (lineEnd.getX() - lineStart.getX()) / d);
-        int ay = (int) -(size * (lineEnd.getY() - lineStart.getY()) / d);
+        double d = Math.max(1.0, lineEnd.distance(lineStart));
+        double ax = -(size * (lineEnd.getX() - lineStart.getX()) / d);
+        double ay = -(size * (lineEnd.getY() - lineStart.getY()) / d);
         Polygon poly = new Polygon();
         poly.addPoint((int) lineEnd.getX(), (int) lineEnd.getY());
         poly.addPoint((int) (lineEnd.getX() + ax + ay / 2), (int) (lineEnd.getY()
                 + ay - ax / 2));
         Point2D last = (Point2D) lineEnd.clone();
-        lineEnd.setLocation((int) (lineEnd.getX() + ax),
-                (int) (lineEnd.getY() + ay));
+        lineEnd.setLocation(lineEnd.getX() + ax, lineEnd.getY() + ay);
         poly.addPoint((int) (last.getX() + ax - ay / 2), (int) (last.getY()
                 + ay + ax / 2));
         return poly;
     }
+
+
+    private Point2D.Double getCentre(Rectangle2D rect) {
+        return rect == null ? null :
+                new Point2D.Double(rect.getCenterX(), rect.getCenterY());
+    }
+
+
+    private double getLineHeadSize() { return 10.0 * scale; }
 
 }

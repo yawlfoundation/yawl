@@ -125,7 +125,8 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
 
     private void checkURLAvailable(String urlStr) throws IOException {
         if (! HttpURLValidator.validate(urlStr).equals("<success/>")) {
-            throw new IOException("Update server is offline or unavailable");
+            throw new IOException("Update server is offline or unavailable.\n" +
+                    "Please try again later.");
         }
     }
 

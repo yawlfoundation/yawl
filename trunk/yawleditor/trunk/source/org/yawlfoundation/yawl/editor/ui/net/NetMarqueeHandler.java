@@ -368,9 +368,6 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
      */
 
     private void doMouseMovedOverPortProcessing(PortView portView) {
-//        if (sourcePort != null && sourcePort != portView) {
-//           // hidePort(sourcePort);
-//        }
         sourcePort = portView;
         showPort(sourcePort);
         matchCursorTo(CursorFactory.FLOW_RELATION);
@@ -409,11 +406,8 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
     protected void paintPort(PortView port, boolean show) {
         if (port != null) {
             Rectangle2D portBounds = net.toScreen(port.getBounds());
-//            Point2D adjusted = net.fromScreen(portBounds.get);
-//            Rectangle2D adjustedBounds = new Rectangle2D.Double(
-//                    adjusted.getX(), adjusted.getY(), port.getBounds().getWidth(),
-//                    port.getBounds().getHeight()) ;
             getOverlay().setMouseOverPort(show ? portBounds : null);
+            getOverlay().setScale(getNet().getScale());
             net.repaint(
                     (int) portBounds.getX() - 1,
                     (int) portBounds.getY() - 1,
@@ -483,6 +477,7 @@ public class NetMarqueeHandler extends BasicMarqueeHandler {
             Rectangle2D preClip = getOverlay().getFlowClip();
             getOverlay().setLine(new Line2D.Double(portToScreenLocation(sourcePort),
                     getCurrentPoint()));
+            getOverlay().setScale(getNet().getScale());
             repaintClip(addClipAreas(preClip, getOverlay().getFlowClip()));
         }
     }
