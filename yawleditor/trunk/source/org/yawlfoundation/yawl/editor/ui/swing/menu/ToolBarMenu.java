@@ -18,8 +18,7 @@
 
 package org.yawlfoundation.yawl.editor.ui.swing.menu;
 
-import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
-import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
+import org.yawlfoundation.yawl.editor.ui.actions.*;
 import org.yawlfoundation.yawl.editor.ui.actions.element.*;
 import org.yawlfoundation.yawl.editor.ui.actions.net.*;
 import org.yawlfoundation.yawl.editor.ui.actions.element.align.*;
@@ -70,6 +69,9 @@ public class ToolBarMenu extends YToolBar {
         addSeparator();
         add(new YAWLToolBarButton(UndoAction.getInstance()));
         add(new YAWLToolBarButton(RedoAction.getInstance()));
+        add(new YAWLToolBarButton(CutAction.getInstance()));
+        add(new YAWLToolBarButton(CopyAction.getInstance()));
+        add(new YAWLToolBarButton(PasteAction.getInstance()));
         add(new YAWLToolBarButton(DeleteAction.getInstance()));
 
         addSeparator();

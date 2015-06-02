@@ -23,22 +23,18 @@ import org.jgraph.graph.GraphUndoManager;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.RedoAction;
 import org.yawlfoundation.yawl.editor.ui.actions.UndoAction;
-import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * The <code>SpecificationUndoManager</code> is a special case of an <code>UndoManager</code> 
  * where the manager can be told to accept incoming edit events or not.<p>
  * The intent behind this is to switch off acceptance of edits when models relying on
- * the <code>SpecificationUndoMananger</code> need to publish a number of edits (for example, when 
- * loading an exisiting file, or supplying a set of default elements on a graph) to the manager
+ * the <code>SpecificationUndoManager</code> need to publish a number of edits (for example, when
+ * loading an existing file, or supplying a set of default elements on a graph) to the manager
  * that should not be undoable by the user.<p>
  * The <code>SpecificationUndoManager</code> is also responsible for ensuring the the editor's 
  * undo and redo Actions ({@link UndoAction} and {@link RedoAction} respectively)  are 
@@ -56,7 +52,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
     private int     nonAcceptanceLevel = 0;
     private boolean compoundingEdits = false;
     private boolean dirty = false ;
-    private Set<YExternalNetElement> removedYNetElements;
 
     public static SpecificationUndoManager getInstance() {
         return INSTANCE;
@@ -65,7 +60,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
     private SpecificationUndoManager() {
         super();
         setLimit(500);
-        removedYNetElements = new HashSet<YExternalNetElement>();
     }
 
     /**
@@ -131,7 +125,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void undo() {
         showFrameOfEdit(editToBeUndone());
-        updateElementSet(editToBeUndone());
         if (canUndo()) super.undo();
         refreshButtons();
     }
@@ -147,7 +140,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void redo() {
         showFrameOfEdit(editToBeRedone());
-        updateElementSet(editToBeRedone());
         super.redo();
         refreshButtons();
     }
@@ -163,7 +155,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
 
     public void discardAllEdits() {
         super.discardAllEdits();
-        clearYNetElementSet();
         setDirty(false);
         refreshButtons();
     }
@@ -220,13 +211,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
     }
 
 
-    public Set<YExternalNetElement> getRemovedYNetElements() {
-        return removedYNetElements;
-    }
-
-    public void clearYNetElementSet() { removedYNetElements.clear(); }
-
-
     private boolean acceptingEdits() {
         return nonAcceptanceLevel <= 0;
     }
@@ -259,28 +243,6 @@ public class SpecificationUndoManager extends GraphUndoManager {
         YAWLEditor.getNetsPane().setSelectedTab(model.getName());
     }
 
-
-    private void updateElementSet(UndoableEdit edit) {
-        DefaultGraphModel.GraphModelEdit gmEdit = getGraphModelEdit(edit);
-        if (gmEdit != null) {
-            Object[] aboutToBeRemoved = gmEdit.getInserted();
-            Object[] aboutToBeInserted = gmEdit.getRemoved();
-            if (aboutToBeRemoved != null) {
-                for (Object o : aboutToBeRemoved) {
-                    if (o instanceof YAWLVertex) {
-                        removedYNetElements.add(((YAWLVertex) o).getYAWLElement());
-                    }
-                }
-            }
-            else if (aboutToBeInserted != null) {
-                for (Object o : aboutToBeInserted) {
-                    if (o instanceof YAWLVertex) {
-                        removedYNetElements.remove(((YAWLVertex) o).getYAWLElement());
-                    }
-                }
-            }
-        }
-    }
 
     public boolean isDirty() {
         return dirty ;

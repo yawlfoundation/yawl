@@ -50,6 +50,7 @@ public class CopyAction extends YAWLBaseAction
 
 
     private CopyAction() {
+        setEnabled(false);
         Publisher.getInstance().subscribe(this,
                 Arrays.asList(GraphState.NoElementSelected,
                         GraphState.ElementsSelected,

@@ -157,6 +157,7 @@ public class CellProperties extends NetProperties {
     }
 
     public void setCustomForm(String url) {
+        if (url.isEmpty()) url = null;
         try {
             ((YAWLTask) vertex).setCustomFormURL(url);
             setDirty();

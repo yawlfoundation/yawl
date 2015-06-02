@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.editor.core.controlflow;
 
 import org.apache.xerces.util.XMLChar;
 import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
+import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifier;
 import org.yawlfoundation.yawl.editor.core.identity.ElementIdentifiers;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.util.XNode;
@@ -122,7 +123,7 @@ public class YControlFlowHandler {
 
     public String addNet(YNet net) throws YControlFlowHandlerException{
         checkSpecificationExists();
-        String uniqueID = checkID(net.getID());
+        String uniqueID = uniqueDecompositionID(net.getID());
         if (! uniqueID.equals(net.getID())) net.setID(uniqueID);
         net.setSpecification(_specification);
         _specification.addDecomposition(net);
@@ -130,7 +131,7 @@ public class YControlFlowHandler {
     }
 
     public YNet getNet(String netName) {
-        if (_specification == null) return null;
+        if (_specification == null || netName == null) return null;
         YDecomposition decomposition = _specification.getDecomposition(netName);
         return (decomposition instanceof YNet) ? (YNet) decomposition : null;
     }
@@ -141,16 +142,20 @@ public class YControlFlowHandler {
             if (net.equals(_specification.getRootNet())) {
                 raise("Removing the root net is not allowed");
             }
-            return (YNet) _specification.removeDecomposition(netID);
+            if (_specification.removeDecomposition(netID) != null) {
+                for (String netElementId : net.getNetElements().keySet()) {
+                     _identifiers.removeIdentifier(netElementId);
+                }
+            }
         }
-        return null;
+        return net;
     }
 
 
     // pre: specification exists (already checked through #addNet)
     private YNet createNet(String netName) throws IllegalIdentifierException {
-        if (netName == null) netName = "Net";
-        YNet net = new YNet(checkID(netName), _specification);
+        if (netName == null) netName = uniqueDecompositionID("Net");
+        YNet net = new YNet(checkDecompositionID(netName), _specification);
         net.setInputCondition(new YInputCondition(checkID("InputCondition"), net));
         net.setOutputCondition(new YOutputCondition(checkID("OutputCondition"), net));
         return net;
@@ -248,6 +253,32 @@ public class YControlFlowHandler {
 
      /*** net elements CRUD ***/
 
+    // designed to be used after an undo of a removal
+    public YExternalNetElement addNetElement(YExternalNetElement netElement) {
+        if (netElement != null) {
+            YNet net = netElement.getNet();
+
+            // proceed only if the element's net exists in this spec and the
+            // net does not already contain this element
+            if (! (net == null || getNet(net.getID()) == null ||
+                    net.getNetElement(netElement.getID()) != null)) {
+
+                // ensure the element's id is unique within the spec
+                String id = netElement.getID();
+                ElementIdentifier eId = new ElementIdentifier(id);
+                eId = _identifiers.ensureUniqueness(eId);
+                if (! id.equals(eId.toString())) {
+                    netElement.setID(eId.toString());
+                }
+
+                net.addNetElement(netElement);
+                return netElement;
+            }
+        }
+        return null;
+    }
+
+
     public YCondition addCondition(String netID, String id)
             throws IllegalIdentifierException {
         YNet net = getNet(netID);
@@ -316,12 +347,8 @@ public class YControlFlowHandler {
 
 
     public YCondition getCondition(String netID, String id) {
-        YNet net = getNet(netID);
-        if (net != null) {
-            YExternalNetElement element = getNetElement(netID, id);
-            return (element instanceof YCondition) ? (YCondition) element : null;
-        }
-        return null;
+        YExternalNetElement element = getNetElement(netID, id);
+        return (element instanceof YCondition) ? (YCondition) element : null;
     }
 
 
@@ -338,12 +365,8 @@ public class YControlFlowHandler {
 
 
     public YTask getTask(String netID, String id) {
-        YNet net = getNet(netID);
-        if (net != null) {
-            YExternalNetElement element = getNetElement(netID, id);
-            return (element instanceof YTask) ? (YTask) element : null;
-        }
-        return null;
+        YExternalNetElement element = getNetElement(netID, id);
+        return (element instanceof YTask) ? (YTask) element : null;
     }
 
 
@@ -441,8 +464,13 @@ public class YControlFlowHandler {
     }
 
     public boolean removeNetElement(String netID, YExternalNetElement element) {
+        if (element == null) return false;
         YNet net = getNet(netID);
-        return net != null && net.removeNetElement(element);
+        if (net != null && net.removeNetElement(element)) {
+            _identifiers.removeIdentifier(element.getID());
+            return true;
+        }
+        return false;
     }
 
 
@@ -530,6 +558,17 @@ public class YControlFlowHandler {
                     "Identifier: '" + id + "' is already in use");
         }
         return id;
+    }
+
+
+    private String uniqueDecompositionID(String id) {
+        Set<String> idSet = getDecompositionIds();
+        int i = 1;
+        String proposedID = id;
+        while (idSet.contains(proposedID)) {
+            proposedID = id + i++;
+        }
+        return proposedID;
     }
 
     public boolean isValidXMLIdentifier(String id) {

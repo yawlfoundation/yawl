@@ -106,6 +106,13 @@ public class NetGraphUI extends BasicGraphUI {
         overlay.paint(g, graph.getBackground());
     }
 
+
+    // overridden transfer handler for cutting & pasting
+    protected TransferHandler createTransferHandler() {
+   		return new NetGraphTransferHandler();
+   	}
+
+
     private void tileBackgroundImage(Graphics g, ImageIcon icon) {
         ImageObserver observer = icon.getImageObserver();
         int width = graph.getWidth();

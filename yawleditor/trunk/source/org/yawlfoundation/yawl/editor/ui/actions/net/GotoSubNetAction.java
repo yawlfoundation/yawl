@@ -63,4 +63,9 @@ public class GotoSubNetAction extends YAWLSelectedNetAction
       return " You must have a composite task selected to go to the net it unfolds to ";
     }
 
+    public boolean shouldBeEnabled() {
+        return _task.getDecomposition() != null;
+    }
+
+
 }

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.editor.ui.swing;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandlerException;
+import org.yawlfoundation.yawl.editor.core.exception.IllegalIdentifierException;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
@@ -59,6 +60,9 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             return frame;
         }
         catch (Exception e) {
+            if (e instanceof IllegalIdentifierException) {
+                throw new IllegalIdentifierException(e.getMessage());
+            }
             return null;
         }
     }

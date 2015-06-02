@@ -68,7 +68,10 @@ public class VertexPopupMenu extends JPopupMenu {
 
     private void addSubNetMenuItem(YAWLVertex vertex) {
         if (vertex instanceof YAWLCompositeTask) {
-            add(new YAWLPopupMenuItem(new GotoSubNetAction((YAWLCompositeTask) vertex)));
+            YAWLPopupMenuItem item = new YAWLPopupMenuItem(
+                    new GotoSubNetAction((YAWLCompositeTask) vertex));
+            item.setEnabled(((YAWLCompositeTask) vertex).getDecomposition() != null);
+            add(item);
         }
     }
 

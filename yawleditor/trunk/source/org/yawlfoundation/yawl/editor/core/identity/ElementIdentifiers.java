@@ -159,40 +159,6 @@ public class ElementIdentifiers {
     }
 
 
-//    private Map<String, String> rationalise(YSpecification spec) {
-//        clear();
-//        Map<String, String> changes = new HashMap<String, String>();
-//        for (YDecomposition decomposition : spec.getDecompositions()) {
-//            if (decomposition instanceof YNet) {
-//                for (YNetElement element : ((YNet) decomposition).getNetElements().values()) {
-//                    String oldID = element.getID();
-//                    String newID = rationalise(element);
-//                    if (newID != null) {
-//                        changes.put(oldID, newID);
-//                    }
-//                }
-//            }
-//        }
-//        return changes;
-//    }
-
-
-//    private String rationalise(YNetElement element) {
-//        String original = element.getID();
-//        ElementIdentifier id = rationalise(new ElementIdentifier(original));
-//        if (! id.toString().equals(original)) {
-//            updateElement(element, id);
-//            return id.toString();
-//        }
-//        return null;
-//    }
-
-
-//    private ElementIdentifier rationalise(ElementIdentifier identifier) {
-//        return getIdentifier(identifier.getName());
-//    }
-
-
     /**
      * Gets the stored suffixes for a name.
      * @param label the label name to get the suffix store for

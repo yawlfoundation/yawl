@@ -18,18 +18,17 @@
 
 package org.yawlfoundation.yawl.editor.ui.actions;
 
-import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
+import org.yawlfoundation.yawl.editor.core.controlflow.YCompoundFlow;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
-import org.yawlfoundation.yawl.editor.ui.elements.model.*;
+import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLFlowRelation;
+import org.yawlfoundation.yawl.editor.ui.net.NetGraphModel;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
+import org.yawlfoundation.yawl.editor.ui.specification.YNetElementEdit;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
-import org.yawlfoundation.yawl.elements.YDecomposition;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,62 +54,25 @@ public class PasteAction extends YAWLBaseAction {
     }
 
     public void actionPerformed(ActionEvent event) {
-        SpecificationUndoManager.getInstance().startCompoundingEdits();
+        NetGraphModel model = getGraph().getNetModel();
 
+        SpecificationUndoManager.getInstance().startCompoundingEdits();
         TransferHandler.getPasteAction().actionPerformed(
                 new ActionEvent(getGraph(), event.getID(), event.getActionCommand()));
 
-        getGraph().getNetModel().removeCells(NetUtilities.getIllegallyCopiedFlows(
-                getGraph().getNetModel()).toArray());
+        Set<YAWLFlowRelation> illegalFlows = NetUtilities.getIllegallyCopiedFlows(model);
+        for (YAWLFlowRelation flow : illegalFlows) {
+            flow.setYFlow(new YCompoundFlow());     // prevent originals being deleted
+        }
+        model.removeCells(illegalFlows.toArray());
 
         SpecificationUndoManager.getInstance().stopCompoundingEdits();
 
-        for (YAWLVertex vertex : getPastedVertices()) {
-            addVertex(vertex);
-        }
+        List<Object> clonedCells = model.getLastClonedCells();
+        clonedCells.removeAll(illegalFlows);
+        YNetElementEdit.paste(getGraph().getName(), clonedCells.toArray());
+
         YAWLEditor.getPropertySheet().refresh();
     }
-
-
-    private Set<YAWLVertex> getPastedVertices() {
-        Set<YAWLVertex> vertices = new HashSet<YAWLVertex>();
-        List<Object> clonedCells = getGraph().getNetModel().getLastClonedCells();
-        if (clonedCells != null) {
-            for (Object cell : getGraph().getNetModel().getLastClonedCells()) {
-                if (cell instanceof YAWLVertex) {
-                    vertices.add((YAWLVertex) cell);
-                }
-            }
-        }
-        return vertices;
-    }
-
-
-    private void addVertex(YAWLVertex vertex) {
-        YControlFlowHandler handler = SpecificationModel.getHandler().getControlFlowHandler();
-        String netID = getGraph().getName();
-        String vertexID = vertex.getID();
-        if (vertex instanceof Condition) {
-            ((Condition) vertex).setYCondition(handler.addCondition(netID, vertexID));
-        }
-        else if (vertex instanceof YAWLTask) {
-            YDecomposition decomposition = ((YAWLTask) vertex).getDecomposition();
-            if (vertex instanceof AtomicTask) {
-                vertex.setYAWLElement(handler.addAtomicTask(netID, vertexID));
-                ((YAWLTask) vertex).getDecomposition();
-            }
-            else if (vertex instanceof MultipleAtomicTask) {
-                vertex.setYAWLElement(handler.addMultipleInstanceAtomicTask(netID, vertexID));
-            }
-            else if (vertex instanceof CompositeTask) {
-                vertex.setYAWLElement(handler.addCompositeTask(netID, vertexID));
-            }
-            else if (vertex instanceof MultipleCompositeTask) {
-                vertex.setYAWLElement(handler.addMultipleInstanceCompositeTask(netID, vertexID));
-            }
-            ((YAWLTask) vertex).setDecomposition(decomposition);
-        }
-    }
-
 
 }
