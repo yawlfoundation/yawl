@@ -96,6 +96,12 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
                 _flowFromSource.getNextElement();
     }
 
+    public YNet getNet() {
+        YExternalNetElement element = getSource();
+        if (element == null) element = getTarget();
+        return element != null ? element.getNet() : null;
+    }
+
     public void setOrdering(Integer order) {
         _flowFromSource.setEvalOrdering(order);
     }
@@ -337,6 +343,11 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
             }
             if (nominatedFlow != null) {
                 nominatedFlow.setIsDefaultFlow(true);
+
+                // default XOR flow can't have a predicate
+                if (task.getSplitType() == YTask._XOR) {
+                    nominatedFlow.setXpathPredicate(null);
+                }
             }
         }
     }

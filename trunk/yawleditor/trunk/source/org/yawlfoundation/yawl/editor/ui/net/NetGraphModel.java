@@ -28,9 +28,13 @@ import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetUtilities;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
+import org.yawlfoundation.yawl.editor.ui.specification.YNetElementEdit;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
 import java.util.*;
 
 public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGraphModel> {
@@ -118,14 +122,17 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
 
     private Set<Object> removeCellsAndEdges(final Set<Object> cells) {
         Set<Object> cellsAndTheirEdges = new HashSet<Object>(cells);
-        cellsAndTheirEdges.addAll(
-                getDescendants(this, cells.toArray())
-        );
+        cellsAndTheirEdges.addAll(getDescendants(this, cells.toArray()));
         cellsAndTheirEdges.addAll(getEdges(this, cells.toArray()));
         removeCellsFromCancellationSets(cellsAndTheirEdges);
         YPluginHandler.getInstance().elementsRemoved(this, cellsAndTheirEdges);
 
         super.remove(cellsAndTheirEdges.toArray());
+//        NetGraphModelEdit edit = createRemoveEdit(cellsAndTheirEdges.toArray());
+//    	if (edit != null) {
+//    		edit.execute();
+//    		postEdit(edit);
+//    	}
 
         compressFlowPriorities(
                 NetUtilities.getTasksRequiringFlowPredicates(
@@ -167,11 +174,11 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
         List<Object> clones = new ArrayList<Object>();
 
         for (Object cell : cells) {
-            if (cell instanceof YAWLCell) {
-                YAWLCell yCell = (YAWLCell) cell;
-                if (yCell.isCopyable()) {
+            if (cell instanceof YAWLCell && ((YAWLCell) cell).isCopyable()) {
+//                YAWLCell yCell = (YAWLCell) cell;
+//                if (yCell.isCopyable()) {
                     clones.add(cell);
-                }
+//                }
             } else {
                 clones.add(cell);
             }
@@ -226,7 +233,7 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
      *
      * @param source The source port
      * @param target The target port
-     * @return <code>true</code> if conection allowed.
+     * @return <code>true</code> if connection allowed.
      */
 
     public boolean connectionAllowable(Port source, Port target) {
@@ -621,4 +628,41 @@ public class NetGraphModel extends DefaultGraphModel implements Comparable<NetGr
     public int compareTo(NetGraphModel otherModel) {
         return getName().compareTo(otherModel.getName());
     }
+
+
+    protected GraphModelEdit createEdit(Object[] inserted, Object[] removed,
+   			Map attributes, ConnectionSet cs, ParentMap pm, UndoableEdit[] edits) {
+   		GraphModelEdit edit = new NetGraphModelEdit(inserted, removed, attributes,
+   				cs, pm);
+   		if (edit != null) {
+   			if (edits != null)
+   				for (int i = 0; i < edits.length; i++)
+   					edit.addEdit(edits[i]);
+   			edit.end();
+   		}
+   		return edit;
+   	}
+
+
+    /**************************************************************************/
+    // Has to be an inner class
+
+    public class NetGraphModelEdit extends GraphModelEdit {
+
+        public NetGraphModelEdit(Object[] inserted, Object[] removed,
+                                 Map attributes, ConnectionSet connectionSet, ParentMap parentMap) {
+            super(inserted, removed, attributes, connectionSet, parentMap);
+        }
+
+        public void redo() throws CannotRedoException {
+            super.redo();
+            YNetElementEdit.apply(getInserted(), getRemoved());
+        }
+
+        public void undo() throws CannotUndoException {
+            super.undo();
+            YNetElementEdit.apply(getInserted(), getRemoved());
+        }
+    }
+
 }

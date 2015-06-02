@@ -23,14 +23,12 @@ import org.yawlfoundation.yawl.editor.core.layout.YLayout;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.plugin.YPluginHandler;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.AnalysisResultsParser;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.DataTypeValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.SpecificationValidator;
 import org.yawlfoundation.yawl.editor.ui.specification.validation.ValidationResultsParser;
 import org.yawlfoundation.yawl.editor.ui.util.LogWriter;
 import org.yawlfoundation.yawl.editor.ui.util.UserSettings;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
 import org.yawlfoundation.yawl.elements.YSpecification;
 
 import javax.swing.*;
@@ -98,7 +96,6 @@ public class SpecificationWriter extends SwingWorker<Boolean, Void> {
 
     public YSpecification cleanSpecification() {
         _handler.getControlFlowHandler().removeOrphanTaskDecompositions();
-        removeUndoneElements();
         YPluginHandler.getInstance().preSaveFile();
         return _handler.getSpecification();
     }
@@ -138,15 +135,6 @@ public class SpecificationWriter extends SwingWorker<Boolean, Void> {
         }
         YAWLEditor.getInstance().showProblemList(title + " Results",
                 new ValidationResultsParser().parse(results));
-    }
-
-
-    private void removeUndoneElements() {
-        for (YExternalNetElement netElement :
-                 SpecificationUndoManager.getInstance().getRemovedYNetElements()) {
-            _handler.getControlFlowHandler().removeNetElement(netElement);
-        }
-        SpecificationUndoManager.getInstance().clearYNetElementSet();
     }
 
 

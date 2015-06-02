@@ -61,7 +61,6 @@ import org.yawlfoundation.yawl.editor.ui.specification.FileOperations;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationUndoManager;
 import org.yawlfoundation.yawl.editor.ui.specification.pubsub.SpecificationState;
-import org.yawlfoundation.yawl.elements.YExternalNetElement;
 import org.yawlfoundation.yawl.elements.YTask;
 
 import javax.swing.*;
@@ -311,23 +310,9 @@ public class ApplyProcessConfigurationAction extends YAWLSelectedNetAction {
         if (net != null) {
             net.removeCellsAndTheirEdges(removeSet.toArray());
 
-            Set<YExternalNetElement> removed =
-                    SpecificationUndoManager.getInstance().getRemovedYNetElements();
             for (YAWLCell cell : removeSet) {
                 if (cell instanceof YAWLFlowRelation) {
                     removedFlows.add(((YAWLFlowRelation) cell).getYFlow());
-                }
-                else {
-                    YAWLVertex vertex = null;
-                    if (cell instanceof VertexContainer) {
-                        vertex = ((VertexContainer) cell).getVertex();
-                    }
-                    if (cell instanceof YAWLVertex) {
-                        vertex = (YAWLVertex) cell;
-                    }
-                    if (vertex != null) {
-                        removed.add(vertex.getYAWLElement());
-                    }
                 }
             }
         }
