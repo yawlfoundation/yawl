@@ -326,7 +326,7 @@ public class CellProperties extends NetProperties {
         if (decomposition instanceof YAWLServiceGateway) {
             graph.setTaskDecomposition((YAWLTask) vertex, decomposition);  // update labels
         }
-        else if (decomposition instanceof YNet) {
+        else if ((decomposition instanceof YNet) && vertex.getLabel() == null) {
             graph.setElementLabel(vertex, getLabel(decomposition));
         }
         else if (decomposition == null) {

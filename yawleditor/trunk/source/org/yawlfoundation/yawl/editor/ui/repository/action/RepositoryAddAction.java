@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
-import org.yawlfoundation.yawl.editor.core.layout.YLayout;
-import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
@@ -29,12 +27,12 @@ import org.yawlfoundation.yawl.editor.ui.elements.model.YAWLVertex;
 import org.yawlfoundation.yawl.editor.ui.net.utilities.NetCellUtilities;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.AddDialog;
-import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutExporter;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,7 +68,7 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
         AddDialog dialog = new AddDialog(owner, getDefaultText());
         dialog.setVisible(true);
         String name = dialog.getRecordName();
-        if (name != null) {
+        if (!StringUtil.isNullOrEmpty(name)) {
             String description = dialog.getRecordDescription();
             YRepository repo = YRepository.getInstance();
             switch (selectedRepo) {
@@ -85,8 +83,7 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
                     break;
                 case NetDecomposition:
                     YNet selectedNet = YAWLEditor.getNetsPane().getSelectedYNet();
-                    repo.getNetRepository().add(name, description, selectedNet,
-                            getNetLayoutXML(selectedNet));
+                    repo.getNetRepository().add(name, description, selectedNet);
                     break;
                 case ExtendedAttributes:
                     repo.getExtendedAttributesRepository().add(name, description,
@@ -128,10 +125,4 @@ public class RepositoryAddAction extends YAWLOpenSpecificationAction {
                 JOptionPane.ERROR_MESSAGE);
     }
 
-
-    private String getNetLayoutXML(YNet net) {
-        YLayout layout = new LayoutExporter().parse();
-        YNetLayout netLayout = layout.getNetLayout(net.getID());
-        return netLayout.toXML();
-    }
 }

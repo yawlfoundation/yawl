@@ -45,8 +45,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 /**
  * The core executable class of the YAWL Editor, responsible for bootstrapping the editor
@@ -65,6 +69,9 @@ public class YAWLEditor extends JFrame implements FileStateListener {
     private static YSplashScreen splashScreen;
     private static ToolBarMenu toolBarMenu;
     private static YAWLEditor INSTANCE;
+
+    private static final String DEFAULT_VERSION = "3.0.1";
+    private static final String BUILD_VERSION = getVersionFromManifest();
 
 
     private YAWLEditor() {
@@ -121,7 +128,7 @@ public class YAWLEditor extends JFrame implements FileStateListener {
 
     public void setTitle(String title) {
         String titleSeparator = title.equals("") ? "" : " - ";
-        super.setTitle("YAWL Editor 3.0.1" + titleSeparator + title);
+        super.setTitle("YAWL Editor " + BUILD_VERSION + titleSeparator + title);
     }
 
 
@@ -422,6 +429,24 @@ public class YAWLEditor extends JFrame implements FileStateListener {
                 "Updated successfully to version " +
                         new BuildProperties().getFullVersionText(),
                 "Update Completed", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
+    private static String getVersionFromManifest() {
+        String thisClassName = YAWLEditor.class.getSimpleName() + ".class";
+        String classPath = YAWLEditor.class.getResource(thisClassName).toString();
+        String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) +
+            "/META-INF/MANIFEST.MF";
+        try {
+            Manifest manifest = new Manifest(new URL(manifestPath).openStream());
+            Attributes attr = manifest.getMainAttributes();
+            String value = attr.getValue("Implementation-Version");
+            if (value != null) return value;
+        }
+        catch (IOException ioe) {
+            // fall through to default
+        }
+        return DEFAULT_VERSION;
     }
 
 }

@@ -122,10 +122,27 @@ public class YDataHandler {
             updateInputReferencesToNet((YNet) decomposition, oldID);
         }
         else {
-            updateOutputReferencesToDecomposition(decomposition, oldID);
+            updateOutputReferencesToDecomposition(decomposition, oldID,
+                    getTasks(decomposition));
         }
     }
 
+    /**
+     * Updates all references to a net or task decomposition in task mappings, when
+     * the net or decomposition has had a name change
+     * @param oldID the old net or task decomposition id
+     * @param newID the new net or task decomposition id
+     * @throws YDataHandlerException if there is no specification associated with this
+     * handler, or it has no decomposition with the specified id
+     */
+    public void updateTaskDecompositionReferences(Set<YTask> taskSet,
+                                                  String oldID, String newID)
+            throws YDataHandlerException {
+        YDecomposition decomposition = getDecomposition(newID);
+        if (decomposition instanceof YAWLServiceGateway) {
+            updateOutputReferencesToDecomposition(decomposition, oldID, taskSet);
+        }
+    }
 
     /**
      * Removes a decomposition from the current specification. Also removes all task
@@ -857,9 +874,9 @@ public class YDataHandler {
      * @param oldID the name it used to have before the change
      */
     private void updateOutputReferencesToDecomposition(YDecomposition decomposition,
-                                                       String oldID) {
+                                                       String oldID, Set<YTask> taskSet) {
         String searchKey = '{' + xpathDelimit(oldID);
-        for (YTask task : getTasks(decomposition)) {
+        for (YTask task : taskSet) {
             Map<String, String> mappings = task.getDataMappingsForTaskCompletion();
             Map<String,String> replacements = new HashMap<String, String>();
             Set<String> replacedKeys = new HashSet<String>();

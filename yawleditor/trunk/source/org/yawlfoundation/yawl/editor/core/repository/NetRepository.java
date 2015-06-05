@@ -18,6 +18,9 @@
 
 package org.yawlfoundation.yawl.editor.core.repository;
 
+import org.yawlfoundation.yawl.editor.core.layout.YLayout;
+import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
+import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutExporter;
 import org.yawlfoundation.yawl.elements.*;
 import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -25,10 +28,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -49,15 +49,15 @@ public class NetRepository extends DecompositionRepoMap {
      * @param name a reference name for the net decomposition
      * @param description a description of it
      * @param net the net decomposition to add
-     * @param layoutXML net layout information (may be null)
      * @return whether the add was successful
      */
-    public String add(String name, String description, YNet net, String layoutXML) {
+    public String add(String name, String description, YNet net) {
         String uniqueName = super.add(name, description, net);
         Set<String> containedIds = addContainedDecompositions(net);
         if (! containedIds.isEmpty()) {
             addDecompositionIdMappings(uniqueName, containedIds);
         }
+        String layoutXML = getNetLayoutXML(net);
         if (layoutXML != null) {
             addLayout(uniqueName, layoutXML);
         }
@@ -69,26 +69,15 @@ public class NetRepository extends DecompositionRepoMap {
 
 
     /**
-     * Adds a net decomposition to the repository
-     * @param name a reference name for the net decomposition
-     * @param description a description of it
-     * @param net the net decomposition to add
-     * @return whether the add was successful
-     */
-    public String add(String name, String description, YNet net) {
-        return add(name, description, net, null);
-    }
-
-
-    /**
      * Gets a net decomposition from the repository
      * @param name a reference name for the net decomposition
      * @return the referenced net decomposition, or null if not found
      */
-    public Set<YDecomposition> getNetAndDecompositions(String name) throws YSyntaxException {
+    public Map<String, YDecomposition> getNetAndDecompositions(String name)
+            throws YSyntaxException {
         RepoRecord record = getRecord(name);
-        return record != null ? parseNetRecord(record.getValue()) :
-                Collections.<YDecomposition>emptySet();
+        return record != null ? parseNetRecord(record) :
+                Collections.<String, YDecomposition>emptyMap();
     }
 
 
@@ -179,7 +168,8 @@ public class NetRepository extends DecompositionRepoMap {
                         currentID, description, (YAWLServiceGateway) decomposition);
             }
             else if (decomposition instanceof YNet) {
-                addContainedDecompositions((YNet) decomposition);     // sub-net recurse
+
+                // recurse for subnets
                 uniqueID = add(decomposition.getID(), description, (YNet) decomposition);
             }
             idSet.add(uniqueID);
@@ -201,56 +191,62 @@ public class NetRepository extends DecompositionRepoMap {
 
     /**
      * Creates a decomposition from its XML description
-     * @param xml the XML to parse
+     * @param record the RepoRecord to parse
      * @return the populated task decomposition
      */
-    protected Set<YDecomposition> parseNetRecord(String xml) throws YSyntaxException {
+    protected Map<String, YDecomposition> parseNetRecord(RepoRecord record)
+            throws YSyntaxException {
+        Map<String, XNode> nodeMap = parseDecompositionNodes(record);
+        Map<String, String> netIDtoRepoIDMap = extractIDMap(nodeMap);
+
         XNode specNode = getSpecificationNode();
-        specNode.addChildren(parseDecompositionNodes(xml));
+        specNode.addChildren(nodeMap.values());
 
         YSpecification specification = YMarshal.unmarshalSpecifications(
                 shellSpecification.toString(true), false).get(0);
 
         resetSpecificationNode();                       // reset shell for next time
 
-        Set<YDecomposition> decompositions = new HashSet<YDecomposition>();
+        Map<String, YDecomposition> decoMap = new HashMap<String, YDecomposition>();
         for (YDecomposition decomposition : specification.getDecompositions()) {
             if (! decomposition.getID().equals("rootNet")) {
-                decompositions.add(decomposition);
+                String repoID = netIDtoRepoIDMap.get(decomposition.getID());
+                decoMap.put(repoID, decomposition);
             }
         }
-        return decompositions;
+        return decoMap;
     }
 
 
-    protected Set<XNode> parseDecompositionNodes(String xml)
+    protected Map<String, XNode> parseDecompositionNodes(RepoRecord record)
             throws YSyntaxException {
-        Set<XNode> parsedNodes = new HashSet<XNode>();
-        XNode rootNode = parseRecord(xml);
+        Map<String, XNode> parsedNodes = new HashMap<String, XNode>();
+        XNode rootNode = parseRecord(record.getValue());
         XNode netNode = rootNode.getChild("decomposition");
         if (netNode != null) {
             XNode taskDecompositionsNode = rootNode.getChild("taskDecompositions");
-            parsedNodes.addAll(parseDecompositionNodes(netNode, taskDecompositionsNode));
+            parsedNodes.putAll(parseDecompositionNodes(record.getName(),
+                    netNode, taskDecompositionsNode));
         }
         return parsedNodes;
     }
 
 
-    protected Set<XNode> parseDecompositionNodes(XNode netNode,
+    protected Map<String, XNode> parseDecompositionNodes(String repoID, XNode netNode,
                                                  XNode taskDecompositionsNode)
                 throws YSyntaxException {
-        Set<XNode> parsedNodes = new HashSet<XNode>();
+        Map<String, XNode> parsedNodes = new HashMap<String, XNode>();
         addXsiAttribute(netNode);
-        parsedNodes.add(netNode);
+        parsedNodes.put(repoID, netNode);
         String netID = netNode.getAttributeValue("id");
-        for (String xml : extractSubNets(taskDecompositionsNode, netID)) {
-            parsedNodes.addAll(parseDecompositionNodes(xml));    // recurse for subnets
+        for (RepoRecord record : extractSubNetRecords(taskDecompositionsNode, netID)) {
+            parsedNodes.putAll(parseDecompositionNodes(record));  // recurse for subnets
         }
-        for (String xml : getTaskDecompositionXMLSet(taskDecompositionsNode)) {
-            XNode decompositionNode = parser.parse(xml);
+        for (RepoRecord record : extractTaskDecompositionRecords(taskDecompositionsNode)) {
+            XNode decompositionNode = parser.parse(record.getValue());
             if (decompositionNode != null) {
                 decompositionNode.addAttribute("xsi:type", "WebServiceGatewayFactsType");
-                parsedNodes.add(decompositionNode);
+                parsedNodes.put(record.getName(), decompositionNode);
             }
         }
         return parsedNodes;
@@ -287,7 +283,7 @@ public class NetRepository extends DecompositionRepoMap {
     }
 
 
-    private Set<String> getTaskDecompositionXMLSet(XNode node) {
+    private Set<RepoRecord> extractTaskDecompositionRecords(XNode node) {
         if (node == null) return Collections.emptySet();
 
         Set<String> nameSet = new HashSet<String>();
@@ -299,24 +295,41 @@ public class NetRepository extends DecompositionRepoMap {
     }
 
 
-    private Set<String> extractSubNets(XNode node, String netID) {
+    private Set<RepoRecord> extractSubNetRecords(XNode node, String netID) {
         if (node == null) return Collections.emptySet();
 
-        Set<String> valueSet = new HashSet<String>();
+        Set<RepoRecord> recordSet = new HashSet<RepoRecord>();
         Set<XNode> toRemove = new HashSet<XNode>();
         for (XNode child : node.getChildren()) {
             RepoRecord record = getRecord(child.getText());
             if (record != null) {
                 String desc = record.getDescription();
                 if (desc != null && desc.equals("Stored as required by storage of " + netID)) {
-                    valueSet.add(record.getValue());
+                    recordSet.add(record);
                     toRemove.add(child);
                 }
             }
         }
 
         for (XNode child : toRemove) node.removeChild(child);
-        return valueSet;
+        return recordSet;
+    }
+
+
+    private Map<String, String> extractIDMap(Map<String, XNode> nodeMap) {
+        Map<String, String> idMap = new HashMap<String, String>();
+        for (String repoID : nodeMap.keySet()) {
+            XNode node = nodeMap.get(repoID);
+            idMap.put(node.getAttributeValue("id"), repoID);
+        }
+        return idMap;
+    }
+
+
+    private String getNetLayoutXML(YNet net) {
+        YLayout layout = new LayoutExporter().parse();
+        YNetLayout netLayout = layout.getNetLayout(net.getID());
+        return netLayout.toXML();
     }
 
 }

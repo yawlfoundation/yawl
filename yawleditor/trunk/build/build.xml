@@ -139,6 +139,17 @@
              classname="com.oopsconsultancy.xmltask.ant.XmlTask"
              classpath="${library.dir}/xmltask.jar"/>
 
+
+    <scriptdef name="adjust.build.version" language="javascript">
+        <attribute name="last.build.version" />
+        <attribute name="property" />
+        <![CDATA[
+               var initVal = attributes.get("last.build.version");
+               var finalVal = parseInt(initVal) + 1;
+               project.setProperty(attributes.get("property"), finalVal);
+        ]]>
+    </scriptdef>
+
 	<!-- ==================MAIN EDITOR BUILD TARGETS======================= -->
 
 	<!--
@@ -169,6 +180,9 @@
             </fileset>
         </copy>
 
+        <adjust.build.version last.build.version="${build.number}"
+                              property="this.build.number"/>
+
         <property name="manifestFile" value="${root.class.name}.mf" />
     	<manifestclasspath property="manifest.cp"
     					   jarfile="${output.dir}/${ui.jar.name}">
@@ -181,6 +195,8 @@
         	<attribute name="Class-Path" value="${manifest.cp}" />
             <attribute name="SplashScreen-Image"
                        value="${package.dir}/ui/resources/yawlSplashScreen.jpg" />
+            <attribute name="Implementation-Version"
+                       value="${editor.release.version}.${this.build.number}" />
         </manifest>
 
         <jar jarfile="${output.dir}/${ui.jar.name}"

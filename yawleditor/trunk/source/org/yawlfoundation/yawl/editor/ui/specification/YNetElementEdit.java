@@ -57,19 +57,19 @@ public class YNetElementEdit {
     }
 
 
-    public static void paste(String netId, Object[] toBePasted) {
+    public static Map<String, String> paste(String netId, Object[] toBePasted) {
         YNet net = handler.getNet(netId);
-        if (net != null) {
-            insertExternal(net, toBePasted);
-        }
+        return net != null ? insertExternal(net, toBePasted) :
+                Collections.<String, String>emptyMap();
     }
 
 
-    private static void insertExternal(YNet net, Object[] elements) {
+    private static Map<String, String> insertExternal(YNet net, Object[] elements) {
 
         // elements first, then flows
         Map<String, String> idMap = insertNetElements(net, elements);    // updated ids
         insertFlows(net, elements, idMap);
+        return idMap;
     }
 
 
