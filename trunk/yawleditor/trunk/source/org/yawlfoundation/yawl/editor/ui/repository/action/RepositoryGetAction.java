@@ -19,36 +19,27 @@
 package org.yawlfoundation.yawl.editor.ui.repository.action;
 
 import org.yawlfoundation.yawl.editor.core.controlflow.YControlFlowHandler;
-import org.yawlfoundation.yawl.editor.core.data.YDataHandler;
-import org.yawlfoundation.yawl.editor.core.layout.YLayoutParseException;
-import org.yawlfoundation.yawl.editor.core.layout.YNetLayout;
 import org.yawlfoundation.yawl.editor.core.repository.Repo;
 import org.yawlfoundation.yawl.editor.core.repository.RepoDescriptor;
 import org.yawlfoundation.yawl.editor.core.repository.YRepository;
 import org.yawlfoundation.yawl.editor.ui.YAWLEditor;
 import org.yawlfoundation.yawl.editor.ui.actions.specification.YAWLOpenSpecificationAction;
-import org.yawlfoundation.yawl.editor.ui.net.NetGraph;
 import org.yawlfoundation.yawl.editor.ui.properties.dialog.ExtendedAttributesDialog;
 import org.yawlfoundation.yawl.editor.ui.repository.dialog.DescriptorListDialog;
 import org.yawlfoundation.yawl.editor.ui.specification.NetReloader;
 import org.yawlfoundation.yawl.editor.ui.specification.SpecificationModel;
-import org.yawlfoundation.yawl.editor.ui.specification.io.LayoutImporter;
-import org.yawlfoundation.yawl.editor.ui.swing.DefaultLayoutArranger;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.DataTypeDialogToolBarMenu;
 import org.yawlfoundation.yawl.editor.ui.swing.menu.MenuUtilities;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.YNet;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.exceptions.YSyntaxException;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.internal.YInternalType;
-import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.text.NumberFormat;
 import java.util.*;
 
 public class RepositoryGetAction extends YAWLOpenSpecificationAction {
@@ -125,35 +116,11 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
 
     private void loadNet(String name) {
         try {
-            Set<String> unknownTypes = new HashSet<String>();
-            Set<YNet> nets = new HashSet<YNet>();                   // may have subnets
+            Map<String, YDecomposition> decompositionsToLoad = repository
+                    .getNetRepository().getNetAndDecompositions(name);
+            new NetReloader().reload(name, decompositionsToLoad);
 
-            // have to load the task decompositions first
-            for (YDecomposition decomposition : repository.getNetRepository()
-                    .getNetAndDecompositions(name)) {
-                if (decomposition instanceof YNet) {
-                    nets.add((YNet) decomposition);
-                }
-                else {
-                    getHandler().addTaskDecomposition((YAWLServiceGateway) decomposition);
-                }
-                unknownTypes.addAll(getUnknownDataTypes(decomposition));
-            }
-            for (YNet net : nets) {
-                String id = net.getID();
-                String idAdded = getHandler().addNet(net);
-                if (! idAdded.equals(id)) {
-                    getDataHandler().updateDecompositionReferences(id, idAdded);
-                }
-                NetGraph graph = new NetGraph(net);
-                SpecificationModel.getNets().add(graph.getNetModel());
-                YAWLEditor.getNetsPane().openNet(graph);
-                new NetReloader().reload(graph);
-                setNetLayout(net, graph);
-            }
-            if (nets.size() > 1) {
-                YAWLEditor.getNetsPane().setSelectedTab(name);
-            }
+            Set<String> unknownTypes = getUnknownDataTypes(decompositionsToLoad.values());
             if (! unknownTypes.isEmpty()) {
                 warnOnUnknownTypes(unknownTypes);
             }
@@ -169,26 +136,12 @@ public class RepositoryGetAction extends YAWLOpenSpecificationAction {
     }
 
 
-    private YDataHandler getDataHandler() {
-        return SpecificationModel.getHandler().getDataHandler();
-    }
-
-
-    private void setNetLayout(YNet net, NetGraph graph)
-            throws YSyntaxException, YLayoutParseException {
-        YNetLayout layout = null;
-        XNode layoutNode = repository.getNetRepository().getLayout(net.getID());
-        if (layoutNode != null) {
-            layout = new YNetLayout(net, NumberFormat.getInstance(Locale.getDefault()));
-            layout.parse(layoutNode.getChild());
+    private Set<String> getUnknownDataTypes(Collection<YDecomposition> decompositionSet) {
+        Set<String> unknownDataTypes = new HashSet<String>();
+        for (YDecomposition decomposition : decompositionSet) {
+            unknownDataTypes.addAll(getUnknownDataTypes(decomposition));
         }
-        if (layout != null) {
-            LayoutImporter.setNetLayout(graph.getNetModel(), layout);
-            graph.getGraphLayoutCache().reload();
-        }
-        else {
-            new DefaultLayoutArranger().layoutNet(graph.getNetModel());
-        }
+        return unknownDataTypes;
     }
 
 

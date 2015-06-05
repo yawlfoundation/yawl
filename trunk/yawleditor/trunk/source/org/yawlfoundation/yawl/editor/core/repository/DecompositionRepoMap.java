@@ -163,17 +163,17 @@ public abstract class DecompositionRepoMap extends RepoMap {
     }
 
 
-    protected Set<String> getValues(Set<String> nameSet) {
+    protected Set<RepoRecord> getValues(Set<String> nameSet) {
         if (nameSet == null) return Collections.emptySet();
 
-        Set<String> valueSet = new HashSet<String>();
+        Set<RepoRecord> recordSet = new HashSet<RepoRecord>();
         for (String name : nameSet) {
             RepoRecord record = getRecord(name);
             if (record != null) {
-                valueSet.add(record.getValue());
+                recordSet.add(record);
             }
         }
-        return valueSet;
+        return recordSet;
     }
 
 }

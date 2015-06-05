@@ -88,6 +88,7 @@ public class DecoratorPosAction extends YAWLBaseAction implements DecoratorActio
         _isJoin = isJoin;
         putValue(Action.SHORT_DESCRIPTION, getToolTipText());
         putValue(Action.SMALL_ICON, getMenuIcon(iconName));
+        setEnabled(false);
     }
 
 

@@ -177,7 +177,7 @@ public class YControlFlowHandler {
     public String addTaskDecomposition(YAWLServiceGateway decomposition)
             throws YControlFlowHandlerException {
         checkSpecificationExists();
-        String uniqueID = checkID(decomposition.getID());
+        String uniqueID = uniqueDecompositionID(decomposition.getID());
         if (! uniqueID.equals(decomposition.getID())) decomposition.setID(uniqueID);
         decomposition.setSpecification(_specification);
         _specification.addDecomposition(decomposition);
@@ -253,6 +253,13 @@ public class YControlFlowHandler {
 
      /*** net elements CRUD ***/
 
+     public String getUniqueID(String id) {
+         ElementIdentifier eId = new ElementIdentifier(id);
+         eId = _identifiers.ensureUniqueness(eId);
+         return eId.toString();
+     }
+
+
     // designed to be used after an undo of a removal
     public YExternalNetElement addNetElement(YExternalNetElement netElement) {
         if (netElement != null) {
@@ -265,10 +272,9 @@ public class YControlFlowHandler {
 
                 // ensure the element's id is unique within the spec
                 String id = netElement.getID();
-                ElementIdentifier eId = new ElementIdentifier(id);
-                eId = _identifiers.ensureUniqueness(eId);
-                if (! id.equals(eId.toString())) {
-                    netElement.setID(eId.toString());
+                String uniqueID = getUniqueID(id);
+                if (! id.equals(uniqueID)) {
+                    netElement.setID(uniqueID);
                 }
 
                 net.addNetElement(netElement);
