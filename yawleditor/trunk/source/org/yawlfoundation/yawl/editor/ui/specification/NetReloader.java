@@ -51,7 +51,8 @@ public class NetReloader {
 
     private static final int MARGIN = 50;
 
-    private Map<String, YAWLVertex> vertices;
+    private Map<String, YAWLVertex> _vertices;
+    private Set<YAWLFlowRelation> _flows;
 
 
     public void reload(String topID, Map<String, YDecomposition> netAndTaskDecompositions)
@@ -148,8 +149,8 @@ public class NetReloader {
 
     private void reload(NetGraph graph) {
         Set<YFlow> flowSet = new HashSet<YFlow>();
-        Set<YCondition> conditions = new HashSet<YCondition>();
-        vertices = new HashMap<String, YAWLVertex>();
+        Set<YCondition> implicitConditions = new HashSet<YCondition>();
+        _vertices = new HashMap<String, YAWLVertex>();
         YNet net = (YNet) graph.getNetModel().getDecomposition();
         addBaseConditions(net, graph);
         for (YExternalNetElement element : net.getNetElements().values()) {
@@ -158,17 +159,18 @@ public class NetReloader {
             }
             else if (element instanceof YCondition) {
                 YCondition condition = (YCondition) element;
-                if (addCondition(graph, condition)) {
-                    conditions.add(condition);
+                addCondition(graph, condition);
+                if (condition.isImplicit()) {
+                    implicitConditions.add(condition);
+                }
+                else {
+                    addCondition(graph, condition);                     // add to graph
                 }
             }
             flowSet.addAll(element.getPostsetFlows());
         }
-        Set<YAWLFlowRelation> flowRelations = addFlows(graph, flowSet, conditions);
+        addFlows(graph, flowSet, implicitConditions);
         DecoratorUtil.removeUnnecessaryDecorators(graph.getNetModel());
-
-        Set<YAWLCell> allLoaded = new HashSet<YAWLCell>(vertices.values());
-        allLoaded.addAll(flowRelations);
     }
 
 
@@ -177,12 +179,12 @@ public class NetReloader {
         InputCondition inputCondition = new InputCondition(
                 getInputConditionPoint(bounds, graph), net.getInputCondition());
         addCondition(graph, inputCondition);
-        vertices.put(inputCondition.getID(), inputCondition);
+        _vertices.put(inputCondition.getID(), inputCondition);
 
         OutputCondition outputCondition = new OutputCondition(
                 getOutputConditionPoint(bounds, graph), net.getOutputCondition());
         addCondition(graph, outputCondition);
-        vertices.put(outputCondition.getID(), outputCondition);
+        _vertices.put(outputCondition.getID(), outputCondition);
     }
 
 
@@ -202,7 +204,7 @@ public class NetReloader {
         graph.addElement(condition);
         String name = condition.getName();
         if (name != null) graph.setElementLabel(condition, name);
-        vertices.put(condition.getID(), condition);
+        _vertices.put(condition.getID(), condition);
         return true;
     }
 
@@ -233,21 +235,19 @@ public class NetReloader {
                 graph.setElementLabel(task, name);
             }
             DecoratorUtil.setTaskDecorators(yTask, task, graph.getNetModel());
-            vertices.put(task.getID(), task);
+            _vertices.put(task.getID(), task);
         }
     }
 
 
-    private Set<YAWLFlowRelation> addFlows(NetGraph graph, Set<YFlow> flows,
-                                           Set<YCondition> conditions) {
-        Set<YAWLFlowRelation> flowSet = new HashSet<YAWLFlowRelation>();
-        for (YCompoundFlow compoundFlow : NetUtilities.rationaliseFlows(flows, conditions)) {
+    private void addFlows(NetGraph graph, Set<YFlow> yFlows, Set<YCondition> conditions) {
+        _flows = new HashSet<YAWLFlowRelation>();
+        for (YCompoundFlow compoundFlow : NetUtilities.rationaliseFlows(yFlows, conditions)) {
             YAWLFlowRelation flow = new YAWLFlowRelation(compoundFlow);
-            graph.connect(flow, vertices.get(flow.getSourceID()),
-                    vertices.get(flow.getTargetID()));
-            flowSet.add(flow);
+            graph.connect(flow, _vertices.get(flow.getSourceID()),
+                    _vertices.get(flow.getTargetID()));
+            _flows.add(flow);
         }
-        return flowSet;
     }
 
 
@@ -276,10 +276,24 @@ public class NetReloader {
 
     private void checkElementIDs(YNet net) {
         for (YExternalNetElement element : net.getNetElements().values()) {
+            if ((element instanceof YCondition) && ((YCondition) element).isImplicit()) {
+                continue;
+            }
             ElementIdentifier eId = new ElementIdentifier(element.getID());
             String newID = getHandler().checkID(eId.getName());
             if (! newID.equals(eId.toString())) {
                 element.setID(newID);
+            }
+        }
+        checkImplicitConditionIDs();
+    }
+
+
+    private void checkImplicitConditionIDs() {
+        for (YAWLFlowRelation flow : _flows) {
+            YCompoundFlow compoundFlow = flow.getYFlow();
+            if (compoundFlow.isCompound()) {
+                compoundFlow.rationaliseImplicitConditionID();
             }
         }
     }

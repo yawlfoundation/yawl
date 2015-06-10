@@ -147,7 +147,8 @@ public class AnalysisDialog extends JDialog implements YAnalyserEventListener {
 
     private void onClose() {
         setKeepOpenPreference();
-        dispose();
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setVisible(false);            // using dispose here will cause threading issues
     }
 
 

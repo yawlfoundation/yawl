@@ -148,9 +148,9 @@ public final class NetUtilities {
 
 
     public static Set<YCompoundFlow> rationaliseFlows(Set<YFlow> flows,
-                                                      Set<YCondition> conditions) {
+                                                      Set<YCondition> implicitConditions) {
         Set<YCompoundFlow> compoundFlows = new HashSet<YCompoundFlow>();
-        for (YCondition condition : conditions) {
+        for (YCondition condition : implicitConditions) {
             if (condition.isImplicit()) {
                 YFlow flowFromSource = condition.getPresetFlows().iterator().next();
                 YFlow flowIntoTarget = condition.getPostsetFlows().iterator().next();

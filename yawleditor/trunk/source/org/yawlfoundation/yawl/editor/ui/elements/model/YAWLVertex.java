@@ -96,9 +96,18 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
     public String getDesignNotes() { return _designNotes; }
 
 
-    public void setBackgroundColor(Color color) { _backgroundColor = color; }
+    public void setBackgroundColor(Color color) {
+        Map map = new HashMap();
+        GraphConstants.setBackground(map, color);
+        getAttributes().applyMap(map);
 
-    public Color getBackgroundColor() { return _backgroundColor; }
+    //    _backgroundColor = color;
+    }
+
+    public Color getBackgroundColor() {
+        Color bg = (Color) getAttributes().get("backgroundColor");
+        return bg != null ? bg : _backgroundColor;
+    }
 
 
     public static Dimension getVertexSize() { return size; }
@@ -345,7 +354,7 @@ public abstract class YAWLVertex extends DefaultGraphCell implements YAWLCell {
 
         Map map = new HashMap();
         GraphConstants.setForeground(map, DEFAULT_VERTEX_FOREGROUND);
-        GraphConstants.setBackground(map, _backgroundColor);
+        GraphConstants.setBackground(map, getBackgroundColor());
         getAttributes().applyMap(map);
 
         clone.setName(getName());

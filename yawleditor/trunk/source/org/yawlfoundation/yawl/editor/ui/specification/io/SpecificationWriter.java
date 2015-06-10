@@ -58,12 +58,12 @@ public class SpecificationWriter extends SwingWorker<Boolean, Void> {
                     checkSpecification();
                     if (!_fileName.equals(_handler.getFileName())) {
                         _handler.saveAs(_fileName, layout, UserSettings.getFileSaveOptions());
-                        YAWLEditor.getPropertySheet().firePropertyChange("Uri",
-                                _handler.getURI());
+                        firePropertyChange("Uri", _handler.getURI());
                     }
                     else {
                         _handler.save(layout, UserSettings.getFileSaveOptions());
                     }
+                    firePropertyChange("Version", _handler.getVersion());
                     _successful = true;
                 }
             }
@@ -141,6 +141,11 @@ public class SpecificationWriter extends SwingWorker<Boolean, Void> {
     private void showError(String message, String title) {
         JOptionPane.showMessageDialog(YAWLEditor.getInstance(), message, title,
                 JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    private void firePropertyChange(String property, Object newValue) {
+        YAWLEditor.getPropertySheet().firePropertyChange(property, newValue);
     }
 
 }
