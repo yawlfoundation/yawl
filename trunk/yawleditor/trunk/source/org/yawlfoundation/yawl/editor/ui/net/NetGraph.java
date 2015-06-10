@@ -728,7 +728,7 @@ public class NetGraph extends JGraph {
 
     private void hideOldCancellationSet() {
         YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-        changeVertexBackground(triggeringTask, triggeringTask.getBackgroundColor());
+        changeCellBackground(triggeringTask, triggeringTask.getBackgroundColor());
         for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
             showCellAsNotInCurrentCancellationSet(cell);
         }
@@ -736,7 +736,7 @@ public class NetGraph extends JGraph {
 
     private void showCurrentCancellationSet() {
         YAWLTask triggeringTask = cancellationSetModel.getTriggeringTask();
-        changeVertexBackground(triggeringTask,
+        changeCellBackground(triggeringTask,
                 CancellationSetModel.CANCELLATION_SET_TRIGGER_BACKGROUND);
         for (YAWLCell cell : triggeringTask.getCancellationSet().getMembers()) {
             showCellAsInCurrentCancellationSet(cell);
@@ -848,22 +848,8 @@ public class NetGraph extends JGraph {
         }
     }
 
-    public void changeVertexBackground(YAWLVertex vertex, Color color) {
-        changeCellBackground(vertex,color);
-//        if (vertex.getParent() != null && vertex instanceof YAWLTask) {
-//            YAWLTask task = (YAWLTask) vertex;
-//            if (task.getJoinDecorator() != null) {
-//                changeCellBackground(task.getJoinDecorator(),
-//                        color);
-//            }
-//            if (task.getSplitDecorator() != null) {
-//                changeCellBackground(task.getSplitDecorator(),
-//                        color);
-//            }
-//        }
-    }
 
-    private  void changeCellBackground(GraphCell cell, Color color) {
+    public void changeCellBackground(GraphCell cell, Color color) {
         Map attributes = GraphConstants.createAttributes(cell,
                 GraphConstants.BACKGROUND,
                 color);
@@ -885,10 +871,6 @@ public class NetGraph extends JGraph {
         this.frame = frame;
     }
 
-    public void removeFrame() {
-        frame.setVisible(false);
-        frame = null;
-    }
 
     public String getName() {
         return getNetModel().getName();

@@ -195,6 +195,18 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
         return getOrdering() - other.getOrdering();
     }
 
+
+    public String rationaliseImplicitConditionID() {
+        String newID = null;
+        if (isCompound()) {
+            newID = makeImplicitConditionID(getSource().getID(), getTarget().getID());
+            if (! newID.equals(_implicitCondition.getID())) {
+                _implicitCondition.setID(newID);
+            }
+        }
+        return newID;
+    }
+
     private void detach(YFlow sourceFlow, YFlow targetFlow) {
         if (sourceFlow == null || targetFlow == null) return;
         YExternalNetElement source = sourceFlow.getPriorElement();
@@ -228,12 +240,17 @@ public class YCompoundFlow implements Comparable<YCompoundFlow> {
 
     private YCondition makeImplicitCondition(YExternalNetElement source,
                                              YExternalNetElement target) {
-        String id = "c{" + source.getID() + "_" + target.getID() + "}";
+        String id = makeImplicitConditionID(source.getID(), target.getID());
         YNet net = source.getNet();
         YCondition implicit = new YCondition(id, net);
         implicit.setImplicit(true);
         net.addNetElement(implicit);
         return implicit;
+    }
+
+
+    private String makeImplicitConditionID(String sourceID, String targetID) {
+        return "c{" + sourceID + "_" + targetID + "}";
     }
 
 

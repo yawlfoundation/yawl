@@ -87,6 +87,7 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
             if (removeNetConfirmed()) {
                 frame.removeFromSpecification();
                 remove(frame);
+                updateState(true);
                 YPluginHandler.getInstance().netRemoved(frame.getNet().getNetModel());
             }
         }
@@ -95,10 +96,11 @@ public class NetsPane extends JTabbedPane implements ChangeListener {
 
     public void closeAllNets() {
         Component[] frames = getComponents();
-
-        for (Component frame : frames) {
-            ((YAWLEditorNetPanel) frame).resetFrame();
-            remove(frame);
+        if (frames != null) {
+            for (Component frame : frames) {
+                ((YAWLEditorNetPanel) frame).resetFrame();
+                remove(frame);
+            }
         }
     }
 

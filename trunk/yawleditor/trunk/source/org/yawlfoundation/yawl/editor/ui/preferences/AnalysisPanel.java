@@ -55,9 +55,14 @@ public class AnalysisPanel extends JPanel implements PreferencePanel {
         super();
         add(getContentPanel(actionListener));
         maxMarkingsField.addCaretListener(caretListener);       // the only non-checkbox
-        if (! AnalysisUtil.wofYawlAvailable()) {
-            wofYawlAnalysisCheckBox.setEnabled(false);
-            enableWofYAWLCheckBoxes(false);
+        try {
+            if (!AnalysisUtil.wofYawlAvailable()) {
+                wofYawlAnalysisCheckBox.setEnabled(false);
+                enableWofYAWLCheckBoxes(false);
+            }
+        }
+        catch (Exception e) {
+            setEnabled(false);                                 // missing analysis jar
         }
     }
 

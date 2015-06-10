@@ -72,7 +72,7 @@ public class SetSelectedElementsFillColourAction extends YAWLSelectedNetAction
                 YAWLVertex vertex = getSelectedVertexIfAppropriate(o) ;
                 if (vertex != null) {
                     vertex.setBackgroundColor(newColor);
-                    graph.changeVertexBackground(vertex, newColor);
+                    graph.changeCellBackground(vertex, newColor);
                 }
                 graph.resetCancellationSet();
             }

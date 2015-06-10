@@ -107,7 +107,7 @@ public class CellProperties extends NetProperties {
 
     public void setCellFillColor(Color value) {
         vertex.setBackgroundColor(value);
-        graph.changeVertexBackground(vertex, value);
+        graph.changeCellBackground(vertex, value);
         graph.resetCancellationSet();
         setDirty();
     }
