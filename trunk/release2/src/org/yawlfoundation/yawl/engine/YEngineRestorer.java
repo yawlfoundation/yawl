@@ -47,9 +47,9 @@ public class YEngineRestorer {
 
     private YEngine _engine;
     private YPersistenceManager _pmgr;
-    private Hashtable<String, YIdentifier> _idLookupTable;
+    private Map<String, YIdentifier> _idLookupTable;
     private Vector<YNetRunner> _runners;
-    private Hashtable<String, YTask> _taskLookupTable;
+    private Map<String, YTask> _taskLookupTable;
     private boolean _hasServices;
     private Set<YClient> _addedDefaultClients;
     private Logger _log;
@@ -62,9 +62,22 @@ public class YEngineRestorer {
     protected YEngineRestorer(YEngine engine, YPersistenceManager pmgr) {
         _engine = engine;
         _pmgr = pmgr;
-        _idLookupTable = new Hashtable<String, YIdentifier>();
-        _taskLookupTable = new Hashtable<String, YTask>();
+        _idLookupTable = new HashMap<String, YIdentifier>();
+        _taskLookupTable = new HashMap<String, YTask>();
         _log = Logger.getLogger(this.getClass());
+    }
+
+
+    protected void restoreStaticObjects() throws YPersistenceException {
+        restoreYAWLServices();
+        restoreExternalClients();
+        restoreSpecifications();
+    }
+
+
+    protected void restoreInstances() throws YPersistenceException {
+        restoreProcessInstances();
+        restoreWorkItems();
     }
 
 
@@ -309,7 +322,7 @@ public class YEngineRestorer {
         for (YNetRunner runner : _runners) {
             _log.debug("Restarting " + runner.get_caseID());
             try {
-                runner.start(_pmgr);
+                if (! runner.isCompleted()) runner.start(_pmgr);
             } catch (Exception e) {
                 throw new YPersistenceException(e.getMessage());
             }
@@ -378,21 +391,24 @@ public class YEngineRestorer {
     }
 
 
-    private Hashtable<String, YNetRunner> restoreNets(Vector<YNetRunner> runners)
+    private Map<String, YNetRunner> restoreNets(Vector<YNetRunner> runners)
             throws YPersistenceException {
-        Hashtable<String, YNetRunner> result = new Hashtable<String, YNetRunner>();
+        Map<String, YNetRunner> result = new HashMap<String, YNetRunner>();
 
+        // restore all root nets first
         for (YNetRunner runner : runners) {
             runner.setEngine(_engine);       // Set engine for parent and composite nets
-            if (runner.getContainingTaskID() == null) {
-
-                //This is a root net runner
+            if (runner.getContainingTaskID() == null) { // this is a root net runner
                 YNet net = (YNet) getSpecification(runner).getRootNet().clone();
                 runner.setNet(net);
                 result.put(runner.getCaseID().toString(), runner);
-            } else {
+            }
+        }
 
-                //This is not a root net, but a decomposition
+        // now the sub nets
+        for (YNetRunner runner : runners) {
+            if (runner.getContainingTaskID() != null) {
+
                 // Find the parent runner
                 String runnerID = runner.getCaseID().toString();
                 String parentID = runnerID.substring(0, runnerID.lastIndexOf("."));
@@ -424,7 +440,7 @@ public class YEngineRestorer {
     private void restoreRunners(Vector<YNetRunner> runners)
             throws YPersistenceException {
 
-        Hashtable<String, YNetRunner> runnerMap = restoreNets(runners);
+        Map<String, YNetRunner> runnerMap = restoreNets(runners);
         for (YNetRunner runner : runners) {
             YNet net = runner.getNet();
             if (runner.getContainingTaskID() == null) {
@@ -437,13 +453,10 @@ public class YEngineRestorer {
             }
 
             // restore enabled and busy tasks
-            Set<String> busytasks = runner.getBusyTaskNames();
-            for (String busytask : busytasks) {
+            for (String busytask : runner.getBusyTaskNames()) {
                 runner.addBusyTask((YTask) net.getNetElement(busytask));
             }
-
-            Set<String> enabledtasks = runner.getEnabledTaskNames();
-            for (String enabledtask : enabledtasks) {
+            for (String enabledtask : runner.getEnabledTaskNames()) {
                 runner.addEnabledTask((YTask) net.getNetElement(enabledtask));
             }
 
@@ -460,21 +473,17 @@ public class YEngineRestorer {
     }
 
 
-    protected YIdentifier restoreYIdentifiers(Hashtable<String, YNetRunner> runnermap,
+    protected YIdentifier restoreYIdentifiers(Map<String, YNetRunner> runnermap,
                                               YIdentifier id, YIdentifier parent, YNet net)
             throws YPersistenceException {
 
-        YNet sendnet = net;
         id.set_parent(parent);
-        List<YIdentifier> children = id.getChildren();
 
-        for (YIdentifier child : children) {
+        for (YIdentifier child : id.getChildren()) {
             if (child != null) {
                 YNetRunner netRunner = runnermap.get(child.toString());
-                if (netRunner != null) {
-                    sendnet = netRunner.getNet();
-                }
-                YIdentifier caseid = restoreYIdentifiers(runnermap, child, id, sendnet);
+                YNet runnerNet = netRunner != null ? netRunner.getNet() : net;
+                YIdentifier caseid = restoreYIdentifiers(runnermap, child, id, runnerNet);
 
                 if (netRunner != null) {
                     netRunner.set_caseIDForNet(caseid);
@@ -485,7 +494,7 @@ public class YEngineRestorer {
     }
 
 
-    protected YIdentifier restoreLocations(Hashtable<String, YNetRunner> runnermap,
+    protected YIdentifier restoreLocations(Map<String, YNetRunner> runnermap,
                                            YIdentifier id, YIdentifier parent, YNet net)
             throws YPersistenceException {
 
@@ -493,8 +502,7 @@ public class YEngineRestorer {
         YNetRunner runner = null;
 
         // make external list of locations to avoid concurrency exceptions
-        List<String> locationNames = new ArrayList<String>();
-        for (String s : id.getLocationNames()) locationNames.add(s);
+        List<String> locationNames = new ArrayList<String>(id.getLocationNames());
         id.clearLocations(null);                         // locations are readded below
 
         for (String name : locationNames) {

@@ -80,11 +80,11 @@ public class YIdentifierBag {
         if (_idToQtyMap.containsKey(identifier)) {
             int amountExisting = _idToQtyMap.get(identifier);
             if (amountToRemove <= 0) {
-                throw new RuntimeException("You cannot remove " + amountToRemove
+                throw new RuntimeException("Cannot remove " + amountToRemove
                         + " from YIdentifierBag:" + _condition + " " + identifier.toString());
             }
             else if (amountToRemove > amountExisting) {
-                throw new RuntimeException("You cannot remove " + amountToRemove
+                throw new RuntimeException("Cannot remove " + amountToRemove
                         + " tokens from YIdentifierBag:" + _condition
                         + " - this bag only contains " + amountExisting
                         + " identifiers of type " + identifier.toString());
@@ -101,7 +101,7 @@ public class YIdentifierBag {
             identifier.removeLocation(pmgr, _condition);
         }
         else {
-            throw new RuntimeException("You cannot remove " + amountToRemove
+            throw new RuntimeException("Cannot remove " + amountToRemove
                     + " tokens from YIdentifierBag:" + _condition
                     + " - this bag contains no"
                     + " identifiers of type " + identifier.toString()

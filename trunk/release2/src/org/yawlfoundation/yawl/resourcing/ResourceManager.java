@@ -1793,8 +1793,10 @@ public class ResourceManager extends InterfaceBWebsideController {
             if (! (xml == null || xml.startsWith("<fail"))) {
                 XNode root = new XNodeParser().parse(xml);
                 for (XNode eventNode : root.getChildren()) {
-                    if (eventNode.getChildText("taskid").equals(taskID) &&
-                            eventNode.getChildText("eventtype").equals("complete")) {
+                    String eTaskID = eventNode.getChildText("taskid");
+                    String eType = eventNode.getChildText("eventtype");
+                    if (! (eTaskID == null || eType == null) &&
+                            eTaskID.equals(taskID) && eType.equals("complete")) {
                         String pid = eventNode.getChildText("resourceid");
                         Participant p = _orgDataSet.getParticipant(pid);
                         if (p != null) {

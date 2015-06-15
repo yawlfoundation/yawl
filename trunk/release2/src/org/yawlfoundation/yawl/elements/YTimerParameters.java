@@ -8,10 +8,12 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.Duration;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.statusEnabled;
@@ -144,7 +146,7 @@ public class YTimerParameters {
     public TimerType getTimerType() { return _timerType; }
 
 
-    public void parseYTimerType(Element eTimerTypeValue) throws IllegalArgumentException {
+    public boolean parseYTimerType(Element eTimerTypeValue) throws IllegalArgumentException {
         XNode node = new XNodeParser(true).parse(eTimerTypeValue);
         if (node == null) throw new IllegalArgumentException("Invalid YTimerType XML");
 
@@ -161,21 +163,22 @@ public class YTimerParameters {
             Duration duration = StringUtil.strToDuration(expiry);
             if (duration == null) throw new IllegalArgumentException("Malformed duration value");
             set(trigger,  duration);
+            return true;
         }
-        else {
-            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            try {
-                Date date = sdf.parse(expiry);                       // test for dateTime
-                set(trigger, date);
-            }
-            catch (ParseException pe) {
-                // do nothing here - trickle down
-            }
 
-            long time = StringUtil.strToLong(expiry, -1);           // test for long
-            if (time < 0) throw new IllegalArgumentException("Malformed expiry value");
-            set(trigger, new Date(time));
+        try {                                 // test for xsd datetime
+            Calendar calendar = DatatypeConverter.parseDateTime(expiry);
+            set(trigger, calendar.getTime());
+            return true;
         }
+        catch (IllegalArgumentException pe) {
+            // do nothing here - trickle down
+        }
+
+        long time = StringUtil.strToLong(expiry, -1);           // test for long
+        if (time < 0) throw new IllegalArgumentException("Malformed expiry value");
+        set(trigger, new Date(time));
+        return true;
     }
 
 

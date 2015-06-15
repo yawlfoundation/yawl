@@ -142,10 +142,13 @@ public class YEngine implements InterfaceADesign,
             throws YPersistenceException {
         if (_thisInstance == null) {
             _thisInstance = new YEngine();
+            _persisting = persisting;
             _logger.debug("--> YEngine: Creating initial instance");
 
+            // init the process logger
+            _yawllog = YEventLogger.getInstance(_thisInstance);
+
             // Initialise the persistence layer & restore state
-            _persisting = persisting;
             if (_persisting) {
                 _pmgr.initialise(true);
                 _pmgr.setStatisticsEnabled(gatherHbnStats);
@@ -158,9 +161,6 @@ public class YEngine implements InterfaceADesign,
                 // Default clients and services should always be available
                 _thisInstance.loadDefaultClients();            
             }
-
-            // init the process logger
-            _yawllog = YEventLogger.getInstance(_thisInstance);
 
             // Init completed - set engine status to up and running
             _logger.info("Marking engine status = RUNNING");
@@ -213,13 +213,10 @@ public class YEngine implements InterfaceADesign,
             _pmgr.setRestoring(true);
             startTransaction();
 
-            // restore data objects from persistence
-            restorer.restoreYAWLServices();
-            restorer.restoreExternalClients();
-            restorer.restoreSpecifications();
+            // restore data objects from persistence (sequence is important)
+            restorer.restoreStaticObjects();
             _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
-            restorer.restoreProcessInstances();
-            restorer.restoreWorkItems();
+            restorer.restoreInstances();
             _expiredTimers = restorer.restoreTimedObjects();
             restorer.restartRestoredProcessInstances();
 
