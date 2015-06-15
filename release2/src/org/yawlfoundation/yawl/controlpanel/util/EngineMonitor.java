@@ -114,6 +114,12 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
             return false;
         }
 
+
+        // case Starting && engine is running announce running
+        // case Running && engine is not running announce stopping
+        // case Stopping then :
+        //    if engine is running announce running
+        //    else if tomcat is not running stop
         protected void done() {
             boolean result;
             try {

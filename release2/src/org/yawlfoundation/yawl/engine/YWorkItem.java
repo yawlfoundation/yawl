@@ -216,8 +216,7 @@ public class YWorkItem {
         if (timerParams == null) return false ;            // no var with param's name
 
         try {
-            _timerParameters.parseYTimerType(timerParams);
-            return true;
+            return _timerParameters.parseYTimerType(timerParams);
         }
         catch (IllegalArgumentException iae) {
             _log.warn("Unable to set timer for workitem '" + getIDString() +

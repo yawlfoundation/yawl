@@ -8,7 +8,7 @@ import org.yawlfoundation.yawl.controlpanel.util.PostUpdateTasks;
  * @author Michael Adams
  * @date 18/08/2014
  */
-public class Launcher {
+public class YControlPanelBootstrap {
 
     public static void main(final String[] args) {
         if (FileUtil.isWindows()) {

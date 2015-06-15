@@ -2561,7 +2561,7 @@
                 <attribute name="Implementation-Version"
                            value="${app.version} ${TODAY}"/>
                 <attribute name="Main-Class"
-                           value="org.yawlfoundation.yawl.controlpanel.Launcher"/>
+                           value="org.yawlfoundation.yawl.controlpanel.YControlPanelBootstrap"/>
             </manifest>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"

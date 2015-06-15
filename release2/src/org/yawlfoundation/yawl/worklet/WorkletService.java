@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideContr
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -1050,14 +1051,15 @@ public class WorkletService extends InterfaceBWebsideController {
         if (doc != null) {
             Element root = doc.getRootElement();
             if (root != null) {
-                String schemaVersion = root.getAttributeValue("version");
+                YSchemaVersion schemaVersion = YSchemaVersion.fromString(
+                        root.getAttributeValue("version"));
                 Namespace ns = root.getNamespace();
                 Element spec = root.getChild("specification", ns);
                 if (spec != null) {
                     String uri = spec.getAttributeValue("uri");
                     String version = "0.1";
                     String identifier = null;
-                    if (schemaVersion.startsWith("2.")) {
+                    if (! (schemaVersion == null || schemaVersion.isBetaVersion())) {
                         Element metadata = spec.getChild("metaData", ns);
                         if (metadata != null) {
                             version = metadata.getChildText("version", ns);
