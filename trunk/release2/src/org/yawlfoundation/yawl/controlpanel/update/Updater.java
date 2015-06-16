@@ -284,8 +284,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
         try {
             _progressPanel.setText((_cycled ? "Res" : "S") + "tarting Engine...");
-            if (TomcatUtil.start()) Publisher.announceStartingStatus();
-            else showError("Failed to restart Engine.");
+            TomcatUtil.start();
         }
         catch (Exception whatever) {
             showError("Problem starting Engine: " + whatever.getMessage());
