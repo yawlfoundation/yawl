@@ -182,14 +182,10 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
 
     private void doStartOrStop() {
+        boolean success = false;
         if (Publisher.getCurrentStatus() == EngineStatus.Stopped) {
             try {
-                if (TomcatUtil.start()) {
-                    Publisher.announceStartingStatus();
-                }
-                else {
-                    showError("General failure: unable to start Engine");
-                }
+                success = TomcatUtil.start();
             }
             catch (IOException ioe) {
                 showError("Error when starting Engine: " + ioe.getMessage());
@@ -197,7 +193,8 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
         }
         else {
             try {
-                if (TomcatUtil.stop()) {
+                success = TomcatUtil.stop();
+                if (success) {
                     Publisher.announceStoppingStatus();
                 }
                 else {
@@ -208,6 +205,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
                 showError("Error when stopping Engine: " + ioe.getMessage());
             }
         }
+        btnStartStop.setEnabled(! success);
     }
 
 

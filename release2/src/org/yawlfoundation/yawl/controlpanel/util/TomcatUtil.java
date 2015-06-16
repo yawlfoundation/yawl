@@ -29,7 +29,8 @@ public class TomcatUtil {
             checkSizeOfLog();
             removePidFile();                            // if not already removed
             executeCmd(createStartCommandList());
-            return hasStarted(7);
+            new StartMonitor(7).execute();
+            return true;
         }
         return false;                                   // already started
     }
@@ -330,33 +331,5 @@ public class TomcatUtil {
         }
         return true;
     }
-
-
-    private static boolean hasStarted(int secs) {
-        for (int i=0; i < secs; i++) {
-            pause(1000);
-            if (isPortActive()) return true;
-        }
-        return false;
-    }
-
-
-    protected static void pause(long milliseconds) {
-        Object lock = new Object();
-        long now = System.currentTimeMillis();
-        long finishTime = now + milliseconds;
-        while (now < finishTime) {
-            long timeToWait = finishTime - now;
-            synchronized (lock) {
-                try {
-                    lock.wait(timeToWait);
-                }
-                catch (InterruptedException ex) {
-                }
-            }
-            now = System.currentTimeMillis();
-        }
-    }
-
 
 }

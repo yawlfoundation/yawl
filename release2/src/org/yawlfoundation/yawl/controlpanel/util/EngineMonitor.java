@@ -25,6 +25,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private static final int STARTUP_SHUTDOWN_PERIOD = 1000;
     private static final int MONITOR_PERIOD = 5000;
+    private static final int SHUTDOWN_TICKS = 4;
 
 
     public EngineMonitor() {
@@ -45,31 +46,42 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     public void actionPerformed(ActionEvent event) {
         if (_currentStatus != EngineStatus.Stopped) {
-            if (_shuttingDown && _shutdownCounter++ > 5) {
+            if (_shuttingDown && _shutdownCounter++ > SHUTDOWN_TICKS) {
                 _shuttingDown = false;
                 _shutdownCounter = 0;
                 Publisher.announceStoppedStatus();
                 TomcatUtil.removePidFile();
             }
             else {
-                new Pinger().execute();
+                ping();
             }
         }
     }
 
 
     public void statusChanged(EngineStatus status) {
-        switch (status) {
-            case Starting: { monitorStarting(); break; }
-            case Running: { monitorRunning(); break; }
-            case Stopping: { monitorStopping(); break; }
-            case Stopped: { handleStop(); break; }
+        if (_currentStatus != status) {
+            _currentStatus = status;
+            switch (status) {
+                case Starting:
+                case Stopping: {
+                    monitorStartingOrStopping();
+                    break;
+                }
+                case Running: {
+                    monitorRunning();
+                    break;
+                }
+                case Stopped: {
+                    handleStop();
+                    break;
+                }
+            }
         }
-        _currentStatus = status;
     }
 
 
-    private void monitorStarting() {
+    private void monitorStartingOrStopping() {
         _timer.setDelay(STARTUP_SHUTDOWN_PERIOD);
         _timer.restart();
     }
@@ -77,12 +89,6 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private void monitorRunning() {
         _timer.setDelay(MONITOR_PERIOD);
-        _timer.restart();
-    }
-
-
-    private void monitorStopping() {
-        _timer.setDelay(STARTUP_SHUTDOWN_PERIOD);
         _timer.restart();
     }
 
@@ -100,40 +106,53 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     }
 
 
+    private void ping() { new Pinger().execute(); }
+
+
     /***************************************************************************/
 
-    class Pinger extends SwingWorker<Boolean, Void> {
+    class Pinger extends SwingWorker<Void, Void> {
 
         @Override
-        protected Boolean doInBackground() throws Exception {
-            switch (_currentStatus) {
-                case Starting:
-                case Running:  return TomcatUtil.isEngineRunning();
-                case Stopping: return TomcatUtil.isTomcatRunning();
+        protected Void doInBackground() throws Exception {
+            if (TomcatUtil.isTomcatRunning()) {
+                if (TomcatUtil.isEngineRunning()) {
+                    announce(EngineStatus.Running);                     // T & E
+                }
+                else {                                                  // T & !E
+                    if (_currentStatus == EngineStatus.Running) {
+                        announce(EngineStatus.Stopping);
+                    }
+                    else if (_currentStatus == EngineStatus.Stopped) {
+                        announce(EngineStatus.Starting);
+                    }
+                }
             }
-            return false;
+            else {
+                _shuttingDown = true;                                    // !T
+            }
+            return null;
         }
 
 
-        // case Starting && engine is running announce running
-        // case Running && engine is not running announce stopping
-        // case Stopping then :
-        //    if engine is running announce running
-        //    else if tomcat is not running stop
-        protected void done() {
-            boolean result;
-            try {
-                result = get();
-            }
-            catch (Exception e) {
-                result = false;
-            }
-            switch (_currentStatus) {
-                case Starting: { if (result) Publisher.announceRunningStatus(); break; }
-                case Running:  { if (!result) Publisher.announceStoppingStatus(); break; }
-                case Stopping: { if (!result) _shuttingDown = true; break; }
+        protected void announce(EngineStatus status) {
+            if (_currentStatus != status) {
+                switch (status) {
+                    case Stopped:
+                        Publisher.announceStoppedStatus();
+                        break;
+                    case Stopping:
+                        Publisher.announceStoppingStatus();
+                        break;
+                    case Starting:
+                        Publisher.announceStartingStatus();
+                        break;
+                    case Running:
+                        Publisher.announceRunningStatus();
+                        break;
+                }
             }
         }
+
     }
-
 }
