@@ -19,7 +19,7 @@
     	Define root class name, path and directories
     -->
     <property name="root.class.name" value="YAWLEditor" />
-    <property name="root.launcher.name" value="YLauncher" />
+    <property name="root.launcher.name" value="YEditorBootstrap" />
     <property name="root.source.file" value="${root.launcher.name}.java" />
     <property name="package.base.dir" value="org/yawlfoundation/yawl" />
     <property name="package.dir" value="${package.base.dir}/editor" />
