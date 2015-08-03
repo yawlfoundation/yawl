@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<project name="Experimental YAWL Common Build File" default="compile" basedir="./..">
- 
- <!-- Any common tasks or properties go here -->
- 
-</project>

@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<project name="Experimental SMS Invoker Build file" default="build_yawlSMSInvoker"><!-- basedir="./.."> -->
-
- <!-- The tasks needed to build the yawlSMSInvoker service go here -->
-
-
-</project>

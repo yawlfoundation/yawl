@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<project name="Experimental XForms Build file" default="build_yawlXForms"><!-- basedir="./.."> -->
-
- <!-- The tasks needed to build the XForms Component go here -->
-
-
-</project>

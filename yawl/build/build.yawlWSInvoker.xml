@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<project name="Experimental Jython Service Build file" default="build_yawlWSInvoker"><!-- basedir="./.."> -->
-
- <!-- The tasks needed to build the Webservice Invoker go here -->
-
-
-</project>
