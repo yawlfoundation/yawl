@@ -1,7 +1,0 @@
-Verification changes
-
-addAll methods
-Reachable methods
-max. number of markings should change from 1000 to 10000
-
-tool panel and messages change to new names - reducible, convertible
