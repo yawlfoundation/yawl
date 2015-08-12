@@ -1,1 +1,0 @@
-package org.yawlfoundation.yawl.exceptions;/** * Exception thrown when the engine state is invalid in relation to the request being actioned. */public class YEngineStateException extends YAWLException {    public YEngineStateException(String msg) {        super(msg);    }}

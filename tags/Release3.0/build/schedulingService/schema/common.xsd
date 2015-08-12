@@ -1,154 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <!-- planning graph light-->
-    <xs:complexType name="_ResourceUtilisationPlan_light">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element name="Activity" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                    <xs:choice maxOccurs="unbounded">
-                        <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
-                        <xs:element name="ActivityType" type="xs:string" minOccurs="0" maxOccurs="1" />
-                        <xs:element name="UtilisationRelation" minOccurs="0" maxOccurs="unbounded">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="ThisUtilisationType" type="_UtilisationType" minOccurs="1" maxOccurs="1" />
-                                    <xs:element name="OtherUtilisationType" type="_UtilisationType" minOccurs="1" maxOccurs="1" />
-                                    <xs:element name="OtherActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
-                                    <xs:element name="Min" type="xs:duration" minOccurs="1" maxOccurs="1" />
-                                    <xs:element name="Max" type="xs:duration" minOccurs="1" maxOccurs="1" />
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:choice>
-                </xs:complexType>
-            </xs:element>
-        </xs:choice>
-    </xs:complexType>
-    <!-- messages to send -->
-    <xs:element name="Messages" type="_Messages" />
-    <!-- pull message send -->
-    <xs:element name="Message" type="_Message" />
-    <!-- push message send -->
-    <xs:element name="MessagePush" type="_MessagePush" />
-    <!-- message receive -->
-    <xs:element name="Event" type="_Event" />
-    <!-- utilisation -->
-    <xs:element name="Utilisation" type="_Utilisation" />
-    <!-- rescheduling -->
-    <xs:element name="Rescheduling" type="_Rescheduling" />
-    <xs:complexType name="_Messages">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element name="Message" type="_Message" />
-            <xs:element name="MessagePush" type="_MessagePush" />
-        </xs:choice>
-    </xs:complexType>
-    <xs:complexType name="_Message">
-        <xs:all>
-            <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
-            <xs:element name="Channel" type="xs:string" minOccurs="1" maxOccurs="1" />
-            <xs:element name="CaseId" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="ActivityName" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="UtilisationType" type="xs:string" minOccurs="0" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:complexType name="_MessagePush">
-        <xs:all>
-            <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
-            <xs:element name="AddressType" type="_AddressType" minOccurs="1" maxOccurs="1" />
-            <xs:element name="Address" type="xs:string" minOccurs="1" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:complexType name="_Event">
-        <xs:all>
-            <xs:element name="FilterModel" type="xs:string" minOccurs="1" maxOccurs="1" />
-            <xs:element name="CaseId" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="ActivityName" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="UtilisationType" type="xs:string" minOccurs="0" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:complexType name="_Utilisation">
-        <xs:all>
-            <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
-            <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
-            <xs:element name="UtilisationType" type="xs:string" minOccurs="1" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:complexType name="_Rescheduling">
-        <xs:all>
-            <xs:element name="Payload" type="_Payload" minOccurs="0" maxOccurs="1" />
-            <xs:element name="ActivityName" type="xs:string" minOccurs="1" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:simpleType name="_UtilisationType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="SOU" />
-            <xs:enumeration value="EOU" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="_MsgRel">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="before" />
-            <xs:enumeration value="after" />
-        </xs:restriction>
-    </xs:simpleType>
-    <!-- addresses for message send from custom form message transfer -->
-    <xs:simpleType name="_MsgTo">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="OPManager" />
-        </xs:restriction>
-    </xs:simpleType>
-    <!-- reservation state -->
-    <xs:simpleType name="_StatusToBe">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="unchecked" />
-            <xs:enumeration value="requested" />
-            <xs:enumeration value="reserved" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="_RequestType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="POU" />
-            <xs:enumeration value="SOU" />
-            <xs:enumeration value="EOU" />
-        </xs:restriction>
-    </xs:simpleType>
-    <!-- resource state -->
-    <xs:simpleType name="_Status">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="unknown" />
-            <xs:enumeration value="unavailable" />
-            <xs:enumeration value="available" />
-            <xs:enumeration value="requested" />
-            <xs:enumeration value="reserved" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="_AddressType">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="IP|EMail|SMS|PROPERTY.([a-zA-Z])*" />
-        </xs:restriction>
-    </xs:simpleType>
-    <!-- primitive data types -->
-    <xs:complexType name="_Payload">
-        <xs:all>
-            <!--xs:any processContents="lax" minOccurs="0"/-->
-            <xs:element name="Text" type="xs:string" minOccurs="0" maxOccurs="1" />
-            <xs:element name="TimeStamp" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
-            <xs:element name="Duration" type="xs:duration" minOccurs="0" maxOccurs="1" />
-            <xs:element name="From" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
-            <xs:element name="To" type="xs:dateTime" minOccurs="0" maxOccurs="1" />
-        </xs:all>
-    </xs:complexType>
-    <xs:complexType name="YTimerType">
-        <xs:sequence>
-            <xs:element name="trigger">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="OnEnabled" />
-                        <xs:enumeration value="OnExecuting" />
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-            <xs:element name="expiry" type="xs:string" />
-        </xs:sequence>
-    </xs:complexType>
-</xs:schema>

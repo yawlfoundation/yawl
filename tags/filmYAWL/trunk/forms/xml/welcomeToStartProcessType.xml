@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ns2:Welcome_to_Start_Process xmlns:ns2="http://www.yawlfoundation.org/sb/start" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawlfoundation.org/sb/start ../welcomeToStartProcessType.xsd ">
-  <production>production</production>
-</ns2:Welcome_to_Start_Process>

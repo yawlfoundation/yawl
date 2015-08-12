@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ns2:Check_Weather xmlns:ns2="http://www.yawlfoundation.org/sb/weather" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.yawlfoundation.org/sb/weather ../checkWeather.xsd ">
-  <dateToCheck>2001-01-01</dateToCheck>
-  <weather>weather</weather>
-  <sunrise>sunrise</sunrise>
-  <sunset>sunset</sunset>
-</ns2:Check_Weather>

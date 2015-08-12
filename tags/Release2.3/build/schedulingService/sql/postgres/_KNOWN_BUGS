@@ -1,6 +1,0 @@
-
-KNOWN ISSUES 
-============
-
-1. pkg_mapping.lock_(): does not return the correct number of updated records
-  
