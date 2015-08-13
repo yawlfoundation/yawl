@@ -18,8 +18,12 @@
 
 package org.yawlfoundation.yawl.procletService.persistence;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 
@@ -39,8 +43,8 @@ public class DBConnection {
     public static void init(Properties props) {
 
          // minimise hibernate logging
-         Logger.getLogger("org.hibernate").setLevel(Level.WARN);
-         Logger.getLogger("com.mchange.v2.c3p0").setLevel(Level.WARN);
+         setLogLevel(LogManager.getLogger("org.hibernate"), Level.WARN);
+         setLogLevel(LogManager.getLogger("com.mchange.v2.c3p0"), Level.WARN);
 
          // setup database connection
          Set<Class> persistedClasses = new HashSet<Class>();
@@ -201,6 +205,15 @@ public class DBConnection {
             ((StoredItem) o).setSelected(true);
             update(o);
         }
+    }
+
+
+    private static void setLogLevel(Logger logger, Level level) {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        LoggerConfig loggerConfig = config.getLoggerConfig(logger.getName());
+        loggerConfig.setLevel(level);
+        ctx.updateLoggers();
     }
  
 }

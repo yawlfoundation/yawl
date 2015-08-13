@@ -21,7 +21,8 @@
  */
 package org.yawlfoundation.yawl.scheduling.persistence;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.*;
 import org.yawlfoundation.yawl.scheduling.Mapping;
 
@@ -36,7 +37,7 @@ import static org.junit.Assert.fail;
  */
 public class DataMapperMappingTest
 {
-	private static final Logger logger = Logger.getLogger(DataMapperMappingTest.class);
+	private static final Logger logger = LogManager.getLogger(DataMapperMappingTest.class);
 
 	private Mapping mapping1 = null;
 	private Mapping mapping2 = null;

@@ -18,11 +18,10 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.util.Iterator;
-import java.util.List;
+import java.io.File;
 
 /**
  * The support library class of static methods
@@ -47,7 +46,7 @@ public class Library {
 
     public static final String newline = System.getProperty("line.separator");
 
-    private static Logger _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.support.Library");
+    private static Logger _log = LogManager.getLogger("org.yawlfoundation.yawl.worklet.support.Library");
 
 
     //===========================================================================//

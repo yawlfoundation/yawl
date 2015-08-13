@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.*;
@@ -60,7 +61,7 @@ import java.util.*;
  */
 public class EngineGatewayImpl implements EngineGateway {
 
-    Logger logger = Logger.getLogger(EngineGatewayImpl.class);
+    Logger logger = LogManager.getLogger(EngineGatewayImpl.class);
 
     private YEngine _engine;
     private YSessionCache _sessionCache;

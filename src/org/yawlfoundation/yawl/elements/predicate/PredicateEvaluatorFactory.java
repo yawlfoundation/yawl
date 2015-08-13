@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements.predicate;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.util.PluginLoaderUtil;
 

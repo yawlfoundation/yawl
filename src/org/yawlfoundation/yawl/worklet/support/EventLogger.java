@@ -18,10 +18,10 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.HibernateEngine;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class EventLogger {
             "yyyy.MM.dd hh:mm:ss:SS");
 
     // log for exception dumps
-    private static Logger elog = Logger.getLogger("org.yawlfoundation.yawl.worklet.support.EventLogger");
+    private static Logger elog = LogManager.getLogger("org.yawlfoundation.yawl.worklet.support.EventLogger");
 
 //===========================================================================//
 

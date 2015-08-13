@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.unmarshal;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -391,7 +391,7 @@ public class YDecompositionParser {
                 task.setCustomFormURI(formURI);
             }
             catch (MalformedURLException use) {
-                Logger.getLogger(this.getClass()).error(
+                LogManager.getLogger(this.getClass()).error(
                     "Invalid custom form URL in specification for task " + task.getID() +
                     ": " + formStr + ". Custom form URL will be ignored.");
             }

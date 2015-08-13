@@ -18,14 +18,17 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
-import org.yawlfoundation.yawl.scheduling.util.*;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
+import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +47,7 @@ import java.util.*;
  */
 public class FormGenerator implements Constants {
 
-    private static Logger _log = Logger.getLogger(FormGenerator.class);
+    private static Logger _log = LogManager.getLogger(FormGenerator.class);
 
     private HttpServletRequest request;
     private HttpServletResponse response;

@@ -97,7 +97,7 @@ public class CheckedOutItem {
         _specId = new YSpecificationID(_wir) ;
         _myChildren = new ArrayList() ;
         _me = this ;
-        //  _log = Logger.getLogger("org.yawlfoundation.yawl.worklet.selection.CheckedOutItem");
+        //  _log = LogManager.getLogger("org.yawlfoundation.yawl.worklet.selection.CheckedOutItem");
     }
 
     // update the persisted object

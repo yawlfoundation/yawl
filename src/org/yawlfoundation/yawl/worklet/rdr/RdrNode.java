@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -61,7 +62,7 @@ public class RdrNode {
     private YAttributeMap _attributes;
 
     private static final ConditionEvaluator EVALUATOR = new ConditionEvaluator();
-    private static final Logger _log = Logger.getLogger(RdrNode.class);
+    private static final Logger _log = LogManager.getLogger(RdrNode.class);
 
 
     /** Default constructor */

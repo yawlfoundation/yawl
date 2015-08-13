@@ -18,9 +18,10 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
-import org.apache.log4j.Logger;
-import org.yawlfoundation.yawl.resourcing.resource.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
+import org.yawlfoundation.yawl.resourcing.resource.*;
 
 import java.sql.*;
 import java.util.*;
@@ -41,7 +42,7 @@ public class jdbcImpl extends DataSource {
     private final String dbPassword = "yawl";
 
     private Connection connection = null;
-    private static final Logger _log = Logger.getLogger(jdbcImpl.class);
+    private static final Logger _log = LogManager.getLogger(jdbcImpl.class);
 
 
     // the constructor - loads the driver and creates tables if they don't already exist

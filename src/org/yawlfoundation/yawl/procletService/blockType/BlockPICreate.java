@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.procletService.blockType;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.procletService.ProcletService;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc;
@@ -37,7 +38,7 @@ import java.util.List;
 public class BlockPICreate {
 	
 	private static BlockPICreate singleInst = null;
-	private Logger myLog = Logger.getLogger(BlockPICreate.class);
+	private Logger myLog = LogManager.getLogger(BlockPICreate.class);
 	
 	private BlockPICreate () {
 	}

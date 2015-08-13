@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -49,7 +50,7 @@ import java.util.Enumeration;
 public class InterfaceA_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
     private static final boolean _debug = false;
-    private static final Logger logger = Logger.getLogger(InterfaceA_EngineBasedServer.class);
+    private static final Logger logger = LogManager.getLogger(InterfaceA_EngineBasedServer.class);
 
 
     public void init() throws ServletException {     

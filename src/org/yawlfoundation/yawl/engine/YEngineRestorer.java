@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.yawlfoundation.yawl.authentication.YClient;
@@ -64,7 +65,7 @@ public class YEngineRestorer {
         _pmgr = pmgr;
         _idLookupTable = new HashMap<String, YIdentifier>();
         _taskLookupTable = new HashMap<String, YTask>();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 

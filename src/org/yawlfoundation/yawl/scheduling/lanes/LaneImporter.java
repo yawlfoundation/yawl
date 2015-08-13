@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling.lanes;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -43,7 +44,7 @@ import java.util.Set;
 
 public class LaneImporter implements Constants {
 
-    private static Logger logger = Logger.getLogger(LaneImporter.class);
+    private static Logger logger = LogManager.getLogger(LaneImporter.class);
 
 	private ConfigManager config;
 	private Scheduler scheduler;

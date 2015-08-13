@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.util;
 
 import net.sf.saxon.s9api.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -41,7 +42,7 @@ public class SaxonUtil {
     private static final XQueryCompiler _compiler = _processor.newXQueryCompiler();
     private static final DOMOutputter _domOutputter = new DOMOutputter();
 
-    private static final Logger _log = Logger.getLogger(SaxonUtil.class);
+    private static final Logger _log = LogManager.getLogger(SaxonUtil.class);
 
     static {
         _compiler.setErrorListener(new SaxonErrorListener());

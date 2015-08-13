@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
@@ -50,7 +51,7 @@ public class LDAPSource extends DataSource {
     private Logger _log;
 
     public LDAPSource() {
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
         loadProperties();
         initMaps();
     }

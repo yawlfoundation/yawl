@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.procletService.blockType;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.SingleInstanceClass;
 import org.yawlfoundation.yawl.procletService.connect.Trigger;
@@ -44,7 +45,7 @@ public class CompleteCaseDeleteCase {
 
 	private String procletID = "";
 	
-	private Logger myLog = Logger.getLogger(CompleteCaseDeleteCase.class);
+	private Logger myLog = LogManager.getLogger(CompleteCaseDeleteCase.class);
 	
 	public CompleteCaseDeleteCase (String procletID) {
 		this.procletID = procletID;

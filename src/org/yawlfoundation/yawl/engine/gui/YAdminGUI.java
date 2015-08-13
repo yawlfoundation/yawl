@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.engine.gui;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
@@ -93,7 +94,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
     private TabbedEngineGUI _tabbedGUI;
 
     // Log4J Logger
-    private static final Logger logger = Logger.getLogger(YAdminGUI.class);
+    private static final Logger logger = LogManager.getLogger(YAdminGUI.class);
 
     // Engine references (via set interfaces)
     private InterfaceADesign _engineDesign;

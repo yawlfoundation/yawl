@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.cost.interfce;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.cost.CostService;
 import org.yawlfoundation.yawl.cost.data.CostModelCache;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -48,7 +49,7 @@ public class CostGateway extends HttpServlet {
 
     private CostService _service;
     private Sessions _sessions;
-    private static final Logger _log = Logger.getLogger(CostGateway.class);
+    private static final Logger _log = LogManager.getLogger(CostGateway.class);
 
 
     /**

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -76,7 +76,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_minInstancesQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The minInstances query at " + _task
+            LogManager.getLogger(this.getClass()).warn("The minInstances query at " + _task
                     + " didn't produce numerical output as expected. Returning default 1.");
             return 1;
         }
@@ -95,7 +95,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_maxInstancesQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The maxInstances query at " + _task
+            LogManager.getLogger(this.getClass()).warn("The maxInstances query at " + _task
                     + " didn't produce numerical output as expected. Returning default 2.");
             return 2;
         }
@@ -114,7 +114,7 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_thresholdQuery);
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).warn("The threshold query at " + _task
+            LogManager.getLogger(this.getClass()).warn("The threshold query at " + _task
                     + " didn't produce numerical output as expected. Returning default 1.");
             return 1;
         }

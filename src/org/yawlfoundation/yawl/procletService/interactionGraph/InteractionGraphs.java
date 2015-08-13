@@ -22,7 +22,8 @@ import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc.ArcState;
 import org.yawlfoundation.yawl.procletService.models.procletModel.ProcletBlock;
 import org.yawlfoundation.yawl.procletService.models.procletModel.ProcletBlock.BlockType;
@@ -47,7 +48,7 @@ public class InteractionGraphs {
 	private static InteractionGraphs igraphs = null;
 	private List<InteractionGraph> igraphsList = new ArrayList<InteractionGraph> ();
 	
-	private Logger myLog = Logger.getLogger(InteractionGraphs.class);
+	private Logger myLog = LogManager.getLogger(InteractionGraphs.class);
 	
 	private InteractionGraphs () {
 		

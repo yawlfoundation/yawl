@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.time;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
@@ -158,7 +158,7 @@ public class YLaunchDelayer implements YTimedObject {
                 _caseID, _logData, _serviceURI, true);
         }
         catch (YAWLException ye) {
-            Logger.getLogger(YLaunchDelayer.class).error(
+            LogManager.getLogger(YLaunchDelayer.class).error(
                     "Unable to launch delayed instance of " + _specID.toString(), ye);
         }
         persistThis(false) ;                                 // unpersist this timer

@@ -12,7 +12,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <%
-	Logger logger = Logger.getLogger(this.getClass());
+	Logger logger = LogManager.getLogger(this.getClass());
 
 	String objectName = request.getParameter("objectName");
 	String prevFieldValue = request.getParameter("prevFieldValue");

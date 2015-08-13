@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.smsModule;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -224,7 +225,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
             List replies = sender.getReplies(smsJobID);
             for (int i = 0; i < replies.size(); i++) {
                 Reply reply = (Reply) replies.get(i);
-                Logger _logger = Logger.getLogger(SMSSender.class);
+                Logger _logger = LogManager.getLogger(SMSSender.class);
                 _logger.info("\n");
                 _logger.info("reply._fromPhoneNum = " + reply._fromPhoneNum);
                 _logger.info("reply._msgTxt   = " + reply._messageTxt);

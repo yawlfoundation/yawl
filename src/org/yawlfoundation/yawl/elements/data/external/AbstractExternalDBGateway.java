@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.elements.data.external;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -37,7 +38,7 @@ import java.util.Properties;
  */
 public abstract class AbstractExternalDBGateway {
 
-    protected Logger _log = Logger.getLogger(AbstractExternalDBGateway.class);
+    protected Logger _log = LogManager.getLogger(AbstractExternalDBGateway.class);
 
 
     // an instance of the backend 'engine' that provides the interface to the database

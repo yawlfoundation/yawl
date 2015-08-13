@@ -1,8 +1,8 @@
 package org.yawlfoundation.yawl.engine.interfce;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.worklet.support.WorkletGateway;
 
 import javax.servlet.http.HttpServlet;
 import java.sql.Driver;
@@ -23,7 +23,7 @@ public class YHttpServlet extends HttpServlet {
 
     public YHttpServlet() {
         super();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 

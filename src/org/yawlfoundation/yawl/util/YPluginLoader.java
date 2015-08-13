@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
@@ -37,7 +38,7 @@ import java.util.jar.JarFile;
 public class YPluginLoader extends URLClassLoader {
 
     private List<String> _pathList;
-    private Logger _log = Logger.getLogger(YPluginLoader.class);
+    private Logger _log = LogManager.getLogger(YPluginLoader.class);
 
 
     /**

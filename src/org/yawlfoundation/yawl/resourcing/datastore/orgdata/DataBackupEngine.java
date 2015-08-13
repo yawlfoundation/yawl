@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.datastore.orgdata;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -46,7 +47,7 @@ public class DataBackupEngine {
 
     ResourceManager _rm = ResourceManager.getInstance();
     ResourceDataSet orgDataSet = _rm.getOrgDataSet();
-    Logger _log = Logger.getLogger(this.getClass());
+    Logger _log = LogManager.getLogger(this.getClass());
 
     public String exportOrgData() {
         StringBuilder result = new StringBuilder("<orgdata>");

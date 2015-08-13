@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
@@ -50,7 +51,7 @@ public class HibernateEngine {
     private SessionFactory _factory = null;
     private boolean _persistOn = false;
 
-    private static final Logger _log = Logger.getLogger(HibernateEngine.class);
+    private static final Logger _log = LogManager.getLogger(HibernateEngine.class);
 
 
     /*********************************************************************************/

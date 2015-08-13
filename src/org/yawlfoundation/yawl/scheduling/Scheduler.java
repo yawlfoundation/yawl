@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
@@ -39,7 +40,7 @@ import java.util.*;
  */
 public class Scheduler implements Constants
 {
-	private static Logger logger = Logger.getLogger(Scheduler.class);
+	private static Logger logger = LogManager.getLogger(Scheduler.class);
 
 	private DataMapper dataMapper;
 	private ResourceServiceInterface rs;

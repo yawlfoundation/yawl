@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -72,7 +73,7 @@ public class ResourceMap {
     private HashMap<String, HashSet<Participant>> _offered = new
             HashMap<String, HashSet<Participant>>() ;
 
-    private static final Logger _log = Logger.getLogger(ResourceMap.class) ;
+    private static final Logger _log = LogManager.getLogger(ResourceMap.class) ;
 
 
     public ResourceMap() { }                                       // for persistence

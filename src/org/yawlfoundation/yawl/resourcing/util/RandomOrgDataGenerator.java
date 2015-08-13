@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
@@ -34,7 +35,7 @@ import java.util.Random;
  */
 public class RandomOrgDataGenerator {
 
-    private Logger _log = Logger.getLogger(RandomOrgDataGenerator.class);
+    private Logger _log = LogManager.getLogger(RandomOrgDataGenerator.class);
     private ResourceManager _rm;
 
     private String[] f = {"Alex", "Bill", "Carol", "Diane", "Errol", "Frank", "George",

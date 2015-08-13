@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.custommonkey.xmlunit.Diff;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -54,7 +55,7 @@ import java.util.*;
  */
 public class XMLUtils implements Constants
 {
-	private static Logger logger = Logger.getLogger(XMLUtils.class);
+	private static Logger logger = LogManager.getLogger(XMLUtils.class);
 
 	private static String schemaFilePathName = "/rup.xsd";
 	private static Map<String, Document> schemaDocs = new HashMap<String, Document>();

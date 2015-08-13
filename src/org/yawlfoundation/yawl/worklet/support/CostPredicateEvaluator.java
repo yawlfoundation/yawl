@@ -1,11 +1,11 @@
 package org.yawlfoundation.yawl.worklet.support;
 
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.logging.table.YLogDataType;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 
@@ -58,7 +58,7 @@ public class CostPredicateEvaluator {
             throws RdrConditionException {
 
         Set<YSpecificationID> variantIDs = getVariants(wir);
-        if (variantIDs.size() == 1) {
+        if (variantIDs.size() == 1 || costServiceUnavailable()) {
             return variantIDs.iterator().next().getUri();    // short circuit
         }
 
@@ -110,7 +110,7 @@ public class CostPredicateEvaluator {
             String handle = WorkletService.getInstance().getExternalServiceHandle(client);
             if (handle == null) {
                 throw new RdrConditionException(
-                        "Null session handle returned from serivce call");
+                        "Null session handle returned from service call");
             }
             if (handle.contains("<fail")) {
                 throw new RdrConditionException(StringUtil.unwrap(handle));
@@ -122,7 +122,7 @@ public class CostPredicateEvaluator {
             if (msg.startsWith("http")) {
                 msg = "Cost Service is missing or unavailable";
             }
-            throw new RdrConditionException(ioe.getMessage());
+            throw new RdrConditionException(msg);
         }
     }
 
@@ -157,6 +157,18 @@ public class CostPredicateEvaluator {
             }
         }
         return variants;
+    }
+
+
+    private boolean costServiceUnavailable() {
+        try {
+            getHandle(new CostGatewayClient());
+            return true;
+        }
+        catch (RdrConditionException rce) {
+            LogManager.getLogger(this.getClass()).warn(rce.getMessage());
+            return false;
+        }
     }
 
 }

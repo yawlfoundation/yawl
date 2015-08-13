@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 public class RdrSetLoader {
 
-    private static final Logger _log  = Logger.getLogger(RdrSetLoader.class);
+    private static final Logger _log  = LogManager.getLogger(RdrSetLoader.class);
 
 
     public RdrSet load(YSpecificationID specID) {

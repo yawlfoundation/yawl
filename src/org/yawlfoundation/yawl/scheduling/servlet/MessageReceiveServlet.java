@@ -18,16 +18,20 @@
 
 package org.yawlfoundation.yawl.scheduling.servlet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
-import org.yawlfoundation.yawl.scheduling.*;
-import org.yawlfoundation.yawl.scheduling.timer.JobTimer;
-import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
+import org.yawlfoundation.yawl.scheduling.ConfigManager;
+import org.yawlfoundation.yawl.scheduling.Constants;
+import org.yawlfoundation.yawl.scheduling.SchedulingException;
+import org.yawlfoundation.yawl.scheduling.SchedulingService;
 import org.yawlfoundation.yawl.scheduling.lanes.LaneImporter;
 import org.yawlfoundation.yawl.scheduling.lanes.LaneProducer;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
-import org.yawlfoundation.yawl.scheduling.util.*;
+import org.yawlfoundation.yawl.scheduling.timer.JobTimer;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
+import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -46,7 +50,7 @@ import java.util.*;
  */
 public class MessageReceiveServlet extends HttpServlet implements Constants {
 
-	private static Logger _log = Logger.getLogger(MessageReceiveServlet.class);
+	private static Logger _log = LogManager.getLogger(MessageReceiveServlet.class);
 
 
 	/**

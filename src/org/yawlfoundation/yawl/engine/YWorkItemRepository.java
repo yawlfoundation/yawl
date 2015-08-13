@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -45,7 +46,7 @@ public class YWorkItemRepository {
 
     public YWorkItemRepository() {
         _itemMap = new ConcurrentHashMap<String, YWorkItem>(500);
-        _logger = Logger.getLogger(YWorkItemRepository.class);
+        _logger = LogManager.getLogger(YWorkItemRepository.class);
     }
 
 

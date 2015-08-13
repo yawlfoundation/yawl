@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.jdom.JDOMXPath;
@@ -39,7 +40,7 @@ public class PlanningGraphCreator implements Constants {
 
     private static PlanningGraphCreator INSTANCE = null;
     private static int lenActName = XML_ACTIVITYNAME.length() + 2;
-    private static Logger logger = Logger.getLogger(PlanningGraphCreator.class);
+    private static Logger logger = LogManager.getLogger(PlanningGraphCreator.class);
 
 
 	private PlanningGraphCreator() {

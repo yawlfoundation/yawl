@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.monitor.jsf;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -39,7 +40,7 @@ public class SessionListener implements HttpSessionListener {
     private Logger _log;
 
     public SessionListener() {
-       _log = Logger.getLogger(SessionListener.class);
+       _log = LogManager.getLogger(SessionListener.class);
     }
 
 

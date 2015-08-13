@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.cost;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.cost.data.*;
@@ -67,7 +68,7 @@ public class CostService implements InterfaceX_Service {
     private String _engineLogonPassword;
     private static CostService INSTANCE;
 
-    private Logger _log = Logger.getLogger(this.getClass());
+    private Logger _log = LogManager.getLogger(this.getClass());
 
 
     private CostService() {

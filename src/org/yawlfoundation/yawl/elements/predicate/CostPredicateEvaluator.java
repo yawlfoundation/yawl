@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.elements.predicate;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.elements.YDecomposition;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -91,7 +91,7 @@ public class CostPredicateEvaluator implements PredicateEvaluator {
                     decomposition.getSpecification().getSpecificationID(),
                     token.getId(), expression, _handle));
         } catch (IOException ioe) {
-            Logger.getLogger(this.getClass()).error(ioe.getMessage());
+            LogManager.getLogger(this.getClass()).error(ioe.getMessage());
             return "0";
         }
     }

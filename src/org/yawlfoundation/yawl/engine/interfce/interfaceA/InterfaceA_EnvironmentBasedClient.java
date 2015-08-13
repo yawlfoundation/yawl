@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceA;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
@@ -166,7 +166,7 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
                 }
             }
         } catch (IOException ioe) {
-              Logger.getLogger(this.getClass()).error(
+              LogManager.getLogger(this.getClass()).error(
                 "Problem contacting YAWL Engine at URI [" + _backEndURIStr + "]", ioe);
         }
         return result;

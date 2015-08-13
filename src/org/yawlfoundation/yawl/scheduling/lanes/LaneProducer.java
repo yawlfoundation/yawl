@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling.lanes;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.Role;
@@ -26,16 +27,17 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.scheduling.*;
-import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 import org.yawlfoundation.yawl.scheduling.persistence.DataMapper;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
-import org.yawlfoundation.yawl.scheduling.util.*;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
+import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
 
 import java.util.*;
 
 
 public class LaneProducer implements Constants {
-	private static Logger logger = Logger.getLogger(LaneProducer.class);
+	private static Logger logger = LogManager.getLogger(LaneProducer.class);
 
 	private DataMapper dataMapper;
 	private ConfigManager config;

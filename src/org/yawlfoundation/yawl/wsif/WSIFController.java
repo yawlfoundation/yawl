@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.wsif;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -48,7 +49,7 @@ import java.util.Map;
 public class WSIFController extends InterfaceBWebsideController {
 
     private String _sessionHandle = null;
-    private Logger _log = Logger.getLogger(this.getClass());
+    private Logger _log = LogManager.getLogger(this.getClass());
 
     private static final String WSDL_LOCATION_PARAMNAME = "YawlWSInvokerWSDLLocation";
     private static final String WSDL_PORTNAME_PARAMNAME = "YawlWSInvokerPortName";

@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -58,7 +59,7 @@ public class SchedulingService extends Service {
     private long _lastSaveInDB = 0;
     private String _lastSaveInDBMsg = "";
 
-    private static final Logger _log = Logger.getLogger(SchedulingService.class);
+    private static final Logger _log = LogManager.getLogger(SchedulingService.class);
     private static SchedulingService INSTANCE;
 
 

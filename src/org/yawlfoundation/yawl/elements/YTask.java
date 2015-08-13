@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.elements;
 
 import net.sf.saxon.s9api.SaxonApiException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -27,7 +28,6 @@ import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
-import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluator;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorCache;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YInternalCondition;
@@ -109,7 +109,7 @@ public abstract class YTask extends YExternalNetElement {
     private YLogDataItemList _inputLogDataItems;
     private YLogDataItemList _outputLogDataItems;
 
-    private static final Logger logger = Logger.getLogger(YTask.class);
+    private static final Logger logger = LogManager.getLogger(YTask.class);
 
     /**
      * AJH: Extensions to cater for task level XML attributes.

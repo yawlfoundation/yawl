@@ -19,8 +19,12 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import net.sf.saxon.s9api.SaxonApiException;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -73,18 +77,18 @@ public class ConditionEvaluator {
     private static final String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
             "<", ">", "!=", "=", "&", "|", "!"} ;
 
-    private static final Logger _log = Logger.getLogger(ConditionEvaluator.class);
+    private static final Logger _log = LogManager.getLogger(ConditionEvaluator.class);
 
 
     public ConditionEvaluator() {
-        _log.setLevel(Level.ERROR);
+        setLogLevel(_log, Level.ERROR);
     }
 
 
     /**
      *  Evaluate the condition using the datalist of variables and values.
      *  @param cond - the condition to evaluate
-     *  @param dlist - the datalist of variables and values
+     *  @param data - the datalist of variables and values
      *
      *  @return the boolean result of the evaluation
      */
@@ -917,6 +921,16 @@ public class ConditionEvaluator {
         throw new RdrConditionException(getMessage(10)) ;  // error if gets here
     }
 
+
+
+
+    private static void setLogLevel(Logger logger, Level level) {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        LoggerConfig loggerConfig = config.getLoggerConfig(logger.getName());
+        loggerConfig.setLevel(level);
+        ctx.updateLoggers();
+    }
 
 
     /*********************************************************************/

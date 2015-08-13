@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -47,7 +48,7 @@ public class YDefClientsLoader {
     private Set<YAWLServiceReference> _services;
 
     public YDefClientsLoader() {
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
         _clients = new HashSet<YExternalClient>();
         _services = new HashSet<YAWLServiceReference>();
         load();

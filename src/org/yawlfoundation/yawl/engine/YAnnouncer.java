@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceGateway;
@@ -57,7 +58,7 @@ public class YAnnouncer {
 
     protected YAnnouncer(YEngine engine) {
         _engine = engine;
-        _logger = Logger.getLogger(this.getClass());
+        _logger = LogManager.getLogger(this.getClass());
         _interfaceXListeners = new HashSet<InterfaceX_EngineSideClient>();
         _announcementContext = AnnouncementContext.NORMAL;
         _controller = new ObserverGatewayController();

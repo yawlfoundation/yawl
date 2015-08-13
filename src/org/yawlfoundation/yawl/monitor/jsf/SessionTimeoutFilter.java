@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.monitor.jsf;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +41,7 @@ import java.io.IOException;
 public class SessionTimeoutFilter implements Filter {
 
     private String _timeoutPage = "/sessiontimeout.html";
-    private Logger _log = Logger.getLogger(SessionTimeoutFilter.class);
+    private Logger _log = LogManager.getLogger(SessionTimeoutFilter.class);
 
 
 

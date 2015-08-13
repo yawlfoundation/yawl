@@ -18,10 +18,11 @@
 
 package org.yawlfoundation.yawl.worklet.selection;
 
-import org.yawlfoundation.yawl.worklet.support.*;
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import org.apache.log4j.Logger;
+import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
+import org.yawlfoundation.yawl.worklet.support.WorkletRecord;
 
 
 /** The CheckedOutChildItem class maintains a dataset for a 'child' workitem
@@ -58,7 +59,7 @@ public class CheckedOutChildItem extends WorkletRecord {
         _persistID = _wir.getID();
         _datalist = _wir.getDataList();
         _wirStr = _wir.toXML();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 //===========================================================================//

@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
@@ -36,7 +37,7 @@ import java.util.Date;
  */
 public class YProblemEvent {
     private static final String EXECUTION_ERROR_STR = "Engine Execution Problem";
-    private static final Logger logger = Logger.getLogger(YProblemEvent.class);
+    private static final Logger logger = LogManager.getLogger(YProblemEvent.class);
     private Object _source;
     private String _message;
     private int _eventType;

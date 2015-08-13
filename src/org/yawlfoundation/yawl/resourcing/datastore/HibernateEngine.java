@@ -18,11 +18,9 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore;
 
-import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.exception.JDBCConnectionException;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -36,10 +34,8 @@ import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanSubCategory;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 
 /**
@@ -67,7 +63,7 @@ public class HibernateEngine extends org.yawlfoundation.yawl.util.HibernateEngin
     };
 
 
-    private static final Logger _log = Logger.getLogger(HibernateEngine.class);
+    private static final Logger _log = LogManager.getLogger(HibernateEngine.class);
 
 
     /*********************************************************************************/

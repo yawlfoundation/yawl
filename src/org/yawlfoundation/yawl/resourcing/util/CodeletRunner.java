@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -42,7 +43,7 @@ public class CodeletRunner implements Runnable {
     private TaskInformation _taskInfo;
     private AbstractCodelet _codelet;
     private boolean _init;                                 // is this an init or a resume
-    private Logger _log = Logger.getLogger(this.getClass());
+    private Logger _log = LogManager.getLogger(this.getClass());
 
     
     public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean init) {

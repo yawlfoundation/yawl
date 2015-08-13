@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.procletService.blockType;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.SingleInstanceClass;
@@ -50,7 +51,7 @@ public class BlockCP {
 
 	private static String uniqueidTN = "UniqueID";
 
-	private static Logger myLog = Logger.getLogger(BlockCP.class);
+	private static Logger myLog = LogManager.getLogger(BlockCP.class);
 
 	public BlockCP(WorkItemRecord wir, ProcletBlock block) {
 		this.wir = wir;

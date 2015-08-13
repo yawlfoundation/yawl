@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yawlfoundation.yawl.scheduling.util.Utils;
@@ -43,7 +44,7 @@ public class ConfigManager implements Constants {
     // instance cache - one for each language
     private static Map<String, ConfigManager> _instances = new Hashtable<String, ConfigManager>();
 
-    private static final Logger _log = Logger.getLogger(ConfigManager.class);
+    private static final Logger _log = LogManager.getLogger(ConfigManager.class);
 
 
     /**

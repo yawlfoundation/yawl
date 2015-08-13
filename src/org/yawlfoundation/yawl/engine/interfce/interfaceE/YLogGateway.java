@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceE;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -43,7 +44,7 @@ import java.io.PrintWriter;
 
 public class YLogGateway extends HttpServlet {
 
-    private static final Logger _log = Logger.getLogger(YLogGateway.class);
+    private static final Logger _log = LogManager.getLogger(YLogGateway.class);
     private YLogServer _logMgr = YLogServer.getInstance() ;
     private EngineGatewayImpl _engine ;
 

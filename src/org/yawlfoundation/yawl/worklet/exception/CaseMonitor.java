@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.exception;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -76,7 +77,7 @@ public class CaseMonitor {
      * @param data - a string representation of the case data
      */
     public CaseMonitor(YSpecificationID specID, String caseID, String data) {
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
         _specID = specID ;
         _caseID = caseID ;
         _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID.getUri());
@@ -177,7 +178,7 @@ public class CaseMonitor {
         _caseData = JDOMUtil.stringToElement(_caseDataStr);
         _netLevelData = JDOMUtil.stringToElement(_netDataStr);
         _liveItems = RdrConversionTools.StringToStringList(_liveItemIDs);
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 

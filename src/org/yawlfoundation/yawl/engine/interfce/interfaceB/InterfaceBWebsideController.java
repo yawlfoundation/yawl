@@ -18,8 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.apache.log4j.Category;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -62,7 +62,7 @@ public abstract class InterfaceBWebsideController {
 
     protected String engineLogonName = "admin";
     protected String engineLogonPassword = "YAWL";
-    protected Category _logger = Logger.getLogger(getClass());
+    protected Logger _logger = LogManager.getLogger(getClass());
 
 
     /**
@@ -520,10 +520,10 @@ public abstract class InterfaceBWebsideController {
      * @param backEndURIStr the uri of the engine
      */
     public static void logContactError(IOException e, String backEndURIStr) {
-        Logger.getLogger(InterfaceBWebsideController.class).error(
+        LogManager.getLogger(InterfaceBWebsideController.class).error(
                 "[error] problem contacting YAWL engine at URI [" + backEndURIStr + "]");
         if (e.getStackTrace() != null) {
-            Logger.getLogger(InterfaceBWebsideController.class).error("line of code := " +
+            LogManager.getLogger(InterfaceBWebsideController.class).error("line of code := " +
                     e.getStackTrace()[0].toString());
         }
     }

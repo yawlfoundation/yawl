@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -29,11 +30,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
-import org.w3c.dom.ls.LSInput;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.yawlfoundation.yawl.schema.ResourceResolver;
 import org.yawlfoundation.yawl.schema.XSDType;
 
 import java.io.File;
@@ -54,7 +50,7 @@ import java.io.StringReader;
 
 public class JDOMUtil {
 
-    private static Logger _log = Logger.getLogger(JDOMUtil.class);
+    private static Logger _log = LogManager.getLogger(JDOMUtil.class);
     private static SAXBuilder _builder = new SAXBuilder(
             new XMLReaderSAX2Factory(false, "org.apache.xerces.parsers.SAXParser"));
 

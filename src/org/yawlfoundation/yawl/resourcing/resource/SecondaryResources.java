@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.resource;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -52,7 +53,7 @@ public class SecondaryResources {
     public SecondaryResources() {
         _rm = ResourceManager.getInstance();
         _defaultDataSet = new SecResDataSet();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 

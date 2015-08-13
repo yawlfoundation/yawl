@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.miscellaneousPrograms;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -90,7 +90,7 @@ public class CPNToolsFixer {
                     line2 = line.substring(0, begin) + id + line.substring(end, line.length());
 
                     if (newIDCreated) {
-                        Logger.getLogger(CPNToolsFixer.class).debug(
+                        LogManager.getLogger(CPNToolsFixer.class).debug(
                         "line = " + line +
                         "\n\tline.substring(begin, end) = " + id +
                         "\nline2 = " + line2 + "\n\n");

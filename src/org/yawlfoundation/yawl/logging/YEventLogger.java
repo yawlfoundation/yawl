@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -70,7 +71,7 @@ public class YEventLogger {
     public final static String NET_COMPLETE = "NetComplete";
     public final static String NET_CANCEL = "NetCancel";
 
-    private final Logger _log = Logger.getLogger(YEventLogger.class);
+    private final Logger _log = LogManager.getLogger(YEventLogger.class);
     private boolean _enabled = true;
     private static YEventLogger _me = null;
     private YEngine _engine;

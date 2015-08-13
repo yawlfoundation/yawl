@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.interactions;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -58,7 +59,7 @@ public class OfferInteraction extends AbstractInteraction {
     private String _familiarParticipantTask ;
 
     private ResourceManager _rm = ResourceManager.getInstance() ;
-    private static final Logger _log = Logger.getLogger(OfferInteraction.class);
+    private static final Logger _log = LogManager.getLogger(OfferInteraction.class);
 
 
     // Dynamic Parameter types

@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.swingWorklist;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YTask;
@@ -57,7 +58,7 @@ import java.util.List;
  * 
  */
 public class YWorklistModel {
-    private static final Logger logger = Logger.getLogger(YWorklistModel.class);
+    private static final Logger logger = LogManager.getLogger(YWorklistModel.class);
     private YWorklistTableModel _availableWork;
     private YWorklistTableModel _myActiveTasks;
     private Vector inSequenceWorkitemIDs = new Vector();

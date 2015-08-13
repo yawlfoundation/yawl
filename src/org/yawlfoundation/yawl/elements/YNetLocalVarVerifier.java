@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.elements;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -48,7 +49,7 @@ public class YNetLocalVarVerifier {
     public YNetLocalVarVerifier(YNet net) {
         _net = net;
         _uninitialisedLocalVars = new Hashtable<String, LocalTaskMap>();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
 

@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -138,7 +139,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         super();
         _resAdmin = ResourceAdministrator.getInstance();
         _services = new InterfaceClients(engineLogonName, engineLogonPassword);
-        _log = Logger.getLogger(getClass());
+        _log = LogManager.getLogger(getClass());
         _me = this;
     }
 

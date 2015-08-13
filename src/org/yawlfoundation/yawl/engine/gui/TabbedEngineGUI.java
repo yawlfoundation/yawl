@@ -18,8 +18,9 @@
 
 package org.yawlfoundation.yawl.engine.gui;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.swingWorklist.YWorklistGUI;
-import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +40,7 @@ public class TabbedEngineGUI extends JPanel {
     private JTabbedPane _tabbedPane;
     private static boolean journalising = false;
     private static boolean generateUIMetaData = false;
-    private static final Logger logger = Logger.getLogger(TabbedEngineGUI.class);
+    private static final Logger logger = LogManager.getLogger(TabbedEngineGUI.class);
 
     public TabbedEngineGUI() {
         super(new BorderLayout());

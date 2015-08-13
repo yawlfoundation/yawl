@@ -204,7 +204,7 @@
     <property name="jaxen" value="jaxen-1.1.6.jar"/>
     <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>
-    <!-- wsi -->
+    <!-- hbn -->
     <property name="jboss-logging" value="jboss-logging-3.1.0.GA.jar"/>
     <!-- hbn -->
     <property name="jboss-transaction"
@@ -264,7 +264,9 @@
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
-    <property name="log4j" value="log4j-1.2.16.jar"/>
+    <property name="log4j-api" value="log4j-api-2.3.jar"/>
+    <!-- mul -->
+    <property name="log4j-core" value="log4j-core-2.3.jar"/>
     <!-- launcher -->
     <property name="macify" value="macify-1.4.jar"/>
     <!-- mul -->
@@ -419,8 +421,8 @@
               value="${wsif} ${axis} ${commonsDiscovery} ${commonsLogging}
                      ${activation} ${jaxrpc} ${saaj} ${wsdl4j}"/>
 
-    <property name="common.libs"
-              value="${junit} ${saxon} ${jdom} ${log4j}"/>
+    <property name="log4j.libs"
+              value="${log4j-api} ${log4j-core}"/>
 
     <property name="saxon.libs"
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
@@ -448,66 +450,66 @@
     -->
 
     <property name="webapp_yawl.libs"
-              value="${persistence.libs} ${xsd.libs} ${common.libs} ${xerces}
+              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs} ${xerces}
                      ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}"/>
 
     <property name="webapp_resourceService.libs"
-              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
                      ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
                      ${xerces} ${saxon.libs}"/>
 
     <property name="webapp_workletService.libs"
-              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j}
+              value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
                      ${dbClient} ${saxon.libs} ${commonsLang} ${xerces}
                      ${commonsCodec}"/>
 
     <property name="webapp_yawlWSInvoker.libs"
-              value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j} ${xerces}
+              value="${wsif.libs} ${apacheSoap} ${jdom} ${log4j.libs} ${xerces}
                      ${commonsCodec} ${commonsLang}"/>
 
     <property name="webapp_yawlSMSInvoker.libs"
-              value="${jdom} ${log4j} ${commonsCodec} ${xerces}"/>
+              value="${jdom} ${log4j.libs} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_digitalSignature.libs"
-              value="${jdom} ${log4j} ${commonsCodec} ${commonsIO}
+              value="${jdom} ${log4j.libs} ${commonsCodec} ${commonsIO}
                      ${commonsFileupload} ${bcmail} ${bcprov} ${xerces}"/>
 
     <property name="webapp_mailSender.libs"
-              value="${jdom} ${log4j} ${mail} ${activation}
+              value="${jdom} ${log4j.libs} ${mail} ${activation}
                      ${commonsIO} ${commonsFileupload} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_monitorService.libs"
-              value="${jdom} ${log4j} ${jsf.libs} ${commonsLang}
+              value="${jdom} ${log4j.libs} ${jsf.libs} ${commonsLang}
                      ${commonsLogging} ${commonsCollections} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_twitterService.libs"
-              value="${jdom} ${log4j} ${twitter4j} ${commonsCodec} ${xerces}"/>
+              value="${jdom} ${log4j.libs} ${twitter4j} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_mailService.libs"
-              value="${jdom} ${log4j} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
+              value="${jdom} ${log4j.libs} ${simplemail.libs} ${commonsCodec} ${xerces}"/>
 
     <property name="webapp_schedulingService.libs"
-              value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j}
+              value="${scheduling.libs} ${persistence.libs} ${jdom} ${log4j.libs}
                      ${dbClient} ${commonsCodec} ${commonsDbcp} ${commonsPool} ${xerces}"/>
 
     <property name="webapp_testService.libs"
-              value="${jdom} ${xerces} ${log4j} ${twitter4j} ${commonsIO}
+              value="${jdom} ${xerces} ${log4j.libs} ${twitter4j} ${commonsIO}
                      ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_costService.libs"
-              value="${jdom} ${xerces} ${log4j} ${persistence.libs}
+              value="${jdom} ${xerces} ${log4j.libs} ${persistence.libs}
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_documentStore.libs"
-              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j}"/>
+              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j.libs}"/>
 
     <property name="webapp_procletService.libs"
               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
-                      ${dbClient} ${jdom} ${log4j} ${xerces}"/>
+                      ${dbClient} ${jdom} ${log4j.libs} ${xerces}"/>
 
     <property name="webapp_orderfulfillment.libs"
               value="${activation} ${cos} ${jaxb.libs} ${jdom1} ${jsr}
-                     ${orderfulfillment} ${log4j} ${servlet} ${uploadbean}"/>
+                     ${orderfulfillment} ${log4j.libs} ${servlet} ${uploadbean}"/>
 
     <!--
         JAR grouping properties for compilation classpath usage
@@ -522,7 +524,8 @@
         <pathelement location="${lib.dir}/${saxonjdom}"/>
         <pathelement location="${lib.dir}/${jdom}"/>
         <pathelement location="${lib.dir}/${servlet}"/>
-        <pathelement location="${lib.dir}/${log4j}"/>
+        <pathelement location="${lib.dir}/${log4j-api}"/>
+        <pathelement location="${lib.dir}/${log4j-core}"/>
 
         <!-- Include all elements that Tomcat exposes to applications -->
         <pathelement location="${CATALINA_HOME}/lib"/>
@@ -558,9 +561,6 @@
         <pathelement location="${lib.dir}/${hibernate-ehcache}"/>
         <pathelement location="${lib.dir}/${hibernate-jpa}"/>
         <pathelement location="${lib.dir}/${dbClient}"/>
-        <pathelement location="${javaAssist}"/>
-        <pathelement location="${jboss-logging}"/>
-        <pathelement location="${jboss-transaction}"/>
     </path>
 
     <path id="cp.apacheCommons">
@@ -770,9 +770,9 @@
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}"
-                     includes="${persistence.libs} ${xsd.libs} ${common.libs}
+                     includes="${persistence.libs} ${xsd.libs} ${jdom}
                                ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
-                               ${commonsCodec} ${jaxen}"
+                               ${commonsCodec} ${jaxen} ${log4j.libs} ${junit}"
                      excludes="hibernate.cfg.xml"/>
         </unzip>
 
@@ -937,7 +937,7 @@
 
         <!-- prepare Log4J properties file -->
         <copy filtering="true" overwrite="true"
-              file="${properties.dir}/log4j.properties" todir="${classes.dir}"/>
+              file="${properties.dir}/log4j2.xml" todir="${classes.dir}"/>
 
         <!-- adjust hbm.xml files depending on db chosen -->
         <antcall target="configureHbmXML"/>
@@ -1105,7 +1105,7 @@
                    appname="${engine.app.name}"
                    includes="*.jar *.xml *.properties"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${engine.app.name}" deleteonexit="true"/>
     </target>
@@ -1113,7 +1113,7 @@
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${engine.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_yawl.libs}"/>
@@ -1180,7 +1180,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${wsInvoker.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${wsInvoker.app.name}"/>
@@ -1191,7 +1191,7 @@
 
     <target name="build_WS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${wsInvoker.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_yawlWSInvoker.libs}"/>
@@ -1258,7 +1258,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${smsInvoker.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${smsInvoker.app.name}"/>
@@ -1269,7 +1269,7 @@
 
     <target name="build_SMS_Invoker_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${smsInvoker.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_yawlSMSInvoker.libs}"/>
@@ -1390,7 +1390,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${worklet.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${worklet.app.name}" deleteonexit="true"/>
     </target>
@@ -1398,7 +1398,7 @@
     <target name="build_workletService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_workletService.libs}"/>
@@ -1548,7 +1548,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${resource.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <!-- 7. Remove temp build area -->
         <delete dir="${temp.dir}/${resource.app.name}" deleteonexit="true"/>
@@ -1557,7 +1557,7 @@
     <target name="build_resourceService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${resource.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_resourceService.libs}"/>
@@ -1637,10 +1637,11 @@
         </copy>
         <copy todir="${output.dir}/simulator/lib">
             <fileset dir="${lib.dir}"
-                     includes="${servlet} ${jdom} ${log4j} ${xerces} ${commonsCodec}"/>
+                     includes="${servlet} ${jdom} ${log4j-api} ${log4j-core}
+                               ${xerces} ${commonsCodec}"/>
         </copy>
 
-        <copy todir="${output.dir}/simulator/lib" file="${classes.dir}/log4j.properties"/>
+        <copy todir="${output.dir}/simulator/lib" file="${classes.dir}/log4j2.xml"/>
         <copy todir="${output.dir}/simulator/lib"
               file="${output.dir}/yawl-lib-${app.version}.jar"/>
 
@@ -1651,7 +1652,8 @@
                 <attribute name="Main-Class"
                            value="org.yawlfoundation.yawl.simulation.YSimulator"/>
                 <attribute name="Class-Path"
-                           value="lib/${servlet} lib/${jdom} lib/${log4j}
+                           value="lib/${servlet} lib/${jdom}
+                                  lib/${log4j-api} lib/${log4j-core}
                                   lib/${commonsCodec} lib/${xerces}
                                   lib/yawl-lib-${app.version}.jar"/>
             </manifest>
@@ -1786,14 +1788,14 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${monitor.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${monitor.app.name}" deleteonexit="true"/>
     </target>
 
     <target name="build_monitorService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${monitor.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_monitorService.libs}"/>
@@ -1904,7 +1906,7 @@
 
     <target name="build_testService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${test.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
@@ -1983,7 +1985,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${cost.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${cost.app.name}"/>
@@ -1996,7 +1998,7 @@
     <target name="build_costService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_costService.libs}"/>
@@ -2052,7 +2054,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${twitter.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${twitter.app.name}"/>
@@ -2063,7 +2065,7 @@
 
     <target name="build_twitterService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${twitter.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_twitterService.libs}"/>
@@ -2116,7 +2118,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mail.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mail.app.name}"/>
@@ -2127,7 +2129,7 @@
 
     <target name="build_mailService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${mail.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_mailService.libs}"/>
@@ -2197,7 +2199,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${scheduling.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${scheduling.app.name}"/>
@@ -2209,7 +2211,7 @@
     <target name="build_schedulingService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_schedulingService.libs}"/>
@@ -2275,7 +2277,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${digitalSignature.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${digitalSignature.app.name}"/>
@@ -2286,7 +2288,7 @@
 
     <target name="build_digitalSignature_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${digitalSignature.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_digitalSignature.libs}"/>
@@ -2346,7 +2348,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mailSender.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mailSender.app.name}"/>
@@ -2357,7 +2359,7 @@
 
     <target name="build_mailSender_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF/classes">
-            <fileset dir="${classes.dir}" includes="log4j.properties"/>
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
         </copy>
         <copy todir="${temp.dir}/${mailSender.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_mailSender.libs}"/>
@@ -2398,7 +2400,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${docStore.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${docStore.app.name}"/>
@@ -2410,7 +2412,7 @@
     <target name="build_docStore_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_documentStore.libs}"/>
@@ -2465,7 +2467,7 @@
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${proclet.app.name}"
                    excludes="WEB-INF/lib/* classes/org/*
-                             log4j.properties hibernate.properties"/>
+                             log4j2.xml hibernate.properties"/>
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${proclet.app.name}"/>
@@ -2477,7 +2479,7 @@
     <target name="build_procletService_SharedTomcat" unless="tomcat.isDedicated">
         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/classes">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
         <copy todir="${temp.dir}/${proclet.app.name}/WEB-INF/lib">
             <fileset dir="${lib.dir}" includes="${webapp_procletService.libs}"/>
@@ -2720,7 +2722,7 @@
         </copy>
         <copy overwrite="true" todir="${sharedLibs.dir}">
             <fileset dir="${classes.dir}"
-                     includes="log4j.properties hibernate.properties"/>
+                     includes="log4j2.xml hibernate.properties"/>
         </copy>
     </target>
 

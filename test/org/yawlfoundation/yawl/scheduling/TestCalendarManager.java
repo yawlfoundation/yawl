@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.scheduling;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.util.Date;
 
 
 public class TestCalendarManager extends TestCase implements Constants {
-	private static Logger logger = Logger.getLogger(TestCalendarManager.class);
+	private static Logger logger = LogManager.getLogger(TestCalendarManager.class);
 
 	ResourceCalendarGatewayClient client;
 	String handle;

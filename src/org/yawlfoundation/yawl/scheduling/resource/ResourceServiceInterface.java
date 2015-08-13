@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling.resource;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -32,9 +33,12 @@ import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceCalendarGatewayCli
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayClientAdapter;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayException;
 import org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClientAdapter;
-import org.yawlfoundation.yawl.scheduling.*;
+import org.yawlfoundation.yawl.scheduling.Case;
+import org.yawlfoundation.yawl.scheduling.ConfigManager;
+import org.yawlfoundation.yawl.scheduling.Constants;
+import org.yawlfoundation.yawl.scheduling.util.PropertyReader;
+import org.yawlfoundation.yawl.scheduling.util.Utils;
 import org.yawlfoundation.yawl.scheduling.util.XMLUtils;
-import org.yawlfoundation.yawl.scheduling.util.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,7 +54,7 @@ import java.util.*;
 public class ResourceServiceInterface implements Constants {
 
     private static final boolean DEBUG_SAVE_TO_RS = false;
-    private static final Logger _log = Logger.getLogger(ResourceServiceInterface.class);
+    private static final Logger _log = LogManager.getLogger(ResourceServiceInterface.class);
     private static ResourceServiceInterface INSTANCE = null;
 
     private ResourceGatewayClientAdapter _resClient;

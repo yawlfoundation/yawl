@@ -17,7 +17,7 @@
 <head>
 
 	<%
-  	Logger logger = Logger.getLogger(this.getClass());
+  	Logger logger = LogManager.getLogger(this.getClass());
 		FormGenerator fg = new FormGenerator(request, response);
 	%>
 	

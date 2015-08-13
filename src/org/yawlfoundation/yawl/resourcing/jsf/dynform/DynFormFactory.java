@@ -28,13 +28,12 @@ package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.appbase.AbstractSessionBean;
 import com.sun.rave.web.ui.component.Button;
-import com.sun.rave.web.ui.component.Calendar;
-import com.sun.rave.web.ui.component.Checkbox;
 import com.sun.rave.web.ui.component.*;
+import com.sun.rave.web.ui.component.Checkbox;
 import com.sun.rave.web.ui.component.Label;
 import com.sun.rave.web.ui.component.TextArea;
 import com.sun.rave.web.ui.component.TextField;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -53,8 +52,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.ActionEvent;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
@@ -352,7 +353,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
             _fieldAssembler = new DynFormFieldAssembler(schema, data, paramMap);
         }
         catch (DynFormException dfe) {
-            Logger.getLogger(this.getClass()).error("Failed to build dynamic form", dfe);
+            LogManager.getLogger(this.getClass()).error("Failed to build dynamic form", dfe);
             return false;
         }
         setFormFonts();

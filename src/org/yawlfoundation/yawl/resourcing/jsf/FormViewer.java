@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.jsf;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -47,7 +48,7 @@ public class FormViewer {
 
     public FormViewer() {
         _rm = ResourceManager.getInstance();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
     }
 
     public FormViewer(SessionBean sb) {

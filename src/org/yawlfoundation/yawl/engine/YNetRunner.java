@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.*;
@@ -56,7 +57,7 @@ public class YNetRunner {
 
     public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
 
-    private static final Logger _logger = Logger.getLogger(YNetRunner.class);
+    private static final Logger _logger = LogManager.getLogger(YNetRunner.class);
 
     protected YNet _net;
     private YWorkItemRepository _workItemRepository;

@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.procletService.blockType;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc;
 import org.yawlfoundation.yawl.procletService.interactionGraph.InteractionArc.ArcState;
@@ -42,7 +43,7 @@ public class BlockFO {
 	
 	private WorkItemRecord wir = null;
 	private ProcletBlock block = null;
-    private static Logger myLog = Logger.getLogger(BlockFO.class);
+    private static Logger myLog = LogManager.getLogger(BlockFO.class);
 	
 	public BlockFO(WorkItemRecord wir, ProcletBlock block) {
 		this.wir = wir;

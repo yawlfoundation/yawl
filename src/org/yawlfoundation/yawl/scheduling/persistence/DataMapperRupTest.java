@@ -21,7 +21,8 @@
  */
 package org.yawlfoundation.yawl.scheduling.persistence;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.junit.*;
@@ -43,7 +44,7 @@ import static org.junit.Assert.fail;
  */
 public class DataMapperRupTest
 {
-	private static final Logger logger = Logger.getLogger(DataMapperRupTest.class);
+	private static final Logger logger = LogManager.getLogger(DataMapperRupTest.class);
 
 	private String caseId = null;
 

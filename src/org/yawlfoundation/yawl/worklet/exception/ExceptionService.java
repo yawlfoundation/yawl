@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.exception;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
@@ -105,7 +106,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     // the constructor
     public ExceptionService(){
         super();
-        _log = Logger.getLogger(ExceptionService.class);
+        _log = LogManager.getLogger(ExceptionService.class);
         setUpInterfaceBClient(_engineURI);
         _me = this ;
         registerExceptionService(this);                 // register service with parent

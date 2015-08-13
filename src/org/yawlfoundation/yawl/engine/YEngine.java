@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.authentication.YClient;
@@ -124,7 +125,7 @@ public class YEngine implements InterfaceADesign,
         _announcer = new YAnnouncer(this);         // the 'pusher' of interface events
         _specifications = new YSpecificationTable();
         _instanceCache = new InstanceCache();
-        _logger = Logger.getLogger(YEngine.class);
+        _logger = LogManager.getLogger(YEngine.class);
         _netRunnerRepository = new YNetRunnerRepository();
         _runningCaseIDToSpecMap = new ConcurrentHashMap<YIdentifier, YSpecification>();
         _yawlServices = new ConcurrentHashMap<String, YAWLServiceReference>();
@@ -2216,7 +2217,7 @@ public class YEngine implements InterfaceADesign,
             storeObject(event);
         }
         catch (YPersistenceException ype) {
-            Logger.getLogger(YEngine.class).warn("Unable to write audit event to log.");
+            LogManager.getLogger(YEngine.class).warn("Unable to write audit event to log.");
         }
     }
 

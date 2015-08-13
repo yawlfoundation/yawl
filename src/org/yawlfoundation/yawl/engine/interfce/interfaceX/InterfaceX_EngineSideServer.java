@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
@@ -64,7 +65,7 @@ import java.rmi.RemoteException;
 public class InterfaceX_EngineSideServer extends HttpServlet {
 
     private EngineGateway _engine;
-    private static final Logger logger = Logger.getLogger(InterfaceX_EngineSideServer.class);
+    private static final Logger logger = LogManager.getLogger(InterfaceX_EngineSideServer.class);
 
 
     public void init() throws ServletException {

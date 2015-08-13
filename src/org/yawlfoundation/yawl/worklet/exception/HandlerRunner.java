@@ -18,10 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.exception;
 
-import org.apache.log4j.Logger;
-import org.jdom2.Document;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
-import org.jdom2.IllegalAddException;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -77,7 +75,7 @@ public class HandlerRunner extends WorkletRecord {
         _isItemSuspended = false;
         _isCaseSuspended = false ;
 //        _searchPair = rdrConc.getLastPair();
-        _log = Logger.getLogger(this.getClass());
+        _log = LogManager.getLogger(this.getClass());
         initPersistedData() ;
     }
 

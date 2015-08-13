@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.procletService;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -46,7 +47,7 @@ import java.util.List;
 public class ProcletService extends InterfaceBWebsideController  {
 
     private static ProcletService INSTANCE = null;
-	private Logger myLog = Logger.getLogger(ProcletService.class);
+	private Logger myLog = LogManager.getLogger(ProcletService.class);
 
     // holds a session handle to the engine
     private String _handle = null;

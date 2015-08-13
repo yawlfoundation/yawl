@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
@@ -91,7 +92,7 @@ public class InterfaceClients {
     protected InterfaceClients(String logonName, String password) {
         _engineLogonName = logonName;
         _engineLogonPassword = password;
-        _log = Logger.getLogger(InterfaceClients.class);
+        _log = LogManager.getLogger(InterfaceClients.class);
         _gatewayServer = new ResourceGatewayServer();
     }
 

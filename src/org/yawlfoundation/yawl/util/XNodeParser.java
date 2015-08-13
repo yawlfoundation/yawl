@@ -18,10 +18,9 @@
 
 package org.yawlfoundation.yawl.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.exceptions.YAWLException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +115,7 @@ public class XNodeParser {
             return node;
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).error(
+            LogManager.getLogger(this.getClass()).error(
                     "Invalid format parsing string [" + s + "] - " + e.getMessage());
             return null;
         }

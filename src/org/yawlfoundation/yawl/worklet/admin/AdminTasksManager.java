@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.admin;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -36,7 +37,7 @@ public class AdminTasksManager {
     private Map _tasks ;                              // set of tasks to attend to
     private String _nextID ;                          // next unique id
 
-    private static Logger _log = Logger.getLogger(AdminTasksManager.class);
+    private static Logger _log = LogManager.getLogger(AdminTasksManager.class);
 
 
     /** the constructor */

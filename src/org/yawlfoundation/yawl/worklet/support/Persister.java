@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
@@ -64,7 +64,7 @@ public class Persister extends HibernateEngine {
                 _me = new Persister(persistenceOn);
             }
             catch (HibernateException he) {
-                Logger.getLogger(Persister.class).error(
+                LogManager.getLogger(Persister.class).error(
                         "Failed to instantiate persistence engine", he);
             }
         }

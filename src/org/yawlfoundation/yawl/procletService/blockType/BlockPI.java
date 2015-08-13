@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.procletService.blockType;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.SingleInstanceClass;
@@ -50,7 +51,7 @@ public class BlockPI {
 	private WorkItemRecord wir = null;
 	private ProcletBlock block = null;
 	
-	private static Logger myLog = Logger.getLogger(BlockPI.class);
+	private static Logger myLog = LogManager.getLogger(BlockPI.class);
 	
 	public BlockPI(WorkItemRecord wir, ProcletBlock block) {
 		this.wir = wir;

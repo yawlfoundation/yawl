@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -65,7 +66,7 @@ public class WorkletEventServer extends Interface_Client {
      * Constructs a new event server
      */
     public WorkletEventServer() {
-        _log = Logger.getLogger(WorkletEventServer.class);
+        _log = LogManager.getLogger(WorkletEventServer.class);
     }
 
 

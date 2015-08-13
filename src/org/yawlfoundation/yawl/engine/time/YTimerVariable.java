@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.time;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.exceptions.YQueryException;
 
@@ -61,7 +61,7 @@ public class YTimerVariable {
             _state = state;
         }
         else {
-            Logger.getLogger(this.getClass()).debug("Attempt made to move timer variable state " +
+            LogManager.getLogger(this.getClass()).debug("Attempt made to move timer variable state " +
             "for task '" + _ownerTask.getName() + "' from " + _state.name() + " to " + state.name());
         }
     }

@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.scheduling.timer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.Constants;
 import org.yawlfoundation.yawl.scheduling.SchedulingService;
@@ -62,7 +62,7 @@ public class JobMsgTransfer implements Runnable, Constants {
             SchedulingService.getInstance().sendPushMessage(address, addressType, msgBODY, caseId);
         }
         catch (Exception e) {
-            Logger.getLogger(JobMsgTransfer.class).error("Cannot execute job " + name, e);
+            LogManager.getLogger(JobMsgTransfer.class).error("Cannot execute job " + name, e);
         }
     }
 

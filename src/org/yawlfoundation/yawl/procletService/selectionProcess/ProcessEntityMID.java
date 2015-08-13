@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.procletService.selectionProcess;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.procletService.ProcletService;
 import org.yawlfoundation.yawl.procletService.SingleInstanceClass;
@@ -50,7 +51,7 @@ public class ProcessEntityMID {
 	
 	private String uniqueID = "";
 	
-	private static Logger myLog = Logger.getLogger(ProcessEntityMID.class);
+	private static Logger myLog = LogManager.getLogger(ProcessEntityMID.class);
 	
 	public ProcessEntityMID(WorkItemRecord wir, ProcletBlock block, EntityMID emid, String uniqueID) {
 		this.wir = wir;

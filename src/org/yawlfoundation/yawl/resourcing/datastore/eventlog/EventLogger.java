@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
@@ -95,7 +95,7 @@ public class EventLogger {
             log(wir, pid, eType);
         }
         catch (Exception e) {
-            Logger.getLogger(EventLogger.class).error("'" + eventString +
+            LogManager.getLogger(EventLogger.class).error("'" + eventString +
                     "' is not a valid event type.");
         }
     }

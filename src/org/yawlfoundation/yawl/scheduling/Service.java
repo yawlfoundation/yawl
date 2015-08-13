@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -40,7 +41,7 @@ import java.util.*;
  */
 public abstract class Service extends InterfaceBWebsideController implements Constants {
 
-    private static Logger _log = Logger.getLogger(Service.class);
+    private static Logger _log = LogManager.getLogger(Service.class);
 
     protected Set<String> _cancelledWorkitemOrCaseIds = new HashSet<String>();
 	protected DataMapper _dataMapper;

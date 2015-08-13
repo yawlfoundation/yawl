@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.monitor;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
@@ -50,7 +50,7 @@ public class MonitorServlet extends HttpServlet {
             MonitorClient.getInstance().initInterfaces(urlMap); 
         }
         catch (Exception e) {
-            Logger.getLogger(this.getClass()).error("Monitor Service Initialisation Exception", e);
+            LogManager.getLogger(this.getClass()).error("Monitor Service Initialisation Exception", e);
         }
     }
 

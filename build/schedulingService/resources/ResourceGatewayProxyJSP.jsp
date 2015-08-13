@@ -8,17 +8,18 @@
 --------------------------------------------------------------------------*/
 %>
 
-<%@ page import="org.apache.log4j.Logger" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.io.IOException" %>
-<%@ page import="org.yawlfoundation.yawl.scheduling.util.Utils" %>
-<%@ page import="org.yawlfoundation.yawl.scheduling.ConfigManager" %>
+<%@ page import="org.apache.logging.log4j.LogManager" %>
+<%@ page import="org.apache.logging.log4j.Logger" %>
 <%@ page import="org.yawlfoundation.yawl.scheduling.util.PropertyReader" %>
+<%@ page import="org.yawlfoundation.yawl.scheduling.util.Utils" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.SortedMap" %>
+<%@ page import="java.util.TreeMap" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <%
 
-	Logger logger = Logger.getLogger(this.getClass());
+	Logger logger = LogManager.getLogger(this.getClass());
 	String url = PropertyReader.getInstance().getYAWLProperty("ResourceGatewayClient.backEndURI");
 	String ret = Utils.sendRequest(url, request.getParameterMap());
 	//logger.debug("------------params="+Utils.toString(request.getParameterMap())+", ret=" + ret);

@@ -18,11 +18,12 @@
 
 package org.yawlfoundation.yawl.elements.data.external;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
-import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.JDBCConnectionException;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.util.List;
 import java.util.Properties;
@@ -48,7 +49,7 @@ public class HibernateEngine {
     // instance reference
     private static HibernateEngine _me;
 
-    private static final Logger _log = Logger.getLogger(HibernateEngine.class);
+    private static final Logger _log = LogManager.getLogger(HibernateEngine.class);
 
     /*********************************************************************************/
 

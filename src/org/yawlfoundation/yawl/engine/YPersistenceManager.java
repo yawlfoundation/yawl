@@ -19,7 +19,8 @@
 package org.yawlfoundation.yawl.engine;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -74,7 +75,7 @@ public class YPersistenceManager {
      * Constructor
      */
     public YPersistenceManager() {
-        logger = Logger.getLogger(YPersistenceManager.class);
+        logger = LogManager.getLogger(YPersistenceManager.class);
     }
 
 

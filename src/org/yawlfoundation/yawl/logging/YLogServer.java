@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -48,7 +49,7 @@ public class YLogServer {
 
     private static YLogServer _me;
     private YPersistenceManager _pmgr;
-    private static final Logger _log = Logger.getLogger(YLogServer.class);
+    private static final Logger _log = LogManager.getLogger(YLogServer.class);
 
     // some error messages
     private static final String GENERAL_ERROR = "<failure>Unable to retrieve data.</failure>";

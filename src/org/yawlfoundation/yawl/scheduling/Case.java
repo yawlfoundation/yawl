@@ -18,7 +18,8 @@
 
 package org.yawlfoundation.yawl.scheduling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.scheduling.resource.ResourceServiceInterface;
@@ -38,7 +39,7 @@ import java.util.List;
  */
 public class Case {
 
-    private static Logger _log = Logger.getLogger(Case.class);
+    private static Logger _log = LogManager.getLogger(Case.class);
     
     private long id;                                         // hibernate pkey
 

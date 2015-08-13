@@ -18,12 +18,15 @@
 
 package org.yawlfoundation.yawl.swingWorklist;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.input.JDOMParseException;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
-import org.yawlfoundation.yawl.exceptions.*;
+import org.yawlfoundation.yawl.exceptions.YLogException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.exceptions.YQueryException;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -61,7 +64,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
     private JFrame _frame;
 
     // Log4J Logger
-    private static final Logger logger = Logger.getLogger(YWorklistGUI.class);
+    private static final Logger logger = LogManager.getLogger(YWorklistGUI.class);
 
     /**
      * Creates a new <code>JPanel</code> with a double buffer
