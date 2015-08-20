@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.resourcing.util;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -28,7 +27,6 @@ import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.codelets.CodeletExecutionException;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -43,7 +41,6 @@ public class CodeletRunner implements Runnable {
     private TaskInformation _taskInfo;
     private AbstractCodelet _codelet;
     private boolean _init;                                 // is this an init or a resume
-    private Logger _log = LogManager.getLogger(this.getClass());
 
     
     public CodeletRunner(WorkItemRecord wir, TaskInformation taskInfo, boolean init) {
@@ -84,9 +81,10 @@ public class CodeletRunner implements Runnable {
                     "' could not be located.");
         }
         catch (Exception e) {
-            _log.error(MessageFormat.format("Exception executing codelet ''{0}'': {1}. " +
-                    "Codelet could not be executed; default value returned for workitem ''{2}''",
-                    codeletName, e.getMessage(), _wir.getID()));
+            LogManager.getLogger(this.getClass()).error(
+                    "Exception executing codelet '{}': {}. Codelet could not be " +
+                    "executed; default value returned for workitem '{}'",
+                    codeletName, e.getMessage(), _wir.getID());
         }
 
         // tell the RM we're done

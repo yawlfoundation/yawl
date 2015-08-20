@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -45,7 +43,6 @@ public class LogMiner {
 
     private static LogMiner _me ;
     private Persister _reader ;
-    private static final Logger _log = LogManager.getLogger(LogMiner.class);
 
     // some error messages
     private static final String _exErrStr = "<failure>Unable to retrieve data.</failure>";

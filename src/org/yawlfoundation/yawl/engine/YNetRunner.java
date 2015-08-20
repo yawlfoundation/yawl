@@ -727,8 +727,8 @@ public class YNetRunner {
                                             YIdentifier caseIDForNet,
                                             YAtomicTask atomicTask)
             throws YPersistenceException, YDataStateException, YQueryException {
-        _logger.debug("--> createEnabledWorkItem: Case=" + caseIDForNet.get_idString() +
-                      " Task=" + atomicTask.getID());
+        _logger.debug("--> createEnabledWorkItem: Case={}, Task={}",
+                caseIDForNet.get_idString(), atomicTask.getID());
 
         boolean allowDynamicCreation = atomicTask.getMultiInstanceAttributes() != null &&
                     YMultiInstanceAttributes.CREATION_MODE_DYNAMIC.equals(
@@ -789,7 +789,7 @@ public class YNetRunner {
             throws YDataStateException, YStateException, YQueryException,
                    YPersistenceException {
 
-        _logger.debug("--> completeTask: " + atomicTask.getID());
+        _logger.debug("--> completeTask: {}", atomicTask.getID());
 
         boolean taskExited = atomicTask.t_complete(pmgr, identifier, outputData);
 
@@ -825,13 +825,9 @@ public class YNetRunner {
                                             _containingCompositeTask,
                                             dataDoc);
 
-                                if (_caseIDForNet == null) {
-                                    _logger.debug("YNetRunner::completeTask() finished local task: " +
-                                            atomicTask + " composite task: " +
-                                            _containingCompositeTask +
-                                            " caseid for decomposed net: " +
-                                            _caseIDForNet);
-                                }
+                                _logger.debug("YNetRunner::completeTask() finished local task: {}," +
+                                        " composite task: {}, caseid for decomposed net: {}" +
+                                        atomicTask, _containingCompositeTask, _caseIDForNet);
                             }
                         }
                     }
@@ -848,15 +844,14 @@ public class YNetRunner {
             _logger.debug("NOTIFYING RUNNER");
             kick(pmgr);
         }
-        _logger.debug("<-- completeTask: " + atomicTask.getID()
-                + ", Exited=" + taskExited);
+        _logger.debug("<-- completeTask: {}, Exited={}", atomicTask.getID(), taskExited);
 
         return taskExited;
     }
 
 
     public synchronized void cancel(YPersistenceManager pmgr) throws YPersistenceException {
-        _logger.debug("--> NetRunner cancel " + getCaseID().get_idString());
+        _logger.debug("--> NetRunner cancel {}", getCaseID().get_idString());
 
         _cancelling = true;
         for (YExternalNetElement netElement : _net.getNetElements().values()) {
@@ -1025,27 +1020,17 @@ public class YNetRunner {
 
 
     public void dump() {
-        _logger.debug("*** DUMP OF NETRUNNER ENABLED TASKS ***");
+        dump(_enabledTasks, "ENABLED");
+        dump(_busyTasks, "BUSY");
+    }
 
-        Iterator iter = _enabledTasks.iterator();
-        while(iter.hasNext())
-        {
-            Object obj = iter.next();
-            _logger.debug("Type = " + obj.getClass().getName());
+
+    private void dump(Set<YTask> tasks, String label) {
+        _logger.debug("*** DUMP OF NETRUNNER {} TASKS ***", label);
+        for (YTask t : tasks) {
+            _logger.debug("Type = {}", t.getClass().getName());
         }
-
-       _logger.debug("*** END OF DUMP OF NETRUNNER ENABLED TASKS ***");
-
-        _logger.debug("*** DUMP OF NETRUNNER BUSY TASKS ***");
-
-        iter = _busyTasks.iterator();
-        while(iter.hasNext())
-        {
-            Object obj = iter.next();
-            _logger.debug("Type = " + obj.getClass().getName());
-        }
-
-        _logger.debug("*** END OF DUMP OF NETRUNNER BUSY TASKS ***");
+        _logger.debug("*** END OF DUMP OF NETRUNNER {} TASKS ***", label);
     }
 
     /***************************************************************************/

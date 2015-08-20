@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.mailService;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletContext;
@@ -40,8 +39,6 @@ import java.io.IOException;
 
 public class MailServiceGateway extends HttpServlet {
 
-    private static final Logger _log = LogManager.getLogger(MailServiceGateway.class);
-
 
     /** Read settings from web.xml and use them to initialise the service */
     public void init() {
@@ -56,7 +53,8 @@ public class MailServiceGateway extends HttpServlet {
             service.setPort(StringUtil.strToInt(context.getInitParameter("port"), 25));
         }
         catch (Exception e) {
-            _log.error("Simple Mail Service Initialisation Exception", e);
+            LogManager.getLogger(MailServiceGateway.class).error(
+                    "Simple Mail Service Initialisation Exception", e);
         }
     }
 

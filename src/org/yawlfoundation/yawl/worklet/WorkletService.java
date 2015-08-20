@@ -218,7 +218,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void setExceptionServiceEnabled(boolean enable) {
         _exceptionServiceEnabled = enable;
-        _log.info("Exception monitoring and handling is " +
+        _log.info("Exception monitoring and handling is {}",
                 (enable ? "enabled" : "disabled"));
     }
 
@@ -291,7 +291,7 @@ public class WorkletService extends InterfaceBWebsideController {
             _log.info("Connection to engine is active");
             if (!handleWorkletSelection(workItemRecord)) {
                 declineWorkItem(workItemRecord, null);
-                _log.info("Workitem returned to Engine: " + workItemRecord.getID());
+                _log.info("Workitem returned to Engine: {}", workItemRecord.getID());
             }
         } else _log.error("Could not connect to YAWL engine");
     }
@@ -323,7 +323,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             if (connected()) {
                 _log.info("Connection to engine is active");
-                _log.info("ID of cancelled workitem: " + itemId);
+                _log.info("ID of cancelled workitem: {}", itemId);
 
                 coItem = _handledWorkItems.get(itemId);
                 cancelled = cancelWorkletList(coItem);
@@ -331,7 +331,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 if (cancelled) {
                     _handledWorkItems.remove(itemId);
                     Persister.delete(coItem);
-                    _log.info("Removed from handled child workitems: " + itemId);
+                    _log.info("Removed from handled child workitems: {}", itemId);
 
                     // remove child and if last child also remove parent
                     coParent = coItem.getParent();
@@ -339,13 +339,13 @@ public class WorkletService extends InterfaceBWebsideController {
 
                     if (!coParent.hasCheckedOutChildItems()) {
                         String parentId = coParent.getItem().getID();
-                        _log.info("No more child cases running for workitem: " +
+                        _log.info("No more child cases running for workitem: {}",
                                 parentId);
                         _handledParentItems.remove(parentId);
                         Persister.delete(coParent);
-                        _log.info("Completed handling of workitem: " + parentId);
+                        _log.info("Completed handling of workitem: {}", parentId);
                     }
-                } else _log.error("Could not cancel worklets for item: " + itemId);
+                } else _log.error("Could not cancel worklets for item: {}", itemId);
             } else _log.error("Could not connect to engine");
         }
     }
@@ -368,7 +368,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public void handleCompleteCaseEvent(String caseID, String casedata) {
         _log.info("HANDLE COMPLETE CASE EVENT");     // note to log
-        _log.info("ID of completed case: " + caseID);
+        _log.info("ID of completed case: {}", caseID);
 
         // reconstruct casedata to JDOM Element
         Element cdata = JDOMUtil.stringToElement(casedata);
@@ -378,7 +378,7 @@ public class WorkletService extends InterfaceBWebsideController {
             if (_casesStarted.containsKey(caseID))
                 handleCompletingSelectionWorklet(caseID, cdata);
             else
-                _log.info("Completing case is not a worklet selection: " + caseID);
+                _log.info("Completing case is not a worklet selection: {}", caseID);
         } else _log.error("Could not connect to YAWL engine");
     }
 
@@ -398,13 +398,13 @@ public class WorkletService extends InterfaceBWebsideController {
             for (CheckedOutChildItem coItem : caseItems) {
                 if (connected()) {
                     _log.info("Connection to engine is active");
-                    _log.info("ID of cancelled case: " + caseID);
+                    _log.info("ID of cancelled case: {}", caseID);
                     String itemID = coItem.getItemId();
 
                     if (cancelWorkletList(coItem)) {
                         _handledWorkItems.remove(itemID);
                         Persister.delete(coItem);
-                        _log.info("Removed from handled child workitems: " + itemID);
+                        _log.info("Removed from handled child workitems: {}", itemID);
 
                         // remove child and if last child also remove parent
                         CheckedOutItem coParent = coItem.getParent();
@@ -412,16 +412,16 @@ public class WorkletService extends InterfaceBWebsideController {
 
                         if (!coParent.hasCheckedOutChildItems()) {
                             String parentId = coParent.getItem().getID();
-                            _log.info("No more child cases running for workitem: " +
+                            _log.info("No more child cases running for workitem: {}",
                                     parentId);
                             _handledParentItems.remove(parentId);
                             Persister.delete(coParent);
-                            _log.info("Completed handling of workitem: " + parentId);
+                            _log.info("Completed handling of workitem: {}", parentId);
                         }
-                    } else _log.error("Could not cancel worklets for item: " + itemID);
+                    } else _log.error("Could not cancel worklets for item: {}", itemID);
                 } else _log.error("Could not connect to engine");
             }
-        } else _log.info("No worklets running for case: " + caseID);
+        } else _log.info("No worklets running for case: {}", caseID);
     }
 
     //***************************************************************************//
@@ -523,8 +523,8 @@ public class WorkletService extends InterfaceBWebsideController {
         String itemId = wir.getID();
         boolean success = false;
 
-        _log.info("Received workitem for worklet substitution: " + itemId);
-        _log.info("   specId = " + specId);
+        _log.info("Received workitem for worklet substitution: {}", itemId);
+        _log.info("   specId = {}", specId);
 
         // locate rdr conclusion for this task, if any
         RdrPair pair = evaluate(wir);
@@ -532,7 +532,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             // OK - this workitem has an associated ruleset so check it out
             // all the child items also get checked out here
-            _log.info("Ruleset found for workitem: " + itemId);
+            _log.info("Ruleset found for workitem: {}", itemId);
             CheckedOutItem coParent = checkOutItem(wir);
 
             // launch a worklet case for each checked out child workitem
@@ -558,7 +558,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 }
                 success = true;            // at least one worklet launched
             } else
-                _log.info("No worklets launched for workitem: " + itemId);
+                _log.info("No worklets launched for workitem: {}", itemId);
 
             // if MI Task, store threshold and log summary of selections
             if (coParent.isMultiTask()) {
@@ -568,8 +568,8 @@ public class WorkletService extends InterfaceBWebsideController {
                 coParent.setThreshold(threshold);
                 logSelectionForMISummary(coParent, taskInfo);
             }
-        } else _log.warn("Rule set does not contain rules for task: " + wir.getTaskName() +
-                " OR No rule set found for specId: " + specId);
+        } else _log.warn("Rule set does not contain rules for task: {}" +
+                " OR No rule set found for specId: {}", wir.getTaskName(), specId);
         return success;
     }
 
@@ -586,8 +586,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         // get the id of the workitem this worklet was selected for
         String origWorkItemId = _casesStarted.get(caseId);
-        _log.info("Workitem this worklet case ran in place of is: " +
-                origWorkItemId);
+        _log.info("Workitem this worklet case ran in place of is: {}", origWorkItemId);
 
         // get the checkedoutchilditem record for the original workitem
         CheckedOutChildItem cociOrig = _handledWorkItems.get(origWorkItemId);
@@ -600,7 +599,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // clear the worklet case from the coci
         cociOrig.removeRunnerByCaseID(caseId);
         _casesStarted.remove(caseId);
-        _log.info("Removed from cases started: " + caseId);
+        _log.info("Removed from cases started: {}", caseId);
 
         // if all worklets for this item have completed, check it back in
         if (!cociOrig.hasRunningWorklet()) {
@@ -621,20 +620,20 @@ public class WorkletService extends InterfaceBWebsideController {
     /**
      * Gets a worklet running for a checked-out workitem
      *
-     * @param tree    - the RdrTree of rules for the task that the checked-out
+     * @param pair    - the RdrTree rule pair for the task that the checked-out
      *                workitem is an instance of
      * @param coChild - the info record of the checked out workitem
      */
     private void processWorkItemSubstitution(RdrPair pair,
                                              CheckedOutChildItem coChild) {
         String childId = coChild.getItem().getID();
-        _log.info("Processing worklet substitution for workitem: " + childId);
+        _log.info("Processing worklet substitution for workitem: {}", childId);
 
         // null result means no rule matched context
         if (! (pair == null || pair.hasNullConclusion())) {
             String wSelected = pair.getConclusion().getTarget(1);
 
-            _log.info("Rule search returned worklet(s): " + wSelected);
+            _log.info("Rule search returned worklet(s): {}", wSelected);
             coChild.setExType(RuleType.ItemSelection);
 
             if (launchWorkletList(coChild, wSelected)) {
@@ -654,12 +653,12 @@ public class WorkletService extends InterfaceBWebsideController {
                 }
                 _server.announceSelection(coChild, pair.getLastTrueNode());
             }
-            else _log.warn("Could not launch worklet(s): " + wSelected);
+            else _log.warn("Could not launch worklet(s): {}", wSelected);
         }
         else {
             _log.warn("Rule search did not find a worklet to select " +
-                    "for workitem: " + childId + ". Passing workitem back to engine.");
-            _log.warn("Workitem record dump: " + coChild.getItem().toXML());
+                    "for workitem: {}. Passing workitem back to engine.", childId);
+            _log.warn("Workitem record dump: {}", coChild.getItem().toXML());
             undoCheckOutWorkItem(coChild);
         }
     }
@@ -689,7 +688,7 @@ public class WorkletService extends InterfaceBWebsideController {
         CheckedOutItem coParent;
         WorkItemRecord wir = coItem.getItem();
 
-        _log.info("Threshold reached for multi-instance task " + wir.getTaskID() + ".");
+        _log.info("Threshold reached for multi-instance task {}." , wir.getTaskID());
         _log.info("Removing remaining worklets launched for this task.");
 
         if (connected()) {
@@ -704,7 +703,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 cancelWorkletList(coItem);
                 _handledWorkItems.remove(coItem.getItemId());
                 if (_persisting) _db.exec(coItem, HibernateEngine.DB_DELETE, false);
-                _log.info("Removed from handled child workitems: " + wir.getID());
+                _log.info("Removed from handled child workitems: {}", wir.getID());
             }
 
             // ... and remove the parent
@@ -712,7 +711,7 @@ public class WorkletService extends InterfaceBWebsideController {
             if (_persisting) _db.exec(coParent, HibernateEngine.DB_DELETE, false);
             coParent.removeAllChildren();
             _db.commit();
-            _log.info("Completed handling of workitem: " + coParent.getItem().getID());
+            _log.info("Completed handling of workitem: {}", coParent.getItem().getID());
         } else _log.error("Could not connect to engine");
     }
 
@@ -751,7 +750,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     protected CheckedOutItem checkOutParentItem(WorkItemRecord wir) {
 
-        _log.info("Checking parent workitem out of engine: " + wir.getID());
+        _log.info("Checking parent workitem out of engine: {}", wir.getID());
 
         if (checkOutWorkItem(wir))
             return new CheckedOutItem(wir);
@@ -764,7 +763,7 @@ public class WorkletService extends InterfaceBWebsideController {
         try {
             return getChildren(parentID, _sessionHandle);
         } catch (IOException ioe) {
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -792,7 +791,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
             // if its 'executing', it means it got checked out with the parent
             else if (WorkItemRecord.statusExecuting.equals(itemRec.getStatus())) {
-                _log.info("   child already checked out with parent: " +
+                _log.info("   child already checked out with parent: {}",
                         itemRec.getID());
                 EventLogger.log(EventLogger.eCheckOut, itemRec, -1);
             }
@@ -807,7 +806,7 @@ public class WorkletService extends InterfaceBWebsideController {
             if (WorkItemRecord.statusExecuting.equals(w.getStatus())) {
                 coi.addChild(w);
             } else
-                _log.error("child '" + w.getID() + "' has NOT been added to CheckedOutItems");
+                _log.error("child '{}' has NOT been added to CheckedOutItems", w.getID());
         }
 
         // remember how many workitems were spawned for task
@@ -826,10 +825,10 @@ public class WorkletService extends InterfaceBWebsideController {
 
         try {
             if (null != checkOut(wir.getID(), _sessionHandle)) {
-                _log.info("   checkout successful: " + wir.getID());
+                _log.info("   checkout successful: {}", wir.getID());
                 return true;
             } else {
-                _log.info("   checkout unsuccessful: " + wir.getID());
+                _log.info("   checkout unsuccessful: {}", wir.getID());
                 return false;
             }
         } catch (YAWLException ye) {
@@ -878,19 +877,19 @@ public class WorkletService extends InterfaceBWebsideController {
                 // and remove it from the dynamic execution datasets
                 _handledWorkItems.remove(childItem.getID());
                 Persister.delete(coci);
-                _log.info("Removed from handled child workitems: " +
+                _log.info("Removed from handled child workitems: {}",
                         childItem.getID());
 
                 // if there is no more child cases, we're done with this parent
                 if (!coiParent.hasCheckedOutChildItems()) {
                     String parentId = coiParent.getItem().getID();
-                    _log.info("No more child cases running for workitem: " +
+                    _log.info("No more child cases running for workitem: {}",
                             parentId);
                     _handledParentItems.remove(parentId);
                     Persister.delete(coiParent);
-                    _log.info("Completed handling of workitem: " + parentId);
+                    _log.info("Completed handling of workitem: {}", parentId);
                 }
-            } else _log.warn("Could not check in child workitem: " + childItem.getID());
+            } else _log.warn("Could not check in child workitem: {}", childItem.getID());
         }
     }
 
@@ -918,11 +917,11 @@ public class WorkletService extends InterfaceBWebsideController {
 
                     // log the successful checkin event
                     EventLogger.log(EventLogger.eCheckIn, wir, -1);
-                    _log.info("Successful checkin of work item: " + wir.getID());
+                    _log.info("Successful checkin of work item: {}", wir.getID());
                     return true;
                 } else {
-                    _log.error("Checkin unsuccessful for: " + wir.getID());
-                    _log.error("Diagnostic string: " + result);
+                    _log.error("Checkin unsuccessful for: {}", wir.getID());
+                    _log.error("Diagnostic string: {}", result);
                 }
             } else {
                 // assumption: workitem not in engine means it was a spawned item of
@@ -949,7 +948,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private void undoCheckOutWorkItem(CheckedOutChildItem coChild) {
         if (declineWorkItem(coChild.getItem(), EventLogger.eUndoCheckOut)) {
-            _log.info("Undo checkout successful: " + coChild.getItemId());
+            _log.info("Undo checkout successful: {}", coChild.getItemId());
 
             // remove child from parent record
             CheckedOutItem parent = coChild.getParent();
@@ -1003,32 +1002,31 @@ public class WorkletService extends InterfaceBWebsideController {
     protected boolean uploadWorklet(YSpecificationID specID, String fileName, String workletName) {
         if (fileName != null) {
             if (isUploaded(specID)) {
-                _log.info("Worklet specification '" + workletName
-                        + "' is already loaded in Engine");
+                _log.info("Worklet specification '{}' is already loaded in Engine",
+                        workletName);
                 return true;
             }
 
             try {
                 if (successful(_interfaceAClient.uploadSpecification(new File(fileName),
                         _sessionHandle))) {
-                    _log.info("Successfully uploaded worklet specification: "
-                            + workletName);
+                    _log.info("Successfully uploaded worklet specification: {}",
+                            workletName);
                     return true;
                 } else {
-                    _log.error("Unsuccessful worklet specification upload : "
-                            + workletName);
+                    _log.error("Unsuccessful worklet specification upload : {}",
+                            workletName);
                     return false;
                 }
             } catch (IOException ioe) {
-                _log.error("Unsuccessful worklet specification upload : "
-                        + workletName);
+                _log.error("Unsuccessful worklet specification upload : {}",
+                        workletName);
                 return false;
             }
         } else {
-            _log.info("Rule search found: " + workletName +
-                    ", but there is no worklet of that name in " +
-                    "the repository, or there was a problem " +
-                    "opening/reading the worklet specification");
+            _log.info("Rule search found: {}, but there is no worklet of that name in " +
+                    "the repository, or there was a problem opening/reading the " +
+                    "worklet specification", workletName);
             return false;
         }
     }
@@ -1123,7 +1121,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // cancel each worklet running for the workitem
         for (String caseIdToCancel : wr.getRunningCaseIds()) {
             _log.info("Worklet case running for the cancelled workitem " +
-                    "has id of: " + caseIdToCancel);
+                    "has id of: {}", caseIdToCancel);
             if (cancelWorkletCase(caseIdToCancel, wr)) {
                 _casesStarted.remove(caseIdToCancel);
                 cancelSuccess = true;
@@ -1159,12 +1157,11 @@ public class WorkletService extends InterfaceBWebsideController {
                 // log launch event
                 EventLogger.log(EventLogger.eLaunch, caseId, specID, "",
                         wr.getCaseID(), wr.getReasonType().ordinal());
-                _log.info("Launched case for worklet " + wName +
-                        " with ID: " + caseId);
+                _log.info("Launched case for worklet {}  with ID: {}", wName, caseId);
                 return caseId;
             } else {
-                _log.warn("Unable to launch worklet: " + wName);
-                _log.warn("Diagnostic message: " + caseId);
+                _log.warn("Unable to launch worklet: {}", wName);
+                _log.warn("Diagnostic message: {}", caseId);
                 return null;
             }
         } catch (IOException ioe) {
@@ -1195,7 +1192,7 @@ public class WorkletService extends InterfaceBWebsideController {
         // if workitem is currently checked out
         if (_handledWorkItems.containsKey(itemid)) {
             result += "found." + Library.newline;
-            _log.info("Itemid received found in handleditems: " + itemid);
+            _log.info("Itemid received found in handleditems: {}", itemid);
 
             // get the checkedout child item record for this workitem
             CheckedOutChildItem coci = _handledWorkItems.get(itemid);
@@ -1222,7 +1219,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 RdrPair pair = evaluate(specId, taskId, getSearchData(coci.getItem()));
 
                 if (pair != null) {
-                    _log.info("Ruleset found for workitem: " + coci.getItemId());
+                    _log.info("Ruleset found for workitem: {}", coci.getItemId());
                     processWorkItemSubstitution(pair, coci);
 
                     Map<String, String> cases = coci.getCaseMapAsCSVList();
@@ -1242,7 +1239,7 @@ public class WorkletService extends InterfaceBWebsideController {
                         "Replacement process cannot continue.";
             }
         } else {
-            _log.warn("Itemid not found in handleditems: " + itemid);
+            _log.warn("Itemid not found in handleditems: {}", itemid);
             result += "not found." + Library.newline +
                     "There are no checked out workitems with that id.";
         }
@@ -1261,7 +1258,7 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private boolean cancelWorkletCase(String caseid, WorkletRecord coci) {
 
-        _log.info("Cancelling worklet case: " + caseid);
+        _log.info("Cancelling worklet case: {}", caseid);
         try {
             _interfaceBClient.cancelCase(caseid, _sessionHandle);
 
@@ -1269,7 +1266,7 @@ public class WorkletService extends InterfaceBWebsideController {
             YSpecificationID specID = new YSpecificationID(coci.getItem());
             EventLogger.log(EventLogger.eCancel, caseid, specID,
                     "", coci.getItem().getCaseID(), -1);
-            _log.info("Worklet case successfully cancelled: " + caseid);
+            _log.info("Worklet case successfully cancelled: {}", caseid);
 
             return true;
         } catch (IOException ioe) {
@@ -1493,12 +1490,12 @@ public class WorkletService extends InterfaceBWebsideController {
         String max = RdrConversionTools.getChildValue(taskInfo, "maximum");
         String thres = RdrConversionTools.getChildValue(taskInfo, "threshold");
 
-        _log.info("Summary result of worklet selections for multi-instance task " +
-                coParent.getItem().getTaskID() + ":");
-        _log.info("   Task attributes: Minimum - " + min + ", Maximum - " + max +
-                ", Threshold - " + thres);
-        _log.info("   WorkItems created by engine: " + coParent.getSpawnCount());
-        _log.info("   Worklets launched: " + coParent.getChildCount());
+        _log.info("Summary result of worklet selections for multi-instance task {}:",
+                coParent.getItem().getTaskID());
+        _log.info("   Task attributes: Minimum - {}, Maximum - {}, Threshold - {}",
+                min, max, thres);
+        _log.info("   WorkItems created by engine: {}", coParent.getSpawnCount());
+        _log.info("   Worklets launched: {}", coParent.getChildCount());
     }
 
 
@@ -1563,8 +1560,8 @@ public class WorkletService extends InterfaceBWebsideController {
             if (keys.isEmpty()) _log.info("No items in list.");
 
             for (int i = 0; i < keys.size(); i++) {
-                _log.info("KEY: " + keys.get(i).toString());
-                _log.info("VALUE: " + values.get(i).toString());
+                _log.info("KEY: {}", keys.get(i).toString());
+                _log.info("VALUE: {}", values.get(i).toString());
             }
         }
     }
@@ -1680,7 +1677,7 @@ public class WorkletService extends InterfaceBWebsideController {
             _log.error("Exception attempting to connect to engine", ioe);
         }
         if (!successful(_sessionHandle)) {
-            _log.error(JDOMUtil.strip(_sessionHandle));
+            if (_log.isErrorEnabled()) _log.error(JDOMUtil.strip(_sessionHandle));
         }
         return (successful(_sessionHandle));
     }

@@ -178,7 +178,6 @@ public class CaseMonitor {
         _caseData = JDOMUtil.stringToElement(_caseDataStr);
         _netLevelData = JDOMUtil.stringToElement(_netDataStr);
         _liveItems = RdrConversionTools.StringToStringList(_liveItemIDs);
-        _log = LogManager.getLogger(this.getClass());
     }
 
 
@@ -388,7 +387,7 @@ public class CaseMonitor {
                 persistThis();
             }
             else
-                _log.error("Exception Manager for itemID already exists: " + itemID);
+                _log.error("Exception Manager for itemID already exists: {}", itemID);
         }
     }
 
@@ -487,7 +486,7 @@ public class CaseMonitor {
                 persistThis();
             }
             else
-                _log.error("Exception Manager for itemID does not exist: " + itemID);
+                _log.error("Exception Manager for itemID does not exist: {}", itemID);
         }
     }
 

@@ -55,17 +55,16 @@ public class YHttpServlet extends HttpServlet {
             Driver driver = drivers.nextElement();
             try {
                 DriverManager.deregisterDriver(driver);
-                _log.info("Deregistered JDBC driver: " + driver);
+                _log.info("Deregistered JDBC driver: {}", driver);
             } catch (SQLException e) {
-                _log.warn("Unable to deregister JDBC driver " + driver, e);
+                _log.warn("Unable to deregister JDBC driver {}: {}", driver, e.getMessage());
             }
         }
     }
 
     private void interruptTimerThreads() {
         for (Thread thread : Thread.getAllStackTraces().keySet()) {
-            String name = thread.getName();
-            if (name != null && name.startsWith("Timer")) {
+            if (thread.getName().startsWith("Timer")) {
                 thread.interrupt();
             }
         }

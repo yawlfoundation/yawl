@@ -49,7 +49,6 @@ import java.util.Enumeration;
  */
 public class InterfaceA_EngineBasedServer extends HttpServlet {
     private EngineGateway _engine;
-    private static final boolean _debug = false;
     private static final Logger logger = LogManager.getLogger(InterfaceA_EngineBasedServer.class);
 
 
@@ -88,8 +87,8 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         if (_engine.enginePersistenceFailure())
         {
             logger.fatal("************************************************************");
-            logger.fatal("A failure has occured whilst persisting workflow state to the");
-            logger.fatal("database. Check the satus of the database connection defined");
+            logger.fatal("A failure has occurred whilst persisting workflow state to the");
+            logger.fatal("database. Check the status of the database connection defined");
             logger.fatal("for the YAWL service, and restart the YAWL web application.");
             logger.fatal("Further information may be found within the Tomcat log files.");
             logger.fatal("************************************************************");
@@ -107,9 +106,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
         String password = request.getParameter("password");
 
         try {
-            if (_debug) {
-                debug(request, "Post");
-            }
+            debug(request, "Post");
 
             if (action != null) {
                 if ("connect".equals(action)) {
@@ -203,23 +200,23 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             msg.append("<failure><reason>Invalid action or exception was thrown." +
                        "</reason></failure>");
         }
-        if (_debug) {
-            logger.debug("return = " + msg);
-        }
+        logger.debug("return = {}", msg);
+
         return msg.toString();
     }
 
 
     private void debug(HttpServletRequest request, String service) {
-        logger.debug("\nInterfaceA_EngineBasedServer::do" + service + "() " +
-                "request.getRequestURL = " + request.getRequestURL());
-        logger.debug("\nInterfaceA_EngineBasedServer::do" + service +
-                "() request.parameters = ");
-        Enumeration paramNms = request.getParameterNames();
-        while (paramNms.hasMoreElements()) {
-            String name = (String) paramNms.nextElement();
-            logger.debug("\trequest.getParameter(" + name + ") = " +
-                    request.getParameter(name));
+        if (logger.isDebugEnabled()) {
+            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.getRequestURL={}",
+                    service, request.getRequestURL());
+            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.parameters:",
+                    service);
+            Enumeration paramNms = request.getParameterNames();
+            while (paramNms.hasMoreElements()) {
+                String name = (String) paramNms.nextElement();
+                logger.debug("\trequest.getParameter({}) = {}", name,request.getParameter(name));
+            }
         }
     }
 }

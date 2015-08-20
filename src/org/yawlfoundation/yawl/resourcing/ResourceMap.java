@@ -339,9 +339,9 @@ public class ResourceMap {
         else {
            offerSet = (HashSet<Participant>) _offer.performOffer(wir);
            if (offerSet.isEmpty()) {
-               _log.warn("Parse of resource specifications for workitem " + wir.getID() +
-                         " resulted in an empty distribution set. The workitem will be" +
-                         " passed to an administrator for manual distribution.");
+               _log.warn("Parse of resource specifications for workitem {} resulted in" +
+                         " an empty distribution set. The workitem will be passed to" +
+                         " an administrator for manual distribution.", wir.getID());
 
                // put workitem in admin's unoffered queue & DONE
                addToAdminUnofferedQueue(wir);
@@ -368,10 +368,10 @@ public class ResourceMap {
         else {
             chosenOne = _allocate.performAllocation(pSet, wir);
             if (chosenOne == null) {
-                _log.warn("The system allocator '" + _allocate.getAllocator().getName() +
-                          "' has been unable to allocate workitem '" + wir.getID() +
-                          "' to a participant. The workitem has been passed to the " +
-                          "administrator's unoffered queue for manual allocation.");
+                _log.warn("The system allocator '{}' has been unable to allocate " +
+                        "workitem '{}' to a participant. The workitem has been passed " +
+                        "to the administrator's unoffered queue for manual allocation.",
+                        _allocate.getAllocator().getName(), wir.getID());
                 addToAdminUnofferedQueue(wir);                
             }
         }
@@ -386,9 +386,9 @@ public class ResourceMap {
         if (_start.getInitiator() == AbstractInteraction.SYSTEM_INITIATED) {
             started = rm.startImmediate(p, wir) ;
             if (! started) {
-                _log.warn("The workitem '" + wir.getID() + "' could not be " +
-                          "automatically started. The workitem has been placed on " +
-                          "the participant's allocated queue.");
+                _log.warn("The workitem '{}' could not be automatically started. The " +
+                        "workitem has been placed on the participant's allocated queue.",
+                        wir.getID());
             }
         }
 
@@ -453,7 +453,7 @@ public class ResourceMap {
                 _start.parse(eleSpec.getChild("start", nsYawl), nsYawl) ;
                 _secondary.parse(eleSpec.getChild("secondary", nsYawl), nsYawl);
                 _privileges.parse(eleSpec.getChild("privileges", nsYawl), nsYawl) ;
-                _log.info("Resourcing specification parse completed for task: " + _taskID);
+                _log.info("Resourcing specification parse completed for task: {}", _taskID);
             }
             catch (ResourceParseException rpe) {
                 _log.error(

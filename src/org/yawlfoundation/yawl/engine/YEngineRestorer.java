@@ -321,7 +321,7 @@ public class YEngineRestorer {
         _log.debug("Restarting restored process instances - Starts");
 
         for (YNetRunner runner : _runners) {
-            _log.debug("Restarting " + runner.get_caseID());
+            _log.debug("Restarting {}", runner.get_caseID());
             try {
                 if (! runner.isCompleted()) runner.start(_pmgr);
             } catch (Exception e) {
@@ -415,7 +415,7 @@ public class YEngineRestorer {
                 String parentID = runnerID.substring(0, runnerID.lastIndexOf("."));
                 YNetRunner parentrunner = result.get(parentID);
                 if (parentrunner != null) {
-                    _log.debug("Restoring composite YNetRunner: " + parentID);
+                    _log.debug("Restoring composite YNetRunner: {}", parentID);
                     YNet parentnet = parentrunner.getNet();
                     YCompositeTask task = (YCompositeTask) parentnet.getNetElement(
                             runner.getContainingTaskID());
@@ -549,7 +549,7 @@ public class YEngineRestorer {
     private void postTaskCondition(YTask task, YNet net, String condName, YIdentifier id)
             throws YPersistenceException {
         if (task != null) {
-            _log.debug("Posting conditions on task " + task);
+            _log.debug("Posting conditions on task {}", task);
             YInternalCondition condition = null;
             if (condName.startsWith(YInternalCondition._mi_active)) {
                 condition = task.getMIActive();

@@ -620,8 +620,7 @@ public abstract class InterfaceBWebsideController {
         // first of all checkout an enabled work item
         WorkItemRecord result = checkOut(enabledWorkItem.getID(), sessionHandle);
         if (result != null) instances.add(result);
-        _logger.debug("Result of item [" + enabledWorkItem.getID() +
-                "] checkout is : " + result);
+        _logger.debug("Result of item [{}] checkout is: {}", enabledWorkItem.getID(), result);
 
         // if the work item has any children
         List<WorkItemRecord> mixedChildren = getChildren(enabledWorkItem.getID(), sessionHandle);
@@ -629,8 +628,8 @@ public abstract class InterfaceBWebsideController {
             if (WorkItemRecord.statusFired.equals(itemRecord.getStatus())) {
                 WorkItemRecord firedItem = checkOut(itemRecord.getID(), sessionHandle);
                 if (firedItem != null) instances.add(firedItem);
-                _logger.debug("Result of item [" +
-                        itemRecord.getID() + "] checkout is : " + firedItem);
+                _logger.debug("Result of item [{}] checkout is: {}",
+                        itemRecord.getID(), firedItem);
             }
         }
         return instances;

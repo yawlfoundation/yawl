@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -36,6 +37,8 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
 
     public final static String CREATION_MODE_DYNAMIC = "dynamic";
     public final static String CREATION_MODE_STATIC = "static";
+
+    private final Logger _log = LogManager.getLogger(this.getClass());
 
     private YTask _task;
     private Integer _minInstances;
@@ -76,8 +79,8 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_minInstancesQuery);
         }
         catch (Exception e) {
-            LogManager.getLogger(this.getClass()).warn("The minInstances query at " + _task
-                    + " didn't produce numerical output as expected. Returning default 1.");
+            _log.warn("The minInstances query at {} didn't produce numerical output" +
+                    " as expected. Returning default 1.", _task);
             return 1;
         }
     }
@@ -95,8 +98,8 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_maxInstancesQuery);
         }
         catch (Exception e) {
-            LogManager.getLogger(this.getClass()).warn("The maxInstances query at " + _task
-                    + " didn't produce numerical output as expected. Returning default 2.");
+            _log.warn("The maxInstances query at {} didn't produce numerical output" +
+                    " as expected. Returning default 2.",  _task);
             return 2;
         }
     }
@@ -114,8 +117,8 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             return getQueryValue(_thresholdQuery);
         }
         catch (Exception e) {
-            LogManager.getLogger(this.getClass()).warn("The threshold query at " + _task
-                    + " didn't produce numerical output as expected. Returning default 1.");
+            _log.warn("The threshold query at {} didn't produce numerical output" +
+                    " as expected. Returning default 1.", _task);
             return 1;
         }
     }

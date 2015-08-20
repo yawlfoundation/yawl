@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.monitor.jsf;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -37,11 +36,7 @@ import javax.servlet.http.HttpSessionListener;
 
 public class SessionListener implements HttpSessionListener {
 
-    private Logger _log;
-
-    public SessionListener() {
-       _log = LogManager.getLogger(SessionListener.class);
-    }
+    public SessionListener() { }
 
 
     // can be used to log new session etc.
@@ -56,7 +51,8 @@ public class SessionListener implements HttpSessionListener {
             handleSessionTimeout(session);
         }
         catch(Exception e) {
-            _log.error("Error while logging out at session destroyed : ", e) ;
+            LogManager.getLogger(SessionListener.class).error(
+                    "Error while logging out at session destroyed : ", e) ;
         }
     }
 

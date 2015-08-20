@@ -69,7 +69,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 
@@ -321,8 +320,8 @@ public class ResourceManager extends InterfaceBWebsideController {
         synchronized (_ibEventMutex) {
             if (_serviceEnabled) {
                 if (_workItemCache.contains(wir)) {
-                    _log.warn("Duplicate post received for new work item [" + wir.getID() +
-                            "] - no further action required.");
+                    _log.warn("Duplicate post received for new work item [{}]" +
+                            " - no further action required.", wir.getID());
                     return;
                 }
                 if (wir.isAutoTask()) {
@@ -383,13 +382,13 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public void handleDeadlockedCaseEvent(String caseID, String tasks) {
-        _log.error("Case " + caseID + " has deadlocked at tasks " + tasks);
+        _log.error("Case {} has deadlocked at tasks {}", caseID, tasks);
         handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any
     }
 
 
     public void handleCompleteCaseEvent(String caseID, String casedata) {
-        _log.info("Case completed: " + caseID);
+        _log.info("Case completed: {}", caseID);
         handleCancelledCaseEvent(caseID);       // just for cleaning up purposes, if any
     }
 
@@ -632,10 +631,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                     _workItemCache.add(wir);
                     _resAdmin.addToUnoffered(wir, false);
-                    _log.warn("Engine workItem '" + wir.getID() +
-                            "' was missing from local cache and so has been readded" +
-                            " and placed on the Administrator's 'Unoffered' queue" +
-                            " for manual processing.");
+                    _log.warn("Engine workItem '{}' was missing from local cache and " +
+                            "so has been readded and placed on the Administrator's " +
+                            "'Unoffered' queue for manual processing.", wir.getID());
                 }
                 engineIDs.add(wir.getID());
             }
@@ -660,8 +658,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             // remove from queues first to avoid a db foreign key violation
          //   if (removeFromAll(deadWir)) _workItemCache.remove(deadWir);
             removeFromAll(deadWir);
-            _log.warn("Cached workitem '" + missingID +
-                    "' did not exist in the Engine and was removed.");
+            _log.warn("Cached workitem '{}' did not exist in the Engine and was removed.",
+                    missingID);
         }
     }
 
@@ -1190,7 +1188,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             return true;
         } else {
-            _log.error("Could not start workitem: " + wir.getID());
+            _log.error("Could not start workitem: {}", wir.getID());
             return false;
         }
     }
@@ -1203,7 +1201,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         List<WorkItemRecord> children = getChildren(wir.getID());
 
         if (children == null) {
-            _log.error("Checkout of workitem '" + wir.getID() + "' unsuccessful.");
+            _log.error("Checkout of workitem '{}' unsuccessful.", wir.getID());
             return null;
         }
 
@@ -1238,9 +1236,9 @@ public class ResourceManager extends InterfaceBWebsideController {
     private boolean secondaryResourcesAvailable(WorkItemRecord wir, Participant p) {
         ResourceMap map = getResourceMap(wir);
         if (!((map == null) || map.getSecondaryResources().available(wir))) {
-            _log.warn("Workitem '" + wir.getID() + "' could not be started due " +
+            _log.warn("Workitem '{}' could not be started due " +
                     "to one or more unavailable secondary resources. The workitem " +
-                    "has been placed on the participant's allocated queue.");
+                    "has been placed on the participant's allocated queue.", wir.getID());
             if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
                 map.withdrawOffer(wir);
             }
@@ -1597,9 +1595,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             for (String id : _cache.getChainedCaseIDs()) {
                 if (!liveCases.contains(id)) _cache.removeChainedCase(id);
             }
-//            for (WorkItemRecord wir : _workItemCache.values()) {
-//                if (!liveCases.contains(wir.getRootCaseID())) _workItemCache.remove(wir);
-//            }
         }
     }
 
@@ -1850,10 +1845,10 @@ public class ResourceManager extends InterfaceBWebsideController {
     protected boolean checkOutWorkItem(WorkItemRecord wir) {
         try {
             if (null != checkOut(wir.getID(), getEngineSessionHandle())) {
-                _log.info("   checkout successful: " + wir.getID());
+                _log.info("   checkout successful: {}", wir.getID());
                 return true;
             } else {
-                _log.info("   checkout unsuccessful: " + wir.getID());
+                _log.info("   checkout unsuccessful: {}", wir.getID());
                 return false;
             }
         } catch (YAWLException ye) {
@@ -2670,10 +2665,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                     if (_persisting && runner.persist()) persistAutoTask(wir, true);
                     _cache.addCodeletRunner(wir.getID(), runner);
                 } else {
-                    _log.error(MessageFormat.format(
-                            "Could not run codelet ''{0}'' for workitem ''{1}'' - error " +
-                                    "getting task information from engine. Codelet ignored.",
-                            codelet, wir.getID()));
+                    _log.error("Could not run codelet '{}' for workitem '{}' - error " +
+                               "getting task information from engine. Codelet ignored.",
+                            codelet, wir.getID());
                     checkInAutoTask(wir, wir.getDataList());     // check in immediately
                 }
             } else {
@@ -2723,8 +2717,8 @@ public class ResourceManager extends InterfaceBWebsideController {
             Element outData = (codeletResult != null) ? codeletResult : wir.getDataList();
             checkInAutoTask(wir, outData);
         } else {
-            _log.warn("A codelet has completed for a non-existent workitem '" + wir.getID() +
-                    "' - it was most likely cancelled during the codelet's execution.");
+            _log.warn("A codelet has completed for a non-existent workitem '{}' - it " +
+                    "was most likely cancelled during the codelet's execution.", wir.getID());
             if (_persisting) persistAutoTask(wir, false);
         }
     }
@@ -2738,11 +2732,11 @@ public class ResourceManager extends InterfaceBWebsideController {
                     outData, null, getEngineSessionHandle());
             if (successful(msg)) {
                 EventLogger.logAutoTask(wir, false);             // log item completion
-                _log.info("Automated task '" + wir.getID() +
-                        "' successfully processed and checked back into the engine.");
+                _log.info("Automated task '{}' successfully processed and checked back " +
+                        "into the engine.", wir.getID());
             } else
-                _log.error("Automated task '" + wir.getID() +
-                        "' could not be successfully completed. Result message: " + msg);
+                _log.error("Automated task '{}' could not be successfully completed. " +
+                        "Result message: {}", wir.getID(), msg);
         } catch (Exception e) {
             _log.error("Exception attempting to check-in automatic task: " +
                     wir.getID(), e);

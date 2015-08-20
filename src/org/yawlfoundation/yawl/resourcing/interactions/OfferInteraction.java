@@ -95,7 +95,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (p != null)
             _participants.add(p);
         else
-            _log.warn("Unknown Participant ID in Offer spec: " + id);
+            _log.warn("Unknown Participant ID in Offer spec: {}", id);
     }
 
     public void addParticipantUnchecked(String id) {
@@ -112,7 +112,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (_rm.getOrgDataSet().isKnownParticipant(p))
            _participants.add(p);
         else
-            _log.warn("Could not add unknown Participant to Offer: " + p.getID());
+            _log.warn("Could not add unknown Participant to Offer: {}", p.getID());
     }
 
 
@@ -138,7 +138,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (r != null)
             _roles.add(r);
         else
-            _log.warn("Unknown Role ID in Offer spec: " + rid);
+            _log.warn("Unknown Role ID in Offer spec: {}", rid);
     }
 
     public void addRoleUnchecked(String rid) {
@@ -152,7 +152,7 @@ public class OfferInteraction extends AbstractInteraction {
         if (_rm.getOrgDataSet().isKnownRole(r))
             _roles.add(r) ;
         else
-            _log.warn("Could not add unknown Role to Offer: " + r.getID());
+            _log.warn("Could not add unknown Role to Offer: {}", r.getID());
     }
 
 
@@ -305,8 +305,8 @@ public class OfferInteraction extends AbstractInteraction {
         // a fired instance of a multi-instance workitem on the unoffered queue will
         // never have been offered, so the warning should be suppressed for those
         else if (! wir.getStatus().equals(WorkItemRecord.statusFired)) {
-            _log.warn("Workitem '" + wir.getID() + "' does not have 'Offered' status, " +
-                      "or is no longer active");
+            _log.warn("Workitem '{}' does not have 'Offered' status, " +
+                      "or is no longer active", wir.getID());
         }
     }
 
@@ -573,8 +573,8 @@ public class OfferInteraction extends AbstractInteraction {
                     if (p != null)
                         result.add(p) ;
                     else
-                        _log.error("Unknown participant userID '" + varID +
-                                "' in dynamic parameter: " + _name );
+                        _log.error("Unknown participant userID '{}'" +
+                                " in dynamic parameter: {}", varID, _name );
                 }
             }
             else {
@@ -585,8 +585,8 @@ public class OfferInteraction extends AbstractInteraction {
                         if (rpSet != null) result.addAll(rpSet) ;
                     }
                     else
-                        _log.error("Unknown role '" + varID +
-                                "' in dynamic parameter: " + _name );
+                        _log.error("Unknown role '{}'" +
+                                " in dynamic parameter: {}", varID, _name );
                 }
             }
             return result ;
@@ -598,14 +598,14 @@ public class OfferInteraction extends AbstractInteraction {
             try {
                 result = _rm.getNetParamValue(wir.getCaseID(), _name);
                 if (result == null)
-                    _log.error("Unable to retrieve value from net parameter '" +
-                               name + "' for deferred allocation of workitem '" +
-                               wir.getID() + "'.");
+                    _log.error("Unable to retrieve value from net parameter '{}'" +
+                               " for deferred allocation of workitem '{}'.",
+                               name, wir.getID());
             }
             catch (IOException ioe) {
-                _log.error("Caught exception attempting to retrieve value from net parameter '" +
-                           name + "' for deferred allocation of workitem '" +
-                           wir.getID() + "'.");                
+                _log.error("Caught exception attempting to retrieve value from net " +
+                           "parameter '{}' for deferred allocation of workitem '{}'.",
+                           name, wir.getID());
             }
             return result;
         }

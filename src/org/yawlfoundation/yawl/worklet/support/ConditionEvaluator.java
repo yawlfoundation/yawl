@@ -696,7 +696,7 @@ public class ConditionEvaluator {
 
         if (_log.isDebugEnabled())
             for (int i=0;i<tokens.length;i++)
-                _log.debug("token " + i + " = " + tokens[i]) ;
+                _log.debug("token {} = {}", i, tokens[i]) ;
 
         opIndex = findNextOperator(tokens) ;
 
@@ -708,7 +708,7 @@ public class ConditionEvaluator {
 
             if (_log.isDebugEnabled())
                 for (int i=0;i<tokens.length;i++)
-                    _log.debug("token " + i + " = " + tokens[i]) ;
+                    _log.debug("token {} = {}", i, tokens[i]) ;
 
             opIndex = findNextOperator(tokens) ;
         }
@@ -815,7 +815,7 @@ public class ConditionEvaluator {
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var, Element data) {
         String result ;
-        _log.debug("in getVarValue, var = " + var) ;
+        _log.debug("in getVarValue, var = {}", var) ;
 
         // var "this" refers to the workitem associated with the task named in this rule
         if (var.equalsIgnoreCase("this"))

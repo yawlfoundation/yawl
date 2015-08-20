@@ -301,10 +301,9 @@ public class WorkletEventServer extends Interface_Client {
                 executePost(_uri, _params);
             }
             catch (IOException ioe) {
-                 _log.warn("Failed to announce worklet event '" +
-                           _params.get("action") + "' to URI '" + _uri +
-                           "'. Reason: " + ioe.getMessage() +
-                           ". Perhaps that listener is no longer available.");
+                 _log.warn("Failed to announce worklet event '{}' to URI '{}'. " +
+                         "Reason: {}. Perhaps that listener is no longer available.",
+                         _params.get("action"), _uri, ioe.getMessage());
             }
         }
 

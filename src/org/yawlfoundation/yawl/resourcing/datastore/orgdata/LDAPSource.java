@@ -258,7 +258,7 @@ public class LDAPSource extends DataSource {
                     map.put(p.getID(), p);
                 }
                 else {
-                    _log.error("unable to create participant from LDAP entry: " + name);
+                    _log.error("unable to create participant from LDAP entry: {}", name);
                 }
             }
         }
@@ -417,7 +417,7 @@ public class LDAPSource extends DataSource {
                 return new Integer(limit.trim());
             }
             catch (NumberFormatException nfe) {
-                _log.warn("Ignoring invalid max size limit in LDAP properties: " + limit);
+                _log.warn("Ignoring invalid max size limit in LDAP properties: {}", limit);
             }
         }
         return 0;

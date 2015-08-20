@@ -165,12 +165,12 @@ public class SaxonUtil {
 
 
     private static void log(String query, Document doc) {
-        if (_log.isInfoEnabled()) {
-            if (doc != null)
-                _log.info("Evaluating query: '" + query + "' ...using data document:" +
-                        JDOMUtil.documentToStringDump(doc));
-            else _log.info("Query result: " + query);
+        if (doc != null) {
+            _log.info("Evaluating query: '{}' using data document: {}", query,
+                    JDOMUtil.documentToStringDump(doc));
         }
+        else _log.info("Query result: {}", query);
     }
+
 }
 

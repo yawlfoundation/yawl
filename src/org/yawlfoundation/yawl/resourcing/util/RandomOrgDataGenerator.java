@@ -82,8 +82,8 @@ public class RandomOrgDataGenerator {
                 for (Role r : roles) r.save();
                 for (Position p : positions) p.save();
 
-                _log.info("GENERATE ORG DATA: Successfully created " + howManyToCreate +
-                        " random Participants and associated org data");
+                _log.info("GENERATE ORG DATA: Successfully created {} random " +
+                        "Participants and associated org data", howManyToCreate);
             }
             catch (Exception e) {
                 _log.error("Exception thrown generating random org data", e);
@@ -93,21 +93,20 @@ public class RandomOrgDataGenerator {
 
 
     private boolean okToGenerate() {
-        String h = "GENERATE ORG DATA ERROR: ";
-        String f = ". Generation of dummy data aborted";
+        String msg = null;
         if (_rm.getOrgDataSet().getParticipantCount() > 0) {
-            _log.error(h + "Particpant table not empty" + f);
-            return false;
+            msg = "Participant table not empty";
         }
         if (! _rm.isPersisting()) {
-            _log.error(h + "Persistence must be enabled to populate tables" + f);
-            return false ;
+            msg = "Persistence must be enabled to populate tables";
         }
         if (! _rm.isDefaultOrgDB()) {
-            _log.error(h + "Cannot generate dummy data to non-YAWL-default database" + f);
-            return false;
+            msg = "Cannot generate dummy data to non-YAWL-default database";
         }
-        return true;
+        if (msg != null) {
+            _log.error("GENERATE ORG DATA ERROR: {}. Generation of dummy data aborted.", msg);
+        }
+        return msg == null;
     }
 
 

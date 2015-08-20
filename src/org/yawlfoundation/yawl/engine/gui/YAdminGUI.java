@@ -322,12 +322,12 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
                 Iterator iter = specs.iterator();
                 while (iter.hasNext()) {
                     YSpecification spec = _engineManagement.getSpecification((YSpecificationID) iter.next());
-                    logger.debug("Loading spec " + spec.getURI());
+                    logger.debug("Loading spec {}", spec.getURI());
                     _loadedSpecificationsTableModel.addRow(spec.getSpecificationID(), new Object[]{spec.getSpecificationID(), spec.getRootNet().getID()});
 
                     // Load up any active cases
                     Set cases = _engineManagement.getCasesForSpecification(spec.getSpecificationID());
-                    logger.debug("Loading " + cases.size() + " active cases for this specification");
+                    logger.debug("Loading {} active cases for this specification", cases.size());
 
                     Iterator iterCases = cases.iterator();
                     while (iterCases.hasNext()) {

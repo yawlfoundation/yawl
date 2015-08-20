@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.worklet.selection;
 
-import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
@@ -59,7 +58,6 @@ public class CheckedOutChildItem extends WorkletRecord {
         _persistID = _wir.getID();
         _datalist = _wir.getDataList();
         _wirStr = _wir.toXML();
-        _log = LogManager.getLogger(this.getClass());
     }
 
 //===========================================================================//

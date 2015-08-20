@@ -2,63 +2,62 @@
 <Configuration status="WARN">
     <Properties>
         <Property name="layout">%d{DEFAULT} [%-5p] %-20c{1} :- %m%n</Property>
-        <Property name="logpath">${catalina.base}/logs/</Property>
     </Properties>
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="${layout}"/>
         </Console>
         <RollingFile name="FILE_HIBERNATE"
-                     fileName="${logpath}yawl_hibernate.log"
-                     filePattern="${logpath}yawl_hibernate.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_hibernate.log"
+                     filePattern="logs/yawl_hibernate.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_PROCLET"
-                     fileName="${logpath}yawl_procletService.log"
-                     filePattern="${logpath}yawl_procletService.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_procletService.log"
+                     filePattern="logs/yawl_procletService.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_RESOURCING"
-                     fileName="${logpath}yawl_resourceService.log"
-                     filePattern="${logpath}yawl_resourceService.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_resourceService.log"
+                     filePattern="logs/yawl_resourceService.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_ROOT"
-                     fileName="${logpath}default.log"
-                     filePattern="${logpath}default.%d{yyyy-dd-MM}.log">
+                     fileName="logs/default.log"
+                     filePattern="logs/default.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_SCHEDULING"
-                     fileName="${logpath}yawl_schedulingService.log"
-                     filePattern="${logpath}yawl_schedulingService.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_schedulingService.log"
+                     filePattern="logs/yawl_schedulingService.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_WORKLET"
-                     fileName="${logpath}yawl_workletService.log"
-                     filePattern="${logpath}yawl_workletService.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_workletService.log"
+                     filePattern="logs/yawl_workletService.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
         <RollingFile name="FILE_YAWL"
-                     fileName="${logpath}yawl_engine.log"
-                     filePattern="${logpath}yawl_engine.%d{yyyy-dd-MM}.log">
+                     fileName="logs/yawl_engine.log"
+                     filePattern="logs/yawl_engine.%d{yyyy-dd-MM}.log">
             <PatternLayout pattern="${layout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />

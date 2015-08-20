@@ -81,10 +81,10 @@ public class YDefClientsLoader {
                 }
             }
             catch (IOException ioe) {
-                _log.warn("Error reading file '" + _propsFile + "'.");
+                _log.warn("Error reading file '{}'.", _propsFile);
             }
         }
-        else _log.warn("Error opening file '" + _propsFile + "'.");
+        else _log.warn("Error opening file '{}'.", _propsFile);
 
         _log.info("Loading default client and service account details - Ends");
     }
@@ -115,7 +115,7 @@ public class YDefClientsLoader {
                 return;
             }
         }
-        _log.warn("Could not load default external client - malformed entry: " + rawLine);
+        _log.warn("Could not load default external client - malformed entry: {}", rawLine);
     }
     
 }

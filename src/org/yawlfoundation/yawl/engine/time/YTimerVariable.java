@@ -61,8 +61,9 @@ public class YTimerVariable {
             _state = state;
         }
         else {
-            LogManager.getLogger(this.getClass()).debug("Attempt made to move timer variable state " +
-            "for task '" + _ownerTask.getName() + "' from " + _state.name() + " to " + state.name());
+            LogManager.getLogger(this.getClass()).debug(
+                    "Invalid attempt made to move timer variable state for task '{}' " +
+                    " from {} to {}", _ownerTask.getName(), _state.name(), state.name());
         }
     }
 

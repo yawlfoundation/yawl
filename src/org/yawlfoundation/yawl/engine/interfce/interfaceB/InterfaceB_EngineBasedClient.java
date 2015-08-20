@@ -402,9 +402,8 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
                 }
                 else if (_command == ENGINE_INIT) {
                     try {
-                        _logger.warn(MessageFormat.format(
-                            "Failed to announce engine initialisation to {0} at URI [{1}]",
-                            _yawlService.getServiceName(), _yawlService.getURI()));
+                        _logger.warn("Failed to announce engine initialisation to {} at URI {}",
+                            _yawlService.getServiceName(), _yawlService.getURI());
                     }
                     catch (IllegalStateException ise) {
                         // can happen on shutdown when the service has already stopped
@@ -429,28 +428,25 @@ public class InterfaceB_EngineBasedClient extends Interface_Client implements Ob
         private void redirectWorkItem(boolean connect) {
             YAWLServiceReference defWorklist = YEngine.getInstance().getDefaultWorklist();
             if (defWorklist == null) {
-                _logger.error(MessageFormat.format(
-                        "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
-                        " [{2}], and cannot redirect workitem to default worklist handler" +
-                        " because there is no default handler known to the engine.",
+                _logger.error("Could not {} YAWL Service at URL {} to announce enabled " +
+                        "workitem {}, and cannot redirect workitem to default worklist " +
+                        "handler because there is no default handler known to the engine.",
                         connect ? "connect to" : "find", _yawlService.getURI(),
-                        _workItem.getIDString()));
+                        _workItem.getIDString());
             }
             else if (! defWorklist.getURI().equals(_yawlService.getURI())) {
-                _logger.warn(MessageFormat.format(
-                        "Could not {0} YAWL Service at URL [{1}] to announce enabled workitem" +
-                        " [{2}], or the service repsonded with an error (check the Tomcat" +
+                _logger.warn("Could not {} YAWL Service at URL {} to announce enabled workitem" +
+                        " {}, or the service responded with an error (check the Tomcat" +
                         " log files for details). Redirecting workitem to default worklist handler.",
                         connect ? "connect to" : "find", _yawlService.getURI(),
-                        _workItem.getIDString()));
+                        _workItem.getIDString());
                 YEngine.getInstance().getAnnouncer().rejectAnnouncedEnabledTask(_workItem);
             }
             else {
-                _logger.error(MessageFormat.format(
-                        "Could not announce enabled workitem [{0}] to default worklist " +
-                        "handler at URL [{1}]. Either the handler is missing or offline, " +
+                _logger.error("Could not announce enabled workitem {} to default worklist " +
+                        "handler at URL {}. Either the handler is missing or offline, " +
                         "or the URL is invalid.",
-                        _workItem.getIDString(), _yawlService.getURI()));
+                        _workItem.getIDString(), _yawlService.getURI());
             }
         }
     }

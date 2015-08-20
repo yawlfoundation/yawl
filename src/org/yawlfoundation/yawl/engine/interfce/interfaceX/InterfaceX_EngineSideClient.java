@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.engine.interfce.interfaceX;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItem;
@@ -61,7 +60,6 @@ import java.util.concurrent.Executors;
 
 public class InterfaceX_EngineSideClient extends Interface_Client implements ExceptionGateway {
 
-    protected static Logger logger = LogManager.getLogger(InterfaceX_EngineSideClient.class);
     private static final int THREADPOOL_SIZE = Runtime.getRuntime().availableProcessors();
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
 
@@ -255,7 +253,8 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                 executePost(_observerURI, paramsMap);
 
             } catch (IOException e) {
-                logger.error("failed to call YAWL service", e);
+               LogManager.getLogger(InterfaceX_EngineSideClient.class).error(
+                       "failed to call YAWL service", e);
                 e.printStackTrace();
             }
         }

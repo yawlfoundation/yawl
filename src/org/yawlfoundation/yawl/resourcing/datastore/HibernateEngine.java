@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.ResourceMap;
@@ -50,7 +49,7 @@ import java.util.HashSet;
 public class HibernateEngine extends org.yawlfoundation.yawl.util.HibernateEngine {
 
     // instance reference
-    private static HibernateEngine _me;
+    private static HibernateEngine INSTANCE;
 
     // class references for config
     private static Class[] persistedClasses = {
@@ -61,9 +60,6 @@ public class HibernateEngine extends org.yawlfoundation.yawl.util.HibernateEngin
             AuditEvent.class, SpecLog.class, CalendarLogEntry.class,
             NonHumanCategory.class, NonHumanSubCategory.class
     };
-
-
-    private static final Logger _log = LogManager.getLogger(HibernateEngine.class);
 
 
     /*********************************************************************************/
@@ -79,15 +75,16 @@ public class HibernateEngine extends org.yawlfoundation.yawl.util.HibernateEngin
 
     /** returns the current HibernateEngine instance */
     public static HibernateEngine getInstance(boolean persistenceOn) {
-        if (_me == null) {
+        if (INSTANCE == null) {
             try {
-                _me = new HibernateEngine(persistenceOn);
+                INSTANCE = new HibernateEngine(persistenceOn);
             }
             catch (HibernateException he) {
-                _log.error("Could not initialise database connection.", he);
+                LogManager.getLogger(HibernateEngine.class).error(
+                        "Could not initialise database connection.", he);
             }
         }
-        return _me;
+        return INSTANCE;
     }
 
 }

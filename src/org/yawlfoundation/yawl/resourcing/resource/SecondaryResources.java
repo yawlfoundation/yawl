@@ -152,16 +152,16 @@ public class SecondaryResources {
     private void announceUnavailable(AbstractResource resource, WorkItemRecord wir) {
         ResourceManager.getInstance().getClients().announceResourceUnavailable(
                 resource, wir, false);
-        _log.warn("Secondary Resource '" + resource.getName() +
-                "' unavailable for work item: " + wir.getID());
+        _log.warn("Secondary Resource '{}' unavailable for work item: {}",
+                resource.getName(), wir.getID());
     }
 
 
     private void announceUnavailable(String name, WorkItemRecord wir) {
         ResourceManager.getInstance().getClients().announceResourceUnavailable(
                 null, wir, false);
-        _log.warn("There are no available members of " + name +
-                "' to allocate as a secondary resource for work item: " + wir.getID());
+        _log.warn("There are no available members of '{}' to allocate as a secondary" +
+                " resource for work item: {}", name, wir.getID());
     }
 
 
@@ -243,7 +243,7 @@ public class SecondaryResources {
         public void addParticipant(String id) {
             Participant p = _rm.getOrgDataSet().getParticipant(id);
             if (p != null) participants.add(p);
-            else _log.warn("Unknown Participant ID in secondary resources spec: " + id);
+            else _log.warn("Unknown Participant ID in secondary resources spec: {}", id);
         }
 
 
@@ -251,7 +251,7 @@ public class SecondaryResources {
             if (_rm.getOrgDataSet().isKnownParticipant(p))
                 participants.add(p);
             else
-                _log.warn("Could not add unknown Participant to secondary resources: " +
+                _log.warn("Could not add unknown Participant to secondary resources: {}",
                         p.getID());
         }
 
@@ -273,7 +273,7 @@ public class SecondaryResources {
             if (_rm.getOrgDataSet().isKnownRole(role))
                 roles.add(role);
             else
-                _log.warn("Could not add unknown Role to secondary resources: " +
+                _log.warn("Could not add unknown Role to secondary resources: {}",
                         role.getID());
         }
 
@@ -289,7 +289,7 @@ public class SecondaryResources {
         public void addNonHumanResource(String id) {
             NonHumanResource resource = _rm.getOrgDataSet().getNonHumanResource(id);
             if (resource != null) nonHumanResources.add(resource);
-            else _log.warn("Unknown nonhuman resource ID in secondary resources spec: " + id);
+            else _log.warn("Unknown nonhuman resource ID in secondary resources spec: {}", id);
         }
 
 
@@ -297,7 +297,7 @@ public class SecondaryResources {
             if (_rm.getOrgDataSet().isKnownNonHumanResource(resource))
                 nonHumanResources.add(resource);
             else
-                _log.warn("Could not add unknown nonhuman resource to secondary resources: " +
+                _log.warn("Could not add unknown nonhuman resource to secondary resources: {}",
                         resource.getID());
         }
 
@@ -314,7 +314,7 @@ public class SecondaryResources {
                 putNonHumanCategory(id, category);
                 return true;
             }
-            _log.warn("Unknown nonhuman category ID in secondary resources spec: " + id);
+            _log.warn("Unknown nonhuman category ID in secondary resources spec: {}", id);
             return false;
         }
 
@@ -590,7 +590,7 @@ public class SecondaryResources {
                 putNonHumanCategory(id, category);
                 return true;
             }
-            _log.warn("Could not add unknown nonhuman category to secondary resources: " +
+            _log.warn("Could not add unknown nonhuman category to secondary resources: {}",
                     id);
             return false;
         }

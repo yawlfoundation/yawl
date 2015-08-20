@@ -195,9 +195,7 @@ public class YPersistenceManager {
      */
     protected void storeObject(Object obj) throws YPersistenceException {
         if ((!restoring) && isEnabled()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Adding to insert cache: Type=" + obj.getClass().getName());
-            }
+            logger.debug("Adding to insert cache: Type={}", obj.getClass().getName());
             doPersistAction(obj, INSERT);
         }
     }
@@ -210,9 +208,7 @@ public class YPersistenceManager {
      */
     protected void updateObject(Object obj) throws YPersistenceException {
         if ((!restoring) && isEnabled()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Adding to update cache: Type=" + obj.getClass().getName());
-            }
+            logger.debug("Adding to update cache: Type={}", obj.getClass().getName());
             doPersistAction(obj, UPDATE);
         }
     }
@@ -228,10 +224,8 @@ public class YPersistenceManager {
     protected void deleteObject(Object obj) throws YPersistenceException {
         if (!isEnabled()) return;
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("--> delete: Object=" + obj.getClass().getName() +
-                    ": " + obj.toString());
-        }
+        logger.debug("--> delete: Object={}: {}", obj.getClass().getName(), obj.toString());
+
         try {
             getSession().delete(obj);
             getSession().flush();
@@ -251,8 +245,8 @@ public class YPersistenceManager {
         try {
             getSession().saveOrUpdate(obj);
         } catch (Exception e) {
-            logger.error("Persistence update failed, trying merge. Object: "
-                    + obj.toString());
+            logger.error("Persistence update failed, trying merge. Object: {}",
+                    obj.toString());
             getSession().merge(obj);
         }
     }
@@ -299,12 +293,12 @@ public class YPersistenceManager {
 
     private synchronized void doPersistAction(Object obj, boolean update)
             throws YPersistenceException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("--> doPersistAction: Mode=" +
-                    (update ? "Update " : "Create ") + "; Object = " +
-                    obj.getClass().getName() + ": " + obj.toString() +
-                    "; Object identity = " + System.identityHashCode(obj));
-        }
+
+            logger.debug("--> doPersistAction: Mode={}; Object = {}:{}; Object identity = {}",
+                    (update ? "Update " : "Create "),
+                    obj.getClass().getName(), obj.toString(),
+                    System.identityHashCode(obj));
+
         try {
             if (update) {
                 updateOrMerge(obj);

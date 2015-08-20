@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -40,8 +39,6 @@ import java.io.IOException;
 public class SessionTimeoutFilter implements Filter {
 
     private String _timeoutPage = "/sessiontimeout.html";
-    private Logger _log = LogManager.getLogger(SessionTimeoutFilter.class);
-
 
 
     // Implemented interface methods //
@@ -62,7 +59,7 @@ public class SessionTimeoutFilter implements Filter {
             // avoid infinite loop from login page back to timeout page
             if (! isLoginPageRequest(httpRequest)) {
                 if (isInvalidSession(httpRequest) && (! isRSSFormRequest(httpRequest))) {
-                    _log.warn("User session has expired");
+                    LogManager.getLogger(this.getClass()).warn("User session has expired");
                     String url = httpRequest.getContextPath() + _timeoutPage;
                     httpResponse.sendRedirect(url);
                     return;

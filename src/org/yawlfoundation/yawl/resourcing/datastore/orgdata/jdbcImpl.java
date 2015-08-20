@@ -177,8 +177,8 @@ public class jdbcImpl extends DataSource {
             openConnection() ;
             md = connection.getMetaData();
 
-		 	_log.info("Product name: " + md.getDatabaseProductName());
-		    _log.info("Driver name: " + md.getDriverName());
+		 	_log.info("Product name: {}", md.getDatabaseProductName());
+		    _log.info("Driver name: {}", md.getDriverName());
             closeConnection() ;
         } catch (SQLException e) {
 		    _log.error("Exception creating or reading database metadata", e) ;

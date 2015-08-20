@@ -101,7 +101,7 @@ public class YWorkItem {
                      YWorkItemID workItemID, boolean allowsDynamicCreation,
                      boolean isDeadlocked) throws YPersistenceException {
 
-        _log.debug("Spec =" + specID + " WorkItem =" + workItemID.getTaskID());
+        _log.debug("Spec={} WorkItem={}", specID, workItemID.getTaskID());
 
         createWorkItem(specID, workItemID, isDeadlocked ? statusDeadlocked : statusEnabled,
                        allowsDynamicCreation); 
@@ -120,7 +120,7 @@ public class YWorkItem {
                       boolean allowsDynamicInstanceCreation)
             throws YPersistenceException {
 
-        _log.debug("Spec =" + specID + " WorkItem =" + workItemID.getTaskID());
+        _log.debug("Spec={} WorkItem={}", specID, workItemID.getTaskID());
 
         createWorkItem(specID, workItemID, statusFired, allowsDynamicInstanceCreation);
 

@@ -22,7 +22,6 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 
@@ -219,7 +218,6 @@ public class nonHumanMgt extends AbstractPageBean {
     private final ResourceDataSet _orgDataSet = _rm.getOrgDataSet();
     private final MessagePanel _msgPanel = _sb.getMessagePanel() ;
     private final pfNHResources _innerForm = (pfNHResources) getBean("pfNHResources");
-    private final Logger _log = LogManager.getLogger(this.getClass());
 
 
     // Callback method that is called just before rendering takes place.
@@ -330,7 +328,8 @@ public class nonHumanMgt extends AbstractPageBean {
             }
             catch (Exception e) {
                 _msgPanel.error("Could not remove chosen item. See log file for details.");
-                _log.error("Handled Exception: Unable to remove resource", e);
+                LogManager.getLogger(this.getClass()).error(
+                        "Handled Exception: Unable to remove resource", e);
             }
             _sb.setNhResourcesItemRemovedFlag(true) ;
             _sb.setNhResourcesChoice(null);

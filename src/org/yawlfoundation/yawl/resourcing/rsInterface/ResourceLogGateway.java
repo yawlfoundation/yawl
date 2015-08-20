@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
@@ -47,7 +45,6 @@ import java.util.TreeSet;
 
 public class ResourceLogGateway extends HttpServlet {
 
-    private static final Logger _log = LogManager.getLogger(ResourceLogGateway.class);
     private LogMiner _logDB ;
     private ResourceManager _rm;
 

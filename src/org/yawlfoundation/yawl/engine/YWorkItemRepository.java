@@ -51,7 +51,7 @@ public class YWorkItemRepository {
 
 
     protected YWorkItem add(YWorkItem workItem) {
-        _logger.debug("--> YWorkItemRepository#add: " + workItem.getIDString());
+        _logger.debug("--> YWorkItemRepository#add: {}", workItem.getIDString());
         return _itemMap.put(workItem.getIDString(), workItem);
     }
 
@@ -67,7 +67,7 @@ public class YWorkItemRepository {
 
 
     public YWorkItem remove(YWorkItem workItem) {
-        _logger.debug("--> YWorkItemRepository#remove: " + workItem.getIDString());
+        _logger.debug("--> YWorkItemRepository#remove: {}", workItem.getIDString());
         return _itemMap.remove(workItem.getIDString());
     }
 
@@ -75,7 +75,7 @@ public class YWorkItemRepository {
 
 
     public Set<YWorkItem> removeWorkItemFamily(YWorkItem workItem) {
-        _logger.debug("--> removeWorkItemFamily: " + workItem.getIDString());
+        _logger.debug("--> removeWorkItemFamily: {}", workItem.getIDString());
         Set<YWorkItem> removedSet = new HashSet<YWorkItem>();
         YWorkItem parent = workItem.getParent() != null ? workItem.getParent() : workItem;
         Set<YWorkItem> children = parent.getChildren();
@@ -280,7 +280,7 @@ public class YWorkItemRepository {
     }
 
 
-
+    // called from YEngine#dump, logger isDebugEnabled
     public void dump(Logger logger) {
         logger.debug("\n*** DUMPING " + _itemMap.size() +
                      " ENTRIES IN ID_2_WORKITEMS_MAP ***");

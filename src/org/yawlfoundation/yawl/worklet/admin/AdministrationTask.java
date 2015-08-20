@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.worklet.admin;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 /**
@@ -49,8 +48,6 @@ public class AdministrationTask {
     public static final int TASKTYPE_REJECTED_SELECTION = 0;
     public static final int TASKTYPE_CASE_EXTERNAL_EXCEPTION = 1;
     public static final int TASKTYPE_ITEM_EXTERNAL_EXCEPTION = 2;
-
-    private static Logger _log = LogManager.getLogger(AdministrationTask.class);
 
 
     public AdministrationTask() {}                        // required for persistence
@@ -121,7 +118,8 @@ public class AdministrationTask {
         if ((taskType >= 0) && (taskType <= 1))
            _taskType = taskType ;
         else
-           _log.error("Unable to set task type - invalid type identifier");
+            LogManager.getLogger(AdministrationTask.class).error(
+                    "Unable to set task type - invalid type identifier");
     }
 
     public void setTitle(String title) {

@@ -81,7 +81,7 @@ public class Library {
         wsSelectedDir = wsRepositoryDir + "selected/";
 
         if (!new File(wsWorkletsDir).exists()) {
-            _log.warn("The path set to the worklet repository may be incorrrect.");
+            _log.warn("The path set to the worklet repository may be incorrect.");
             _log.warn("Please check that the repository path in the WorkletService's " +
                     "'web.xml' is valid and points to the repository files. ");
         }

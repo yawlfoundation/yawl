@@ -232,7 +232,7 @@ public class InterfaceClients {
         try {
             available = HttpURLValidator.pingUntilAvailable(_engineURI, timeout);
             if (! available) {
-                _log.error(errMsg + "Service functionality may be limited.");
+                _log.error("{} Service functionality may be limited.", errMsg);
             }
         }
         catch (MalformedURLException mue) {
@@ -685,8 +685,8 @@ public class InterfaceClients {
             _log.debug(response);
         }
         catch (IOException ioe) {
-            _log.warn("Unable to remove uploaded docs for case " + caseID +
-                    " (if any) - could not connect to Document Store");
+            _log.warn("Unable to remove uploaded docs for case {} (if any)" +
+                    " - could not connect to Document Store", caseID);
         }
     }
 

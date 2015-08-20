@@ -445,8 +445,8 @@ public class DataBackupEngine {
                         p.addCapability(id);
                 }
                 catch (ResourceGatewayException rge) {
-                    _log.warn("Unable to add " + resGroup  + " for participant '"
-                            + p.getFullName() + "': " + rge.getMessage());
+                    _log.warn("Unable to add {} for participant '{}': {}",
+                            resGroup, p.getFullName(), rge.getMessage());
                 }
             }
         }

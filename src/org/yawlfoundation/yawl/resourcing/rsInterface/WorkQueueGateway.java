@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
@@ -65,7 +63,6 @@ public class WorkQueueGateway extends HttpServlet {
 
     private ResourceManager _rm = ResourceManager.getInstance();
     private ResourceMarshaller _marshaller = new ResourceMarshaller();
-    private static final Logger _log = LogManager.getLogger(WorkQueueGateway.class);
     private static WorkQueueGateway _me;
 
     private static final String success = "<success/>";

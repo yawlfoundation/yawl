@@ -18,8 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceScheduler;
@@ -46,7 +44,6 @@ import java.util.List;
 
 public class ResourceCalendarGateway extends HttpServlet {
 
-    private static final Logger _log = LogManager.getLogger(ResourceCalendarGateway.class);
     private static ResourceManager _rm;
     private static ResourceCalendar _calendar;
     private static ResourceScheduler _scheduler;

@@ -427,7 +427,7 @@ public abstract class YTask extends YExternalNetElement {
 
     private void generateBeginReport1() {
         logger.debug("\n\nYTask::firing");
-        logger.debug("\ttaskID = " + getID());
+        logger.debug("\ttaskID = {}", getID());
     }
 
 
@@ -619,13 +619,14 @@ public abstract class YTask extends YExternalNetElement {
                                                   String query, Document data) {
         if (logger.isDebugEnabled()) {
             logger.debug("\n\nYTask::t_completing " +
-                    "\n\tstatus: transforming output for net" +
-                    "\n\tforNetVar = " + forNetVar +
-                    "\n\tquery = " + query +
-                    "\n\tover data = " + JDOMUtil.documentToString(data) +
-                    "\n\tresulting data = " + JDOMUtil.elementToString(resultElem));
+                            "\n\tstatus: transforming output for net" +
+                            "\n\tforNetVar = {}\n\tquery = {}" +
+                            "\n\tover data = {}\n\tresulting data = {}",
+                    forNetVar, query, JDOMUtil.documentToString(data),
+                    JDOMUtil.elementToString(resultElem));
         }
     }
+
 
     private void generateCompletingReport1(String query, Document rawDecompositionData,
                                            Element queryResultElement) {
@@ -712,9 +713,11 @@ public abstract class YTask extends YExternalNetElement {
         }
         i.removeLocation(pmgr, this);
         _caseToDataMap.remove(i);
-        logger.debug("YTask::" + getID() + ".exit() caseID(" + _i + ") " +
-                "_parentDecomposition.getInternalDataDocument() = "
-                + JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        if (logger.isDebugEnabled()) {
+            logger.debug("YTask::{}.exit() caseID({}) " +
+                            "_parentDecomposition.getInternalDataDocument() = {}",
+                    getID(), _i, JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        }
         _i = null;
     }
 
@@ -724,7 +727,7 @@ public abstract class YTask extends YExternalNetElement {
         if (null == getDecompositionPrototype()) {
             return;
         }
-        if (logger.isInfoEnabled()) generateExitReport1();
+        if (logger.isDebugEnabled()) generateExitReport1();
         for (String localVariableName : _localVariableNameToReplaceableOutputData.keySet()) {
             Element queryResult = _localVariableNameToReplaceableOutputData.get(localVariableName);
             //todo check that queryResult is valid instance of variable type
@@ -759,37 +762,31 @@ public abstract class YTask extends YExternalNetElement {
                     throw f;
                 }
             }
-            if (logger.isInfoEnabled()) generateExitReports2(
+            if (logger.isDebugEnabled()) generateExitReports2(
                     _multiInstAttr.getMIJoiningQuery(),
                     _groupedMultiInstanceOutputData,
                     result);
             _net.addData(pmgr, result);
-            if (logger.isInfoEnabled()) generateExitReports3();
+            if (logger.isDebugEnabled()) generateExitReports3();
         }
     }
 
     private void generateExitReports3() {
-        if (logger.isInfoEnabled()) {
-            logger.debug("\tresulting net data = " +
-                    JDOMUtil.documentToString(_net.getInternalDataDocument()));
-        }
+        logger.debug("\tresulting net data = {}",
+                JDOMUtil.documentToString(_net.getInternalDataDocument()));
     }
 
     private void generateExitReports2(String miJoiningQuery, Document groupedOutputData, Element result) {
-        if (logger.isInfoEnabled()) {
-            logger.debug("\tmi JoiningQuery = " + miJoiningQuery);
-            logger.debug("\tmi groupedOutputData = " + JDOMUtil.documentToString(groupedOutputData));
-            logger.debug("\tmi result = " + JDOMUtil.elementToString(result));
-        }
+        logger.debug("\tmi JoiningQuery = {}", miJoiningQuery);
+        logger.debug("\tmi groupedOutputData = {}", JDOMUtil.documentToString(groupedOutputData));
+        logger.debug("\tmi result = {}", JDOMUtil.elementToString(result));
     }
 
-    private void generateExitReport1() {
-        if (logger.isInfoEnabled()) {
-            logger.debug("\n\nYTask::exit()");
-            logger.debug("\tgetID = " + getID());
-            for (Element queryResult : _localVariableNameToReplaceableOutputData.values()) {
-                logger.debug("\tqueryResult = " + JDOMUtil.elementToString(queryResult));
-            }
+    private void generateExitReport1() {      // pre: debug is enabled
+        logger.debug("\n\nYTask::exit()");
+        logger.debug("\tgetID = {}", getID());
+        for (Element queryResult : _localVariableNameToReplaceableOutputData.values()) {
+            logger.debug("\tqueryResult = {}", JDOMUtil.elementToString(queryResult));
         }
     }
 
@@ -808,8 +805,10 @@ public abstract class YTask extends YExternalNetElement {
     private void doXORSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
             throws YQueryException, YPersistenceException {
 
-        logger.debug("Evaluating XQueries against Net: " +
-                JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        if (logger.isDebugEnabled()) {
+            logger.debug("Evaluating XQueries against Net: {}",
+                    JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        }
 
         // get & sort the flows according to their evaluation ordering,
         // and with the default flow occurring last.
@@ -834,9 +833,10 @@ public abstract class YTask extends YExternalNetElement {
     private void doOrSplit(YPersistenceManager pmgr, YIdentifier tokenToSend)
             throws YQueryException, YPersistenceException {
         boolean noTokensOutput = true;
-
-        logger.debug("Evaluating XQueries against Net: " +
-                JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        if (logger.isDebugEnabled()) {
+            logger.debug("Evaluating XQueries against Net: " +
+                    JDOMUtil.documentToString(_net.getInternalDataDocument()));
+        }
 
         // get & sort the flows according to their evaluation ordering,
         // and with the default flow occurring last.

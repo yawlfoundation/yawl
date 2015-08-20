@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -62,7 +61,6 @@ public class RdrNode {
     private YAttributeMap _attributes;
 
     private static final ConditionEvaluator EVALUATOR = new ConditionEvaluator();
-    private static final Logger _log = LogManager.getLogger(RdrNode.class);
 
 
     /** Default constructor */
@@ -288,7 +286,7 @@ public class RdrNode {
 	        }
 	    }
 	    catch (RdrConditionException rde) {               // bad condition found
-            _log.error("Search Exception", rde) ;
+            LogManager.getLogger(RdrNode.class).error("Search Exception", rde) ;
       }
       return pair ;
    }

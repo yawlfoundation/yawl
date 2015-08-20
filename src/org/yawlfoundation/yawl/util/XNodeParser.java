@@ -116,7 +116,7 @@ public class XNodeParser {
         }
         catch (Exception e) {
             LogManager.getLogger(this.getClass()).error(
-                    "Invalid format parsing string [" + s + "] - " + e.getMessage());
+                    "Invalid format parsing string [{}] - {}", s, e.getMessage());
             return null;
         }
     }

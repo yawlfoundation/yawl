@@ -112,9 +112,10 @@ public class FormViewer {
                 adjustSessionTimeout(wir);
                 return uriPlusParams;   // return validated custom form url incl. params
             }
-            else _log.warn("Missing or invalid custom form: '" +
-                    uriPlusParams.substring(0, uriPlusParams.indexOf('?')) + "', message: " +
-                    StringUtil.unwrap(validateMsg) + ". Defaulting to dynamic form.");
+            else _log.warn("Missing or invalid custom form: '{}', message: {}." +
+                    " Defaulting to dynamic form.",
+                    uriPlusParams.substring(0, uriPlusParams.indexOf('?')),
+                    StringUtil.unwrap(validateMsg));
         }
         else _log.warn("Unspecified form URI. Defaulting to dynamic form.");
 

@@ -20,12 +20,13 @@ package org.yawlfoundation.yawl.engine;
 
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
-import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
 /**
  * A cache of active net runners.
@@ -111,9 +112,9 @@ public class YNetRunnerRepository extends ConcurrentHashMap<YIdentifier, YNetRun
     }
 
 
+    // pre: logger.isDebugEnabled
     public void dump(Logger logger) {
-        logger.debug("\n*** DUMPING " + this.size() +
-                     " ENTRIES IN CASE_2_NETRUNNER MAP ***");
+        logger.debug("\n*** DUMPING {} ENTRIES IN CASE_2_NETRUNNER MAP ***", this.size());
         int sub = 1;
         for (YIdentifier key : this.keySet()) {
              if (key == null) {
@@ -122,9 +123,9 @@ public class YNetRunnerRepository extends ConcurrentHashMap<YIdentifier, YNetRun
              else {
                  YNetRunner runner = this.get(key);
                  if (runner != null) {
-                     logger.debug("Entry " + sub++ + " Key=" + key.get_idString());
-                     logger.debug(("    CaseID        " + runner.get_caseID()));
-                     logger.debug("     YNetID        " + runner.getSpecificationID().getUri());
+                     logger.debug("Entry {} Key={}", sub++, key.get_idString());
+                     logger.debug("    CaseID        {}", runner.get_caseID());
+                     logger.debug("    YNetID        {}", runner.getSpecificationID().getUri());
                  }
              }
         }

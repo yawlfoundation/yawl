@@ -99,7 +99,7 @@ public class AdminTasksManager {
             result = (AdministrationTask) _tasks.get(id);
             _tasks.remove(id);
         }
-        else _log.error("Can't remove administration task - id does not exist: " + id);
+        else _log.error("Can't remove administration task - id does not exist: {}", id);
 
         return result ;
     }
@@ -132,7 +132,7 @@ public class AdminTasksManager {
         if (_tasks.containsKey(id))
             result = (AdministrationTask) _tasks.get(id);
         else
-            _log.error("Can't get administration task - id does not exist: " + id);
+            _log.error("Can't get administration task - id does not exist: {}", id);
 
         return result;
     }

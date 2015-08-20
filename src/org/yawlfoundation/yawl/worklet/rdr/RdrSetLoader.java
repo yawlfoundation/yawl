@@ -1,7 +1,6 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -20,8 +19,6 @@ import java.util.Map;
  * @date 17/09/2014
  */
 public class RdrSetLoader {
-
-    private static final Logger _log  = LogManager.getLogger(RdrSetLoader.class);
 
 
     public RdrSet load(YSpecificationID specID) {
@@ -97,7 +94,8 @@ public class RdrSetLoader {
             return treeMap;
         }
         catch (Exception ex) {
-            _log.error("Exception retrieving rule nodes from rules file", ex);
+            LogManager.getLogger(RdrSetLoader.class).error(
+                    "Exception retrieving rule nodes from rules file", ex);
             return Collections.emptyMap();
         }
     }

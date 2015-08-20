@@ -101,7 +101,7 @@ public class YWorklistModel {
 
     private void addEnabledWorkItem(YWorkItem workItem, boolean inSequence) {
 
-        logger.debug("addEnabledWorkItem: " + workItem.getIDString());
+        logger.debug("addEnabledWorkItem: {}", workItem.getIDString());
 
         String caseIDStr = workItem.getCaseID().toString();
         String taskID = workItem.getTaskID();

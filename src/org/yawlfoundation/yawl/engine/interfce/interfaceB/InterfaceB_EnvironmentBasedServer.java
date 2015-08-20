@@ -51,7 +51,6 @@ import java.util.Enumeration;
 
 public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
     private InterfaceBWebsideController _controller;
-    private static final boolean _debug = false;
     private Logger _logger = LogManager.getLogger(InterfaceB_EnvironmentBasedServer.class);
 
 
@@ -61,11 +60,11 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
         // get the name of the custom service implementing this interface
         // (i.e. the name of the class that extends InterfaceBWebSideController)
-        String controllerClassName =
-                context.getInitParameter("InterfaceBWebSideController");
+        String controllerClassName = context.getInitParameter("InterfaceBWebSideController");
 
         try {
-            Class controllerClass = Class.forName(controllerClassName);
+            Class<? extends InterfaceBWebsideController> controllerClass =
+                    Class.forName(controllerClassName).asSubclass(InterfaceBWebsideController.class);
 
             // If the class has a getInstance() method, call that method rather than
             // calling a constructor (& thus instantiating 2 instances of the class)
@@ -74,7 +73,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
                 _controller = (InterfaceBWebsideController) instMethod.invoke(null);
             }
             catch (NoSuchMethodException nsme) {
-                _controller = (InterfaceBWebsideController) controllerClass.newInstance();
+                _controller = controllerClass.newInstance();
             }
             
             // retrieve the URL of the YAWL Engine from the web.xml file.
@@ -106,18 +105,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        if (_debug) {
-            _logger.debug("\nInterfaceB_EnvironmentBasedServer " +
-                    "request.getRequestURL = " + request.getRequestURL());
-            _logger.debug("InterfaceB_EnvironmentBasedServer::doGet() request.parameters = ");
-            Enumeration paramNms = request.getParameterNames();
-            while (paramNms.hasMoreElements()) {
-                String name = (String) paramNms.nextElement();
-                _logger.debug("\trequest.getParameter(" + name + ") = " +
-                        request.getParameter(name));
-            }
-        }
-
+        debug(request);
         _controller.doGet(request, response);
     }
 
@@ -136,17 +124,7 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
 
     private String processPostQuery(HttpServletRequest request) {
-        if (_debug) {
-            _logger.debug("\nInterfaceB_Server_WebSide::doPost() " +
-                    "request.getRequestURL = " + request.getRequestURL());
-            _logger.debug("InterfaceB_EnvironmentBasedServer::doPost() request.parameters = ");
-            Enumeration paramNms = request.getParameterNames();
-            while (paramNms.hasMoreElements()) {
-                String name = (String) paramNms.nextElement();
-                _logger.debug("\trequest.getParameter(" + name + ") = " +
-                        request.getParameter(name));
-            }
-        }
+        debug(request);
 
         String action = request.getParameter("action");
         String caseID = request.getParameter("caseID");
@@ -218,6 +196,23 @@ public class InterfaceB_EnvironmentBasedServer extends HttpServlet {
 
     public void destroy() {
         _controller.destroy();
+    }
+
+
+    private void debug(HttpServletRequest request) {
+        if (_logger.isDebugEnabled()) {
+            String verb = request.getMethod();
+            _logger.debug("\nInterfaceB_EnvironmentBasedServer::do{}() " +
+                    "request.getRequestURL = {}", verb, request.getRequestURL());
+            _logger.debug("InterfaceB_EnvironmentBasedServer::do{}() request.parameters:",
+                    verb);
+            Enumeration paramNms = request.getParameterNames();
+            while (paramNms.hasMoreElements()) {
+                String name = (String) paramNms.nextElement();
+                _logger.debug("\trequest.getParameter({}) = {}", name,
+                        request.getParameter(name));
+            }
+        }
     }
 
 }

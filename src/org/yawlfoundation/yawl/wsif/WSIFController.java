@@ -90,7 +90,7 @@ public class WSIFController extends InterfaceBWebsideController {
                                     webServiceArgsData,
                                     getAuthenticationConfig());
 
-                    _log.warn("\n\nReply from Web service being invoked is :" +
+                    _log.warn("\n\nReply from Web service being invoked is : {}",
                             replyFromWebServiceBeingInvoked);
 
                     Element caseDataBoundForEngine = prepareReplyRootElement(enabledWorkItem, _sessionHandle);

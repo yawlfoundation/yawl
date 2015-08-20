@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 
 import javax.servlet.http.HttpSession;
@@ -38,11 +37,7 @@ import javax.servlet.http.HttpSessionListener;
 
 public class SessionListener implements HttpSessionListener {
 
-    private Logger _log;
-
-    public SessionListener() {
-       _log = LogManager.getLogger(SessionListener.class);
-    }
+    public SessionListener() { }
 
 
     // can be used to log new session etc.
@@ -57,8 +52,9 @@ public class SessionListener implements HttpSessionListener {
             handleSessionTimeout(session);
         }
         catch(Exception e) {
-            _log.warn("Session [" + session.getId() +  "] was destroyed before " +
-                      "an expired session audit event could be logged for it.") ;
+            LogManager.getLogger(SessionListener.class).warn(
+                    "Session [{}] was destroyed before an expired session audit event" +
+                    " could be logged for it.", session.getId()) ;
         }
     }
 

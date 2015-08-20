@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
@@ -54,8 +53,6 @@ public class EventLogger {
     private	static SimpleDateFormat _sdfe  = new SimpleDateFormat (
             "yyyy.MM.dd hh:mm:ss:SS");
 
-    // log for exception dumps
-    private static Logger elog = LogManager.getLogger("org.yawlfoundation.yawl.worklet.support.EventLogger");
 
 //===========================================================================//
 
@@ -100,7 +97,8 @@ public class EventLogger {
             pLog.close() ;
         }
         catch (IOException e) {
-            elog.error("Exception writing to CSV EventLog", e);
+            LogManager.getLogger(EventLogger.class).error(
+                    "Exception writing to CSV EventLog", e);
         }
     }
 

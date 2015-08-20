@@ -83,8 +83,7 @@ public class YProblemEvent {
     }
 
     public void logProblem(YPersistenceManager pmgr) throws YPersistenceException {
-        logger.error("Problem source: " + _source + " " +
-                " Message: " + _message);
+        logger.error("Problem source: {}, Message: {}", _source, _message);
         Problem error = new Problem();
         error.setMessage(_message);
         error.setMessageType(EXECUTION_ERROR_STR);

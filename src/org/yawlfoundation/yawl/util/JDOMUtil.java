@@ -145,7 +145,7 @@ public class JDOMUtil {
             fos.close();
         }
         catch (IOException ioe){
-            _log.error("IO Exeception in saving Document to file, filepath = " + path, ioe) ;
+            _log.error("IO Exception in saving Document to file, filepath = " + path, ioe) ;
         }
     }
 

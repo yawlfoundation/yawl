@@ -84,7 +84,7 @@ public class YPluginLoader extends URLClassLoader {
             return plugins;
         }
         catch (IOException e) {
-            _log.error("Error loading classes: " + e);
+            _log.error("Error loading classes: {}", e.getMessage());
             return Collections.emptySet();
         }
     }
@@ -113,7 +113,7 @@ public class YPluginLoader extends URLClassLoader {
             return plugins;
         }
         catch (IOException e) {
-            _log.error("Error loading classes: " + e);
+            _log.error("Error loading classes: {}", e.getMessage());
             return Collections.emptySet();
         }
     }

@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 
-import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
@@ -29,7 +28,6 @@ import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.servlet.ServletContext;
@@ -43,9 +41,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -162,8 +157,8 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             if (gateway != null)
                 _engine.registerObserverGateway(gateway);
             else
-                _log.warn("Error registering external ObserverGateway '" +
-                            gatewayClassName + "'."); 
+                _log.warn("Error registering external ObserverGateway '{}'.",
+                        gatewayClassName);
         }
         catch (ClassNotFoundException e) {
             _log.warn("Unable to locate external ObserverGateway '" +
@@ -234,9 +229,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         String taskID = request.getParameter("taskID");
 
         try {
-            if (_log.isDebugEnabled()) {
-                debug(request, "Post");
-            }
+            debug(request, "Post");
 
             if (action != null) {
                 if (action.equals("checkConnection")) {
@@ -420,9 +413,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         catch (RemoteException e) {
             _log.error("Remote Exception in Interface B with action: " + action, e);
         }
-        if (_log.isDebugEnabled()) {
-            _log.debug("InterfaceB_EngineBasedServer::doPost() result = " + msg + "\n");
-        }
+        _log.debug("InterfaceB_EngineBasedServer::doPost() result = {}", msg);
         return msg.toString();
     }
 
@@ -441,15 +432,15 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
 
     private void debug(HttpServletRequest request, String service) {
-        _log.debug("\nInterfaceB_EngineBasedServer::do" + service + "() " +
-                "request.getRequestURL = " + request.getRequestURL());
-        _log.debug("\nInterfaceB_EngineBasedServer::do" + service +
-                "() request.parameters = ");
-        Enumeration paramNms = request.getParameterNames();
-        while (paramNms.hasMoreElements()) {
-            String name = (String) paramNms.nextElement();
-            _log.debug("\trequest.getParameter(" + name + ") = " +
-                    request.getParameter(name));
+        if (_log.isDebugEnabled()) {
+            _log.debug("\nInterfaceB_EngineBasedServer::do{}() request.getRequestURL={}",
+                    service, request.getRequestURL());
+            _log.debug("\nInterfaceB_EngineBasedServer::do{}() request.parameters:", service);
+            Enumeration paramNms = request.getParameterNames();
+            while (paramNms.hasMoreElements()) {
+                String name = (String) paramNms.nextElement();
+                _log.debug("\trequest.getParameter({}) = {}", name, request.getParameter(name));
+            }
         }
     }
 

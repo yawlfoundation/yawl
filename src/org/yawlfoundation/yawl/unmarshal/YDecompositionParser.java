@@ -392,8 +392,8 @@ public class YDecompositionParser {
             }
             catch (MalformedURLException use) {
                 LogManager.getLogger(this.getClass()).error(
-                    "Invalid custom form URL in specification for task " + task.getID() +
-                    ": " + formStr + ". Custom form URL will be ignored.");
+                    "Invalid custom form URL in specification for task {}: {}" +
+                    ". Custom form URL will be ignored.", task.getID(), formStr);
             }
         }
     }

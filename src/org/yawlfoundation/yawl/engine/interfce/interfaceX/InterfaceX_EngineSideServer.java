@@ -112,8 +112,8 @@ public class InterfaceX_EngineSideServer extends HttpServlet {
         if (_engine.enginePersistenceFailure())
         {
             logger.fatal("************************************************************");
-            logger.fatal("A failure has occured whilst persisting workflow state to the");
-            logger.fatal("database. Check the satus of the database connection defined");
+            logger.fatal("A failure has occurred whilst persisting workflow state to the");
+            logger.fatal("database. Check the status of the database connection defined");
             logger.fatal("for the YAWL service, and restart the YAWL web application.");
             logger.fatal("Further information may be found within the Tomcat log files.");
             logger.fatal("************************************************************");
