@@ -22,7 +22,10 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
+import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -146,7 +149,17 @@ public class YPersistenceManager {
 
 
     public void closeFactory() {                    // shutdown persistence engine
-        if (factory != null) factory.close();
+        if (factory != null) {
+            if (factory instanceof SessionFactoryImpl) {
+               SessionFactoryImpl sf = (SessionFactoryImpl) factory;
+               ConnectionProvider conn = sf.getConnectionProvider();
+               if (conn instanceof C3P0ConnectionProvider) {
+                 ((C3P0ConnectionProvider)conn).stop();
+               }
+            }
+
+            factory.close();
+        }
     }
 
 

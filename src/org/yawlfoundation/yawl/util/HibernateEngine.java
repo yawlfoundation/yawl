@@ -21,8 +21,12 @@ package org.yawlfoundation.yawl.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.exception.JDBCConnectionException;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
@@ -81,7 +85,6 @@ public class HibernateEngine {
             if (props != null) {
                 _cfg.setProperties(props);
             }
-//            _cfg.setProperty("hibernate.show_sql", "true");
 
             // add each persisted class to config
             for (Class persistedClass : classes) {
@@ -89,7 +92,7 @@ public class HibernateEngine {
             }
 
            // get a session context
-            _factory = _cfg.buildSessionFactory();
+            _factory = _cfg.buildSessionFactory(new StandardServiceRegistryBuilder().build());
 
             // check tables exist and are of a matching format to the persisted objects
             new SchemaUpdate(_cfg).execute(false, true);
@@ -326,7 +329,17 @@ public class HibernateEngine {
 
 
     public void closeFactory() {
-        if (_factory != null) _factory.close();
+        if (_factory != null) {
+            if (_factory instanceof SessionFactoryImpl) {
+               SessionFactoryImpl sf = (SessionFactoryImpl) _factory;
+               ConnectionProvider conn = sf.getConnectionProvider();
+               if (conn instanceof C3P0ConnectionProvider) {
+                 ((C3P0ConnectionProvider)conn).stop();
+               }
+            }
+
+            _factory.close();
+        }
     }
 
 
