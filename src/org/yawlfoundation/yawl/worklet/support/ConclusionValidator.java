@@ -42,12 +42,15 @@ public class ConclusionValidator {
         ExletTarget target = primitive.getExletTarget();
 
         // check 'fail', 'restart' and 'complete' only references workitem
-        if (action.isItemOnlyAction() && target != ExletTarget.Workitem) {
+        if (action.isInvalidAction()) {
+            errorList.add("Invalid action specified [Item " + index + "]");
+        }
+        else if (target.isInvalidTarget()) {
+            errorList.add("Invalid target specified [Item " + index + "]");
+        }
+        else if (action.isItemOnlyAction() && target != ExletTarget.Workitem) {
             errorList.add("Target '" + target.toString() + "' is invalid for action '" +
                     action.toString() + "' [Item " + index + "]");
-        }
-        else if (action == ExletAction.Invalid) {
-            errorList.add("Invalid action specified [Item " + index + "]");
         }
         else if (action == ExletAction.Rollback) {
             errorList.add("Unsupported action: 'rollback' [Item " + index + "]");

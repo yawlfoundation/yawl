@@ -62,4 +62,8 @@ public enum ExletTarget {
 
     public static Set<String> getStrings() { return _fromStringMap.keySet(); }
 
+    public boolean isInvalidTarget() {
+        return this == ExletTarget.Invalid;
+    }
+
 }

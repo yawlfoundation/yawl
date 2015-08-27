@@ -805,29 +805,29 @@ public class ConditionEvaluator {
 
     /** translates a bad result to 'undefined' */
     private String getFunctionResult(String func, Element data) throws RdrConditionException {
-        String result = evalFunction(func, data);
-        if ((result == null) || (result.length() == 0))
-            result = "undefined" ;
-        return result ;
+        return clarifyResult(evalFunction(func, data));
     }
 
 
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var, Element data) {
-        String result ;
         _log.debug("in getVarValue, var = {}", var) ;
 
         // var "this" refers to the workitem associated with the task named in this rule
-        if (var.equalsIgnoreCase("this"))
-            result = getThisData(data);
-        else
-            result = data.getChildText(var) ;
+        String result = var.equalsIgnoreCase("this") ? getThisData(data) :
+                data.getChildText(var) ;
 
-        if ((result == null) || (result.length() == 0))
-            result = "undefined" ;
         //   	      return formatVarValue(result) ;
-        return result ;
+        return clarifyResult(result);
     }
+
+
+    private String clarifyResult(String result) {
+        if (result == null || result.equals("null")) result = "undefined";
+        else if (result.length() == 0) result = "nodata";
+        return result;
+    }
+
 
     /** extracts the names of arguments from a function call */
     private String[] parseArgsList(String list) {
@@ -858,9 +858,11 @@ public class ConditionEvaluator {
     }
 
 
-    /** Convert operands to nubmers and perform operation */
+    /** Convert operands to numbers and perform operation */
     private String doNumericOperation(String l, String op, String r)
             throws RdrConditionException {
+        if (l.equals("nodata")) l = "0";
+        if (r.equals("nodata")) r = "0";
         double dLeft = Double.parseDouble(l) ;
         double dRight = Double.parseDouble(r) ;
 
@@ -914,6 +916,10 @@ public class ConditionEvaluator {
     /** performs the comparison and returns "true" or "false" */
     private String doStringOperation(String l, String op, String r)
             throws RdrConditionException {
+        if (isString(l)) l = deQuote(l);
+        if (isString(r)) r = deQuote(r);
+        if (l.equals("nodata")) l = "";
+        if (r.equals("nodata")) r = "";
         if (op.compareTo("=") == 0)
             return String.valueOf(l.compareTo(r) == 0) ;
         if (op.compareTo("!=") == 0)
