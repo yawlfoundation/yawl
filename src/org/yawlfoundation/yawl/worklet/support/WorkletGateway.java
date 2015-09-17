@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.rdr.*;
+import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -38,6 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The WorkletGateway class acts as a gateway between the Worklet Selection
@@ -170,10 +173,15 @@ public class WorkletGateway extends YHttpServlet {
                 } else if (action.equalsIgnoreCase("getWorkletNames")) {
                     boolean withExtn = req.getParameter("extn").equalsIgnoreCase("true");
                     result = getWorkletNames(withExtn);
+                } else if (action.equalsIgnoreCase("getRunningWorklets")) {
+                    result = getRunningWorklets();
+                }
+                else {
+                    result = fail("Unrecognised action: " + action);
                 }
             }
             else {
-                result = "<failure>Invalid or disconnected session handle</failure>";
+                result = fail("Invalid or disconnected session handle");
             }
 
             // generate the output
@@ -214,6 +222,16 @@ public class WorkletGateway extends YHttpServlet {
 
         RuleType rType = RuleType.valueOf(rTypeStr);
         RdrNode node = new RdrNode(nodeXML);
+
+        RdrConclusion conc = node.getConclusion();
+        if (conc.isNullConclusion()) {
+            return fail("Node conclusion contains no elements.");
+        }
+        List<ExletValidationError> errList = new ExletValidator().validate(node.getConclusion());
+        if (! errList.isEmpty()) {
+            return fail("Node contains invalid conclusion: " + errList.get(0));
+        }
+
         try {
             if (specID != null) {
                 node = _rdr.addNode(specID, taskID, rType, node);
@@ -431,6 +449,19 @@ public class WorkletGateway extends YHttpServlet {
         XNode root = new XNode("workletnames");
         for (String name : new WorkletList().getAll(withExtn)) {
             root.addChild("name", name);
+        }
+        return root.toString();
+    }
+
+
+    private String getRunningWorklets() {
+        Set<WorkletRunner> runners = _ws.getAllRunners();
+        if (runners.isEmpty()) {
+            return fail("No worklet instances currently running");
+        }
+        XNode root = new XNode("runningworklets");
+        for (WorkletRunner runner : runners) {
+            root.addChild(runner.toXNode());
         }
         return root.toString();
     }

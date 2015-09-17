@@ -685,6 +685,7 @@ public class StringUtil {
 
     public static String join(List<String> strList, char separator) {
         if (strList == null || strList.isEmpty()) return "";
+        if (strList.size() == 1) return strList.get(0);
         StringBuilder sb = new StringBuilder();
         for (String s : strList) {
             if (sb.length() > 0) sb.append(separator);

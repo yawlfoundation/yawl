@@ -53,9 +53,9 @@ public class CaseMonitor {
     private Element _caseData = null ;                  // current case data params
     private Element _netLevelData = null ;              // case-level decl. data params
     private Logger _log ;
-    private Map<String, HandlerRunner> _itemRunners = null ;    // Runners for workitems
-    private HandlerRunner _hrPreCase, _hrPostCase ;     // pre & post case runners
-    private HandlerRunner _hrCaseExternal ;             // runner for case-level external
+    private Map<String, ExletRunner> _runners = null ;  // Runners for handling item exlets
+    private ExletRunner _hrPreCase, _hrPostCase ;       // pre & post case runners
+    private ExletRunner _hrCaseExternal ;               // runner for case-level external
     private List<String> _liveItems = new ArrayList<String>();  // list of executing items
     private boolean _liveCase = false ;                 // is case still executing?
     private boolean _preCaseCancelled = false ;         // has pre-case check killed case
@@ -82,7 +82,7 @@ public class CaseMonitor {
         _caseID = caseID ;
         _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID.getUri());
         _netLevelData = _caseData ;
-        _itemRunners = new Hashtable<String, HandlerRunner>() ;
+        _runners = new Hashtable<String, ExletRunner>() ;
         _liveCase = true ;
         _caseDataStr = data;
         _netDataStr = data;
@@ -186,9 +186,9 @@ public class CaseMonitor {
      * @param runnerMap - a set of all the HandlerRunners restored from persistence
      * @return the list of all runners 'claimed' by this CaseMonitor
      */
-    public List<HandlerRunner> restoreRunners(Map<String, HandlerRunner> runnerMap) {
-        List<HandlerRunner> restored = new ArrayList<HandlerRunner>() ;
-        _itemRunners = new Hashtable<String, HandlerRunner>();  // workitem level runners
+    public List<ExletRunner> restoreRunners(Map<String, ExletRunner> runnerMap) {
+        List<ExletRunner> restored = new ArrayList<ExletRunner>() ;
+        _runners = new Hashtable<String, ExletRunner>();  // workitem level runners
 
         // restore any case level runners
         _hrPreCase = restoreRunner(_hrPreCaseID, runnerMap) ;
@@ -199,15 +199,13 @@ public class CaseMonitor {
         if (_hrCaseExternal != null) restored.add(_hrCaseExternal);
 
         // restore any item level runners
-        HandlerRunner runner ;
-
         // runner ids are a string of ids persisted for this CaseMonitor
         List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
         if (runnerIDs != null) {
             for (String id : runnerIDs) {
-                runner = restoreRunner(id, runnerMap) ;
+                ExletRunner runner = restoreRunner(id, runnerMap) ;
                 restored.add(runner);
-                _itemRunners.put(runner.getItemId(), runner);
+                _runners.put(runner.getParentWorkItemID(), runner);
             }
         }
         if (restored.isEmpty()) restored = null ;     // return null if none restored
@@ -222,18 +220,14 @@ public class CaseMonitor {
      * @return the runner that 'owns' the id specified, or null if there is no
      *         runner with that id or the id is null
      */
-    private HandlerRunner restoreRunner(String id, Map<String, HandlerRunner>  runnerMap) {
-        HandlerRunner result = null ;
+    private ExletRunner restoreRunner(String id, Map<String, ExletRunner>  runnerMap) {
+        ExletRunner result = null ;
         if (id != null) {                                // an actual id has been passed
             result = runnerMap.get(id);
             if (result != null) {
 
                 // found a runner with this id, so 'reattach' it to this CaseMonitor
                 result.setOwnerCaseMonitor(this);
-                String taskID = null ;
-                if (result.getItem() != null)
-                    taskID = Library.getTaskNameFromId(result.getItem().getTaskID());
-                result.rebuildSearchPair(_specID, taskID);
             }
           }
        return result ;
@@ -242,7 +236,7 @@ public class CaseMonitor {
 
     /** updates the persisted object after changes (if persisting) */
     private void persistThis() {
-        Persister.getInstance().update(this);
+        Persister.update(this);
     }
 
     //***************************************************************************//
@@ -336,10 +330,10 @@ public class CaseMonitor {
      *  ExceptionService. */
 
     // add a HandlerRunner for a pre-case constraint violation
-    public void addPreCaseHandlerRunner(HandlerRunner hr) {
+    public void addPreCaseHandlerRunner(ExletRunner hr) {
         if (_hrPreCase == null) {
             _hrPreCase = hr ;
-            _hrPreCaseID = String.valueOf(hr.get_id());
+            _hrPreCaseID = String.valueOf(hr.getID());
             persistThis();
         }
         else
@@ -348,10 +342,10 @@ public class CaseMonitor {
 
 
     // add a HandlerRunner for a post-case constraint violation
-    public void addPostCaseHandlerRunner(HandlerRunner hr) {
+    public void addPostCaseHandlerRunner(ExletRunner hr) {
         if (_hrPostCase == null) {
             _hrPostCase = hr ;
-            _hrPostCaseID = String.valueOf(hr.get_id());
+            _hrPostCaseID = String.valueOf(hr.getID());
             persistThis();
         }
         else
@@ -360,10 +354,10 @@ public class CaseMonitor {
 
 
     // add a HandlerRunner for a case-level external trigger
-    public void addCaseExternalHandlerRunner(HandlerRunner hr) {
+    public void addCaseExternalHandlerRunner(ExletRunner hr) {
         if (_hrCaseExternal == null) {
             _hrCaseExternal = hr ;
-            _hrCaseExID = String.valueOf(hr.get_id());
+            _hrCaseExID = String.valueOf(hr.getID());
             persistThis();
         }
         else
@@ -373,7 +367,7 @@ public class CaseMonitor {
 
     // add a HandlerRunner for a workitem. Note that HandlerRunners for the case level
     // may also be invoked from this method by sending the appropriate tag as the itemid.
-    public void addHandlerRunner(HandlerRunner hr, String itemID ) {
+    public void addHandlerRunner(ExletRunner hr, String itemID ) {
         if (itemID.equals("pre"))
             addPreCaseHandlerRunner(hr);
         else if (itemID.equals("post"))
@@ -381,8 +375,8 @@ public class CaseMonitor {
         else if (itemID.equals("external"))
             addCaseExternalHandlerRunner(hr);
         else  {
-            if (!_itemRunners.containsKey(itemID)) {
-                _itemRunners.put(itemID, hr);
+            if (!_runners.containsKey(itemID)) {
+                _runners.put(itemID, hr);
                 updateRunnerIDs();
                 persistThis();
             }
@@ -394,36 +388,36 @@ public class CaseMonitor {
     /** Stringifies the list of item runner ids (required for persistence) */
     private void updateRunnerIDs() {
         List<String> ids = new ArrayList<String>();
-        for (HandlerRunner runner : _itemRunners.values()) {
-            ids.add(String.valueOf(runner.get_id()));
+        for (ExletRunner runner : _runners.values()) {
+            ids.add(String.valueOf(runner.getID()));
         }
         _itemRunnerIDs = RdrConversionTools.StringListToString(ids);
     }
 
     //***************************************************************************//
 
-    public HandlerRunner getPreCaseHandlerRunner() {
+    public ExletRunner getPreCaseHandlerRunner() {
         return _hrPreCase;
     }
 
 
-    public HandlerRunner getPostCaseHandlerRunner() {
+    public ExletRunner getPostCaseHandlerRunner() {
         return _hrPostCase;
     }
 
-    public HandlerRunner getCaseExternalHandlerRunner() {
+    public ExletRunner getCaseExternalHandlerRunner() {
         return _hrCaseExternal;
     }
 
     /** retrieves an item-level runner */
-    public HandlerRunner getHandlerRunnerForItem(String itemID) {
-        return _itemRunners.get(itemID) ;
+    public ExletRunner getHandlerRunnerForItem(String itemID) {
+        return _runners.get(itemID) ;
     }
 
 
     /** returns the runner for the specified type (if any) */
-    public HandlerRunner getRunnerForType(RuleType xType, String itemID) {
-        HandlerRunner result ;
+    public ExletRunner getRunnerForType(RuleType xType, String itemID) {
+        ExletRunner result ;
         switch (xType) {
             case CasePreconstraint :
                 result = getPreCaseHandlerRunner(); break ;
@@ -439,9 +433,9 @@ public class CaseMonitor {
 
 
     // returns the complete list of all active HandlerRunners for this case
-    public List<HandlerRunner> getHandlerRunners() {
-        List<HandlerRunner> list = new ArrayList<HandlerRunner>();
-        list.addAll(_itemRunners.values());
+    public List<ExletRunner> getHandlerRunners() {
+        List<ExletRunner> list = new ArrayList<ExletRunner>();
+        list.addAll(_runners.values());
         if (_hrPreCase != null) list.add(_hrPreCase) ;
         if (_hrPostCase != null) list.add(_hrPreCase) ;
         if (_hrCaseExternal != null) list.add(_hrCaseExternal) ;
@@ -480,9 +474,9 @@ public class CaseMonitor {
         else if (itemID.equals("external"))
             removeCaseExternalHandlerRunner();
         else {
-            if (_itemRunners.containsKey(itemID)) {
-                _itemRunners.remove(itemID);
-                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
+            if (_runners.containsKey(itemID)) {
+                _runners.remove(itemID);
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_runners);
                 persistThis();
             }
             else
@@ -492,7 +486,7 @@ public class CaseMonitor {
 
 
     // remove specified HandlerRunner
-    public void removeHandlerRunner(HandlerRunner runner) {
+    public void removeHandlerRunner(ExletRunner runner) {
         if (runner == _hrPreCase)
             removePreCaseHandlerRunner();
         else if (runner == _hrPostCase)
@@ -500,9 +494,9 @@ public class CaseMonitor {
         else if (runner == _hrCaseExternal)
             removeCaseExternalHandlerRunner();
         else {
-            if (_itemRunners.containsKey(runner.getItemId())) {
-                _itemRunners.remove(runner.getItemId());
-                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_itemRunners);
+            if (_runners.containsKey(runner.getParentWorkItemID())) {
+                _runners.remove(runner.getParentWorkItemID());
+                _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_runners);
                 persistThis();
             }
         }
@@ -515,7 +509,7 @@ public class CaseMonitor {
         removePostCaseHandlerRunner();
         removeCaseExternalHandlerRunner();
         _itemRunnerIDs = null;
-        _itemRunners.clear();
+        _runners.clear();
         persistThis();
     }
 
@@ -551,16 +545,16 @@ public class CaseMonitor {
     // BOOLEAN METHODS //
 
     public boolean hasHandlerRunnerForItem(String itemID) {
-        return (_itemRunners.containsKey(itemID));
+        return (_runners.containsKey(itemID));
     }
 
 
-    public boolean isItemRunner(HandlerRunner runner) {
-        return _itemRunners.containsValue(runner);
+    public boolean isItemRunner(ExletRunner runner) {
+        return _runners.containsValue(runner);
     }
 
 
-    public boolean isCaseRunner(HandlerRunner runner) {
+    public boolean isCaseRunner(ExletRunner runner) {
         return (runner == _hrPreCase) || (runner == _hrPostCase) ||
                (runner == _hrCaseExternal) ;
     }
@@ -568,7 +562,7 @@ public class CaseMonitor {
 
     public boolean hasLiveHandlerRunners() {
         return ! ((_hrPreCase == null) && (_hrPostCase == null) &&
-                  (_hrCaseExternal == null) && _itemRunners.isEmpty());
+                  (_hrCaseExternal == null) && _runners.isEmpty());
     }
 
 
@@ -598,7 +592,7 @@ public class CaseMonitor {
 
     /********************************************************************************/
 
-    public String toString() {
+    public String dump() {
         StringBuilder s = new StringBuilder("##### CASEMONITOR RECORD #####");
         s.append(Library.newline);
 

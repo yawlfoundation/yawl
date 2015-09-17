@@ -114,7 +114,7 @@ public class IBControllerCache {
 
     /**
      * Gets a data object describing the specification.  This is cached in
-     * the worklist application to reduce unecessary communication
+     * the worklist application to reduce unnecessary communication
      * between messaging tiers, and to improve performance.
      * @param specID
      * @return the specification data

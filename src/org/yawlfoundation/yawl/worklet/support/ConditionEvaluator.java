@@ -81,7 +81,7 @@ public class ConditionEvaluator {
 
 
     public ConditionEvaluator() {
-        setLogLevel(_log, Level.ERROR);
+        // setLogLevel(_log, Level.ERROR);
     }
 
 
@@ -103,8 +103,8 @@ public class ConditionEvaluator {
         String result;
 
         // DEBUG: log received items
-        _log.info("received condition: " + cond);
-        _log.info("data = " + JDOMUtil.elementToString(data)) ;
+        _log.debug("Received condition: {}");
+        _log.debug("Data = {}", JDOMUtil.elementToString(data)) ;
 
         // check if it's an XQuery or cost predicate
         if (cond.startsWith("{") || cond.startsWith("/")) {
@@ -926,8 +926,6 @@ public class ConditionEvaluator {
             return String.valueOf(l.compareTo(r) != 0) ;
         throw new RdrConditionException(getMessage(10)) ;  // error if gets here
     }
-
-
 
 
     private static void setLogLevel(Logger logger, Level level) {

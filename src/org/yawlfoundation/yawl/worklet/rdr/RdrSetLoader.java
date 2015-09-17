@@ -9,10 +9,7 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams

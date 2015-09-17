@@ -23,19 +23,20 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion" table="RdrConclusion">
+	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
+           table="RdrConclusion" lazy="false">
 
 	    <id name="id" column="rdrconclusionid" type="long" access="field">
     		<generator class="native"/>
     	</id>
 
-        <list name="_primitives" access="field" cascade="all">
+        <list name="_primitives" access="field" cascade="all" lazy="false">
             <key column="rdrprimitiveid" not-null="true"/>
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
-                <property name="index" access="field"/>
-                <property name="action" access="field"/>
-                <property name="target" access="field"/>
+                <property name="index"/>
+                <property name="action"/>
+                <property name="target"/>
             </composite-element>
         </list>
 

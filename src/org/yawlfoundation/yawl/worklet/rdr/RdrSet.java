@@ -235,7 +235,7 @@ public class RdrSet {
         }
     }
 
-    private Set<RdrTreeSet> getTreeSet() {
+    protected Set<RdrTreeSet> getTreeSet() {
         return _treeMap != null ? new HashSet<RdrTreeSet>(_treeMap.values()) : null;
     }
 

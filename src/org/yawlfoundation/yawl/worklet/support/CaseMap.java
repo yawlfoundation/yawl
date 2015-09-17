@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+
 import java.util.*;
 
 /** The CaseMap class maintains a two way mapping between case ids and worklet names
@@ -32,55 +34,66 @@ import java.util.*;
 
 public class CaseMap {
 
-    private Map<String, String> _caseIdToWorkletName = new Hashtable<String, String>();
-    private Map<String, String> _workletNameToCaseId = new Hashtable<String, String>();
+    private Map<String, YSpecificationID> _caseIdToSpecId =
+            new HashMap<String, YSpecificationID>();
 
 
     public CaseMap() {}
 
-    public void addCase(String caseID, String workletName) {
-        _caseIdToWorkletName.put(caseID, workletName);
-        _workletNameToCaseId.put(workletName, caseID);
+    public void addCase(String caseID, YSpecificationID specID) {
+        _caseIdToSpecId.put(caseID, specID);
     }
 
+
+    public YSpecificationID getSpecID(String caseID) {
+        return _caseIdToSpecId.get(caseID);
+    }
+
+
     public String getWorkletName(String caseID) {
-        return _caseIdToWorkletName.get(caseID);
+        YSpecificationID specID = getSpecID(caseID);
+        return specID != null ? specID.getUri() : null;
     }
 
     public String getCaseID(String workletName) {
-        return _workletNameToCaseId.get(workletName);
+        for (String caseID : _caseIdToSpecId.keySet()) {
+            if (workletName.equals(getWorkletName(caseID))) {
+                return caseID;
+            }
+        }
+        return null;
     }
 
     public void removeCase(String caseID) {
-        String workletName = getWorkletName(caseID);
-        removeFromMaps(caseID, workletName) ;
+        if (caseID != null) {
+            _caseIdToSpecId.remove(caseID);
+        }
     }
 
     public void removeWorklet(String workletName) {
-        String caseID = getCaseID(workletName);
-        removeFromMaps(caseID, workletName) ;
+        removeCase(getCaseID(workletName));
     }
 
     public void removeAllCases() {
-        _caseIdToWorkletName.clear();
-        _workletNameToCaseId.clear();
+        _caseIdToSpecId.clear();
     }
 
     public Set<String> getAllCaseIDs() {
-        return _caseIdToWorkletName.keySet();
+        return _caseIdToSpecId.keySet();
     }
 
     public Set<String> getAllWorkletNames() {
-        return _workletNameToCaseId.keySet();
+        Set<String> names = new HashSet<String>();
+        for (YSpecificationID specID : _caseIdToSpecId.values()) {
+            names.add(specID.getUri());
+        }
+        return names;
     }
 
     public List<String> getCaseIdList() {
-        return new ArrayList<String>(_workletNameToCaseId.values());
+        return new ArrayList<String>(_caseIdToSpecId.keySet());
     }
 
-    public List<String> getWorkletList() {
-        return new ArrayList<String>(_caseIdToWorkletName.values());
-    }
 
     public String getWorkletCSVList() {
         return getCaseMapAsCSVLists().get("workletNames");
@@ -93,7 +106,7 @@ public class CaseMap {
 
 
     public Map<String, String> getCaseMapAsCSVLists() {
-        Map<String, String> result = new Hashtable<String, String>();
+        Map<String, String> result = new HashMap<String, String>();
         List<String> caseIDs = getCaseIdList();
         String idcsv = RdrConversionTools.StringListToString(caseIDs);
         if (idcsv != null) result.put("caseIDs", idcsv);
@@ -104,7 +117,7 @@ public class CaseMap {
 
 
    public boolean hasRunningWorklets() {
-       return ! _workletNameToCaseId.isEmpty() ;
+       return ! _caseIdToSpecId.isEmpty() ;
     }
 
 
@@ -113,15 +126,9 @@ public class CaseMap {
         List wList = RdrConversionTools.StringToStringList(wNameList);
         if ((caseids != null ) && (wList != null)) {
             for (int i=0; i < caseids.size(); i++) {
-                addCase((String) caseids.get(i), (String) wList.get(i));
+             //todo   addCase((String) caseids.get(i), (String) wList.get(i));
             }    
         }
-    }
-
-
-    private void removeFromMaps(String caseID, String workletName) {
-        _caseIdToWorkletName.remove(caseID);
-        _workletNameToCaseId.remove(workletName);
     }
 
 

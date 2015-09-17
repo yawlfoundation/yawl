@@ -19,12 +19,11 @@
 package org.yawlfoundation.yawl.resourcing.jsf.dynform;
 
 import com.sun.rave.web.ui.component.*;
-import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
-import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.resourcing.jsf.MessagePanel;
 import org.yawlfoundation.yawl.schema.ErrorHandler;
 import org.yawlfoundation.yawl.util.DOMUtil;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import javax.faces.component.UIComponent;
@@ -39,7 +38,6 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -443,7 +441,7 @@ public class DynFormValidator {
 
     private SAXSource getInputValueAsXML(DynFormField input, String value) {
         if (input.getDataTypeUnprefixed().equals("string"))
-            value = ServletUtils.urlEncode(value);               // encode string values
+            value = JDOMUtil.encodeEscapes(value);               // encode string values
         return createSAXSource(StringUtil.wrap(value, input.getName()));
     }
 

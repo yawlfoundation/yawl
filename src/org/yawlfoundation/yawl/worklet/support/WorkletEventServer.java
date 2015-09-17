@@ -25,9 +25,10 @@ import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
+import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -180,16 +181,14 @@ public class WorkletEventServer extends Interface_Client {
 
     /**
      * Announces a worklet selection
-     * @param item a descriptor containing case, workitem, data and raised worklet info
+     * @param runners a set of descriptors containing case, workitem, data
+     *                and raised worklet info
      */
-    public void announceSelection(CheckedOutChildItem item, RdrNode node) {
-        if (hasListeners()) {
+    public void announceSelection(Set<WorkletRunner> runners, RdrNode node) {
+        if (hasListeners() && ! runners.isEmpty()) {
             Map<String, String> params = prepareParams(Event.Selection);
-            params.put("wir", item.get_wirStr());
-            Map<String, String> runners = item.getCaseMapAsCSVList();
-            for (String key : runners.keySet()) {
-                params.put(key, runners.get(key));
-            }
+            params.put("wir", runners.iterator().next().getWir().toXML());
+            params.put("runners", toXML(runners));
             params.put("node", node.toXML());
             announce(params);
         }
@@ -269,6 +268,15 @@ public class WorkletEventServer extends Interface_Client {
             _executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
         }
         _listeners.add(uri);
+    }
+
+
+    private String toXML(Set<WorkletRunner> runners) {
+        XNode root = new XNode("runners");
+        for (WorkletRunner runner : runners) {
+            root.addChild("runner", runner.toXNode());
+        }
+        return root.toString();
     }
 
 

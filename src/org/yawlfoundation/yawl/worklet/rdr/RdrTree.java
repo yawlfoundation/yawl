@@ -18,14 +18,12 @@
 
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import org.hibernate.Hibernate;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.support.Library;
-import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

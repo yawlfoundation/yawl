@@ -19,19 +19,13 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.logging.log4j.Logger;
-import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.IllegalAddException;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.worklet.rdr.*;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,7 +75,7 @@ public class WorkletRecord {
 
 
     public void addRunner(String caseID, String wName) {
-        _runners.addCase(caseID, wName);
+     //   _runners.addCase(caseID, wName);
         persistThis();
     }
 
@@ -156,7 +150,7 @@ public class WorkletRecord {
         return new YSpecificationID(_wir);      // i.e. of the originating workitem
     }
 
-    public RuleType getReasonType() {
+    public RuleType getRuleType() {
         return _reasonType ;
     }
 

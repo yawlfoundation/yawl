@@ -20,14 +20,14 @@ package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.logging.log4j.LogManager;
 import org.hibernate.HibernateException;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.CaseMonitor;
-import org.yawlfoundation.yawl.worklet.exception.HandlerRunner;
+import org.yawlfoundation.yawl.worklet.exception.ExletRunner;
 import org.yawlfoundation.yawl.worklet.rdr.*;
-import org.yawlfoundation.yawl.worklet.selection.CheckedOutChildItem;
-import org.yawlfoundation.yawl.worklet.selection.CheckedOutItem;
 import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
+import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,16 +42,16 @@ import java.util.HashSet;
 public class Persister extends HibernateEngine {
 
     private static Class[] classes = {
-            CheckedOutItem.class, CheckedOutChildItem.class, AdministrationTask.class,
-            CaseMonitor.class, HandlerRunner.class, WorkletEvent.class, RdrNode.class,
-            RdrTree.class, RdrTreeSet.class, RdrSet.class, RdrConclusion.class,
-            LaunchEvent.class
+            AdministrationTask.class, CaseMonitor.class, ExletRunner.class,
+            LaunchEvent.class, RdrNode.class, RdrTree.class, RdrTreeSet.class,
+            RdrSet.class, RdrConclusion.class, WorkletEvent.class,
+            WorkItemRecord.class, WorkletRunner.class, WorkletSpecification.class
     };
 
-    private static Persister _me;
+    private static Persister INSTANCE;
 
 
-    /** The constuctor - called from getInstance() */
+    /** The constructor - called from getInstance() */
     private Persister(boolean persistenceOn) throws HibernateException {
         super(persistenceOn, new HashSet<Class>(Arrays.asList(classes)));
     }
@@ -59,31 +59,46 @@ public class Persister extends HibernateEngine {
 
     /** returns the current Persister instance */
     public static Persister getInstance(boolean persistenceOn) {
-        if (_me == null) {
+        if (INSTANCE == null) {
             try {
-                _me = new Persister(persistenceOn);
+                INSTANCE = new Persister(persistenceOn);
             }
             catch (HibernateException he) {
                 LogManager.getLogger(Persister.class).error(
                         "Failed to instantiate persistence engine", he);
             }
         }
-        return _me;
+        return INSTANCE;
     }
 
 
     public static Persister getInstance() { return getInstance(false); }
 
 
-    public static void insert(Object o) { persist(o, DB_INSERT); }
+    public static boolean insert(Object o) { return persist(o, DB_INSERT); }
 
-    public static void update(Object o) { persist(o, DB_UPDATE); }
+    public static boolean update(Object o) { return persist(o, DB_UPDATE); }
 
-    public static void delete(Object o) { persist(o, DB_DELETE); }
+    public static boolean delete(Object o) { return persist(o, DB_DELETE); }
 
+    public static boolean insert(Object o, boolean commit) {
+        return persist(o, DB_INSERT, commit);
+    }
 
-    private static void persist(Object o, int action) {
-        if (_me != null && _me.isPersisting()) _me.exec(o, action, true);
+    public static boolean update(Object o, boolean commit) {
+        return persist(o, DB_UPDATE, commit);
+    }
+
+    public static boolean delete(Object o, boolean commit) {
+        return persist(o, DB_DELETE, commit);
+    }
+
+    private static boolean persist(Object o, int action) {
+        return persist(o, action, true);
+    }
+
+    private static boolean persist(Object o, int action, boolean commit) {
+        return INSTANCE != null && INSTANCE.isPersisting() && INSTANCE.exec(o, action, commit);
     }
 
 }

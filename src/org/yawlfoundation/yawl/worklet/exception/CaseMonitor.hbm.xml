@@ -23,7 +23,8 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.exception.CaseMonitor" table="Worklet_CaseMonitor">
+	<class name="org.yawlfoundation.yawl.worklet.exception.CaseMonitor"
+           table="ws_CaseMonitor">
 
         <id name="_caseID" column="caseID" type="string" access="field">
    		    <generator class="assigned"/>

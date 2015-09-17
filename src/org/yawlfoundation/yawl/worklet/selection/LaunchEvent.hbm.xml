@@ -24,7 +24,7 @@
 <hibernate-mapping>
 
 	<class name="org.yawlfoundation.yawl.worklet.selection.LaunchEvent"
-           table="WorkletLaunchLog">
+           table="ws_LaunchEvent">
 
 	    <id name="id" column="eventid" type="long">
     		<generator class="native"/>
@@ -50,7 +50,7 @@
         <property name="itemId"/>
         <property name="parentCaseId"/>
         <property name="launchedCaseId"/>
-        <property name="data"/>
+        <property name="data" type="text"/>
 
 	</class>
 	

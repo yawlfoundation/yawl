@@ -14,74 +14,82 @@ import java.util.List;
  * @author Michael Adams
  * @date 9/03/15
  */
-public class ConclusionValidator {
+public class ExletValidator {
 
-    public List<String> validate(RdrConclusion conclusion) {
+    public List<ExletValidationError> validate(RdrConclusion conclusion) {
         return validate(conclusion, new WorkletList().getAll(false));
     }
 
 
-    public List<String> validate(RdrConclusion conclusion, List<String> workletList) {
+    public List<ExletValidationError> validate(RdrConclusion conclusion,
+                                               List<String> workletList) {
         if (conclusion == null || conclusion.getCount() == 0) {
             return Collections.emptyList();                    // short circuit
         }
-        List<String> errorList = new ArrayList<String>();
+        List<ExletValidationError> errorList = new ArrayList<ExletValidationError>();
         for (int i=1; i <= conclusion.getCount(); i++) {       // index base is 1
-            validatePrimitive(conclusion.getPrimitive(i), errorList, workletList, i);
+            ExletValidationError evError = validatePrimitive(
+                    conclusion.getPrimitive(i), workletList, i);
+            if (evError != null) errorList.add(evError);
         }
-        if (validateSelect(conclusion, errorList)) {
+        if (validateSelect(conclusion)) {
             validateSequence(conclusion, errorList);
+        }
+        else {
+            errorList.add(new ExletValidationError(0, "A conclusion with a 'select' " +
+                    "action may not contain any other kind of action."));
         }
         return errorList;
     }
 
 
-    private void validatePrimitive(RdrPrimitive primitive, List<String> errorList,
+    private ExletValidationError validatePrimitive(RdrPrimitive primitive,
                                    List<String> workletList, int index) {
         ExletAction action = primitive.getExletAction();
         ExletTarget target = primitive.getExletTarget();
+        String msg = null;
 
         // check 'fail', 'restart' and 'complete' only references workitem
         if (action.isInvalidAction()) {
-            errorList.add("Invalid action specified [Item " + index + "]");
+            msg = "Invalid action specified [Item " + index + "]";
         }
         else if (target.isInvalidTarget()) {
-            errorList.add("Invalid target specified [Item " + index + "]");
+            msg = "Invalid target specified [Item " + index + "]";
         }
         else if (action.isItemOnlyAction() && target != ExletTarget.Workitem) {
-            errorList.add("Target '" + target.toString() + "' is invalid for action '" +
-                    action.toString() + "' [Item " + index + "]");
+            msg = "Target '" + target.toString() + "' is invalid for action '" +
+                    action.toString() + "' [Item " + index + "]";
         }
         else if (action == ExletAction.Rollback) {
-            errorList.add("Unsupported action: 'rollback' [Item " + index + "]");
+            msg = "Unsupported action: 'rollback' [Item " + index + "]";
         }
 
         // check 'compensate' and select have a valid worklet name
         else if (action.isWorkletAction()) {
             if (target != ExletTarget.Invalid) {
-                errorList.add("Target '" + target.toString() + "' is invalid for action '" +
-                        action.toString() + "' [Item " + index + "]");
+                msg = "Target '" + target.toString() + "' is invalid for action '" +
+                        action.toString() + "' [Item " + index + "]";
             }
             else {
                 String worklet = primitive.getTarget();
                 if (StringUtil.isNullOrEmpty(worklet)) { // no worklet name
-                    errorList.add("Action '" + action.toString() + "' is missing a required " +
-                            "value for worklet name [Item " + index + "]");
+                    msg = "Action '" + action.toString() + "' is missing a required " +
+                            "value for worklet name [Item " + index + "]";
                 }
                 else {
                     for (String part : worklet.split(";")) {
                         if (! workletList.contains(part)) {
-                            errorList.add("Unknown worklet name '" + worklet +
-                                    "' [Item " + index + "]");
+                            msg = "Unknown worklet name '" + worklet + "' [Item " + index + "]";
                         }
                     }
                 }
             }
         }
+        return msg != null ? new ExletValidationError(index, msg) : null;
     }
 
     // either all are select, or none are
-    private boolean validateSelect(RdrConclusion conclusion, List<String> errorList) {
+    private boolean validateSelect(RdrConclusion conclusion) {
         boolean allAreSelect = true;
         boolean noneAreSelect = true;
         for (int i=1; i <= conclusion.getCount(); i++) {
@@ -89,16 +97,13 @@ public class ConclusionValidator {
             allAreSelect = allAreSelect && action == ExletAction.Select;
             noneAreSelect = noneAreSelect && action != ExletAction.Select;
         }
-        if (! (allAreSelect || noneAreSelect)) {
-            errorList.add("A conclusion with a 'select' action may not contain " +
-                    "any other kind of action.");
-        }
         return allAreSelect || noneAreSelect;
     }
 
 
 
-    private void validateSequence(RdrConclusion conclusion, List<String> errorList) {
+    private void validateSequence(RdrConclusion conclusion,
+                                  List<ExletValidationError> errorList) {
         ExletState targetState = new ExletState();
         for (int i=1; i <= conclusion.getCount(); i++) {
             ExletAction action = conclusion.getPrimitive(i).getExletAction();
@@ -127,14 +132,14 @@ public class ConclusionValidator {
             }
 
             if (error != null) {
-                errorList.add(error + " [Item " + i + "]");
+                errorList.add(new ExletValidationError(i, error + " [Item " + i + "]"));
             }
         }
 
         for (ExletTarget target : ExletTarget.values()) {
             if (targetState.getState(target) == ExletAction.Suspend) {
-                errorList.add("Target '" + target.toString() + "' is left in a " +
-                        "suspended state when this exlet completes.");
+                errorList.add(new ExletValidationError(0, "Target '" + target.toString() +
+                        "' is left in a suspended state when this exlet completes."));
             }
         }
     }

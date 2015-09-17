@@ -20,7 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +74,10 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     // default constructor for pre-2.0 specs
     public YSpecificationID(String uri) {
         this(null, new YSpecVersion("0.1"), uri);
+    }
+
+    public YSpecificationID(XNode node) {
+        fromXNode(node);
     }
 
 
@@ -154,6 +158,34 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
         return getKey() + ":" + version.toString();
     }
 
+    public String toFullString() {
+        StringBuilder s = new StringBuilder();
+        if (identifier != null) s.append(identifier);
+        s.append(":");
+        s.append(getVersionAsString());
+        s.append(":");
+        s.append(uri);
+        return s.toString();
+    }
+
+
+    public YSpecificationID fromFullString(String s) throws IllegalArgumentException {
+        String[] parts = s.split(":");
+        if (parts.length == 1) {            // pre release 2: uri only
+            setVersion(new YSpecVersion("0.1"));
+            setUri(parts[0]);
+        }
+        else if (parts.length == 3) {
+            setIdentifier(parts[0]);
+            setVersion(new YSpecVersion(parts[1]));
+            setUri(parts[2]);
+        }
+        else {
+            throw new IllegalArgumentException("Invalid specification ID string: " + s);
+        }
+        return this;
+    }
+
 
     public int compareTo(YSpecificationID other) {
         String key = getKey();
@@ -178,13 +210,27 @@ public class YSpecificationID implements Comparable<YSpecificationID> {
     }
 
 
+    public XNode toXNode() {
+        XNode node = new XNode("specificationid");
+        if (identifier != null) {
+            node.addChild("identifier", identifier);
+        }
+        node.addChild("version", version.getVersion());
+        node.addChild("uri", uri);
+        return node;
+    }
+
+
+    public YSpecificationID fromXNode(XNode node) {
+        identifier = node.getChildText("identifier");
+        version = new YSpecVersion(node.getChildText("version"));
+        uri = node.getChildText("uri");
+        return this;
+    }
+
+
     public String toXML() {
-        StringBuilder xml = new StringBuilder("<specificationid>");
-        if (identifier != null) xml.append(StringUtil.wrap(identifier, "identifier"));
-        xml.append(StringUtil.wrap(version.getVersion(), "version"))
-                .append(StringUtil.wrap(uri, "uri"))
-                .append("</specificationid>");
-        return xml.toString();
+        return toXNode().toPrettyString();
     }
 
 }

@@ -19,11 +19,12 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.exception.ExletAction;
 import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
-import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
 import java.util.*;
 
@@ -36,9 +37,7 @@ import java.util.*;
 public class RdrConclusion {
 
     private long id;                      // for hibernate
-
     private List<RdrPrimitive> _primitives;
-    private RdrPair _pair = null ;       // stored here for wr.saveSearchResults()
 
     public RdrConclusion() { }
 
@@ -65,20 +64,28 @@ public class RdrConclusion {
         return _primitives != null ? _primitives.size() : 0;
     }
 
+    public void setSelectionPrimitive(String workletURI) {
+        setSelectionPrimitive(new YSpecificationID(workletURI));
+    }
 
-    public void setSelectionPrimitive(String workletName) {
+    public void setSelectionPrimitive(YSpecificationID specID) {
         _primitives = null;                        // only one prim allowed for selection
-        addPrimitive("select", workletName);
+        addPrimitive("select", specID.getKey());
+    }
+
+    public void setSelectionPrimitive(Set<YSpecificationID> specIDs) {
+        _primitives = null; // only one prim allowed for selection
+        addPrimitive("select", specIDs);
     }
 
 
-    public void addCompensationPrimitive(String workletName) {
-        addPrimitive("compensate", workletName);
+    public void addCompensationPrimitive(YSpecificationID specID) {
+        addPrimitive("compensate", specID.getKey());
     }
 
 
-    public void addCompensationPrimitive(List<String> workletNames) {
-        addCompensationPrimitive(RdrConversionTools.StringListToString(workletNames));
+    public void addCompensationPrimitive(Set<YSpecificationID> specIDs) {
+        addPrimitive("compensate", specIDs);
     }
 
 
@@ -87,6 +94,13 @@ public class RdrConclusion {
     }
 
 
+    public void addPrimitive(String action, Set<YSpecificationID> specIDs) {
+        List<String> idStrings = new ArrayList<String>();
+        for (YSpecificationID specID : specIDs) {
+             idStrings.add(specID.getKey());
+        }
+        addPrimitive(action, StringUtil.join(idStrings, ','));
+    }
 
 
     // from editor plugin
@@ -159,11 +173,6 @@ public class RdrConclusion {
         XNode node = new XNodeParser().parse(xml);
         if (node != null) parseSteps(node.toElement());
     }
-
-
-    public RdrPair getLastPair() { return _pair ; }
-
-    public void setLastPair(RdrPair pair) { _pair = pair ; }
 
 
     // primitive indexes start at 1, not zero
