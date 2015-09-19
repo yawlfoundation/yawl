@@ -24,7 +24,7 @@
 <hibernate-mapping>
 
     <class name="org.yawlfoundation.yawl.worklet.selection.WorkletRunner"
-           table="ws_WorkletRunner">
+           table="ws_WorkletRunner" lazy="false">
 
         <id name="_id" column="rowid" type="long" access="field">
             <generator class="native"/>

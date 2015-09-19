@@ -78,16 +78,20 @@ public class WorkletGateway extends YHttpServlet {
                 _ws.initEngineURI(engineURI);
 
                 String ixStr = context.getInitParameter("EnableExceptionHandling");
-                _ws.setExceptionServiceEnabled(
-                        (ixStr != null) && ixStr.equalsIgnoreCase("TRUE"));
+                boolean exceptionHandlingEnabled = ixStr != null && ixStr.equalsIgnoreCase("TRUE");
+                _ws.setExceptionServiceEnabled(exceptionHandlingEnabled);
 
                 _sessions = new Sessions();
                 _sessions.setupInterfaceA(engineURI.replaceFirst("/ib", "/ia"),
                         context.getInitParameter("EngineLogonUserName"),
                         context.getInitParameter("EngineLogonPassword"));
 
-                _ws.completeInitialisation();
-                ExceptionService.getInst().completeInitialisation();
+                if (exceptionHandlingEnabled) {
+                    ExceptionService.getInst().completeInitialisation();
+                }
+                else {
+                    _ws.completeInitialisation();
+                }
             } catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);
             } finally {

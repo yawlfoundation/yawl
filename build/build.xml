@@ -676,6 +676,28 @@
         </propertyfile>
     </target>
 
+    <target name="writeManifest">
+        <property file="build/build.properties"/>
+        <propCopy name="build.number" from="${app.prefix}.build.number"/>
+        <propCopy name="build.date" from="${app.prefix}.build.date"/>
+        <manifest file="${manifestFile}">
+            <attribute name="Specification-Vendor" value="The YAWL Foundation" />
+            <attribute name="Specification-Version" value="${app.version}" />
+            <attribute name="Implementation-Version" value="${build.number}" />
+            <attribute name="Implementation-Date" value="${build.date}" />
+            <attribute name="Compile-OS" value="${os.name}"/>
+            <attribute name="Compile-OSVersion" value="${os.version}"/>
+            <attribute name="Compiled-By" value="${user.name}"/>
+        </manifest>
+    </target>
+
+    <macrodef name="propCopy">
+      <attribute name="name"/>
+      <attribute name="from"/>
+      <sequential>
+        <property name="@{name}" value="${@{from}}"/>
+      </sequential>
+    </macrodef>
 
 
     <!-- =================MAIN YAWL SERVICES BUILD TARGETS================= -->
@@ -1091,6 +1113,12 @@
             <param name="target" value="${engine.app.name}"/>
         </antcall>
 
+        <property name="manifestFile" value="${engine.app.name}.mf" />
+        <antcall target="writeManifest" inheritall="false">
+            <param name="manifestFile" value="${manifestFile}"/>
+            <param name="app.prefix" value="yawl"/>
+        </antcall>
+
         <propertyfile file="${build.dir}/engine/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>
@@ -1102,7 +1130,7 @@
         </propertyfile>
         <copy file="${build.dir}/engine/version.properties"
               tofile="${temp.dir}/${engine.app.name}/WEB-INF/classes/version.properties"/>
-        <jar destfile="${output.dir}/yawl.war">
+        <jar destfile="${output.dir}/yawl.war" manifest="${manifestFile}">
             <fileset dir="${temp.dir}/${engine.app.name}"/>
         </jar>
         <checksum file="${output.dir}/yawl.war"/>
@@ -1114,6 +1142,7 @@
                              log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${engine.app.name}" deleteonexit="true"/>
+        <delete file="${manifestFile}" />
     </target>
 
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">

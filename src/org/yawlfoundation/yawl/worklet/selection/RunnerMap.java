@@ -136,13 +136,14 @@ public class RunnerMap {
 
     public Set<WorkletRunner> getChildRunners(Set<WorkletRunner> runners) {
         if (! runners.isEmpty()) {
-            for (WorkletRunner runner : runners) {
+            for (WorkletRunner runner : new HashSet<WorkletRunner>(runners)) {
                 Set<WorkletRunner> childRunners = getRunnersForCase(runner.getCaseID());
                 runners.addAll(getChildRunners(childRunners));
             }
         }
         return runners;
     }
+
 
     public Set<WorkletRunner> getAll() {
         return new HashSet<WorkletRunner>(_runners.values());

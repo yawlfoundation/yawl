@@ -291,6 +291,13 @@ public class WorkletService extends InterfaceBWebsideController {
      */
 
     public void handleCancelledWorkItemEvent(WorkItemRecord wir) {
+
+        // ignore cancelled parents with no child runners
+        if (wir.getStatus().equals("Is parent") &&
+                _runners.getRunnersForParentWorkItem(wir.getID()).isEmpty()) {
+            return;
+        }
+
         _log.info("HANDLE CANCELLED WORKITEM EVENT");
         String itemId = wir.getID();
         _log.info("ID of cancelled workitem: {}", itemId);
@@ -330,12 +337,9 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE COMPLETE CASE EVENT");
         _log.info("ID of completed case: {}", caseID);
 
-        // reconstruct casedata to JDOM Element
-        Element cdata = JDOMUtil.stringToElement(casedata);
-
         if (connected()) {
             if (_runners.isWorklet(caseID)) {
-                handleCompletingSelectionWorklet(caseID, cdata);
+                handleCompletingSelectionWorklet(caseID, casedata);
             }
             else _log.info("Completing case is not a worklet selection: {}", caseID);
         }
@@ -496,7 +500,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param caseId     - the id of the completing case
      * @param wlCasedata - the completing case's datalist Element
      */
-    private void handleCompletingSelectionWorklet(String caseId, Element wlCasedata) {
+    private void handleCompletingSelectionWorklet(String caseId, String wlCasedata) {
 
         // get the id of the workitem this worklet was selected for
         WorkletRunner runner = _runners.remove(caseId);
@@ -697,7 +701,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param runner       - the checkedOutChildItem for the workitem in question
      * @param wlCasedata - the completing case's datalist Element
      */
-    private void checkInHandledWorkItem(WorkletRunner runner, Element wlCasedata) {
+    private void checkInHandledWorkItem(WorkletRunner runner, String wlCasedata) {
 
         // get the actual workitem this worklet case substituted
         WorkItemRecord childItem = runner.getWir();
@@ -707,7 +711,7 @@ public class WorkletService extends InterfaceBWebsideController {
             Element in = runner.getWorkItemData();
 
             // update workitem's datalist with the worklet's output values
-            Element out = updateDataList(in, wlCasedata);
+            Element out = updateDataList(in, JDOMUtil.stringToElement(wlCasedata));
 
             // check in original workitem
             if (checkInItem(childItem, in, out)) {

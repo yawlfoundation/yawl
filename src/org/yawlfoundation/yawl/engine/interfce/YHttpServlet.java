@@ -4,11 +4,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.jar.Manifest;
 
 /**
  * An override of HttpServlet to include a few useful generic methods
@@ -46,6 +50,13 @@ public class YHttpServlet extends HttpServlet {
 
     protected String response(String result) {
         return StringUtil.wrap(result, "response");
+    }
+
+
+    protected Manifest getManifest() throws IOException {
+        ServletContext application = getServletConfig().getServletContext();
+        InputStream inputStream = application.getResourceAsStream("/META-INF/MANIFEST.MF");
+        return new Manifest(inputStream);
     }
 
 
