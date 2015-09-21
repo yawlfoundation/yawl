@@ -667,10 +667,17 @@ public class YNetRunner {
 
         // must fire & start them all first to avoid race conditions
         for (YAtomicTask task : emptyTasks) {
-            YIdentifier id = task.t_fire(pmgr).get(0);
-            task.t_start(pmgr, id);
-            identifiers.put(id, task);
-            _busyTasks.add(task);
+            try {
+                YIdentifier id = task.t_fire(pmgr).get(0);
+                task.t_start(pmgr, id);
+                identifiers.put(id, task);
+                _busyTasks.add(task);
+            }
+            catch (YStateException yse) {
+                // thrown by t_fire if task is no longer enabled - presumably it is a
+                // target of a deferred choice, and another target was also an empty task
+                // that 'won' the race. No further action for the task is required.
+            }
         }
 
         // now they can be completed
