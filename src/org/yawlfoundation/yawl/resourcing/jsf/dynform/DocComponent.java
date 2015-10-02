@@ -55,8 +55,8 @@ public class DocComponent extends PanelLayout {
     private int formWidth;
     private int textWidth;
     
-    private static final String UP_TEXT = "⋀";
-    private static final String DOWN_TEXT = "⋁";
+    private static final String UP_TEXT = "\u22C0";
+    private static final String DOWN_TEXT = "\u22C1";
 
     protected static final int BTN_HSPACE = 6;
     protected static final int BTN_WIDTH = 20;

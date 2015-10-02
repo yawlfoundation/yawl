@@ -33,9 +33,9 @@ public class UserConnectionCache {
     private Map<String, UserConnection> _participantLookup;
 
     public UserConnectionCache() {
-        _jSessionIDLookup = new Hashtable<String, UserConnection>();
-        _ySessionHandleLookup = new Hashtable<String, UserConnection>();
-        _participantLookup = new Hashtable<String, UserConnection>();
+        _jSessionIDLookup = new HashMap<String, UserConnection>();
+        _ySessionHandleLookup = new HashMap<String, UserConnection>();
+        _participantLookup = new HashMap<String, UserConnection>();
     }
 
 
@@ -99,6 +99,29 @@ public class UserConnectionCache {
     
     public Collection<UserConnection> getAllSessions() {
         return _ySessionHandleLookup.values();
+    }
+
+
+    // how many current sessions in total?
+    public int getSessionCount() { return _ySessionHandleLookup.size(); }
+
+    // how many current sessions are actual users?
+    public int getUserSessionCount() { return _participantLookup.size(); }
+
+    // how many  current sessions are 'admin' account?
+    public int getAdminSessionCount() {
+        return getSessionCount() - getUserSessionCount();
+    }
+
+    // how many  current sessions are users with admin privileges?
+    public int getUserAdminSessionCount() {
+        int count = 0;
+        for (Participant p : getActiveParticipants()) {
+            if (p != null && p.isAdministrator()) {
+                count++;
+            }
+        }
+        return count;
     }
 
 

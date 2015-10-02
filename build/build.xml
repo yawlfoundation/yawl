@@ -922,7 +922,7 @@
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
                deprecation="true" verbose="true" includeantruntime="true"
-               bootclasspath="${java.boot.classpath}">
+               bootclasspath="${java.boot.classpath}" encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>

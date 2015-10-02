@@ -479,6 +479,13 @@ public class ApplicationBean extends AbstractApplicationBean {
         return null;
     }
 
+
+    public int getUserSessionCount() { return _rm.getUserSessionCount(); }
+
+    public int getAdminSessionCount() { return _rm.getAdminSessionCount(); }
+
+    public int getUserAdminSessionCount() { return _rm.getUserAdminSessionCount(); }
+
     /**
      * *********************************************************************
      */

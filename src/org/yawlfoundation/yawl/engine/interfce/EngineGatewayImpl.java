@@ -953,9 +953,6 @@ public class EngineGatewayImpl implements EngineGateway {
                                 "</option>");
             } catch (YAWLException e) {
                 //just don't provide that option.
-                if (e instanceof YPersistenceException) {
-                    enginePersistenceFailure = true;
-                }
             }
             if (workItem.getStatus().equals(YWorkItemStatus.statusEnabled)
                     || workItem.getStatus().equals(YWorkItemStatus.statusFired)) {

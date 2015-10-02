@@ -2128,6 +2128,11 @@ public class ResourceManager extends InterfaceBWebsideController {
         return _cache.isActiveSession(jSessionID);
     }
 
+    public int getUserSessionCount() { return _cache.getUserSessionCount(); }
+
+    public int getAdminSessionCount() { return _cache.getAdminSessionCount(); }
+
+    public int getUserAdminSessionCount() { return _cache.getUserAdminSessionCount(); }
 
     /**
      * ***************************************************************************

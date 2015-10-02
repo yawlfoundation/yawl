@@ -29,9 +29,7 @@ import org.yawlfoundation.yawl.resourcing.jsf.comparator.WorkItemAgeComparator;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import java.io.IOException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /*
  * The backing bean for the YAWL 2.0 admin work queues form
@@ -257,6 +255,13 @@ public class adminQueues extends AbstractPageBean {
     public void setBtnSecRes(Button btn) { btnSecRes = btn; }
 
 
+    private Button btnUsers = new Button();
+
+    public Button getBtnUsers() { return btnUsers; }
+
+    public void setBtnUsers(Button btn) { btnUsers = btn; }
+
+
     private Meta metaRefresh = new Meta();
 
     public Meta getMetaRefresh() { return metaRefresh; }
@@ -354,6 +359,10 @@ public class adminQueues extends AbstractPageBean {
     public String btnSecRes_action() {
         _sb.loadSecondaryResources();
         return "showSecondaryResources";
+    }
+
+    public String btnUsers_action() {
+        return showUserCount();
     }
 
     public String btnOffer_action() {
@@ -583,6 +592,23 @@ public class adminQueues extends AbstractPageBean {
         body1.setFocus(_msgPanel.hasMessage() ? "form1:pfMsgPanel:btnOK001" :
                 "form1:pfQueueUI:lbxItems");
         _sb.showMessagePanel();
+    }
+
+
+    private String showUserCount() {
+        int admins = getApplicationBean().getAdminSessionCount();
+        int adminUsers = getApplicationBean().getUserAdminSessionCount();
+        int users = getApplicationBean().getUserSessionCount() - adminUsers;
+        List<String> msgList = new ArrayList<String>();
+
+        msgList.add(admins + " administrator account" + (admins != 1 ? "s" : ""));
+        msgList.add(adminUsers + " user" + (adminUsers != 1 ? "s" : "") +
+                " with administration access");
+        msgList.add(users + " user" + (users != 1 ? "s" : ""));
+
+        _msgPanel.setTitleText("Current Sessions");
+        _msgPanel.info(msgList);
+        return null;
     }
 
 }

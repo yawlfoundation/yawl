@@ -429,6 +429,14 @@
     position: absolute;
 }
 
+.userSessionsButton {
+    left: 711px;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+}
+
 .refreshOrgDataButton {
     left: 669px;
     top: 8px;

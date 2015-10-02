@@ -6,16 +6,16 @@ package org.yawlfoundation.yawl.authentication;
  */
 public interface ISessionCache {
 
-    public String connect(String name, String password, long timeOutSeconds);
+    String connect(String name, String password, long timeOutSeconds);
 
-    public boolean checkConnection(String handle);
+    boolean checkConnection(String handle);
 
-    public YAbstractSession getSession(String handle);
+    YAbstractSession getSession(String handle);
 
-    public void expire(String handle);
+    void expire(String handle);
 
-    public void disconnect(String handle);
+    void disconnect(String handle);
 
-    public void shutdown();
+    void shutdown();
 
 }

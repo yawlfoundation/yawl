@@ -392,6 +392,14 @@ public class RuntimeCache {
         return xml.toString() ;
     }
 
+    public int getSessionCount() { return _liveSessions.getSessionCount(); }
+
+    public int getUserSessionCount() { return _liveSessions.getUserSessionCount(); }
+
+    public int getAdminSessionCount() { return _liveSessions.getAdminSessionCount(); }
+
+    public int getUserAdminSessionCount() { return _liveSessions.getUserAdminSessionCount(); }
+
 
     /*******************************************************************************/
 

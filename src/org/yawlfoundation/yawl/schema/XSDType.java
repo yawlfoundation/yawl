@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.schema;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -246,7 +245,7 @@ public class XSDType {
             case DATE:        return getDateTimeValue("yyyy-MM-dd");    // "2013-01-01"
             case TIME:        return getDateTimeValue("HH:mm:ss");      // "12:12:12";
             case DATETIME:    return getDateTimeValue("yyyy-MM-dd'T'HH:mm:ss");
-            case DURATION:    return "PY2";
+            case DURATION:    return "P2Y";
             case GDAY:        return getDateTimeValue("'---'dd");
             case GMONTH:      return getDateTimeValue("'--'MM");
             case GMONTHDAY:   return getDateTimeValue("'--'MM-dd");

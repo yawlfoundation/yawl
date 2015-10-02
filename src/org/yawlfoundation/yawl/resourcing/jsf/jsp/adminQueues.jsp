@@ -171,6 +171,14 @@
                                    toolTip="Synchronise Work Items with Engine"
                                    text=""/>
 
+                        <ui:button binding="#{adminQueues.btnUsers}"
+                                   action="#{adminQueues.btnUsers_action}"
+                                   id="btnUsers"
+                                   imageURL="/resources/userIcon.png"
+                                   styleClass="userSessionsButton"
+                                   toolTip="Current sessions count"
+                                   text=""/>
+
                         <ui:checkbox binding="#{adminQueues.cbxDirectToMe}"
                                      id="cbxDirectToMe"
                                      label="Directly to me"
