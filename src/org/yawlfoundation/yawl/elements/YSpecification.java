@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.unmarshal.YMetaData;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
@@ -141,9 +142,9 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
     public String toXML() {
         StringBuilder xml = new StringBuilder();
-        xml.append(String.format("<specification uri=\"%s\">", _specURI));
-        if (_name != null) xml.append(StringUtil.wrap(_name, "name"));
-        if (_documentation != null) xml.append(StringUtil.wrap(_documentation, "documentation"));
+        xml.append(String.format("<specification uri=\"%s\">", JDOMUtil.encodeEscapes(_specURI)));
+        if (_name != null) xml.append(StringUtil.wrapEscaped(_name, "name"));
+        if (_documentation != null) xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
         xml.append(_metaData.toXML());
         xml.append(_dataValidator.getSchema());
         xml.append("<decomposition id=\"")
