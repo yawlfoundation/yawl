@@ -72,7 +72,7 @@ public class FileUtil {
 
     /**
      * Gets a list of files in the specified dir. Note: Non-recursive, no dirs included
-     * @param dir the dir to traverse
+     * @param f the dir to traverse
      * @return the list of files
      */
     public static  List<File> getFileList(File f) {
@@ -153,8 +153,8 @@ public class FileUtil {
     private static String setHomeDir() {
         String result = "";
         try {
-            Class editorClass = Class.forName("org.yawlfoundation.yawl.controlpanel.Launcher");
-            CodeSource source = editorClass.getProtectionDomain().getCodeSource();
+            Class cpClass = Class.forName("org.yawlfoundation.yawl.controlpanel.YControlPanel");
+            CodeSource source = cpClass.getProtectionDomain().getCodeSource();
             if (source != null) {
                 URL location = source.getLocation();
                 String path = URLDecoder.decode(location.getPath(), "UTF-8");

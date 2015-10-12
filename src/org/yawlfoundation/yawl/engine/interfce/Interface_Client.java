@@ -114,6 +114,50 @@ public class Interface_Client {
 
 
     /**
+     * Sends data to the specified url via a HTTP POST, and returns the reply
+     * @param connection the http url connection to send the request to
+     * @param paramsMap a map of attribute=value pairs representing the data to send
+     * @param stripOuterXML true if this was originally a POST request, false if a GET request
+     * @return the response from the url
+     * @throws IOException when there's some kind of communication problem
+     */
+    protected String send(HttpURLConnection connection, Map<String, String> paramsMap,
+                          boolean stripOuterXML) throws IOException {
+
+        // encode data and send query
+        sendData(connection, encodeData(paramsMap)) ;
+
+        //retrieve reply
+        String result = getReply(connection.getInputStream());
+        connection.disconnect();
+
+        if (stripOuterXML) result = stripOuterElement(result);
+        return result;
+
+    }
+
+
+    /**
+     * Initialises a HTTP POST connection
+     * @param urlStr the url to connect to
+     * @return an initialised POST connection
+     * @throws IOException when there's some kind of communication problem
+     */
+    protected HttpURLConnection initPostConnection(String urlStr) throws IOException {
+        URL url = new URL(urlStr);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Accept-Charset", "UTF-8");
+        connection.setReadTimeout(READ_TIMEOUT);
+
+        // required to ensure the connection is not reused. When not set, spurious
+        // intermittent problems (double posts, missing posts) occur under heavy load.
+        connection.setRequestProperty("Connection", "close");
+        return connection ;
+    }
+
+
+    /**
      * Tests a response message for success or failure
      * @param message the response message to test
      * @return true if the response represents success
@@ -139,39 +183,7 @@ public class Interface_Client {
      */
     private String send(String urlStr, Map<String, String> paramsMap, boolean post)
             throws IOException {
-
-        // create and setup connection
-        HttpURLConnection connection = initPostConnection(urlStr);
-
-        // encode data and send query
-        sendData(connection, encodeData(paramsMap)) ;
-
-        //retrieve reply
-        String result = getReply(connection.getInputStream());
-        connection.disconnect();
-
-        if (post) result = stripOuterElement(result);
-        return result;
-    }
-
-
-    /**
-     * Initialises a HTTP POST connection
-     * @param urlStr the url to connect to
-     * @return an initialised POST connection
-     * @throws IOException when there's some kind of communication problem
-     */
-    private HttpURLConnection initPostConnection(String urlStr) throws IOException {
-        URL url = new URL(urlStr);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Accept-Charset", "UTF-8");
-        connection.setReadTimeout(READ_TIMEOUT);
-
-        // required to ensure the connection is not reused. When not set, spurious
-        // intermittent problems (double posts, missing posts) occur under heavy load.
-        connection.setRequestProperty("Connection", "close");
-        return connection ;
+        return send(initPostConnection(urlStr), paramsMap, post);
     }
 
 

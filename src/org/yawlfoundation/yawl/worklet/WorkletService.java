@@ -191,6 +191,7 @@ public class WorkletService extends InterfaceBWebsideController {
                 for (YAWLServiceReference service : services) {
                     if (service.getURI().contains("workletService")) {
                         _workletURI = service.getURI();
+                        break;
                     }
                 }
             }
@@ -337,13 +338,13 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE COMPLETE CASE EVENT");
         _log.info("ID of completed case: {}", caseID);
 
-        if (connected()) {
-            if (_runners.isWorklet(caseID)) {
+        if (_runners.isWorklet(caseID)) {
+            if (connected()) {
                 handleCompletingSelectionWorklet(caseID, casedata);
             }
-            else _log.info("Completing case is not a worklet selection: {}", caseID);
+            else _log.error("Could not connect to YAWL Engine");
         }
-        else _log.error("Could not connect to YAWL Engine");
+        else _log.info("Completing case is not a worklet selection: {}", caseID);
     }
 
 
@@ -708,7 +709,7 @@ public class WorkletService extends InterfaceBWebsideController {
         if (childItem != null) {
 
             // get the workitem's input data list
-            Element in = runner.getWorkItemData();
+            Element in = childItem.getDataList();
 
             // update workitem's datalist with the worklet's output values
             Element out = updateDataList(in, JDOMUtil.stringToElement(wlCasedata));

@@ -186,8 +186,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             String caseID = getIntegralID(wir.getCaseID());
             CaseMonitor monitor = _monitoredCases.get(caseID);
 
-            if (connected()) {
-                if (monitor != null) {
+            if (monitor != null) {
+                if (connected()) {
                     _log.info("HANDLE CHECK WORKITEM CONSTRAINT EVENT");
                     if (! monitor.isPreCaseCancelled()) {
                         monitor.updateData(data);         // update case monitor's data
@@ -210,9 +210,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         completeCaseMonitoring(monitor, monitor.getCaseID());
                     }
                 }
-                else pushCheckWorkItemConstraintEvent(wir, data, preCheck);
+                else _log.error("Unable to connect the Exception Service to the Engine");
             }
-            else _log.error("Unable to connect the Exception Service to the Engine");
+            else pushCheckWorkItemConstraintEvent(wir, data, preCheck);
         }
     }
 

@@ -99,7 +99,7 @@
 
     <context-param>
         <param-name>Repository</param-name>
-        <param-value>${catalina.base}\webapps\workletService\repository\</param-value>
+        <param-value>${catalina.base}/webapps/workletService/repository/</param-value>
         <description>
             The path where the worklet repository is installed.
         </description>

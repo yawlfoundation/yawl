@@ -68,7 +68,8 @@ public class RunnerMap {
     public Set<WorkletRunner> getRunnersForParentWorkItem(String parentID) {
         Set<WorkletRunner> runners = new HashSet<WorkletRunner>();
         for (WorkletRunner runner : _runners.values()) {
-            if (runner.getParentWorkItemID().equals(parentID)) {
+            String runnerParentID = runner.getParentWorkItemID();
+            if (runnerParentID != null && runnerParentID.equals(parentID)) {
                 runners.add(runner);
             }
         }
@@ -109,7 +110,8 @@ public class RunnerMap {
     public boolean hasRunnersForParentWorkItem(String parentID) {
         if (parentID == null) return false;
         for (WorkletRunner runner : _runners.values()) {
-            if (runner.getParentWorkItemID().equals(parentID)) {
+            String runnerParentID = runner.getParentWorkItemID();
+            if (runnerParentID != null && runnerParentID.equals(parentID)) {
                 return true;
             }
         }
@@ -120,7 +122,8 @@ public class RunnerMap {
     public Set<WorkletRunner> getRunnersForCase(String caseID) {
         Set<WorkletRunner> runners = new HashSet<WorkletRunner>();
         for (WorkletRunner runner : _runners.values()) {
-            if (runner.getParentCaseID().equals(caseID)) {
+            String runnerParentID = runner.getParentCaseID();
+            if (runnerParentID != null && runnerParentID.equals(caseID)) {
                 runners.add(runner);
             }
         }
