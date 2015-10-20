@@ -210,12 +210,15 @@ public class TomcatUtil {
             cmdList.add("bash");
             cmdList.add("-c");
             cmdList.add(cmd + (isStart ? " start" : " stop -force"));
+//            cmdList.add(cmd + (isStart ? " run" : " stop -force"));
         }
         else {
             cmdList.add("cmd");
             cmdList.add("/c");
             cmdList.add(cmd);
             cmdList.add(isStart ? "start" : "stop");
+//            cmdList.add(isStart ? " run" : " stop");
+//            cmdList.add(" >> ..\\logs\\catalina.out 2<&1");
         }
         return cmdList;
     }
@@ -236,12 +239,13 @@ public class TomcatUtil {
     private static void executeCmd(List<String> cmdList) throws IOException {
         ProcessBuilder pb = new ProcessBuilder(cmdList);
         addEnvParameters(pb);
+        pb.redirectErrorStream(true);
         final Process process = pb.start();
 
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    InputStreamReader isr = new InputStreamReader(process.getErrorStream());
+                    InputStreamReader isr = new InputStreamReader(process.getInputStream());
                     BufferedReader br = new BufferedReader(isr);
                     String line = null;
 
@@ -293,17 +297,16 @@ public class TomcatUtil {
 
     private static boolean pidExists() {
         File pidFile = new File(getCatalinaHome(), "catalina_pid.txt");
-        return pidFile != null && pidFile.exists();
+        return pidFile.exists();
     }
 
 
     private static String deriveCatalinaHome() {
         try {
             File thisJar = FileUtil.getJarFile();
-            if (thisJar != null && thisJar.getAbsolutePath().endsWith(".jar")) {
-                String rootPath = FileUtil.buildPath(thisJar.getParentFile().getParent(),
+            if (thisJar.getAbsolutePath().endsWith(".jar")) {
+                return FileUtil.buildPath(thisJar.getParentFile().getParent(),
                         "engine", "apache-tomcat-" + TOMCAT_VERSION);
-                return rootPath;
             }
         }
         catch (URISyntaxException use) {

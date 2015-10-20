@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.miscellaneousPrograms;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

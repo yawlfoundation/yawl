@@ -10,17 +10,14 @@ import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateDialogLoader;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.controlpanel.util.WebPageLauncher;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 /**
  * @author Michael Adams
@@ -110,6 +107,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
             actionPerformed(event);
         }
         if (prefs.checkForUpdatesOnStartup()) {
+ //           new BackgroundChecker(null);
             new BackgroundChecker(this);
         }
     }
@@ -153,25 +151,13 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
     private void showLogonPage() {
         try {
-            openWebPage(getLogonURL());
+            new WebPageLauncher().openWebPage(getLogonURL());
         }
         catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     e.getMessage(), "Error browsing to page",
                     JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-
-    private void openWebPage(String url) throws IOException, URISyntaxException {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-                desktop.browse(new URI(url));
-                return;
-            }
-        }
-        throw new IOException("Cannot launch browser page from java on this platform");
     }
 
 
@@ -244,6 +230,7 @@ public class ButtonPanel extends JPanel implements ActionListener, EngineStatusL
 
 
     private void startEditor() {
+ //       EditorLauncher editorLauncher = new EditorLauncher(null);
         EditorLauncher editorLauncher = new EditorLauncher(this);
         editorLauncher.launch();
         enableEditorButton(false);

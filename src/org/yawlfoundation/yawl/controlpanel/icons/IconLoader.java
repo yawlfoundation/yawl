@@ -29,8 +29,10 @@ public class IconLoader {
         ImageIcon icon = null;
         try {
             InputStream stream = IconLoader.class.getResourceAsStream(name + ".png");
-            icon = new ImageIcon(ImageIO.read(stream));
-            if (icon != null) CACHE.put(name, icon);
+            if (stream != null) {
+                icon = new ImageIcon(ImageIO.read(stream));
+                CACHE.put(name, icon);
+            }
         }
         catch (IOException ignore) {
             // ignore this file

@@ -55,7 +55,7 @@ public class YControlPanel extends JFrame {
 
     private void buildUI() {
         setLayout(new BorderLayout());
-        setResizable(false);
+        setResizable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationByPlatform(true);
         setTitle(getAppTitle());
@@ -63,11 +63,16 @@ public class YControlPanel extends JFrame {
 
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10,10,10,10));
+    //    content.add(buildLeftPanel(), BorderLayout.WEST);
         content.add(buildLeftPanel(), BorderLayout.CENTER);
         ButtonPanel bp = new ButtonPanel(this);
         content.add(bp, BorderLayout.EAST);
+//        content.add(new OutputPanel(), BorderLayout.CENTER);
+//        ToolBar tb = new ToolBar(this);
+//        content.add(tb, BorderLayout.NORTH);
         getContentPane().add(content);
         pack();
+ //       tb.performUserPreferencesOnStart();
         bp.performUserPreferencesOnStart();
     }
 

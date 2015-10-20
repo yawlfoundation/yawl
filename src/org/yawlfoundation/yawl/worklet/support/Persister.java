@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.CaseMonitor;
-import org.yawlfoundation.yawl.worklet.exception.ExletRunner;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.LaunchEvent;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
@@ -42,7 +41,7 @@ import java.util.HashSet;
 public class Persister extends HibernateEngine {
 
     private static Class[] classes = {
-            AdministrationTask.class, CaseMonitor.class, ExletRunner.class,
+            AdministrationTask.class, CaseMonitor.class,
             LaunchEvent.class, RdrNode.class, RdrTree.class, RdrTreeSet.class,
             RdrSet.class, RdrConclusion.class, WorkletEvent.class,
             WorkItemRecord.class, WorkletRunner.class, WorkletSpecification.class

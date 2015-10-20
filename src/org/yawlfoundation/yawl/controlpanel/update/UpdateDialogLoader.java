@@ -43,20 +43,27 @@ public class UpdateDialogLoader implements PropertyChangeListener {
                 if (_checker.hasError()) {
                     showError(_checker.getErrorMessage());
                 }
+                else if (_checker.getDiffer().isNewVersion()) {
+                    showDialog(new NewVersionDialog(_main, _checker.getDiffer()));
+                }
                 else {
                     _updateDialog = new UpdateDialog(_main, _checker.getDiffer());
-                    _updateDialog.setVisible(true);
-                    _updateDialog.toFront();
+                    showDialog(_updateDialog);
                 }
             }
         }
     }
 
 
-    private void showError(String msg) {
-            JOptionPane.showMessageDialog(null, msg, "Check for Updates Error",
-                    JOptionPane.ERROR_MESSAGE);
+    private void showDialog(JDialog dialog) {
+        dialog.setVisible(true);
+        dialog.toFront();
     }
 
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(null, msg, "Check for Updates Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
 
 }

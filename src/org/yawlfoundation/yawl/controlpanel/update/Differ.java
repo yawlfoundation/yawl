@@ -47,6 +47,15 @@ public class Differ {
         return ! getLatestVersion().equals(getCurrentVersion());
     }
 
+    public String getCurrentVersionInfo() {
+        return getInfo("Your", getCurrentVersion());
+    }
+
+
+    public String getLatestVersionInfo() {
+        return getInfo("New", getLatestVersion());
+    }
+
 
     public boolean hasUpdate(String appName) {
         return isDifferent(getCurrentBuild(appName), getLatestBuild(appName));
@@ -273,5 +282,13 @@ public class Differ {
             throw new IllegalStateException("Unable to compare versions.");
         }
     }
+
+
+    private String getInfo(String label, String version) {
+        StringBuilder s = new StringBuilder();
+        s.append("\t\t\u2022 ").append(label).append(" Version: ").append(version);
+        return s.toString();
+    }
+
 
 }

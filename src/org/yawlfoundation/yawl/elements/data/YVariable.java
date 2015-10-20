@@ -482,7 +482,9 @@ public class YVariable implements Cloneable, YVerifiable, Comparable<YVariable> 
 
     private void checkValue(String value, String label,
                             YVerificationHandler handler) {
-        if (!StringUtil.isNullOrEmpty(value)) {
+
+        // any value for a string type, or an empty value, is OK
+        if (! ("string".equals(getDataTypeName()) || StringUtil.isNullOrEmpty(value))) {
             Element testElem;
 
             // check if well-formed

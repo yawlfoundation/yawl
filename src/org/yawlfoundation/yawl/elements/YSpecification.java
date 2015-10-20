@@ -479,7 +479,9 @@ public final class YSpecification implements Cloneable, YVerifiable {
         specifiedDecompositions.removeAll(netsBeingUsed);
 
         for (YDecomposition decomp : specifiedDecompositions) {
-            handler.warn(decomp, "The decomposition [" + decomp.getID() +
+            handler.warn(decomp, "The " +
+                    (decomp instanceof YNet ? "net" : "decomposition") +
+                    " [" + decomp.getID() +
                     "] is not being used in this specification.");
         }
     }

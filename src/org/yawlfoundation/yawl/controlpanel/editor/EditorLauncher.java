@@ -15,9 +15,12 @@ import java.util.List;
  */
 public class EditorLauncher {
 
+ //   ToolBar _btnPanel;
     ButtonPanel _btnPanel;
 
+
     public EditorLauncher(ButtonPanel btnPanel) {
+//    public EditorLauncher(ToolBar btnPanel) {
         _btnPanel = btnPanel;
     }
 
