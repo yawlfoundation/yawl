@@ -7,9 +7,11 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 /**
+ * Periodically checks that tomcat is running, and that the engine is available, and
+ * announces any changes in those states.
+ *
  * @author Michael Adams
  * @date 7/08/2014
  */
@@ -18,14 +20,8 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     private Timer _timer;
     private EngineStatus _currentStatus;
 
-    // Tomcat stops accepting pings before it finishes shutting down.
-    // These vars allow a few extra timer ticks before we're satisfied its done.
-    private boolean _shuttingDown;
-    private int _shutdownCounter = 0;
-
     private static final int STARTUP_SHUTDOWN_PERIOD = 1000;
     private static final int MONITOR_PERIOD = 5000;
-    private static final int SHUTDOWN_TICKS = 4;
 
 
     public EngineMonitor() {
@@ -44,21 +40,15 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     }
 
 
+    // from timer
     public void actionPerformed(ActionEvent event) {
         if (_currentStatus != EngineStatus.Stopped) {
-            if (_shuttingDown && _shutdownCounter++ > SHUTDOWN_TICKS) {
-                _shuttingDown = false;
-                _shutdownCounter = 0;
-                Publisher.announceStoppedStatus();
-                TomcatUtil.removePidFile();
-            }
-            else {
-                ping();
-            }
+            ping();
         }
     }
 
 
+    // from Publisher
     public void statusChanged(EngineStatus status) {
         if (_currentStatus != status) {
             _currentStatus = status;
@@ -95,14 +85,6 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private void handleStop() {
         _timer.stop();
-        if (FileUtil.isWindows()) {
-            try {
-                TomcatUtil.killTomcatProcess();
-            }
-            catch (IOException ignore) {
-                //
-            }
-        }
     }
 
 
@@ -129,8 +111,9 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
                 }
             }
             else {
-                _shuttingDown = true;                                    // !T
+                announce(EngineStatus.Stopped);
             }
+
             return null;
         }
 

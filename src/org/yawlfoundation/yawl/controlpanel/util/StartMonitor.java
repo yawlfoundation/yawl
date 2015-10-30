@@ -20,34 +20,29 @@ public class StartMonitor extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws Exception {
         boolean started = false;
-        for (int i=0; i < _totalSecs * 2; i++) {
-            pause(500);
+        long now = System.currentTimeMillis();
+        long expiry = now + (_totalSecs * 1000);
+        while (now < expiry) {
+            sleep(500);
             if (TomcatUtil.isPortActive()) {
                 started = true;
                 Publisher.announceStartingStatus();
                 break;
             };
+            now = System.currentTimeMillis();
         }
+
         if (! started) showError("Unable to start: Unknown Error");
         return null;
     }
 
 
-    protected static void pause(long milliseconds) {
-        Object lock = new Object();
-        long now = System.currentTimeMillis();
-        long finishTime = now + milliseconds;
-        while (now < finishTime) {
-            long timeToWait = finishTime - now;
-            synchronized (lock) {
-                try {
-                    lock.wait(timeToWait);
-                }
-                catch (InterruptedException ex) {
-                }
-            }
-            now = System.currentTimeMillis();
+
+    protected void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
         }
+        catch (InterruptedException ignore) { }
     }
 
 

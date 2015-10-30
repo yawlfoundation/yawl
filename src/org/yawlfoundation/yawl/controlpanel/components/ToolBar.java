@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
+import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateDialogLoader;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebPageLauncher;
@@ -38,8 +39,6 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     private JButton _btnEditor;
     private JButton _btnUpdates;
     private JButton _btnPreferences;
-    private JButton _btnManual;
-    private JButton _btnExamples;
 
 
     public ToolBar(JFrame mainWindow) {
@@ -49,6 +48,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         setFloatable(false);
         setMargin(new Insets(3, 2, 2, 0));
         addButtons();
+        addStatusPanel();
         Publisher.addEngineStatusListener(this);
     }
 
@@ -84,6 +84,9 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         else if (cmd.equals("examples")) {
             browseTo(EXAMPLES_URL);
         }
+        else if (cmd.equals("about")) {
+            showAboutDialog();
+        }
     }
 
 
@@ -101,22 +104,11 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
     public void performUserPreferencesOnStart() {
         UserPreferences prefs = new UserPreferences();
-        ActionEvent event;
-        boolean tomcatIsRunning = TomcatUtil.isPortActive();
-        if (prefs.openOutputWindowOnStartup()) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Output Log");
-            actionPerformed(event);
-        }
-        if (prefs.startEngineOnStartup() && ! tomcatIsRunning) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Start");
-            actionPerformed(event);
-        }
-        else if (prefs.showLogonPageOnEngineStart() && tomcatIsRunning) {
-            event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Logon");
-            actionPerformed(event);
-        }
         if (prefs.checkForUpdatesOnStartup()) {
-     //       new BackgroundChecker(this);
+            new BackgroundChecker(this);
+        }
+        if (prefs.startEngineOnStartup()) {
+            startEngine();
         }
     }
 
@@ -132,19 +124,19 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         _btnEditor = createToolButton("editor", " Launch the YAWL Process Editor ");
         _btnUpdates = createToolButton("updates", " Add or remove services, or check for updates ");
         _btnPreferences = createToolButton("preferences", " Edit Preferences ");
-        _btnManual = createToolButton("manual", " View the YAWL User Manual ");
-        _btnExamples = createToolButton("examples", " Download some example processes ");
 
         add(_btnStart);
         add(_btnStop);
-        add(_btnLogon);
         addSeparator();
+        add(_btnLogon);
         add(_btnEditor);
         add(_btnUpdates);
         add(_btnPreferences);
         addSeparator();
-        add(_btnManual);
-        add(_btnExamples);
+        add(createToolButton("manual", " View the YAWL User Manual "));
+        add(createToolButton("examples", " View/Download examples "));
+        addSeparator();
+        add(createToolButton("about", " About... "));
     }
 
 
@@ -155,7 +147,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         button.setToolTipText(tip);
         button.setText(null);
         button.setMnemonic(0);
-        button.setMargin(new Insets(4,4,4,4));
+        button.setMargin(new Insets(2,2,2,2));
         button.setMaximumSize(button.getPreferredSize());
         button.addActionListener(this);
         return button;
@@ -173,10 +165,19 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     }
 
 
+    private void addStatusPanel() {
+        addSeparator();
+        addSeparator();
+        add(new StatusPanel());
+    }
+
     private void startEngine() {
         boolean success = false;
         try {
             success = TomcatUtil.start();
+            if (! success) {
+                offerToKillProcess();
+            }
         }
         catch (IOException ioe) {
             showError("Error when starting Engine: " + ioe.getMessage());
@@ -186,20 +187,8 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
 
     private void stopEngine() {
-        boolean success = false;
-        try {
-            success = TomcatUtil.stop();
-            if (success) {
-                Publisher.announceStoppingStatus();
-            }
-            else {
-                showError("General failure: unable to stop Engine");
-            }
-        }
-        catch (IOException ioe) {
-            showError("Error when stopping Engine: " + ioe.getMessage());
-        }
-        _btnStop.setEnabled(! success);
+        TomcatUtil.stop();
+        _btnStop.setEnabled(false);
     }
 
 
@@ -215,7 +204,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
 
     private void startEditor() {
-        EditorLauncher editorLauncher = new EditorLauncher(null);     // this
+        EditorLauncher editorLauncher = new EditorLauncher(this);
         editorLauncher.launch();
         enableEditorButton(false);
     }
@@ -223,6 +212,11 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
     private void showPreferencesDialog() {
         new PreferencesDialog(_mainWindow).setVisible(true);
+    }
+
+
+    private void showAboutDialog() {
+        new AboutDialog(_mainWindow).setVisible(true);
     }
 
 
@@ -245,8 +239,50 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
 
     private void showError(String msg) {
-             JOptionPane.showMessageDialog(null, msg, "Engine Execution Error",
+         JOptionPane.showMessageDialog(this, msg, "Engine Execution Error",
                      JOptionPane.ERROR_MESSAGE);
-     }
+    }
+
+
+    private void offerToKillProcess() {
+        String message =
+                "The YAWL engine cannot be started because there is already\n" +
+                "an process instance or remnant running on the specified port.\n" +
+                "Press 'Yes' to attempt to remove the existing instance and\n" +
+                "retry, or 'No' to retain the existing instance.";
+        int choice = JOptionPane.showConfirmDialog(_mainWindow, message,
+                "Cannot Start Engine", JOptionPane.YES_NO_OPTION,
+                JOptionPane.ERROR_MESSAGE);
+        if (choice == JOptionPane.YES_OPTION) {
+            showWaitCursor(true);
+            try {
+                if (TomcatUtil.killTomcatProcess()) {
+                    message = "Successfully removed existing instance.\n" +
+                            "Please retry starting the YAWL Engine.";
+                }
+                else {
+                    message = "Unable to free the port required to start YAWL.\n" +
+                            "Check the process using port " +
+                            TomcatUtil.getTomcatServerPort() +
+                            ",\nor set YAWL to use a different port in the\n" +
+                            "Preferences dialog.";
+                }
+            }
+            catch (IOException ioe) {
+                message = "Unable to remove existing instance.";
+            }
+            showWaitCursor(false);
+            JOptionPane.showMessageDialog(_mainWindow, message, "Remove Instance",
+                                 JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+
+    private void showWaitCursor(boolean show) {
+        int cursor = show ? Cursor.WAIT_CURSOR : Cursor.DEFAULT_CURSOR;
+        Component glassPane = ((RootPaneContainer) getTopLevelAncestor()).getGlassPane();
+        glassPane.setCursor(Cursor.getPredefinedCursor(cursor));
+        glassPane.setVisible(show);
+    }
 
 }

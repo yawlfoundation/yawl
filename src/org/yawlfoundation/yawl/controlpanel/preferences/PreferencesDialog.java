@@ -3,7 +3,6 @@ package org.yawlfoundation.yawl.controlpanel.preferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
-import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 
 import javax.swing.*;
@@ -25,13 +24,12 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
 
     private JCheckBox _cbxStart;
     private JCheckBox _cbxUpdates;
-    private JCheckBox _cbxOutput;
     private JCheckBox _cbxLogon;
-    private JCheckBox _cbxStop;
     private JPanel _portPanel;
     private JTextField _portField;
     private UserPreferences _prefs;
     private int _origPortValue;
+
 
     public PreferencesDialog(JFrame mainWindow) {
         super(mainWindow);
@@ -43,7 +41,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         buildUI();
         load();
         pack();
-        setLocationByPlatform(true);
+        setLocationRelativeTo(mainWindow);
         Publisher.addEngineStatusListener(this);
     }
 
@@ -80,10 +78,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         _cbxStart.setSelected(_prefs.startEngineOnStartup());
         _cbxUpdates.setSelected(_prefs.checkForUpdatesOnStartup());
         _cbxLogon.setSelected(_prefs.showLogonPageOnEngineStart());
-        _cbxStop.setSelected(_prefs.stopEngineOnExit());
-        if (_cbxOutput != null) {
-            _cbxOutput.setSelected((_prefs.openOutputWindowOnStartup()));
-        }
         _origPortValue = TomcatUtil.getTomcatServerPort();
         _portField.setText(String.valueOf(_origPortValue));
     }
@@ -93,10 +87,6 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         _prefs.setStartEngineOnStartup(_cbxStart.isSelected());
         _prefs.setCheckForUpdatesOnStartup(_cbxUpdates.isSelected());
         _prefs.setShowLogonPageOnEngineStart(_cbxLogon.isSelected());
-        _prefs.setStopEngineOnExit(_cbxStop.isSelected());
-        if (_cbxOutput != null) {
-            _prefs.setOpenOutputWindowOnStartup(_cbxOutput.isSelected());
-        }
         return savePort();
     }
 
@@ -112,29 +102,8 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
 
     private JPanel buildOptionsPanel() {
         JPanel panel = new JPanel(new BorderLayout(10,10));
-        panel.add(getTopPanel(), BorderLayout.NORTH);
         panel.add(getCentrePanel(), BorderLayout.CENTER);
         panel.add(getBottomPanel(), BorderLayout.SOUTH);
-        return panel;
-    }
-
-
-    private JPanel getTopPanel() {
-        JPanel panel = new JPanel(new GridLayout(0,1));
-        panel.setBorder(new CompoundBorder(
-                new TitledBorder("When Control Panel Starts:"),
-                new EmptyBorder(5, 5, 5, 5)));
-        _cbxStart = makeCheckBox("Start Engine if not already running", KeyEvent.VK_S);
-        _cbxUpdates = makeCheckBox("Check for updates", KeyEvent.VK_C);
-        panel.add(_cbxStart);
-        panel.add(_cbxUpdates);
-
-        // no output dialog needed for windows users
-        if (! FileUtil.isWindows()) {
-            _cbxOutput = makeCheckBox("Open Output Log window", KeyEvent.VK_O);
-            panel.add(_cbxOutput);
-        }
-
         return panel;
     }
 
@@ -142,43 +111,29 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
     private JPanel getCentrePanel() {
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setBorder(new CompoundBorder(
-                new TitledBorder("When Engine Starts:"),
-                new EmptyBorder(5, 5, 5, 5)));
-        _cbxLogon = makeCheckBox("Go to Logon page in browser", KeyEvent.VK_G);
+                new TitledBorder("Actions"),
+                new EmptyBorder(5, 5, 5, 5))
+        );
+        _cbxUpdates = makeCheckBox("Check for updates when Control Panel starts", KeyEvent.VK_C);
+        _cbxStart = makeCheckBox("Start YAWL Engine when Control Panel starts", KeyEvent.VK_S);
+        _cbxLogon = makeCheckBox("Go to Logon page in browser when Engine starts", KeyEvent.VK_G);
+        panel.add(_cbxUpdates);
+        panel.add(_cbxStart);
         panel.add(_cbxLogon);
         return panel;
     }
 
 
     private JPanel getBottomPanel() {
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(getExitPanel());
-        panel.add(getPortPanel());
-        return panel;
-    }
-
-
-    private JPanel getExitPanel() {
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.setBorder(new CompoundBorder(
-                new TitledBorder("When Control Panel Exits:"),
-                new EmptyBorder(5, 5, 5, 5)));
-        _cbxStop = makeCheckBox("Stop Engine if running", KeyEvent.VK_P);
-        panel.add(_cbxStop);
-        return panel;
-    }
-
-
-    private JPanel getPortPanel() {
         _portPanel = new JPanel();
         _portPanel.setLayout(new BoxLayout(_portPanel, BoxLayout.LINE_AXIS));
         _portPanel.setBorder(new CompoundBorder(
-                new TitledBorder("Tomcat Port:"),
+                new TitledBorder("Tomcat Port"),
                 new EmptyBorder(5, 5, 5, 5)));
         _portField = new JFormattedTextField(getPortValueFormatter());
         _portField.setPreferredSize(new Dimension(75, 25));
         _portField.setBorder(new EmptyBorder(0,5,0,0));
-        _portPanel.add(new JLabel("Port"));
+        _portPanel.add(new JLabel("Port: "));
         _portPanel.add(_portField);
         enablePanel(_portPanel, !TomcatUtil.isEngineRunning());
         return _portPanel;

@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
+import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
@@ -37,11 +38,18 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
 
     public void statusChanged(EngineStatus status) {
         switch (status) {
-            case Stopped  : setColors(STOPPED); setText(STOPPED_TEXT); break;
-            case Stopping : setColors(WAITING); setText(STOPPING_TEXT); break;
-            case Starting : setColors(WAITING); setText(STARTING_TEXT); break;
-            case Running  : setColors(RUNNING); setText(RUNNING_TEXT); break;
+            case Stopped  : setStatus(STOPPED, STOPPED_TEXT, false); break;
+            case Stopping : setStatus(WAITING, STOPPING_TEXT, true); break;
+            case Starting : setStatus(WAITING, STARTING_TEXT, true); break;
+            case Running  : setStatus(RUNNING, RUNNING_TEXT, false); break;
         }
+    }
+
+
+    private void setStatus(Color backColor, String text, boolean showWaiting) {
+        setColors(backColor);
+        setText(text);
+        enableWaitIcon(showWaiting);
     }
 
 
@@ -76,6 +84,14 @@ public class StatusPanel extends JPanel implements EngineStatusListener {
         _statusLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
         _statusLabel.setForeground(Color.WHITE);
         _statusLabel.setFont(_statusLabel.getFont().deriveFont(Font.BOLD));
+        _statusLabel.setHorizontalTextPosition(JLabel.RIGHT);
         return _statusLabel;
     }
+
+
+    private void enableWaitIcon(boolean show) {
+        ImageIcon icon = IconLoader.get("wait.gif");
+        _statusLabel.setIcon(show ? icon : null);
+    }
+
 }

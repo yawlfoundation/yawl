@@ -1,6 +1,5 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
@@ -10,9 +9,7 @@ import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
-import org.yawlfoundation.yawl.util.StartMenuUpdater;
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -51,6 +48,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         List<AppUpdate> updates = getUpdatesList();
         updates.addAll(_installs);
         if (! updates.isEmpty()) {
+            _progressPanel.setText("Downloading updates...");
             _progressPanel.setVisible(true);
             _downloads = getDownloadList(updates);
             _deletions = getDeletionList(updates);
@@ -256,16 +254,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         Publisher.addEngineStatusListener(this);
         if (Publisher.getCurrentStatus() == EngineStatus.Running) {
             _cycled = true;
-            try {
-                _progressPanel.setIndeterminate(true);
-                _progressPanel.setText("Stopping Engine...");
-                if (TomcatUtil.stop()) Publisher.announceStoppingStatus();
-                else {
-                    showError("Failed to stop Engine.");
-                    complete(false);
-                }
-            }
-            catch (IOException ioe) {
+            _progressPanel.setIndeterminate(true);
+            _progressPanel.setText("Stopping Engine...");
+            if (! TomcatUtil.stop()) {
                 showError("Failed to stop Engine.");
                 complete(false);
             }

@@ -23,11 +23,6 @@ public class ProgressPanel extends JPanel {
         build();
     }
 
-    public void setVisible(boolean visible) {
-        if (visible) setText("Downloading updates...");
-        super.setVisible(visible);
-    }
-
 
     public void setText(String text) { _prompt.setText(text); }
 

@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>3.0.1</version>
-  <timestamp>2015-10-20 13.55.14</timestamp>
+  <timestamp>2015-10-30 19.47.17</timestamp>
   <lib hash="51953afbd6a3893311b390de3a1b54b2">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T13:39:26"/>
@@ -79,6 +79,7 @@
     <file name="log4j-api-2.3.jar" md5="94241ab3197b95a813d896820b3f6a87" size="135903" timestamp="2015-05-11T07:12:49"/>
     <file name="log4j-core-2.3.jar" md5="110ab3e3e4f3780921e8ee5dde3373ad" size="827024" timestamp="2015-05-11T07:16:46"/>
     <file name="log4j-slf4j-impl-2.3.jar" md5="c5507f66db2c18b090b4ae2e8338244b" size="22544" timestamp="2015-05-11T07:19:12"/>
+    <file name="ls.txt" md5="7756f4c686f2d09db58c6b2e13ba9a55" size="2101" timestamp="2015-10-02T10:31:09"/>
     <file name="macify-1.4.jar" md5="0e25f516b113033b2da4591161f1e117" size="11684" timestamp="2015-08-12T13:39:28"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28"/>
     <file name="mailapi.jar" md5="de6e488d20b54572fe6118e19e732f78" size="231990" timestamp="2015-08-12T13:39:28"/>
@@ -845,11 +846,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-3.0.1.jar" md5="871252141804bd59a6db1a33e9ef653a" size="2479211" timestamp="2015-10-20T13:55:12"/>
+    <file name="yawl-lib-3.0.1.jar" md5="5c7c96d5ed8f9e1711c8406b0aa723eb" size="2479211" timestamp="2015-10-30T19:47:17"/>
   </yawllib>
   <controlpanel>
-    <build>103</build>
-    <file name="YawlControlPanel-3.0.1.jar" md5="a93715bf70a04bdcb0a81d7f36b2fa28" size="324036" timestamp="2015-10-20T13:49:31"/>
+    <build>186</build>
+    <file name="YawlControlPanel-3.0.1.jar" md5="307559356ecb0cab936dc7923155ba9a" size="341602" timestamp="2015-10-30T19:47:17"/>
   </controlpanel>
 </checksums>
 

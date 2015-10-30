@@ -4,10 +4,12 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
-import java.io.*;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.net.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 /**
  * @author Michael Adams
@@ -20,6 +22,8 @@ public class TomcatUtil {
     private static final String TOMCAT_VERSION = "7.0.55";
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
+    private static final TomcatProcess _process = new TomcatProcess(CATALINA_HOME);
+
     public static boolean start() throws IOException {
         if (! isEngineRunning()) {                       // yawl isn't running
             if (isPortActive()) {                        // but localhost:port is responsive
@@ -28,20 +32,23 @@ public class TomcatUtil {
             }
             checkSizeOfLog();
             removePidFile();                            // if not already removed
-            executeCmd(createStartCommandList());
-            new StartMonitor(7).execute();
+            _process.start();
             return true;
         }
         return false;                                   // already started
     }
 
 
-    public static boolean stop() throws IOException {
-        if (isPortActive()) {
-            executeCmd(createStopCommandList());
-            return true;
+    public static boolean stop() { return stop(null); }
+
+
+    public static boolean stop(PropertyChangeListener listener) {
+        try {
+            return !isPortActive() || _process.stop(listener);
         }
-        return false;
+        catch (IOException ioe) {
+            return false;
+        }
     }
 
 
@@ -56,8 +63,9 @@ public class TomcatUtil {
 
 
     public static boolean isTomcatRunning() {
-        return pidExists();
+        return _process.isAlive();
     }
+
 
 
     public static String getCatalinaHome() {
@@ -119,11 +127,13 @@ public class TomcatUtil {
     }
 
 
-    public static void killTomcatProcess() throws IOException {
-        if (FileUtil.isWindows()) {
-            executeCmd(Arrays.asList("TASKKILL", "/F", "/FI",
-                    "\"WINDOWTITLE eq Tomcat\"", "/IM", "java.exe"));
+    public static boolean killTomcatProcess() throws IOException {
+        _process.kill();
+        try {
+            Thread.sleep(2000);
         }
+        catch (InterruptedException ignore) {}
+        return ! isPortActive();
     }
 
 
@@ -193,92 +203,6 @@ public class TomcatUtil {
     }
 
 
-    private static List<String> createStartCommandList() {
-        return createCommandList(true);
-    }
-
-
-    private static List<String> createStopCommandList() {
-        return createCommandList(false);
-    }
-
-
-    private static List<String> createCommandList(boolean isStart) {
-        List<String> cmdList = new ArrayList<String>();
-        String cmd = buildCmd();
-        if (cmd.endsWith("sh")) {
-            cmdList.add("bash");
-            cmdList.add("-c");
-            cmdList.add(cmd + (isStart ? " start" : " stop -force"));
-//            cmdList.add(cmd + (isStart ? " run" : " stop -force"));
-        }
-        else {
-            cmdList.add("cmd");
-            cmdList.add("/c");
-            cmdList.add(cmd);
-            cmdList.add(isStart ? "start" : "stop");
-//            cmdList.add(isStart ? " run" : " stop");
-//            cmdList.add(" >> ..\\logs\\catalina.out 2<&1");
-        }
-        return cmdList;
-    }
-
-
-    private static String buildCmd() {
-        StringBuilder s = new StringBuilder();
-        s.append(getCatalinaHome())
-         .append(FileUtil.SEP)
-         .append("bin")
-         .append(FileUtil.SEP)
-         .append("catalina.")
-         .append(getScriptExtn());
-        return s.toString();
-    }
-
-
-    private static void executeCmd(List<String> cmdList) throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(cmdList);
-        addEnvParameters(pb);
-        pb.redirectErrorStream(true);
-        final Process process = pb.start();
-
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    InputStreamReader isr = new InputStreamReader(process.getInputStream());
-                    BufferedReader br = new BufferedReader(isr);
-                    String line = null;
-
-                    while ((line = br.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
-                catch (IOException ioe) {
-                    //
-                }
-            }
-        }).start();
-
-    }
-
-
-    private static String getScriptExtn() {
-        return FileUtil.isWindows() ? "bat" : "sh";
-    }
-
-
-    private static void addEnvParameters(ProcessBuilder pb) {
-        Map<String, String> env = pb.environment();
-        env.put("CATALINA_HOME", CATALINA_HOME);
-        String javaHome = deriveJavaHome();
-        env.put("JAVA_HOME", javaHome);
-
-        // output env (cmd line starts only)
-        System.out.println("Using CATALINA_HOME: " + CATALINA_HOME);
-        System.out.println("Using JAVA_HOME: " + javaHome);
-    }
-
-
     // rename catalina.out if its too big - tomcat will create a new one on startup
     private static void checkSizeOfLog() {
         File log = new File(FileUtil.buildPath(getCatalinaHome(), "logs", "catalina.out"));
@@ -295,12 +219,6 @@ public class TomcatUtil {
     }
 
 
-    private static boolean pidExists() {
-        File pidFile = new File(getCatalinaHome(), "catalina_pid.txt");
-        return pidFile.exists();
-    }
-
-
     private static String deriveCatalinaHome() {
         try {
             File thisJar = FileUtil.getJarFile();
@@ -313,11 +231,6 @@ public class TomcatUtil {
             //
         }
         return System.getenv("CATALINA_HOME");         // fallback
-    }
-
-
-    private static String deriveJavaHome() {
-        return System.getProperty("java.home");
     }
 
 

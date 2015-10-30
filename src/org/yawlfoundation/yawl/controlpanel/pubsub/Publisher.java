@@ -1,7 +1,5 @@
 package org.yawlfoundation.yawl.controlpanel.pubsub;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -14,17 +12,24 @@ public class Publisher {
     private static EngineStatus _currentStatus = EngineStatus.Stopped;
     private static List<EngineStatusListener> _listeners =
             new CopyOnWriteArrayList<EngineStatusListener>();
+    private static final Object LOCK = new Object();
+
 
     private Publisher() { }
 
 
     public static void addEngineStatusListener(EngineStatusListener listener) {
-        _listeners.add(listener);
+        synchronized (LOCK) {
+            _listeners.add(listener);
+            listener.statusChanged(_currentStatus);
+        }
     }
 
 
     public static void removeEngineStatusListener(EngineStatusListener listener) {
-        _listeners.remove(listener);
+        synchronized (LOCK) {
+            _listeners.remove(listener);
+        }
     }
 
 
@@ -32,7 +37,7 @@ public class Publisher {
     public static void statusChange(EngineStatus status) {
         if (status != _currentStatus) {
             _currentStatus = status;
-            synchronized (_listeners) {
+            synchronized (LOCK) {
                 for (EngineStatusListener listener : _listeners) {
                     listener.statusChanged(status);
                 }
@@ -41,13 +46,14 @@ public class Publisher {
     }
 
 
-
     public static EngineStatus getCurrentStatus() { return  _currentStatus; }
+
 
     public static boolean isTransientStatus() {
         return _currentStatus == EngineStatus.Starting ||
                _currentStatus == EngineStatus.Stopping;
     }
+
 
     public static void abortStarting() {
         if (_currentStatus == EngineStatus.Starting) {

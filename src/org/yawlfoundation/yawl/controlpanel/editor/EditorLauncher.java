@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.editor;
 
-import org.yawlfoundation.yawl.controlpanel.components.ButtonPanel;
+import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
 
 import javax.swing.*;
 import java.io.File;
@@ -15,12 +15,10 @@ import java.util.List;
  */
 public class EditorLauncher {
 
- //   ToolBar _btnPanel;
-    ButtonPanel _btnPanel;
+    ToolBar _btnPanel;
 
 
-    public EditorLauncher(ButtonPanel btnPanel) {
-//    public EditorLauncher(ToolBar btnPanel) {
+    public EditorLauncher(ToolBar btnPanel) {
         _btnPanel = btnPanel;
     }
 

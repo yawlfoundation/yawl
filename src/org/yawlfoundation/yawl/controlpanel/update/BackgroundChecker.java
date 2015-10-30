@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.yawlfoundation.yawl.controlpanel.components.ButtonPanel;
+import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,12 +15,9 @@ import java.beans.PropertyChangeListener;
 public class BackgroundChecker implements PropertyChangeListener {
 
     private final UpdateChecker _checker;
-    private final ButtonPanel _source;
+    private final ToolBar _source;
 
-   // private final ToolBar _source;
-
-  //  public BackgroundChecker(ToolBar source) {
-  public BackgroundChecker(ButtonPanel source) {
+    public BackgroundChecker(ToolBar source) {
         _source = source;
         _checker = new UpdateChecker();
         _checker.addPropertyChangeListener(this);

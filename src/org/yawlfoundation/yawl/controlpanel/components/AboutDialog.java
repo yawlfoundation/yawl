@@ -1,10 +1,9 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
 import org.yawlfoundation.yawl.controlpanel.update.ChecksumsReader;
-import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
-import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -17,7 +16,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.Calendar;
 
 /**
@@ -26,34 +24,35 @@ import java.util.Calendar;
  */
 public class AboutDialog extends JDialog {
 
-    private static final Color BACK_COLOUR = new Color(254,254,240);
+    private static final Color BACK_COLOUR = new Color(70,100,100);        // 254,254,240);
     private static final String DEFAULT_YEAR =
            String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
 
-    public AboutDialog(Point appLocation, Point click) {
+    public AboutDialog(JFrame frame) {
         super();
-        init();
-        setLocation(appLocation.x + click.x, appLocation.y + click.y);
+        init(frame);
     }
 
 
-    private void init() {
+    private void init(JFrame frame) {
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(true);
         setContentPane(createContent());
         addKeyListener(this);
         pack();
+        setLocationRelativeTo(frame);
     }
 
 
     private JPanel createContent() {
-        JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
                 new EmptyBorder(12,12,12,12)));
         panel.setBackground(BACK_COLOUR);
-        panel.add(getLabel());
+        panel.add(new JLabel(IconLoader.get("YawlRunning")), BorderLayout.WEST);
+        panel.add(getLabel(), BorderLayout.CENTER);
         addMouseListener(panel);
         return panel;
     }
@@ -62,16 +61,18 @@ public class AboutDialog extends JDialog {
     private JLabel getLabel() {
         ChecksumsReader props = new ChecksumsReader(FileUtil.getLocalCheckSumFile());
         StringBuilder s = new StringBuilder();
-        s.append("YAWL Control Panel ");
+        s.append("<b>YAWL Control Panel ");
         s.append(getVersion(props));
 
         String build = getBuild(props);
         if (build != null) s.append(" (build ").append(build).append(')');
 
-        s.append("<br><br>");
+        s.append("</b><br><br>");
         s.append(getCopyrightText(props));
 
         JLabel label = new JLabel(StringUtil.wrap(s.toString(), "HTML"));
+        label.setFont(label.getFont().deriveFont(18.0f));
+        label.setForeground(new Color(240,240,240));
         addMouseListener(label);
         return label;
     }
