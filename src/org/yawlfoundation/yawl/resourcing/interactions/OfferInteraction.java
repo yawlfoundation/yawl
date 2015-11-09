@@ -294,7 +294,7 @@ public class OfferInteraction extends AbstractInteraction {
     }
 
 
-    public void withdrawOffer(WorkItemRecord wir, HashSet<Participant> offeredSet) {
+    public void withdrawOffer(WorkItemRecord wir, Set<Participant> offeredSet) {
         if (offeredSet != null) {
             for (Participant p : offeredSet) {
                 p.getWorkQueues().removeFromQueue(wir, WorkQueue.OFFERED);

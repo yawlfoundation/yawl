@@ -1,11 +1,11 @@
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.security.CodeSource;
@@ -138,10 +138,9 @@ public class FileUtil {
     }
 
 
-    public static boolean isWindows() {
-        String os = System.getProperty("os.name");
-        return os != null && os.toLowerCase().startsWith("win");
-    }
+    public static boolean isWindows() { return isOS("win"); }
+
+    public static boolean isMac() { return isOS("mac"); }
 
 
     public static File getLocalCheckSumFile() {
@@ -150,14 +149,31 @@ public class FileUtil {
     }
 
 
+    public static String getJarName() {
+        try {
+            String path = getJarPath();
+            if (path != null) {
+                return new File(path).getName();
+            }
+        }
+        catch (Exception e) {
+            // fall through
+        }
+        return "YawlControlPanel" + YControlPanel.VERSION;
+    }
+
+
+    private static boolean isOS(String osName) {
+        String os = System.getProperty("os.name");
+        return os != null && os.toLowerCase().startsWith(osName);
+    }
+
+
     private static String setHomeDir() {
         String result = "";
         try {
-            Class cpClass = Class.forName("org.yawlfoundation.yawl.controlpanel.YControlPanel");
-            CodeSource source = cpClass.getProtectionDomain().getCodeSource();
-            if (source != null) {
-                URL location = source.getLocation();
-                String path = URLDecoder.decode(location.getPath(), "UTF-8");
+            String path = getJarPath();
+            if (path != null) {
                 if (path.charAt(2) == ':') path = path.substring(1);
                 int lastSep = path.lastIndexOf('/') ;
                 if (lastSep > -1) result = path.substring(0, lastSep + 1) ;
@@ -170,6 +186,15 @@ public class FileUtil {
             result = System.getProperty("user.dir");   // default to current working dir
         }
         return result;
+    }
+
+
+    private static String getJarPath() throws ClassNotFoundException,
+            UnsupportedEncodingException {
+        Class cpClass = Class.forName("org.yawlfoundation.yawl.controlpanel.YControlPanel");
+        CodeSource source = cpClass.getProtectionDomain().getCodeSource();
+        return source == null ? null :
+                URLDecoder.decode(source.getLocation().getPath(), "UTF-8");
     }
 
 

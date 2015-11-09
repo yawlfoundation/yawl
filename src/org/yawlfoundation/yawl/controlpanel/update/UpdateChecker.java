@@ -16,19 +16,25 @@ import java.nio.channels.ReadableByteChannel;
  */
 public class UpdateChecker extends SwingWorker<Void, Void> {
 
-    private Differ _differ;
-    private String _error;
+    protected Differ _differ;
+    protected String _error;
 
-    public static final String CHECKSUM_FILE = "checksums.xml";
     protected static final String BASE_URL = "http://sourceforge.net/";
-    protected static final String SOURCE_URL =
-            BASE_URL + "projects/yawl/files/updatecache/engine/";
-    protected static final String SF_DOWNLOAD_SUFFIX = "/download";
+    public static final String CHECKSUM_FILE = "checksums.xml";
+    public static final String SOURCE_URL = BASE_URL +
+            "projects/yawl/files/updatecache/engine/";
+    public static final String SF_DOWNLOAD_SUFFIX = "/download";
 
-    public UpdateChecker() { }
+    public UpdateChecker() { super(); }
 
 
     public Void doInBackground() {
+        check();
+        return null;
+    }
+
+
+    public void check() {
         try {
             checkURLAvailable(BASE_URL);
             _differ = new Differ(loadLatestCheckSums(), loadCurrentCheckSums());
@@ -36,7 +42,6 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
         catch (IOException ioe) {
             _error = "Error: " + ioe.getMessage();
         }
-        return null;
     }
 
 
@@ -73,7 +78,15 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    private File loadCurrentCheckSums() throws IOException {
+    public void download(String fromURL, File toFile) throws IOException {
+        URL webFile = new URL(fromURL);
+        ReadableByteChannel rbc = Channels.newChannel(webFile.openStream());
+        FileOutputStream fos = new FileOutputStream(toFile);
+        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+    }
+
+
+    protected File loadCurrentCheckSums() throws IOException {
         File current = new File(TomcatUtil.getCatalinaHome() +
                 File.separator + "yawllib", CHECKSUM_FILE);
         if (! current.exists()) {
@@ -82,7 +95,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
         return current;
     }
 
-    private File loadLatestCheckSums() throws IOException {
+    protected File loadLatestCheckSums() throws IOException {
         File latest = new File(getTmpDir(), CHECKSUM_FILE);
         download(SOURCE_URL + "lib/" + CHECKSUM_FILE + SF_DOWNLOAD_SUFFIX, latest);
         if (! latest.exists()) {
@@ -92,23 +105,15 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    public void download(String fromURL, File toFile) throws IOException {
-        URL webFile = new URL(fromURL);
-        ReadableByteChannel rbc = Channels.newChannel(webFile.openStream());
-        FileOutputStream fos = new FileOutputStream(toFile);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+    protected void checkURLAvailable(String urlStr) throws IOException {
+        if (! TomcatUtil.isResponsive(new URL(urlStr))) {
+            throw new IOException("Update server is offline or unavailable");
+        }
     }
 
 
     private File getTmpDir() {
         return new File(System.getProperty("java.io.tmpdir"));
-    }
-
-
-    private void checkURLAvailable(String urlStr) throws IOException {
-        if (! TomcatUtil.isResponsive(new URL(urlStr))) {
-            throw new IOException("Update server is offline or unavailable");
-        }
     }
 
 

@@ -60,10 +60,10 @@ public class TextAreaOutputStream extends OutputStream {
 
     private void append(String text) {
         Color color = DEFAULT_COLOR;
-        if (text.startsWith("ERROR")) {
+        if (text.contains("ERROR")) {
             color = ERROR_COLOR;
         }
-        if (text.startsWith("WARN")) {
+        if (text.contains("WARN")) {
             color = WARN_COLOR;
         }
         else if (text.startsWith("INFO: Server startup ")) {

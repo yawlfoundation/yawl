@@ -25,10 +25,9 @@ import java.beans.PropertyChangeListener;
 public class YControlPanel extends JFrame {
 
     private EngineMonitor _engineMonitor;
-    private JLayeredPane _layeredPane;
-
 
     public static final String VERSION = "3.1";
+
 
     public YControlPanel() {
         super();
@@ -92,8 +91,7 @@ public class YControlPanel extends JFrame {
 
 
     private void setMacIcon() {
-        String os = System.getProperty("os.name");
-        if (os != null && os.toLowerCase().startsWith("mac")) {
+        if (FileUtil.isMac()) {
             new MacIcon(_engineMonitor);
         }
     }

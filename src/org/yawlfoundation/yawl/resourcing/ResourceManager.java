@@ -36,6 +36,7 @@ import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YAuthenticationException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
+import org.yawlfoundation.yawl.resourcing.allocators.RandomChoice;
 import org.yawlfoundation.yawl.resourcing.calendar.CalendarException;
 import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.resourcing.datastore.PersistedAutoTask;
@@ -49,6 +50,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.util.OrgDataRefresher;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
+import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
@@ -2564,27 +2566,80 @@ public class ResourceManager extends InterfaceBWebsideController {
                                        String action) {
         boolean result = true;
         if (wir != null) {
-            if (action.equals("Start")) {
+            Set<Participant> pSet = pidListToSet(pidList);
+            Participant allocated = allocateUnofferedItem(pSet, wir);
+            if (allocated == null) {
+                return false;                  // pSet is empty
+            }
+            _workItemCache.updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
 
-                // exactly one participant can have a workitem started 
+            // admin start overrides all
+            if (action.equals("Start")) {
                 String status = wir.getStatus();
                 if (status.equals(WorkItemRecord.statusEnabled) ||
                         status.equals(WorkItemRecord.statusFired)) {
-
-                    Participant p = _orgDataSet.getParticipant(pidList[0]);
-                    result = start(p, wir);
+                    result = start(allocated, wir);
                 } else {
                     _log.error("Unable to start workitem due to invalid status: " + status);
                     result = false;
                 }
 
                 // if could not start, fallback to allocate action
-                if (!result) action = "Allocate";
+                if (!result) acceptOffer(allocated, wir);
             }
 
-            _resAdmin.assignUnofferedItem(wir, pidList, action);
+            // if an admin offer and a user allocation, offer to the set
+            else if (action.equals("Offer") && !isSystemAllocated(wir)) {
+
+                // an offer can be made to several participants
+                for (Participant p : pSet) {
+                    p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
+                    addToOfferedSet(wir, p);
+                }
+            }
+
+            // else if an admin offer and a system allocate, or an admin allocate
+            else {
+                acceptOffer(allocated, wir);
+            }
+
+            _resAdmin.removeFromUnoffered(wir);
         }
         return result;
+    }
+
+
+    private boolean isSystemAllocated(WorkItemRecord wir) {
+        ResourceMap rMap = getResourceMap(wir);
+        return (rMap != null && rMap.getAllocateInteraction().getInitiator() ==
+                 AbstractInteraction.SYSTEM_INITIATED);
+    }
+
+
+    private Set<Participant> pidListToSet(String[] pidList) {
+        if (pidList == null || pidList.length == 0) {
+            return Collections.emptySet();
+        }
+        Set<Participant> pSet = new HashSet<Participant>();
+        for (String pid : pidList) {
+            Participant p = _orgDataSet.getParticipant(pid);
+            if (p != null) {
+                pSet.add(p);
+            }
+        }
+        return pSet;
+    }
+
+
+    private Participant allocateUnofferedItem(Set<Participant> pSet, WorkItemRecord wir) {
+        ResourceMap rMap = getResourceMap(wir);
+        if (rMap != null) {
+            AllocateInteraction interaction = rMap.getAllocateInteraction();
+            if (interaction.getAllocator() != null) {
+                return interaction.performAllocation(pSet, wir);
+            }
+        }
+        return new RandomChoice().performAllocation(pSet, wir);
     }
 
 

@@ -25,7 +25,7 @@ public class UpdateRowFactory {
         List<UpdateRow> rows = new ArrayList<UpdateRow>();
         for (String name : _differ.getWebAppNames()) {
             UpdateRow row = newRow(name, installedApps.contains(name));
-            if (row != null) rows.add(newRow(name, installedApps.contains(name)));
+            if (row != null) rows.add(row);
         }
         rows.add(newRow("controlpanel", true));
         Collections.sort(rows, new UpdateRowComparator());

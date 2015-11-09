@@ -15,12 +15,12 @@ import java.util.Map;
  */
 public class Downloader extends SwingWorker<Void, Void> implements PropertyChangeListener {
 
-    private String _urlBase;
-    private String _urlSuffix;
-    private List<String> _fileNames;
-    private long _totalBytes;
-    private File _targetDir;
-    private Map<DownloadWorker, Integer> _workerMap;
+    protected String _urlBase;
+    protected String _urlSuffix;
+    protected List<String> _fileNames;
+    protected long _totalBytes;
+    protected File _targetDir;
+    protected Map<DownloadWorker, Integer> _workerMap;
     private final Object _lock = new Object();
 
 
@@ -34,7 +34,7 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     }
 
 
-    protected boolean hasErrors() {
+    public boolean hasErrors() {
         for (DownloadWorker worker : _workerMap.keySet()) {
             if (worker.hasErrors()) return true;
         }
@@ -42,7 +42,7 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     }
 
 
-    protected List<String> getErrors() {
+    public List<String> getErrors() {
         List<String> errors = new ArrayList<String>();
         for (DownloadWorker worker : _workerMap.keySet()) {
             if (worker.hasErrors()) errors.add(worker.getError());
@@ -105,7 +105,7 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
         return progress;
     }
 
-    private void pause(long milliseconds) {
+    protected void pause(long milliseconds) {
         long now = System.currentTimeMillis();
         long finishTime = now + milliseconds;
         while (now < finishTime) {

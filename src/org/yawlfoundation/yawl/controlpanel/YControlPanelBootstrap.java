@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel;
 
+import org.yawlfoundation.yawl.controlpanel.cli.CliUpdateSwitcher;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.PostUpdateTasks;
@@ -18,8 +19,20 @@ public class YControlPanelBootstrap {
             }
         }
 
+        // if there are args, it is probably a call to the CLI interface
+        boolean cliHandled = false;
+        if (args.length > 0) {
+            cliHandled = new CliUpdateSwitcher().go(args);
+        }
+
+        if (cliHandled) {
+            System.exit(0);
+        }
+
+        // proceed to UI
         System.setProperty("com.apple.mrj.application.apple.menu.about.name",
                 "YAWL " + YControlPanel.VERSION + " Control Panel");
+
         YControlPanel.main(args);
     }
 }

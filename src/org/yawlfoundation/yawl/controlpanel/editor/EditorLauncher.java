@@ -27,6 +27,8 @@ public class EditorLauncher {
         try {
             List<String> command = new ArrayList<String>();
             command.add(getJavaPath());
+            command.add("-Xms256m");
+            command.add("-Xmx256m");
             command.add("-jar");
             command.add(getEditorPath());
 

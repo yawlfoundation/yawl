@@ -31,10 +31,7 @@ import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
 import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -70,8 +67,8 @@ public class ResourceMap {
     private Set<TaggedStringList> _ignoreSet = new HashSet<TaggedStringList>();
 
     // workitem id - offered-to-participants mapping
-    private HashMap<String, HashSet<Participant>> _offered = new
-            HashMap<String, HashSet<Participant>>() ;
+    private Map<String, Set<Participant>> _offered = new
+            HashMap<String, Set<Participant>>() ;
 
     private static final Logger _log = LogManager.getLogger(ResourceMap.class) ;
 
@@ -256,7 +253,7 @@ public class ResourceMap {
     }
 
 
-    public HashSet<Participant> getOfferedParticipants(String itemID) {
+    public Set<Participant> getOfferedParticipants(String itemID) {
         return _offered.get(itemID) ;
     }
 
@@ -288,7 +285,7 @@ public class ResourceMap {
         if (! routed) {
 
             // construct distribution set from resource spec
-            HashSet<Participant> distributionSet = doOffer(wir) ;
+            Set<Participant> distributionSet = doOffer(wir) ;
             if (distributionSet != null) {
 
                 // if case is chained and the chained participant is in the
@@ -318,7 +315,7 @@ public class ResourceMap {
 
     /** removes the workitem from all offer queues */ 
     public void withdrawOffer(WorkItemRecord wir) {
-        HashSet<Participant> pSet = _offered.remove(wir.getID());
+        Set<Participant> pSet = _offered.remove(wir.getID());
         _offer.withdrawOffer(wir, pSet);
     }
 
@@ -329,15 +326,15 @@ public class ResourceMap {
     }
 
 
-    private HashSet<Participant> doOffer(WorkItemRecord wir) {
-        HashSet<Participant> offerSet = null;
+    private Set<Participant> doOffer(WorkItemRecord wir) {
+        Set<Participant> offerSet = null;
         if (_offer.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // put workitem in admin's unoffered queue & DONE
             addToAdminUnofferedQueue(wir);
         }
         else {
-           offerSet = (HashSet<Participant>) _offer.performOffer(wir);
+           offerSet = _offer.performOffer(wir);
            if (offerSet.isEmpty()) {
                _log.warn("Parse of resource specifications for workitem {} resulted in" +
                          " an empty distribution set. The workitem will be passed to" +
@@ -351,7 +348,7 @@ public class ResourceMap {
         return offerSet ;
     }    
 
-    private Participant doAllocate(HashSet<Participant> pSet, WorkItemRecord wir) {
+    private Participant doAllocate(Set<Participant> pSet, WorkItemRecord wir) {
         Participant chosenOne = null;
         rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
@@ -401,7 +398,7 @@ public class ResourceMap {
 
 
     private void removeIgnoredParticipants(WorkItemRecord wir,
-                                           HashSet<Participant> distributionSet) {
+                                           Set<Participant> distributionSet) {
         TaggedStringList ignoredForWorkItem = getIgnoredList(wir.getID());
         if (ignoredForWorkItem != null) {
             Set<Participant> ignored = new HashSet<Participant>();
@@ -432,7 +429,7 @@ public class ResourceMap {
 
     
     public void addToOfferedSet(WorkItemRecord wir, Participant p) {
-        HashSet<Participant> pSet = _offered.get(wir.getID());
+        Set<Participant> pSet = _offered.get(wir.getID());
         if (pSet == null) pSet = new HashSet<Participant>();
         pSet.add(p);
         _offered.put(wir.getID(), pSet);

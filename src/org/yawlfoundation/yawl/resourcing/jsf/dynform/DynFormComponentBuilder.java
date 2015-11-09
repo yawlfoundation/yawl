@@ -276,6 +276,8 @@ public class DynFormComponentBuilder {
         cal.setStyle(makeStyle(cal, input));
         cal.setVisible(isVisible(input));
         cal.setToolTip(input.getToolTip());
+        int calBtnWidth = 32;
+        if (isVisible(input)) setMaxTextValueWidth(input, "012345678901", calBtnWidth);
         return cal;
     }
 

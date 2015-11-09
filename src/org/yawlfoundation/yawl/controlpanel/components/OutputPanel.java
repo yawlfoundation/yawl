@@ -11,7 +11,7 @@ import java.io.PrintStream;
  */
 public class OutputPanel extends JPanel {
 
-    private AliasedTextPane _textArea;
+    private AliasedTextPane _textPane;
 
     public OutputPanel() {
         super();
@@ -28,19 +28,17 @@ public class OutputPanel extends JPanel {
     private void buildUI() {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(8,8,8,8));
-        _textArea = new AliasedTextPane();
-        _textArea.setForeground(new Color(50,50,50));
-        _textArea.setBackground(new Color(252,252,252));
-        _textArea.setBorder(new EmptyBorder(2, 4, 2, 0));
-//        _textArea.setLineWrap(true);
-//        _textArea.setWrapStyleWord(true);
-        _textArea.setEditable(false);
-        add(new JScrollPane(_textArea), BorderLayout.CENTER);
+        _textPane = new AliasedTextPane();
+        _textPane.setForeground(new Color(50,50,50));
+        _textPane.setBackground(new Color(252,252,252));
+        _textPane.setBorder(new EmptyBorder(2, 4, 2, 0));
+        _textPane.setEditable(false);
+        add(new JScrollPane(_textPane), BorderLayout.CENTER);
     }
 
 
     private void redirectSysOut() {
-        TextAreaOutputStream osTextArea = new TextAreaOutputStream(_textArea);
+        TextAreaOutputStream osTextArea = new TextAreaOutputStream(_textPane);
         System.setOut(new PrintStream(osTextArea));
     }
 

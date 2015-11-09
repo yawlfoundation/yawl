@@ -13,12 +13,12 @@ import java.net.URL;
  */
 public class DownloadWorker extends SwingWorker<Void, Void> {
 
-    private String _urlBase;
-    private String _urlSuffix;
-    private String _fileName;
-    private long _totalBytes;
-    private File _tmpDir;
-    private String _errorMsg;
+    protected String _urlBase;
+    protected String _urlSuffix;
+    protected String _fileName;
+    protected long _totalBytes;
+    protected File _tmpDir;
+    protected String _errorMsg;
 
 
     public DownloadWorker(String urlBase, String urlSuffix, String fileName,
@@ -74,7 +74,7 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
     }
 
 
-    private void makeDir(String name) {
+    protected void makeDir(String name) {
         char sep = File.separatorChar;
         int pos = name.lastIndexOf(sep);
         if (pos > -1) {

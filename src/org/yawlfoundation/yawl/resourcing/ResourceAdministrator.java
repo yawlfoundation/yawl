@@ -76,29 +76,10 @@ public class ResourceAdministrator {
     }
 
 
-    public void assignUnofferedItem(WorkItemRecord wir, String[] pidList, String action) {
-        WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED) ;
-        if (unoffered != null) {
-            ResourceManager rm = ResourceManager.getInstance();
-            rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
-            if (action.equals("Offer")) {
-
-                // an offer can be made to several participants
-                for (String pid : pidList) {
-                    Participant p = rm.getOrgDataSet().getParticipant(pid);
-                    p.getWorkQueues().addToQueue(wir, WorkQueue.OFFERED);
-                    rm.addToOfferedSet(wir, p);
-                }
-            }
-            else if (action.equals("Allocate")) {
-                Participant p = rm.getOrgDataSet().getParticipant(pidList[0]);
-                rm.acceptOffer(p, wir);
-            }
-
-            // 'Start' actions are handled by the resMgr.start() method
-
-            unoffered.remove(wir);
-        }
+    public boolean removeFromUnoffered(WorkItemRecord wir) {
+        WorkQueue unoffered = _qSet.getQueue(WorkQueue.UNOFFERED);
+        if (unoffered != null) unoffered.remove(wir);
+        return unoffered != null;
     }
 
 

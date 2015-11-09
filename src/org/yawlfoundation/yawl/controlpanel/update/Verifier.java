@@ -17,13 +17,18 @@ public class Verifier extends SwingWorker<Boolean, Void> {
     private Map<String, String> _md5Map;
 
 
-    protected Verifier(Map<String, String> md5Map) {
+    public Verifier(Map<String, String> md5Map) {
         _md5Map = md5Map;
     }
 
 
     @Override
     protected Boolean doInBackground() throws Exception {
+        return verify();
+    }
+
+
+    public boolean verify() {
         if (_md5Map == null) return false;
         CheckSummer summer = new CheckSummer();
         File dir = FileUtil.getTmpDir();
@@ -40,4 +45,5 @@ public class Verifier extends SwingWorker<Boolean, Void> {
         }
         return true;
     }
+
 }

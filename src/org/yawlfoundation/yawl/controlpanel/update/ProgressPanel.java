@@ -51,7 +51,7 @@ public class ProgressPanel extends JPanel {
     }
 
 
-    private void build() {
+    protected void build() {
         setLayout(new GridLayout(0,1,5,5));
         setOpaque(true);
         setBorder(new CompoundBorder(new LineBorder(Color.LIGHT_GRAY),
@@ -73,7 +73,7 @@ public class ProgressPanel extends JPanel {
     }
 
 
-    private String getProgressString(int progress) {
+    protected String getProgressString(int progress) {
         StringBuilder s = new StringBuilder();
         s.append(getDownloadRatio(progress)).append(" (").append(progress).append("%)");
         return s.toString();

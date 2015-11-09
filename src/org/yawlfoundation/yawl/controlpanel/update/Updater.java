@@ -24,15 +24,18 @@ import java.util.*;
  */
 public class Updater implements PropertyChangeListener, EngineStatusListener {
 
-    private final UpdateDialog _updateDialog;
-    private final ProgressPanel _progressPanel;
-    private final Differ _differ;
-    private final List<AppUpdate> _installs;
+    private UpdateDialog _updateDialog;
+    private ProgressPanel _progressPanel;
     private Downloader _downloader;
-    private List<String> _downloads;
-    private List<String> _deletions;
     private boolean _updatingThis;
     private boolean _cycled;
+
+    protected Differ _differ;
+    protected List<AppUpdate> _installs;
+    protected List<String> _downloads;
+    protected List<String> _deletions;
+
+    protected Updater() { }
 
 
     public Updater(UpdateDialog updateDialog) {
@@ -106,7 +109,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private List<String> getDownloadList(List<AppUpdate> updates) {
+    protected List<String> getDownloadList(List<AppUpdate> updates) {
         consolidateLibs(updates);
         List<String> fileNames = new ArrayList<String>();
         for (AppUpdate list : updates) {
@@ -119,7 +122,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private List<String> getDeletionList(List<AppUpdate> updates) {
+    protected List<String> getDeletionList(List<AppUpdate> updates) {
         List<String> fileNames = new ArrayList<String>();
         for (AppUpdate list : updates) {
              fileNames.addAll(list.getDeletionNames());
@@ -128,7 +131,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private List<AppUpdate> getInstallList(List<UpdateRow> updateRows) {
+    protected List<AppUpdate> getInstallList(List<UpdateRow> updateRows) {
         List<AppUpdate> upList = new ArrayList<AppUpdate>();
         for (UpdateRow row : updateRows) {
             String appName = row.getName();
@@ -144,7 +147,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private Map<String,String> getMd5Map() {
+    protected Map<String,String> getMd5Map() {
         List<AppUpdate> updatesList = getUpdatesList();
         if (updatesList == null) return null;
         Map<String,String> map = new HashMap<String, String>();
@@ -155,7 +158,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private List<AppUpdate> getUpdatesList() {
+    protected List<AppUpdate> getUpdatesList() {
         try {
             return _differ.getUpdatesList();
         }
@@ -165,7 +168,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
     }
 
-    private long getDownloadSize(List<AppUpdate> updates) {
+    protected long getDownloadSize(List<AppUpdate> updates) {
        long fileSizes = 0;
         for (AppUpdate list : updates) {
              fileSizes += list.getTotalUpdateSize();
@@ -283,7 +286,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private void showError(String message) {
+    protected void showError(String message) {
         _progressPanel.setVisible(false);
         JOptionPane.showMessageDialog(_progressPanel.getParent(),
                 "Update error: " + message,
@@ -307,7 +310,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     // 5. COPY in new files -> startEngine
-    private File doUpdates(File tomcatDir)  {
+    protected File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
         int port = TomcatUtil.getTomcatServerPort();
         for (String fileName : _downloads) {
@@ -386,13 +389,13 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private void doDeletions(File tomcatRoot) {
+    protected void doDeletions(File tomcatRoot) {
         for (String fileName : _deletions) {
             FileUtil.delete(tomcatRoot, fileName);
         }
     }
 
-    private void doUninstalls(File tomcatRoot) {
+    protected void doUninstalls(File tomcatRoot) {
         List<String> webappsToRemove = new ArrayList<String>();
         for (AppUpdate appUpdate : _installs) {
             if (appUpdate.hasDeletions() && appUpdate.isAppList()) {
@@ -452,7 +455,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private void consolidateLibDir(File tomcatRoot) {
+    protected void consolidateLibDir(File tomcatRoot) {
         Set<String> requiredLibs = _differ.getRequiredLibNames();
         for (String lib : _differ.getInstalledLibNames()) {
             if (lib.startsWith("h2-")) continue;          // h2 db driver is also needed
