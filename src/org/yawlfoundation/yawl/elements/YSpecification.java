@@ -39,7 +39,6 @@ import java.util.*;
  */
 public final class YSpecification implements Cloneable, YVerifiable {
     private String _specURI;
-    private YSpecificationID _specID;
     private YNet _rootNet;
     private Map<String, YDecomposition> _decompositions =
                                         new HashMap<String, YDecomposition>();
@@ -232,25 +231,20 @@ public final class YSpecification implements Cloneable, YVerifiable {
     }
 
     public String getURI() {
-        return _specID != null ? _specID.getUri() : _specURI;
+        return _specURI;
     }
 
     public void setURI(String uri) {
         _specURI = uri;
-        if (_specID != null) _specID.setUri(uri);
     }
 
     public String getID() {
-        return _metaData.getUniqueID();
+        return _metaData != null ? _metaData.getUniqueID() : null;
     }
 
 
     public YSpecificationID getSpecificationID() {
-        if (_specID == null) {
-            _specID = new YSpecificationID(_metaData.getUniqueID(),
-                    _metaData.getVersion(), _specURI);
-        }
-        return _specID;
+        return new YSpecificationID(getID(), getSpecVersion(), _specURI);
     }
 
     public void setMetaData(YMetaData metaData) {
@@ -263,15 +257,13 @@ public final class YSpecification implements Cloneable, YVerifiable {
 
 
     public boolean equals(Object other) {
-        return (other instanceof YSpecification) &&  // instanceof = false if other is null
-                ((getSpecificationID() != null) ?
-                  getSpecificationID().equals(((YSpecification) other).getSpecificationID())
-                : super.equals(other));
+        return (other instanceof YSpecification) ?  // instanceof = false if other is null
+                getSpecificationID().equals(((YSpecification) other).getSpecificationID())
+                : super.equals(other);
     }
 
     public int hashCode() {
-        return (getSpecificationID() != null) ? getSpecificationID().hashCode()
-                : super.hashCode();
+        return getSpecificationID().hashCode();
     }
 
     /************************************/

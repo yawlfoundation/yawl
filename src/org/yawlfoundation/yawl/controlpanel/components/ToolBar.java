@@ -93,9 +93,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     public void statusChanged(EngineStatus status) {
         if (status == EngineStatus.Running) {
             if (new UserPreferences().showLogonPageOnEngineStart()) {
-                ActionEvent event = new ActionEvent(this,
-                        ActionEvent.ACTION_PERFORMED, "Logon");
-                actionPerformed(event);
+                browseTo(getLogonURL());
             }
         }
         enableButtons(status);
@@ -172,23 +170,25 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     }
 
     private void startEngine() {
-        boolean success = false;
-        try {
-            success = TomcatUtil.start();
-            if (! success) {
-                offerToKillProcess();
+        boolean running = TomcatUtil.isEngineRunning();
+        if (! running) {
+            try {
+                running = TomcatUtil.start();
+                if (! running) {
+                    offerToKillProcess();
+                }
+            }
+            catch (IOException ioe) {
+                showError("Error when starting Engine: " + ioe.getMessage());
             }
         }
-        catch (IOException ioe) {
-            showError("Error when starting Engine: " + ioe.getMessage());
-        }
-        _btnStart.setEnabled(! success);
+//        _btnStart.setEnabled(! running);
     }
 
 
     private void stopEngine() {
         TomcatUtil.stop();
-        _btnStop.setEnabled(false);
+//        _btnStop.setEnabled(false);
     }
 
 

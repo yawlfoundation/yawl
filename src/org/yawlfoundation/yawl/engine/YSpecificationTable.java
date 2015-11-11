@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.elements.YSpecification;
+import org.yawlfoundation.yawl.exceptions.YStateException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -74,11 +75,11 @@ public class YSpecificationTable
     }
 
 
-    public YSpecification getSpecification(YSpecificationID specid) {
-        if (specid != null) {
-            SpecList list = super.get(specid.getKey());
+    public YSpecification getSpecification(YSpecificationID specID) {
+        if (specID != null) {
+            SpecList list = super.get(specID.getKey());
             if (list != null) {
-                return list.getSpecification(specid.getVersion());
+                return list.getSpecification(specID.getVersion());
             }
         }
         return null ;
@@ -97,6 +98,16 @@ public class YSpecificationTable
         }
         return null ;
     }
+
+
+    public boolean isLatest(YSpecificationID specID) {
+        if (specID != null) {
+            YSpecification latest = getLatestSpecification(specID.getKey());
+            return latest != null && latest.getSpecificationID().equals(specID);
+        }
+        return false;
+    }
+
 
     public boolean contains(String key) {
         return super.containsKey(key);
@@ -117,6 +128,33 @@ public class YSpecificationTable
             set.addAll(list.getSpecificationIDs());
         }
         return set;
+    }
+
+
+    /**
+     * Checks that the specID passed refers to a loaded specification, and that it is
+     * the latest version loaded
+     * @param specID the specID to check
+     * @return the YSpecification the specID refers to, iff it refers to the latest
+     * loaded version of that specification
+     * @throws YStateException if the specification is not loaded, or if the specID
+     * referes to other than the latest loaded version
+     */
+    public YSpecification getSpecificationForCaseStart(YSpecificationID specID)
+            throws YStateException {
+        YSpecification specification = getSpecification(specID);
+        if (specification == null) {
+            throw new YStateException("No specification found with ID [" + specID + "]");
+        }
+
+        // check the launch request is using the latest version
+        if (! isLatest(specID)) {
+            throw new YStateException(
+                    "Starting a new case for a superseded specification is not allowed. " +
+                            "The latest loaded version is " +
+                            getLatestSpecification(specID.getKey()).getSpecVersion());
+        }
+        return specification;
     }
 
 

@@ -705,41 +705,38 @@ public class YEngine implements InterfaceADesign,
                                     YLogDataItemList logData, String serviceRef, boolean delayed)
             throws YStateException, YDataStateException, YQueryException, YPersistenceException {
 
-        // get the latest loaded spec version
-        YSpecification specification = _specifications.getSpecification(specID);
-        if (specification != null) {
+        // check spec is loaded and is latest version (YStateException if not)
+        YSpecification specification = _specifications.getSpecificationForCaseStart(specID);
 
-            // check & format case data params (if any)
-            Element data = formatCaseParams(caseParams, specification);
+        // check & format case data params (if any)
+        Element data = formatCaseParams(caseParams, specification);
 
-            YNetRunner runner = new YNetRunner(_pmgr, specification.getRootNet(), data, caseID);
-            _netRunnerRepository.add(runner);
-            logCaseStarted(specID, runner, completionObserver, caseParams, logData,
-                    serviceRef, delayed);
+        YNetRunner runner = new YNetRunner(_pmgr, specification.getRootNet(), data, caseID);
+        _netRunnerRepository.add(runner);
+        logCaseStarted(specID, runner, completionObserver, caseParams, logData,
+                serviceRef, delayed);
 
-            // persist it
-            if ((! _restoring) && (_pmgr != null)) {
-                _pmgr.storeObject(runner);
-            }
-
-            runner.continueIfPossible(_pmgr);
-            runner.start(_pmgr);
-            YIdentifier runnerCaseID = runner.getCaseID();
-
-            // special case: if spec contains exactly one task, and its empty,
-            // the case (and runner) has already completed, so don't update map
-            if (runner.hasActiveTasks()) {
-                _runningCaseIDToSpecMap.put(runnerCaseID, specification);
-
-                // announce the new case to the standalone gui (if any)
-                if (_interfaceBClient != null) {
-                    _logger.debug("Asking client to add case {}", runnerCaseID.toString());
-                    _interfaceBClient.addCase(specID, runnerCaseID.toString());
-                }
-            }
-            return runnerCaseID;
+        // persist it
+        if ((! _restoring) && (_pmgr != null)) {
+            _pmgr.storeObject(runner);
         }
-        else  throw new YStateException("No specification found with ID [" + specID + "]");
+
+        runner.continueIfPossible(_pmgr);
+        runner.start(_pmgr);
+        YIdentifier runnerCaseID = runner.getCaseID();
+
+        // special case: if spec contains exactly one task, and its empty,
+        // the case (and runner) has already completed, so don't update map
+        if (runner.hasActiveTasks()) {
+            _runningCaseIDToSpecMap.put(runnerCaseID, specification);
+
+            // announce the new case to the standalone gui (if any)
+            if (_interfaceBClient != null) {
+                _logger.debug("Asking client to add case {}", runnerCaseID.toString());
+                _interfaceBClient.addCase(specID, runnerCaseID.toString());
+            }
+        }
+        return runnerCaseID;
     }
 
 

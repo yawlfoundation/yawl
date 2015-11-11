@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Override of GUI-based Downloader for CLI
+ *
  * @author Joerg Evermann
  * @author Michael Adams
  * @date 3/11/2015
@@ -29,6 +31,9 @@ public class CliDownloader extends Downloader {
     }
 
 
+    /**
+     * Performs the downloading of the required files (each on a separate thread)
+     */
     public void download() {
         _progressPanel.setText("Downloading " + _totalBytes + " bytes...");
         boolean cancelled = false;
@@ -50,6 +55,10 @@ public class CliDownloader extends Downloader {
     }
 
 
+    /**
+     * Cancels all workers if one reports an error
+     * @return true
+     */
     public boolean cancel() {
         for (DownloadWorker worker : _workerMap.keySet()) {
             CliDownloadWorker cliWorker = (CliDownloadWorker) worker;
@@ -59,6 +68,9 @@ public class CliDownloader extends Downloader {
     }
 
 
+    /**
+     * @return true if all workers have completed
+     */
     private boolean isComplete() {
         for (DownloadWorker worker : _workerMap.keySet()) {
             if (((CliDownloadWorker) worker).isAlive()) return false;
@@ -67,6 +79,9 @@ public class CliDownloader extends Downloader {
     }
 
 
+    /**
+     * @return the summed progress of all download workers
+     */
     private int getTotalProgress() {
         int progress = 0;
         for (DownloadWorker worker : _workerMap.keySet()) {

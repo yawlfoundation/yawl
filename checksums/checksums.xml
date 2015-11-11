@@ -2,8 +2,8 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>3.0.1</version>
-  <timestamp>2015-11-09 12.54.43</timestamp>
-  <lib hash="51953afbd6a3893311b390de3a1b54b2">
+  <timestamp>2015-11-11 11.32.15</timestamp>
+  <lib hash="253b3176cb509752995e7fbcfa0ee48b">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T13:39:26"/>
     <file name="apache_soap-2_3_1.jar" md5="aa1845e01fee94fe4a63bbcaa55ad486" size="232498" timestamp="2015-08-12T13:39:26"/>
@@ -56,7 +56,6 @@
     <file name="jboss-logging-annotations-1.2.0.Beta1.jar" md5="938e552e319015a8863dd91284aada54" size="11558" timestamp="2014-05-01T13:50:22"/>
     <file name="jboss-transaction-api_1.2_spec-1.0.0.Final.jar" md5="aa7df2440f20946a61005c533dc4915c" size="27717" timestamp="2014-05-01T13:50:22"/>
     <file name="jdom-2.0.5.jar" md5="302db3c65c38d3c10ef31bca76bd76b4" size="299658" timestamp="2015-08-12T13:39:28"/>
-    <file name="jdom.jar" md5="adf67fc5dcf48e1593640ad7e02f6ad4" size="153115" timestamp="2015-08-12T13:39:28"/>
     <file name="jsf-api.jar" md5="ec582af90ad65fceba3a57b66e4f7f72" size="358115" timestamp="2015-08-12T13:39:28"/>
     <file name="jsf-impl.jar" md5="22b35b6fc58290bd2be57f2f728d974c" size="750443" timestamp="2015-08-12T13:39:28"/>
     <file name="jsfcl.jar" md5="932b7ed3f14753ded0bfac4b489aed8a" size="183696" timestamp="2015-08-12T13:39:28"/>
@@ -113,11 +112,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1358</build>
+      <build>1359</build>
       <files>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="a417b9380fe554de6e9c3a86273edcfa" size="1154" timestamp="2015-10-06T12:08:52"/>
-        <file name="WEB-INF/classes/version.properties" md5="9ce74afa8e8970977808ac6e2ba4c8f1" size="190" timestamp="2015-10-06T12:08:52"/>
-        <file name="WEB-INF/web.xml" md5="fbb3cba2b5c7909a2f54753793beb4e5" size="10047" timestamp="2015-10-06T12:08:52"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="a417b9380fe554de6e9c3a86273edcfa" size="1154" timestamp="2015-11-11T11:32:13"/>
+        <file name="WEB-INF/classes/version.properties" md5="0e6e2865acc7e6d7c29cb773923d9341" size="190" timestamp="2015-11-11T11:32:14"/>
+        <file name="WEB-INF/web.xml" md5="fbb3cba2b5c7909a2f54753793beb4e5" size="10047" timestamp="2015-11-11T11:32:13"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -845,11 +844,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-3.0.1.jar" md5="f3288aadfb0656e5612952cf4e7b03e0" size="2479502" timestamp="2015-11-09T12:54:42"/>
+    <file name="yawl-lib-3.0.1.jar" md5="38f52700b3cd2b1e67137d8976dd81c7" size="2479911" timestamp="2015-11-11T11:32:13"/>
   </yawllib>
   <controlpanel>
-    <build>103</build>
-    <file name="YawlControlPanel-3.0.1.jar" md5="a93715bf70a04bdcb0a81d7f36b2fa28" size="324036" timestamp="2015-10-20T13:49:31"/>
+    <build>189</build>
+    <file name="YawlControlPanel-3.0.1.jar" md5="3f6f6b0e0c33d86c1e6b3a7e27add7be" size="325826" timestamp="2015-11-10T12:23:31"/>
   </controlpanel>
 </checksums>
 

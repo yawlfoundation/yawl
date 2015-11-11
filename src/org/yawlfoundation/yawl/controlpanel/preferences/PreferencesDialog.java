@@ -25,6 +25,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
     private JCheckBox _cbxStart;
     private JCheckBox _cbxUpdates;
     private JCheckBox _cbxLogon;
+    private JCheckBox _cbxStop;
     private JPanel _portPanel;
     private JTextField _portField;
     private UserPreferences _prefs;
@@ -78,6 +79,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         _cbxStart.setSelected(_prefs.startEngineOnStartup());
         _cbxUpdates.setSelected(_prefs.checkForUpdatesOnStartup());
         _cbxLogon.setSelected(_prefs.showLogonPageOnEngineStart());
+        _cbxStop.setSelected(_prefs.stopEngineOnExit());
         _origPortValue = TomcatUtil.getTomcatServerPort();
         _portField.setText(String.valueOf(_origPortValue));
     }
@@ -87,6 +89,7 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         _prefs.setStartEngineOnStartup(_cbxStart.isSelected());
         _prefs.setCheckForUpdatesOnStartup(_cbxUpdates.isSelected());
         _prefs.setShowLogonPageOnEngineStart(_cbxLogon.isSelected());
+        _prefs.setStopEngineOnExit(_cbxStop.isSelected());
         return savePort();
     }
 
@@ -117,9 +120,11 @@ public class PreferencesDialog extends JDialog implements ActionListener, Engine
         _cbxUpdates = makeCheckBox("Check for updates when Control Panel starts", KeyEvent.VK_C);
         _cbxStart = makeCheckBox("Start YAWL Engine when Control Panel starts", KeyEvent.VK_S);
         _cbxLogon = makeCheckBox("Go to Logon page in browser when Engine starts", KeyEvent.VK_G);
+        _cbxStop = makeCheckBox("Stop YAWL Engine when Control Panel exits", KeyEvent.VK_P);
         panel.add(_cbxUpdates);
         panel.add(_cbxStart);
         panel.add(_cbxLogon);
+        panel.add(_cbxStop);
         return panel;
     }
 

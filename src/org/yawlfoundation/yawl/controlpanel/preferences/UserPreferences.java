@@ -13,6 +13,7 @@ public class UserPreferences {
 
     private static final String START_ENGINE_ON_STARTUP = "startEngineOnStartup";
     private static final String CHECK_FOR_UPDATES_ON_STARTUP = "checkForUpdatesOnStartup";
+    private static final String STOP_ENGINE_ON_EXIT = "stopEngineOnExit";
     private static final String SHOW_LOGON_PAGE_ON_ENGINE_START = "showLogonPageOnEngineStart";
     private static final String POST_UPDATES_COMPLETED = "postUpdatesCompleted";
 
@@ -32,6 +33,15 @@ public class UserPreferences {
 
     public void setCheckForUpdatesOnStartup(boolean b) {
         setBoolean(CHECK_FOR_UPDATES_ON_STARTUP, b);
+    }
+
+
+    public boolean stopEngineOnExit() {
+        return getBoolean(STOP_ENGINE_ON_EXIT);
+    }
+
+    public void setStopEngineOnExit(boolean b) {
+        setBoolean(STOP_ENGINE_ON_EXIT, b);
     }
 
 

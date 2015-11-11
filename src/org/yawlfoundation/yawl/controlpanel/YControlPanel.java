@@ -4,6 +4,7 @@ import org.yawlfoundation.yawl.controlpanel.components.MacIcon;
 import org.yawlfoundation.yawl.controlpanel.components.OutputPanel;
 import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
 import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
+import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.update.ChecksumsReader;
 import org.yawlfoundation.yawl.controlpanel.util.EngineMonitor;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
@@ -64,18 +65,18 @@ public class YControlPanel extends JFrame {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(10,7,7,7));
         content.add(new OutputPanel(), BorderLayout.CENTER);
-        ToolBar tb = new ToolBar(this);
-        content.add(tb, BorderLayout.NORTH);
+        ToolBar toolBar = new ToolBar(this);
+        content.add(toolBar, BorderLayout.NORTH);
         add(content);
         pack();
         setLocationByPlatform(true);
-        tb.performUserPreferencesOnStart();
         setMacIcon();
+        toolBar.performUserPreferencesOnStart();
     }
 
 
     private void doOnExit() {
-        if (TomcatUtil.isEngineRunning()) {
+        if (TomcatUtil.isEngineRunning() && new UserPreferences().stopEngineOnExit()) {
             shutdownTomcat();
         }
         else {

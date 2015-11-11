@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
 public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private Timer _timer;
-    private EngineStatus _currentStatus;
+    private EngineStatus _currentStatus = EngineStatus.Stopped;
 
     private static final int STARTUP_SHUTDOWN_PERIOD = 1000;
     private static final int MONITOR_PERIOD = 5000;
@@ -27,6 +27,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     public EngineMonitor() {
         _timer = new Timer(STARTUP_SHUTDOWN_PERIOD, this);
         Publisher.addEngineStatusListener(this);
+        ping();
     }
 
 

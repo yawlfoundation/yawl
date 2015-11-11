@@ -1,8 +1,11 @@
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,14 +42,8 @@ public class TomcatProcess {
 
 
     public boolean stop(PropertyChangeListener listener) throws IOException {
-        if (isAlive()) {
-            System.out.println("INFO: Shutting down the server, please wait... ");
-            new ProcessRunner().run(getStopCommand(), getEnvParams());
-            monitorShutdown(listener);
-        }
-        else {
-            System.out.println("WARN: Server is already shutdown.");
-        }
+        new ProcessRunner().run(getStopCommand(), getEnvParams());
+        monitorShutdown(listener);
         return true;
     }
 
@@ -57,8 +54,9 @@ public class TomcatProcess {
     public void kill() throws IOException {
         List<String> cmdList;
         if (FileUtil.isWindows()) {
-            if (_winPid == null) return;
-            cmdList = Arrays.asList("TASKKILL", "/PID", _winPid, "/F");
+            if (getPID() == null) return;
+            cmdList = Arrays.asList("TASKKILL", "/PID", getPID(), "/F");
+            removePidFile();
         }
         else {
             cmdList = Arrays.asList("pkill", "-f", "catalina");
@@ -67,7 +65,7 @@ public class TomcatProcess {
     }
 
 
-    public void destroy() { _tomcatRunner.stop(); }
+    public void destroy() { if (_tomcatRunner != null) _tomcatRunner.stop(); }
 
 
     private Map<String, String> getEnvParams() {
@@ -132,6 +130,7 @@ public class TomcatProcess {
                         try {
                             Set<String> postTasks = getJavaTasks();
                             _winPid = extractPID(preTasks, postTasks);
+                            writePID(_winPid);
                         }
                         catch (IOException ioe) {
                             // ignore
@@ -178,5 +177,27 @@ public class TomcatProcess {
         }
         return null;
     }
+
+
+    private void writePID(String pid) {
+        StringUtil.stringToFile(getPidFile(), pid);
+    }
+
+
+    private String getPID() {
+        if (_winPid == null) {
+            _winPid = StringUtil.fileToString(getPidFile());
+        }
+        return _winPid;
+    }
+
+
+    private void removePidFile() {
+        File pidFile = getPidFile();
+        if (pidFile.exists()) pidFile.delete();
+    }
+
+
+    private File getPidFile() { return new File(_catalinaHome, "pid.txt"); }
 
 }

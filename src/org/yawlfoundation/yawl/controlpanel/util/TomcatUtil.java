@@ -43,13 +43,21 @@ public class TomcatUtil {
 
 
     public static boolean stop(PropertyChangeListener listener) {
-        try {
-            return !isPortActive() || _process.stop(listener);
+        if (isTomcatRunning()) {
+            System.out.println("INFO: Shutting down the server, please wait... ");
+            try {
+                return _process.stop(listener);
+            }
+            catch (IOException ioe) {
+                return false;
+            }
         }
-        catch (IOException ioe) {
-            return false;
+        else {
+            System.out.println("WARN: Server is already shutdown.");
         }
+        return true;
     }
+
 
 
     public static boolean isPortActive() {
@@ -63,9 +71,8 @@ public class TomcatUtil {
 
 
     public static boolean isTomcatRunning() {
-        return _process.isAlive();
+        return _process.isAlive() || isPortActive();
     }
-
 
 
     public static String getCatalinaHome() {
@@ -213,8 +220,8 @@ public class TomcatUtil {
     }
 
 
-    public static void removePidFile() {
-        File pidTxt = new File(getCatalinaHome(), "catalina_pid.txt");
+    private static void removePidFile() {
+        File pidTxt = new File(getCatalinaHome(), "pid.txt");
         if (pidTxt.exists()) pidTxt.delete();
     }
 
