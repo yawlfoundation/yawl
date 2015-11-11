@@ -12,7 +12,6 @@ import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -63,13 +62,13 @@ public class YControlPanel extends JFrame {
         setIconImage(getFrameIcon());
 
         JPanel content = new JPanel(new BorderLayout());
-        content.setBorder(new EmptyBorder(10,7,7,7));
         content.add(new OutputPanel(), BorderLayout.CENTER);
         ToolBar toolBar = new ToolBar(this);
         content.add(toolBar, BorderLayout.NORTH);
         add(content);
         pack();
         setLocationByPlatform(true);
+        setMinimumSize();
         setMacIcon();
         toolBar.performUserPreferencesOnStart();
     }
@@ -95,6 +94,12 @@ public class YControlPanel extends JFrame {
         if (FileUtil.isMac()) {
             new MacIcon(_engineMonitor);
         }
+    }
+
+
+    private void setMinimumSize() {
+        Dimension size = getSize();
+        setMinimumSize(new Dimension(size.width, size.height / 2));
     }
 
 

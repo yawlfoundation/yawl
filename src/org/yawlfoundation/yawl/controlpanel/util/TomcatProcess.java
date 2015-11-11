@@ -18,6 +18,7 @@ public class TomcatProcess {
     private ProcessRunner _tomcatRunner;
     private String _catalinaHome;
     private String _winPid;
+    private StopMonitor _stopMonitor;
 
 
     public TomcatProcess(String catalinaHome) {
@@ -49,6 +50,8 @@ public class TomcatProcess {
 
 
     public boolean isAlive() { return _tomcatRunner != null && _tomcatRunner.isAlive(); }
+
+    public boolean isMonitoringShutdown() { return _stopMonitor != null; }
 
 
     public void kill() throws IOException {
@@ -144,12 +147,12 @@ public class TomcatProcess {
     }
 
 
-    private void monitorShutdown(PropertyChangeListener listener) throws IOException {
-        StopMonitor stopMonitor = new StopMonitor(this, 10);
+    protected void monitorShutdown(PropertyChangeListener listener) throws IOException {
+        _stopMonitor = new StopMonitor(this, 10);
         if (listener != null) {
-            stopMonitor.addPropertyChangeListener(listener);
+            _stopMonitor.addPropertyChangeListener(listener);
         }
-        stopMonitor.execute();
+        _stopMonitor.execute();
     }
 
 

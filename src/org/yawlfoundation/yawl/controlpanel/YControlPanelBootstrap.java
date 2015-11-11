@@ -12,7 +12,13 @@ import org.yawlfoundation.yawl.controlpanel.util.PostUpdateTasks;
 public class YControlPanelBootstrap {
 
     public static void main(final String[] args) {
-        if (FileUtil.isWindows()) {
+        if (FileUtil.isMac()) {
+        //    System.setProperty("apple.awt.application.name", "Your App Name");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name",
+                        "YAWL " + YControlPanel.VERSION + " Control Panel");
+
+        }
+        else if (FileUtil.isWindows()) {
             UserPreferences prefs = new UserPreferences();
             if (!prefs.getPostUpdatesCompleted()) {
                 prefs.setPostUpdatesCompleted(new PostUpdateTasks().go());
@@ -20,19 +26,11 @@ public class YControlPanelBootstrap {
         }
 
         // if there are args, it is probably a call to the CLI interface
-        boolean cliHandled = false;
-        if (args.length > 0) {
-            cliHandled = new CliUpdateSwitcher().go(args);
-        }
-
-        if (cliHandled) {
+        if (args.length > 0 && new CliUpdateSwitcher().handle(args)) {
             System.exit(0);
         }
 
-        // proceed to UI
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name",
-                "YAWL " + YControlPanel.VERSION + " Control Panel");
-
+        // otherwise proceed to UI
         YControlPanel.main(args);
     }
 }

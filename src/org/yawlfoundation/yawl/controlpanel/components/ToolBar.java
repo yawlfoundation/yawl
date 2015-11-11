@@ -13,6 +13,7 @@ import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebPageLauncher;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +47,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
         _mainWindow = mainWindow;
         setRollover(true);
         setFloatable(false);
-        setMargin(new Insets(3, 2, 2, 0));
+        setBorder(new EmptyBorder(3, 5, 0, 5));
         addButtons();
         addStatusPanel();
         Publisher.addEngineStatusListener(this);
@@ -179,16 +180,20 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
                 }
             }
             catch (IOException ioe) {
-                showError("Error when starting Engine: " + ioe.getMessage());
+                System.out.println("ERROR starting Engine: " + ioe.getMessage());
             }
         }
-//        _btnStart.setEnabled(! running);
+        else {
+
+            // if the start button was enabled and the engine is running, it must have
+            // been started outside the control panel
+            Publisher.announceRunningStatus();
+        }
     }
 
 
     private void stopEngine() {
         TomcatUtil.stop();
-//        _btnStop.setEnabled(false);
     }
 
 
@@ -235,12 +240,6 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     private String getLogonURL() {
         int port = TomcatUtil.getTomcatServerPort();
         return "http://localhost:" + port + "/resourceService";
-    }
-
-
-    private void showError(String msg) {
-         JOptionPane.showMessageDialog(this, msg, "Engine Execution Error",
-                     JOptionPane.ERROR_MESSAGE);
     }
 
 

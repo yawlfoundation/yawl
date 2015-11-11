@@ -14,7 +14,7 @@ import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 public class CliUpdateSwitcher {
 
 
-    public boolean go(String[] args) {
+    public boolean handle(String[] args) {
         String arg = args[0].toLowerCase();
         if (arg.equals("-update") || arg.equals("-u")) {
             return doUpdates();

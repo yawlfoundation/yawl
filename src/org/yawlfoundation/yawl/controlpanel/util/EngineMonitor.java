@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 /**
  * Periodically checks that tomcat is running, and that the engine is available, and
@@ -54,9 +55,10 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
         if (_currentStatus != status) {
             _currentStatus = status;
             switch (status) {
-                case Starting:
-                case Stopping: {
-                    monitorStartingOrStopping();
+                case Stopping:
+                    monitorStopping();
+                case Starting: {
+                    monitorStartingOrStopping();           // deliberate fallthrough
                     break;
                 }
                 case Running: {
@@ -81,6 +83,17 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     private void monitorRunning() {
         _timer.setDelay(MONITOR_PERIOD);
         _timer.restart();
+    }
+
+
+    private void monitorStopping() {
+        try {
+            TomcatUtil.monitorShutdown(null);
+        }
+        catch (IOException ioe) {
+            System.out.println("ERROR: The YAWL Engine has been shutdown externally and" +
+                    " is now in an inconsistent state. Please restart the Control Panel.");
+        }
     }
 
 

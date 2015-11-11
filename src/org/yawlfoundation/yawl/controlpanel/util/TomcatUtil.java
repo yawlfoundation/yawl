@@ -144,6 +144,12 @@ public class TomcatUtil {
     }
 
 
+    public static void monitorShutdown(PropertyChangeListener listener) throws IOException {
+        if (! _process.isMonitoringShutdown()) {
+           _process.monitorShutdown(listener);
+        }
+    }
+
     /*************************************************************************/
 
     private static boolean isPortActive(String host, int port) {

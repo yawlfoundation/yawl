@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>3.0.1</version>
-  <timestamp>2015-11-11 11.32.15</timestamp>
+  <timestamp>2015-11-11 19.43.03</timestamp>
   <lib hash="253b3176cb509752995e7fbcfa0ee48b">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T13:39:26"/>
@@ -112,11 +112,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1359</build>
+      <build>1360</build>
       <files>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="a417b9380fe554de6e9c3a86273edcfa" size="1154" timestamp="2015-11-11T11:32:13"/>
-        <file name="WEB-INF/classes/version.properties" md5="0e6e2865acc7e6d7c29cb773923d9341" size="190" timestamp="2015-11-11T11:32:14"/>
-        <file name="WEB-INF/web.xml" md5="fbb3cba2b5c7909a2f54753793beb4e5" size="10047" timestamp="2015-11-11T11:32:13"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="a417b9380fe554de6e9c3a86273edcfa" size="1154" timestamp="2015-11-11T17:42:23"/>
+        <file name="WEB-INF/classes/version.properties" md5="336c17c937d036b7c261ce8e04e2e6c2" size="190" timestamp="2015-11-11T17:42:23"/>
+        <file name="WEB-INF/web.xml" md5="fbb3cba2b5c7909a2f54753793beb4e5" size="10047" timestamp="2015-11-11T17:42:23"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -844,11 +844,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-3.0.1.jar" md5="38f52700b3cd2b1e67137d8976dd81c7" size="2479911" timestamp="2015-11-11T11:32:13"/>
+    <file name="yawl-lib-3.0.1.jar" md5="5b4e229c94f92b964fd630f660dbd6d3" size="2479750" timestamp="2015-11-11T19:43:03"/>
   </yawllib>
   <controlpanel>
-    <build>189</build>
-    <file name="YawlControlPanel-3.0.1.jar" md5="3f6f6b0e0c33d86c1e6b3a7e27add7be" size="325826" timestamp="2015-11-10T12:23:31"/>
+    <build>195</build>
+    <file name="YawlControlPanel-3.0.1.jar" md5="4cac609731ad56836198dc8d8faa2ddb" size="326359" timestamp="2015-11-11T19:43:03"/>
   </controlpanel>
 </checksums>
 

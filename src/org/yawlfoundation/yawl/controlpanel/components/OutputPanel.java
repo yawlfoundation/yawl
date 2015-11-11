@@ -27,7 +27,7 @@ public class OutputPanel extends JPanel {
 
     private void buildUI() {
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(8,8,8,8));
+        setBorder(new EmptyBorder(5,5,5,5));
         _textPane = new AliasedTextPane();
         _textPane.setForeground(new Color(50,50,50));
         _textPane.setBackground(new Color(252,252,252));
