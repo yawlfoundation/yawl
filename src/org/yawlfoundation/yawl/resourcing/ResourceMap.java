@@ -363,8 +363,16 @@ public class ResourceMap {
             _offered.put(wir.getID(), pSet) ;
         }
         else {
+            if (rm.isDeferredChoiceHandled(wir)) {
+                _log.info("Workitem {} has been withdrawn by the engine.", wir.getID());
+                return null;
+            }
+
             chosenOne = _allocate.performAllocation(pSet, wir);
-            if (chosenOne == null) {
+            if (chosenOne != null) {
+                rm.setDeferredChoiceHandled(wir);
+            }
+            else {
                 _log.warn("The system allocator '{}' has been unable to allocate " +
                         "workitem '{}' to a participant. The workitem has been passed " +
                         "to the administrator's unoffered queue for manual allocation.",

@@ -332,14 +332,12 @@ public class ResourceManager extends InterfaceBWebsideController {
 
                     // pre 2.0 specs don't have any resourcing info
                     ResourceMap rMap = getResourceMap(wir);
-                    wir = (rMap != null) ? rMap.distribute(wir) : offerToAll(wir);
+                    wir = rMap != null ? rMap.distribute(wir) : offerToAll(wir);
                 }
             }
 
             // service disabled, so route directly to admin's unoffered queue
             else _resAdmin.addToUnoffered(wir);
-
-            if (wir.isDeferredChoiceGroupMember()) mapDeferredChoice(wir);
 
             // store all manually-resourced workitems in the local cache
             if (!wir.isAutoTask()) _workItemCache.add(wir);
@@ -373,6 +371,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 removeCaseFromAllQueues(caseID);                          // workqueues
                 _cache.removeCaseFromTaskCompleters(caseID);
                 _cache.cancelCodeletRunnersForCase(caseID);
+                _cache.removeDeferredGroupForCase(caseID);
                 freeSecondaryResourcesForCase(caseID);
                 _workItemCache.removeCase(caseID);
                 removeChain(caseID);
@@ -971,6 +970,13 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     public WorkItemRecord acceptOffer(Participant p, WorkItemRecord wir) {
+
+        // if a deferred choice, disallow any other acceptances
+        if (wir.isDeferredChoiceGroupMember()) {
+            if (isDeferredChoiceHandled(wir)) return wir;
+            setDeferredChoiceHandled(wir);
+        }
+
         StartInteraction starter = null;
         ResourceMap rMap = getResourceMap(wir);
         if (rMap != null) {
@@ -996,11 +1002,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             qSet.addToQueue(wir, WorkQueue.ALLOCATED);
         }
 
-        // remove other wirs if this was a member of a deferred choice group
-        if (wir.isDeferredChoiceGroupMember()) {
-            withdrawDeferredChoiceGroup(wir, rMap);
-        }
-
         _workItemCache.update(wir);
         return wir;
     }
@@ -1008,32 +1009,18 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     // DEFERRED CHOICE HANDLERS //
 
-    private void mapDeferredChoice(WorkItemRecord wir) {
-        String defID = wir.getDeferredChoiceGroupID();
-        TaggedStringList itemGroup = _cache.getDeferredItemGroup(defID);
-        if (itemGroup != null) {
-            itemGroup.add(wir.getID());
-        } else _cache.addDeferredItemGroup(new TaggedStringList(defID, wir.getID()));
+    protected void setDeferredChoiceHandled(WorkItemRecord wir) {
+        if (wir.isDeferredChoiceGroupMember()) {
+            _cache.setDeferredGroupHandled(wir.getRootCaseID(),
+                    wir.getDeferredChoiceGroupID());
+        }
     }
 
 
-    private void withdrawDeferredChoiceGroup(WorkItemRecord wir, ResourceMap rMap) {
-        String chosenWIR = wir.getID();
-        String groupID = wir.getDeferredChoiceGroupID();
-        TaggedStringList itemGroup = _cache.getDeferredItemGroup(groupID);
-        if (itemGroup != null) {
-            for (String wirID : itemGroup) {
-                if (!wirID.equals(chosenWIR)) {
-                    if (rMap != null)
-                        rMap.withdrawOffer(wir);
-                    else
-                        withdrawOfferFromAll(wir);        // beta version spec
-
-            //        _workItemCache.remove(wirID);
-                }
-            }
-            _cache.removeDeferredItemGroup(itemGroup);
-        }
+    protected boolean isDeferredChoiceHandled(WorkItemRecord wir) {
+        return wir.isDeferredChoiceGroupMember() &&
+                _cache.isDeferredGroupHandled(wir.getRootCaseID(),
+                        wir.getDeferredChoiceGroupID());
     }
 
 
@@ -1047,7 +1034,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     //  - Allocated: give it back to admin for reallocating
     //  - Started: forceComplete items (since we need another p. to reallocate to)
     //  - Suspended: same as Started.
-    //
 
     public void handleWorkQueuesOnRemoval(Participant p) {
         handleWorkQueuesOnRemoval(p, p.getWorkQueues());

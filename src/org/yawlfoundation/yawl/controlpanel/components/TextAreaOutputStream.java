@@ -19,9 +19,9 @@ public class TextAreaOutputStream extends OutputStream {
 
     private final JTextPane _textPane;
 
-    private static final Color DEFAULT_COLOR = new Color(50,50,50);
-    private static final Color ERROR_COLOR = new Color(197, 0, 11);
-    private static final Color WARN_COLOR = new Color(255,211,32);
+    private static final Color DEFAULT_COLOR = new Color(50, 50, 50);
+    private static final Color ERROR_COLOR = new Color(197, 0, 0);
+    private static final Color WARN_COLOR = new Color(255, 102, 96);
     private static final Color SUCCESS_COLOR = new Color(0, 128, 0);
 
 

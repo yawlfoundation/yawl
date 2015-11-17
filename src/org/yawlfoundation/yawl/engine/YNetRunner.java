@@ -578,37 +578,37 @@ public class YNetRunner {
     private void fireTasks(YEnabledTransitionSet enabledSet, YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
                    YPersistenceException {
+        Set<YTask> enabledTasks = new HashSet<YTask>();
 
-        Set<YTask> enabledTasks = new HashSet<YTask>() ;
-        Set<YAtomicTask> emptyTasks = null ;
+        // A TaskGroup is a group of tasks that are all enabled by a single condition.
+        // If the group has more than one task, it's a deferred choice, in which case:
+        // 1. If any are composite, fire one (chosen randomly) - rest are withdrawn
+        // 2. Else, if any are empty, fire one (chosen randomly) - rest are withdrawn
+        // 3. Else, fire and announce all enabled atomic tasks to the environment
         for (YEnabledTransitionSet.TaskGroup group : enabledSet.getAllTaskGroups()) {
-            if (group.hasEnabledCompositeTasks()) {
-                YCompositeTask composite = group.getRandomCompositeTaskFromTaskGroup();
+            if (group.hasCompositeTasks()) {
+                YCompositeTask composite = group.getRandomCompositeTaskFromGroup();
                 if (! (enabledTasks.contains(composite) || endOfNetReached())) {
-                    fireCompositeTask(composite, pmgr) ;
-                    enabledTasks.add(composite) ;
+                    fireCompositeTask(composite, pmgr);
+                    enabledTasks.add(composite);
                 }
             }
+            else if (group.hasEmptyTasks()) {
+                processEmptyTask(group.getRandomEmptyTaskFromGroup(), pmgr);
+            }
             else {
-                List<YAtomicTask> taskList = group.getEnabledAtomicTasks();
-                String groupID = taskList.size() > 1 ? group.getID() : null;
-                boolean groupHasEmptyTask = group.hasEmptyAtomicTask(); 
-                for (YAtomicTask atomic : taskList) {
+                String groupID = group.getDeferredChoiceID();       // null if <2 tasks
+                for (YAtomicTask atomic : group.getAtomicTasks()) {
                     if (! (enabledTasks.contains(atomic) || endOfNetReached())) {
-                        YAnnouncement announcement = fireAtomicTask(atomic, groupID, pmgr) ;
-                        if ((announcement != null) && (! groupHasEmptyTask)) {
+                        YAnnouncement announcement = fireAtomicTask(atomic, groupID, pmgr);
+                        if (announcement != null) {
                             _announcements.add(announcement);
                         }    
                         enabledTasks.add(atomic) ;
                     }
                 }
-                if (groupHasEmptyTask) {            // do empty tasks last
-                    if (emptyTasks == null) emptyTasks = new HashSet<YAtomicTask>();
-                    emptyTasks.addAll(group.getEnabledEmptyTasks());
-                }
             }
         }
-        if (emptyTasks != null) processEmptyTasks(emptyTasks, pmgr);
     }
 
 
@@ -658,37 +658,14 @@ public class YNetRunner {
     }
 
 
-    // fire, start and complete the decomposition-less atomic tasks in situ
-    protected void processEmptyTasks(Set<YAtomicTask> emptyTasks,YPersistenceManager pmgr)
-                throws YDataStateException, YStateException, YQueryException,
-                       YPersistenceException {
-
-        Map<YIdentifier, YAtomicTask> identifiers = new HashMap<YIdentifier, YAtomicTask>();
-
-        // must fire & start them all first to avoid race conditions
-        for (YAtomicTask task : emptyTasks) {
-            try {
-                YIdentifier id = task.t_fire(pmgr).get(0);
-                task.t_start(pmgr, id);
-                identifiers.put(id, task);
-                _busyTasks.add(task);
-            }
-            catch (YStateException yse) {
-                // thrown by t_fire if task is no longer enabled - presumably it is a
-                // target of a deferred choice, and another target was also an empty task
-                // that 'won' the race. No further action for the task is required.
-            }
-        }
-
-        // now they can be completed
-        for (Map.Entry<YIdentifier, YAtomicTask> entry : identifiers.entrySet()) {
-
-            // if net has already completed, ! t_isBusy, so don't attempt to complete
-            YAtomicTask task = entry.getValue();
-            if (task.t_isBusy()) {
-                completeTask(pmgr, null, task, entry.getKey(), null);
-            }
-        }
+    // fire, start and complete a decomposition-less atomic task in situ
+    protected void processEmptyTask(YAtomicTask task,YPersistenceManager pmgr)
+            throws YDataStateException, YStateException, YQueryException,
+            YPersistenceException {
+        YIdentifier id = task.t_fire(pmgr).get(0);
+        task.t_start(pmgr, id);
+        _busyTasks.add(task);                             // pre-req for completeTask
+        completeTask(pmgr, null, task, id, null);
     }
 
     

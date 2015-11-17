@@ -548,7 +548,7 @@ public abstract class YTask extends YExternalNetElement {
 
                 // if there's an element, but no value, add the default
                 if (paramData != null) {
-                    if (paramData.getText() == null) {
+                    if (StringUtil.isNullOrEmpty(paramData.getText())) {
                         paramData.setText(defaultValue);
                     }
                 }

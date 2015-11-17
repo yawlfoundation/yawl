@@ -230,7 +230,7 @@ public class Marshaller {
                                                            "requiresmanualresourcing"));
             wir.setCodelet(workItemElement.getChildText("codelet"));
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
-                                                              "deferredChoiceGroupid"));
+                                                              "deferredChoiceGroupID"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
             wir.setFiringTime(workItemElement.getChildText("firingTime"));
             wir.setStartTime(workItemElement.getChildText("startTime"));

@@ -22,7 +22,6 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -43,9 +42,6 @@ public class RuntimeCache {
     // store of organisational resources and their attributes
     private ResourceDataSet _orgDataSet;
 
-    // cache of 'live' workitems
-    private WorkItemCache _workItemCache = WorkItemCache.getInstance();
-
     // map of userid -> participant id
     private Map<String, String> _userKeys = new Hashtable<String,String>();
 
@@ -61,20 +57,20 @@ public class RuntimeCache {
     // local cache of specification data schemas: id -> [name, schema defn. element]
     private DataSchemaCache _dataSchemaCache = new DataSchemaCache();
 
-    // groups of items that are members of a deferred choice offering
+    // handled deferred choice groups ids for a case: <caseID, groupIDs>
     private Map<String, TaggedStringList> _deferredItemGroups = 
-            new Hashtable<String, TaggedStringList>();
+            new HashMap<String, TaggedStringList>();
 
     // cases that have workitems chained to a participant: <caseid, Participant>
-    private Map<String, Participant> _chainedCases = new Hashtable<String, Participant>();
+    private Map<String, Participant> _chainedCases = new HashMap<String, Participant>();
 
     // cache of who completed tasks, for four-eyes and retain familiar use <caseid, cache>
     private Map<String, FourEyesCache> _taskCompleters =
-            new Hashtable<String, FourEyesCache>();
+            new HashMap<String, FourEyesCache>();
 
     // map of workitem id -> CodeletRunner running codelet for it
     private Map<String, CodeletRunner> _codeletRunners =
-            new Hashtable<String, CodeletRunner>();
+            new HashMap<String, CodeletRunner>();
 
     // started workitems that have been restored for a no longer existing participant.
     // these are force-completed once start-up has completed
@@ -91,6 +87,13 @@ public class RuntimeCache {
     protected ResourceDataSet getOrgDataSet() { return _orgDataSet; }
 
     protected void setOrgDataSet(ResourceDataSet dataSet) { _orgDataSet = dataSet; }
+
+
+    protected void removeCase(String caseID) {
+        removeCaseFromTaskCompleters(caseID);
+        cancelCodeletRunnersForCase(caseID);
+        removeDeferredGroupForCase(caseID);
+    }
 
 
     /*****************************************************************************/
@@ -120,6 +123,29 @@ public class RuntimeCache {
         return _deferredItemGroups.get(groupID);
     }
 
+
+    protected void setDeferredGroupHandled(String caseID, String groupID) {
+        TaggedStringList groupIDList = _deferredItemGroups.get(caseID);
+        if (groupIDList == null) {
+            groupIDList = new TaggedStringList(caseID);
+            _deferredItemGroups.put(caseID, groupIDList);
+        }
+        groupIDList.add(groupID);
+    }
+
+    protected boolean isDeferredGroupHandled(String caseID, String groupID) {
+        TaggedStringList groupIDList = _deferredItemGroups.get(caseID);
+        if (groupIDList != null) {
+            for (String id : groupIDList) {
+                if (id.equals(groupID)) return true;
+            }
+        }
+        return false;
+    }
+
+    protected TaggedStringList removeDeferredGroupForCase(String caseID) {
+        return _deferredItemGroups.remove(caseID);
+    }
     
     /*****************************************************************************/
     

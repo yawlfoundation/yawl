@@ -51,18 +51,17 @@ public class YEnabledTransitionSet {
      * Adds an enabled task to the relevant task group
      * @param task the enabled task
      */
-    public void add(YTask task) {
-         List<String> presetIDs = getFlowsFromIDs(task) ;
-         for (String id : presetIDs) add(id, task);
+    public void add(YTask task) {;
+        for (String id : getFlowsFromIDs(task)) add(id, task);
     }
 
 
     /**
      * Gets the final set(s) of enabled transitions (one for each enabling place)
-     * @return the list of groups
+     * @return the set of groups
      */
-    public List<TaskGroup> getAllTaskGroups() {
-        return new ArrayList<TaskGroup>(transitions.values());
+    public Set<TaskGroup> getAllTaskGroups() {
+        return new HashSet<TaskGroup>(transitions.values());
     }
 
 
@@ -89,15 +88,15 @@ public class YEnabledTransitionSet {
     /**
      * Gets the list of condition ids that are enabling this task
      * @param task the enabled task
-     * @return a list of condition ids
+     * @return a set of condition ids
      */
-    private List<String> getFlowsFromIDs(YTask task) {
-        List<String> result = new ArrayList<String>();
+    private Set<String> getFlowsFromIDs(YTask task) {
+        Set<String> priorSet = new HashSet<String>();
         for (YFlow flow : task.getPresetFlows()) {
             YNetElement prior = flow.getPriorElement();
-            if (prior != null) result.add(prior.getID()) ;
+            if (prior != null) priorSet.add(prior.getID()) ;
         }
-        return result ;
+        return priorSet;
     }
 
 
@@ -147,77 +146,40 @@ public class YEnabledTransitionSet {
 
 
         /**
-         * Gets the list of atomic tasks in this group
-         * @return the list of enabled atomic tasks
+         * Gets the set of atomic tasks in this group
+         * @return the set of enabled atomic tasks
          */
-        public List<YAtomicTask> getEnabledAtomicTasks() {
-            return _atomicTasks != null ? _atomicTasks
-                    : Collections.<YAtomicTask>emptyList();
+        public Set<YAtomicTask> getAtomicTasks() {
+            return _atomicTasks != null ? new HashSet<YAtomicTask>(_atomicTasks)
+                    : Collections.<YAtomicTask>emptySet();
         }
 
 
-        /**
-         * Gets the list of 'empty' atomic tasks in this group
-         * @return the list of enabled atomic tasks
-         */
-        public List<YAtomicTask> getEnabledEmptyTasks() {
-            return _emptyAtomicTasks != null ? _emptyAtomicTasks
-                    : Collections.<YAtomicTask>emptyList();
-        }
-
-
-        /**
-         * Gets the list of composite tasks in this group
-         * @return the list of enabled composite tasks
-         */
-        public List<YCompositeTask> getEnabledCompositeTasks() {
-            return _compositeTasks != null ? _compositeTasks
-                    : Collections.<YCompositeTask>emptyList();
-        }
-
-
-        /**
-         * If there is more than one task in this group (aka. a deferred choice) and
-         * there's at least one empty task amongst them, then the yawl semantics will
-         * mean that the empty task will 'win' the choice, and the others in the group
-         * will be cancelled. Because timing of the cancellation announcements will
-         * precede that of the enablement of those tasks, it is necessary to preempt
-         * the enablement announcements. This method is called from YNetRunner.fireTasks
-         * so that it knows whether to announce the firings or not.
-         * @return true if the group contains an empty atomic task.
-         */
-        public boolean hasEmptyAtomicTask() {
+        /** @return true if this group has at least one decomposition-less atomic task */
+        public boolean hasEmptyTasks() {
             return getEmptyTaskCount() > 0;
         }
 
 
-        /** @return the number of atomic tasks in this group */
-        public int getAtomicTaskCount() {
-            return _atomicTasks != null ? _atomicTasks.size() : 0;
-        }
+        /** @return the number of composite tasks in this group */
+        public int getCompositeTaskCount() { return getTaskCount(_compositeTasks); }
 
 
         /** @return the number of composite tasks in this group */
-        public int getCompositeTaskCount() {
-            return _compositeTasks != null ? _compositeTasks.size() : 0;
-        }
-
-
-        /** @return the number of composite tasks in this group */
-        public int getEmptyTaskCount() {
-            return _emptyAtomicTasks != null ? _emptyAtomicTasks.size() : 0;
-        }
+        public int getEmptyTaskCount() { return getTaskCount(_emptyAtomicTasks); }
 
 
         /** @return true if this group has at least one composite task */
-        public boolean hasEnabledCompositeTasks() {
-            return getCompositeTaskCount() > 0 ;
-        }
+        public boolean hasCompositeTasks() { return getCompositeTaskCount() > 0 ; }
 
 
         /** @return the generated group id for this group */
-        public String getID() {
-            return _id ;
+        public String getID() { return _id; }
+
+
+        /** @return the deferred choice UID for this group (if any) - may be null */
+        public String getDeferredChoiceID() {
+            return getTaskCount(_atomicTasks) > 1 ? _id : null;
         }
 
 
@@ -229,14 +191,16 @@ public class YEnabledTransitionSet {
          * composite task if there is one, or a randomly chosen one if there are
          * several
          */
-        public YCompositeTask getRandomCompositeTaskFromTaskGroup() {
-            if (_compositeTasks == null) return null;
-            switch (_compositeTasks.size()) {
-                case 0 : return null;
-                case 1 : return _compositeTasks.get(0);
-                default: return _compositeTasks.get(
-                        new Random().nextInt(_compositeTasks.size())) ;
-            }
+        public YCompositeTask getRandomCompositeTaskFromGroup() {
+            return getRandomTask(_compositeTasks);
+        }
+
+
+        /**
+         * @return as above, except for empty tasks instead of composites
+         */
+        public YAtomicTask getRandomEmptyTaskFromGroup() {
+             return getRandomTask(_emptyAtomicTasks);
         }
 
 
@@ -247,12 +211,27 @@ public class YEnabledTransitionSet {
 
 
         private boolean addAtomicTask(YAtomicTask task) {
-            if (task.getDecompositionPrototype() == null) {
-                if (_emptyAtomicTasks == null) _emptyAtomicTasks = new ArrayList<YAtomicTask>();
-                return _emptyAtomicTasks.add(task);
+            if (task.getDecompositionPrototype() != null) {
+                if (_atomicTasks == null) _atomicTasks = new ArrayList<YAtomicTask>();
+                return _atomicTasks.add(task);
             }
-            if (_atomicTasks == null) _atomicTasks = new ArrayList<YAtomicTask>();
-            return _atomicTasks.add(task);
+            if (_emptyAtomicTasks == null) _emptyAtomicTasks = new ArrayList<YAtomicTask>();
+            return _emptyAtomicTasks.add(task);
+        }
+
+
+        private <T extends YTask> T getRandomTask(List<T> taskList) {
+            if (taskList == null) return null;
+            switch (taskList.size()) {
+                case 0 : return null;
+                case 1 : return taskList.get(0);
+                default: return taskList.get(new Random().nextInt(taskList.size())) ;
+            }
+        }
+
+
+        private int getTaskCount(List<? extends YTask> taskList) {
+            return taskList != null ? taskList.size() : 0;
         }
 
     }
