@@ -23,13 +23,14 @@ public class StopMonitor extends SwingWorker<Void, Void> {
 
     @Override
     protected Void doInBackground() throws Exception {
+        EngineMonitor.setSuspended(true);                      // suspend monitor pings
         long now = System.currentTimeMillis();
         long expiry = now + (_totalSecs * 1000);
         Publisher.announceStoppingStatus();
         while (now < expiry) {
             sleep(500);
             if (! TomcatUtil.isPortActive()) {
-                sleep(2000);
+                sleep(2000);                         // port drops before stop completes
                 break;
             };
             now = System.currentTimeMillis();
@@ -53,6 +54,7 @@ public class StopMonitor extends SwingWorker<Void, Void> {
         // ... and destroy the bash or cmd process that started it
         _tomcatProcess.destroy();
 
+        EngineMonitor.setSuspended(false);
         Publisher.announceStoppedStatus();
         System.out.println("INFO: Shutdown successfully completed.");
     }

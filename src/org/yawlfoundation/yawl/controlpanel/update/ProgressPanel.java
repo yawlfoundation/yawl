@@ -24,7 +24,10 @@ public class ProgressPanel extends JPanel {
     }
 
 
-    public void setText(String text) { _prompt.setText(text); }
+    public void setText(String text) {
+        if (!isVisible()) setVisible(true);
+        _prompt.setText(text);
+    }
 
 
     public void setIndeterminate(boolean indeterminate) {

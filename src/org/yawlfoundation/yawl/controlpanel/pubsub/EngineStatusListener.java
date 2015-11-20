@@ -6,5 +6,6 @@ package org.yawlfoundation.yawl.controlpanel.pubsub;
  */
 public interface EngineStatusListener {
 
-    public void statusChanged(EngineStatus status);
+    void statusChanged(EngineStatus status);
+
 }

@@ -26,20 +26,19 @@ public class UpdateDialog extends JDialog
     private UpdateTable _table;
     private JButton _btnUpdate;
     private JButton _btnClose;
-    private Updater _updater;
     private ProgressPanel _progressPanel;
 
 
     public UpdateDialog(JFrame mainWindow, Differ differ) {
         super(mainWindow);
         setResizable(false);
-        setModal(false);
+        setModal(true);
         setSize(new Dimension(600, 480));
         setTitle("YAWL " + YControlPanel.VERSION + " Updates");
         addOnCloseHandler(this);
         buildUI(differ);
         Publisher.addEngineStatusListener(this);
-        setLocationRelativeTo(mainWindow);
+        setLocation();
     }
 
 
@@ -47,8 +46,7 @@ public class UpdateDialog extends JDialog
         if (event.getActionCommand().equals("Update")) {
             _btnUpdate.setEnabled(false);
             _btnClose.setEnabled(false);
-            _updater = new Updater(this);
-            _updater.start();
+            new Updater(this).start();
         }
         else {
             setVisible(false);
@@ -73,11 +71,13 @@ public class UpdateDialog extends JDialog
 
 
     private void addOnCloseHandler(final EngineStatusListener listener) {
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                Publisher.removeEngineStatusListener(listener);
-                dispose();
+                if (_btnClose.isEnabled()) {
+                    Publisher.removeEngineStatusListener(listener);
+                    dispose();
+                }
             }
         });
     }
@@ -132,17 +132,25 @@ public class UpdateDialog extends JDialog
 
 
     private void enableButtons() {
-        _btnUpdate.setEnabled(_table.hasUpdates() && ! Publisher.isTransientStatus());
-        setButtonTip();
-        _btnClose.setEnabled(true);
+        boolean isRunningOrStopped = ! Publisher.isTransientStatus();
+        _btnUpdate.setEnabled(_table.hasUpdates() && isRunningOrStopped);
+        setUpdateButtonTip();
+        _btnClose.setEnabled(isRunningOrStopped);
     }
 
 
-    private void setButtonTip() {
+    private void setUpdateButtonTip() {
         _btnUpdate.setToolTipText(_btnUpdate.isEnabled() ?
                 "Update to latest versions (blue rows)\n" +
                 "and install (green rows) and uninstall (red rows) selections" :
                 "No updates available");
+    }
+
+
+    private void setLocation() {
+        Point location = getParent().getLocation();
+        location.translate(50, 50);
+        setLocation(location);
     }
 
 }

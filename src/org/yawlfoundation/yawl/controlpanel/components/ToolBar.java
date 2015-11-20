@@ -188,6 +188,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
             // if the start button was enabled and the engine is running, it must have
             // been started outside the control panel
             Publisher.announceRunningStatus();
+            System.out.println("INFO: System started (external to Control Panel)");
         }
     }
 

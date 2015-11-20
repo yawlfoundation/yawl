@@ -16,14 +16,6 @@ public class CliProgressPanel extends ProgressPanel {
 
     public CliProgressPanel() { super(); }
 
-    protected void build() {
-        _bar = new StringBuilder(INCREMENTS + 3);
-        _bar.append('|');
-        for (int i=0; i<INCREMENTS; i++) _bar.append(' ');
-        _bar.append('|');
-        _bar.append('\r');
-    }
-
 
     public void setText(String text) { write(text); }
 
@@ -33,6 +25,11 @@ public class CliProgressPanel extends ProgressPanel {
     }
 
 
+    public void setVisible(boolean b) { }             // consume call
+
+    public void setIndeterminate(boolean b) { }       // consume call
+
+
     public void complete(boolean cancelled) {
         StringBuilder s = new StringBuilder(INCREMENTS + 3);
         s.append('\r');
@@ -40,6 +37,15 @@ public class CliProgressPanel extends ProgressPanel {
         s.append(cancelled ? "cancelled" : "completed");
         for (int i=s.length(); i<INCREMENTS + 3; i++) s.append(' ');
         write(s.toString());
+    }
+
+
+    protected void build() {
+        _bar = new StringBuilder(INCREMENTS + 3);
+        _bar.append('|');
+        for (int i=0; i<INCREMENTS; i++) _bar.append(' ');
+        _bar.append('|');
+        _bar.append('\r');
     }
 
 

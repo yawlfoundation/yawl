@@ -20,92 +20,185 @@ import java.util.*;
 
 /**
  * @author Michael Adams
- * @date 19/08/2014
+ * @date 19/11/2015
  */
 public class Updater implements PropertyChangeListener, EngineStatusListener {
+
+    protected enum State {
+        Download, Verify, StopEngine, Update, StartEngine, Complete, Finalise
+    }
 
     private UpdateDialog _updateDialog;
     private ProgressPanel _progressPanel;
     private Downloader _downloader;
-    private boolean _updatingThis;
-    private boolean _cycled;
+    private boolean _cycled;                            // was engine running at init?
 
     protected Differ _differ;
     protected List<AppUpdate> _installs;
     protected List<String> _downloads;
     protected List<String> _deletions;
+    protected State _state;
+    protected boolean _updatingThis;                      // updating control panel?
+
 
     protected Updater() { }
 
 
-    public Updater(UpdateDialog updateDialog) {
-        _updateDialog = updateDialog;
-        _progressPanel = updateDialog.getProgressPanel();
-        UpdateTableModel model = (UpdateTableModel) updateDialog.getTable().getModel();
+    protected Updater(UpdateTableModel model) {
         _differ = model.getDiffer();
         _installs = getInstallList(model.getRows());
     }
 
 
-    public void start() {
-        List<AppUpdate> updates = getUpdatesList();
-        updates.addAll(_installs);
-        if (! updates.isEmpty()) {
-            _progressPanel.setText("Downloading updates...");
-            _progressPanel.setVisible(true);
-            _downloads = getDownloadList(updates);
-            _deletions = getDeletionList(updates);
-            if (! _downloads.isEmpty()) {
-                download(updates);            // download and verify updated/new files
-            }
-            else if (! _deletions.isEmpty()) {
-                stopEngine();                 // stop engine then do deletions
-            }
-        }
+    public Updater(UpdateDialog updateDialog) {
+        this((UpdateTableModel) updateDialog.getTable().getModel());
+        _updateDialog = updateDialog;
+        _progressPanel = updateDialog.getProgressPanel();
     }
 
 
-    // events from Downloader process
+    // entry point - start the update process
+    public void start() {
+        Publisher.addEngineStatusListener(this);
+        setState(State.Download);
+    }
+
+
+    // events from Downloader & Verifier processes
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getPropertyName().equals("state")) {
-            SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();
+            Object stateValue = event.getNewValue();
             if (stateValue == SwingWorker.StateValue.STARTED) {
-                _progressPanel.setIndeterminate(false);
+                getProgressPanel().setIndeterminate(false);
             }
             else if (stateValue == SwingWorker.StateValue.DONE) {
                 if (event.getSource() instanceof Verifier) {
                     verifyCompleted(((Verifier) event.getSource()));
                 }
                 else {
-                    processDownloadCompleted();
+                    downloadCompleted();
                 }
              }
         }
         else if (event.getPropertyName().equals("progress")) {
             int progress = (Integer) event.getNewValue();
-            _progressPanel.update(progress);
+            getProgressPanel().update(progress);
         }
     }
 
 
-    // 4. Wait for STOP -> copy,  or START -> complete
+    // events from Publisher on engine status
     public void statusChanged(EngineStatus status) {
         switch (status) {
-            case Stopped : doUpdates(); break;
-            case Running : complete(true); break;
+            case Stopped : if (_state == State.StopEngine) {
+                setState(State.Update);
+            } break;
+            case Running : if (_state == State.StartEngine) {
+                setState(State.Complete);
+            } break;
         }
     }
 
 
-    // 1. Start the downloads -> wait for finish at propertyChange
-    private void download(List<AppUpdate> updates) {
-        long downloadSize = getDownloadSize(updates);
-        _progressPanel.setDownloadSize(downloadSize);
-        _downloader = new Downloader(UpdateChecker.SOURCE_URL,
-                UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
-                downloadSize, FileUtil.getTmpDir());
-        _downloader.addPropertyChangeListener(this);
-        _downloader.execute();
+    // coordinating method - sets current state and takes action on state change
+    protected void setState(State state) {
+        _state = state;
+        switch (_state) {
+            case Download: download(); break;
+            case Verify: verify(); break;
+            case StopEngine: stopEngine(); break;
+            case Update: update(); break;
+            case StartEngine: startEngine(); break;
+            case Complete: complete(); break;
+            case Finalise: finalise(); break;
+        }
+    }
+
+
+    protected void download() {
+        List<AppUpdate> updates = getUpdatesList();
+        updates.addAll(_installs);
+        if (! updates.isEmpty()) {
+            _downloads = getDownloadList(updates);
+            _deletions = getDeletionList(updates);
+            if (! _downloads.isEmpty()) {
+                getProgressPanel().setText("Downloading files...");
+                download(updates);            // download & verify updated/new files
+            }
+            else if (! _deletions.isEmpty()) {
+                setState(State.StopEngine);    // skip download & verify
+            }
+        }
+        else setState(State.Finalise);
+    }
+
+
+    // Starts the verify swing worker
+    protected void verify() {
+        getProgressPanel().setIndeterminate(true);
+        getProgressPanel().setText("Verifying downloads...");
+        Verifier verifier = new Verifier(getMd5Map());
+        verifier.addPropertyChangeListener(this);
+        verifier.execute();
+    }
+
+
+    private void stopEngine() {
+        if (Publisher.getCurrentStatus() == EngineStatus.Running) {
+            _cycled = true;
+            getProgressPanel().setIndeterminate(true);
+            getProgressPanel().setText("Stopping Engine...");
+            if (! TomcatUtil.stop()) {
+                showError("Failed to stop Engine. Update could not complete.");
+                setState(State.Finalise);
+            }
+        }
+        else setState(State.Update);
+    }
+
+
+    private void update() {
+        getProgressPanel().setIndeterminate(true);
+        getProgressPanel().setText("Updating files...");
+        File tomcatDir = new File(TomcatUtil.getCatalinaHome());
+        doUpdates(tomcatDir);
+        doDeletions(tomcatDir);
+        doUninstalls(tomcatDir);
+        consolidateLibDir(tomcatDir);
+        setState(onlyUpdatingControlPanel() ? State.Complete : State.StartEngine);
+    }
+
+
+    private void startEngine() {
+        getProgressPanel().setText((_cycled ? "Res" : "S") + "tarting Engine...");
+        try {
+            TomcatUtil.start();
+        }
+        catch (Exception e) {
+            showError("Problem starting Engine: " + e.getMessage());
+            setState(State.Finalise);
+        }
+    }
+
+
+    // Update process completed - do cleanup
+    private void complete() {
+        File checkSum = getLocalCheckSumFile();
+        if (_updateDialog != null) {
+            _updateDialog.refresh(new Differ(checkSum, checkSum));
+        }
+        updateServiceRegistration();
+        new UserPreferences().setPostUpdatesCompleted(false);
+        if (_updatingThis) {
+            restartApp();
+        }
+        else setState(State.Finalise);
+    }
+
+
+    protected void finalise() {
+        Publisher.removeEngineStatusListener(this);
+        getProgressPanel().setVisible(false);
     }
 
 
@@ -168,6 +261,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
     }
 
+
     protected long getDownloadSize(List<AppUpdate> updates) {
        long fileSizes = 0;
         for (AppUpdate list : updates) {
@@ -193,120 +287,70 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    // 2. VERIFY, complete if fails, -> stopEngine
-    private void processDownloadCompleted() {
-        if (_downloader.hasErrors()) {
+    // Starts the download swing worker
+    protected void download(List<AppUpdate> updates) {
+        long downloadSize = getDownloadSize(updates);
+        getProgressPanel().setDownloadSize(downloadSize);
+        _downloader = new Downloader(UpdateChecker.SOURCE_URL,
+                UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
+                downloadSize, FileUtil.getTmpDir());
+        _downloader.addPropertyChangeListener(this);
+        _downloader.execute();
+    }
+
+
+    // Downloads have completed - move to next state
+    protected void downloadCompleted() {
+        if (getDownloader().hasErrors()) {
             StringBuilder s = new StringBuilder();
             s.append("Failed to download updates.\n");
-            for (String error : _downloader.getErrors()) {
+            for (String error : getDownloader().getErrors()) {
                 s.append('\t').append(error).append('\n');
             }
             showError(s.toString());
-            complete(false);
+            setState(State.Finalise);
         }
         else {
-            verify();
+            setState(State.Verify);
         }
     }
 
 
-    private void complete(boolean success) {
-        if (success) {
-            File checkSum = getLocalCheckSumFile();
-            _updateDialog.refresh(new Differ(checkSum, checkSum));
-            updateServiceRegistration();
-            new UserPreferences().setPostUpdatesCompleted(false);
-            if (_updatingThis) restartApp();
-        }
-        Publisher.removeEngineStatusListener(this);
-        _progressPanel.setVisible(false);
-    }
-
-
-    private void verify() {
-        _progressPanel.setIndeterminate(true);
-        _progressPanel.setText("Verifying downloads...");
-        Verifier verifier = new Verifier(getMd5Map());
-        verifier.addPropertyChangeListener(this);
-        verifier.execute();
-    }
-
-
+    // Verification has completed - move to next state
     private void verifyCompleted(Verifier verifier) {
+        boolean success = false;
         try {
-            if (verifier.get()) {
-                if (onlyUpdatingControlPanel()) {
-                    doUpdates();
-                }
-                else {
-                    stopEngine();
-                }
-                return;
-            }
+            success = verifier.get();           // return true if verify successful
         }
         catch (Exception fallThrough) {
             //
         }
-        showError("Downloaded files failed verification.");
-        complete(false);
+
+        if (success) {
+
+            // can update CP only without cycling the engine
+            setState(onlyUpdatingControlPanel() ? State.Update : State.StopEngine);
+        }
+        else {
+            showError("Downloaded files failed verification. Update could not complete.");
+            setState(State.Finalise);
+        }
     }
 
 
-    // 3. STOP ENGINE -> wait until stopped at statusChanged event
-    private void stopEngine() {
-        Publisher.addEngineStatusListener(this);
-        if (Publisher.getCurrentStatus() == EngineStatus.Running) {
-            _cycled = true;
-            _progressPanel.setIndeterminate(true);
-            _progressPanel.setText("Stopping Engine...");
-            if (! TomcatUtil.stop()) {
-                showError("Failed to stop Engine.");
-                complete(false);
-            }
-        }
-        else doUpdates();
-    }
+    // for overriders
+    protected ProgressPanel getProgressPanel() { return _progressPanel; }
 
-
-    // 6. START -> wait at statusChange
-    private void startEngine() {
-        try {
-            Thread.sleep(2000);
-        }
-        catch (InterruptedException ignore) {
-           //
-        }
-        try {
-            _progressPanel.setText((_cycled ? "Res" : "S") + "tarting Engine...");
-            TomcatUtil.start();
-        }
-        catch (Exception whatever) {
-            showError("Problem starting Engine: " + whatever.getMessage());
-        }
-    }
+    protected Downloader getDownloader() { return _downloader; }
 
 
     protected void showError(String message) {
-        _progressPanel.setVisible(false);
-        JOptionPane.showMessageDialog(_progressPanel.getParent(),
+        getProgressPanel().setVisible(false);
+        JOptionPane.showMessageDialog(getProgressPanel().getParent(),
                 "Update error: " + message,
                 "Update Error", JOptionPane.ERROR_MESSAGE);
     }
 
-
-    private void doUpdates() {
-        _progressPanel.setIndeterminate(true);
-        _progressPanel.setText("Updating files...");
-        File tomcatDir = new File(TomcatUtil.getCatalinaHome());
-        doUpdates(tomcatDir);
-        doDeletions(tomcatDir);
-        doUninstalls(tomcatDir);
-        consolidateLibDir(tomcatDir);
-        if (onlyUpdatingControlPanel()) {
-            complete(true);
-        }
-        else startEngine();
-    }
 
 
     // 5. COPY in new files -> startEngine
@@ -340,7 +384,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         catch (IOException ioe) {
             showError("Failed to copy file: " + target.getName() +
                     "\n" + ioe.getMessage());
-            complete(false);
+            setState(State.Finalise);
         }
     }
 
@@ -363,7 +407,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    private boolean onlyUpdatingControlPanel() {
+    protected boolean onlyUpdatingControlPanel() {
         return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0));
     }
 
@@ -468,7 +512,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void restartApp() {
         if (! updateThis()) {
-            JOptionPane.showMessageDialog(_progressPanel.getParent(),
+            JOptionPane.showMessageDialog(getProgressPanel().getParent(),
                     "The update has completed successfully, but the control panel " +
                     "was unable to restart itself automatically. Please close then " +
                     "restart the control panel manually to use the updated version.",
@@ -491,6 +535,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             command.add(javaBin);
             command.add("-jar");
             command.add(FileUtil.getJarFile().getPath());
+            command.add("-updateCompleted");
 
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();

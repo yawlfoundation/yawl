@@ -19,6 +19,7 @@ import java.io.IOException;
 public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     private Timer _timer;
+    private static boolean _suspended;
     private EngineStatus _currentStatus = EngineStatus.Stopped;
 
     private static final int STARTUP_SHUTDOWN_PERIOD = 1000;
@@ -27,6 +28,7 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
 
     public EngineMonitor() {
         _timer = new Timer(STARTUP_SHUTDOWN_PERIOD, this);
+        _suspended = false;
         Publisher.addEngineStatusListener(this);
         ping();
     }
@@ -42,9 +44,12 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
     }
 
 
+    public static void setSuspended(boolean suspend) { _suspended = suspend; }
+
+
     // from timer
     public void actionPerformed(ActionEvent event) {
-        if (_currentStatus != EngineStatus.Stopped) {
+        if (! (_suspended || _currentStatus == EngineStatus.Stopped)) {
             ping();
         }
     }
@@ -56,9 +61,9 @@ public class EngineMonitor implements ActionListener, EngineStatusListener {
             _currentStatus = status;
             switch (status) {
                 case Stopping:
-                    monitorStopping();
+                    monitorStopping();             // deliberate fallthrough
                 case Starting: {
-                    monitorStartingOrStopping();           // deliberate fallthrough
+                    monitorStartingOrStopping();
                     break;
                 }
                 case Running: {

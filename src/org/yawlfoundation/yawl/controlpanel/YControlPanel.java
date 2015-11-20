@@ -42,10 +42,14 @@ public class YControlPanel extends JFrame {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new YControlPanel().setVisible(true);
+                YControlPanel cp = new YControlPanel();
+                cp.setVisible(true);
+                if (args != null && args.length == 1 && args[0].equals("-updateCompleted")) {
+                    cp.showUpdateSuccess();
+               }
             }
         });
     }
@@ -110,6 +114,13 @@ public class YControlPanel extends JFrame {
     }
 
 
+    private void showUpdateSuccess() {
+        JOptionPane.showMessageDialog(this,
+                "Updated successfully to version " + getVersion(),
+                "Update Completed", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
     private void shutdownTomcat() {
         JDialog dialog = new JDialog();
         dialog.setModal(true);
@@ -119,6 +130,7 @@ public class YControlPanel extends JFrame {
         JPanel panel = new JPanel();
         panel.add(new JLabel(IconLoader.get("wait.gif")));
         panel.add(new JLabel("Shutting down server, please wait..."));
+        panel.setBackground(new Color(253, 235, 14));
         dialog.setContentPane(panel);
         dialog.pack();
         dialog.setLocationRelativeTo(this);

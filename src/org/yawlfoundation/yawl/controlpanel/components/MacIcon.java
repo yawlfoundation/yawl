@@ -47,7 +47,6 @@ public class MacIcon implements ActionListener, EngineStatusListener {
     }
 
 
-
     private void setIcon(String name) {
         ImageIcon icon = IconLoader.get("Yawl" + name);
         _macApp.setApplicationIconImage((BufferedImage) icon.getImage());
