@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -9,29 +11,20 @@ import java.beans.PropertyChangeListener;
  * @author Michael Adams
  * @date 18/08/2014
  */
-public class UpdateDialogLoader implements PropertyChangeListener {
+public class UpdateLoader implements PropertyChangeListener {
 
     private UpdateChecker _checker;
-    private UpdateDialog _updateDialog;
-    private JFrame _main;
+    private YControlPanel _mainWindow;
 
-    public UpdateDialogLoader(JFrame main) { _main = main; }
+    public UpdateLoader(YControlPanel mainWindow) { _mainWindow = mainWindow; }
 
 
     public void execute() {
         _checker = new UpdateChecker();
         _checker.addPropertyChangeListener(this);
-        _main.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        _mainWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         _checker.execute();
     }
-
-
-    public boolean isDialogActive() {
-        return _updateDialog != null && _updateDialog.isVisible();
-    }
-
-
-    public void toFront() { if (_updateDialog != null) _updateDialog.toFront(); }
 
 
     // events from UpdateChecker process
@@ -39,25 +32,18 @@ public class UpdateDialogLoader implements PropertyChangeListener {
         if (event.getPropertyName().equals("state")) {
             SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();
             if (stateValue == SwingWorker.StateValue.DONE) {
-                _main.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                _mainWindow.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 if (_checker.hasError()) {
                     showError(_checker.getErrorMessage());
                 }
                 else if (_checker.getDiffer().isNewVersion()) {
-                    showDialog(new NewVersionDialog(_main, _checker.getDiffer()));
+                    new NewVersionDialog(_mainWindow, _checker.getDiffer()).setVisible(true);
                 }
                 else {
-                    _updateDialog = new UpdateDialog(_main, _checker.getDiffer());
-                    showDialog(_updateDialog);
+                    _mainWindow.getComponentsPanel().refresh(_checker.getDiffer());
                 }
             }
         }
-    }
-
-
-    private void showDialog(JDialog dialog) {
-        dialog.setVisible(true);
-        dialog.toFront();
     }
 
 

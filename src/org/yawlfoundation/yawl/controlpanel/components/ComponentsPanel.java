@@ -1,55 +1,53 @@
-package org.yawlfoundation.yawl.controlpanel.update;
+package org.yawlfoundation.yawl.controlpanel.components;
 
-import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
+import org.yawlfoundation.yawl.controlpanel.update.Differ;
+import org.yawlfoundation.yawl.controlpanel.update.ProgressPanel;
+import org.yawlfoundation.yawl.controlpanel.update.Updater;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTable;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Michael Adams
- * @date 4/08/2014
+ * @date 23/11/2015
  */
-public class UpdateDialog extends JDialog
+public class ComponentsPanel extends JLayeredPane
         implements ActionListener, PropertyChangeListener, EngineStatusListener {
 
     private UpdateTable _table;
     private JButton _btnUpdate;
-    private JButton _btnClose;
     private ProgressPanel _progressPanel;
 
 
-    public UpdateDialog(JFrame mainWindow, Differ differ) {
-        super(mainWindow);
-        setResizable(false);
-        setModal(true);
-        setSize(new Dimension(600, 480));
-        setTitle("YAWL " + YControlPanel.VERSION + " Updates");
-        addOnCloseHandler(this);
-        buildUI(differ);
+    public ComponentsPanel() {
+        super();
+
+        try {
+            buildUI(getDiffer());
+        }
+        catch (IOException ioe) {
+            add(new JLabel("ERROR: Unable to locate installed component information"));
+        }
         Publisher.addEngineStatusListener(this);
-        setLocation();
     }
 
 
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("Update")) {
             _btnUpdate.setEnabled(false);
-            _btnClose.setEnabled(false);
             new Updater(this).start();
-        }
-        else {
-            setVisible(false);
         }
     }
 
@@ -61,27 +59,31 @@ public class UpdateDialog extends JDialog
     public void refresh(Differ differ) {
         _progressPanel.setVisible(false);
         _table.refresh(differ);
+        if (! differ.hasUpdates()) {
+            showNoUpdatesMessage();
+        }
         enableButtons();               // will disable due to no pending/selected updates
     }
 
 
-    protected UpdateTable getTable() { return _table; }
+    public UpdateTable getTable() { return _table; }
 
-    protected ProgressPanel getProgressPanel() { return _progressPanel; }
+    public ProgressPanel getProgressPanel() { return _progressPanel; }
 
 
-    private void addOnCloseHandler(final EngineStatusListener listener) {
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) {
-                if (_btnClose.isEnabled()) {
-                    Publisher.removeEngineStatusListener(listener);
-                    dispose();
-                }
-            }
-        });
+
+    private Differ getDiffer() throws IOException {
+        return new Differ(null, getCurrentCheckSumFile());
     }
 
+
+    protected File getCurrentCheckSumFile() throws IOException {
+        File current = FileUtil.getLocalCheckSumFile();
+        if (! current.exists()) {
+            throw new IOException("Unable to determine current build version");
+        }
+        return current;
+    }
 
 
     private void buildUI(Differ differ) {
@@ -89,21 +91,21 @@ public class UpdateDialog extends JDialog
         _table.addPropertyChangeListener(this);
 
         JPanel content = new JPanel(new BorderLayout());
+        content.setLayout(new BorderLayout());
         content.setBorder(new EmptyBorder(8, 8, 8, 8));
-        content.add(new JScrollPane(_table), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(_table);
+        scrollPane.setSize(_table.getPreferredSize());
+        content.add(scrollPane, BorderLayout.CENTER);
         content.add(getButtonBar(), BorderLayout.SOUTH);
         content.setBounds(0, 0, 600, 455);
 
         _progressPanel = new ProgressPanel();
-        _progressPanel.setBounds(150, 0, 300, 70);
+        _progressPanel.setBounds(150, 190, 300, 70);
         _progressPanel.setVisible(false);
 
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.add(content, new Integer(0));
-        layeredPane.add(_progressPanel, new Integer(1));
-        layeredPane.moveToFront(_progressPanel);
-
-        add(layeredPane);
+        add(content, new Integer(0));
+        add(_progressPanel, new Integer(1));
+        moveToFront(_progressPanel);
     }
 
 
@@ -114,8 +116,6 @@ public class UpdateDialog extends JDialog
                 "Update to latest versions (blue rows)\n" +
                         "and install (green rows) and uninstall (red rows) selections");
         panel.add(_btnUpdate);
-        _btnClose = createButton("Close", "");
-        panel.add(_btnClose);
         return panel;
     }
 
@@ -124,7 +124,7 @@ public class UpdateDialog extends JDialog
         JButton button = new JButton(label);
         button.setActionCommand(label);
         button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(100, 30));
+        button.setPreferredSize(new Dimension(75, 30));
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
@@ -135,7 +135,6 @@ public class UpdateDialog extends JDialog
         boolean isRunningOrStopped = ! Publisher.isTransientStatus();
         _btnUpdate.setEnabled(_table.hasUpdates() && isRunningOrStopped);
         setUpdateButtonTip();
-        _btnClose.setEnabled(isRunningOrStopped);
     }
 
 
@@ -147,10 +146,11 @@ public class UpdateDialog extends JDialog
     }
 
 
-    private void setLocation() {
-        Point location = getParent().getLocation();
-        location.translate(50, 50);
-        setLocation(location);
+    private void showNoUpdatesMessage() {
+        JOptionPane.showMessageDialog(this,
+                "No updates available - you have the latest versions.",
+                "Check For Updates", JOptionPane.INFORMATION_MESSAGE);
     }
+
 
 }

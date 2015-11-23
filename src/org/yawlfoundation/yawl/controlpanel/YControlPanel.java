@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel;
 
+import org.yawlfoundation.yawl.controlpanel.components.ComponentsPanel;
 import org.yawlfoundation.yawl.controlpanel.components.MacIcon;
 import org.yawlfoundation.yawl.controlpanel.components.OutputPanel;
 import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
@@ -25,6 +26,7 @@ import java.beans.PropertyChangeListener;
 public class YControlPanel extends JFrame {
 
     private EngineMonitor _engineMonitor;
+    private JTabbedPane _tabbedPane;
 
     public static final String VERSION = "3.1";
 
@@ -55,6 +57,14 @@ public class YControlPanel extends JFrame {
     }
 
 
+    public ComponentsPanel getComponentsPanel() {
+        return (ComponentsPanel) _tabbedPane.getComponentAt(1);
+    }
+
+
+    public void showComponentsPanel() { _tabbedPane.setSelectedIndex(1); }
+
+
     private String getAppTitle() { return "YAWL Control Panel " + getVersion(); }
 
 
@@ -66,7 +76,13 @@ public class YControlPanel extends JFrame {
         setIconImage(getFrameIcon());
 
         JPanel content = new JPanel(new BorderLayout());
-        content.add(new OutputPanel(), BorderLayout.CENTER);
+
+        _tabbedPane = new JTabbedPane();
+        _tabbedPane.add("Output Log", new OutputPanel());
+        _tabbedPane.add("Components", new ComponentsPanel());
+        content.add(_tabbedPane, BorderLayout.CENTER);
+        _tabbedPane.setToolTipTextAt(1, "View, install, remove and update components");
+
         ToolBar toolBar = new ToolBar(this);
         content.add(toolBar, BorderLayout.NORTH);
         add(content);

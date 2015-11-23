@@ -23,7 +23,7 @@ public class UpdateRowFactory {
     public List<UpdateRow> get() {
         List<String> installedApps = _differ.getInstalledWebAppNames();
         List<UpdateRow> rows = new ArrayList<UpdateRow>();
-        for (String name : _differ.getWebAppNames()) {
+        for (String name : _differ.getCurrentWebAppNames()) {
             UpdateRow row = newRow(name, installedApps.contains(name));
             if (row != null) rows.add(row);
         }

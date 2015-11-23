@@ -29,6 +29,12 @@ public class UpdateTable extends JTable {
     }
 
 
+    public Dimension getPreferredSize() {
+        Dimension preferredSize = super.getPreferredSize();
+        int height = getRowHeight() * getModel().getRowCount();
+        return new Dimension(preferredSize.width, height);
+    }
+
     private void init(Differ differ) {
         setModel(new UpdateTableModel(differ));
         getTableHeader().setReorderingAllowed(false);

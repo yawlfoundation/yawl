@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 
 import javax.swing.*;
@@ -87,8 +88,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
 
 
     protected File loadCurrentCheckSums() throws IOException {
-        File current = new File(TomcatUtil.getCatalinaHome() +
-                File.separator + "yawllib", CHECKSUM_FILE);
+        File current = FileUtil.getLocalCheckSumFile();
         if (! current.exists()) {
             throw new IOException("Unable to determine current build version");
         }

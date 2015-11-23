@@ -21,21 +21,29 @@ public class Differ {
 
 
     public Differ(File latest, File current) {
-        _latest = new ChecksumsReader(latest);
         _current = new ChecksumsReader(current);
+        if (latest != null) {
+            _latest = new ChecksumsReader(latest);
+        }
   //      _mandatory = new MandatoryUpdates().get();
     }
 
-    public String getLatestVersion() { return _latest.getVersion(); }
+    public String getLatestVersion() {
+        return _latest != null ? _latest.getVersion() : "";
+    }
 
     public String getCurrentVersion() { return _current.getVersion(); }
 
-    public String getLatestTimestamp() { return _latest.getTimestamp(); }
+
+    public String getLatestTimestamp() {
+        return _latest != null ? _latest.getTimestamp() : "";
+    }
 
     public String getCurrentTimestamp() { return _current.getTimestamp(); }
 
+
     public String getLatestBuild(String appName) {
-        return _latest.getBuildNumber(appName);
+        return _latest != null ? _latest.getBuildNumber(appName) : "";
     }
 
     public String getCurrentBuild(String appName) {
@@ -103,6 +111,10 @@ public class Differ {
 
     public List<String> getWebAppNames() {
         return _latest.getWebAppNames();
+    }
+
+    public List<String> getCurrentWebAppNames() {
+        return _current.getWebAppNames();
     }
 
     public List<String> getInstalledWebAppNames() {

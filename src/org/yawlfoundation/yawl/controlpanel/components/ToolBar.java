@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.components;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.controlpanel.editor.EditorLauncher;
 import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
 import org.yawlfoundation.yawl.controlpanel.preferences.PreferencesDialog;
@@ -8,7 +9,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.BackgroundChecker;
-import org.yawlfoundation.yawl.controlpanel.update.UpdateDialogLoader;
+import org.yawlfoundation.yawl.controlpanel.update.UpdateLoader;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebPageLauncher;
 
@@ -31,8 +32,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
     private static final Dimension spacer = new Dimension(11,16);
 
-    private UpdateDialogLoader _updateDialogLoader;
-    private JFrame _mainWindow;
+    private YControlPanel _mainWindow;
 
     private JButton _btnStart;
     private JButton _btnStop;
@@ -42,12 +42,12 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     private JButton _btnPreferences;
 
 
-    public ToolBar(JFrame mainWindow) {
+    public ToolBar(YControlPanel mainWindow) {
         super();
         _mainWindow = mainWindow;
         setRollover(true);
         setFloatable(false);
-        setBorder(new EmptyBorder(3, 5, 0, 5));
+        setBorder(new EmptyBorder(10, 5, 10, 5));
         addButtons();
         addStatusPanel();
         Publisher.addEngineStatusListener(this);
@@ -74,7 +74,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
             startEditor();
         }
         else if (cmd.equals("updates")) {
-            showUpdateDialog();
+            checkForUpdates();
         }
         else if (cmd.equals("preferences")) {
             showPreferencesDialog();
@@ -198,14 +198,9 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     }
 
 
-    private void showUpdateDialog() {
-        if (_updateDialogLoader != null && _updateDialogLoader.isDialogActive()) {
-            _updateDialogLoader.toFront();
-        }
-        else {
-            _updateDialogLoader = new UpdateDialogLoader(_mainWindow);
-            _updateDialogLoader.execute();
-        }
+    private void checkForUpdates() {
+        _mainWindow.showComponentsPanel();
+        new UpdateLoader(_mainWindow).execute();
     }
 
 

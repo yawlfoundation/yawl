@@ -32,7 +32,9 @@ public class UpdateRow {
 
     public String getLatestBuild() { return _latestBuild; }
 
-    public boolean hasNewVersion() { return ! _latestBuild.equals(_currentBuild); }
+    public boolean hasNewVersion() {
+        return ! (_latestBuild.equals("") || _latestBuild.equals(_currentBuild));
+    }
 
     public boolean isRemoving() { return _isInstalled && ! _installAction; }
 

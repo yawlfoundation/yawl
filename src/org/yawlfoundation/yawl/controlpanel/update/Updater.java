@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.components.ComponentsPanel;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
@@ -28,7 +29,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         Download, Verify, StopEngine, Update, StartEngine, Complete, Finalise
     }
 
-    private UpdateDialog _updateDialog;
+    private ComponentsPanel _componentsPanel;
     private ProgressPanel _progressPanel;
     private Downloader _downloader;
     private boolean _cycled;                            // was engine running at init?
@@ -50,10 +51,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    public Updater(UpdateDialog updateDialog) {
-        this((UpdateTableModel) updateDialog.getTable().getModel());
-        _updateDialog = updateDialog;
-        _progressPanel = updateDialog.getProgressPanel();
+    public Updater(ComponentsPanel componentsPanel) {
+        this((UpdateTableModel) componentsPanel.getTable().getModel());
+        _componentsPanel = componentsPanel;
+        _progressPanel = componentsPanel.getProgressPanel();
     }
 
 
@@ -183,9 +184,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     // Update process completed - do cleanup
     private void complete() {
-        File checkSum = getLocalCheckSumFile();
-        if (_updateDialog != null) {
-            _updateDialog.refresh(new Differ(checkSum, checkSum));
+        if (_componentsPanel != null) {
+            File checkSum = FileUtil.getLocalCheckSumFile();
+            _componentsPanel.refresh(new Differ(checkSum, checkSum));
         }
         updateServiceRegistration();
         new UserPreferences().setPostUpdatesCompleted(false);
@@ -370,7 +371,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
         // copy downloaded checksums.xml to lib
         File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
-        File target = getLocalCheckSumFile();
+        File target = FileUtil.getLocalCheckSumFile();
         copy(source, target);
 
         return tomcatDir;
@@ -424,12 +425,6 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             }
         }
         return false;
-    }
-
-
-    private File getLocalCheckSumFile() {
-        return new File(FileUtil.buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
-                UpdateChecker.CHECKSUM_FILE));
     }
 
 
