@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.cli;
 
+import org.yawlfoundation.yawl.controlpanel.update.Differ;
 import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
@@ -11,8 +12,8 @@ import java.io.Console;
 /**
  * Provides a CLI interface into the control panel update facility
  *
- * @author Joerg Evermann
  * @author Michael Adams
+ * @author Joerg Evermann
  * @date 3/11/2015
  */
 public class CliUpdateSwitcher {
@@ -49,10 +50,13 @@ public class CliUpdateSwitcher {
             System.out.println("Command Line Usage:\n\n" +
                     FileUtil.getJarName() + " option [argument]\n\n" +
                     "where option is one of \n\n" +
-                    "-update:           Updates installed components\n" +
-                    "-versions:         List installed and available components and their versions\n" +
-                    "-add [component]:    Adds the named component (and performs updates)\n" +
-                    "-remove [component]: Removes the named component (and performs updates)\n");
+                    "-start:              Start the YAWL engine\n" +
+                    "-stop:               Stop the YAWL engine\n" +
+                    "-status:             Check whether the YAWL engine is running or stopped\n" +
+                    "-update:             Update installed components\n" +
+                    "-versions:           List installed and available components and their versions\n" +
+                    "-add [component]:    Add the named component (and perform updates)\n" +
+                    "-remove [component]: Remove the named component\n");
             return true;
         }
 
@@ -65,6 +69,7 @@ public class CliUpdateSwitcher {
                 (TomcatUtil.isEngineRunning() ? "Running" : "Stopped"));
         return true;
     }
+
 
     private boolean doStart() {
         new CliStarter().run();
@@ -109,12 +114,19 @@ public class CliUpdateSwitcher {
 
 
     private boolean doAdd(String component) {
-        return doAddOrRemove(component, true);
+        UpdateChecker checker = check();
+        if (noErrors(checker)) {
+            doAddOrRemove(component, checker.getDiffer(), true);
+        }
+        return true;
     }
 
 
     private boolean doRemove(String component) {
-        return doAddOrRemove(component, false);
+
+        // version comparison not required for a removal
+        Differ differ = new Differ(null, FileUtil.getLocalCheckSumFile());
+        return doAddOrRemove(component, differ, false);
     }
 
 
@@ -141,9 +153,9 @@ public class CliUpdateSwitcher {
     }
 
 
-    private CliUpdateTableModel setInstallAction(UpdateChecker checker,
-                                                 String component, boolean installAction) {
-        CliUpdateTableModel model = new CliUpdateTableModel(checker.getDiffer());
+    private CliUpdateTableModel setInstallAction(Differ differ, String component,
+                                                 boolean installAction) {
+        CliUpdateTableModel model = new CliUpdateTableModel(differ);
         for (UpdateRow r : model.getRows()) {
             if (r.getName().equals(component)) {
 
@@ -159,16 +171,13 @@ public class CliUpdateSwitcher {
     }
 
 
-    private boolean doAddOrRemove(String component, boolean adding) {
-        UpdateChecker checker = check();
-        if (noErrors(checker)) {
-            CliUpdateTableModel model = setInstallAction(checker, component, adding);
-            if (model == null) {
-                writeAddRemoveError(component, adding);
-            }
-            else {
-                update(model, component + " successfully " + (adding ? "added" : "removed"));
-            }
+    private boolean doAddOrRemove(String component, Differ differ, boolean adding) {
+        CliUpdateTableModel model = setInstallAction(differ, component, adding);
+        if (model == null) {
+            writeAddRemoveError(component, adding);
+        }
+        else {
+            update(model, component + " successfully " + (adding ? "added" : "removed"));
         }
         return true;
     }
@@ -184,7 +193,7 @@ public class CliUpdateSwitcher {
 
 
     protected void update(CliUpdateTableModel model, String msg) {
-        final CliUpdater updater = new CliUpdater(model);
+        CliUpdater updater = new CliUpdater(model);
         updater.start();
 
         // wait for update to complete
@@ -206,7 +215,5 @@ public class CliUpdateSwitcher {
         }
         catch (InterruptedException ignore) { }
     }
-
-
 
 }

@@ -4,6 +4,8 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 
 /**
+ * Stops tomcat from the command line
+ *
  * @author Michael Adams
  * @date 19/11/2015
  */

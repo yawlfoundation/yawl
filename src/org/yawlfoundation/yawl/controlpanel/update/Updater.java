@@ -186,7 +186,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private void complete() {
         if (_componentsPanel != null) {
             File checkSum = FileUtil.getLocalCheckSumFile();
-            _componentsPanel.refresh(new Differ(checkSum, checkSum));
+            _componentsPanel.refresh(new Differ(checkSum, checkSum), true);
         }
         updateServiceRegistration();
         new UserPreferences().setPostUpdatesCompleted(false);

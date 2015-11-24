@@ -6,6 +6,8 @@ import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import java.io.IOException;
 
 /**
+ * Starts tomcat from the command line
+ *
  * @author Michael Adams
  * @date 19/11/2015
  */

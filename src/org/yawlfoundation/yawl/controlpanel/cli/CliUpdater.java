@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * Overrides the SwingWorker operations in the UI Updater
  *
- * @author Joerg Evermann
  * @author Michael Adams
+ * @author Joerg Evermann
  * @date 3/11/2015
  */
 public class CliUpdater extends Updater {

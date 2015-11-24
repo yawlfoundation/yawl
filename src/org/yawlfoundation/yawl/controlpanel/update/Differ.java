@@ -141,7 +141,8 @@ public class Differ {
 
     public AppUpdate getAppFiles(String appName, boolean adding) {
         AppUpdate upList = new AppUpdate(appName);
-        for (XNode node : _latest.getAppFileList(appName)) {
+        ChecksumsReader reader = adding ? _latest : _current;
+        for (XNode node : reader.getAppFileList(appName)) {
             if (adding) upList.addDownload(node);
             else upList.addDeletion(node);
         }
@@ -165,14 +166,17 @@ public class Differ {
     }
 
     public Set<String> getRequiredLibNames() {
+
+        // _latest may be null if removing only
+        ChecksumsReader reader = _latest != null ? _latest : _current;
         Set<String> libNames = new HashSet<String>();
-        for (XNode node : _latest.getRequiredLibs(getInstalledWebAppNames())) {
+        for (XNode node : reader.getRequiredLibs(getInstalledWebAppNames())) {
             libNames.add(node.getAttributeValue("name"));
         }
 
         // checksums.xml,the yawl lib jar & props files are also needed in the lib dir
         libNames.add(UpdateChecker.CHECKSUM_FILE);
-        libNames.add(_latest.getYawlLibNode().getAttributeValue("name"));
+        libNames.add(reader.getYawlLibNode().getAttributeValue("name"));
         libNames.add("log4j.properties");
         libNames.add("hibernate.properties");
         return libNames;
@@ -180,12 +184,13 @@ public class Differ {
 
 
     private List<AppUpdate> diff() throws IllegalStateException {
-        if (_latest == null || _current == null) return Collections.emptyList();
         List<AppUpdate> updates = new ArrayList<AppUpdate>();
-        compareYAWLLib(updates);
-        compareWebApps(updates);
-        compareControlPanel(updates);
-        if (hasMandatoryUpdates()) updates.add(_mandatory);
+        if (! (_latest == null || _current == null)) {
+            compareYAWLLib(updates);
+            compareWebApps(updates);
+            compareControlPanel(updates);
+            if (hasMandatoryUpdates()) updates.add(_mandatory);
+        }
         return updates;
     }
 

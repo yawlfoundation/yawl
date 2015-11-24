@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * Override of GUI-based Downloader for CLI
  *
- * @author Joerg Evermann
  * @author Michael Adams
+ * @author Joerg Evermann
  * @date 3/11/2015
  */
 public class CliDownloader extends Downloader {

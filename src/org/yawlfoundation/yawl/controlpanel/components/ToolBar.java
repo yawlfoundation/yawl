@@ -104,7 +104,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
     public void performUserPreferencesOnStart() {
         UserPreferences prefs = new UserPreferences();
         if (prefs.checkForUpdatesOnStartup()) {
-            new BackgroundChecker(this);
+            new BackgroundChecker(_mainWindow);
         }
         if (prefs.startEngineOnStartup()) {
             startEngine();

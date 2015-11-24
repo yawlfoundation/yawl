@@ -52,17 +52,20 @@ public class ComponentsPanel extends JLayeredPane
     }
 
 
-    public void propertyChange(PropertyChangeEvent event) { enableButtons(); }
+    public void propertyChange(PropertyChangeEvent event) { enableButton(); }
 
-    public void statusChanged(EngineStatus status) { enableButtons(); }
+    public void statusChanged(EngineStatus status) { enableButton(); }
 
-    public void refresh(Differ differ) {
+    public void refresh(Differ differ, boolean afterUpdate) {
         _progressPanel.setVisible(false);
         _table.refresh(differ);
-        if (! differ.hasUpdates()) {
+        if (afterUpdate) {
+            showUpdateDoneMessage();
+        }
+        else if (! differ.hasUpdates()) {             // pre-update check
             showNoUpdatesMessage();
         }
-        enableButtons();               // will disable due to no pending/selected updates
+        enableButton();               // will disable due to no pending/selected updates
     }
 
 
@@ -131,14 +134,14 @@ public class ComponentsPanel extends JLayeredPane
     }
 
 
-    private void enableButtons() {
+    private void enableButton() {
         boolean isRunningOrStopped = ! Publisher.isTransientStatus();
         _btnUpdate.setEnabled(_table.hasUpdates() && isRunningOrStopped);
-        setUpdateButtonTip();
+        setButtonTip();
     }
 
 
-    private void setUpdateButtonTip() {
+    private void setButtonTip() {
         _btnUpdate.setToolTipText(_btnUpdate.isEnabled() ?
                 "Update to latest versions (blue rows)\n" +
                 "and install (green rows) and uninstall (red rows) selections" :
@@ -146,10 +149,19 @@ public class ComponentsPanel extends JLayeredPane
     }
 
 
+    private void showUpdateDoneMessage() {
+        showMessage("Update completed successfully.");
+    }
+
+
     private void showNoUpdatesMessage() {
-        JOptionPane.showMessageDialog(this,
-                "No updates available - you have the latest versions.",
-                "Check For Updates", JOptionPane.INFORMATION_MESSAGE);
+        showMessage("No updates available - you have the latest versions.");
+    }
+
+
+    private void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Check For Updates",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
 

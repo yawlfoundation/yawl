@@ -40,7 +40,9 @@ public class UpdateLoader implements PropertyChangeListener {
                     new NewVersionDialog(_mainWindow, _checker.getDiffer()).setVisible(true);
                 }
                 else {
-                    _mainWindow.getComponentsPanel().refresh(_checker.getDiffer());
+
+                    // show latest version numbers
+                    _mainWindow.getComponentsPanel().refresh(_checker.getDiffer(), false);
                 }
             }
         }

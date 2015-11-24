@@ -1,9 +1,8 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -15,10 +14,11 @@ import java.beans.PropertyChangeListener;
 public class BackgroundChecker implements PropertyChangeListener {
 
     private final UpdateChecker _checker;
-    private final ToolBar _source;
+    private final YControlPanel _mainWindow;
 
-    public BackgroundChecker(ToolBar source) {
-        _source = source;
+
+    public BackgroundChecker(YControlPanel mainWindow) {
+        _mainWindow = mainWindow;
         _checker = new UpdateChecker();
         _checker.addPropertyChangeListener(this);
         _checker.execute();
@@ -27,28 +27,21 @@ public class BackgroundChecker implements PropertyChangeListener {
 
     // state events from UpdateChecker (SwingWorker)
     public void propertyChange(PropertyChangeEvent event) {
-        if (event.getPropertyName().equals("state")) {
-            SwingWorker.StateValue stateValue = (SwingWorker.StateValue) event.getNewValue();
-            if (stateValue == SwingWorker.StateValue.DONE) {
-                if (! _checker.hasError() && _checker.hasUpdates()) {
-                    showMessage();
-                }
-            }
+
+        // if checker has completed without errors and has updates, show the updates
+        if (event.getPropertyName().equals("state") &&
+                event.getNewValue() == SwingWorker.StateValue.DONE &&
+                ! _checker.hasError() && _checker.hasUpdates()) {
+            showMessage();
+            _mainWindow.showComponentsPanel();
+            _mainWindow.getComponentsPanel().refresh(_checker.getDiffer(), false);
         }
     }
 
 
     private void showMessage() {
-        int response = JOptionPane.showConfirmDialog(_source,
-                "There are new YAWL updates available.\n" +
-                        "Click OK to view Updates Dialog, or Cancel to ignore.",
-                "Updates Available",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-        if (response == JOptionPane.OK_OPTION) {
-            ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-                    "Updates");
-            _source.actionPerformed(event);
-        }
+        JOptionPane.showMessageDialog(_mainWindow, "There are new YAWL updates available.",
+                "Updates Available", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }

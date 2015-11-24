@@ -9,8 +9,8 @@ import java.io.FileOutputStream;
 import java.net.URL;
 
 /**
- * @author Joerg Evermann
  * @author Michael Adams
+ * @author Joerg Evermann
  * @date 3/11/2015
  */
 public class CliDownloadWorker extends DownloadWorker {
