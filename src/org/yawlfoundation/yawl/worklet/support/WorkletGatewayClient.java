@@ -544,22 +544,76 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
-     * Gets a list of the names of all the worklet files in the repository
-     * @param withExtn true if the file extension is required
+     * Adds a complete (legacy) rule set, expressed as xml
+     * @param ruleSetXML the rule set to add
      * @param handle a current sessionhandle to the worklet service
-     * @return an XML representation of the list of worklet file names
+     * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
-    public String getWorkletNames(boolean withExtn, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getWorkletNames", handle);
-        params.put("extn", String.valueOf(withExtn));
+    public String addRdrSet(YSpecificationID specID, String ruleSetXML, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addRdrSet", handle);
+        params.putAll(specID.toMap());
+        params.put("ruleset", ruleSetXML);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Gets the specified worklet, if loaded in the service
+     * @param specID the Worklet specification id
+     * @param handle a current sessionhandle to the worklet service
+     * @return the worklet xml, if found, or an error message if not
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getWorklet(YSpecificationID specID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getWorklet", handle);
+        params.putAll(specID.toMap());
         return executeGet(_wsURI, params);
     }
 
 
     /**
+     * Adds a worklet to the service repertoire
+     * @param specID the Worklet specification id
+     * @param workletXML the worklet specification (as XML) to add
+     * @param handle a current sessionhandle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String addWorklet(YSpecificationID specID, String workletXML, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addWorklet", handle);
+        params.putAll(specID.toMap());
+        params.put("worklet", workletXML);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Gets a list of the names of all the worklets  in the repository
+     * @param handle a current sessionhandle to the worklet service
+     * @return an XML representation of the list of worklet names
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getWorkletNames(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getWorkletNames", handle));
+    }
+
+
+    /**
+     * Gets a list of specification ids of all the worklets in the repository
+     * @param handle a current sessionhandle to the worklet service
+     * @return an XML representation of the list of worklet specification ids
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getWorkletIdList(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getWorkletIdList", handle));
+    }
+
+
+    /**
      * Gets a info set of all currently running worklets
-     * @param withExtn true if the file extension is required
      * @param handle a current sessionhandle to the worklet service
      * @return an XML representation of the list of worklet file names
      * @throws java.io.IOException if the service can't be reached

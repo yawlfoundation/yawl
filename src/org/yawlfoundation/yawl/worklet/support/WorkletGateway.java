@@ -174,11 +174,18 @@ public class WorkletGateway extends YHttpServlet {
                     result = getRdrTree(req);
                 } else if (action.equalsIgnoreCase("getRdrSet")) {
                     result = getRdrSet(req);
+                } else if (action.equalsIgnoreCase("addRdrSet")) {
+                    result = addRdrSet(req);
+                } else if (action.equalsIgnoreCase("addWorklet")) {
+                    result = addWorklet(req);
+                } else if (action.equalsIgnoreCase("getWorklet")) {
+                    result = getWorklet(req);
                 } else if (action.equalsIgnoreCase("getWorkletNames")) {
-                    boolean withExtn = req.getParameter("extn").equalsIgnoreCase("true");
-                    result = getWorkletNames(withExtn);
+                    result = getWorkletNames();
                 } else if (action.equalsIgnoreCase("getRunningWorklets")) {
                     result = getRunningWorklets();
+                } else if (action.equalsIgnoreCase("getWorkletIdList")) {
+                     result = getWorkletIdList();
                 }
                 else {
                     result = fail("Unrecognised action: " + action);
@@ -231,7 +238,8 @@ public class WorkletGateway extends YHttpServlet {
         if (conc.isNullConclusion()) {
             return fail("Node conclusion contains no elements.");
         }
-        List<ExletValidationError> errList = new ExletValidator().validate(node.getConclusion());
+        List<ExletValidationError> errList =  new ExletValidator().validate(
+                node.getConclusion(), _ws.getLoader().getAllWorkletURIs());
         if (! errList.isEmpty()) {
             return fail("Node contains invalid conclusion: " + errList.get(0));
         }
@@ -246,7 +254,7 @@ public class WorkletGateway extends YHttpServlet {
             else {
                 String wirStr = req.getParameter("wir");
                 if (wirStr == null) return fail("No specification, process name or " +
-                        "work item record provided for evaluation");
+                        "work item record provided for addNode");
                 WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
                 node = _rdr.addNode(wir, rType, node);
             }
@@ -287,6 +295,7 @@ public class WorkletGateway extends YHttpServlet {
         }
         return pair.getConclusion().toXML();
     }
+
 
     private String process(HttpServletRequest req) {
         if (!_ws.isExceptionServiceEnabled()) {
@@ -432,6 +441,23 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String addRdrSet(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String xml = req.getParameter("ruleset");
+        if (! (xml == null || specID == null)) {
+            RdrSet exists = new RdrSetLoader().load(specID);
+            if (exists == null) {
+                RdrSet rdrSet = new RdrSet(specID);
+                rdrSet.fromXML(xml);
+                Persister.insert(rdrSet);
+                return "<success/>";
+            }
+            return fail("Rule set already exists for specification: " + specID.toString());
+        }
+        return fail("Invalid parameters");
+    }
+
+
     private void loadWorklets(String worklets) {
         if (worklets != null) {
             for (String worklet : StringUtil.xmlToSet(worklets)) {
@@ -449,10 +475,44 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
-    private String getWorkletNames(boolean withExtn) {
+    private String addWorklet(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String workletXML = req.getParameter("worklet");
+        if (! (specID == null || workletXML == null)) {
+            if (_ws.getLoader().add(specID, workletXML)) {
+                return "<success/>";
+            }
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String getWorklet(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        if (specID != null) {
+            WorkletSpecification worklet = _ws.getLoader().get(specID);
+            if (worklet != null) {
+                return worklet.getXML();
+            }
+            return fail("No worklet found with specification id: " + specID.toString());
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String getWorkletNames() {
         XNode root = new XNode("workletnames");
-        for (String name : new WorkletList().getAll(withExtn)) {
+        for (String name : _ws.getLoader().getAllWorkletURIs()) {
             root.addChild("name", name);
+        }
+        return root.toString();
+    }
+
+
+    private String getWorkletIdList() {
+        XNode root = new XNode("workletids");
+        for (WorkletSpecification wSpec : _ws.getLoader().loadAllWorkletSpecifications()) {
+            root.addChild(wSpec.getSpecID().toXNode());
         }
         return root.toString();
     }

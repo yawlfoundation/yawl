@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -16,13 +17,9 @@ import java.util.List;
  */
 public class ExletValidator {
 
-    public List<ExletValidationError> validate(RdrConclusion conclusion) {
-        return validate(conclusion, new WorkletList().getAll(false));
-    }
-
 
     public List<ExletValidationError> validate(RdrConclusion conclusion,
-                                               List<String> workletList) {
+                                               Set<String> workletList) {
         if (conclusion == null || conclusion.getCount() == 0) {
             return Collections.emptyList();                    // short circuit
         }
@@ -44,7 +41,7 @@ public class ExletValidator {
 
 
     private ExletValidationError validatePrimitive(RdrPrimitive primitive,
-                                   List<String> workletList, int index) {
+                                   Set<String> workletList, int index) {
         ExletAction action = primitive.getExletAction();
         ExletTarget target = primitive.getExletTarget();
         String msg = null;
@@ -88,6 +85,7 @@ public class ExletValidator {
         return msg != null ? new ExletValidationError(index, msg) : null;
     }
 
+
     // either all are select, or none are
     private boolean validateSelect(RdrConclusion conclusion) {
         boolean allAreSelect = true;
@@ -99,7 +97,6 @@ public class ExletValidator {
         }
         return allAreSelect || noneAreSelect;
     }
-
 
 
     private void validateSequence(RdrConclusion conclusion,

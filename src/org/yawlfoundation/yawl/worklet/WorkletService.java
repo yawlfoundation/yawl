@@ -213,6 +213,8 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public String getResourceServiceURL() { return Library.resourceServiceURL; }
 
+    public WorkletLoader getLoader() { return _loader; }
+
 
     /**
      * completes the initialisation of the service load-up (mainly persistence)

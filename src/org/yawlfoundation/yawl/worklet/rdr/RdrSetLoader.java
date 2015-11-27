@@ -51,6 +51,7 @@ public class RdrSetLoader {
     }
 
 
+    // todo validation
     public Map<RuleType, RdrTreeSet> load(Document doc) {
         if (doc == null) return Collections.emptyMap();  // no such file or unsuccessful load
         Map<RuleType, RdrTreeSet> treeMap = new HashMap<RuleType, RdrTreeSet>();

@@ -53,7 +53,7 @@ public class WorkletSpecification {
     public String getKey() { return _specID != null ? _specID.getKey() : null; }
 
 
-    public void setKey(String key) { /* no action needed, for hibernate only*/ }
+    private void setKey(String key) { /* no action needed, for hibernate only*/ }
 
 
     protected YSpecificationID extractSpecID(String xml) {
