@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.support.Library;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -324,7 +324,7 @@ public class RdrTree {
     }
     
     private void fromXNode(XNode node) {
-        Map<Long, RdrNode> nodeMap = new Hashtable<Long, RdrNode>();
+        Map<Long, RdrNode> nodeMap = new HashMap<Long, RdrNode>();
         if (node != null) {
             
             // 2 passes - one to unmarshal the nodes, one to link them
@@ -334,17 +334,19 @@ public class RdrTree {
                 nodeMap.put(rdrNode.getNodeId(), rdrNode);
             }
             for (XNode xRuleNode : node.getChildren()) {
-                int id = StringUtil.strToInt(xRuleNode.getChildText("id"), -1);
-                int parentID = StringUtil.strToInt(xRuleNode.getChildText("parent"), -1);
-                int trueChildID = StringUtil.strToInt(xRuleNode.getChildText("trueChild"), -1);
-                int falseChildID = StringUtil.strToInt(xRuleNode.getChildText("falseChild"), -1);
+                long id = StringUtil.strToLong(xRuleNode.getChildText("id"), -1);
+                long parentID = StringUtil.strToLong(xRuleNode.getChildText("parent"), -1);
+                long trueChildID = StringUtil.strToLong(xRuleNode.getChildText("trueChild"), -1);
+                long falseChildID = StringUtil.strToLong(xRuleNode.getChildText("falseChild"), -1);
                 RdrNode rdrNode = nodeMap.get(id);
-                if (parentID > -1) rdrNode.setParent(nodeMap.get(parentID));
-                if (parentID > -1) rdrNode.setParent(nodeMap.get(parentID));
+                if (parentID == -1) {
+                    setRootNode(rdrNode);
+                } else {
+                    rdrNode.setParent(nodeMap.get(parentID));
+                }
                 if (trueChildID > -1) rdrNode.setTrueChild(nodeMap.get(trueChildID));
                 if (falseChildID > -1) rdrNode.setFalseChild(nodeMap.get(falseChildID));
             }
-            setRootNode(nodeMap.get(0));
         }
     }
 

@@ -50,9 +50,11 @@ import java.io.StringReader;
 
 public class JDOMUtil {
 
-    private static Logger _log = LogManager.getLogger(JDOMUtil.class);
-    private static SAXBuilder _builder = new SAXBuilder(
+    private static final Logger _log = LogManager.getLogger(JDOMUtil.class);
+    private static final SAXBuilder _builder = new SAXBuilder(
             new XMLReaderSAX2Factory(false, "org.apache.xerces.parsers.SAXParser"));
+
+    public static final String UTF8_BOM = "\uFEFF";
 
 
     /****************************************************************************/
@@ -90,9 +92,11 @@ public class JDOMUtil {
     /****************************************************************************/
 
     public synchronized static Document stringToDocument(String s) {
+        if (s == null) return null;
+        if (s.startsWith(UTF8_BOM)) s = s.substring(1);      // remove BOM if any
         try {
             _builder.setIgnoringBoundaryWhitespace(true);            
-            return (s != null) ? _builder.build(new StringReader(s)) : null ;
+            return _builder.build(new StringReader(s));
         }
         catch (JDOMException jde) {
             _log.error("JDOMException converting to Document, String = " + s , jde);

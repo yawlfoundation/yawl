@@ -22,11 +22,12 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.PasswordEncryptor;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrNode;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -591,7 +592,7 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
-     * Gets a list of the names of all the worklets  in the repository
+     * Gets a list of the names of all the worklets in the repository
      * @param handle a current sessionhandle to the worklet service
      * @return an XML representation of the list of worklet names
      * @throws java.io.IOException if the service can't be reached
@@ -602,36 +603,24 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
-     * Gets a list of specification ids of all the worklets in the repository
+     * Gets a list of specification descriptors of all the worklets in the repository
      * @param handle a current sessionhandle to the worklet service
-     * @return an XML representation of the list of worklet specification ids
+     * @return an XML representation of the list of worklet specifications
      * @throws java.io.IOException if the service can't be reached
      */
-    public String getWorkletIdList(String handle) throws IOException {
-        return executeGet(_wsURI, prepareParamMap("getWorkletIdList", handle));
+    public String getWorkletInfoList(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getWorkletInfoList", handle));
     }
 
 
     /**
-     * Gets a info set of all currently running worklets
+     * Gets an info set of all currently running worklets
      * @param handle a current sessionhandle to the worklet service
      * @return an XML representation of the list of worklet file names
      * @throws java.io.IOException if the service can't be reached
      */
-    public Set<WorkletRunner> getRunningWorklets(String handle) throws IOException {
-        String result = executeGet(_wsURI, prepareParamMap("getRunningWorklets", handle));
-        if (! successful(result)) {
-            throw new IOException(result);
-        }
-        XNode root = new XNodeParser().parse(result);
-        if (root == null) {
-            throw new IOException("Malformed result string:" + result);
-        }
-        Set<WorkletRunner> runners = new HashSet<WorkletRunner>();
-        for (XNode node : root.getChildren()) {
-            runners.add(new WorkletRunner(node));
-        }
-        return runners;
+    public String getRunningWorklets(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getRunningWorklets", handle));
     }
 
 }

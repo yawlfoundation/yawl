@@ -34,7 +34,7 @@ public class ExletValidator {
         }
         else {
             errorList.add(new ExletValidationError(0, "A conclusion with a 'select' " +
-                    "action may not contain any other kind of action."));
+                    "action may not contain any other action."));
         }
         return errorList;
     }
@@ -46,16 +46,8 @@ public class ExletValidator {
         ExletTarget target = primitive.getExletTarget();
         String msg = null;
 
-        // check 'fail', 'restart' and 'complete' only references workitem
         if (action.isInvalidAction()) {
             msg = "Invalid action specified [Item " + index + "]";
-        }
-        else if (target.isInvalidTarget()) {
-            msg = "Invalid target specified [Item " + index + "]";
-        }
-        else if (action.isItemOnlyAction() && target != ExletTarget.Workitem) {
-            msg = "Target '" + target.toString() + "' is invalid for action '" +
-                    action.toString() + "' [Item " + index + "]";
         }
         else if (action == ExletAction.Rollback) {
             msg = "Unsupported action: 'rollback' [Item " + index + "]";
@@ -69,19 +61,31 @@ public class ExletValidator {
             }
             else {
                 String worklet = primitive.getTarget();
-                if (StringUtil.isNullOrEmpty(worklet)) { // no worklet name
-                    msg = "Action '" + action.toString() + "' is missing a required " +
-                            "value for worklet name [Item " + index + "]";
+                if (StringUtil.isNullOrEmpty(worklet) ||            // no worklet name
+                        worklet.equals(ExletAction.Invalid.toString())) {
+                    msg = "Action '" + action.toString() + "' is missing a valid " +
+                            "worklet target value [Item " + index + "]";
                 }
                 else {
                     for (String part : worklet.split(";")) {
-                        if (! workletList.contains(part)) {
-                            msg = "Unknown worklet name '" + worklet + "' [Item " + index + "]";
+                        if (!workletList.contains(part)) {
+                            msg = "Unknown worklet identifier '" + worklet +
+                                    "' [Item " + index + "]";
                         }
                     }
                 }
             }
         }
+        else if (action.isItemOnlyAction() && target != ExletTarget.Workitem) {
+            msg = "Target '" + target.toString() + "' is invalid for action '" +
+                    action.toString() + "' [Item " + index + "]";
+        }
+
+        // action is OK, is target valid?
+        else if (target.isInvalidTarget()) {
+            msg = "Invalid target specified [Item " + index + "]";
+        }
+
         return msg != null ? new ExletValidationError(index, msg) : null;
     }
 

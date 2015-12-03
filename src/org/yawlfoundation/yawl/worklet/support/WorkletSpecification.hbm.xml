@@ -26,11 +26,11 @@
 	<class name="org.yawlfoundation.yawl.worklet.support.WorkletSpecification"
            table="ws_workletSpec">
 
-       <id name="key" column="specKey">
+        <id name="key" column="specKey">
    		    <generator class="assigned"/>
-       </id>
+        </id>
 
-       <component name="specID"
+        <component name="specID"
                    class="org.yawlfoundation.yawl.engine.YSpecificationID">
             <property name="identifier" column="specID"/>
             <component name="version"
@@ -38,7 +38,7 @@
                 <property name="version" column="specVersion"/>
             </component>
             <property name="uri" column="specURI"/>
-       </component>
+        </component>
 
        <property name="XML"  type="text"/>
 

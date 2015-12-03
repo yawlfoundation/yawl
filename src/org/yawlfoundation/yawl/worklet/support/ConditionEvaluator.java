@@ -29,6 +29,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -93,8 +94,8 @@ public class ConditionEvaluator {
      *  @return the boolean result of the evaluation
      */
     public boolean evaluate(String cond, Element data) throws RdrConditionException {
-        if (cond == null) {
-            throw new RdrConditionException("Cannot evaluate tree: condition is null");
+        if (StringUtil.isNullOrEmpty(cond)) {
+            throw new RdrConditionException("Cannot evaluate tree: condition is empty");
         }
         if (data == null) {
             throw new RdrConditionException("Cannot evaluate tree: data element is null");

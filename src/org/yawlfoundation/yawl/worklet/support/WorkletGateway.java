@@ -184,8 +184,8 @@ public class WorkletGateway extends YHttpServlet {
                     result = getWorkletNames();
                 } else if (action.equalsIgnoreCase("getRunningWorklets")) {
                     result = getRunningWorklets();
-                } else if (action.equalsIgnoreCase("getWorkletIdList")) {
-                     result = getWorkletIdList();
+                } else if (action.equalsIgnoreCase("getWorkletInfoList")) {
+                     result = getWorkletInfoList();
                 }
                 else {
                     result = fail("Unrecognised action: " + action);
@@ -212,12 +212,12 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private YSpecificationID makeSpecID(HttpServletRequest req) {
-        String specID = req.getParameter("specid");
+        String specIdentifier = req.getParameter("specidentifier");
         String specVersion = req.getParameter("specversion");
         String specURI = req.getParameter("specuri");
         if (specVersion == null) specVersion = "0.1";
-        if (!(specID == null && specURI == null)) {
-            return new YSpecificationID(specID, specVersion, specURI);
+        if (!(specIdentifier == null && specURI == null)) {
+            return new YSpecificationID(specIdentifier, specVersion, specURI);
         } else return null;
     }
 
@@ -241,7 +241,7 @@ public class WorkletGateway extends YHttpServlet {
         List<ExletValidationError> errList =  new ExletValidator().validate(
                 node.getConclusion(), _ws.getLoader().getAllWorkletURIs());
         if (! errList.isEmpty()) {
-            return fail("Node contains invalid conclusion: " + errList.get(0));
+            return fail("Node contains invalid conclusion: " + errList.get(0).getMessage());
         }
 
         try {
@@ -310,15 +310,9 @@ public class WorkletGateway extends YHttpServlet {
         if (rTypeStr == null) return fail("Rule Type has null value");
         RuleType rType = RuleType.valueOf(rTypeStr);
 
-        String wirStr = req.getParameter("wir");
-        if (wirStr == null) return fail("Work item has null value");
-        WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-
+        WorkItemRecord wir;
         try {
-            WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
-            if (refreshedWir == null) return fail("Work item '" + wir.getID() +
-                    "' is unknown to the Engine");
-            wir = refreshedWir;
+            wir = getWIR(req);              // guaranteed not null
         }
         catch (IOException ioe) {
             return fail(ioe.getMessage());
@@ -356,15 +350,9 @@ public class WorkletGateway extends YHttpServlet {
         }
         RuleType rType = RuleType.valueOf(rTypeStr);
 
-        String wirStr = req.getParameter("wir");
-        if (wirStr == null) return fail("Work item has null value");
-        WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-
+        WorkItemRecord wir;
         try {
-            WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
-            if (refreshedWir == null) return fail("Work item '" + wir.getID() +
-                    "' is unknown to the Engine");
-            wir = refreshedWir;
+            wir = getWIR(req);              // guaranteed not null
         }
         catch (IOException ioe) {
             return fail(ioe.getMessage());
@@ -398,7 +386,7 @@ public class WorkletGateway extends YHttpServlet {
             node = _rdr.getNode(wir, rType, nodeID);
         }
 
-        return node.toXML();
+        return node != null ? node.toXML() : fail("No rule node found for parameters.");
     }
 
 
@@ -423,7 +411,7 @@ public class WorkletGateway extends YHttpServlet {
             tree = _rdr.getRdrTree(wir, rType);
         }
 
-        return tree.toXML();
+        return tree != null ? tree.toXML() : fail("No rule tree found for parameters.");
     }
 
 
@@ -437,7 +425,7 @@ public class WorkletGateway extends YHttpServlet {
             set = _rdr.getRdrSet(processName);
         } else return fail("No specification or process name provided for set");
 
-        return set.toXML();
+        return set != null ? set.toXML() : fail("No rule set found for specification.");
     }
 
 
@@ -449,6 +437,9 @@ public class WorkletGateway extends YHttpServlet {
             if (exists == null) {
                 RdrSet rdrSet = new RdrSet(specID);
                 rdrSet.fromXML(xml);
+                if (! rdrSet.hasRules()) {
+                    return fail("Malformed XML in rule set");
+                }
                 Persister.insert(rdrSet);
                 return "<success/>";
             }
@@ -509,10 +500,10 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
-    private String getWorkletIdList() {
-        XNode root = new XNode("workletids");
+    private String getWorkletInfoList() {
+        XNode root = new XNode("worklet_info_list");
         for (WorkletSpecification wSpec : _ws.getLoader().loadAllWorkletSpecifications()) {
-            root.addChild(wSpec.getSpecID().toXNode());
+            root.addChild(new WorkletInfo(wSpec).toXNode());
         }
         return root.toString();
     }
@@ -528,6 +519,27 @@ public class WorkletGateway extends YHttpServlet {
             root.addChild(runner.toXNode());
         }
         return root.toString();
+    }
+
+
+    private WorkItemRecord getWIR(HttpServletRequest req) throws IOException {
+        String wirStr = req.getParameter("wir");
+        if (wirStr == null) {
+            throw new IOException("Work item has null value");
+        }
+
+        WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
+        if (wir == null) {
+            throw new IOException("Work item record is invalid");
+        }
+
+        WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+        if (refreshedWir == null) {
+            throw new IOException("Work item '" + wir.getID() +
+                    "' is unknown to the Engine");
+        }
+
+        return refreshedWir;
     }
 
 }

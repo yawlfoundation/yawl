@@ -22,6 +22,7 @@ public class WorkletSpecification {
 
     public WorkletSpecification() { }
 
+
     public WorkletSpecification(String xml) {
         if (xml != null) {
             _specID = extractSpecID(xml);

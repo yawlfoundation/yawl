@@ -73,7 +73,7 @@ public class RdrConclusion {
         addPrimitive("select", specID.getKey());
     }
 
-    public void setSelectionPrimitive(Set<YSpecificationID> specIDs) {
+    public void setSelectionPrimitive(List<YSpecificationID> specIDs) {
         _primitives = null; // only one prim allowed for selection
         addPrimitive("select", specIDs);
     }
@@ -84,7 +84,7 @@ public class RdrConclusion {
     }
 
 
-    public void addCompensationPrimitive(Set<YSpecificationID> specIDs) {
+    public void addCompensationPrimitive(List<YSpecificationID> specIDs) {
         addPrimitive("compensate", specIDs);
     }
 
@@ -94,12 +94,17 @@ public class RdrConclusion {
     }
 
 
-    public void addPrimitive(String action, Set<YSpecificationID> specIDs) {
-        List<String> idStrings = new ArrayList<String>();
-        for (YSpecificationID specID : specIDs) {
-             idStrings.add(specID.getKey());
+    public void addPrimitive(String action, List<YSpecificationID> specIDs) {
+        if (specIDs != null) {
+            List<String> idStrings = new ArrayList<String>();
+            for (YSpecificationID specID : specIDs) {
+                idStrings.add(specID.getKey());
+            }
+            addPrimitive(action, StringUtil.join(idStrings, ';'));
         }
-        addPrimitive(action, StringUtil.join(idStrings, ','));
+        else {
+            addPrimitive(action, ExletAction.Invalid.toString());
+        }
     }
 
 
