@@ -142,7 +142,6 @@ public interface InterfaceAManagement {
     void cancelCase(YIdentifier id) throws YPersistenceException, YEngineStateException;
 
     /**
-     * Returns a set of users currently loaded within the engine.<P>
      * Suspends execution of a case.
      *
      * @param id

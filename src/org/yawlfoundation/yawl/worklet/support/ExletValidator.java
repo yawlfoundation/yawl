@@ -60,7 +60,7 @@ public class ExletValidator {
                         action.toString() + "' [Item " + index + "]";
             }
             else {
-                String worklet = primitive.getTarget();
+                String worklet = primitive.getWorkletTarget();
                 if (StringUtil.isNullOrEmpty(worklet) ||            // no worklet name
                         worklet.equals(ExletAction.Invalid.toString())) {
                     msg = "Action '" + action.toString() + "' is missing a valid " +

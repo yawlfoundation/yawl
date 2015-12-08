@@ -141,7 +141,7 @@ public class ConditionEvaluator {
                 "Invalid boolean comparison operator for operands",
                 "Invalid string comparison operator for operands",             // 10
                 "Invalid numeric operator for arithmetic operands",
-                "Malformed operators in Expression",
+                "Malformed operators in expression",
                 "Could not determine operation type",
                 "DataList element has not yet been initialized",
                 "Left and right operands are different data types"} ;          // 15
