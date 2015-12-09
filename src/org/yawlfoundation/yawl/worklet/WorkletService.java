@@ -28,6 +28,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
+import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -1142,7 +1143,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     private Element getSearchData(WorkItemRecord wir, Element data) {
-        Element processData = data.clone();
+        Element processData = appendDataTypes(wir, data.clone());
 
         //convert the wir contents to an Element
         Element wirElement = JDOMUtil.stringToElement(wir.toXML()).detach();
@@ -1151,6 +1152,21 @@ public class WorkletService extends InterfaceBWebsideController {
         eInfo.addContent(wirElement);
         processData.addContent(eInfo);                     // add element to case data
         return processData;
+    }
+
+
+    private Element appendDataTypes(WorkItemRecord wir, Element data) {
+        List<YParameter> inputParams = getTaskInputParams(wir);
+        for (Element varElement : data.getChildren()) {
+            String varName = varElement.getName();
+            for (YParameter param : inputParams) {
+                if (param.getName().equals(varName)) {
+                    varElement.setAttribute("type", param.getDataTypeNameUnprefixed());
+                    break;
+                }
+            }
+        }
+        return data;
     }
 
     /**
@@ -1203,6 +1219,19 @@ public class WorkletService extends InterfaceBWebsideController {
                 return thisSpec.getInputParams();
         }
         return null;
+    }
+
+
+    private List<YParameter> getTaskInputParams(WorkItemRecord wir) {
+        try {
+            TaskInformation taskInfo = getTaskInformation(
+                    new YSpecificationID(wir),
+                    wir.getTaskID(), _sessionHandle);
+            return taskInfo.getParamSchema().getInputParams();
+        }
+        catch (IOException ioe) {
+            return Collections.emptyList();
+        }
     }
 
 

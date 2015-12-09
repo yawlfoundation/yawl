@@ -34,7 +34,7 @@ public class ExletValidator {
         }
         else {
             errorList.add(new ExletValidationError(0, "A conclusion with a 'select' " +
-                    "action may not contain any other action."));
+                    "action may not contain any other action type."));
         }
         return errorList;
     }
@@ -112,7 +112,7 @@ public class ExletValidator {
             ExletAction state = targetState.getState(target);
             String error = null;
 
-            // get current target state;look at action
+            // get current target state; look at action
             if (action == state) {
                 error = "Duplicate '" + action.toString() + "' action.";
             }

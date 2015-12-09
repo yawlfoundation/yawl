@@ -197,6 +197,13 @@ public class ConditionEvaluator {
     }
 
 
+    private String getType(String value) {
+        if (isBoolean(value)) return "boolean";
+        if (isNumber(value)) return "numeric";
+        return "string";
+    }
+
+
     /** @return true if operator is a unary */
     private boolean isUnaryOperator(String s) {
         return ( ( s.startsWith("-") ) || ( s.startsWith("+") ) ) ;
@@ -749,8 +756,7 @@ public class ConditionEvaluator {
         }
 
         // make sure the two operands are the same data type
-        if ((isNumber(lOp) && !isNumber(rOp))  ||
-                (isBoolean(lOp) && !isBoolean(rOp))) {
+        if (!getType(lOp).equals(getType(rOp))) {
             throw new RdrConditionException(getMessage(15) + ". Left = " +
                     lOp + ", Right = " + rOp) ;
         }
@@ -815,10 +821,21 @@ public class ConditionEvaluator {
         _log.debug("in getVarValue, var = {}", var) ;
 
         // var "this" refers to the workitem associated with the task named in this rule
-        String result = var.equalsIgnoreCase("this") ? getThisData(data) :
-                data.getChildText(var) ;
+        String result = null;
+        if (var.equalsIgnoreCase("this")) {
+            result = getThisData(data);
+        }
+        else {
+            Element varElement = data.getChild(var);
+            if (varElement != null) {
+                result = varElement.getText();
+                String type = varElement.getAttributeValue("type");
+                if (type != null && type.equals("string")) {
+                    result = "\"" + result + "\"";
+                }
+            }
 
-        //   	      return formatVarValue(result) ;
+        }
         return clarifyResult(result);
     }
 

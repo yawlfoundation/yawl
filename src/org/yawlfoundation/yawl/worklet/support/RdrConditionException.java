@@ -22,7 +22,7 @@ package org.yawlfoundation.yawl.worklet.support;
 /**
  *  RdrConditionException Class.
  *
- *  An RdrConditionException is thrown when an attenpt is made to evaluate
+ *  An RdrConditionException is thrown when an attempt is made to evaluate
  *  a rule's condition and is found to be malformed or does not evaluate
  *  to a boolean result.
  *
