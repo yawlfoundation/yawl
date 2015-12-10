@@ -109,17 +109,11 @@ public class RdrConclusion {
 
 
     // from editor plugin
-    public RdrPrimitive setPrimitive(int index, ExletAction action, ExletTarget target) {
-        if (_primitives == null) _primitives = new ArrayList<RdrPrimitive>();
-        if (_primitives.isEmpty() || index > getCount()) {
-            return addPrimitive(action, target);
-        }
-        else {
-            RdrPrimitive p = new RdrPrimitive(index, action, target);
-            _primitives.set(index - 1, p);
-            return p;
-        }
+    public void setPrimitives(List<RdrPrimitive> list) {
+        _primitives = list;
     }
+
+    public List<RdrPrimitive> getPrimitives() { return _primitives; }
 
 
 
@@ -127,8 +121,7 @@ public class RdrConclusion {
         if (_primitives == null) return false;
         if (o instanceof RdrConclusion) {
             RdrConclusion other = (RdrConclusion) o;
-            if (other._primitives == null) return false;
-            return _primitives.equals(other._primitives);
+            return other._primitives != null && _primitives.equals(other._primitives);
         }
         return false;
     }

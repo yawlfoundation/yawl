@@ -100,10 +100,10 @@ public class WorkletLoader {
     }
 
 
-    public Set<String> getAllWorkletURIs() {
+    public Set<String> getAllWorkletKeys() {
         Set<String> uris = new HashSet<String>();
         for (WorkletSpecification worklet : loadAllWorkletSpecifications()) {
-            uris.add(worklet.getSpecID().getUri());
+            uris.add(worklet.getSpecID().getKey());
         }
         return uris;
     }

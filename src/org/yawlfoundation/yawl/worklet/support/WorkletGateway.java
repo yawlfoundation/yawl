@@ -239,7 +239,7 @@ public class WorkletGateway extends YHttpServlet {
             return fail("Node conclusion contains no elements.");
         }
         List<ExletValidationError> errList =  new ExletValidator().validate(
-                node.getConclusion(), _ws.getLoader().getAllWorkletURIs());
+                node.getConclusion(), _ws.getLoader().getAllWorkletKeys());
         if (! errList.isEmpty()) {
             return fail("Node contains invalid conclusion: " + errList.get(0).getMessage());
         }
@@ -493,7 +493,7 @@ public class WorkletGateway extends YHttpServlet {
 
     private String getWorkletNames() {
         XNode root = new XNode("workletnames");
-        for (String name : _ws.getLoader().getAllWorkletURIs()) {
+        for (String name : _ws.getLoader().getAllWorkletKeys()) {
             root.addChild("name", name);
         }
         return root.toString();

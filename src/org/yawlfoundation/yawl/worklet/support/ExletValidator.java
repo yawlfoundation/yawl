@@ -47,7 +47,7 @@ public class ExletValidator {
         String msg = null;
 
         if (action.isInvalidAction()) {
-            msg = "Invalid action specified [Item " + index + "]";
+            msg = "Invalid action [Item " + index + "]";
         }
         else if (action == ExletAction.Rollback) {
             msg = "Unsupported action: 'rollback' [Item " + index + "]";
@@ -83,7 +83,7 @@ public class ExletValidator {
 
         // action is OK, is target valid?
         else if (target.isInvalidTarget()) {
-            msg = "Invalid target specified [Item " + index + "]";
+            msg = "Invalid target [Item " + index + "]";
         }
 
         return msg != null ? new ExletValidationError(index, msg) : null;
@@ -180,7 +180,7 @@ public class ExletValidator {
 
         void setState(ExletAction action, ExletTarget target) {
             switch (target) {
-                case AllCases: allCasesState = action;            // deliberate fallthrough
+                case AllCases: allCasesState = action; break;
                 case AncestorCases: ancestorCasesState = action;  // deliberate fallthrough
                 case Case: caseState = action; break;
                 case Workitem: workitemState = action; break;
