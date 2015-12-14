@@ -145,7 +145,7 @@ public class YControlPanel extends JFrame {
 
         JPanel panel = new JPanel();
         panel.add(new JLabel(IconLoader.get("wait.gif")));
-        panel.add(new JLabel("Shutting down server, please wait..."));
+        panel.add(new JLabel("Shutting down engine, please wait..."));
         panel.setBackground(new Color(253, 235, 14));
         dialog.setContentPane(panel);
         dialog.pack();

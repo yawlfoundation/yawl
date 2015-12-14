@@ -29,10 +29,10 @@ import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
-import java.util.Collections;
 import java.util.Set;
 
-/** The HandlerRunner class manages an exception handling process. An instance
+/**
+ * The HandlerRunner class manages an exception handling process. An instance
  *  of this class is created for each exception process raised by a case. The CaseMonitor
  *  class maintains the current set of HandlerRunners for a case (amongst other things).
  *  This class also manages running worklet instances for a 'parent' case
@@ -42,7 +42,7 @@ import java.util.Set;
  *  sequential set of exception handling primitives for this particular handler.
  *
  *  @author Michael Adams
- *  @version 0.8, 04-09/2006; updated for 3.1 9/2015
+ *  @version 0.8, 04-09/2006; updated for v4 9/2015
  */
 
 public class ExletRunner extends AbstractRunner {
@@ -52,7 +52,7 @@ public class ExletRunner extends AbstractRunner {
     private int _actionIndex = 1 ;                  // index to 'primitives' set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
-    private RunnerMap _worklets;                    // set of running compensations
+    private final RunnerMap _worklets = new RunnerMap();  // set of running compensations
 
     // list of suspended items - can be child items, or for whole case
     private Set<WorkItemRecord> _suspendedItems = null;
@@ -67,7 +67,7 @@ public class ExletRunner extends AbstractRunner {
         _parentMonitor = monitor ;
         _conclusion = rdrConc ;
         _ruleType = xType ;
-        _caseID = monitor.getCaseID() ;
+        setParentCaseID(monitor.getCaseID());
     }
 
     /** This constructor is used when an exception is raised at the workitem level */
@@ -135,33 +135,25 @@ public class ExletRunner extends AbstractRunner {
     }
 
 
-    public void addWorklet(WorkletRunner runner) {
-        if (_worklets == null) _worklets = new RunnerMap();
-        _worklets.add(runner);
-        persistThis();
-    }
+    public void addWorklet(WorkletRunner runner) { _worklets.add(runner); }
 
-    public void removeWorklet(WorkletRunner runner) {
-        if (_worklets != null) _worklets.remove(runner);
-    }
+    public void removeWorklet(WorkletRunner runner) { _worklets.remove(runner); }
 
-    public void removeWorklet(String caseID) {
-        if (_worklets != null) _worklets.remove(caseID);
-    }
+    public void removeWorklet(String caseID) { _worklets.remove(caseID); }
 
-    public boolean hasRunningWorklet() {
-        return ! (_worklets == null || _worklets.isEmpty());
-    }
+    public boolean hasRunningWorklet() { return ! _worklets.isEmpty(); }
 
-    public Set<WorkletRunner> getWorkletRunners() {
-        return _worklets != null ? _worklets.getAll() : Collections.<WorkletRunner>emptySet();
-    }
+    public Set<WorkletRunner> getWorkletRunners() { return _worklets.getAll(); }
 
-    protected void setWorkletRunners(Set<WorkletRunner> runners) {
+    protected void addWorkletRunners(Set<WorkletRunner> runners) {
         if (! runners.isEmpty()) {
-            _worklets = new RunnerMap();
-            for (WorkletRunner runner : runners) {
-                _worklets.add(runner);
+            _worklets.addAll(runners);
+            if (_ruleType.isCaseLevelType()) {
+                for (WorkletRunner runner : runners) {
+                    runner.setParentCaseID(getCaseID());
+                    runner.setParentSpecID(_parentMonitor.getSpecID());
+                    runner.setData(_parentMonitor.getNetLevelData());
+                }
             }
         }
     }

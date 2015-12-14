@@ -25,6 +25,14 @@ public class RunnerMap {
         return added;
     }
 
+
+    public boolean addAll(Set<WorkletRunner> runners) {
+        for (WorkletRunner runner : runners) {
+            add(runner);
+        }
+        return true;
+    }
+
     public WorkletRunner remove(WorkletRunner runner) {
         return remove(runner.getCaseID());
     }

@@ -539,14 +539,18 @@ public class WorkletService extends InterfaceBWebsideController {
                 _loader.parseTarget(pair.getConclusion().getTarget(1));
         _log.info("Rule search returned {} worklet(s)", wSelected.size());
 
-        if (launchWorkletList(wir, wSelected)) {
-            _server.announceSelection(_runners.getRunnersForWorkItem(childId),
-                    pair.getLastTrueNode());
+        Set<WorkletRunner> runners =
+                launchWorkletList(wir, wSelected, RuleType.ItemSelection);
+        if (!runners.isEmpty()) {
+            _runners.addAll(runners);
+            for (WorkletRunner runner : runners) runner.logLaunchEvent();
+            _server.announceSelection(runners, pair.getLastTrueNode());
             return true;
         }
-        else _log.warn("Could not launch worklet(s): {}", wSelected);
-
-        return false;
+        else {
+            _log.warn("Could not launch worklet(s): {}", wSelected);
+            return false;
+        }
     }
 
 
@@ -863,22 +867,24 @@ public class WorkletService extends InterfaceBWebsideController {
      *
      * @param wir   - the child workitem to launch worklets for
      * @param specs - the ids of the worklets to launch
-     * @return true if *any* of the worklets are successfully launched
+     * @return the set of worklets runners successfully launched
      */
-    protected boolean launchWorkletList(WorkItemRecord wir, Set<WorkletSpecification> specs) {
-        boolean launchSuccess = false;
+    protected Set<WorkletRunner> launchWorkletList(WorkItemRecord wir,
+                                        Set<WorkletSpecification> specs, RuleType ruleType) {
+        Set<WorkletRunner> runners = new HashSet<WorkletRunner>();
 
         // for each worklet listed in the conclusion (in case of multiple worklets)
         for (WorkletSpecification spec : specs) {
 
             // load spec & launch case as substitute for checked out workitem
             if (uploadWorklet(spec)) {
-                String caseID = launchWorklet(wir, spec.getSpecID(), true,
-                        RuleType.ItemSelection);
-                if (caseID != null) launchSuccess = true;
+                WorkletRunner runner = launchWorklet(wir, spec.getSpecID(), true, ruleType);
+                if (runner != null) {
+                    runners.add(runner);
+                }
             }
         }
-        return launchSuccess;
+        return runners;
     }
 
 
@@ -908,26 +914,25 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param wir - the checked out child item to start the worklet for
      * @return - the case id of the started worklet case
      */
-    protected String launchWorklet(WorkItemRecord wir, YSpecificationID specID,
+    protected WorkletRunner launchWorklet(WorkItemRecord wir, YSpecificationID specID,
                                    boolean setObserver, RuleType ruleType) {
 
         // fill the case params with matching data values from the workitem
         String caseData = wir != null ? mapItemParamsToWorkletCaseParams(wir, specID) : null;
-        String caseId = null;
+        WorkletRunner runner = null;
 
         try {
             // launch case (and set completion observer)
-            caseId = launchCase(specID, caseData, _sessionHandle, setObserver);
+            String caseId = launchCase(specID, caseData, _sessionHandle, setObserver);
 
             if (successful(caseId)) {
 
                 // save the runner
-                WorkletRunner runner = new WorkletRunner(caseId, specID, wir);
-                _runners.add(runner);
+                runner = new WorkletRunner(caseId, specID, wir, ruleType);
 
                 // log launch event
                 EventLogger.log(EventLogger.eLaunch, caseId, specID, "",
-                        runner.getParentCaseID(), runner.getRuleType().ordinal());
+                        runner.getParentCaseID(), ruleType.ordinal());
                 _log.info("Launched case for worklet {} with ID: {}",
                         specID.getUri(), caseId);
 
@@ -938,7 +943,7 @@ public class WorkletService extends InterfaceBWebsideController {
         } catch (IOException ioe) {
             _log.error("IO Exception when attempting to launch case", ioe);
         }
-        return caseId;
+        return runner;
     }
 
 
@@ -1289,7 +1294,9 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     public Set<WorkletRunner> getAllRunners() {
-        return _runners.getAll();
+        Set<WorkletRunner> runners = _runners.getAll();
+        runners.addAll(_exService.getRunningWorklets());
+        return runners;
     }
 
 

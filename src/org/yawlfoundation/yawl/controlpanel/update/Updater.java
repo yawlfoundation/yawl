@@ -352,6 +352,11 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 "Update Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    protected void showWarning(String message) {
+        JOptionPane.showMessageDialog(getProgressPanel().getParent(),
+                 message,"Warning", JOptionPane.WARNING_MESSAGE);
+    }
+
 
 
     // 5. COPY in new files -> startEngine
@@ -462,7 +467,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                         success = false;
                     }
                     if (! success) {
-                        showError("Service '" + appName + "' has been successfully " +
+                        showWarning("Service '" + appName + "' has been successfully " +
                                 "removed, but\n" +
                                 "failed to deregister from the YAWL Engine.");
                     }
@@ -483,7 +488,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                     else success = false;
 
                     if (! success) {
-                        showError("Service '" + appName + "' has been successfully " +
+                        showWarning("Service '" + appName + "' has been successfully " +
                                 "added, but\n" +
                                 "failed to register with the YAWL Engine.");
                     }

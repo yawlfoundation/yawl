@@ -89,6 +89,7 @@ public class MainScreen {
     start();
     //assignmentCoordinator.init();
 
+      try {Thread.sleep(2000);} catch (Exception x) {}
       loadProperties();
       setYawlProperties();
       DBConnection.init(getDbProperties());
@@ -116,7 +117,7 @@ public class MainScreen {
         String basePath = System.getenv("CATALINA_HOME");
         if (basePath != null) {
             String hibFile = File.separator + "hibernate.properties";
-            String libPath = File.separator + "lib";
+            String libPath = File.separator + "yawllib";
             File hibProp = new File(basePath + libPath + hibFile);   // 4Study
             if (! hibProp.exists()) {
                 String procPath = File.separator + "webapps" + File.separator +
@@ -128,6 +129,11 @@ public class MainScreen {
                 try { 
                     props = new Properties() ;
                     props.load(new FileInputStream(hibProp));
+                    String url = props.getProperty("hibernate.connection.url");
+                    if (url != null && url.contains("catalina.base")) {
+                        url = url.replace("${catalina.base}", basePath);
+                        props.setProperty("hibernate.connection.url", url);
+                    }
                     return props;
                 }
                 catch (Exception e) {

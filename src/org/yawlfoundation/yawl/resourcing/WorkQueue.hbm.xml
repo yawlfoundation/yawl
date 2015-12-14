@@ -38,7 +38,7 @@
                   column="queueType"
                   type="int"/>
 
-        <map name="_workitems" access="field" table="rs_queueItems">
+        <map name="_workitems" access="field" table="rs_queueItems" cascade="delete">
             <key column="q_id"/>
             <index column="key_id" type="string"/>
             <many-to-many column="valueItem"

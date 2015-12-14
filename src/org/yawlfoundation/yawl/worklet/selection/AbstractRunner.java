@@ -4,6 +4,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
@@ -20,9 +21,16 @@ public abstract class AbstractRunner {
     private long _id;                                             // for persistence
     protected String _wirID;                                      // for persistence
 
+    // the worklet case id for WorkletRunners, the parent case id for ExletRunners
     protected String _caseID;
+
     protected WorkItemRecord _wir;
     protected RuleType _ruleType;
+
+    // for case level runners
+    protected String _parentCaseID;
+    protected YSpecificationID _parentSpecID;
+    protected String _dataString;
 
     public AbstractRunner() { }
 
@@ -31,9 +39,8 @@ public abstract class AbstractRunner {
     public AbstractRunner(String caseID, WorkItemRecord wir, RuleType ruleType) {
         _caseID = caseID;
         _wir = wir;
+        if (wir != null) _wirID = wir.getID();                       // for persistence
         _ruleType = ruleType;
-        _wirID = wir.getID();                       // for persistence
-        logLaunchEvent();
     }
 
 
@@ -45,14 +52,26 @@ public abstract class AbstractRunner {
 
     public RuleType getRuleType() { return _ruleType; }
 
+    public String getTaskID() {
+        return getWir() != null ? _wir.getTaskID() : null;
+    }
+
+    public void setParentCaseID(String caseID) { _parentCaseID = caseID; }
+
+    public void setParentSpecID(YSpecificationID specID) { _parentSpecID = specID; }
+
+    public void setData(Element data) {
+        _dataString = JDOMUtil.elementToString(data);
+    }
+
 
     public String getParentCaseID() {
-        return getWir() != null ? _wir.getRootCaseID() : null;
+        return getWir() != null ? _wir.getRootCaseID() : _parentCaseID;
     }
 
 
     public YSpecificationID getParentSpecID() {
-        return getWir() != null ? new YSpecificationID(_wir) : null;
+        return getWir() != null ? new YSpecificationID(_wir) : _parentSpecID;
     }
 
 
@@ -62,6 +81,10 @@ public abstract class AbstractRunner {
 
     public Element getWorkItemData() {
         return getWir() != null ? _wir.getDataList() : null;
+    }
+
+    public String getDataListString() {
+        return getWir() != null ? _wir.getDataListString() : _dataString;
     }
 
     // will be null after restart - get it from the engine (for item-level handlers only)
@@ -81,24 +104,43 @@ public abstract class AbstractRunner {
     public XNode toXNode() {
         XNode root = new XNode("runner");
         root.addChild("caseid", _caseID);
-        if (_wir != null) {
-            root.addChild("wir", _wir.toXML());
+        if (getWir() != null) root.addContent(_wir.toXML());
+        root.addChild("parentcaseid", getParentCaseID());
+        XNode pSpecNode = root.addChild("parentspecid");
+        if (_parentSpecID != null) {
+            pSpecNode.addChild(_parentSpecID.toXNode());
         }
-        root.addChild("ruletype", _ruleType.name());
+        if (_dataString != null) {
+            root.addChild("datastring", _dataString);
+        }
+        root.addChild("ruletype", _ruleType.toString());
         return root;
     }
 
 
     public void fromXNode(XNode node) {
         _caseID = node.getChildText("caseid");
-        _wir = Marshaller.unmarshalWorkItem(node.getChildText("wir"));
+        _wir = Marshaller.unmarshalWorkItem(node.getChild("workItemRecord").toString());
+        if (_wir != null) {
+            _wirID = _wir.getID();
+        }
+        _parentCaseID = node.getChildText("parentcaseid");
+        XNode pSpecNode = node.getChild("parentspecid").getChild("specificationid");
+        if (pSpecNode != null) {
+            _parentSpecID = new YSpecificationID(pSpecNode);
+        }
+        _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));
     }
 
 
+
+
     public void logLaunchEvent() {
-        Persister.insert(new LaunchEvent(getWir(), _ruleType,
-                    _caseID, getWir().getDataListString()));
+        Persister.insert(new LaunchEvent(
+                getParentSpecID(), getTaskID(), getWorkItemID(), _ruleType,
+                getParentCaseID(), _caseID, getDataListString()
+        ));
     }
 
 

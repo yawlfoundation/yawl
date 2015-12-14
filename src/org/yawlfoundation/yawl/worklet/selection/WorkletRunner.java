@@ -19,9 +19,10 @@ public class WorkletRunner extends AbstractRunner {
 
     public WorkletRunner(XNode node) { fromXNode(node); }
 
+
     public WorkletRunner(String workletCaseID, YSpecificationID workletSpecID,
-                         WorkItemRecord wir) {
-        super(workletCaseID, wir, RuleType.ItemSelection);
+                         WorkItemRecord wir, RuleType ruleType) {
+        super(workletCaseID, wir, ruleType);
         _specID = workletSpecID;
     }
 

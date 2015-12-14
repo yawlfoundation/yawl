@@ -27,6 +27,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import java.io.Serializable;
@@ -91,8 +92,10 @@ public class HibernateEngine {
                 _cfg.addClass(persistedClass);
             }
 
-           // get a session context
-            _factory = _cfg.buildSessionFactory(new StandardServiceRegistryBuilder().build());
+            // get a session context
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(_cfg.getProperties()).build();
+            _factory = _cfg.buildSessionFactory(serviceRegistry);
 
             // check tables exist and are of a matching format to the persisted objects
             new SchemaUpdate(_cfg).execute(false, true);

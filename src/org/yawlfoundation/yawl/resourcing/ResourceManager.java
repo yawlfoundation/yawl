@@ -657,7 +657,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             WorkItemRecord deadWir = _workItemCache.get(missingID);
 
             // remove from queues first to avoid a db foreign key violation
-         //   if (removeFromAll(deadWir)) _workItemCache.remove(deadWir);
+            // then let the cache 'cleanser' runner remove it
             removeFromAll(deadWir);
             _log.warn("Cached workitem '{}' did not exist in the Engine and was removed.",
                     missingID);

@@ -596,13 +596,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             case Compensate: {
 
                 // launch & run compensatory worklet(s)
-                Set<WorkletSpecification> workletList = _loader.parseTarget(target);
-                if (launchWorkletList(runner.getWir(), workletList)) {
-                    runner.logLaunchEvent();
+                if (doCompensate(runner, target)) {
+                    success = false;         // to break out of loop while worklet runs
                 }
-                else _log.error("Unable to load compensatory worklet(s), will ignore: {}",
-                    target);
-                success = false ;            // to break out of loop while worklet runs
                 break;
             }
             case Rollback: {
@@ -692,6 +688,22 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     }
 
     //***************************************************************************//
+
+    private boolean doCompensate(ExletRunner exletRunner, String target) {
+        Set<WorkletSpecification> workletList = _loader.parseTarget(target);
+        Set<WorkletRunner> runners = launchWorkletList(exletRunner.getWir(),
+                workletList, exletRunner.getRuleType());
+        if (!runners.isEmpty()) {
+            exletRunner.addWorkletRunners(runners);
+            for (WorkletRunner runner : runners) {
+                runner.logLaunchEvent();
+            }
+        }
+        else _log.error("Unable to load compensatory worklet(s), will ignore: {}",
+            target);
+        return !runners.isEmpty();
+    }
+
 
     /**
      * Deals with the end of an exception worklet case.
@@ -1457,6 +1469,15 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         }
         if (result.isEmpty()) result = null ;
         return result ;
+    }
+
+
+    public Set<WorkletRunner> getRunningWorklets() {
+        Set<WorkletRunner> workletRunners = new HashSet<WorkletRunner>();
+        for (ExletRunner exletRunner : _handlersStarted.values()) {
+            workletRunners.addAll(exletRunner.getWorkletRunners());
+        }
+        return workletRunners;
     }
 
     //***************************************************************************//
