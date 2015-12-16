@@ -46,6 +46,7 @@
         
         <property name="_parentCaseID" column="parentCaseID" access="field"/>
         <property name="_dataString"  column="netData" access="field"/>
+        <property name="_ruleNodeId"  column="ruleNodeId" type="long" access="field"/>
 
         <component name="_parentSpecID" access="field"
                    class="org.yawlfoundation.yawl.engine.YSpecificationID">

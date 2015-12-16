@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
@@ -26,6 +27,7 @@ public abstract class AbstractRunner {
 
     protected WorkItemRecord _wir;
     protected RuleType _ruleType;
+    protected long _ruleNodeId;                 // the node that triggered this runner
 
     // for case level runners
     protected String _parentCaseID;
@@ -63,6 +65,10 @@ public abstract class AbstractRunner {
     public void setData(Element data) {
         _dataString = JDOMUtil.elementToString(data);
     }
+
+    public void setRuleNodeId(long nodeId) { _ruleNodeId = nodeId; }
+
+    public long getRuleNodeId() { return _ruleNodeId; }
 
 
     public String getParentCaseID() {
@@ -114,6 +120,7 @@ public abstract class AbstractRunner {
             root.addChild("datastring", _dataString);
         }
         root.addChild("ruletype", _ruleType.toString());
+        root.addChild("ruleNode", _ruleNodeId);
         return root;
     }
 
@@ -131,9 +138,8 @@ public abstract class AbstractRunner {
         }
         _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));
+        _ruleNodeId = StringUtil.strToLong(node.getChildText("ruleNode"), -1);
     }
-
-
 
 
     public void logLaunchEvent() {

@@ -364,29 +364,9 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String getNode(HttpServletRequest req) {
-        YSpecificationID specID = makeSpecID(req);
-        String processName = req.getParameter("name");
-        String taskID = req.getParameter("taskid");
-        String rTypeStr = req.getParameter("rtype");
-        int nodeID = StringUtil.strToInt(req.getParameter("nodeid"), -1);
-        if (rTypeStr == null) return fail("Rule Type has null value");
-        if (nodeID < 0) return fail("Invalid node id");
-
-        RuleType rType = RuleType.valueOf(rTypeStr);
-        RdrNode node;
-        if (specID != null) {
-            node = _rdr.getNode(specID, taskID, rType, nodeID);
-        } else if (processName != null) {
-            node = _rdr.getNode(processName, taskID, rType, nodeID);
-        } else {
-            String wirStr = req.getParameter("wir");
-            if (wirStr == null) return fail(
-                    "No specification, process name or work item record provided for evaluation");
-            WorkItemRecord wir = Marshaller.unmarshalWorkItem(wirStr);
-            node = _rdr.getNode(wir, rType, nodeID);
-        }
-
-        return node != null ? node.toXML() : fail("No rule node found for parameters.");
+        long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
+        RdrNode node = _rdr.getNode(nodeID);
+        return node != null ? node.toXML() : fail("No rule node found with id: " + nodeID);
     }
 
 

@@ -89,7 +89,7 @@ public class RdrTree {
      * @param id - the node id of the node to find
      * @return the node identified by the id, or null if this tree has no matching node
      */
-    public RdrNode getNode(int id) {
+    public RdrNode getNode(long id) {
        return getNode(rootNode, id) ;
     }
 
@@ -100,7 +100,7 @@ public class RdrTree {
      * @param id - the node id of the node to find
      * @return the node identified by the id, or null if this tree has no matching node
      */
-    private RdrNode getNode(RdrNode root, int id) {
+    private RdrNode getNode(RdrNode root, long id) {
         if (root == null) return null;                          // no match - base case
         if (root.getNodeId() == id) return root;                // match found
         RdrNode result = getNode(root.getTrueChild(), id);      // search true branch

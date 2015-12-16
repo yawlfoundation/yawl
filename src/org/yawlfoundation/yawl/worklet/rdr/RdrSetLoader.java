@@ -1,6 +1,8 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.logging.log4j.LogManager;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -9,7 +11,10 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -48,6 +53,11 @@ public class RdrSetLoader {
 
     public Map<RuleType, RdrTreeSet> loadFile(File ruleFile) {
         return load(JDOMUtil.fileToDocument(ruleFile));
+    }
+
+
+    public RdrNode loadNode(long nodeID) {
+        return (RdrNode) Persister.getInstance().get(RdrNode.class, nodeID);
     }
 
 
@@ -251,23 +261,21 @@ public class RdrSetLoader {
     }
 
 
-    /********************************************************************************/
-
     private RdrSet loadSet(YSpecificationID specID) {
         String id = specID.getIdentifier();
-        String whereClause = id != null ? "_specID.identifier='" + id + "'" :
-                "_specID.uri='" + specID.getUri() +"'";                     // version 1
-        return loadSetWhere(whereClause);
+        return id != null ? loadSet("_specID.identifier", id) :
+                loadSet("_specID.uri", specID.getUri());               // pre v2.0
     }
 
 
     private RdrSet loadSet(String name) {
-        return loadSetWhere("_processName='" + name + "'");
+        return loadSet("_processName=", name);
     }
 
 
-    private RdrSet loadSetWhere(String whereClause) {
-        List list = Persister.getInstance().getObjectsForClassWhere("RdrSet", whereClause);
+    private RdrSet loadSet(String column, String value) {
+        Criterion criterion = Restrictions.eq(column, value);
+        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
         return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
     }
 

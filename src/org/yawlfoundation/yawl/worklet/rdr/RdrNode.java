@@ -102,11 +102,12 @@ public class RdrNode {
     	this(id, null, null, null, "", null, null);
     }
     
-    public RdrNode(String xml) {
-         fromXML(xml);
+    public RdrNode(String xml) { fromXML(xml); }
+
+    public RdrNode(XNode node) {
+         fromXNode(node);
     }
-    
-    
+
     /**
      *  Construct a node with the basic values provided
 	 *  @param id - the node id of the new node
@@ -331,7 +332,8 @@ public class RdrNode {
 
 
     /**
-     * Only called when adding a new node, so it will have no id, parent or children
+     * Only called when adding a new node, so it will have no id, parent or children,
+     * or for WorkletRunner transport, where connected nodes are not required
      * @param xNode
      */
     protected void fromXNode(XNode xNode) {

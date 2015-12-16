@@ -199,9 +199,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         checkConstraints(monitor, wir, preCheck);
 
                         if (preCheck)
-                            monitor.addLiveItem(wir.getTaskName());  // flag item as active
+                            monitor.addLiveItem(wir.getTaskID());  // flag item as active
                         else
-                            monitor.removeLiveItem(wir.getTaskName());  // remove item flag
+                            monitor.removeLiveItem(wir.getTaskID());  // remove item flag
 
                         destroyMonitorIfDone(monitor, caseID);
                     }
@@ -347,12 +347,12 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         monitor.addProcessInfo(wir);
 
         // get the exception handler for this task (if any)
-        RdrPair pair = getExceptionHandler(monitor, wir.getTaskName(), ruleType);
+        RdrPair pair = getExceptionHandler(monitor, wir.getTaskID(), ruleType);
 
         // if pair is null there's no rules defined for this type of constraint
         if (pair == null) {
             msg = "No " + ruleType.toLongString() + " rules defined for workitem: " +
-                    wir.getTaskName();
+                    wir.getTaskID();
         }
         else {
             if (! pair.hasNullConclusion()) {                // we have a handler
@@ -422,7 +422,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     private void checkConstraints(CaseMonitor monitor, WorkItemRecord wir, boolean pre) {
         RdrPair pair;       // the conclusion from a set of rules, if any
         String itemID = wir.getID();
-        String taskID = wir.getTaskName() ;
+        String taskID = wir.getTaskID() ;
         String sType = pre? "pre" : "post";
         RuleType xType = pre? RuleType.ItemPreconstraint : RuleType.ItemPostconstraint;
 
@@ -1634,7 +1634,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (itemID != null) {
             WorkItemRecord wir = getWorkItemRecord(itemID);
             if (wir != null) {
-                RdrTree tree = getTree(new YSpecificationID(wir), wir.getTaskName(),
+                RdrTree tree = getTree(new YSpecificationID(wir), wir.getTaskID(),
                         RuleType.ItemExternalTrigger);
                 return getExternalTriggers(tree) ;
             }
@@ -1708,7 +1708,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             else {                                               // else item level
                 wir = getWorkItemRecord(id);
                 caseID = wir.getRootCaseID();
-                taskID = wir.getTaskName();
+                taskID = wir.getTaskID();
                 xLevel = RuleType.ItemExternalTrigger;
             }
 
@@ -1864,7 +1864,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     //***************************************************************************//
 
     /** stub method called from RdrConditionFunctions class */
-    public String getStatus(String taskName) {
+    public String getStatus(String taskID) {
         return null;
     }
 

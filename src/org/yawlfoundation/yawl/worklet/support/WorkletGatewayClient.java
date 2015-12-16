@@ -402,19 +402,15 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Gets a copy of a particular node from a rule set
-     * @param wir the workitem containing specification and task identifiers
-     * @param rType the type of rule tree to get the node from
      * @param nodeID the (integer) node id
      * @param handle a current sessionhandle to the worklet service
-     * @return the node, if found within the specification/task/rule-type combination
+     * @return the node, if found
      * @throws java.io.IOException if the service can't be reached
      */
-    public String getNode(WorkItemRecord wir, RuleType rType, int nodeID, String handle) 
+    public String getNode(long nodeID, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("getNode", handle);
-        params.put("wir", wir.toXML());
         params.put("nodeid", String.valueOf(nodeID));
-        params.put("rtype", rType.name());
         return executeGet(_wsURI, params);
     }
 
@@ -430,7 +426,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @throws java.io.IOException if the service can't be reached
      */
     public String getNode(YSpecificationID specID, String taskID, RuleType rType,
-                          int nodeID, String handle) throws IOException {
+                          long nodeID, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getNode", handle);
         params.putAll(specID.toMap());
         if (taskID != null) params.put("taskid", taskID);
@@ -450,7 +446,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @return the node, if found within the process/task/rule-type combination
      * @throws java.io.IOException if the service can't be reached
      */
-    public String getNode(String processName, String taskID, RuleType rType, int nodeID,
+    public String getNode(String processName, String taskID, RuleType rType, long nodeID,
                           String handle) throws IOException {
         Map<String, String> params = prepareParamMap("getNode", handle);
         params.put("name", processName);

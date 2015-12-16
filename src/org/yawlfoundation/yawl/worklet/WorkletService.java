@@ -492,7 +492,7 @@ public class WorkletService extends InterfaceBWebsideController {
             }
         }
         else _log.warn("Rule set does not contain rules for task: {}" +
-                " OR No rule set found for specId: {}", wir.getTaskName(), specId);
+                " OR No rule set found for specId: {}", wir.getTaskID(), specId);
 
         return launchedCount > 0;
     }
@@ -542,8 +542,11 @@ public class WorkletService extends InterfaceBWebsideController {
         Set<WorkletRunner> runners =
                 launchWorkletList(wir, wSelected, RuleType.ItemSelection);
         if (!runners.isEmpty()) {
+            for (WorkletRunner runner : runners) {
+                runner.setRuleNodeId(pair.getLastTrueNode().getNodeId());
+                runner.logLaunchEvent();
+            }
             _runners.addAll(runners);
-            for (WorkletRunner runner : runners) runner.logLaunchEvent();
             _server.announceSelection(runners, pair.getLastTrueNode());
             return true;
         }
@@ -1123,7 +1126,7 @@ public class WorkletService extends InterfaceBWebsideController {
                     _interfaceBClient.getStartingDataSnapshot(wir.getID(), _sessionHandle));
             if (data != null) {
                 Element searchData = getSearchData(wir, data);
-                return evaluate(new YSpecificationID(wir), wir.getTaskName(), searchData);
+                return evaluate(new YSpecificationID(wir), wir.getTaskID(), searchData);
             }
         }
         catch (IOException fallthrough) {

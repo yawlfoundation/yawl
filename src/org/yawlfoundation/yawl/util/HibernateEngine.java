@@ -24,6 +24,7 @@ import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.internal.SessionFactoryImpl;
@@ -110,7 +111,7 @@ public class HibernateEngine {
     /** @return true if a table of 'tableName' currently exists and has at least one row */
     public boolean isAvailable(String tableName) {
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             getOrBeginTransaction();
             Query query = session.createQuery("from " + tableName).setMaxResults(1);
             boolean hasTable = query.list().size() > 0;
@@ -151,7 +152,7 @@ public class HibernateEngine {
 
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             tx = getOrBeginTransaction();
 
             if (action == DB_INSERT) session.save(obj);
@@ -182,7 +183,7 @@ public class HibernateEngine {
     public boolean exec(Object obj, int action, Transaction tx) {
 
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             if (action == DB_INSERT) session.save(obj);
             else if (action == DB_UPDATE) updateOrMerge(session, obj);
             else if (action == DB_DELETE) session.delete(obj);
@@ -212,7 +213,7 @@ public class HibernateEngine {
 
     public Transaction getOrBeginTransaction() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
+           Transaction tx = getSession().getTransaction();
            return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
         }
         catch (HibernateException he) {
@@ -232,7 +233,7 @@ public class HibernateEngine {
         List result = null;
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             tx = getOrBeginTransaction();
             Query query = session.createQuery(queryString);
             if (query != null) result = query.list();
@@ -259,7 +260,7 @@ public class HibernateEngine {
         int result = -1;
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             tx = getOrBeginTransaction();
             result = session.createQuery(queryString).executeUpdate();
             if (commit) tx.commit();
@@ -280,7 +281,7 @@ public class HibernateEngine {
     public Query createQuery(String queryString) {
         Transaction tx = null;
         try {
-            Session session = _factory.getCurrentSession();
+            Session session = getSession();
             tx = getOrBeginTransaction();
             return session.createQuery(queryString);
         }
@@ -293,25 +294,35 @@ public class HibernateEngine {
 
 
     public Transaction beginTransaction() {
-        return _factory.getCurrentSession().beginTransaction();
+        return getSession().beginTransaction();
     }
 
 
     public Object load(Class claz, Serializable key) {
         getOrBeginTransaction();
-        return _factory.getCurrentSession().load(claz, key);
+        return getSession().load(claz, key);
     }
 
 
     public Object get(Class claz, Serializable key) {
         getOrBeginTransaction();
-        return _factory.getCurrentSession().get(claz, key);
+        return getSession().get(claz, key);
+    }
+
+
+    public List getByCriteria(Class claz, Criterion... criteria) {
+        getOrBeginTransaction();
+        Criteria c = getSession().createCriteria(claz);
+        for (Criterion criterion : criteria) {
+            c.add(criterion);
+        }
+        return c.list();
     }
 
     
     public void commit() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
+           Transaction tx = getSession().getTransaction();
            if ((tx != null) && tx.isActive()) tx.commit();
         }
         catch (HibernateException he) {
@@ -322,7 +333,7 @@ public class HibernateEngine {
 
     public void rollback() {
         try {
-           Transaction tx = _factory.getCurrentSession().getTransaction();
+           Transaction tx = getSession().getTransaction();
            if ((tx != null) && tx.isActive()) tx.rollback();
         }
         catch (HibernateException he) {
@@ -426,6 +437,11 @@ public class HibernateEngine {
             case DB_INSERT: result = "insert"; break;
         }
         return result ;
+    }
+    
+    
+    private Session getSession() {
+        return _factory.getCurrentSession();
     }
 
     /****************************************************************************/

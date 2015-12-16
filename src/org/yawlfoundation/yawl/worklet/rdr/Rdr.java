@@ -23,8 +23,6 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.support.RdrException;
 
-import java.util.Map;
-
 /**
  * A top-level interface into the Rdr Classes
  *
@@ -84,24 +82,27 @@ public class Rdr {
         return addNode(getRdrSet(processName), taskID, rType, node);
     }
 
+    public RdrNode getNode(long nodeID) {
+        return nodeID > 0 ? _loader.loadNode(nodeID) : null;
+    }
 
-    public RdrNode getNode(YSpecificationID specID, RuleType rType, int nodeID) {
+    public RdrNode getNode(YSpecificationID specID, RuleType rType, long nodeID) {
         return getNode(specID, null, rType, nodeID);
     }
 
-    public RdrNode getNode(String processName, RuleType rType, int nodeID) {
+    public RdrNode getNode(String processName, RuleType rType, long nodeID) {
         return getNode(processName, null, rType, nodeID);
     }
 
-    public RdrNode getNode(WorkItemRecord wir, RuleType rType, int nodeID) {
+    public RdrNode getNode(WorkItemRecord wir, RuleType rType, long nodeID) {
         return getNode(new YSpecificationID(wir), wir.getTaskID(), rType, nodeID);
     }
 
-    public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, int nodeID) {
+    public RdrNode getNode(YSpecificationID specID, String taskID, RuleType rType, long nodeID) {
         return getNode(getRdrSet(specID), taskID, rType, nodeID);
     }
 
-    public RdrNode getNode(String processName, String taskID, RuleType rType, int nodeID) {
+    public RdrNode getNode(String processName, String taskID, RuleType rType, long nodeID) {
         return getNode(getRdrSet(processName), taskID, rType, nodeID);
     }
 
@@ -180,7 +181,7 @@ public class Rdr {
     }
     
     
-    private RdrNode getNode(RdrSet set, String taskID, RuleType rType, int nodeID) {
+    private RdrNode getNode(RdrSet set, String taskID, RuleType rType, long nodeID) {
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
             RdrNode node = tree.getNode(nodeID);
