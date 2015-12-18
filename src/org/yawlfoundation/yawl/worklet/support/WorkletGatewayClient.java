@@ -416,48 +416,6 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
-     * Gets a copy of a particular node from a rule set
-     * @param specID the specification identifier
-     * @param taskID the task identifier (may be null for case-level rule types)
-     * @param rType the type of rule tree to get the node from
-     * @param nodeID the (integer) node id
-     * @param handle a current sessionhandle to the worklet service
-     * @return the node, if found within the specification/task/rule-type combination
-     * @throws java.io.IOException if the service can't be reached
-     */
-    public String getNode(YSpecificationID specID, String taskID, RuleType rType,
-                          long nodeID, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getNode", handle);
-        params.putAll(specID.toMap());
-        if (taskID != null) params.put("taskid", taskID);
-        params.put("nodeid", String.valueOf(nodeID));
-        params.put("rtype", rType.name());
-        return executeGet(_wsURI, params);
-    }
-
-
-    /**
-     * Gets a copy of a particular node from a rule set
-     * @param processName the process identifier, or unique ruleset name
-     * @param taskID the task identifier (may be null for case-level rule types)
-     * @param rType the type of rule tree to get the node from
-     * @param nodeID the (integer) node id
-     * @param handle a current sessionhandle to the worklet service
-     * @return the node, if found within the process/task/rule-type combination
-     * @throws java.io.IOException if the service can't be reached
-     */
-    public String getNode(String processName, String taskID, RuleType rType, long nodeID,
-                          String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getNode", handle);
-        params.put("name", processName);
-        if (taskID != null) params.put("taskid", taskID);
-        params.put("nodeid", String.valueOf(nodeID));
-        params.put("rtype", rType.name());
-        return executeGet(_wsURI, params);
-    }
-
-
-    /**
      * Gets a copy of a particular rule tree
      * @param wir the workitem containing specification and task identifiers
      * @param rType the type of rule tree to get the node from
@@ -583,6 +541,23 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("addWorklet", handle);
         params.putAll(specID.toMap());
         params.put("worklet", workletXML);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Replaces a worklet instance (or instances) started for a work item with a new
+     * instance (or instances), based on a 'pre' updated rule set
+     * @param itemID the item id of the parent that launched the worklet(s)
+     * @param handle a current sessionhandle to the worklet service
+     * @return a list of case ids of the new instances, or an error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String replaceWorklet(String itemID, RuleType ruleType, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("replace", handle);
+        params.put("itemID", itemID);
+        params.put("exType", ruleType.name());
         return executePost(_wsURI, params);
     }
 

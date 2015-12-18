@@ -141,8 +141,8 @@ public class WorkletGateway extends YHttpServlet {
                             "a running worklet.");
 
                     String itemID = req.getParameter("itemID");
-                    int exType = Integer.parseInt(req.getParameter("exType"));
-                    RuleType rType = RuleType.values()[exType];
+                    String exType = req.getParameter("exType");
+                    RuleType rType = RuleType.valueOf(exType);
 
                     // get the service instance and call replace
                     if (rType == RuleType.ItemSelection) {

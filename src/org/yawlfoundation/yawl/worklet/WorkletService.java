@@ -981,24 +981,28 @@ public class WorkletService extends InterfaceBWebsideController {
                     _log.info("Ruleset found for workitem: {}", wirID);
                     if (processWorkItemSubstitution(pair, wir)) {
 
-                        // update set of runners
-                        runners = _runners.getRunnersForWorkItem(wirID);
-                        result = runners.size() + " worklet(s) launched";
+                        // get list of runners ids
+                        List<String> caseIDs = new ArrayList<String>();
+                        for (WorkletRunner runner : _runners.getRunnersForWorkItem(wirID)) {
+                            caseIDs.add(runner.getCaseID());
+                        }
+                        Collections.sort(caseIDs);
+                        result = StringUtil.join(caseIDs, ',');
                     }
                 }
                 else {
                     _log.warn("Failed to locate rule set for workitem.");
-                    result = "Failed to locate rule set for workitem.";
+                    result = "<failure>Unable to locate rule set for workitem</failure>";
                 }
             }
             else {
                 _log.warn("Failed to cancel running worklet(s)");
-                result = "Failed to cancel running worklet(s)";
+                result = "<failure>Failed to cancel running worklet(s)</failure>";
             }
         }
         else {
             _log.warn("Itemid not found in handleditems: {}", wirID);
-            result = "There are no checked out workitems with id : " + wirID;
+            result = "<failure>Unable to find workitem with id: " + wirID + "</failure>";
         }
 
         return result;

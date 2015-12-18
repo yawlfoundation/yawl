@@ -34,7 +34,7 @@ import java.util.*;
  *  @author Michael Adams
  *  v0.8, 04-09/2006
  */
-public class RdrConclusion {
+public class RdrConclusion implements Cloneable {
 
     private long id;                      // for hibernate
     private List<RdrPrimitive> _primitives;
@@ -116,18 +116,40 @@ public class RdrConclusion {
     public List<RdrPrimitive> getPrimitives() { return _primitives; }
 
 
-
+    @Override
     public boolean equals(Object o) {
-        if (_primitives == null) return false;
         if (o instanceof RdrConclusion) {
             RdrConclusion other = (RdrConclusion) o;
-            return other._primitives != null && _primitives.equals(other._primitives);
+            if (_primitives == null && other._primitives == null) {
+                return true;
+            }
+            if (_primitives == null || other._primitives == null) {
+                return false;
+            }
+            if (_primitives.size() != other._primitives.size()) {
+                return false;
+            }
+            for (int i=0; i < _primitives.size(); i++) {
+                if (! _primitives.get(i).equals(other._primitives.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
 
+
+    @Override
     public int hashCode() {
-        return _primitives != null ? _primitives.hashCode() : 17 * 31;
+        return _primitives != null ? _primitives.hashCode() : super.hashCode();
+    }
+
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        super.clone();
+        return new RdrConclusion(this.toElement());
     }
 
 

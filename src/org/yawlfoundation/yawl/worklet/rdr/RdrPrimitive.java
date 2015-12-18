@@ -65,4 +65,20 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
 
     public int compareTo(RdrPrimitive other) {return index - other.index; }
 
+
+    public boolean equals(Object o) {
+        if (o instanceof RdrPrimitive) {
+            RdrPrimitive other = (RdrPrimitive) o;
+            return getIndex() == other.getIndex() &&
+                    getAction().equals(other.getAction()) &&
+                    getTarget().equals((other.getTarget()));
+        }
+        return false;
+    }
+
+
+    public int hashCode() {
+        return 31 * getIndex() * (getAction().hashCode() + getTarget().hashCode());
+    }
+
 }
