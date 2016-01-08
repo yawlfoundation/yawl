@@ -29,6 +29,7 @@ public class ComponentsPanel extends JLayeredPane
     private UpdateTable _table;
     private JButton _btnUpdate;
     private ProgressPanel _progressPanel;
+    private JPanel _content;
 
 
     public ComponentsPanel() {
@@ -73,7 +74,7 @@ public class ComponentsPanel extends JLayeredPane
 
     public ProgressPanel getProgressPanel() { return _progressPanel; }
 
-
+    public JPanel getTablePanel() { return _content; }
 
     private Differ getDiffer() throws IOException {
         return new Differ(null, getCurrentCheckSumFile());
@@ -93,20 +94,20 @@ public class ComponentsPanel extends JLayeredPane
         _table = new UpdateTable(differ);
         _table.addPropertyChangeListener(this);
 
-        JPanel content = new JPanel(new BorderLayout());
-        content.setLayout(new BorderLayout());
-        content.setBorder(new EmptyBorder(8, 8, 8, 8));
+        _content = new JPanel(new BorderLayout());
+        _content.setLayout(new BorderLayout());
+        _content.setBorder(new EmptyBorder(8, 8, 8, 8));
         JScrollPane scrollPane = new JScrollPane(_table);
         scrollPane.setSize(_table.getPreferredSize());
-        content.add(scrollPane, BorderLayout.CENTER);
-        content.add(getButtonBar(), BorderLayout.SOUTH);
-        content.setBounds(0, 0, 600, 455);
+        _content.add(scrollPane, BorderLayout.CENTER);
+        _content.add(getButtonBar(), BorderLayout.SOUTH);
+        _content.setBounds(0, 0, 600, 455);
 
         _progressPanel = new ProgressPanel();
         _progressPanel.setBounds(150, 190, 300, 70);
         _progressPanel.setVisible(false);
 
-        add(content, new Integer(0));
+        add(_content, new Integer(0));
         add(_progressPanel, new Integer(1));
         moveToFront(_progressPanel);
     }

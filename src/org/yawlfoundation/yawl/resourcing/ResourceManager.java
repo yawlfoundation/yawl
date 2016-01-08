@@ -188,10 +188,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private String getEngineSessionHandle() {
-        return _services.getEngineSessionHandle();
+        return _services.getSessionHandle();
     }
-
-    protected Object getIBEventMutex() { return _ibEventMutex; }
 
 
     public void initBuildProperties(InputStream stream) {

@@ -89,7 +89,6 @@ public class MainScreen {
     start();
     //assignmentCoordinator.init();
 
-      try {Thread.sleep(2000);} catch (Exception x) {}
       loadProperties();
       setYawlProperties();
       DBConnection.init(getDbProperties());

@@ -14,6 +14,8 @@ import org.yawlfoundation.yawl.util.XNode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -35,6 +37,17 @@ public class YControlPanel extends JFrame {
         super();
         _engineMonitor = new EngineMonitor();
         buildUI();
+
+        // TablePanel#setBounds call needed since ComponentsPanel is a JLayeredPane
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                Rectangle r = getBounds();
+                getComponentsPanel().getTablePanel().setBounds(
+                        r.x, r.y, r.width-21, r.height-140);
+            }
+        });
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {

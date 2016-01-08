@@ -340,6 +340,11 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                             new YSpecificationID(specIdentifier, specVersion, specURI);
                     msg.append(_engine.getProcessDefinition(specID, sessionHandle));
                 }
+                else if (action.equals("getSpecificationData")) {
+                    YSpecificationID specID =
+                            new YSpecificationID(specIdentifier, specVersion, specURI);
+                    msg.append(_engine.getSpecificationData(specID, sessionHandle));
+                }
                 else if (action.equals("getSpecificationDataSchema")) {
                     YSpecificationID specID =
                             new YSpecificationID(specIdentifier, specVersion, specURI);

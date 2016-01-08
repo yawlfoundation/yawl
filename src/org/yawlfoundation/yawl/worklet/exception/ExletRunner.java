@@ -67,8 +67,9 @@ public class ExletRunner extends AbstractRunner {
         _parentMonitor = monitor ;
         _conclusion = rdrConc ;
         _ruleType = xType ;
-        setParentCaseID(monitor.getCaseID());
+        _caseID = monitor.getCaseID();
     }
+
 
     /** This constructor is used when an exception is raised at the workitem level */
     public ExletRunner(CaseMonitor monitor, WorkItemRecord wir,
@@ -77,6 +78,7 @@ public class ExletRunner extends AbstractRunner {
         _wir = wir ;
         _wirID = wir.getID();
     }
+
 
     /** This one's for persistence */
     private ExletRunner() {}

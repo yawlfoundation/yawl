@@ -75,7 +75,7 @@ public class WorkletGateway extends YHttpServlet {
                 Library.setResourceServiceURL(context.getInitParameter("ResourceServiceURL"));
 
                 String engineURI = context.getInitParameter("InterfaceB_BackEnd");
-                _ws.initEngineURI(engineURI);
+                _ws.getEngineClient().initEngineURI(engineURI);
 
                 String ixStr = context.getInitParameter("EnableExceptionHandling");
                 boolean exceptionHandlingEnabled = ixStr != null && ixStr.equalsIgnoreCase("TRUE");
@@ -137,24 +137,8 @@ public class WorkletGateway extends YHttpServlet {
                 result = String.valueOf(_sessions.disconnect(handle));
             } else if (_sessions.checkConnection(handle)) {
                 if (action.equalsIgnoreCase("replace")) {
-                    _log.info("Received a request from the Rules Editor to replace " +
-                            "a running worklet.");
-
-                    String itemID = req.getParameter("itemID");
-                    String exType = req.getParameter("exType");
-                    RuleType rType = RuleType.valueOf(exType);
-
-                    // get the service instance and call replace
-                    if (rType == RuleType.ItemSelection) {
-                        result = _ws.replaceWorklet(itemID);
-                    } else {
-                        String caseID = req.getParameter("caseID");
-                        String trigger = req.getParameter("trigger");
-                        ExceptionService ex = ExceptionService.getInst();
-                        result = ex.replaceWorklet(rType, caseID, itemID, trigger);
-                    }
-                } else if (action.equalsIgnoreCase("refresh")) {
-                    _ws.refreshRuleSet(makeSpecID(req));
+                    result = replace(req);
+                } else if (action.equalsIgnoreCase("refresh")) {  // no longer required
                     result = "<success/>";
                 } else if (action.equalsIgnoreCase("addListener")) {
                     result = response(_ws.getServer().addListener(req.getParameter("uri")));
@@ -363,6 +347,29 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String replace(HttpServletRequest req) {
+        String itemID = req.getParameter("itemID");
+        String exType = req.getParameter("exType");
+        RuleType rType = RuleType.valueOf(exType);
+
+        // get the service instance and call replace
+        try {
+            if (rType == RuleType.ItemSelection) {
+                return _ws.replaceWorklet(itemID);
+            }
+            else {
+                String caseID = req.getParameter("caseID");
+                String trigger = req.getParameter("trigger");
+                ExceptionService ex = ExceptionService.getInst();
+                return ex.replaceWorklet(rType, caseID, itemID, trigger);
+            }
+        }
+        catch (IOException ioe) {
+            return fail(ioe.getMessage());
+        }
+    }
+
+
     private String getNode(HttpServletRequest req) {
         long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
         RdrNode node = _rdr.getNode(nodeID);
@@ -432,7 +439,7 @@ public class WorkletGateway extends YHttpServlet {
     private void loadWorklets(String worklets) {
         if (worklets != null) {
             for (String worklet : StringUtil.xmlToSet(worklets)) {
-                String result = _ws.uploadWorklet(worklet);
+                String result = _ws.getEngineClient().uploadWorklet(worklet);
                 if (result != null) {
                     if (result.startsWith("<fail")) {
                         _log.warn(StringUtil.unwrap(result));
@@ -513,7 +520,7 @@ public class WorkletGateway extends YHttpServlet {
             throw new IOException("Work item record is invalid");
         }
 
-        WorkItemRecord refreshedWir = _ws.getEngineStoredWorkItem(wir);
+        WorkItemRecord refreshedWir = _ws.getEngineClient().getEngineStoredWorkItem(wir);
         if (refreshedWir == null) {
             throw new IOException("Work item '" + wir.getID() +
                     "' is unknown to the Engine");

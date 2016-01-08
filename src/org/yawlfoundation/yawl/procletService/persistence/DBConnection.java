@@ -40,7 +40,7 @@ public class DBConnection {
     private DBConnection () {	 }
 
 
-    public static void init(Properties props) {
+    public static HibernateEngine init(Properties props) {
 
          // minimise hibernate logging
          setLogLevel(LogManager.getLogger("org.hibernate"), Level.WARN);
@@ -59,6 +59,7 @@ public class DBConnection {
          persistedClasses.add(StoredProcletBlock.class);
          persistedClasses.add(StoredProcletPort.class);
          _db = new HibernateEngine(true, persistedClasses, props);
+        return _db;
     }
 
 

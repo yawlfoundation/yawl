@@ -147,7 +147,7 @@ public class Marshaller {
     /**
      * Creates a list of SpecificationDatas from formatted XML.
      * These are brief meta data summary
-     * information objects that describe a worklfow specification.
+     * information objects that describe a workflow specification.
      * @param specificationSummaryListXML
      * @return  the list
      */

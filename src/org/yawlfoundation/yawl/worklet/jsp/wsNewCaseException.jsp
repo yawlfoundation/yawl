@@ -39,7 +39,7 @@
         if ((title != null) && (title.length() > 0) &&
             (scenario != null) && (scenario.length() > 0) &&
             (process != null) && (process.length() > 0)) {
-            _exceptionService.addAdministrationTask(caseID, title, scenario, process,
+            _adminTasksManager.addTask(caseID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_CASE_EXTERNAL_EXCEPTION);
 
             // go back to YAWL case mgt page

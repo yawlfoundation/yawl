@@ -42,7 +42,7 @@
         if ((title != null) && (title.length() > 0) &&
             (scenario != null) && (scenario.length() > 0) &&
             (process != null) && (process.length() > 0)) {
-            _exceptionService.addAdministrationTask(caseID, itemID, title, scenario, process,
+            _adminTasksManager.addTask(caseID, itemID, title, scenario, process,
                                   AdministrationTask.TASKTYPE_ITEM_EXTERNAL_EXCEPTION);
 
            // go back to YAWL worklist

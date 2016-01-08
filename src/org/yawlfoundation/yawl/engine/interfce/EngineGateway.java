@@ -129,6 +129,8 @@ public interface EngineGateway extends Remote {
 
     String getSpecificationList(String sessionHandle) throws RemoteException;
 
+    String getSpecificationData(YSpecificationID specID, String sessionHandle) throws RemoteException ;
+
     String getSpecificationDataSchema(YSpecificationID specID, String sessionHandle)
                                                    throws RemoteException ;
 

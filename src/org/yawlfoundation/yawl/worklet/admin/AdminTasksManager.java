@@ -20,6 +20,8 @@ package org.yawlfoundation.yawl.worklet.admin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.*;
 
@@ -34,19 +36,19 @@ import java.util.*;
 
 public class AdminTasksManager {
 
-    private Map _tasks ;                              // set of tasks to attend to
-    private String _nextID ;                          // next unique id
+    private final Map<Integer, AdministrationTask> _tasks;   // set of tasks to attend to
+    private Integer _nextID;                                // next unique id
 
     private static Logger _log = LogManager.getLogger(AdminTasksManager.class);
 
 
     /** the constructor */
     public AdminTasksManager() {
-        _tasks = new HashMap();
-        _nextID = "0";
+        _tasks = new HashMap<Integer, AdministrationTask>();
+        _nextID = 0;
+        restore();
     }
 
-    /******************************************************************************/
 
     /**
      * Creates a new tasks and adds it to the set of outstanding tasks
@@ -59,22 +61,32 @@ public class AdminTasksManager {
      */
     public AdministrationTask addTask(String caseID, String title, String scenario,
                         String process, int taskType) {
-        AdministrationTask result = new AdministrationTask(caseID, title, scenario,
+        AdministrationTask task = new AdministrationTask(caseID, title, scenario,
                                                            process, taskType);
-        addTask(result) ;
-        return result ;
+        addTask(task);
+        Persister.insert(task);
+
+        // suspend case pending admin action
+        ExceptionService.getInst().suspendCase(caseID);
+
+        return task;
     }
+
 
     /** this version is for item level tasks */
     public AdministrationTask addTask(String caseID, String itemID, String title,
                                       String scenario, String process, int taskType) {
-        AdministrationTask result = new AdministrationTask(caseID, itemID, title,
+        AdministrationTask task = new AdministrationTask(caseID, itemID, title,
                                                         scenario, process, taskType);
-        addTask(result) ;
-        return result ;
+        addTask(task);
+        Persister.insert(task);
+
+        // suspend item pending admin action
+        ExceptionService.getInst().suspendWorkItem(itemID);
+
+        return task;
     }
 
-    /******************************************************************************/
 
     /**
      * Adds a task to the set of outstanding tasks
@@ -83,25 +95,24 @@ public class AdminTasksManager {
     public void addTask(AdministrationTask task) {
         task.setID(_nextID);
         _tasks.put(_nextID, task);
-        _nextID = inc(_nextID);                                     // increment the id
+        _nextID++;                                     // increment the id
     }
 
-    /******************************************************************************/
 
     /**
      * Removes a task from the set of outstanding tasks
      * @param id - the id number of the task to remove
      * @return the removed task
      */
-    public AdministrationTask removeTask(String id) {
-        AdministrationTask result = null;
-        if (_tasks.containsKey(id))  {
-            result = (AdministrationTask) _tasks.get(id);
-            _tasks.remove(id);
+    public AdministrationTask removeTask(int id) {
+        AdministrationTask task = _tasks.remove(id);
+        if (task != null) {
+            Persister.delete(task);
         }
-        else _log.error("Can't remove administration task - id does not exist: {}", id);
-
-        return result ;
+        else {
+            _log.error("Failed to remove administration task - id does not exist: {}", id);
+        }
+        return task ;
     }
 
     /******************************************************************************/
@@ -113,146 +124,100 @@ public class AdminTasksManager {
         return _tasks ;
     }
 
-    /******************************************************************************/
 
     /** @return the set of outstanding tasks as an ArrayList */
-    public ArrayList getAllTasksAsList() {
-       return new ArrayList(_tasks.values());
+    public List<AdministrationTask> getAllTasksAsList() {
+       return new ArrayList<AdministrationTask>(_tasks.values());
     }
 
-    /******************************************************************************/
 
     /**
      * Retrieves a task by its id number
      * @param id - the id to retrieve
      * @return the task the owns that id
      */
-    public AdministrationTask getTask(String id) {
-        AdministrationTask result = null;
-        if (_tasks.containsKey(id))
-            result = (AdministrationTask) _tasks.get(id);
-        else
-            _log.error("Can't get administration task - id does not exist: {}", id);
-
-        return result;
+    public AdministrationTask getTask(int id) {
+        AdministrationTask task = _tasks.get(id);
+        if (task == null) {
+            _log.error("Failed to get administration task - id does not exist: {}", id);
+        }
+        return task;
     }
 
-    /******************************************************************************/
 
     /**
      * Retrieves a list of all outstanding tasks of the specified type
      * @param taskType - the type of task to retrieve
      * @return a list of all those tasks of the type specified
      */
-    public ArrayList getAdminTasksForType(int taskType) {
-        ArrayList result = new ArrayList() ;
-        AdministrationTask task ;
-        int i, maxID = Integer.parseInt(_nextID);
+    public List<AdministrationTask> getAdminTasksForType(int taskType) {
+        List<AdministrationTask> result = new ArrayList<AdministrationTask>();
+        for (AdministrationTask task : _tasks.values()) {
 
-        // for each task (by id number)
-        for (i=0; i<maxID; i++) {
-           if (_tasks.containsKey(String.valueOf(i))) {
-               task = (AdministrationTask) _tasks.get(String.valueOf(i));
-
-               // if this task is of the type specified, add it to the result list
-               if (task.getTaskType() == taskType)
-                  result.add(task);
-           }
+            // if this task is of the type specified, add it to the result list
+            if (task.getTaskType() == taskType) result.add(task);
         }
-
-        if (result.isEmpty()) result = null ;          // return null if no matches
         return result ;
     }
 
-    /******************************************************************************/
 
     /**
      * Retrieves a task by its title
      * @param taskTitle - the title of the task required
      * @return the task that has that title
      */
-    public AdministrationTask getAdminTaskbyTitle(String taskTitle) {
-        AdministrationTask task ;
-        ArrayList list = new ArrayList(_tasks.values());
-        Iterator itr = list.iterator();
-
-        if (itr != null) {
-            while (itr.hasNext()) {
-                task = (AdministrationTask) itr.next() ;
-                if (task.getTitle().equalsIgnoreCase(taskTitle))
-                   return task ;
+    public AdministrationTask getAdminTaskByTitle(String taskTitle) {
+        for (AdministrationTask task : _tasks.values()) {
+            if (task.getTitle().equalsIgnoreCase(taskTitle)) {
+                return task;
             }
         }
-        return null ;
+        return null;
     }
 
-    /******************************************************************************/
 
     /**
      * Retrieves a list of task titles for all tasks of the specified type
      * @param taskType - the type of task to get the titles for
      * @return a list of titles for that type
      */
-    public ArrayList getTaskTitlesForType(int taskType) {
+    public List<String> getTaskTitlesForType(int taskType) {
         return getTitlesFromList(getAdminTasksForType(taskType)) ;
     }
 
-    /******************************************************************************/
 
     /** @return a list of all titles from all outstanding tasks */
-    public ArrayList getAllTaskTitles() {
-        return getTitlesFromList(new ArrayList(_tasks.values())) ;
+    public List<String> getAllTaskTitles() {
+        return getTitlesFromList(_tasks.values()) ;
     }
 
-    /******************************************************************************/
 
     /**
      * Retrieves a list of titles from the list of tasks passed
      * @param list - a list of AdministrationTasks
      * @return the list of titles of those tasks
      */
-    private ArrayList getTitlesFromList(ArrayList list) {
-        ArrayList result = new ArrayList() ;
-        AdministrationTask task ;
-        Iterator itr = list.iterator();
-
-        if (itr != null) {
-            while (itr.hasNext()) {
-                task = (AdministrationTask) itr.next() ;
-                result.add(task.getTitle());
-            }
+    private List<String> getTitlesFromList(Collection<AdministrationTask> list) {
+        List<String> result = new ArrayList<String>();
+        for (AdministrationTask task : list) {
+            result.add(task.getTitle());
         }
-
-        if (result.isEmpty()) result = null ;        // return null if no matches
         return result ;
     }
 
-    /******************************************************************************/
 
-    /** increments nextID by one */
-    private String inc(String numStr) {
-        int num = Integer.parseInt(numStr);
-        return String.valueOf(++num);
-    }
+    /**
+     * rebuilds admin tasks from persistence
+     */
+    private void restore() {
+        List items = Persister.getInstance().getObjectsForClass(
+                AdministrationTask.class.getName());
 
-    /******************************************************************************/
-
-    public String toString() {
-        StringBuilder s = new StringBuilder() ;
-        List tasks = getAllTasksAsList() ;
-        Iterator itr = tasks.iterator();
-
-        while (itr.hasNext()) {
-            s.append(itr.next().toString());
+        if (items != null) {
+            for (Object o : items) {
+                addTask((AdministrationTask) o);
+            }
         }
-        s.append("NEXT ID: ");
-        s.append(_nextID);
-        s.append('\n');
-
-        return s.toString() ;
     }
 
-    /******************************************************************************/
-    /******************************************************************************/
-
-} // end AdminTasksManager.
+}

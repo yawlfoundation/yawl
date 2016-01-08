@@ -48,6 +48,11 @@ public class WorkletSpecification {
     public String getName() { return _specID != null ? _specID.getUri() : null; }
 
 
+    public String toString() {
+        return _specID != null ? _specID.getUri() : super.toString();
+    }
+
+
     // the key is the spec UID for post 2.0 specs, and the uri for pre 2.0 specs
     // the assumption is that the latest spec version should always be used, so
     // only the latest is actually persisted

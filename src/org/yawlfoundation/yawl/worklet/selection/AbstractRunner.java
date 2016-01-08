@@ -29,7 +29,7 @@ public abstract class AbstractRunner {
     protected RuleType _ruleType;
     protected long _ruleNodeId;                 // the node that triggered this runner
 
-    // for case level runners
+    // for selection runners
     protected String _parentCaseID;
     protected YSpecificationID _parentSpecID;
     protected String _dataString;
@@ -97,7 +97,8 @@ public abstract class AbstractRunner {
     public WorkItemRecord getWir() {
         if (_wirID != null && _wir == null) {
             try {
-                _wir = WorkletService.getInstance().getEngineStoredWorkItem(_wirID);
+                _wir = WorkletService.getInstance().getEngineClient()
+                        .getEngineStoredWorkItem(_wirID);
             }
             catch (IOException ioe) {
                 // fall through
@@ -111,7 +112,9 @@ public abstract class AbstractRunner {
         XNode root = new XNode("runner");
         root.addChild("caseid", _caseID);
         if (getWir() != null) root.addContent(_wir.toXML());
-        root.addChild("parentcaseid", getParentCaseID());
+        if (getParentCaseID() != null) {
+            root.addChild("parentcaseid", getParentCaseID());
+        }
         XNode pSpecNode = root.addChild("parentspecid");
         if (_parentSpecID != null) {
             pSpecNode.addChild(_parentSpecID.toXNode());

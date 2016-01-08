@@ -1,5 +1,6 @@
 <%@ page import="org.yawlfoundation.yawl.worklet.exception.ExceptionService" %>
 <%@ page import="org.yawlfoundation.yawl.worklet.WorkletService" %>
+<%@ page import="org.yawlfoundation.yawl.worklet.admin.AdminTasksManager" %>
 <%--
   ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
@@ -27,7 +28,7 @@
 
 <%!
     ExceptionService _exceptionService = null;
-    String _engineURI;
+    AdminTasksManager _adminTasksManager = null;
     String _worklistURL;
     String _adminlistURL;
     String _caseMgtURL;
@@ -40,6 +41,13 @@
             _exceptionService = ExceptionService.getInst();
             context.setAttribute("org.yawlfoundation.yawl.worklet.exception.ExceptionService",
                     _exceptionService);
+        }
+        _adminTasksManager = (AdminTasksManager) context.getAttribute(
+                "org.yawlfoundation.yawl.worklet.admin.AdminTasksManager");
+        if (_adminTasksManager == null) {
+            _adminTasksManager = new AdminTasksManager();
+            context.setAttribute("org.yawlfoundation.yawl.worklet.admin.AdminTasksManager",
+                    _adminTasksManager);
         }
 
         // set resource service admin page urls

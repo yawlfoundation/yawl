@@ -208,7 +208,6 @@ public class CaseMonitor {
                 _runners.put(runner.getParentWorkItemID(), runner);
             }
         }
-        if (restored.isEmpty()) restored = null ;     // return null if none restored
         return restored ;
     }
 

@@ -24,7 +24,7 @@
 <%
     String wsTaskID = request.getParameter("id");
     String buttonText = request.getParameter("submit");
-    AdministrationTask wsTask = _exceptionService.getAdminTask(wsTaskID);
+    AdministrationTask wsTask = _adminTasksManager.getTask(Integer.parseInt(wsTaskID));
 
     if (buttonText != null) {
         response.sendRedirect(response.encodeURL("/workletService/wsAdminTasks"));

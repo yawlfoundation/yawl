@@ -50,7 +50,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Constructor.
      * @param backEndURIStr the back end uri of where to find
-     * the engine.  A default deployment this value is
+     * the engine.  A default deployment of this value is
      * http://localhost:8080/yawl/ib
      */
     public InterfaceB_EnvironmentBasedClient(String backEndURIStr) {
@@ -299,6 +299,21 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     public String getSpecification(YSpecificationID specID, String sessionHandle)
                                                                  throws IOException {
         Map<String, String> params = prepareParamMap("getSpecification", sessionHandle);
+        params.putAll(specID.toMap());
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    /**
+     * Gets an XML representation of some summary information of a workflow specification.
+     * @param specID the specid.
+     * @param sessionHandle the session handle
+     * @return the XML representation, or an XML diagnostic error message.
+     * @throws IOException if the engine can't be found.
+     */
+    public String getSpecificationData(YSpecificationID specID, String sessionHandle)
+                                                                 throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationData", sessionHandle);
         params.putAll(specID.toMap());
         return stripOuterElement(executeGet(_backEndURIStr, params));
     }

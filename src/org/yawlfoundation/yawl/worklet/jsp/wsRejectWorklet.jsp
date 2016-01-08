@@ -38,7 +38,7 @@
 
     if ((title != null) && (title.length() > 0) &&
         (scenario != null) && (scenario.length() > 0)) {
-         _exceptionService.addAdministrationTask(caseID, title, scenario, null,
+         _adminTasksManager.addTask(caseID, title, scenario, null,
                                       AdministrationTask.TASKTYPE_REJECTED_SELECTION);
         // go back to YAWL spec list
         response.sendRedirect(response.encodeURL(_caseMgtURL));

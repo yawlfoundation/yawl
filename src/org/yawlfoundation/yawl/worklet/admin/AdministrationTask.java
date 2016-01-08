@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.worklet.admin;
 
 import org.apache.logging.log4j.LogManager;
-import org.yawlfoundation.yawl.worklet.support.Library;
 
 /**
  *  This class stores the details of a pending administration task, viewed via
@@ -34,9 +33,9 @@ import org.yawlfoundation.yawl.worklet.support.Library;
 public class AdministrationTask {
 
     // data describing current case/item/worklet
-    private String _caseID ;
+    private String _caseID;
     private String _itemID ;
-    private String _wsTaskID ;
+    private int _wsTaskID ;
     private int _taskType ;
 
     // user-defined descriptions of proposed task
@@ -77,11 +76,11 @@ public class AdministrationTask {
         return _caseID ;
     }
 
-    public String getitemID() {
+    public String getItemID() {
         return _itemID ;
     }
 
-    public String getID() {
+    public int getID() {
         return _wsTaskID ;
     }
 
@@ -110,9 +109,7 @@ public class AdministrationTask {
         _itemID = itemID;
     }
 
-    public void setID(String id) {
-        _wsTaskID = id ;
-    }
+    public void setID(int id) { _wsTaskID = id ; }
 
     public void setTaskType(int taskType) {
         if ((taskType >= 0) && (taskType <= 1))
@@ -141,21 +138,13 @@ public class AdministrationTask {
         String ttype = null ;
 
         if (_taskType == TASKTYPE_REJECTED_SELECTION)
-            ttype = "Rejected Selection" ;
+            ttype = "Rejected Selection";
         else if (_taskType == TASKTYPE_CASE_EXTERNAL_EXCEPTION)
-            ttype = "New Case-Level External Exception" ;
+            ttype = "New Case-Level External Exception";
         else if (_taskType == TASKTYPE_ITEM_EXTERNAL_EXCEPTION)
-            ttype = "New Item-Level External Exception" ;
+            ttype = "New Item-Level External Exception";
 
-        s = Library.appendLine(s, "TASK NBR", _wsTaskID);
-        s = Library.appendLine(s, "TITLE", _title);
-        s = Library.appendLine(s, "TYPE", ttype);
-        s = Library.appendLine(s, "CASE ID", _caseID);
-        s = Library.appendLine(s, "ITEM ID", _itemID);
-        s = Library.appendLine(s, "SCENARIO", _scenario);
-        s = Library.appendLine(s, "PROCESS", _process);
-
-        return s.toString() ;
+        return "ID: " + ttype + "; CASE ID: " + _caseID;
     }
 
     /********************************************************************************/
@@ -166,7 +155,7 @@ public class AdministrationTask {
 
     public String get_itemID() { return _itemID ; }
 
-    public String get_wsTaskID() { return _wsTaskID ; }
+    public int get_wsTaskID() { return _wsTaskID ; }
 
     public int get_taskType() { return _taskType ; }
 
@@ -180,7 +169,7 @@ public class AdministrationTask {
 
     public void set_itemID(String s) { _itemID = s ; }
 
-    public void set_wsTaskID(String s) { _wsTaskID = s; }
+    public void set_wsTaskID(int i) { _wsTaskID = i; }
 
     public void set_taskType(int i) {  _taskType = i ; }
 

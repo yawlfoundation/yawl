@@ -671,6 +671,17 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getSpecificationData(YSpecificationID specID, String sessionHandle)
+            throws RemoteException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        Set<YSpecification> specs = new HashSet<YSpecification>();
+        specs.add(_engine.getSpecification(specID));
+        return getDataForSpecifications(specs);
+    }
+
+
    /**
     *
     * @param specID specID

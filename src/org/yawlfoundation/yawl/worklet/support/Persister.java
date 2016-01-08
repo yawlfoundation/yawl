@@ -57,10 +57,10 @@ public class Persister extends HibernateEngine {
 
 
     /** returns the current Persister instance */
-    public static Persister getInstance(boolean persistenceOn) {
+    public static Persister getInstance() {
         if (INSTANCE == null) {
             try {
-                INSTANCE = new Persister(persistenceOn);
+                INSTANCE = new Persister(true);
             }
             catch (HibernateException he) {
                 LogManager.getLogger(Persister.class).error(
@@ -69,9 +69,6 @@ public class Persister extends HibernateEngine {
         }
         return INSTANCE;
     }
-
-
-    public static Persister getInstance() { return getInstance(false); }
 
 
     public static boolean insert(Object o) { return persist(o, DB_INSERT); }
