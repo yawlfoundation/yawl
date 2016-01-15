@@ -211,18 +211,20 @@ public class RdrConclusion implements Cloneable {
 
 
     private void parseSteps(Element eConc) {
-        Map<Integer, Element> sortedMap = new TreeMap<Integer, Element>();
-        for (Element step : eConc.getChildren()) {
-            Integer i;
-            if (step.getName().equals("step")) {                    // version 2
-                i = Integer.parseInt(step.getAttributeValue("index"));
+        if (eConc != null) {
+            Map<Integer, Element> sortedMap = new TreeMap<Integer, Element>();
+            for (Element step : eConc.getChildren()) {
+                Integer i;
+                if (step.getName().equals("step")) {                    // version 2
+                    i = Integer.parseInt(step.getAttributeValue("index"));
+                }
+                else {
+                    i = Integer.parseInt(step.getName().substring(1));  // "_1"
+                }
+                sortedMap.put(i, step);
             }
-            else {
-                i = Integer.parseInt(step.getName().substring(1));  // "_1"
-            }
-            sortedMap.put(i, step);
+            rationaliseSteps(sortedMap);
         }
-        rationaliseSteps(sortedMap);
     }
 
     private void rationaliseSteps(Map<Integer, Element> sortedMap) {

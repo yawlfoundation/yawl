@@ -149,22 +149,18 @@ public class HibernateEngine {
      * @return true if persist was successful, false if otherwise
      */
     public boolean exec(Object obj, int action, boolean commit) {
-
         Transaction tx = null;
         try {
-            Session session = getSession();
             tx = getOrBeginTransaction();
-
-            if (action == DB_INSERT) session.save(obj);
-            else if (action == DB_UPDATE) updateOrMerge(session, obj);
-            else if (action == DB_DELETE) session.delete(obj);
-
-            if (commit) tx.commit();
-            return true;
+            boolean success = exec(obj, action, tx);
+            if (success && commit) {
+                commit();
+            }
+            return success;
         }
         catch (HibernateException he) {
-            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
-                    "): " + obj.toString(), he);
+            _log.error("Handled Exception: Error accessing transaction (" +
+                    actionToString(action) + "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
             return false;
         }
@@ -181,7 +177,6 @@ public class HibernateEngine {
      * @return true if persist was successful, false if otherwise
      */
     public boolean exec(Object obj, int action, Transaction tx) {
-
         try {
             Session session = getSession();
             if (action == DB_INSERT) session.save(obj);
@@ -191,8 +186,8 @@ public class HibernateEngine {
             return true;
         }
         catch (HibernateException he) {
-            _log.error("Handled Exception: Error persisting object (" + actionToString(action) +
-                    "): " + obj.toString(), he);
+            _log.error("Handled Exception: Error persisting object (" +
+                    actionToString(action) + "): " + obj.toString(), he);
             if (tx != null) tx.rollback();
             return false;
         }
@@ -229,7 +224,6 @@ public class HibernateEngine {
      * @return the List of objects returned, or null if the query has some problem
      */
     public List execQuery(String queryString) {
-
         List result = null;
         Transaction tx = null;
         try {
@@ -241,6 +235,7 @@ public class HibernateEngine {
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
                     "starting with an empty dataset");
+            if (tx != null) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error executing query: " + queryString, he);
@@ -248,7 +243,7 @@ public class HibernateEngine {
         }
 
         return result;
-     }
+    }
 
 
     public int execUpdate(String queryString) {
@@ -263,7 +258,7 @@ public class HibernateEngine {
             Session session = getSession();
             tx = getOrBeginTransaction();
             result = session.createQuery(queryString).executeUpdate();
-            if (commit) tx.commit();
+            if (commit) commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +
@@ -300,13 +295,17 @@ public class HibernateEngine {
 
     public Object load(Class claz, Serializable key) {
         getOrBeginTransaction();
-        return getSession().load(claz, key);
+        Object result = getSession().load(claz, key);
+        commit();
+        return result;
     }
 
 
     public Object get(Class claz, Serializable key) {
         getOrBeginTransaction();
-        return getSession().get(claz, key);
+        Object result = getSession().get(claz, key);
+        commit();
+        return result;
     }
 
 
@@ -316,14 +315,16 @@ public class HibernateEngine {
         for (Criterion criterion : criteria) {
             c.add(criterion);
         }
-        return c.list();
+        List result = c.list();
+        commit();
+        return result;
     }
 
-    
+
     public void commit() {
         try {
-           Transaction tx = getSession().getTransaction();
-           if ((tx != null) && tx.isActive()) tx.commit();
+            Transaction tx = getSession().getTransaction();
+            if ((tx != null) && tx.isActive()) tx.commit();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
@@ -333,8 +334,8 @@ public class HibernateEngine {
 
     public void rollback() {
         try {
-           Transaction tx = getSession().getTransaction();
-           if ((tx != null) && tx.isActive()) tx.rollback();
+            Transaction tx = getSession().getTransaction();
+            if ((tx != null) && tx.isActive()) tx.rollback();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error rolling back transaction", he);

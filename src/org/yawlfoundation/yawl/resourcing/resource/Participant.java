@@ -197,7 +197,7 @@ public class Participant extends AbstractResource implements Cloneable {
     }
 
     public boolean isValidPassword(String password) {
-        return getPassword().equals(password);
+        return _password != null && _password.equals(password);
     }
 
 

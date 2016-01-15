@@ -60,19 +60,19 @@ public class WorkletGateway extends YHttpServlet {
     private Sessions _sessions;            // maintains sessions with external services
 
     public void init() {
-        if (!Library.wsInitialised) {
+        if (!WorkletConstants.wsInitialised) {
             try {
                 _ws = WorkletService.getInstance();
                 _rdr = _ws.getRdrInterface();
                 ServletContext context = getServletContext();
 
-                Library.setHomeDir(context.getRealPath("/"));
-                Library.setRepositoryDir(context.getInitParameter("Repository"));
+                WorkletConstants.setHomeDir(context.getRealPath("/"));
+                WorkletConstants.setRepositoryDir(context.getInitParameter("Repository"));
 
                 String persistStr = context.getInitParameter("EnablePersistence");
-                Library.setPersist(persistStr.equalsIgnoreCase("TRUE"));
+                WorkletConstants.setPersist(persistStr.equalsIgnoreCase("TRUE"));
 
-                Library.setResourceServiceURL(context.getInitParameter("ResourceServiceURL"));
+                WorkletConstants.setResourceServiceURL(context.getInitParameter("ResourceServiceURL"));
 
                 String engineURI = context.getInitParameter("InterfaceB_BackEnd");
                 _ws.getEngineClient().initEngineURI(engineURI);
@@ -95,7 +95,7 @@ public class WorkletGateway extends YHttpServlet {
             } catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);
             } finally {
-                Library.setServicetInitialised();
+                WorkletConstants.setServicetInitialised();
             }
         }
     }

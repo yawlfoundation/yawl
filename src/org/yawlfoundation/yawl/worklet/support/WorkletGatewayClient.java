@@ -553,10 +553,33 @@ public class WorkletGatewayClient extends Interface_Client {
      * @return a list of case ids of the new instances, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
-    public String replaceWorklet(String itemID, RuleType ruleType, String handle)
+    public String replaceWorklet(String itemID, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("replace", handle);
         params.put("itemID", itemID);
+        params.put("exType", RuleType.ItemSelection.name());
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Replaces a worklet instance (or instances) started for an exlet with a new
+     * instance (or instances), based on a 'pre' updated rule set
+     * @param caseID the parent case id
+     * @param itemID the item id of the parent that launched the worklet(s). May be null
+     *               (if case level exception)
+     * @param trigger the trigger for an external exception. May be null (if not
+     *                external exception)
+     * @param handle a current sessionhandle to the worklet service
+     * @return a list of case ids of the new instances, or an error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String replaceWorklet(String caseID, String itemID, RuleType ruleType,
+                                 String trigger, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("replace", handle);
+        params.put("caseID", caseID);
+        params.put("itemID", itemID);
+        params.put("trigger", trigger);
         params.put("exType", ruleType.name());
         return executePost(_wsURI, params);
     }

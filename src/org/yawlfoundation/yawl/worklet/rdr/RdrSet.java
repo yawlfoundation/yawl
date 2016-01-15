@@ -222,7 +222,7 @@ public class RdrSet {
 
 
     public void fromXML(String xml) {
-        _treeMap = new RdrSetLoader().load(JDOMUtil.stringToDocument(xml));
+        _treeMap = new RdrSetLoader().load(JDOMUtil.stringToDocument(xml), false);
     }
 
 //===========================================================================//

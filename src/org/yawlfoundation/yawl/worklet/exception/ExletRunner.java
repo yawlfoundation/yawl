@@ -26,7 +26,7 @@ import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.AbstractRunner;
 import org.yawlfoundation.yawl.worklet.selection.RunnerMap;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
-import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.Set;
@@ -52,6 +52,7 @@ public class ExletRunner extends AbstractRunner {
     private int _actionIndex = 1 ;                  // index to 'primitives' set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
+    private String _trigger;                        // for external exceptions
     private final RunnerMap _worklets = new RunnerMap();  // set of running compensations
 
     // list of suspended items - can be child items, or for whole case
@@ -68,6 +69,7 @@ public class ExletRunner extends AbstractRunner {
         _conclusion = rdrConc ;
         _ruleType = xType ;
         _caseID = monitor.getCaseID();
+        _trigger = monitor.getTrigger();                 // may be null
     }
 
 
@@ -155,6 +157,7 @@ public class ExletRunner extends AbstractRunner {
                     runner.setParentCaseID(getCaseID());
                     runner.setParentSpecID(_parentMonitor.getSpecID());
                     runner.setData(_parentMonitor.getNetLevelData());
+                    runner.setTrigger(_parentMonitor.getTrigger());
                 }
             }
         }
@@ -234,7 +237,7 @@ public class ExletRunner extends AbstractRunner {
 
     public String dump() {
         StringBuilder s = new StringBuilder("HandlerRunner record:") ;
-        s.append(Library.newline);
+        s.append(WorkletConstants.newline);
         s.append(super.toString());
 
         String conc = (_conclusion == null) ? "null" : _conclusion.toString();
@@ -247,17 +250,17 @@ public class ExletRunner extends AbstractRunner {
         String wirs = "";
         if (_suspendedItems != null) {
             for (WorkItemRecord wir : _suspendedItems) {
-               wirs += wir.toXML() + Library.newline ;
+               wirs += wir.toXML() + WorkletConstants.newline ;
             }
         }
 
-        s = Library.appendLine(s, "RDRConclusion", conc);
-        s = Library.appendLine(s, "Parent Monitor", parent);
-        s = Library.appendLine(s, "Action Index", index);
-        s = Library.appendLine(s, "Action Count", count);
-        s = Library.appendLine(s, "Item Suspended?", itemSusp);
-        s = Library.appendLine(s, "Case Suspended?", caseSusp);
-        s = Library.appendLine(s, "Suspended Items", wirs);
+        s = WorkletConstants.appendLine(s, "RDRConclusion", conc);
+        s = WorkletConstants.appendLine(s, "Parent Monitor", parent);
+        s = WorkletConstants.appendLine(s, "Action Index", index);
+        s = WorkletConstants.appendLine(s, "Action Count", count);
+        s = WorkletConstants.appendLine(s, "Item Suspended?", itemSusp);
+        s = WorkletConstants.appendLine(s, "Case Suspended?", caseSusp);
+        s = WorkletConstants.appendLine(s, "Suspended Items", wirs);
 
         return s.toString();
     }

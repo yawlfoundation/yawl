@@ -123,7 +123,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public Rdr getRdrInterface() { return _rdr.getRdrInterface(); }
 
-    public String getResourceServiceURL() { return Library.resourceServiceURL; }
+    public String getResourceServiceURL() { return WorkletConstants.resourceServiceURL; }
 
     public WorkletLoader getLoader() { return _loader; }
 
@@ -135,7 +135,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * called from servlet WorkletGateway after contexts are loaded
      */
     public void completeInitialisation() {
-        _persisting = Library.wsPersistOn;
+        _persisting = WorkletConstants.wsPersistOn;
         Persister.getInstance().setPersisting(_persisting);
 
         // reload running cases data
@@ -263,7 +263,7 @@ public class WorkletService extends InterfaceBWebsideController {
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
         StringBuilder output = new StringBuilder();
-        String fileName = Library.wsHomeDir + "welcome.htm";
+        String fileName = WorkletConstants.wsHomeDir + "welcome.htm";
         String welcomePage = StringUtil.fileToString(fileName);
 
         // load the full welcome page if possible

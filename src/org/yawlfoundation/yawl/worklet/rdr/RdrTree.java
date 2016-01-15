@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
-import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,13 +170,6 @@ public class RdrTree {
     	
     	// recursively search each node in the tree
         return rootNode.search(caseData, rootNode);
-//
-//        RdrPair pair = rootNode.search(caseData, rootNode);
-//        if (pair != null) {
-//            Hibernate.initialize(pair.getLastTrueNode());
-//            Hibernate.initialize(pair.getLastEvaluatedNode());
-//        }
-//        return pair;
     }
     
 //===========================================================================//
@@ -241,14 +234,14 @@ public class RdrTree {
 	
 	/** returns a String representation of this tree */
     public String dump(){
-    	String n = Library.newline ;
+    	String n = WorkletConstants.newline ;
     	return n + "Task ID: " + taskId + n + n + dump(rootNode) ;
     }
     
     /** recursively adds each node to a String representation of the tree */
     private String dump(RdrNode root) {
     	StringBuilder s = new StringBuilder() ;
-    	String n = Library.newline ;
+    	String n = WorkletConstants.newline ;
     	
         if ( root != null ) {                                   // base case
            s.append("Node ID: ") ;

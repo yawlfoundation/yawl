@@ -256,7 +256,7 @@ public class WorkletRecord {
     /** returns a String representation of current WorkletRecord */
     public String toString() {
         StringBuilder s = new StringBuilder("##### WORKLET RECORD #####") ;
-        s.append(Library.newline);
+        s.append(WorkletConstants.newline);
         s.append(toStringSub());
 
         return s.toString() ;
@@ -265,15 +265,15 @@ public class WorkletRecord {
     public String toStringSub() {
         StringBuilder s = new StringBuilder() ;
         String wirStr = (_wir != null)? _wir.toXML() : "null";
-        Library.appendLine(s, "WORKITEM", wirStr);
+        WorkletConstants.appendLine(s, "WORKITEM", wirStr);
 
         String data = JDOMUtil.elementToStringDump(_datalist);
-        Library.appendLine(s, "DATALIST", data);
+        WorkletConstants.appendLine(s, "DATALIST", data);
 
-        Library.appendLine(s, "WORKLET NAMES", _runners.getWorkletCSVList());
-        Library.appendLine(s, "RUNNING CASE IDs", _runners.getCaseIdCSVList());
+        WorkletConstants.appendLine(s, "WORKLET NAMES", _runners.getWorkletCSVList());
+        WorkletConstants.appendLine(s, "RUNNING CASE IDs", _runners.getCaseIdCSVList());
 
-        s.append(Library.newline);
+        s.append(WorkletConstants.newline);
         return s.toString() ;
     }
 

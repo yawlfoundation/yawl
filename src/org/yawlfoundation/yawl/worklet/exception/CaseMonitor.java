@@ -25,7 +25,7 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.support.Library;
+import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
 
@@ -282,6 +282,8 @@ public class CaseMonitor {
         updateCaseDataStr();
     }
 
+
+    public String getTrigger() { return _caseData.getChildText("trigger"); }
 
     public void removeTrigger() {
         _caseData.removeChild("trigger");
@@ -593,7 +595,7 @@ public class CaseMonitor {
 
     public String dump() {
         StringBuilder s = new StringBuilder("##### CASEMONITOR RECORD #####");
-        s.append(Library.newline);
+        s.append(WorkletConstants.newline);
 
         String specID = (_specID == null)? "null" : _specID.toString();
         String caseID = (_caseID == null)? "null" : _caseID;
@@ -604,16 +606,16 @@ public class CaseMonitor {
         String extHR = (_hrCaseExternal == null)? "null" :  _hrCaseExternal.toString();
         String liveCase = String.valueOf(_liveCase);
 
-        Library.appendLine(s, "SPECIFICATION ID", specID);
-        Library.appendLine(s, "CASE ID", caseID);
-        Library.appendLine(s, "CASE DATA", caseData);
-        Library.appendLine(s, "NET LEVEL DATA", netData);
-        Library.appendLine(s, "PRE-CASE RUNNER", preHR);
-        Library.appendLine(s, "POST-CASE RUNNER", postHR);
-        Library.appendLine(s, "EXTERNAL RUNNER", extHR);
-        Library.appendLine(s, "ITEM RUNNERS", _itemRunnerIDs);
-        Library.appendLine(s, "LIVE ITEMS", _liveItemIDs);
-        Library.appendLine(s, "LIVE CASE?", liveCase);
+        WorkletConstants.appendLine(s, "SPECIFICATION ID", specID);
+        WorkletConstants.appendLine(s, "CASE ID", caseID);
+        WorkletConstants.appendLine(s, "CASE DATA", caseData);
+        WorkletConstants.appendLine(s, "NET LEVEL DATA", netData);
+        WorkletConstants.appendLine(s, "PRE-CASE RUNNER", preHR);
+        WorkletConstants.appendLine(s, "POST-CASE RUNNER", postHR);
+        WorkletConstants.appendLine(s, "EXTERNAL RUNNER", extHR);
+        WorkletConstants.appendLine(s, "ITEM RUNNERS", _itemRunnerIDs);
+        WorkletConstants.appendLine(s, "LIVE ITEMS", _liveItemIDs);
+        WorkletConstants.appendLine(s, "LIVE CASE?", liveCase);
 
         return s.toString();
 

@@ -47,7 +47,7 @@ public class EventLogger {
     public static final String eComplete = "WorkletCompleted";
 
     // path to eventlog csv file
-    private static final String _logPath = Library.wsLogsDir + "eventLog.csv" ;
+    private static final String _logPath = WorkletConstants.wsLogsDir + "eventLog.csv" ;
 
     // date format for the eventlog
     private	static SimpleDateFormat _sdfe  = new SimpleDateFormat (

@@ -14,6 +14,7 @@ import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 public class WorkletRunner extends AbstractRunner {
 
     protected YSpecificationID _specID;
+    protected String _trigger;                 // for external exceptions - may be null
 
     public WorkletRunner() { }
 
@@ -30,9 +31,15 @@ public class WorkletRunner extends AbstractRunner {
     public YSpecificationID getWorkletSpecID() { return _specID; }
 
 
+    public void setTrigger(String trigger) { _trigger = trigger; }
+
+    public String getTrigger() { return _trigger; }
+
+
     public XNode toXNode() {
         XNode root = super.toXNode();
         root.addChild(_specID.toXNode());
+        if (_trigger != null) root.addChild("trigger", _trigger);
         return root;
     }
 
@@ -40,6 +47,7 @@ public class WorkletRunner extends AbstractRunner {
     public void fromXNode(XNode node) {
         super.fromXNode(node);
         _specID = new YSpecificationID(node.getChild("specificationid"));
+        _trigger = node.getChildText("trigger");
     }
 
 }

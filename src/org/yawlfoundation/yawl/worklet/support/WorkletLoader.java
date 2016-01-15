@@ -130,7 +130,7 @@ public class WorkletLoader {
 
     private Set<WorkletSpecification> loadAllFileWorkletSpecifications() {
         Set<WorkletSpecification> worklets = new HashSet<WorkletSpecification>();
-        for (File file : populateFileList(new File(Library.wsWorkletsDir))) {
+        for (File file : populateFileList(new File(WorkletConstants.wsWorkletsDir))) {
             if (file.isFile()) {
                 String xml = StringUtil.fileToString(file);
                 if (xml != null) {
@@ -143,7 +143,7 @@ public class WorkletLoader {
 
 
     private File getWorkletFile(String workletName) {
-        String path = Library.wsWorkletsDir + workletName;
+        String path = WorkletConstants.wsWorkletsDir + workletName;
         String fileName = path + ".yawl";        // try .yawl first
         File file = getFile(fileName);
         if (file == null) {

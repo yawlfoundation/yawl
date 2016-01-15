@@ -1,14 +1,12 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.logging.log4j.LogManager;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.worklet.support.Library;
 import org.yawlfoundation.yawl.worklet.support.Persister;
+import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 
 import java.io.File;
 import java.util.Collections;
@@ -61,8 +59,13 @@ public class RdrSetLoader {
     }
 
 
-    // todo validation
     public Map<RuleType, RdrTreeSet> load(Document doc) {
+        return load(doc, true);
+    }
+
+
+    // todo: validation
+    public Map<RuleType, RdrTreeSet> load(Document doc, boolean persist) {
         if (doc == null) return Collections.emptyMap();  // no such file or unsuccessful load
         Map<RuleType, RdrTreeSet> treeMap = new HashMap<RuleType, RdrTreeSet>();
         try {
@@ -72,31 +75,31 @@ public class RdrSetLoader {
             for (Element e : root.getChildren()) {       // these are exception type tags
                 String exName = e.getName();
                 if (exName.equalsIgnoreCase("selection")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemSelection, e);
+                    buildItemLevelTree(treeMap, RuleType.ItemSelection, e, persist);
                 }
                 else if (exName.equalsIgnoreCase("abort")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemAbort, e);
+                    buildItemLevelTree(treeMap, RuleType.ItemAbort, e, persist);
                 }
                 else if (exName.equalsIgnoreCase("timeout")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemTimeout, e);
+                    buildItemLevelTree(treeMap, RuleType.ItemTimeout, e, persist);
                 }
                 else if (exName.equalsIgnoreCase("resourceUnavailable")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemResourceUnavailable, e);
+                    buildItemLevelTree(treeMap, RuleType.ItemResourceUnavailable, e, persist);
                 }
                 else if (exName.equalsIgnoreCase("violation")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemConstraintViolation, e);
+                    buildItemLevelTree(treeMap, RuleType.ItemConstraintViolation, e, persist);
                 }
                 else if (exName.equalsIgnoreCase("external")) {
-                    getExternalRules(treeMap, e) ;
+                    getExternalRules(treeMap, e, persist) ;
                 }
                 else if (exName.equalsIgnoreCase("constraints")) {
-                    getConstraintRules(treeMap, e) ;
+                    getConstraintRules(treeMap, e, persist) ;
                 }
 
                 // if 'task' is a child of 'root', this is a version one rules file
                 // so treat it as though it contains selection rules only
                 else if (exName.equalsIgnoreCase("task")) {
-                    buildItemLevelTree(treeMap, RuleType.ItemSelection, root);
+                    buildItemLevelTree(treeMap, RuleType.ItemSelection, root, persist);
                 }
             }
             return treeMap;
@@ -117,19 +120,24 @@ public class RdrSetLoader {
      * @param e the JDOM Element representation of the rule tree
      * @return true if the rules were loaded successfully
      */
-    private boolean getConstraintRules(Map<RuleType, RdrTreeSet> treeMap, Element e) {
+    private boolean getConstraintRules(Map<RuleType, RdrTreeSet> treeMap,
+                                       Element e, boolean persist) {
         for (Element eCon : e.getChildren()) {
             String conName = eCon.getName();
             Element ePre = eCon.getChild("pre");
             Element ePost = eCon.getChild("post");
 
             if (conName.equalsIgnoreCase("case")) {
-                if (ePre != null) buildCaseLevelTree(treeMap, RuleType.CasePreconstraint, ePre) ;
-                if (ePost != null) buildCaseLevelTree(treeMap, RuleType.CasePostconstraint, ePost) ;
+                if (ePre != null) buildCaseLevelTree(treeMap,
+                        RuleType.CasePreconstraint, ePre, persist) ;
+                if (ePost != null) buildCaseLevelTree(treeMap,
+                        RuleType.CasePostconstraint, ePost, persist) ;
             }
             else if (conName.equalsIgnoreCase("item")) {
-                if (ePre != null) buildItemLevelTree(treeMap, RuleType.ItemPreconstraint, ePre) ;
-                if (ePost != null) buildItemLevelTree(treeMap, RuleType.ItemPostconstraint, ePost) ;
+                if (ePre != null) buildItemLevelTree(treeMap,
+                        RuleType.ItemPreconstraint, ePre, persist) ;
+                if (ePost != null) buildItemLevelTree(treeMap,
+                        RuleType.ItemPostconstraint, ePost, persist) ;
             }
         }
         return true ;
@@ -142,14 +150,15 @@ public class RdrSetLoader {
      * @param e the JDOM Element representation of the rule tree
      * @return true if the rules were loaded successfully
      */
-    private boolean getExternalRules(Map<RuleType, RdrTreeSet> treeMap, Element e) {
+    private boolean getExternalRules(Map<RuleType, RdrTreeSet> treeMap,
+                                     Element e, boolean persist) {
         for (Element eChild : e.getChildren()) {                // 'case' or 'item'
             String childName = eChild.getName() ;
 
             if (childName.equalsIgnoreCase("case"))
-                buildCaseLevelTree(treeMap, RuleType.CaseExternalTrigger, eChild);
+                buildCaseLevelTree(treeMap, RuleType.CaseExternalTrigger, eChild, persist);
             else if (childName.equalsIgnoreCase("item"))
-                buildItemLevelTree(treeMap, RuleType.ItemExternalTrigger, eChild);
+                buildItemLevelTree(treeMap, RuleType.ItemExternalTrigger, eChild, persist);
         }
         return true ;
     }
@@ -158,30 +167,29 @@ public class RdrSetLoader {
     /**
      * Construct a tree for each task specified in the rules file
      * @param e - the Element containing the rules of each task
-     * @return the list of trees constructed
      */
     private void buildItemLevelTree(Map<RuleType, RdrTreeSet> treeMap,
-                                    RuleType ruleType, Element e) {
+                                    RuleType ruleType, Element e, boolean persist) {
         RdrTreeSet treeSet = new RdrTreeSet(ruleType);
         for (Element eChild : e.getChildren()) {
-            RdrTree tree = buildTree(eChild);
+            RdrTree tree = buildTree(eChild, persist);
             if (tree != null) treeSet.add(tree);
         }
         if (! treeSet.isEmpty()) {
             treeMap.put(ruleType, treeSet);
-            Persister.insert(treeSet);
+            if (persist) Persister.insert(treeSet);
         }
     }
 
 
     private void buildCaseLevelTree(Map<RuleType, RdrTreeSet> treeMap,
-                                         RuleType ruleType, Element e) {
+                                         RuleType ruleType, Element e, boolean persist) {
         RdrTreeSet treeSet = new RdrTreeSet(ruleType);
-        RdrTree rdrTree = buildTree(e);
+        RdrTree rdrTree = buildTree(e.getChild("task"), persist); // task = "_case_level_"
         if (rdrTree != null) {
             treeSet.add(rdrTree);
             treeMap.put(ruleType, treeSet);
-            Persister.insert(treeSet);
+            if (persist) Persister.insert(treeSet);
         }
     }
 
@@ -191,7 +199,7 @@ public class RdrSetLoader {
      * @param task - the Element containing a representation of the tree
      * @return the list of trees constructed
      */
-    private RdrTree buildTree(Element task) {
+    private RdrTree buildTree(Element task, boolean persist) {
         String taskId = task.getAttributeValue("name");
         RdrTree rdrTree = new RdrTree(taskId);
 
@@ -199,9 +207,9 @@ public class RdrSetLoader {
 
         //get the root node (always stored as node 0)
         Element rootNode = nodeList.get(0);
-        RdrNode root = buildFromNode(rootNode, nodeList);  // build from root
+        RdrNode root = buildFromNode(rootNode, nodeList, persist);  // build from root
         rdrTree.setRootNode(root);
-        Persister.insert(rdrTree);
+        if (persist) Persister.insert(rdrTree);
         return rdrTree;
     }
 
@@ -212,7 +220,7 @@ public class RdrSetLoader {
      *  @param nodeList is the list of all xNodes for a single task
      *  @return the root node of the constructed tree
      */
-    private RdrNode buildFromNode(Element xNode, List<Element> nodeList) {
+    private RdrNode buildFromNode(Element xNode, List<Element> nodeList, boolean persist) {
         String childId;
         RdrNode rdrNode = new RdrNode();
 
@@ -222,15 +230,15 @@ public class RdrSetLoader {
         rdrNode.setCornerStone(xNode.getChild("cornerstone"));
 
         RdrConclusion rdrConclusion = new RdrConclusion(xNode.getChild("conclusion"));
-        Persister.insert(rdrConclusion);
+        if (persist) Persister.insert(rdrConclusion);
         rdrNode.setConclusion(rdrConclusion);
-        Persister.insert(rdrNode);
+        if (persist) Persister.insert(rdrNode);
 
         // do true branch recursively
         childId = xNode.getChildText("trueChild") ;
         if (childId.compareTo("-1") != 0) {
             Element eTrueChild = getNodeWithId(childId, nodeList) ;
-            rdrNode.setTrueChild(buildFromNode(eTrueChild, nodeList));
+            rdrNode.setTrueChild(buildFromNode(eTrueChild, nodeList, persist));
             rdrNode.getTrueChild().setParent(rdrNode) ;
         }
 
@@ -238,10 +246,10 @@ public class RdrSetLoader {
         childId = xNode.getChildText("falseChild") ;
         if (childId.compareTo("-1") != 0) {
             Element eFalseChild = getNodeWithId(childId, nodeList) ;
-            rdrNode.setFalseChild(buildFromNode(eFalseChild, nodeList));
+            rdrNode.setFalseChild(buildFromNode(eFalseChild, nodeList, persist));
             rdrNode.getFalseChild().setParent(rdrNode) ;
         }
-        Persister.update(rdrNode);
+        if (persist) Persister.update(rdrNode);
         return rdrNode;
     }
 
@@ -257,7 +265,7 @@ public class RdrSetLoader {
 
 
     private File getFile(String name) {
-        return new File(Library.wsRulesDir + name + ".xrs");
+        return new File(WorkletConstants.wsRulesDir + name + ".xrs");
     }
 
 
@@ -274,8 +282,10 @@ public class RdrSetLoader {
 
 
     private RdrSet loadSet(String column, String value) {
-        Criterion criterion = Restrictions.eq(column, value);
-        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
+        String query = "from RdrSet as tbl where tbl." + column + "='" + value + "'";
+        List list = Persister.getInstance().execQuery(query);
+//        Criterion criterion = Restrictions.eq(column, value);
+//        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
         return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
     }
 
