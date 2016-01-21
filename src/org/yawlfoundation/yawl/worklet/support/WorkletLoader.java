@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.worklet.support;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -122,8 +123,11 @@ public class WorkletLoader {
         Query query = Persister.getInstance().createQuery("from WorkletSpecification");
         Iterator it = query.iterate();
         while (it.hasNext()) {
-            worklets.add((WorkletSpecification) it.next());
+            WorkletSpecification spec = (WorkletSpecification) it.next();
+            Hibernate.initialize(spec);
+            worklets.add(spec);
         }
+        Persister.getInstance().commit();
         return worklets;
     }
 

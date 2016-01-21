@@ -173,6 +173,7 @@ public class RunnerMap {
                 _runners.put(runner.getCaseID(), runner);
             }
         }
+        Persister.getInstance().commit();
     }
 
 }

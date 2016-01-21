@@ -23,15 +23,12 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  *  Maintains a set of RdrTrees for a particular specification, for each of the following
  *  purposes (potentially):
- *   - selection: set of trees, one for each worklet enabled task
+ *   - selection: set of trees (RdrTreeSet), one for each worklet enabled task
  *   - exception:
  *      - spec pre-constraints: one RdrTree
  *      - spec post-constraints: one RdrTree
@@ -48,11 +45,6 @@ import java.util.Set;
  *
  *  @author Michael Adams
  *  v0.8, 04-09/2006
- */
- /*  ==========        ===========        ===========
- *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
- *  ==========        ===========        ===========
- *     ^^^
  */
 
 public class RdrSet {
@@ -121,11 +113,23 @@ public class RdrSet {
      */
     public RdrTree getTree(RuleType treeType, String taskId) {
         if (treeType.isCaseLevelType()) taskId = CASE_LEVEL_TREE_FLAG;
-        RdrTreeSet treeSet = _treeMap.get(treeType);
+        RdrTreeSet treeSet = getTreeSet(treeType);
         return treeSet != null ? treeSet.get(taskId) : null;
     }
 
     public RdrTree getTree(RuleType treeType) { return getTree(treeType, null); }
+
+
+    // get the RuleTypes that have trees in this set
+    public Set<RuleType> getRules() {
+        return _treeMap != null ? _treeMap.keySet() : Collections.<RuleType>emptySet();
+    }
+
+
+    // get the tree sets for this rdrSet
+    public RdrTreeSet getTreeSet(RuleType ruleType) {
+        return _treeMap != null ? _treeMap.get(ruleType) : null;
+    }
 
 
     public void setTreeMap(Map<RuleType, RdrTreeSet> map) { _treeMap = map; }

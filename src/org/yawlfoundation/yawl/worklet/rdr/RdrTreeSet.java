@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * A set of rule trees (one per task) for a particular rule type
+ *
  * @author Michael Adams
  * @date 23/09/2014
  */
@@ -36,6 +38,8 @@ public class RdrTreeSet {
     public RdrTree get(String taskId) { return _treeMap.get(taskId); }
 
     public Set<RdrTree> getAll() { return new HashSet<RdrTree>(_treeMap.values()); }
+
+    public Set<String> getAllTasks() { return _treeMap.keySet(); }
 
 
     public void add(RdrTree tree) { _treeMap.put(tree.getTaskId(), tree); }

@@ -1,6 +1,8 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.apache.logging.log4j.LogManager;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -9,10 +11,7 @@ import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -61,6 +60,30 @@ public class RdrSetLoader {
 
     public Map<RuleType, RdrTreeSet> load(Document doc) {
         return load(doc, true);
+    }
+
+
+    public Set<String> getSetIDs() {
+        Set<String> ids = new HashSet<String>();
+        for (Object o : Persister.getInstance().getObjectsForClass("RdrSet")) {
+            RdrSet rdrSet = (RdrSet) o;
+            YSpecificationID specID = rdrSet.getSpecificationID();
+            String id = specID != null ? specID.toFullString() : rdrSet.getProcessName();
+            if (id != null) {
+                ids.add(id);
+            }
+        }
+        Persister.getInstance().commit();
+        return ids;
+    }
+
+
+    public RdrSet removeSet(YSpecificationID specID) {
+        return removeSet(loadSet(specID));
+    }
+
+    public RdrSet removeSet(String processName) {
+        return removeSet(loadSet(processName));
     }
 
 
@@ -185,7 +208,11 @@ public class RdrSetLoader {
     private void buildCaseLevelTree(Map<RuleType, RdrTreeSet> treeMap,
                                          RuleType ruleType, Element e, boolean persist) {
         RdrTreeSet treeSet = new RdrTreeSet(ruleType);
-        RdrTree rdrTree = buildTree(e.getChild("task"), persist); // task = "_case_level_"
+        Element taskElem = e.getChild("task");
+        if (taskElem == null) {
+            taskElem = convertCaseLevelTree(e);
+        }
+        RdrTree rdrTree = buildTree(taskElem, persist); // task = "_case_level_"
         if (rdrTree != null) {
             treeSet.add(rdrTree);
             treeMap.put(ruleType, treeSet);
@@ -264,6 +291,15 @@ public class RdrSetLoader {
     }
 
 
+    private Element convertCaseLevelTree(Element caseElem) {
+        Element taskElem = new Element(RdrSet.CASE_LEVEL_TREE_FLAG);
+        for (Element child : caseElem.getChildren()) {
+            taskElem.addContent(child.clone());
+        }
+        return taskElem;
+    }
+
+
     private File getFile(String name) {
         return new File(WorkletConstants.wsRulesDir + name + ".xrs");
     }
@@ -282,11 +318,21 @@ public class RdrSetLoader {
 
 
     private RdrSet loadSet(String column, String value) {
-        String query = "from RdrSet as tbl where tbl." + column + "='" + value + "'";
-        List list = Persister.getInstance().execQuery(query);
-//        Criterion criterion = Restrictions.eq(column, value);
-//        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
+//        String query = "from RdrSet as tbl where tbl." + column + "='" + value + "'";
+//        List list = Persister.getInstance().execQuery(query);
+        Criterion criterion = Restrictions.eq(column, value);
+        List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
+//        Persister.getInstance().commit();
         return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
     }
+
+
+    private RdrSet removeSet(RdrSet rdrSet) {
+        if (rdrSet != null) {
+            Persister.delete(rdrSet);
+        }
+        return rdrSet;
+    }
+
 
 }

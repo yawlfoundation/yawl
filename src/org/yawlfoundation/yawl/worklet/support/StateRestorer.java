@@ -28,6 +28,8 @@ public class StateRestorer {
                 runnerMap.put(runner.getCaseID(), runner);
             }
         }
+        commit();
+
         return runnerMap ;
     }
 
@@ -56,6 +58,8 @@ public class StateRestorer {
                 monitorMap.put(monitor.getCaseID(), monitor);
             }
         }
+        commit();
+
         return monitorMap ;
     }
 
@@ -78,5 +82,8 @@ public class StateRestorer {
     private List loadClassesByName(String className) {
         return Persister.getInstance().getObjectsForClass(className);
     }
+
+
+    private void commit() { Persister.getInstance().commit(); }
 
 }

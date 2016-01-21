@@ -286,7 +286,7 @@
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
     <!-- dbd -->
-    <property name="postgres8" value="postgresql-9.0-801.jdbc4.jar"/>
+    <property name="postgres8" value="postgresql-9.4.1207.jre6.jar"/>
     <!-- dbd -->
     <property name="saaj" value="saaj.jar"/>
     <!-- wsi -->

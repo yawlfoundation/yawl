@@ -32,17 +32,12 @@ import org.yawlfoundation.yawl.worklet.support.RdrConditionException;
 /**
  *  A Ripple Down Rule Node implementation.
  *
- *  Each RdrNode contains an individual rule. The RDRTree class maintains a 
+ *  Each RdrNode contains an individual rule. The RdrTree class maintains a
  *  set of these nodes.
  *
  *  @author Michael Adams
  *  v0.8, 04-09/2006
  */
- /*  ==========        ===========        ===========
- *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
- *  ==========        ===========        ===========
- *                                           ^^^
-*/
 
 public class RdrNode {
 	

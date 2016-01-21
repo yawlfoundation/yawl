@@ -499,6 +499,18 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets the identifiers for all rule sets
+     * @param handle a current sessionhandle to the worklet service
+     * @return the set of all rule set ids stored by the service (as XML). Specification
+     * ids will be of the form "identifier:version:uri" (i.e. its 'full string')
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getRdrSetIDs(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getRdrSetIDs", handle));
+    }
+
+
+    /**
      * Adds a complete (legacy) rule set, expressed as xml
      * @param ruleSetXML the rule set to add
      * @param handle a current sessionhandle to the worklet service
@@ -510,6 +522,33 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("addRdrSet", handle);
         params.putAll(specID.toMap());
         params.put("ruleset", ruleSetXML);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+      * Removes a rule set
+      * @param specID the specification id of the rule set to remove
+      * @param handle a current sessionhandle to the worklet service
+      * @return a success or error message
+      * @throws java.io.IOException if the service can't be reached
+      */
+    public String removeRdrSet(YSpecificationID specID, String handle)
+                throws IOException {
+        return removeRdrSet(specID.toFullString(), handle);
+    }
+
+
+    /**
+      * Removes a rule set
+      * @param identifier the id of the rule set to remove
+      * @param handle a current sessionhandle to the worklet service
+      * @return a success or error message
+      * @throws java.io.IOException if the service can't be reached
+      */
+    public String removeRdrSet(String identifier, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeRdrSet", handle);
+        params.put("identifier", identifier);
         return executePost(_wsURI, params);
     }
 

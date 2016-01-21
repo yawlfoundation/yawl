@@ -37,16 +37,6 @@ import java.util.Map;
  *  @author Michael Adams
  *  v0.8, 04-09/2006
  */
- /*
- * This class maintains a set of RdrNodes. Each RdrTree contains the set of
- * rules for one particular task in a specification.
- *  
- *  ==========        ===========        ===========
- *  | RdrSet | 1----M | RdrTree | 1----M | RdrNode |
- *  ==========        ===========        ===========
- *                        ^^^
- *
- */
 
 public class RdrTree {
 

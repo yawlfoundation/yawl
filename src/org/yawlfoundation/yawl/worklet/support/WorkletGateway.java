@@ -138,38 +138,60 @@ public class WorkletGateway extends YHttpServlet {
             } else if (_sessions.checkConnection(handle)) {
                 if (action.equalsIgnoreCase("replace")) {
                     result = replace(req);
-                } else if (action.equalsIgnoreCase("refresh")) {  // no longer required
+                }
+                else if (action.equalsIgnoreCase("refresh")) {  // no longer required
                     result = "<success/>";
-                } else if (action.equalsIgnoreCase("addListener")) {
+                }
+                else if (action.equalsIgnoreCase("addListener")) {
                     result = response(_ws.getServer().addListener(req.getParameter("uri")));
-                } else if (action.equalsIgnoreCase("removeListener")) {
+                }
+                else if (action.equalsIgnoreCase("removeListener")) {
                     result = response(_ws.getServer().removeListener(req.getParameter("uri")));
-                } else if (action.equalsIgnoreCase("evaluate")) {
+                }
+                else if (action.equalsIgnoreCase("evaluate")) {
                     result = response(evaluate(req));
-                } else if (action.equalsIgnoreCase("process")) {
+                }
+                else if (action.equalsIgnoreCase("process")) {
                     result = response(process(req));
-                } else if (action.equalsIgnoreCase("execute")) {
+                }
+                else if (action.equalsIgnoreCase("execute")) {
                     result = response(execute(req));
-                } else if (action.equalsIgnoreCase("addNode")) {
+                }
+                else if (action.equalsIgnoreCase("addNode")) {
                     result = response(addNode(req));
-                } else if (action.equalsIgnoreCase("getNode")) {
+                }
+                else if (action.equalsIgnoreCase("getNode")) {
                     result = getNode(req);
-                } else if (action.equalsIgnoreCase("getRdrTree")) {
+                }
+                else if (action.equalsIgnoreCase("getRdrTree")) {
                     result = getRdrTree(req);
-                } else if (action.equalsIgnoreCase("getRdrSet")) {
+                }
+                else if (action.equalsIgnoreCase("getRdrSet")) {
                     result = getRdrSet(req);
-                } else if (action.equalsIgnoreCase("addRdrSet")) {
+                }
+                else if (action.equalsIgnoreCase("getRdrSetIDs")) {
+                    result = getRdrSetIDs();
+                }
+                else if (action.equalsIgnoreCase("addRdrSet")) {
                     result = addRdrSet(req);
-                } else if (action.equalsIgnoreCase("addWorklet")) {
+                }
+                else if (action.equalsIgnoreCase("removeRdrSet")) {
+                    result = removeRdrSet(req);
+                }
+                else if (action.equalsIgnoreCase("addWorklet")) {
                     result = addWorklet(req);
-                } else if (action.equalsIgnoreCase("getWorklet")) {
+                }
+                else if (action.equalsIgnoreCase("getWorklet")) {
                     result = getWorklet(req);
-                } else if (action.equalsIgnoreCase("getWorkletNames")) {
+                }
+                else if (action.equalsIgnoreCase("getWorkletNames")) {
                     result = getWorkletNames();
-                } else if (action.equalsIgnoreCase("getRunningWorklets")) {
+                }
+                else if (action.equalsIgnoreCase("getRunningWorklets")) {
                     result = getRunningWorklets();
-                } else if (action.equalsIgnoreCase("getWorkletInfoList")) {
-                     result = getWorkletInfoList();
+                }
+                else if (action.equalsIgnoreCase("getWorkletInfoList")) {
+                    result = getWorkletInfoList();
                 }
                 else {
                     result = fail("Unrecognised action: " + action);
@@ -416,6 +438,15 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String getRdrSetIDs() {
+        XNode root = new XNode("rdrsetids");
+        for (String id : _rdr.getRdrSetIDs()) {
+             root.addChild("identifier", id);
+        }
+        return root.toString();
+    }
+
+
     private String addRdrSet(HttpServletRequest req) {
         YSpecificationID specID = makeSpecID(req);
         String xml = req.getParameter("ruleset");
@@ -431,6 +462,24 @@ public class WorkletGateway extends YHttpServlet {
                 return "<success/>";
             }
             return fail("Rule set already exists for specification: " + specID.toString());
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String removeRdrSet(HttpServletRequest req) {
+        String idString = req.getParameter("identifier");
+        if (idString != null)  {
+            RdrSet removed;
+            if (idString.contains(":")) {
+                YSpecificationID specID = new YSpecificationID().fromFullString(idString);
+                removed = _rdr.removeRdrSet(specID);
+            }
+            else {
+                removed = _rdr.removeRdrSet(idString);    // process name
+            }
+            return removed != null ? "<success/>" :
+                    fail("No rule set for identifier: " + idString);
         }
         return fail("Invalid parameters");
     }

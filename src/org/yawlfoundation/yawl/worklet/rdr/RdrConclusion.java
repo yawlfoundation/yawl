@@ -29,7 +29,7 @@ import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 import java.util.*;
 
 /**
- *  This class represents the conclusion primitives of an RdrNode rule.
+ *  This class represents the conclusion primitives of an RdrNode.
  *
  *  @author Michael Adams
  *  v0.8, 04-09/2006

@@ -23,6 +23,8 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.support.RdrException;
 
+import java.util.Set;
+
 /**
  * A top-level interface into the Rdr Classes
  *
@@ -114,6 +116,18 @@ public class Rdr {
 
     public RdrSet getRdrSet(String processName) {
         return _loader.load(processName);
+    }
+
+
+    public Set<String> getRdrSetIDs() { return _loader.getSetIDs(); }
+
+
+    public RdrSet removeRdrSet(YSpecificationID specID) {
+        return _loader.removeSet(specID);
+    }
+
+    public RdrSet removeRdrSet(String processName) {
+        return _loader.removeSet(processName);
     }
 
 

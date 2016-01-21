@@ -111,9 +111,8 @@ public class HibernateEngine {
     /** @return true if a table of 'tableName' currently exists and has at least one row */
     public boolean isAvailable(String tableName) {
         try {
-            Session session = getSession();
             getOrBeginTransaction();
-            Query query = session.createQuery("from " + tableName).setMaxResults(1);
+            Query query = getSession().createQuery("from " + tableName).setMaxResults(1);
             boolean hasTable = query.list().size() > 0;
             commit();
             return hasTable;
@@ -208,8 +207,9 @@ public class HibernateEngine {
 
     public Transaction getOrBeginTransaction() {
         try {
-           Transaction tx = getSession().getTransaction();
-           return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
+            Transaction tx = getSession().getTransaction();
+            System.out.println("***** GET tx = " + tx + "; isActive = " + (tx != null && tx.isActive()));
+            return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error creating or getting transaction", he);
@@ -227,9 +227,8 @@ public class HibernateEngine {
         List result = null;
         Transaction tx = null;
         try {
-            Session session = getSession();
             tx = getOrBeginTransaction();
-            Query query = session.createQuery(queryString);
+            Query query = getSession().createQuery(queryString);
             if (query != null) result = query.list();
         }
         catch (JDBCConnectionException jce) {
@@ -255,9 +254,8 @@ public class HibernateEngine {
         int result = -1;
         Transaction tx = null;
         try {
-            Session session = getSession();
             tx = getOrBeginTransaction();
-            result = session.createQuery(queryString).executeUpdate();
+            result = getSession().createQuery(queryString).executeUpdate();
             if (commit) commit();
         }
         catch (JDBCConnectionException jce) {
@@ -276,9 +274,8 @@ public class HibernateEngine {
     public Query createQuery(String queryString) {
         Transaction tx = null;
         try {
-            Session session = getSession();
             tx = getOrBeginTransaction();
-            return session.createQuery(queryString);
+            return getSession().createQuery(queryString);
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error creating query: " + queryString, he);
@@ -296,6 +293,7 @@ public class HibernateEngine {
     public Object load(Class claz, Serializable key) {
         getOrBeginTransaction();
         Object result = getSession().load(claz, key);
+        Hibernate.initialize(result);
         commit();
         return result;
     }
@@ -304,19 +302,24 @@ public class HibernateEngine {
     public Object get(Class claz, Serializable key) {
         getOrBeginTransaction();
         Object result = getSession().get(claz, key);
+        Hibernate.initialize(result);
         commit();
         return result;
     }
 
 
     public List getByCriteria(Class claz, Criterion... criteria) {
+        return getByCriteria(claz, true, criteria);
+    }
+
+    public List getByCriteria(Class claz, boolean commit, Criterion... criteria) {
         getOrBeginTransaction();
         Criteria c = getSession().createCriteria(claz);
         for (Criterion criterion : criteria) {
             c.add(criterion);
         }
         List result = c.list();
-        commit();
+        if (commit) commit();
         return result;
     }
 
@@ -324,7 +327,10 @@ public class HibernateEngine {
     public void commit() {
         try {
             Transaction tx = getSession().getTransaction();
-            if ((tx != null) && tx.isActive()) tx.commit();
+            if ((tx != null) && tx.isActive()) {
+                System.out.println("***** COMMIT tx: " + tx);
+                tx.commit();
+            }
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error committing transaction", he);
