@@ -28,6 +28,8 @@ public class Differ {
   //      _mandatory = new MandatoryUpdates().get();
     }
 
+    public boolean hasLatestChecksums() { return _latest != null; }
+
     public String getLatestVersion() {
         return _latest != null ? _latest.getVersion() : "";
     }

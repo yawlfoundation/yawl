@@ -78,5 +78,8 @@ public class CliUpdater extends Updater {
 
     protected Downloader getDownloader() { return _downloader; }
 
+    protected void resetCursor() { }
+
+    protected void setWaitCursor() { }
 
 }

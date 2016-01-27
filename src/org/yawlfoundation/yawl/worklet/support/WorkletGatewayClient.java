@@ -76,7 +76,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * Connects an external entity to the worklet service
      * @param userID the userid
      * @param password the corresponding password
-     * @return a sessionHandle if successful, or a failure message if not
+     * @return a session handle if successful, or a failure message if not
      * @throws java.io.IOException if the service can't be reached
      */
     public String connect(String userID, String password) throws IOException {
@@ -100,7 +100,7 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Disconnects an external entity from the worklet service
-     * @param handle the sessionHandle to disconnect
+     * @param handle the session handle to disconnect
      * @throws java.io.IOException if the service can't be reached
      */
     public void disconnect(String handle) throws IOException {
@@ -111,7 +111,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Adds a listener for worklet events (selection, exception raising)
      * @param listenerURI the URI of the listener to add
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a message denoting success or describing an error
      * @throws java.io.IOException if the service can't be reached
      */
@@ -125,7 +125,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Removes a listener for worklet events
      * @param listenerURI the URI of the listener to remove
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a message denoting success or describing an error
      * @throws java.io.IOException if the service can't be reached
      */
@@ -139,7 +139,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Refreshes the internal rules cache from storage for a specification
      * @param specID the specification id to refresh the rule set for
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a message denoting success or describing an error
      * @throws java.io.IOException if the service can't be reached
      */
@@ -160,7 +160,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param data the data set to use in the evaluation
      * @param rType the type of rule tree to evaluate. NOTE: Only ItemAbort and
      *              ItemConstraintViolation rules can be used with this method
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -182,7 +182,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param wir the workitem containing specification and task identifiers
      * @param data the data set to use in the evaluation
      * @param rType the type of rule tree to evaluate
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a conclusion XML string, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -205,7 +205,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param taskID the task identifier (may be null for case-level rule types)
      * @param data the data set to use in the evaluation
      * @param rType the type of rule tree to evaluate
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a conclusion XML string, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -229,7 +229,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param taskID the task identifier (may be null for case-level rule types)
      * @param data the data set to use in the evaluation
      * @param rType the type of rule tree to evaluate
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a conclusion XML string, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -252,7 +252,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param rType the type of rule tree to evaluate. NOTE: Case-level exception types
      *              cannot be used with this method
      * @param conclusion the RdrConclusion object that defines the exlet to execute
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -276,7 +276,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param conclusion the RdrConclusion object that defines the exlet to execute
      * @param workletSet a set of worklet specifications to be loaded into the engine
      *                   for use as compensation handlers during the exception handling
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -301,7 +301,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param conclusion the RdrConclusion object that defines the exlet to execute
      * @param workletXML a worklet specification to be loaded into the engine
      *                   for use as a compensation handler during the exception handling
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -326,7 +326,7 @@ public class WorkletGatewayClient extends Interface_Client {
      *             cornerstone data, which is used to determine the correct place to
      *             insert the node within the tree. Not supplying these values will
      *             produce unpredictable results
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the added node, updated with parent and child ids as appropriate
      * @throws java.io.IOException if the service can't be reached
      */
@@ -355,7 +355,7 @@ public class WorkletGatewayClient extends Interface_Client {
      *             cornerstone data, which is used to determine the correct place to
      *             insert the node within the tree. Not supplying these values will
      *             produce unpredictable results
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the added node, updated with parent and child ids as appropriate
      * @throws java.io.IOException if the service can't be reached
      */
@@ -385,7 +385,7 @@ public class WorkletGatewayClient extends Interface_Client {
      *             cornerstone data, which is used to determine the correct place to
      *             insert the node within the tree. Not supplying these values will
      *             produce unpredictable results
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the added node, updated with parent and child ids as appropriate
      * @throws java.io.IOException if the service can't be reached
      */
@@ -403,7 +403,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Gets a copy of a particular node from a rule set
      * @param nodeID the (integer) node id
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the node, if found
      * @throws java.io.IOException if the service can't be reached
      */
@@ -419,7 +419,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * Gets a copy of a particular rule tree
      * @param wir the workitem containing specification and task identifiers
      * @param rType the type of rule tree to get the node from
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the tree, if found for the specification/task/rule-type combination
      * @throws java.io.IOException if the service can't be reached
      */
@@ -437,7 +437,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * @param specID the specification identifier
      * @param taskID the task identifier (may be null for case-level rule types)
      * @param rType the type of rule tree to get the node from
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the tree, if found for the specification/task/rule-type combination
      * @throws java.io.IOException if the service can't be reached
      */
@@ -456,7 +456,7 @@ public class WorkletGatewayClient extends Interface_Client {
       * @param processName the process identifier, or unique ruleset name
       * @param taskID the task identifier (may be null for case-level rule types)
       * @param rType the type of rule tree to get the node from
-      * @param handle a current sessionhandle to the worklet service
+      * @param handle a current session handle to the worklet service
       * @return the tree, if found for the process/task/rule-type combination
       * @throws java.io.IOException if the service can't be reached
       */
@@ -473,7 +473,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Gets a copy of a particular rule set
      * @param specID the specification identifier
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the rule set, if found for the specification
      * @throws java.io.IOException if the service can't be reached
      */
@@ -487,7 +487,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Gets a copy of a particular rule set
      * @param processName the process identifier, or unique ruleset name
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the rule set, if found for the process
      * @throws java.io.IOException if the service can't be reached
      */
@@ -500,7 +500,7 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Gets the identifiers for all rule sets
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the set of all rule set ids stored by the service (as XML). Specification
      * ids will be of the form "identifier:version:uri" (i.e. its 'full string')
      * @throws java.io.IOException if the service can't be reached
@@ -512,8 +512,9 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Adds a complete (legacy) rule set, expressed as xml
+     * @param specID the id of the specification the rule set is defined for
      * @param ruleSetXML the rule set to add
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -527,9 +528,26 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
+     * Adds a complete (legacy) rule set, expressed as xml
+     * @param processName the name of the process the rule set is defined for
+     * @param ruleSetXML the rule set to add
+     * @param handle a current session handle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String addRdrSet(String processName, String ruleSetXML, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addRdrSet", handle);
+        params.put("name", processName);
+        params.put("ruleset", ruleSetXML);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
       * Removes a rule set
       * @param specID the specification id of the rule set to remove
-      * @param handle a current sessionhandle to the worklet service
+      * @param handle a current session handle to the worklet service
       * @return a success or error message
       * @throws java.io.IOException if the service can't be reached
       */
@@ -542,7 +560,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
       * Removes a rule set
       * @param identifier the id of the rule set to remove
-      * @param handle a current sessionhandle to the worklet service
+      * @param handle a current session handle to the worklet service
       * @return a success or error message
       * @throws java.io.IOException if the service can't be reached
       */
@@ -556,7 +574,7 @@ public class WorkletGatewayClient extends Interface_Client {
     /**
      * Gets the specified worklet, if loaded in the service
      * @param specID the Worklet specification id
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return the worklet xml, if found, or an error message if not
      * @throws java.io.IOException if the service can't be reached
      */
@@ -571,7 +589,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * Adds a worklet to the service repertoire
      * @param specID the Worklet specification id
      * @param workletXML the worklet specification (as XML) to add
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a success or error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -588,7 +606,7 @@ public class WorkletGatewayClient extends Interface_Client {
      * Replaces a worklet instance (or instances) started for a work item with a new
      * instance (or instances), based on a 'pre' updated rule set
      * @param itemID the item id of the parent that launched the worklet(s)
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a list of case ids of the new instances, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -609,7 +627,7 @@ public class WorkletGatewayClient extends Interface_Client {
      *               (if case level exception)
      * @param trigger the trigger for an external exception. May be null (if not
      *                external exception)
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return a list of case ids of the new instances, or an error message
      * @throws java.io.IOException if the service can't be reached
      */
@@ -625,8 +643,34 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets the specified worklet, if loaded in the service
+     * @param specKey the Worklet specification id key
+     * @param handle a current session handle to the worklet service
+     * @return the worklet xml, if found, or an error message if not
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String removeWorklet(String specKey, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeWorklet", handle);
+        params.put("key", specKey);
+        return executeGet(_wsURI, params);
+    }
+
+
+    /**
+     * Gets the specified worklet, if loaded in the service
+     * @param specID the Worklet specification id
+     * @param handle a current session handle to the worklet service
+     * @return the worklet xml, if found, or an error message if not
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String removeWorklet(YSpecificationID specID, String handle) throws IOException {
+        return removeWorklet(specID.getKey(), handle);
+    }
+
+
+    /**
      * Gets a list of the names of all the worklets in the repository
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return an XML representation of the list of worklet names
      * @throws java.io.IOException if the service can't be reached
      */
@@ -637,7 +681,7 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Gets a list of specification descriptors of all the worklets in the repository
-     * @param handle a current sessionhandle to the worklet service
+     * @param handle a current session handle to the worklet service
      * @return an XML representation of the list of worklet specifications
      * @throws java.io.IOException if the service can't be reached
      */
@@ -648,12 +692,41 @@ public class WorkletGatewayClient extends Interface_Client {
 
     /**
      * Gets an info set of all currently running worklets
-     * @param handle a current sessionhandle to the worklet service
-     * @return an XML representation of the list of worklet file names
+     * @param handle a current session handle to the worklet service
+     * @return an XML representation of the list of running worklets
      * @throws java.io.IOException if the service can't be reached
      */
     public String getRunningWorklets(String handle) throws IOException {
         return executeGet(_wsURI, prepareParamMap("getRunningWorklets", handle));
+    }
+
+
+    /**
+     * Gets an info set of all stored worklets that are not referenced by any rule
+     * @param handle a current session handle to the worklet service
+     * @return an XML representation of the list of orphaned worklets
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String getOrphanedWorklets(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getOrphanedWorklets", handle));
+    }
+
+
+    /**
+     * Loads a file or files into the worklet repository. If the path is a directory,
+     * will load all files in that directory and its sub-directories of the specified
+     * type.
+     * @param path the file path to load
+     * @param extn one of '.xrs' (for a rules file) or '.yawl' (for a worklet file)
+     * @param handle a current session handle to the worklet service
+     * @return a success message or a list of error messages
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String loadFile(String path, String extn, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("loadFile", handle);
+        params.put("path", path);
+        params.put("type", extn);
+        return executePost(_wsURI, params);
     }
 
 }

@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
 import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.update.ChecksumsReader;
+import org.yawlfoundation.yawl.controlpanel.util.CursorUtil;
 import org.yawlfoundation.yawl.controlpanel.util.EngineMonitor;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
@@ -30,7 +31,7 @@ public class YControlPanel extends JFrame {
     private EngineMonitor _engineMonitor;
     private JTabbedPane _tabbedPane;
 
-    public static final String VERSION = "3.1";
+    public static final String VERSION = "4.0";
 
 
     public YControlPanel() {
@@ -104,6 +105,8 @@ public class YControlPanel extends JFrame {
         setMinimumSize();
         setMacIcon();
         toolBar.performUserPreferencesOnStart();
+
+        CursorUtil.setContainer(this);
     }
 
 

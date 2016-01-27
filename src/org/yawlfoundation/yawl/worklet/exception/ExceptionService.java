@@ -225,15 +225,17 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
                 // get the monitor for this case
                 monitor = _monitoredCases.get(caseID);
-                checkConstraints(monitor, preCheck);
-                monitor.setCaseCompleted();
+                if (monitor != null) {
+                    checkConstraints(monitor, preCheck);
+                    monitor.setCaseCompleted();
 
-                // treat this as a case complete event for exception worklets also
-                if (_handlersStarted.containsKey(caseID))
-                    handleCompletingExceptionWorklet(caseID,
-                            JDOMUtil.stringToElement(data), false);
+                    // treat this as a case complete event for exception worklets also
+                    if (_handlersStarted.containsKey(caseID))
+                        handleCompletingExceptionWorklet(caseID,
+                                JDOMUtil.stringToElement(data), false);
 
-                destroyMonitorIfDone(monitor, caseID);
+                    destroyMonitorIfDone(monitor, caseID);
+                }
             }
         }
     }

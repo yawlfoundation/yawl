@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 7.1" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta7.1.xsd">
+  <specification uri="CancelShow">
+    <metaData>
+      <title>CancelShow</title>
+      <creator>Adams</creator>
+      <description>Cancel the show due to poor ticket sales</description>
+      <version>0.1</version>
+    </metaData>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="CancelShow" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="InputCondition_1">
+          <flowsInto>
+            <nextElementRef id="Cancel_Venue_4" />
+          </flowsInto>
+        </inputCondition>
+        <task id="Cancel_Venue_4">
+          <flowsInto>
+            <nextElementRef id="Refund_Tickets_3" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;Venue&gt;{/CancelShow/VenueName/text()}&lt;/Venue&gt;" />
+              <mapsTo>Venue</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;VenueName&gt;{/Cancel_Venue/Venue/text()}&lt;/VenueName&gt;" />
+              <mapsTo>VenueName</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Cancel_Venue" />
+        </task>
+        <task id="Refund_Tickets_3">
+          <flowsInto>
+            <nextElementRef id="OutputCondition_2" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/CancelShow/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;TicketsSold&gt;{/Refund_Tickets/TicketsSold/text()}&lt;/TicketsSold&gt;" />
+              <mapsTo>TicketsSold</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Refund_Tickets" />
+        </task>
+        <outputCondition id="OutputCondition_2" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Cancel_Venue" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>Venue</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+    <decomposition id="Refund_Tickets" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>TicketsSold</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

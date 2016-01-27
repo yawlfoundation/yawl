@@ -19,9 +19,9 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.support.Persister;
+import org.yawlfoundation.yawl.worklet.support.RdrSetParser;
 
 import java.util.*;
 
@@ -55,7 +55,7 @@ public class RdrSet {
     private String _processName;
     private Map<RuleType, RdrTreeSet> _treeMap;
 
-    protected static final String CASE_LEVEL_TREE_FLAG = "__case_level_tree__";
+    public static final String CASE_LEVEL_TREE_FLAG = "__case_level_tree__";
 
 
     /**
@@ -226,7 +226,7 @@ public class RdrSet {
 
 
     public void fromXML(String xml) {
-        _treeMap = new RdrSetLoader().load(JDOMUtil.stringToDocument(xml), false);
+        _treeMap = new RdrSetParser().parse(xml, false);
     }
 
 //===========================================================================//

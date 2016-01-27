@@ -67,7 +67,6 @@ public class WorkletGateway extends YHttpServlet {
                 ServletContext context = getServletContext();
 
                 WorkletConstants.setHomeDir(context.getRealPath("/"));
-                WorkletConstants.setRepositoryDir(context.getInitParameter("Repository"));
 
                 String persistStr = context.getInitParameter("EnablePersistence");
                 WorkletConstants.setPersist(persistStr.equalsIgnoreCase("TRUE"));
@@ -184,11 +183,17 @@ public class WorkletGateway extends YHttpServlet {
                 else if (action.equalsIgnoreCase("getWorklet")) {
                     result = getWorklet(req);
                 }
+                else if (action.equalsIgnoreCase("removeWorklet")) {
+                    result = removeWorklet(req);
+                }
                 else if (action.equalsIgnoreCase("getWorkletNames")) {
                     result = getWorkletNames();
                 }
                 else if (action.equalsIgnoreCase("getRunningWorklets")) {
                     result = getRunningWorklets();
+                }
+                else if (action.equalsIgnoreCase("getOrphanedWorklets")) {
+                    result = getOrphanedWorklets();
                 }
                 else if (action.equalsIgnoreCase("getWorkletInfoList")) {
                     result = getWorkletInfoList();
@@ -448,22 +453,52 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String addRdrSet(HttpServletRequest req) {
-        YSpecificationID specID = makeSpecID(req);
         String xml = req.getParameter("ruleset");
+        YSpecificationID specID = makeSpecID(req);
+        if (specID != null) {
+            return addRdrSet(specID, xml);
+        }
+
+        String processName = req.getParameter("name");
+        if (processName != null) {
+            return addRdrSet(processName, xml);
+        }
+
+        return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(YSpecificationID specID, String xml) {
         if (! (xml == null || specID == null)) {
             RdrSet exists = new RdrSetLoader().load(specID);
             if (exists == null) {
-                RdrSet rdrSet = new RdrSet(specID);
-                rdrSet.fromXML(xml);
-                if (! rdrSet.hasRules()) {
-                    return fail("Malformed XML in rule set");
-                }
-                Persister.insert(rdrSet);
-                return "<success/>";
+                return addRdrSet(new RdrSet(specID), xml);
             }
             return fail("Rule set already exists for specification: " + specID.toString());
         }
         return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(String processName, String xml) {
+        if (! (xml == null || processName == null)) {
+            RdrSet exists = new RdrSetLoader().load(processName);
+            if (exists == null) {
+                return addRdrSet(new RdrSet(processName), xml);
+            }
+            return fail("Rule set already exists for specification: " + processName);
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String addRdrSet(RdrSet rdrSet, String xml) {
+        rdrSet.fromXML(xml);
+        if (! rdrSet.hasRules()) {
+            return fail("Malformed XML in rule set");
+        }
+        Persister.insert(rdrSet);
+        return "<success/>";
     }
 
 
@@ -527,6 +562,16 @@ public class WorkletGateway extends YHttpServlet {
     }
 
 
+    private String removeWorklet(HttpServletRequest req) {
+        String key = req.getParameter("key");
+        if (key != null) {
+            return _ws.getLoader().remove(key) ? "<success/>" :
+                    fail("No worklet found with specification id key: " + key);
+        }
+        return fail("Invalid parameters");
+    }
+
+
     private String getWorkletNames() {
         XNode root = new XNode("workletnames");
         for (String name : _ws.getLoader().getAllWorkletKeys()) {
@@ -553,6 +598,15 @@ public class WorkletGateway extends YHttpServlet {
         XNode root = new XNode("runningworklets");
         for (WorkletRunner runner : runners) {
             root.addChild(runner.toXNode());
+        }
+        return root.toString();
+    }
+
+
+    private String getOrphanedWorklets() {
+        XNode root = new XNode("orphan_worklets");
+        for (WorkletSpecification wSpec : _ws.getLoader().getOrphanedWorklets()) {
+            root.addChild(new WorkletInfo(wSpec).toXNode());
         }
         return root.toString();
     }

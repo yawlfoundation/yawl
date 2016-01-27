@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,13 +95,13 @@ public class StartMenuUpdater {
                     "goto usage\r\n\r\n" +
                     ":cp\r\n" +
                     "cd controlpanel\r\n" +
-                    java + " -jar YawlControlPanel-3.0.1.jar\r\n" +
+                    java + " -jar YawlControlPanel-4.0.jar\r\n" +
                     "goto end\r\n\r\n" +
                     ":editor\r\n" +
                     "cd editor\r\n" +
                     "shift\r\n" +
                     java + " -Xms256m -Xmx256m -XX:PermSize=128m " +
-                    "-XX:MaxPermSize=128m -jar YAWLEditor3.0.1.jar \"%1\"\r\n" +
+                    "-XX:MaxPermSize=128m -jar YAWLEditor4.0.jar \"%1\"\r\n" +
                     "goto end\r\n\r\n" +
                     ":usage\r\n" +
                     "echo USAGE: One of the following\r\n" +

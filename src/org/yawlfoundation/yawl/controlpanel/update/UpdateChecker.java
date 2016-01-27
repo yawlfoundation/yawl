@@ -23,7 +23,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     protected static final String BASE_URL = "http://sourceforge.net/";
     public static final String CHECKSUM_FILE = "checksums.xml";
     public static final String SOURCE_URL = BASE_URL +
-            "projects/yawl/files/updatecache/engine/";
+            "projects/yawl/files/updatecache4/engine/";
     public static final String SF_DOWNLOAD_SUFFIX = "/download";
 
     public UpdateChecker() { super(); }

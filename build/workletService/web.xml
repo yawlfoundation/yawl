@@ -7,9 +7,8 @@
     <display-name>YAWL Worklet Dynamic Selection and Exception Service</display-name>
     <description>
         This custom YAWL Service dynamically selects an appropriate sub-process for an
-        executing
-        workitem, and handles any process exceptions.
-        Copyright 2006 Queensland University of Technology. All rights reserved.
+        executing workitem, and handles any process exceptions.
+        Copyright 2006-2016 The YAWL Foundation. All rights reserved.
         Author: Michael Adams
         For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads'
         section under
@@ -94,14 +93,6 @@
             If you need to invoke a web service and this is deployed behind
             an authenticating proxy server then you ought to set this variable
             appropriately.
-        </description>
-    </context-param>
-
-    <context-param>
-        <param-name>Repository</param-name>
-        <param-value>${catalina.base}/webapps/workletService/repository/</param-value>
-        <description>
-            The path where the worklet repository is installed.
         </description>
     </context-param>
 

@@ -662,10 +662,15 @@ public class YNetRunner {
     protected void processEmptyTask(YAtomicTask task,YPersistenceManager pmgr)
             throws YDataStateException, YStateException, YQueryException,
             YPersistenceException {
-        YIdentifier id = task.t_fire(pmgr).get(0);
-        task.t_start(pmgr, id);
-        _busyTasks.add(task);                             // pre-req for completeTask
-        completeTask(pmgr, null, task, id, null);
+        try {
+            YIdentifier id = task.t_fire(pmgr).get(0);
+            task.t_start(pmgr, id);
+            _busyTasks.add(task);                             // pre-req for completeTask
+            completeTask(pmgr, null, task, id, null);
+        }
+        catch (YStateException yse) {
+            // ignore - task already removed due to alternate path or case completion
+        }
     }
 
     

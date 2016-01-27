@@ -20,11 +20,11 @@ public class RdrTreeSet {
 
     private RdrTreeSet() { }
 
-    protected RdrTreeSet(RuleType ruleType) {
+    public RdrTreeSet(RuleType ruleType) {
         this(ruleType, new HashMap<String, RdrTree>());
     }
 
-    protected RdrTreeSet(RuleType ruleType, Map<String, RdrTree> treeMap) {
+    public RdrTreeSet(RuleType ruleType, Map<String, RdrTree> treeMap) {
         _ruleType = ruleType;
         _treeMap = treeMap;
     }

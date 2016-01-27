@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+  <specification uri="BobZero">
+  	<name>Bob Zero</name>
+  	<documentation>Worklet to enact when bob is not one of the deifned values</documentation>
+    <metaData />
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" />
+    <decomposition id="BobZero" isRootNet="true" xsi:type="NetFactsType">
+      <inputParam>
+        <name>bob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>bob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <processControlElements>
+        <inputCondition id="0_InputCondition">
+          <flowsInto>
+            <nextElementRef id="2_Get_Bob" />
+          </flowsInto>
+        </inputCondition>
+        <task id="2_Get_Bob">
+          <flowsInto>
+            <nextElementRef id="1_OutputCondition" />
+          </flowsInto>
+          <join code="xor" />
+          <split code="and" />
+          <startingMappings>
+            <mapping>
+              <expression query="&lt;bob&gt;{/BobZero/bob/text()}&lt;/bob&gt;" />
+              <mapsTo>bob</mapsTo>
+            </mapping>
+          </startingMappings>
+          <completedMappings>
+            <mapping>
+              <expression query="&lt;bob&gt;{/Get_Bob/bob/text()}&lt;/bob&gt;" />
+              <mapsTo>bob</mapsTo>
+            </mapping>
+          </completedMappings>
+          <decomposesTo id="Get_Bob" />
+        </task>
+        <outputCondition id="1_OutputCondition" />
+      </processControlElements>
+    </decomposition>
+    <decomposition id="Get_Bob" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <name>bob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <name>bob</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+    </decomposition>
+  </specification>
+</specificationSet>
+
+

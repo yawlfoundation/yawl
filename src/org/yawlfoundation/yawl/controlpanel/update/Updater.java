@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
 import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateTableModel;
+import org.yawlfoundation.yawl.controlpanel.util.CursorUtil;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
 import org.yawlfoundation.yawl.controlpanel.util.WebXmlReader;
@@ -32,6 +33,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     private ComponentsPanel _componentsPanel;
     private ProgressPanel _progressPanel;
     private Downloader _downloader;
+    private List<UpdateRow> _appRows;
+    private UpdateChecker _checker;
     private boolean _cycled;                            // was engine running at init?
 
     protected Differ _differ;
@@ -47,7 +50,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     protected Updater(UpdateTableModel model) {
         _differ = model.getDiffer();
-        _installs = getInstallList(model.getRows());
+        _appRows = model.getRows();
     }
 
 
@@ -61,11 +64,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // entry point - start the update process
     public void start() {
         Publisher.addEngineStatusListener(this);
-        setState(State.Download);
+        setWaitCursor();
+        if (prepareDiffer()) {
+            setState(State.Download);
+        }
     }
 
 
-    // events from Downloader & Verifier processes
+    // events from Downloader, Verifier & prepareDiffer processes
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getPropertyName().equals("state")) {
             Object stateValue = event.getNewValue();
@@ -76,8 +82,12 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
                 if (event.getSource() instanceof Verifier) {
                     verifyCompleted(((Verifier) event.getSource()));
                 }
-                else {
+                else if (event.getSource() instanceof Downloader) {
                     downloadCompleted();
+                }
+                else {
+                    _differ = _checker.getDiffer();
+                    setState(State.Download);        // differ ready - start the process
                 }
              }
         }
@@ -117,13 +127,14 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     protected void download() {
+        _installs = getInstallList(_appRows);
         List<AppUpdate> updates = getUpdatesList();
         updates.addAll(_installs);
         if (! updates.isEmpty()) {
             _downloads = getDownloadList(updates);
             _deletions = getDeletionList(updates);
             if (! _downloads.isEmpty()) {
-                getProgressPanel().setText("Downloading files...");
+                showProgress("Downloading files...");
                 download(updates);            // download & verify updated/new files
             }
             else if (! _deletions.isEmpty()) {
@@ -137,7 +148,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     // Starts the verify swing worker
     protected void verify() {
         getProgressPanel().setIndeterminate(true);
-        getProgressPanel().setText("Verifying downloads...");
+        showProgress("Verifying downloads...");
         Verifier verifier = new Verifier(getMd5Map());
         verifier.addPropertyChangeListener(this);
         verifier.execute();
@@ -160,7 +171,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     private void update() {
         getProgressPanel().setIndeterminate(true);
-        getProgressPanel().setText("Updating files...");
+        showProgress("Updating files...");
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
         doUpdates(tomcatDir);
         doDeletions(tomcatDir);
@@ -171,7 +182,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     private void startEngine() {
-        getProgressPanel().setText((_cycled ? "Res" : "S") + "tarting Engine...");
+        showProgress((_cycled ? "Res" : "S") + "tarting Engine...");
         try {
             TomcatUtil.start();
         }
@@ -200,6 +211,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void finalise() {
         Publisher.removeEngineStatusListener(this);
         getProgressPanel().setVisible(false);
+        resetCursor();
     }
 
 
@@ -564,5 +576,31 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
             StringUtil.replaceInFile(webxml, ":8080", ":" + port);
         }
     }
+
+
+    private void showProgress(final String text) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getProgressPanel().setText(text);
+            }
+        });
+    }
+
+
+    private boolean prepareDiffer() {
+        boolean prepared = _differ != null && _differ.hasLatestChecksums();
+        if (! prepared) {
+            _checker = new UpdateChecker();
+            _checker.addPropertyChangeListener(this);
+            _checker.execute();
+        }
+        return prepared;
+    }
+
+
+    protected void resetCursor() { CursorUtil.showDefaultCursor(); }
+
+    protected void setWaitCursor() { CursorUtil.showWaitCursor(); }
 
 }

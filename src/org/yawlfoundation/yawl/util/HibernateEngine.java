@@ -208,7 +208,8 @@ public class HibernateEngine {
     public Transaction getOrBeginTransaction() {
         try {
             Transaction tx = getSession().getTransaction();
-            System.out.println("***** GET tx = " + tx + "; isActive = " + (tx != null && tx.isActive()));
+            _log.debug("Transaction GET tx = {}; isActive = {}",
+                    tx, (tx != null && tx.isActive()));
             return ((tx != null) && tx.isActive()) ? tx : beginTransaction();
         }
         catch (HibernateException he) {
@@ -328,7 +329,7 @@ public class HibernateEngine {
         try {
             Transaction tx = getSession().getTransaction();
             if ((tx != null) && tx.isActive()) {
-                System.out.println("***** COMMIT tx: " + tx);
+                _log.debug("Transaction COMMIT tx: " + tx);
                 tx.commit();
             }
         }

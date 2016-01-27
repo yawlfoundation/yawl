@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<spec uri="wListMaker">
+    <selection>
+        <task name="Verify_list">
+            <ruleNode>
+                <id>0</id>
+                <parent>-1</parent>
+                <trueChild>1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>True</condition>
+                <conclusion>BobZero</conclusion>
+                <cornerstone></cornerstone>
+                <description>root level default when bob is not one - five</description>
+            </ruleNode>
+            <ruleNode>
+                <id>1</id>
+                <parent>0</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>2</falseChild>
+                <condition>SomeBob = one</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>BobOne</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>one</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob one</description>
+            </ruleNode>
+            <ruleNode>
+                <id>2</id>
+                <parent>1</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>3</falseChild>
+                <condition>SomeBob = two</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>BobTwo</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>two</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob two</description>
+            </ruleNode>
+            <ruleNode>
+                <id>3</id>
+                <parent>2</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>4</falseChild>
+                <condition>SomeBob = three</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>BobThree</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>three</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob three</description>
+            </ruleNode>
+            <ruleNode>
+                <id>4</id>
+                <parent>3</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>5</falseChild>
+                <condition>SomeBob = four</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>BobFour</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>four</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob four</description>
+            </ruleNode>
+            <ruleNode>
+                <id>5</id>
+                <parent>4</parent>
+                <trueChild>-1</trueChild>
+                <falseChild>-1</falseChild>
+                <condition>SomeBob = five</condition>
+                <conclusion>
+                    <_1>
+                        <action>select</action>
+                        <target>BobFive</target>
+                    </_1>
+                </conclusion>
+                <cornerstone>
+                    <SomeBob>five</SomeBob>
+                </cornerstone>
+                <description>basic worklet for bob five</description>
+            </ruleNode>
+        </task>
+    </selection>
+</spec>

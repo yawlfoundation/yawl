@@ -18,15 +18,8 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *  An event log file implementation.
@@ -46,15 +39,6 @@ public class EventLogger {
     public static final String eCancel = "WorkletCancelled";
     public static final String eComplete = "WorkletCompleted";
 
-    // path to eventlog csv file
-    private static final String _logPath = WorkletConstants.wsLogsDir + "eventLog.csv" ;
-
-    // date format for the eventlog
-    private	static SimpleDateFormat _sdfe  = new SimpleDateFormat (
-            "yyyy.MM.dd hh:mm:ss:SS");
-
-
-//===========================================================================//
 
     /**
      *  writes an event to the event log
@@ -73,36 +57,8 @@ public class EventLogger {
             Persister.insert(new WorkletEvent(event, caseId, specId, taskId,
                                 parentCaseId, xType));
         }
-        else {
-            logToCSV(event, caseId, specId, taskId, parentCaseId, xType);
-        }
     }
 
-
-    /** this version is used to log to a CSV file when persistence is OFF */
-    private static void logToCSV(String event, String caseId, YSpecificationID specId,
-                                 String taskId, String parentCaseId, int xType) {
-        StringBuilder s = new StringBuilder() ;
-        s.append(_sdfe.format(new Date())) ; s.append(",") ;
-        s.append(event); s.append(",") ;
-        s.append(caseId); s.append(",") ;
-        s.append(specId.toString()); s.append(",") ;
-        s.append(taskId); s.append(",") ;
-        s.append(parentCaseId); s.append(",") ;
-        s.append(xType);
-
-        try {
-            PrintWriter pLog = new PrintWriter(new FileWriter(_logPath, true));
-            pLog.println(s.toString()) ;
-            pLog.close() ;
-        }
-        catch (IOException e) {
-            LogManager.getLogger(EventLogger.class).error(
-                    "Exception writing to CSV EventLog", e);
-        }
-    }
-
-//===========================================================================//
 
     /**
      *  writes an event to the event log
@@ -113,9 +69,6 @@ public class EventLogger {
         log(event, wir.getCaseID(), new YSpecificationID(wir),
                 wir.getTaskID(), "", xType);
     }
-
-//===========================================================================//
-//===========================================================================//
 
 }
 

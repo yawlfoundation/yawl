@@ -24,7 +24,7 @@ import java.util.Calendar;
  */
 public class AboutDialog extends JDialog {
 
-    private static final Color BACK_COLOUR = new Color(70,100,100);        // 254,254,240);
+    private static final Color BACK_COLOUR = new Color(70,100,100);
     private static final String DEFAULT_YEAR =
            String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 

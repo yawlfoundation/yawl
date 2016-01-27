@@ -18,11 +18,6 @@
 
 package org.yawlfoundation.yawl.worklet.support;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-
 /**
  * The support library class of static methods
  * for the worklet service
@@ -35,19 +30,11 @@ public class WorkletConstants {
 
     // various file paths to the service installation & repository files
     public static String wsHomeDir;
-    public static String wsRepositoryDir;
-    public static String wsLogsDir;
-    public static String wsWorkletsDir;
-    public static String wsRulesDir;
-    public static String wsSelectedDir;
     public static String resourceServiceURL;     // read from context-param
     public static boolean wsPersistOn;
     public static boolean wsInitialised;
 
     public static final String newline = System.getProperty("line.separator");
-
-    private static Logger _log = LogManager.getLogger(
-            "org.yawlfoundation.yawl.worklet.support.WorkletConstants");
 
 
     /**
@@ -70,19 +57,6 @@ public class WorkletConstants {
     public static void setRepositoryDir(String dir) {
         dir = dir.replace('\\', '/');             // switch slashes
         if (!dir.endsWith("/")) dir += "/";       // make sure it has ending slash
-
-        // set the repository dir and the sub-dirs
-        wsRepositoryDir = dir;
-        wsLogsDir = wsRepositoryDir + "logs/";
-        wsWorkletsDir = wsRepositoryDir + "worklets/";
-        wsRulesDir = wsRepositoryDir + "rules/";
-        wsSelectedDir = wsRepositoryDir + "selected/";
-
-        if (!new File(wsWorkletsDir).exists()) {
-            _log.warn("The path set to the worklet repository may be incorrect.");
-            _log.warn("Please check that the repository path in the WorkletService's " +
-                    "'web.xml' is valid and points to the repository files. ");
-        }
     }
 
 
