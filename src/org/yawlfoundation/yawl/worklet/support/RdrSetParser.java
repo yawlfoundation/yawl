@@ -189,7 +189,6 @@ public class RdrSetParser {
         RdrNode rdrNode = new RdrNode();
 
         // populate the node
-        rdrNode.setNodeId(xNode.getChildText("id")) ;
         rdrNode.setCondition(xNode.getChildText("condition"));
         rdrNode.setCornerStone(xNode.getChild("cornerstone"));
 

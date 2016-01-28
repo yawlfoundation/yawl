@@ -594,7 +594,10 @@ public class YNetRunner {
                 }
             }
             else if (group.hasEmptyTasks()) {
-                processEmptyTask(group.getRandomEmptyTaskFromGroup(), pmgr);
+                YAtomicTask atomic = group.getRandomEmptyTaskFromGroup();
+                if (! (enabledTasks.contains(atomic) || endOfNetReached())) {
+                    processEmptyTask(atomic, pmgr);
+                }
             }
             else {
                 String groupID = group.getDeferredChoiceID();       // null if <2 tasks

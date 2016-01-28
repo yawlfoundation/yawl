@@ -221,11 +221,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     popCheckWorkItemConstraintEvent(monitor) ;
             }
             else {                                                      // end of case
-                _log.info("Checking constraints for end of case {}", caseID);
 
                 // get the monitor for this case
                 monitor = _monitoredCases.get(caseID);
                 if (monitor != null) {
+                    _log.info("Checking constraints for end of case {}", caseID);
                     checkConstraints(monitor, preCheck);
                     monitor.setCaseCompleted();
 
@@ -236,6 +236,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
                     destroyMonitorIfDone(monitor, caseID);
                 }
+                else {
+                    _log.info("Case {} already completed", caseID);
+                }
             }
         }
     }
@@ -244,10 +247,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /**
      *  Handles a notification from the Engine that a workitem associated with the
      *  timeService has timed out.
-     *  Checks the rules for timeout for the other items associated withthis timeout item
+     *  Checks the rules for timeout for the other items associated with this timeout item
      *  and raises thr appropriate exception.
      *
-     * @param wir - the item that caused thetimeout event
+     * @param wir - the item that caused the timeout event
      * @param taskList - a list of taskids of those tasks that were running in
      *        parallel with the timeout task
      */

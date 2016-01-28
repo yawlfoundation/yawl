@@ -676,6 +676,10 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
+        YSpecification specification = _engine.getSpecification(specID);
+        if (specification == null) {
+            return failureMessage("No specification found for id: " + specID);
+        }
         Set<YSpecification> specs = new HashSet<YSpecification>();
         specs.add(_engine.getSpecification(specID));
         return getDataForSpecifications(specs);

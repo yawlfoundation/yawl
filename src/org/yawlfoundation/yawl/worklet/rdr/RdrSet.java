@@ -233,7 +233,7 @@ public class RdrSet {
 
 
     private void setTreeSet(Set<RdrTreeSet> treeSet) {
-        if (_treeMap == null) _treeMap = new HashMap<RuleType, RdrTreeSet>();
+        _treeMap = new HashMap<RuleType, RdrTreeSet>();
         for (RdrTreeSet tree : treeSet) {
             _treeMap.put(tree.getRuleType(), tree);
         }

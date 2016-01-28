@@ -253,8 +253,8 @@ public class RdrNode {
     *         expressions
     *  @param lastTrueNode - the RdrNode that contains the last satisfied 
     *         condition
-    *  @return a two node array: [0] the last satisfied node 
-    *                            [1] the last node searched
+    *  @return an RdrPair with two nodes: [0] the last satisfied node
+    *                                     [1] the last node searched
     */
     public RdrPair search(Element caseData, RdrNode lastTrueNode) {
         RdrPair pair = null;
@@ -282,7 +282,8 @@ public class RdrNode {
 	        }
 	    }
 	    catch (RdrConditionException rde) {               // bad condition found
-            LogManager.getLogger(RdrNode.class).error("Search Exception", rde) ;
+            LogManager.getLogger(RdrNode.class).error("Rule Search Exception: {}",
+                    rde.getMessage());
       }
       return pair ;
    }
