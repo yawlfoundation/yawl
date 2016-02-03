@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
-import org.yawlfoundation.yawl.controlpanel.components.ComponentsPanel;
+import org.yawlfoundation.yawl.controlpanel.components.ComponentsPane;
 import org.yawlfoundation.yawl.controlpanel.preferences.UserPreferences;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
@@ -30,7 +30,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         Download, Verify, StopEngine, Update, StartEngine, Complete, Finalise
     }
 
-    private ComponentsPanel _componentsPanel;
+    private ComponentsPane _componentsPane;
     private ProgressPanel _progressPanel;
     private Downloader _downloader;
     private List<UpdateRow> _appRows;
@@ -54,10 +54,10 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    public Updater(ComponentsPanel componentsPanel) {
-        this((UpdateTableModel) componentsPanel.getTable().getModel());
-        _componentsPanel = componentsPanel;
-        _progressPanel = componentsPanel.getProgressPanel();
+    public Updater(ComponentsPane componentsPane) {
+        this((UpdateTableModel) componentsPane.getTable().getModel());
+        _componentsPane = componentsPane;
+        _progressPanel = componentsPane.getProgressPanel();
     }
 
 
@@ -195,9 +195,9 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     // Update process completed - do cleanup
     private void complete() {
-        if (_componentsPanel != null) {
+        if (_componentsPane != null) {
             File checkSum = FileUtil.getLocalCheckSumFile();
-            _componentsPanel.refresh(new Differ(checkSum, checkSum), true);
+            _componentsPane.refresh(new Differ(checkSum, checkSum), true);
         }
         updateServiceRegistration();
         new UserPreferences().setPostUpdatesCompleted(false);

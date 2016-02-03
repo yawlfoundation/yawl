@@ -5,12 +5,14 @@ import org.yawlfoundation.yawl.worklet.exception.ExletAction;
 import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 
 public class RdrPrimitive implements Comparable<RdrPrimitive> {
+
     private int index;
     private ExletAction action;
     private ExletTarget target;
     private String worklet;
 
     protected RdrPrimitive() { }  // for hibernate
+
 
     public RdrPrimitive(int i, String a, String t) {
         setIndex(i);
@@ -79,6 +81,11 @@ public class RdrPrimitive implements Comparable<RdrPrimitive> {
 
     public int hashCode() {
         return 31 * getIndex() * (getAction().hashCode() + getTarget().hashCode());
+    }
+
+
+    public String toString() {
+        return getAction() + " " + getTarget();
     }
 
 }

@@ -199,7 +199,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
 
     private void checkForUpdates() {
-        _mainWindow.showComponentsPanel();
+        _mainWindow.showComponentsPane();
         new UpdateLoader(_mainWindow).execute();
     }
 

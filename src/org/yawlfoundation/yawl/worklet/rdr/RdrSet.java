@@ -94,6 +94,9 @@ public class RdrSet {
 
 
     public void addTree(RdrTree tree, RuleType treeType) {
+        if (_treeMap == null) {
+            _treeMap = new HashMap<RuleType, RdrTreeSet>();
+        }
         RdrTreeSet treeSet = _treeMap.get(treeType);
         if (treeSet == null) {
             treeSet = new RdrTreeSet(treeType);

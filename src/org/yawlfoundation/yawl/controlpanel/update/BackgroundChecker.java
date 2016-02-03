@@ -33,8 +33,8 @@ public class BackgroundChecker implements PropertyChangeListener {
                 event.getNewValue() == SwingWorker.StateValue.DONE &&
                 ! _checker.hasError() && _checker.hasUpdates()) {
             showMessage();
-            _mainWindow.showComponentsPanel();
-            _mainWindow.getComponentsPanel().refresh(_checker.getDiffer(), false);
+            _mainWindow.showComponentsPane();
+            _mainWindow.getComponentsPane().refresh(_checker.getDiffer(), false);
         }
     }
 

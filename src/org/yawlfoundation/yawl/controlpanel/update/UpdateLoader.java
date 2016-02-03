@@ -42,7 +42,7 @@ public class UpdateLoader implements PropertyChangeListener {
                 else {
 
                     // show latest version numbers
-                    _mainWindow.getComponentsPanel().refresh(_checker.getDiffer(), false);
+                    _mainWindow.getComponentsPane().refresh(_checker.getDiffer(), false);
                 }
             }
         }

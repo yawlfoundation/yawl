@@ -23,20 +23,21 @@ import java.io.IOException;
  * @author Michael Adams
  * @date 23/11/2015
  */
-public class ComponentsPanel extends JLayeredPane
+public class ComponentsPane extends JLayeredPane
         implements ActionListener, PropertyChangeListener, EngineStatusListener {
 
     private UpdateTable _table;
     private JButton _btnUpdate;
     private ProgressPanel _progressPanel;
-    private JPanel _content;
+    private JPanel _tablePanel;
 
 
-    public ComponentsPanel() {
+    public ComponentsPane() {
         super();
 
         try {
             buildUI(getDiffer());
+            setPreferredSize(new Dimension(600,470));
         }
         catch (IOException ioe) {
             add(new JLabel("ERROR: Unable to locate installed component information"));
@@ -74,7 +75,7 @@ public class ComponentsPanel extends JLayeredPane
 
     public ProgressPanel getProgressPanel() { return _progressPanel; }
 
-    public JPanel getTablePanel() { return _content; }
+    public JPanel getTablePanel() { return _tablePanel; }
 
     private Differ getDiffer() throws IOException {
         return new Differ(null, getCurrentCheckSumFile());
@@ -94,18 +95,18 @@ public class ComponentsPanel extends JLayeredPane
         _table = new UpdateTable(differ);
         _table.addPropertyChangeListener(this);
 
-        _content = new JPanel(new BorderLayout());
-        _content.setBorder(new EmptyBorder(8, 8, 8, 8));
+        _tablePanel = new JPanel(new BorderLayout());
+        _tablePanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         JScrollPane scrollPane = new JScrollPane(_table);
-        _content.add(scrollPane, BorderLayout.CENTER);
-        _content.add(getButtonBar(), BorderLayout.SOUTH);
-  //      _content.setBounds(0, 0, 600, 440);
+        _tablePanel.add(scrollPane, BorderLayout.CENTER);
+        _tablePanel.add(getButtonBar(), BorderLayout.SOUTH);
+        _tablePanel.setBounds(0, 0, 600, 470);
 
         _progressPanel = new ProgressPanel();
         _progressPanel.setBounds(150, 190, 300, 70);
         _progressPanel.setVisible(false);
 
-        add(_content, new Integer(0));
+        add(_tablePanel, new Integer(0));
         add(_progressPanel, new Integer(1));
         moveToFront(_progressPanel);
     }
@@ -162,6 +163,5 @@ public class ComponentsPanel extends JLayeredPane
         JOptionPane.showMessageDialog(this, msg, "Check For Updates",
                 JOptionPane.INFORMATION_MESSAGE);
     }
-
 
 }

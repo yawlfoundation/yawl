@@ -1,6 +1,6 @@
 package org.yawlfoundation.yawl.controlpanel;
 
-import org.yawlfoundation.yawl.controlpanel.components.ComponentsPanel;
+import org.yawlfoundation.yawl.controlpanel.components.ComponentsPane;
 import org.yawlfoundation.yawl.controlpanel.components.MacIcon;
 import org.yawlfoundation.yawl.controlpanel.components.OutputPanel;
 import org.yawlfoundation.yawl.controlpanel.components.ToolBar;
@@ -30,6 +30,7 @@ public class YControlPanel extends JFrame {
 
     private EngineMonitor _engineMonitor;
     private JTabbedPane _tabbedPane;
+    private ComponentsPane _componentsPane;
 
     public static final String VERSION = "4.0";
 
@@ -39,14 +40,14 @@ public class YControlPanel extends JFrame {
         _engineMonitor = new EngineMonitor();
         buildUI();
 
-        // TablePanel#setBounds call needed since ComponentsPanel is a JLayeredPane
+        // TablePanel#setBounds adjustment needed since ComponentsPane is a JLayeredPane
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 Rectangle r = getBounds();
-                getComponentsPanel().getTablePanel().setBounds(
-                        r.x, r.y, r.width-21, r.height-140);
+                getComponentsPane().getTablePanel().setBounds(
+                        0, 0, r.width-21, r.height-140);
             }
         });
 
@@ -71,12 +72,10 @@ public class YControlPanel extends JFrame {
     }
 
 
-    public ComponentsPanel getComponentsPanel() {
-        return (ComponentsPanel) _tabbedPane.getComponentAt(1);
-    }
+    public ComponentsPane getComponentsPane() { return _componentsPane; }
 
 
-    public void showComponentsPanel() { _tabbedPane.setSelectedIndex(1); }
+    public void showComponentsPane() { _tabbedPane.setSelectedIndex(1); }
 
 
     private String getAppTitle() { return "YAWL Control Panel " + getVersion(); }
@@ -93,7 +92,7 @@ public class YControlPanel extends JFrame {
 
         _tabbedPane = new JTabbedPane();
         _tabbedPane.add("Output Log", new OutputPanel());
-        _tabbedPane.add("Components", new ComponentsPanel());
+        _tabbedPane.add("Components", createComponentsPanel());
         content.add(_tabbedPane, BorderLayout.CENTER);
         _tabbedPane.setToolTipTextAt(1, "View, install, remove and update components");
 
@@ -101,12 +100,20 @@ public class YControlPanel extends JFrame {
         content.add(toolBar, BorderLayout.NORTH);
         add(content);
         pack();
-        setLocationByPlatform(true);
         setMinimumSize();
+        setLocationRelativeTo(null);            // centre on screen
         setMacIcon();
         toolBar.performUserPreferencesOnStart();
 
         CursorUtil.setContainer(this);
+    }
+
+
+    private JPanel createComponentsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        _componentsPane = new ComponentsPane();
+        panel.add(_componentsPane, BorderLayout.CENTER);
+        return panel;
     }
 
 

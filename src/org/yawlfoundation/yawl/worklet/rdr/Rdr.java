@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.support.RdrException;
 
 import java.util.Set;
@@ -76,12 +77,22 @@ public class Rdr {
 
     public RdrNode addNode(YSpecificationID specID, String taskID, RuleType rType,
                            RdrNode node) throws RdrException {
-        return addNode(getRdrSet(specID), taskID, rType, node);
+        RdrSet ruleSet = getRdrSet(specID);
+        if (ruleSet == null) {
+            ruleSet = new RdrSet(specID);
+            Persister.insert(ruleSet);
+        }
+        return addNode(ruleSet, taskID, rType, node);
     }
     
     public RdrNode addNode(String processName, String taskID, RuleType rType,
                            RdrNode node)  throws RdrException {
-        return addNode(getRdrSet(processName), taskID, rType, node);
+        RdrSet ruleSet = getRdrSet(processName);
+        if (ruleSet == null) {
+            ruleSet = new RdrSet(processName);
+            Persister.insert(ruleSet);
+        }
+        return addNode(ruleSet, taskID, rType, node);
     }
 
     public RdrNode getNode(long nodeID) {
