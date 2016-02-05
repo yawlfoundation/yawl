@@ -15,7 +15,7 @@ import java.util.Map;
 public class StateRestorer {
 
 
-    /** restores active HandlerRunner instances */
+    /** restores active ExletRunner instances */
     public Map<String, ExletRunner> restoreRunners() {
         Map<String, ExletRunner> runnerMap = new HashMap<String, ExletRunner>();
 
@@ -25,7 +25,9 @@ public class StateRestorer {
         if (items != null) {
             for (Object o : items) {
                 ExletRunner runner = (ExletRunner) o;
-                runnerMap.put(runner.getCaseID(), runner);
+                for (WorkletRunner worklet : runner.restoreWorkletRunners()) {
+                    runnerMap.put(worklet.getCaseID(), runner);
+                }
             }
         }
         commit();
@@ -35,11 +37,12 @@ public class StateRestorer {
 
 
     /** Restores active CaseMonitor instances
-     * @param runnerMap - the set of restored HandlerRunner instances
+     * @param runnerMap - the set of restored ExletRunner instances
      * @return the set of restored CaseMonitor instances
      */
     public Map<String, CaseMonitor> restoreMonitoredCases(
-            Map<String, ExletRunner> runnerMap, Map<String, ExletRunner> compensatorsMap) {
+            Map<String, ExletRunner> runnerMap) {
+
         Map<String, CaseMonitor> monitorMap = new HashMap<String, CaseMonitor>();
 
         // retrieve persisted monitor objects from database
@@ -50,9 +53,9 @@ public class StateRestorer {
                 CaseMonitor monitor = (CaseMonitor) o;
 
                 // 'reattach' relevant runners to this case monitor
-                List<ExletRunner> restoredRunners = monitor.restoreRunners(
+                monitor.restoreRunners(
                         runnerMap);
-                compensatorsMap.putAll(rebuildHandlersStarted(restoredRunners));
+//                compensatorsMap.putAll(rebuildHandlersStarted(restoredRunners));
 
                 monitor.initNonPersistedItems();            // finish the reconstitution
                 monitorMap.put(monitor.getCaseID(), monitor);
@@ -76,7 +79,6 @@ public class StateRestorer {
         }
         return handlersStarted;
     }
-
 
 
     private List loadClassesByName(String className) {

@@ -868,11 +868,12 @@ public class YWorkItem {
             }    
         }
         if (_timerParameters != null) {
+            long expiry = _timerExpiry > 0 ? _timerExpiry : _parent != null ?
+                    _parent.getTimerExpiry() : 0;
             YWorkItemTimer.Trigger trigger = _timerParameters.getTrigger();
-            if (trigger != null) {
+            if (trigger != null && expiry > 0) {
                 String triggerName = trigger.name();
                 xml.append(StringUtil.wrap(triggerName, "timertrigger"));
-                long expiry = _timerExpiry > 0 ? _timerExpiry : _parent.getTimerExpiry();
                 xml.append(StringUtil.wrap(String.valueOf(expiry), "timerexpiry"));
             }    
         }

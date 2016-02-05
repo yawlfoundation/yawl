@@ -43,11 +43,11 @@
         <property name="_caseDataStr"   column="caseDataStr"   type="text"/>
         <property name="_netDataStr"    column="netDataStr"    type="text"/>
         <property name="_liveCase"      column="liveCase"      type="boolean"/>
-        <property name="_hrPreCaseID"   column="hrPreCaseID"/>
-        <property name="_hrPostCaseID"  column="hrPostCaseID"/>
-        <property name="_hrCaseExID"    column="hrCaseExID"/>
+        <!--<property name="_hrPreCaseID"   column="hrPreCaseID"/>-->
+        <!--<property name="_hrPostCaseID"  column="hrPostCaseID"/>-->
+        <!--<property name="_hrCaseExID"    column="hrCaseExID"/>-->
         <property name="_liveItemIDs"   column="liveItemIDs"   type="text"/>
-        <property name="_itemRunnerIDs" column="itemRunnerIDs" type="text"/>
+        <!--<property name="_itemRunnerIDs" column="itemRunnerIDs" type="text"/>-->
     </class>
 	
 </hibernate-mapping>

@@ -232,10 +232,16 @@ public class ExceptionActions {
 
     /** unsuspends all previously suspended workitems in this case and/or spec */
     protected void unsuspendList(ExletRunner runner) {
-        Set<WorkItemRecord> suspendedItems = runner.getSuspendedItems();
+        Set<String> suspendedItems = runner.getSuspendedItems();
         if (suspendedItems != null) {
-            for (WorkItemRecord wir : suspendedItems) {
-                unsuspendWorkItem(wir);
+            for (String wirID : suspendedItems) {
+                try {
+                    unsuspendWorkItem(_engineClient.getEngineStoredWorkItem(wirID));
+                }
+                catch (IOException ioe) {
+                    _log.error("Failed to get workitem '{}' from engine: {}", wirID,
+                            ioe.getMessage());
+                }
             }
             _log.debug("Completed unsuspend for all suspended work items");
         }

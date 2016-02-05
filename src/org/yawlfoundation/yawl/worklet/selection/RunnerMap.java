@@ -13,9 +13,6 @@ import java.util.*;
  */
 public class RunnerMap {
 
-    public static final boolean SELECTION_RUNNERS = true;
-    public static final boolean EXCEPTION_RUNNERS = false;
-
     private Map<String, WorkletRunner> _runners = new HashMap<String, WorkletRunner>();
 
 
@@ -161,11 +158,12 @@ public class RunnerMap {
     }
 
 
-    public void restore(boolean selectionOnly) {
+    public void restore(String wirID) {
         int selectionType = RuleType.ItemSelection.ordinal();
-        String op = selectionOnly ? "=" : "!=";
+        String clause = "wr._ruleType" + (wirID == null ? "=" + selectionType :
+                "!=" + selectionType + " and wr._wirID='" + wirID + "'");
         Query query = Persister.getInstance().createQuery(
-                "from WorkletRunner as wr where wr._ruleType" + op + selectionType);
+                "from WorkletRunner as wr where " + clause);
         Iterator it = query.iterate();
         if (it.hasNext()) {
             while (it.hasNext()) {

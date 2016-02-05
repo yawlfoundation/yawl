@@ -54,7 +54,7 @@ import java.util.*;
 public class ExceptionService extends WorkletService implements InterfaceX_Service {
 
     private Map<String, ExletRunner> _handlersStarted =
-            new HashMap<String, ExletRunner>() ;    // running exception worklets
+            new HashMap<String, ExletRunner>() ;    // running exception compensation worklets
     private Map<String, CaseMonitor> _monitoredCases =
             new HashMap<String, CaseMonitor>() ;      // cases monitored for exceptions
     private static Logger _log ;                        // debug log4j file
@@ -230,10 +230,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                     monitor.setCaseCompleted();
 
                     // treat this as a case complete event for exception worklets also
-                    if (_handlersStarted.containsKey(caseID))
+                    if (_handlersStarted.containsKey(caseID)) {
                         handleCompletingExceptionWorklet(caseID,
                                 JDOMUtil.stringToElement(data), false);
-
+                    }
                     destroyMonitorIfDone(monitor, caseID);
                 }
                 else {
@@ -634,6 +634,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         if (!runners.isEmpty()) {
             exletRunner.addWorkletRunners(runners);
             for (WorkletRunner runner : runners) {
+                _handlersStarted.put(runner.getCaseID(), exletRunner);
                 runner.logLaunchEvent();
             }
         }
@@ -1341,8 +1342,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     /** restores the contents of the running datasets after a web server restart */
     private void restoreDataSets() {
         StateRestorer restorer = new StateRestorer();
-        Map<String, ExletRunner> runners = restorer.restoreRunners();
-        _monitoredCases = restorer.restoreMonitoredCases(runners, _handlersStarted);
+        _handlersStarted = restorer.restoreRunners();
+        _monitoredCases = restorer.restoreMonitoredCases(_handlersStarted);
     }
 
 

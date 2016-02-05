@@ -1607,7 +1607,9 @@ public class YEngine implements InterfaceADesign,
         Map<String, YParameter> outputs =
                                  task.getDecompositionPrototype().getOutputParameters();
 
-        if (outputs.isEmpty()) return data;                   // no output data to map
+        if (outputs.isEmpty()) {                   // no output data to map
+            return StringUtil.wrap("", taskID);
+        }
 
         // map data values to params
         Element itemData = JDOMUtil.stringToElement(data);

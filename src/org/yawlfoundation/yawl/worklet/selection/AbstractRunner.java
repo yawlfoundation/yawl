@@ -19,6 +19,7 @@ import java.io.IOException;
  */
 public abstract class AbstractRunner {
 
+    protected String _trigger;                 // for external exceptions - may be null
     private long _id;                                             // for persistence
     protected String _wirID;                                      // for persistence
 
@@ -107,6 +108,10 @@ public abstract class AbstractRunner {
         return _wir;
     }
 
+
+    public void setTrigger(String trigger) { _trigger = trigger; }
+
+    public String getTrigger() { return _trigger; }
 
     public XNode toXNode() {
         XNode root = new XNode("runner");

@@ -20,17 +20,18 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.support.RdrConversionTools;
+import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +83,7 @@ public class CaseMonitor {
         _caseID = caseID ;
         _caseData = (data != null) ? JDOMUtil.stringToElement(data) : new Element(specID.getUri());
         _netLevelData = _caseData ;
-        _runners = new Hashtable<String, ExletRunner>() ;
+        _runners = new HashMap<String, ExletRunner>() ;
         _liveCase = true ;
         _caseDataStr = data;
         _netDataStr = data;
@@ -186,29 +187,57 @@ public class CaseMonitor {
      * @param runnerMap - a set of all the HandlerRunners restored from persistence
      * @return the list of all runners 'claimed' by this CaseMonitor
      */
-    public List<ExletRunner> restoreRunners(Map<String, ExletRunner> runnerMap) {
-        List<ExletRunner> restored = new ArrayList<ExletRunner>() ;
-        _runners = new Hashtable<String, ExletRunner>();  // workitem level runners
+    public void restoreRunners(Map<String, ExletRunner> runnerMap) {
+ //       List<ExletRunner> restored = new ArrayList<ExletRunner>() ;
 
         // restore any case level runners
-        _hrPreCase = restoreRunner(_hrPreCaseID, runnerMap) ;
-        _hrPostCase = restoreRunner(_hrPostCaseID, runnerMap) ;
-        _hrCaseExternal = restoreRunner(_hrCaseExID, runnerMap) ;
-        if (_hrPreCase != null) restored.add(_hrPreCase);
-        if (_hrPostCase != null) restored.add(_hrPostCase);
-        if (_hrCaseExternal != null) restored.add(_hrCaseExternal);
+        _hrPreCase = restoreCaseLevelRunner(RuleType.CasePreconstraint) ;
+        _hrPostCase = restoreCaseLevelRunner(RuleType.CasePostconstraint) ;
+        _hrCaseExternal = restoreCaseLevelRunner(RuleType.CaseExternalTrigger) ;
+//        if (_hrPreCase != null) restored.add(_hrPreCase);
+//        if (_hrPostCase != null) restored.add(_hrPostCase);
+//        if (_hrCaseExternal != null) restored.add(_hrCaseExternal);
 
         // restore any item level runners
-        // runner ids are a string of ids persisted for this CaseMonitor
-        List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
-        if (runnerIDs != null) {
-            for (String id : runnerIDs) {
-                ExletRunner runner = restoreRunner(id, runnerMap) ;
-                restored.add(runner);
-                _runners.put(runner.getParentWorkItemID(), runner);
+        _runners = new HashMap<String, ExletRunner>();  // workitem level runners
+        for (ExletRunner runner : runnerMap.values()) {
+            if (runner.getCaseID().equals(getCaseID())) {
+                runner.setOwnerCaseMonitor(this);
+                _runners.put(runner.getWorkItemID(), runner);
             }
         }
-        return restored ;
+//
+//        // restore any item level runners
+//        // runner ids are a string of ids persisted for this CaseMonitor
+//        List<String> runnerIDs = RdrConversionTools.StringToStringList(_itemRunnerIDs);
+//        if (runnerIDs != null) {
+//            for (String id : runnerIDs) {
+//                ExletRunner runner = restoreRunner(id, runnerMap);
+//                if (runner != null) {
+//                    String itemID = runner.getParentWorkItemID();
+//                    if (itemID != null) {
+//                        restored.add(runner);
+//                        _runners.put(itemID, runner);
+//                    }
+//                }
+//            }
+//        }
+//        return restored ;
+    }
+
+
+    private ExletRunner restoreCaseLevelRunner(RuleType type) {
+        Query query = Persister.getInstance().createQuery(
+                "from ExletRunner as ex where ex.caseID='" + getCaseID() +
+                "' and ex._ruleType=" + type.ordinal());
+        List list = query.list();
+        Persister.getInstance().commit();
+        ExletRunner runner = null;
+        if (! list.isEmpty()) {
+            runner = (ExletRunner) list.get(0);
+            runner.setOwnerCaseMonitor(this);
+        }
+        return runner;
     }
 
 
@@ -495,8 +524,8 @@ public class CaseMonitor {
         else if (runner == _hrCaseExternal)
             removeCaseExternalHandlerRunner();
         else {
-            if (_runners.containsKey(runner.getParentWorkItemID())) {
-                _runners.remove(runner.getParentWorkItemID());
+            if (_runners.containsKey(runner.getWorkItemID())) {
+                _runners.remove(runner.getWorkItemID());
                 _itemRunnerIDs = RdrConversionTools.MapKeySetToString(_runners);
                 persistThis();
             }

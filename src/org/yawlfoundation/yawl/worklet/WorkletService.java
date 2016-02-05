@@ -689,8 +689,8 @@ public class WorkletService extends InterfaceBWebsideController {
      */
     private void restoreDataSets() {
         if (!restored) {
-            _runners.restore(RunnerMap.SELECTION_RUNNERS);
-            restored = true;                                   // only restore once
+            _runners.restore(null);                        // null means all selections
+            restored = true;                               // only restore once
         }
     }
 
