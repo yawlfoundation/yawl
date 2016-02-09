@@ -809,6 +809,26 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
 
+    public String getSpecificationIDForCase(String caseIDStr, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YIdentifier caseID = _engine.getCaseID(caseIDStr);
+        if (caseID != null) {
+            YSpecification spec = _engine.getSpecificationForCase(caseID);
+            if (spec != null) {
+                return spec.getSpecificationID().toXML();
+            }
+            else {
+                return failureMessage("Specification ID for case (" + caseIDStr + ") not found.");
+            }
+        }
+        else {
+            return failureMessage("Running case with id (" + caseIDStr + ") not found.");
+        }
+    }
+
+
     public String getSpecificationForCase(String caseIDStr, String sessionHandle) {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;

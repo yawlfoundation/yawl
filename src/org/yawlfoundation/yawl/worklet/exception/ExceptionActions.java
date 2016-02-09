@@ -4,11 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 import org.yawlfoundation.yawl.worklet.support.EngineClient;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,7 +42,7 @@ public class ExceptionActions {
             }
         }
         catch (IOException ioe) {
-            _log.error("Exception attempting to suspend workitem: " + itemID, ioe);
+            _log.error("Failed to suspend workitem '{}': {}", itemID, ioe.getMessage());
             return false;
         }
         return true ;
@@ -181,15 +181,17 @@ public class ExceptionActions {
      * @return the list of suspendable workitems
      */
     protected Set<WorkItemRecord> getSuspendableWorkItemsInChain(
-            Map<String, ExletRunner> runners, String caseID) {
+            ExletRunnerCache runners, String caseID) {
         Set<WorkItemRecord> result = getSuspendableWorkItems("case", caseID);
 
         // if parent is also a worklet, get it's list too
-        while (runners.containsKey(caseID)) {
+        WorkletRunner worklet = runners.getWorkletRunner(caseID);
+        while (worklet != null) {
 
             // get parent's caseID
-            caseID = runners.get(caseID).getCaseID() ;
-            result.addAll(getSuspendableWorkItems("case", caseID));
+            String parentCaseID = worklet.getParentCaseID();
+            result.addAll(getSuspendableWorkItems("case", parentCaseID));
+            worklet = runners.getWorkletRunner(parentCaseID);
         }
         return result;
     }
@@ -199,7 +201,7 @@ public class ExceptionActions {
      * Suspends all running worklet cases in the hierarchy of handlers
      * @param runner - the runner for the child worklet case
      */
-    protected boolean suspendAncestorCases(Map<String, ExletRunner> runners,
+    protected boolean suspendAncestorCases(ExletRunnerCache runners,
                                          ExletRunner runner) {
         String caseID = runner.getCaseID();                    // i.e. id of parent case
         Set<WorkItemRecord> items = getSuspendableWorkItemsInChain(runners, caseID);
@@ -220,8 +222,8 @@ public class ExceptionActions {
                 _log.debug("Successful work item unsuspend: {}", wir.getID());
             }
             catch (IOException ioe) {
-                _log.error("Exception attempting to unsuspend workitem: " + wir.getID(),
-                        ioe);
+                _log.error("Failed to unsuspend workitem '{}': {}", wir.getID(),
+                        ioe.getMessage());
             }
         }
         else _log.error("Can't unsuspend a workitem with a status of {}", wir.getStatus());
@@ -239,7 +241,7 @@ public class ExceptionActions {
                     unsuspendWorkItem(_engineClient.getEngineStoredWorkItem(wirID));
                 }
                 catch (IOException ioe) {
-                    _log.error("Failed to get workitem '{}' from engine: {}", wirID,
+                    _log.error("Failed to unsuspend workitem '{}': {}", wirID,
                             ioe.getMessage());
                 }
             }

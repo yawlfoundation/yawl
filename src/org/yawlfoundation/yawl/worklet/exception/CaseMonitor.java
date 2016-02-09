@@ -202,7 +202,7 @@ public class CaseMonitor {
         _runners = new HashMap<String, ExletRunner>();  // workitem level runners
         for (ExletRunner runner : runnerMap.values()) {
             if (runner.getCaseID().equals(getCaseID())) {
-                runner.setOwnerCaseMonitor(this);
+         //       runner.setOwnerCaseMonitor(this);
                 _runners.put(runner.getWorkItemID(), runner);
             }
         }
@@ -235,7 +235,7 @@ public class CaseMonitor {
         ExletRunner runner = null;
         if (! list.isEmpty()) {
             runner = (ExletRunner) list.get(0);
-            runner.setOwnerCaseMonitor(this);
+       //     runner.setOwnerCaseMonitor(this);
         }
         return runner;
     }
@@ -255,7 +255,7 @@ public class CaseMonitor {
             if (result != null) {
 
                 // found a runner with this id, so 'reattach' it to this CaseMonitor
-                result.setOwnerCaseMonitor(this);
+            //    result.setOwnerCaseMonitor(this);
             }
           }
        return result ;

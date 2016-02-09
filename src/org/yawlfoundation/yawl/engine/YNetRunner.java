@@ -516,7 +516,8 @@ public class YNetRunner {
 
         // notify exception checkpoint to service if available
         if (_announcer.hasInterfaceXListeners()) {
-            _announcer.announceCheckWorkItemConstraints(workItem, outputData, false);
+            _announcer.announceCheckWorkItemConstraints(
+                    workItem, _net.getInternalDataDocument(), false);
         }
         _logger.debug("<-- completeWorkItemInTask");
         return success;

@@ -359,6 +359,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getSpecificationForCase(caseID, sessionHandle));
                 }
+                else if (action.equals("getSpecificationIDForCase")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.getSpecificationIDForCase(caseID, sessionHandle));
+                }
                 else if (action.equals("getCaseState")) {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseState(caseID, sessionHandle));

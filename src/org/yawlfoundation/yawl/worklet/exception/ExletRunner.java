@@ -48,7 +48,6 @@ import java.util.Set;
 public class ExletRunner extends AbstractRunner {
 
     private RdrConclusion _conclusion = null ;      // steps to run for this handler
-    private CaseMonitor _parentMonitor = null ;     // case that generated this instance
     private int _actionIndex = 1 ;                  // index to 'primitives' set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
@@ -58,24 +57,22 @@ public class ExletRunner extends AbstractRunner {
     private Set<String> _suspendedItems = null;
 
 
-   /**
+    /**
      * This constructor is used when an exception is raised at the case level
-     * @param monitor the CaseMonitor for the case the generated the exception
      * @param rdrConc the RdrConclusion of a rule that represents the handling process
      */
-    public ExletRunner(CaseMonitor monitor, RdrConclusion rdrConc, RuleType xType) {
-        _parentMonitor = monitor ;
+    public ExletRunner(YSpecificationID specID, String caseID, RdrConclusion rdrConc,
+                       RuleType xType) {
         _conclusion = rdrConc ;
         _ruleType = xType ;
-        _caseID = monitor.getCaseID();
-        setTrigger(monitor.getTrigger());                 // may be null
+        _caseID = caseID;
+        _parentSpecID = specID;
     }
 
 
     /** This constructor is used when an exception is raised at the workitem level */
-    public ExletRunner(CaseMonitor monitor, WorkItemRecord wir,
-                       RdrConclusion rdrConc, RuleType xType) {
-        this(monitor, rdrConc, xType);
+    public ExletRunner(WorkItemRecord wir, RdrConclusion rdrConc, RuleType xType) {
+        this(new YSpecificationID(wir), wir.getRootCaseID(), rdrConc, xType);
         _wir = wir ;
         _wirID = wir.getID();
     }
@@ -110,14 +107,8 @@ public class ExletRunner extends AbstractRunner {
 
     /** @return the id of the spec of the case that raised the exception */
    public YSpecificationID getSpecID() {
-       return _parentMonitor.getSpecID();
+       return getParentSpecID();
    }
-
-
-    /** @return the CaseMonitor that is the container for this ExletRunner */
-    public CaseMonitor getOwnerCaseMonitor() {
-        return _parentMonitor ;
-    }
 
 
     /** @return the list of currently suspended workitems for this runner */
@@ -125,15 +116,10 @@ public class ExletRunner extends AbstractRunner {
 
 
     /** @return the data params for the parent workitem/case */
-    public Element getDatalist() {
-        return _ruleType.isCaseLevelType() ?_parentMonitor.getCaseData() :
-            getWorkItemData();
-    }
+    public Element getWorkItemDatalist() { return getWorkItemData(); }
 
-    public Element getUpdatedData() {
-        return _ruleType.isCaseLevelType() ? _parentMonitor.getCaseData() :
-                getWir().getUpdatedData();
-    }
+
+    public Element getWorkItemUpdatedData() { return getWir().getUpdatedData(); }
 
 
     public void addWorklet(WorkletRunner runner) { _worklets.add(runner); }
@@ -152,9 +138,8 @@ public class ExletRunner extends AbstractRunner {
             if (_ruleType.isCaseLevelType()) {
                 for (WorkletRunner runner : runners) {
                     runner.setParentCaseID(getCaseID());
-                    runner.setParentSpecID(_parentMonitor.getSpecID());
-                    runner.setData(_parentMonitor.getNetLevelData());
-                    runner.setTrigger(_parentMonitor.getTrigger());
+                    runner.setParentSpecID(getSpecID());
+                    runner.setTrigger(getTrigger());
                 }
             }
         }
@@ -197,11 +182,6 @@ public class ExletRunner extends AbstractRunner {
         _isCaseSuspended = false ;
         clearSuspendedItems();
     }
-
-
-    public void setOwnerCaseMonitor(CaseMonitor monitor) {
-         _parentMonitor = monitor ;
-     }
 
 
      /** called when an action suspends the item or parent case of this ExletRunner */

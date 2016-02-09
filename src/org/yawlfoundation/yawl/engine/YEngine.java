@@ -914,6 +914,7 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+
     private Set<YNetElement> getCaseLocations(YIdentifier caseID) {
         Set<YNetElement> allLocations = new HashSet<YNetElement>();
         for (YIdentifier identifier : caseID.getDescendants()) {

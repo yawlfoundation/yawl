@@ -16,6 +16,7 @@ import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.util.AbstractEngineClient;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNodeParser;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
@@ -321,6 +322,23 @@ public class EngineClient extends AbstractEngineClient {
        }
        return null;
    }
+
+
+    public YSpecificationID getSpecificationIDForCase(String caseID) {
+        try {
+            String id = _interfaceBClient.getSpecificationIDForCase(caseID,
+                    getSessionHandle());
+            if (successful(id)) {
+                YSpecificationID specID = new YSpecificationID();
+                specID.fromXNode(new XNodeParser().parse(id));
+                return specID;
+            }
+        }
+        catch (IOException ignore) {
+            // fallthrough
+        }
+        return null;
+    }
 
 
     public List<YParameter> getTaskInputParams(WorkItemRecord wir) {

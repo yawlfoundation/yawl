@@ -149,6 +149,8 @@ public interface EngineGateway extends Remote {
 
     String getSpecificationForCase(String caseID, String sessionHandle) throws RemoteException;
 
+    String getSpecificationIDForCase(String caseID, String sessionHandle) throws RemoteException;
+
     String getAllRunningCases(String sessionHandle) throws RemoteException;
 
     String getCaseState(String caseID, String sessionHandle) throws RemoteException;
