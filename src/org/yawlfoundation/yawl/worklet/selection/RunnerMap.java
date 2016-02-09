@@ -158,10 +158,10 @@ public class RunnerMap {
     }
 
 
-    public void restore(String wirID) {
+    public void restore(String caseID) {
         int selectionType = RuleType.ItemSelection.ordinal();
-        String clause = "wr._ruleType" + (wirID == null ? "=" + selectionType :
-                "!=" + selectionType + " and wr._wirID='" + wirID + "'");
+        String clause = "wr._ruleType" + (caseID == null ? "=" + selectionType :
+                "!=" + selectionType + " and wr._parentCaseID='" + caseID + "'");
         Query query = Persister.getInstance().createQuery(
                 "from WorkletRunner as wr where " + clause);
         Iterator it = query.iterate();

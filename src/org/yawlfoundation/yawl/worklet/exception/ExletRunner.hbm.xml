@@ -32,22 +32,10 @@
 
         <property name="caseID"            column="caseID"/>
         <property name="_wirID"            column="wirID"    access="field"/>
-        <!--<property name="_parentCaseID"     column="parentCaseID" access="field"/>-->
-        <!--<property name="_dataString"       column="netData" access="field"/>-->
-        <!--<property name="_ruleNodeId"       column="ruleNodeId" type="long" access="field"/>-->
 
         <many-to-one name="_conclusion" access="field"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
                      column="conc_id"/>
-        <!--<component name="_parentSpecID" access="field"-->
-                    <!--class="org.yawlfoundation.yawl.engine.YSpecificationID">-->
-             <!--<property name="identifier" column="parentSpecID"/>-->
-             <!--<component name="version"-->
-                        <!--class="org.yawlfoundation.yawl.elements.YSpecVersion">-->
-                 <!--<property name="version" column="parentSpecVersion"/>-->
-             <!--</component>-->
-             <!--<property name="uri" column="parentSpecURI"/>-->
-         <!--</component>-->
 
          <property name="_ruleType" column="ruleType" access="field">
              <type name="org.hibernate.type.EnumType">

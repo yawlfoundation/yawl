@@ -403,6 +403,7 @@ public class WorkletService extends InterfaceBWebsideController {
 
         for (WorkletRunner runner : runners) {
             runner.setRuleNodeId(pair.getLastTrueNode().getNodeId());
+            runner.setParentCaseID(wir.getRootCaseID());
             runner.logLaunchEvent();
         }
         _runners.addAll(runners);

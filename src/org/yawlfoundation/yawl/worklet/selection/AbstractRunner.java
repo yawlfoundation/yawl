@@ -4,12 +4,10 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
-import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.io.IOException;
 
@@ -19,19 +17,16 @@ import java.io.IOException;
  */
 public abstract class AbstractRunner {
 
-    protected String _trigger;                 // for external exceptions - may be null
     private long _id;                                             // for persistence
     protected String _wirID;                                      // for persistence
 
-    // the worklet case id for WorkletRunners, the parent case id for ExletRunners
+    // for WorkletRunners, the case id of the launched worklet
+    // for ExletRunners, the id of the case the raised the exlet
     protected String _caseID;
 
-    protected WorkItemRecord _wir;
     protected RuleType _ruleType;
+    protected WorkItemRecord _wir;              // can be null for case-level exception
     protected long _ruleNodeId;                 // the node that triggered this runner
-
-    // for selection runners
-    protected String _parentCaseID;
     protected YSpecificationID _parentSpecID;
     protected String _dataString;
 
@@ -55,31 +50,13 @@ public abstract class AbstractRunner {
 
     public RuleType getRuleType() { return _ruleType; }
 
+
     public String getTaskID() {
         return getWir() != null ? _wir.getTaskID() : null;
     }
 
-    public void setParentCaseID(String caseID) { _parentCaseID = caseID; }
-
-    public void setParentSpecID(YSpecificationID specID) { _parentSpecID = specID; }
-
-    public void setData(Element data) {
-        _dataString = JDOMUtil.elementToString(data);
-    }
 
     public void setRuleNodeId(long nodeId) { _ruleNodeId = nodeId; }
-
-    public long getRuleNodeId() { return _ruleNodeId; }
-
-
-    public String getParentCaseID() {
-        return getWir() != null ? _wir.getRootCaseID() : _parentCaseID;
-    }
-
-
-    public YSpecificationID getParentSpecID() {
-        return getWir() != null ? new YSpecificationID(_wir) : _parentSpecID;
-    }
 
 
     public String getParentWorkItemID() {
@@ -109,17 +86,10 @@ public abstract class AbstractRunner {
     }
 
 
-    public void setTrigger(String trigger) { _trigger = trigger; }
-
-    public String getTrigger() { return _trigger; }
-
     public XNode toXNode() {
         XNode root = new XNode("runner");
         root.addChild("caseid", _caseID);
         if (getWir() != null) root.addContent(_wir.toXML());
-        if (getParentCaseID() != null) {
-            root.addChild("parentcaseid", getParentCaseID());
-        }
         XNode pSpecNode = root.addChild("parentspecid");
         if (_parentSpecID != null) {
             pSpecNode.addChild(_parentSpecID.toXNode());
@@ -139,7 +109,6 @@ public abstract class AbstractRunner {
         if (_wir != null) {
             _wirID = _wir.getID();
         }
-        _parentCaseID = node.getChildText("parentcaseid");
         XNode pSpecNode = node.getChild("parentspecid").getChild("specificationid");
         if (pSpecNode != null) {
             _parentSpecID = new YSpecificationID(pSpecNode);
@@ -147,14 +116,6 @@ public abstract class AbstractRunner {
         _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));
         _ruleNodeId = StringUtil.strToLong(node.getChildText("ruleNode"), -1);
-    }
-
-
-    public void logLaunchEvent() {
-        Persister.insert(new LaunchEvent(
-                getParentSpecID(), getTaskID(), getWorkItemID(), _ruleType,
-                getParentCaseID(), _caseID, getDataListString()
-        ));
     }
 
 

@@ -415,7 +415,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                         (newStatus.equals(WorkItemRecord.statusForcedComplete))) {
 
                     cleanupWorkItemReferences(cachedWir);
-
                 }
 
                 // if it has been 'suspended', find it on a 'started' queue & move it

@@ -15,15 +15,25 @@ public class ExletRunnerCache {
     private final Set<ExletRunner> _runners = new HashSet<ExletRunner>();
 
 
-    public boolean add(ExletRunner runner) {
-        return runner != null && _runners.add(runner);
+    public void add(ExletRunner runner) {
+        if (runner != null && _runners.add(runner)) {
+            Persister.insert(runner);
+        }
     }
 
 
-    public boolean remove(ExletRunner runner) {
-        return runner != null && _runners.remove(runner);
+    public void remove(ExletRunner runner) {
+        if (runner != null && _runners.remove(runner)) {
+            Persister.delete(runner);
+        }
     }
 
+
+    public void cancel(String caseID) {
+        for (ExletRunner runner : getRunnersForCase(caseID)) {
+            remove(runner);
+        }
+    }
 
 
     public Set<ExletRunner> getRunnersForCase(String caseID) {
@@ -125,12 +135,16 @@ public class ExletRunnerCache {
     }
 
 
-    /** restores active ExletRunner instances */
+    /** restores active ExletRunner instances from persistence */
     public void restore() {
         List items = Persister.getInstance().getObjectsForClass(
                 ExletRunner.class.getName());
 
-        for (Object o : items) _runners.add((ExletRunner) o);
+        for (Object o : items) {
+            ExletRunner runner = (ExletRunner) o;
+            _runners.add(runner);
+            runner.restoreWorkletRunners();
+        }
         Persister.getInstance().commit();
     }
 

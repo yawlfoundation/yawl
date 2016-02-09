@@ -17,9 +17,8 @@ public class CaseStartEventMap {
 
     /**
      * There is no pre-defined ordering of constraint events - a workitem check constraint
-     * event is sometimes received before a start-of-case check constraint event. Since
-     * a CaseMonitor object is required by a workitem check, and created by a start-of-
-     * case event, we must ensure that the start-of-case check is always done first. Also,
+     * event is sometimes received before a start-of-case check constraint event. We
+     * should ensure that the start-of-case check is always done first. Also,
      * pre-case constraint violations may cause a case cancellation, so that a check
      * item pre-constraint event may come after a case has been cancelled.
      * In the situation where the workitem event is received first, it is stored until

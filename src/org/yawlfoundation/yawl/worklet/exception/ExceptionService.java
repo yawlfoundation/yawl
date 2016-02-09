@@ -34,8 +34,6 @@ import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 import org.yawlfoundation.yawl.worklet.support.EventLogger;
-import org.yawlfoundation.yawl.worklet.support.Persister;
-import org.yawlfoundation.yawl.worklet.support.StateRestorer;
 import org.yawlfoundation.yawl.worklet.support.WorkletSpecification;
 
 import java.io.IOException;
@@ -59,40 +57,25 @@ import java.util.Set;
 
 public class ExceptionService extends WorkletService implements InterfaceX_Service {
 
-//    private Map<String, CaseMonitor> _monitoredCases =
-//            new HashMap<String, CaseMonitor>() ;      // cases monitored for exceptions
-    private static Logger _log ;                        // debug log4j file
-    private static ExceptionService _me ;               // reference to self
+    private static Logger _log ;
+    private static ExceptionService INSTANCE;
     private final ExceptionActions _actions;
     private final ExletRunnerCache _runners;
-//    private final CaseStartEventMap _caseStartEvents;
     private final Object _mutex = new Object();
 
-    /**
-     * HashMap mappings:
-     *   _monitoredCases:
-     *      - KEY: [String] case id of case being monitored
-     *      - VALUE: [CaseMonitor] obj describing the monitored case
-     *   _handlersStarted:
-     *      - KEY: [String] case id of a launched worklet compensatory case
-     *      - VALUE: [HandlerRunner] obj managing the exception process of which
-     *               the launched worklet is part
-     */
 
-    // the constructor
     public ExceptionService() {
         super();
+        INSTANCE = this ;
         _log = LogManager.getLogger(ExceptionService.class);
         _actions = new ExceptionActions(_engineClient);
         _runners = new ExletRunnerCache();
-//        _caseStartEvents = new CaseStartEventMap();
-        _me = this ;
         registerExceptionService(this);                 // register service with parent
     }
 
 
     public static ExceptionService getInst() {
-        return _me ;
+        return INSTANCE;
     }
 
 
@@ -118,7 +101,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     public void handleCaseCancellationEvent(String caseID) {
 
         synchronized (_mutex) {
-            _log.info("HANDLE CASE CANCELLATION EVENT");
+            _log.info("CASE CANCELLATION EVENT");
 
             caseID = getIntegralID(caseID);      // strip back to basic caseID
 
@@ -130,6 +113,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             if (_runners.isCompensationWorklet(caseID)) {
                 handleCompletingExceptionWorklet(caseID, null, true);
             }
+
+            _runners.cancel(caseID);
         }
     }
 
@@ -149,16 +134,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     public void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data,
                                                    boolean preCheck){
         synchronized (_mutex) {
+            _log.info("CHECK WORKITEM CONSTRAINT EVENT");
+            _log.info("Checking {}-constraints for workitem: {}",
+                    preCheck ? "pre" : "post", wir.getID());
 
-            String caseID = getIntegralID(wir.getCaseID());
-//            if (_caseStartEvents.isCasePreCheckComplete(caseID)) {
-
-                _log.info("HANDLE CHECK WORKITEM CONSTRAINT EVENT");
-                _log.info("Checking {}-constraints for workitem: {}",
-                        preCheck ? "pre" : "post", wir.getID());
-                checkConstraints(wir, augmentItemData(wir, data), preCheck);
-//            }
-//            else _caseStartEvents.addCheckWorkItemConstraintEvent(wir, data, preCheck);
+            checkConstraints(wir, augmentItemData(wir, data), preCheck);
         }
     }
 
@@ -179,7 +159,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                                                String data, boolean preCheck) {
         synchronized (_mutex) {
 
-            _log.info("HANDLE CHECK CASE CONSTRAINT EVENT");        // note to log
+            _log.info("CHECK CASE CONSTRAINT EVENT");
 
             Element eData = JDOMUtil.stringToElement(data);
             if (preCheck) {
@@ -187,18 +167,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                         "(of specification: {})", caseID, specID);
 
                 checkConstraints(specID, caseID, eData, true);
-//                _caseStartEvents.addCasePreCheckComplete(caseID);
-//
-//                // if check item event received before case initialised, call it now
-//                WorkItemConstraintData constraintData =
-//                        _caseStartEvents.getCheckWorkItemConstraintEvent(caseID);
-//                if (constraintData != null) {
-//                    handleCheckWorkItemConstraintEvent(constraintData.getWIR(),
-//                            constraintData.getData(), constraintData.getPreCheck());
-//                }
             }
             else {                                                      // end of case
-
                 _log.info("Checking constraints for end of case {}", caseID);
                 checkConstraints(specID, caseID, eData, false);
 
@@ -206,7 +176,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 if (_runners.isCompensationWorklet(caseID)) {
                     handleCompletingExceptionWorklet(caseID, eData, false);
                 }
-//                _caseStartEvents.caseCompleted(caseID);
             }
         }
     }
@@ -225,7 +194,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
     public void handleTimeoutEvent(WorkItemRecord wir, String taskList) {
 
         synchronized (_mutex) {
-            _log.info("HANDLE TIMEOUT EVENT");
+            _log.info("TIMEOUT EVENT");
             if (taskList != null) {
 
                 // split task list into individual taskids
@@ -390,7 +359,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                                 Element data, RuleType xType) {
         _log.debug("Invoking exception handling process for Case: {}", caseID);
         getServer().announceException(caseID, data, pair.getLastTrueNode(), xType);
-        raiseException(new ExletRunner(specID, caseID, pair.getConclusion(), xType));
+        ExletRunner runner = new ExletRunner(specID, caseID, pair.getConclusion(), xType);
+        runner.setRuleNodeId(pair.getLastTrueNode().getNodeId());
+        processException(runner);
     }
 
 
@@ -404,16 +375,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                                 RuleType xType){
         _log.debug("Invoking exception handling process for item: {}", wir.getID());
         getServer().announceException(wir, data, pair.getLastTrueNode(), xType);
-        raiseException(new ExletRunner(wir, pair.getConclusion(), xType));
-    }
-
-
-    private void raiseException(ExletRunner runner) {
-        _runners.add(runner);
-        if (_persisting) {
-            Persister.insert(runner);
-        }
-        processException(runner) ;
+        ExletRunner runner = new ExletRunner(wir, pair.getConclusion(), xType);
+        runner.setRuleNodeId(pair.getLastTrueNode().getNodeId());
+        processException(runner);
     }
 
 
@@ -423,6 +387,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param runner the HandlerRunner for this handler process
      */
     private void processException(ExletRunner runner) {
+        _runners.add(runner);
         boolean doNextStep = true;
 
         while (runner.hasNextAction() && doNextStep) {
@@ -433,7 +398,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // if no more actions to do (or worklets) in runner, remove it
         if (! (runner.hasNextAction() || runner.hasRunningWorklet())) {
             _runners.remove(runner);
-            Persister.delete(runner);
         }
     }
 
@@ -443,48 +407,36 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param runner the HandlerRunner for this exception handling process
      * @return true if ok for processing to continue
      */
-    private boolean doAction(ExletRunner runner){
+    private boolean doAction(ExletRunner runner) {
         String action = runner.getNextAction();
         String target = runner.getNextTarget();
-        boolean isItemTarget = target.equals("workitem");
         boolean success = true;
 
         _log.debug("Exception process step {}. Action = {}, Target = {}",
                 runner.getActionIndex(), action, target);
 
+        // short circuit if action doesn't apply to target
+        if (! target.equals("workitem") && ExletAction.fromString(action).isItemOnlyAction()) {
+            _log.error("Unexpected target type '{}' for action '{}'. Step ignored",
+                    target, action) ;
+            return true;
+        }
+
         switch (ExletAction.fromString(action)) {
             case Continue : doContinue(runner); break;                    // un-suspend
             case Suspend  : doSuspend(runner); break;
             case Remove   : doRemove(runner); break;                      // cancel
-            case Restart  : {
-                if (isItemTarget) {
-                    restartWorkItem(runner.getWir());
-                }
-                else success = invalidTarget(action, target);
-                break;
-            }
-            case Complete: {
-                if (isItemTarget) {
-                    forceCompleteWorkItem(runner.getWir(), runner.getWorkItemUpdatedData());
-                }
-                else success = invalidTarget(action, target);
-                break;
-            }
-            case Fail: {
-                if (isItemTarget) {
-                    failWorkItem(runner.getWir());
-                }
-                else success = invalidTarget(action, target);
-                break;
-            }
-            case Compensate: {
+            case Restart  : restartWorkItem(runner.getWir()); break;
+            case Complete : forceCompleteWorkItem(runner.getWir(),
+                                    runner.getWorkItemUpdatedData()); break;
+            case Fail     : failWorkItem(runner.getWir()); break;
+            case Compensate:
 
                 // launch & run compensatory worklet(s)
-                if (doCompensate(runner, target)) {
-                    success = false;         // to break out of loop while worklet runs
-                }
+                // if launch succeeds, break out of loop while worklet runs
+                success = ! doCompensate(runner, target);
                 break;
-            }
+
             case Rollback: {
                 _log.warn("Rollback is not yet implemented - will ignore this step.");
                 break;
@@ -497,13 +449,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         return success;                   // successful processing of exception primitive
     }
 
-
-
-    private boolean invalidTarget(String action, String target) {
-        _log.error("Unexpected target type '{}' for exception handling primitive '{}'",
-                target, action) ;
-        return false ;
-    }
 
 
     /**
@@ -563,26 +508,27 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             case Workitem      : removeWorkItem(runner.getWir()); break;
             case Case          : removeCase(runner); break;
             case AncestorCases : removeAncestorCases(runner); break;
-            case AllCases      : removeAllCases(runner.getSpecID()); break;
+            case AllCases      : removeAllCases(runner); break;
             default: _log.error("Unexpected target type '{}' " +
                           "for exception handling primitive 'remove'", target) ;
         }
     }
 
 
-    private boolean doCompensate(ExletRunner exletRunner, String target) {
+    private boolean doCompensate(ExletRunner runner, String target) {
         Set<WorkletSpecification> workletList = _loader.parseTarget(target);
-        Set<WorkletRunner> runners = _engineClient.launchWorkletList(exletRunner.getWir(),
-                workletList, exletRunner.getRuleType());
-        if (!runners.isEmpty()) {
-            exletRunner.addWorkletRunners(runners);
-            for (WorkletRunner runner : runners) {
-                runner.logLaunchEvent();
+        Set<WorkletRunner> worklets = _engineClient.launchWorkletList(runner.getWir(),
+                workletList, runner.getRuleType());
+        if (!worklets.isEmpty()) {
+            for (WorkletRunner worklet : worklets) {
+                worklet.setParentCaseID(runner.getCaseID());
+                worklet.logLaunchEvent(getSpecIDForCaseID(runner.getCaseID()), null);
             }
+            runner.addWorkletRunners(worklets);
         }
         else _log.error("Unable to load compensatory worklet(s), will ignore: {}",
             target);
-        return !runners.isEmpty();
+        return !worklets.isEmpty();
     }
 
 
@@ -600,39 +546,47 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         ExletRunner runner = _runners.getRunnerForWorklet(caseId);
         _log.debug("Worklet ran as exception handler for case: {}", runner.getCaseID());
 
-        /* Update data of parent workitem/case if allowed and required and not cancelled
-         * ASSUMPTION: the output data of the worklet will be used to update the
-         * case/item only if:
-         *   1. it is a case level exception and the case has been suspended, in
-         *      which case the case-level data is updated; or
-         *   2. it is an pre-executing item level exception and the item is suspended,
-         *      in which case the case-level data is updated (because the item has not
-         *      yet received data values from the case before starting); or
-         *   3. it is an executing item exception and the item is suspended, in which
-         *      case the item-level data is updated
-         */
-
         if (! cancelled) {
-            if (runner.isCaseSuspended() || runner.isItemSuspended())
-                updateCaseData(runner, wlCasedata);
-
-            if (runner.isItemSuspended() && runner.getRuleType().isExecutingItemType())
-                updateItemData(runner, wlCasedata);
+            updateData(runner, wlCasedata);
         }
+
+        WorkletRunner worklet = runner.removeWorklet(caseId);
 
         // log the worklet's case completion event
         String event = cancelled ? EventLogger.eCancel : EventLogger.eComplete;
-        YSpecificationID specID = runner.getWir() != null ?
-                new YSpecificationID(runner.getWir()) : getSpecIDForCaseID(caseId);
+        YSpecificationID specID = worklet.getWir() != null ?
+                new YSpecificationID(worklet.getWir()) :
+                getSpecIDForCaseID(worklet.getCaseID());
         EventLogger.log(event, caseId, specID, "", runner.getCaseID(), -1) ;
-
-        runner.removeWorklet(caseId);       // worklet's case id no longer needed
 
          //if all worklets have completed, process the next exception primitive
          if (! runner.hasRunningWorklet()) {
             _log.info("All compensatory worklets have finished execution - " +
                     "continuing exception processing.");
             processException(runner);
+        }
+    }
+
+
+    /* Updates parent case or work item on completion of a worklet case.
+     *
+     * Update data of parent workitem/case if allowed and required and not cancelled
+     * ASSUMPTION: the output data of the worklet will be used to update the
+     * case/item only if:
+     *   1. it is a case level exception and the case has been suspended, in
+     *      which case the case-level data is updated; or
+     *   2. it is an pre-executing item level exception and the item is suspended,
+     *      in which case the case-level data is updated (because the item has not
+     *      yet received data values from the case before starting); or
+     *   3. it is an executing item exception and the item is suspended, in which
+     *      case the item-level data is updated
+     */
+    private void updateData(ExletRunner runner, Element wlCasedata) {
+        if (runner.isItemSuspended() && runner.getRuleType().isExecutingItemType()) {
+            updateItemData(runner, wlCasedata);
+        }
+        else if (runner.isCaseSuspended() || runner.isItemSuspended()) {
+            updateCaseData(runner, wlCasedata);
         }
     }
 
@@ -654,9 +608,11 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         return false ;
     }
 
+
     public boolean suspendWorkItem(String itemID) {
         return _actions.suspendWorkItem(getWorkItemRecord(itemID));
     }
+
 
     public boolean suspendCase(String caseID) {
         return _actions.suspendCase(caseID);
@@ -694,19 +650,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      * @param hr the HandlerRunner instance with the case to cancel
      */
     private void removeCase(ExletRunner hr) {
-        String caseID =  hr.getCaseID();
-        try {
-            if (successful( _engineClient.cancelCase(caseID))) {
-//                if (hr.getRuleType() == RuleType.CasePreconstraint) {
-//                    _caseStartEvents.caseCancelled(caseID);
-//                }
-
-                _log.info("Case successfully removed from Engine: {}", caseID);
-            }
-        }
-        catch (IOException ioe) {
-            _log.error("Failed to remove case '{}': {}", caseID, ioe.getMessage());
-        }
+        removeCase(hr.getCaseID());
     }
 
 
@@ -728,10 +672,10 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     /**
      * Cancels all running instances of the specification passed
-     * @param specID the id of the specification to cancel
      */
-    private void removeAllCases(YSpecificationID specID) {
+    private void removeAllCases(ExletRunner runner) {
         try {
+            YSpecificationID specID = getSpecIDForCaseID(runner.getCaseID());
             String casesForSpec = _engineClient.getCases(specID);
             Element eCases = JDOMUtil.stringToElement(casesForSpec);
 
@@ -740,8 +684,8 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             }
         }
         catch (IOException ioe) {
-            _log.error("Failed to remove all cases for specification '{}': {}",
-                    specID.toString(), ioe.getMessage());
+            _log.error("Failed to remove all cases for specification: {}",
+                    ioe.getMessage());
         }
     }
 
@@ -948,18 +892,15 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // iterate through all the live runners for this case
         for (ExletRunner runner : _runners.getRunnersForCase(caseID)) {
 
-            // if this runner has live worklet(s), cancel it/them
-            if (runner.hasRunningWorklet()) {
-                _log.info("Removing compensatory worklet(s) " +
-                        " for cancelled parent case: {}", caseID);
-            }
+            // only want runners with live worklet(s)
+            if (! runner.hasRunningWorklet()) continue;
 
             // cancel each worklet case of this runner
             for (WorkletRunner worklet : runner.getWorkletRunners()) {
 
                 // recursively call this method for each child worklet (in case
                 // they also have worklets running)
-                String workletID = runner.getCaseID();
+                String workletID = worklet.getCaseID();
                 cancelWorkletsForCase(workletID);
 
                 _log.info("Worklet case running for the cancelled parent case " +
@@ -973,10 +914,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
                 runnerFound = true;
             }
 
-            // unpersist the runner if its a 'top-level' parent
-            _runners.remove(runner);
-            if (_persisting && ! isWorkletCase(caseID))
-                Persister.delete(runner);
         }
         if (! runnerFound) {
             _log.info("No compensatory worklets running for cancelled case: {}", caseID);
@@ -1053,7 +990,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             return _engineClient.getEngineStoredWorkItem(itemID);
         }
         catch (IOException ioe) {
-            _log.error("Exception getting WIR: " + itemID, ioe);
+            _log.error("Failed to get WIR '{}' from engine: {}", itemID, ioe.getMessage());
             return null ;
         }
     }
@@ -1151,7 +1088,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     public String raiseException(WorkItemRecord wir, RuleType ruleType,
                                RdrConclusion conclusion) {
-        String caseID = wir.getRootCaseID();
         RdrNode dummyNode = new RdrNode(-1);
         dummyNode.setConclusion(conclusion);
         RdrPair dummyPair = new RdrPair(dummyNode, dummyNode);
@@ -1176,8 +1112,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      *          the process
      */
     public String replaceWorklet(RuleType xType, String caseid, String itemid,
-                                 String trigger)
-            throws IOException {
+                                 String trigger) throws IOException {
         WorkItemRecord wir = null;
         boolean caseLevel = xType.isCaseLevelType();
 
@@ -1206,7 +1141,6 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
         // remove monitor's runner for cancelled worklet
         _runners.remove(runner);
-        Persister.delete(runner);
 
         YSpecificationID specID = getSpecIDForCaseID(caseid);
         Element data = getCaseData(caseid);
@@ -1253,9 +1187,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
 
     /** restores the contents of the running datasets after a web server restart */
     private void restoreDataSets() {
-        StateRestorer restorer = new StateRestorer();
         _runners.restore();
- //       _monitoredCases = restorer.restoreMonitoredCases(_handlersStarted);
     }
 
 

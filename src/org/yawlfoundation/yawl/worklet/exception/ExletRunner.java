@@ -33,8 +33,7 @@ import java.util.Set;
 
 /**
  * The ExletRunner class manages an exception handling process. An instance
- *  of this class is created for each exception process raised by a case. The CaseMonitor
- *  class maintains the current set of ExletRunners for a case (amongst other things).
+ *  of this class is created for each exception process raised by a case.
  *  This class also manages running worklet instances for a 'parent' case
  *  when required.
  *
@@ -105,12 +104,6 @@ public class ExletRunner extends AbstractRunner {
     public int getActionCount() { return _conclusion.getCount(); }
 
 
-    /** @return the id of the spec of the case that raised the exception */
-   public YSpecificationID getSpecID() {
-       return getParentSpecID();
-   }
-
-
     /** @return the list of currently suspended workitems for this runner */
     public Set<String> getSuspendedItems() { return _suspendedItems ; }
 
@@ -124,9 +117,13 @@ public class ExletRunner extends AbstractRunner {
 
     public void addWorklet(WorkletRunner runner) { _worklets.add(runner); }
 
-    public void removeWorklet(WorkletRunner runner) { _worklets.remove(runner); }
+    public WorkletRunner removeWorklet(WorkletRunner runner) {
+        return _worklets.remove(runner);
+    }
 
-    public void removeWorklet(String caseID) { _worklets.remove(caseID); }
+    public WorkletRunner removeWorklet(String caseID) {
+        return _worklets.remove(caseID);
+    }
 
     public boolean hasRunningWorklet() { return ! _worklets.isEmpty(); }
 
@@ -135,19 +132,18 @@ public class ExletRunner extends AbstractRunner {
     protected void addWorkletRunners(Set<WorkletRunner> runners) {
         if (! runners.isEmpty()) {
             _worklets.addAll(runners);
-            if (_ruleType.isCaseLevelType()) {
-                for (WorkletRunner runner : runners) {
-                    runner.setParentCaseID(getCaseID());
-                    runner.setParentSpecID(getSpecID());
-                    runner.setTrigger(getTrigger());
-                }
-            }
+//            if (_ruleType.isCaseLevelType()) {
+//                for (WorkletRunner runner : runners) {
+//                    runner.setParentCaseID(getCaseID());
+//                    runner.setParentSpecID(getSpecID());
+//                }
+//            }
         }
     }
 
 
     public Set<WorkletRunner> restoreWorkletRunners() {
-        _worklets.restore(getWorkItemID());
+        _worklets.restore(getCaseID());
         return _worklets.getAll();
     }
 

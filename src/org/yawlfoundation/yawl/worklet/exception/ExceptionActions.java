@@ -83,9 +83,13 @@ public class ExceptionActions {
      * @return a List of the workitems suspended
      */
     protected boolean suspendAllCases(ExletRunner hr) {
-        YSpecificationID specID = hr.getSpecID();
-        Set<WorkItemRecord> suspendedItems = getSuspendableWorkItems(specID) ;
+        YSpecificationID specID = _engineClient.getSpecificationIDForCase(hr.getCaseID());
+        if (specID == null) {
+            _log.error("Failed to get specification id for case: {}", hr.getCaseID());
+            return false;
+        }
 
+        Set<WorkItemRecord> suspendedItems = getSuspendableWorkItems(specID) ;
         if (suspendWorkItemList(suspendedItems)) {
             hr.setSuspendedItems(suspendedItems);
             hr.setCaseSuspended();
