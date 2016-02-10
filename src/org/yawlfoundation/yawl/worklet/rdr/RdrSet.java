@@ -232,6 +232,16 @@ public class RdrSet {
         _treeMap = new RdrSetParser().parse(xml, false);
     }
 
+//===========================================================================//
+
+    // persistence
+
+    private void setTreeSet(Set<RdrTreeSet> treeSet) {
+        _treeMap = new HashMap<RuleType, RdrTreeSet>();
+        for (RdrTreeSet tree : treeSet) {
+            _treeMap.put(tree.getRuleType(), tree);
+        }
+    }
 
     protected Set<RdrTreeSet> getTreeSet() {
         return _treeMap != null ? new HashSet<RdrTreeSet>(_treeMap.values()) : null;

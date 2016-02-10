@@ -1366,6 +1366,9 @@
             <fileset dir="${classes.dir}${packageRoot}/worklet/rdr"
                      includes="*.class *.xml"/>
         </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/rdrutil">
+            <fileset dir="${classes.dir}${packageRoot}/worklet/rdrutil"/>
+        </copy>
         <copy todir="${temp.dir}/${worklet.app.name}${webinf.dir}/worklet/selection">
             <fileset dir="${classes.dir}${packageRoot}/worklet/selection"
                      includes="*.class *.xml"/>

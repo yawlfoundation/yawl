@@ -31,11 +31,12 @@ package org.yawlfoundation.yawl.worklet.rdrutil;
  */
 
 public class RdrConditionException extends Exception {
-   RdrConditionException() {
+
+    public RdrConditionException() {
        super();
    }
    
-   RdrConditionException(String message) {
+    public RdrConditionException(String message) {
        super(message);
    }
 
