@@ -16,28 +16,17 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.worklet.support;
+package org.yawlfoundation.yawl.worklet.rdrutil;
 
+import java.util.Map;
 
 /**
- *  RdrConditionException Class.
- *
- *  An RdrConditionException is thrown when an attempt is made to evaluate
- *  a rule's condition and is found to be malformed or does not evaluate
- *  to a boolean result.
- *
- *  @author Michael Adams
- *  v0.7, 10/12/2005
+ * @author Michael Adams
+ * @date 4/04/12
  */
+public interface RdrFunction {
 
-public class RdrParseException extends Exception {
+    public String getName();
 
-    public RdrParseException() {
-       super();
-   }
-
-    public RdrParseException(String message) {
-       super(message);
-   }
-
-}  
+    public String execute(Map<String, String> args);
+}

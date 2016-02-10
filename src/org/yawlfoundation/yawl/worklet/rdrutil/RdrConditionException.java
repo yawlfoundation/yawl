@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -16,26 +16,27 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.worklet.support;
+package org.yawlfoundation.yawl.worklet.rdrutil;
+
 
 /**
- * @author Michael Adams
- * @date 14/11/2013
+ *  RdrConditionException Class.
+ *
+ *  An RdrConditionException is thrown when an attempt is made to evaluate
+ *  a rule's condition and is found to be malformed or does not evaluate
+ *  to a boolean result.
+ *
+ *  @author Michael Adams
+ *  v0.7, 10/12/2005
  */
-public class RdrException extends Exception {
 
-    public RdrException() {
-    }
+public class RdrConditionException extends Exception {
+   RdrConditionException() {
+       super();
+   }
+   
+   RdrConditionException(String message) {
+       super(message);
+   }
 
-    public RdrException(String s) {
-        super(s);
-    }
-
-    public RdrException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
-
-    public RdrException(Throwable throwable) {
-        super(throwable);
-    }
-}
+}  

@@ -1,4 +1,4 @@
-package org.yawlfoundation.yawl.worklet.support;
+package org.yawlfoundation.yawl.worklet.exception;
 
 /**
  * @author Michael Adams

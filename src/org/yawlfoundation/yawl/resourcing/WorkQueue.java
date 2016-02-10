@@ -249,6 +249,14 @@ public class WorkQueue {
     }
 
 
+    public void refresh(WorkItemRecord wir) {
+        if (_workitems.containsKey(wir.getID())) {
+            _workitems.put(wir.getID(), wir);
+            persistThis();
+        }
+    }
+
+
     public void cleanse(WorkItemCache cache) {
         Set<String> clonedQueue = new HashSet<String>(_workitems.keySet());
         for (String itemID : clonedQueue) {
@@ -275,7 +283,7 @@ public class WorkQueue {
     public int getQueueSize() { return _workitems.size() ; }
 
 
-    /** returns the apropriate String identifier for the queue type passed */
+    /** returns the appropriate String identifier for the queue type passed */
     public static String getQueueName(int qType) {
         String result ;
         switch (qType) {

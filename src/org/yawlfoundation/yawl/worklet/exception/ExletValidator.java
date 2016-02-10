@@ -1,8 +1,6 @@
-package org.yawlfoundation.yawl.worklet.support;
+package org.yawlfoundation.yawl.worklet.exception;
 
 import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.worklet.exception.ExletAction;
-import org.yawlfoundation.yawl.worklet.exception.ExletTarget;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
 

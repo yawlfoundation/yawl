@@ -22,7 +22,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.support.Persister;
-import org.yawlfoundation.yawl.worklet.support.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
 
 import java.util.Set;
 

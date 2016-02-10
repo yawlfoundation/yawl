@@ -1088,7 +1088,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
      */
     public String raiseException(WorkItemRecord wir, RuleType ruleType,
                                RdrConclusion conclusion) {
-        RdrNode dummyNode = new RdrNode(-1);
+        RdrNode dummyNode = new RdrNode();
         dummyNode.setConclusion(conclusion);
         RdrPair dummyPair = new RdrPair(dummyNode, dummyNode);
         raiseException(wir, dummyPair, null, ruleType);

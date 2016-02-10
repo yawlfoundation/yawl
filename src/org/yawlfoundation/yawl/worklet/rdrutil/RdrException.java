@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -16,17 +16,26 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.worklet.support;
-
-import java.util.Map;
+package org.yawlfoundation.yawl.worklet.rdrutil;
 
 /**
  * @author Michael Adams
- * @date 4/04/12
+ * @date 14/11/2013
  */
-public interface RdrFunction {
+public class RdrException extends Exception {
 
-    public String getName();
+    public RdrException() {
+    }
 
-    public String execute(Map<String, String> args);
+    public RdrException(String s) {
+        super(s);
+    }
+
+    public RdrException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
+
+    public RdrException(Throwable throwable) {
+        super(throwable);
+    }
 }

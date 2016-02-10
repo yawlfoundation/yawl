@@ -30,6 +30,9 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrConditionException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrConditionFunctions;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrFunctionLoader;
 
 import java.util.HashMap;
 import java.util.Map;

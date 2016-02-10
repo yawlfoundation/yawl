@@ -34,8 +34,6 @@ public class WorkletConstants {
     public static boolean wsPersistOn;
     public static boolean wsInitialised;
 
-    public static final String newline = System.getProperty("line.separator");
-
 
     /**
      * Called by the WorkletGateway servlet to set the persistence value
@@ -45,18 +43,6 @@ public class WorkletConstants {
      */
     public static void setPersist(boolean setting) {
         wsPersistOn = setting;
-    }
-
-
-    /**
-     * Called by the WorkletGateway servlet to set the path to the worklet
-     * repository as read in from web.xml
-     *
-     * @param dir - the path value specified in web.xml
-     */
-    public static void setRepositoryDir(String dir) {
-        dir = dir.replace('\\', '/');             // switch slashes
-        if (!dir.endsWith("/")) dir += "/";       // make sure it has ending slash
     }
 
 
@@ -89,21 +75,6 @@ public class WorkletConstants {
     public static void setServicetInitialised() {
         wsInitialised = true;
     }
-
-
-    /**
-     * appends a formatted line with the passed title and value to the StringBuilder
-     */
-    public static StringBuilder appendLine(StringBuilder s, String title, String item) {
-        if (title == null) title = "null";
-        if (item == null) item = "null";
-        s.append(title);
-        s.append(": ");
-        s.append(item);
-        s.append(newline);
-        return s;
-    }
-
 
 }  // ends
 

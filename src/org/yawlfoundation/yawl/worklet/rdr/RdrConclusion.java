@@ -227,6 +227,7 @@ public class RdrConclusion implements Cloneable {
         }
     }
 
+
     private void rationaliseSteps(Map<Integer, Element> sortedMap) {
         _primitives = new ArrayList<RdrPrimitive>();
         int i = 1;
@@ -236,6 +237,5 @@ public class RdrConclusion implements Cloneable {
             _primitives.add(new RdrPrimitive(i++, action, target));
         }
     }
-
 
 }

@@ -1,6 +1,9 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
 /**
+ * This class holds the last evaluated node, and the last node that evaluated to true,
+ * as the result of a tree search
+ *
  * @author Michael Adams
  * @date 19/09/2014
  */

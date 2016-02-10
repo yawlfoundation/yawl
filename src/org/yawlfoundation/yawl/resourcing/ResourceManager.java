@@ -405,7 +405,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
 
             // if its a status change this service didn't cause
-            if (!((cachedWir == null) || newStatus.equals(cachedWir.getStatus()))) {
+            if (!(cachedWir == null || newStatus.equals(cachedWir.getStatus()))) {
 
                 // if it has been 'finished', remove it from all queues
                 if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
@@ -430,6 +430,9 @@ public class ResourceManager extends InterfaceBWebsideController {
                 // if it was 'suspended', it's been unsuspended or rolled back
                 else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
                     _workItemCache.updateStatus(cachedWir, newStatus);
+                    for (Participant p : getParticipantsAssignedWorkItem(cachedWir)) {
+                        p.getWorkQueues().refresh(cachedWir);
+                    }
                 }
 
                 // if it has moved to started status

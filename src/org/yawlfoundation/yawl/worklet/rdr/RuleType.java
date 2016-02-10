@@ -91,6 +91,7 @@ public enum RuleType {
         return shortForm;
     }
 
+
     public static RuleType fromString(String s) {
         return (s != null) ? fromStringMap.get(s) : null;
     }

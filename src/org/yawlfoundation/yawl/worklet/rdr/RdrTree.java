@@ -23,7 +23,6 @@ import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
-import org.yawlfoundation.yawl.worklet.support.WorkletConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -127,10 +126,7 @@ public class RdrTree {
         return attributes != null ? attributes : new YAttributeMap();
     }
   
-//===========================================================================//
-    
-    // SETTERS //
-    
+
     public void setRootNode(RdrNode root) {
     	rootNode = root ;
     }
@@ -147,8 +143,6 @@ public class RdrTree {
     }
 
 
-//===========================================================================//
-   
    /**
     *  evaluates the conditions of each transversed node in this tree
     *  @param caseData - a JDOM Element that contains the set of data
@@ -161,31 +155,18 @@ public class RdrTree {
     	// recursively search each node in the tree
         return rootNode.search(caseData, rootNode);
     }
-    
-//===========================================================================//
+
 
 	public RdrNode createRootNode() {
         XNode nullConclusion = new XNode("conclusion", "null");
-        RdrNode root = new RdrNode(0, null, "true", nullConclusion.toElement());
+        RdrNode root = new RdrNode(null, "true", nullConclusion.toElement());
         root.setDescription("root node");
         setRootNode(root);
         return root;
     }
-    
-    /** 
-	 *  Creates a new empty node.
-	 *  @param parentNode The proposed parent node for this node
-	 *  @param trueBranch if true, the new node will be placed on the 'true'
-	 *         exception branch; if false, the node will be placed on the
-	 *        'false' if-not branch
-	 */
-    public RdrNode addNode(RdrNode parentNode, boolean trueBranch) {
-        return addNode(new RdrNode(), parentNode, trueBranch);
-    }
-    
-    
+
+
     public RdrNode addNode(RdrNode newNode, RdrNode parentNode, boolean trueBranch) {
-    //	newNode.setNodeId(nodeCount());                          // root id=0
         newNode.setParent(parentNode);
         if (trueBranch) {
             parentNode.setTrueChild(newNode);
@@ -222,48 +203,6 @@ public class RdrTree {
     
 //===========================================================================//
 	
-	/** returns a String representation of this tree */
-    public String dump(){
-    	String n = WorkletConstants.newline ;
-    	return n + "Task ID: " + taskId + n + n + dump(rootNode) ;
-    }
-    
-    /** recursively adds each node to a String representation of the tree */
-    private String dump(RdrNode root) {
-    	StringBuilder s = new StringBuilder() ;
-    	String n = WorkletConstants.newline ;
-    	
-        if ( root != null ) {                                   // base case
-           s.append("Node ID: ") ;
-           s.append(root.getNodeId()) ;
-           s.append(n) ;
-           
-           s.append("Condition: ");
-           s.append(root.getCondition());
-           s.append(n) ;
-           
-           s.append("Conclusion: ");
-           s.append(root.getConclusion().toString());
-           s.append(n) ;
-           
-           if (root.getTrueChild() != null) {
-              s.append("True Child ID: ");
-              s.append(root.getTrueChild().getNodeId());
-              s.append(n) ;   
-           } 
-                     	
-           if (root.getFalseChild() != null) {
-              s.append("False Child ID: ");
-              s.append(root.getFalseChild().getNodeId());
-              s.append(n) ;
-           }
-              
-           s.append(n) ;                
-           s.append(dump(root.getTrueChild()));     // recurse true branch
-           s.append(dump(root.getFalseChild()));    // recurse false branch
-      }
-        return s.toString() ;
-    }
 
     public String toString() {
         return "task: " + taskId + ", nodes: " + nodeCount();
@@ -291,6 +230,7 @@ public class RdrTree {
         return treeNode;
     }
 
+
     private List<XNode> toXNodeList(RdrNode rdrNode) {
         List<XNode> nodeList = new ArrayList<XNode>();
         if (rdrNode != null) {
@@ -305,7 +245,8 @@ public class RdrTree {
     public void fromXML(String xml) {
         fromXNode(new XNodeParser().parse(xml));
     }
-    
+
+
     private void fromXNode(XNode node) {
         Map<Long, RdrNode> nodeMap = new HashMap<Long, RdrNode>();
         if (node != null) {
@@ -333,7 +274,4 @@ public class RdrTree {
         }
     }
 
-//===========================================================================//
-//===========================================================================//
-    
 }

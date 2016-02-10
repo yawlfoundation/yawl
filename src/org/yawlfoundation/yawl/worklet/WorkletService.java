@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.rdr.Rdr;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPair;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrEvaluator;
 import org.yawlfoundation.yawl.worklet.selection.RunnerMap;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 import org.yawlfoundation.yawl.worklet.support.*;
@@ -40,6 +41,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -263,8 +265,8 @@ public class WorkletService extends InterfaceBWebsideController {
         response.setContentType("text/html");
         PrintWriter outputWriter = response.getWriter();
         StringBuilder output = new StringBuilder();
-        String fileName = WorkletConstants.wsHomeDir + "welcome.htm";
-        String welcomePage = StringUtil.fileToString(fileName);
+        InputStream is = this.getClass().getResourceAsStream("welcome.htm");
+        String welcomePage = StringUtil.streamToString(is);
 
         // load the full welcome page if possible
         if (welcomePage != null) output.append(welcomePage);
@@ -653,17 +655,19 @@ public class WorkletService extends InterfaceBWebsideController {
      * writes a summary of substitution outcomes for MI tasks to log
      */
     private void logSelectionForMISummary(WorkItemRecord wir, int itemCount, int workletCount) {
-        String taskInfo = getMITaskInfo(wir);
-        String min = RdrConversionTools.getChildValue(taskInfo, "minimum");
-        String max = RdrConversionTools.getChildValue(taskInfo, "maximum");
-        String thres = RdrConversionTools.getChildValue(taskInfo, "threshold");
+        Element taskInfo = JDOMUtil.stringToElement(getMITaskInfo(wir));
+        if (taskInfo != null) {
+            String min = taskInfo.getChildText("minimum");
+            String max = taskInfo.getChildText("maximum");
+            String threshold = taskInfo.getChildText("threshold");
 
-        _log.info("Summary result of worklet selections for multi-instance task {}:",
-                wir.getTaskID());
-        _log.info("   Task attributes: Minimum - {}, Maximum - {}, Threshold - {}",
-                min, max, thres);
-        _log.info("   WorkItems created by engine: {}", itemCount);
-        _log.info("   Worklets launched: {}", workletCount);
+            _log.info("Summary result of worklet selections for multi-instance task {}:",
+                    wir.getTaskID());
+            _log.info("   Task attributes: Minimum - {}, Maximum - {}, Threshold - {}",
+                    min, max, threshold);
+            _log.info("   WorkItems created by engine: {}", itemCount);
+            _log.info("   Worklets launched: {}", workletCount);
+        }
     }
 
 

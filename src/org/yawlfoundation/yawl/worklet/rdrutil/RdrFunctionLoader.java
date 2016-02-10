@@ -16,7 +16,7 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.worklet.support;
+package org.yawlfoundation.yawl.worklet.rdrutil;
 
 import java.util.ArrayList;
 import java.util.List;

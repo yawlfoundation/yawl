@@ -23,7 +23,7 @@
 
 <hibernate-mapping>
 
-	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode"  lazy="false">
+	<class name="org.yawlfoundation.yawl.worklet.rdr.RdrNode" table="RdrNode" lazy="false">
 
 	    <id name="id" column="rdrnodeid" type="long" access="field">
     		<generator class="native"/>

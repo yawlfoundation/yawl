@@ -5,7 +5,7 @@ import org.hibernate.criterion.Restrictions;
 import org.jdom2.Document;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.worklet.support.Persister;
-import org.yawlfoundation.yawl.worklet.support.RdrSetParser;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrSetParser;
 
 import java.util.HashSet;
 import java.util.List;

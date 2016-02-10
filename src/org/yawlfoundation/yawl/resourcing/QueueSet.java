@@ -218,6 +218,11 @@ public class QueueSet {
         return activeSet;
     }
 
+    public void refresh(WorkItemRecord wir) {
+        for (int queue = WorkQueue.OFFERED; queue <= WorkQueue.SUSPENDED; queue++)
+            getQueue(queue).refresh(wir);
+    }
+
     public boolean hasWorkItemInQueue(String itemID, int queue) {
         return !isNullQueue(queue) && (getQueue(queue).get(itemID) != null);
     }
