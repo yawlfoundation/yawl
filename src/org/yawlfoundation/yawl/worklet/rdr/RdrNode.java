@@ -39,7 +39,7 @@ import org.yawlfoundation.yawl.worklet.rdrutil.RdrConditionException;
  *  v0.8, 04-09/2006
  */
 
-public class RdrNode {
+public class RdrNode implements Cloneable {
 	
     private long id;                                      // for hibernate & toString
 
@@ -133,6 +133,11 @@ public class RdrNode {
 	 */
     public RdrNode(String condition, RdrConclusion conclusion, Element cornerstone) {
     	this(null, null, null, condition, conclusion.toElement(), cornerstone) ;
+    }
+
+
+    public RdrNode clone() throws CloneNotSupportedException {
+        return (RdrNode) super.clone();
     }
 
 //===========================================================================//

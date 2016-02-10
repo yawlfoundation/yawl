@@ -389,9 +389,8 @@ public class WorkletGateway extends YHttpServlet {
             }
             else {
                 String caseID = req.getParameter("caseID");
-                String trigger = req.getParameter("trigger");
                 ExceptionService ex = ExceptionService.getInst();
-                return ex.replaceWorklet(rType, caseID, itemID, trigger);
+                return ex.replaceWorklet(rType, caseID, itemID);
             }
         }
         catch (IOException ioe) {

@@ -1,7 +1,6 @@
 package org.yawlfoundation.yawl.worklet.selection;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -27,7 +26,6 @@ public abstract class AbstractRunner {
     protected RuleType _ruleType;
     protected WorkItemRecord _wir;              // can be null for case-level exception
     protected long _ruleNodeId;                 // the node that triggered this runner
-    protected YSpecificationID _parentSpecID;
     protected String _dataString;
 
     public AbstractRunner() { }
@@ -56,7 +54,9 @@ public abstract class AbstractRunner {
     }
 
 
-    public void setRuleNodeId(long nodeId) { _ruleNodeId = nodeId; }
+    public void setRuleNodeID(long nodeId) { _ruleNodeId = nodeId; }
+
+    public long getRuleNodeID() { return _ruleNodeId; }
 
 
     public String getParentWorkItemID() {
@@ -90,10 +90,6 @@ public abstract class AbstractRunner {
         XNode root = new XNode("runner");
         root.addChild("caseid", _caseID);
         if (getWir() != null) root.addContent(_wir.toXML());
-        XNode pSpecNode = root.addChild("parentspecid");
-        if (_parentSpecID != null) {
-            pSpecNode.addChild(_parentSpecID.toXNode());
-        }
         if (_dataString != null) {
             root.addChild("datastring", _dataString);
         }
@@ -108,10 +104,6 @@ public abstract class AbstractRunner {
         _wir = Marshaller.unmarshalWorkItem(node.getChild("workItemRecord").toString());
         if (_wir != null) {
             _wirID = _wir.getID();
-        }
-        XNode pSpecNode = node.getChild("parentspecid").getChild("specificationid");
-        if (pSpecNode != null) {
-            _parentSpecID = new YSpecificationID(pSpecNode);
         }
         _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));

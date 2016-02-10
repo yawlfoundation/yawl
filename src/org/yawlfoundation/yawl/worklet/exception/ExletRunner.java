@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.worklet.exception;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
@@ -50,6 +49,7 @@ public class ExletRunner extends AbstractRunner {
     private int _actionIndex = 1 ;                  // index to 'primitives' set
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
+    private String _trigger;                        // trigger (external exceptions only)
     private final RunnerMap _worklets = new RunnerMap();  // set of running compensations
 
     // list of suspended items - can be child items, or for whole case
@@ -60,18 +60,16 @@ public class ExletRunner extends AbstractRunner {
      * This constructor is used when an exception is raised at the case level
      * @param rdrConc the RdrConclusion of a rule that represents the handling process
      */
-    public ExletRunner(YSpecificationID specID, String caseID, RdrConclusion rdrConc,
-                       RuleType xType) {
+    public ExletRunner(String caseID, RdrConclusion rdrConc, RuleType xType) {
         _conclusion = rdrConc ;
         _ruleType = xType ;
         _caseID = caseID;
-        _parentSpecID = specID;
     }
 
 
     /** This constructor is used when an exception is raised at the workitem level */
     public ExletRunner(WorkItemRecord wir, RdrConclusion rdrConc, RuleType xType) {
-        this(new YSpecificationID(wir), wir.getRootCaseID(), rdrConc, xType);
+        this(wir.getRootCaseID(), rdrConc, xType);
         _wir = wir ;
         _wirID = wir.getID();
     }
@@ -130,14 +128,8 @@ public class ExletRunner extends AbstractRunner {
     public Set<WorkletRunner> getWorkletRunners() { return _worklets.getAll(); }
 
     protected void addWorkletRunners(Set<WorkletRunner> runners) {
-        if (! runners.isEmpty()) {
+        if (runners != null) {
             _worklets.addAll(runners);
-//            if (_ruleType.isCaseLevelType()) {
-//                for (WorkletRunner runner : runners) {
-//                    runner.setParentCaseID(getCaseID());
-//                    runner.setParentSpecID(getSpecID());
-//                }
-//            }
         }
     }
 
@@ -146,6 +138,11 @@ public class ExletRunner extends AbstractRunner {
         _worklets.restore(getCaseID());
         return _worklets.getAll();
     }
+
+
+    public void setTrigger(String trigger) { _trigger = trigger; }
+
+    public String getTrigger() { return _trigger; }
 
 
     public void setItem(WorkItemRecord item) {

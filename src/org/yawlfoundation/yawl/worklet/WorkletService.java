@@ -235,7 +235,7 @@ public class WorkletService extends InterfaceBWebsideController {
         if (_runners.isWorklet(caseID)) {
             handleCompletingSelectionWorklet(caseID, casedata);
         }
-        else _log.info("Completing case is not a worklet selection: {}", caseID);
+        else _log.info("Completing case '{}' is not a 'selection' worklet", caseID);
     }
 
 
@@ -404,7 +404,7 @@ public class WorkletService extends InterfaceBWebsideController {
         }
 
         for (WorkletRunner runner : runners) {
-            runner.setRuleNodeId(pair.getLastTrueNode().getNodeId());
+            runner.setRuleNodeID(pair.getLastTrueNode().getNodeId());
             runner.setParentCaseID(wir.getRootCaseID());
             runner.logLaunchEvent();
         }

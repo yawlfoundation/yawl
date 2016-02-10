@@ -30,8 +30,8 @@
             <generator class="native"/>
         </id>
 
-        <property name="caseID"            column="caseID"/>
-        <property name="_wirID"            column="wirID"    access="field"/>
+        <property name="caseID" column="caseID"/>
+        <property name="_wirID" column="wirID"    access="field"/>
 
         <many-to-one name="_conclusion" access="field"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"
@@ -43,9 +43,10 @@
              </type>
          </property>
 
-        <property name="actionIndex"       column="actionIndex"     type="integer"/>
-        <property name="itemSuspended"   column="isItemSuspended" type="boolean"/>
-        <property name="caseSuspended"   column="isCaseSuspended" type="boolean"/>
+        <property name="_ruleNodeId"   column="ruleNodeId" type="long" access="field"/>
+        <property name="actionIndex"   column="actionIndex"     type="integer"/>
+        <property name="itemSuspended" column="isItemSuspended" type="boolean"/>
+        <property name="caseSuspended" column="isCaseSuspended" type="boolean"/>
 
         <set name="_suspendedItems" table="ws_suspitems" access="field">
             <key column="rowid"/>
