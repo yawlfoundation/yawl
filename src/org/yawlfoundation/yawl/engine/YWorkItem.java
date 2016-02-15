@@ -796,9 +796,9 @@ public class YWorkItem {
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }
 
     public String toString() {
-        String fullClassName = getClass().getName();
-        return fullClassName.substring(
-                      fullClassName.lastIndexOf('.') + 1) + ":" + getIDString();
+        String idString = getWorkItemID() != null ? getWorkItemID().toString() :
+                get_thisID() != null ? get_thisID() : "";
+        return getClass().getSimpleName() + " : " + idString;
     }
 
 

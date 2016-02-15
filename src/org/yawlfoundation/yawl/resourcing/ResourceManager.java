@@ -534,10 +534,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
     private boolean cleanupWorkItemReferences(WorkItemRecord wir) {
-        WorkItemRecord removed = null;
         if (_serviceEnabled) {
             if (!removeFromAll(wir)) return false;                    // workqueues
-        //    removed = _workItemCache.remove(wir);
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {
                 rMap.removeIgnoreList(wir);
@@ -547,7 +545,6 @@ public class ResourceManager extends InterfaceBWebsideController {
             }
             _cache.cancelCodeletRunner(wir.getID());                    // if any
         }
-     //   return (removed != null);
         return true;
     }
 
@@ -574,6 +571,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
             // complete mappings for non-default org data backends
             if (_isNonDefaultOrgDB) finaliseNonDefaultLoad();
+
+            // refresh the cached ResourceMaps (to allow for org data changes)
+            _resMapCache.clear();
 
             // rebuild a work queue set and userid keymap for each participant
             for (Participant p : _orgDataSet.getParticipants()) {
@@ -1170,9 +1170,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                 rMap.removeIgnoreList(wir);  // cleanup deallocation list for item (if any)
                 rMap.getSecondaryResources().engage(oneToStart);     // mark SR's as busy
             }
-
-            // now all queue movements are done, remove the parent from cache
-            _workItemCache.remove(wir);
 
             return true;
         } else {
