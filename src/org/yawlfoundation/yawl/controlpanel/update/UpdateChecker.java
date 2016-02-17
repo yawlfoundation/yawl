@@ -1,15 +1,12 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
-import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.util.HttpUtil;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 /**
  * @author Michael Adams
@@ -20,11 +17,6 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     protected Differ _differ;
     protected String _error;
 
-    protected static final String BASE_URL = "http://sourceforge.net/";
-    public static final String CHECKSUM_FILE = "checksums.xml";
-    public static final String SOURCE_URL = BASE_URL +
-            "projects/yawl/files/updatecache4/engine/";
-    public static final String SF_DOWNLOAD_SUFFIX = "/download";
 
     public UpdateChecker() { super(); }
 
@@ -37,7 +29,7 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
 
     public void check() {
         try {
-            checkURLAvailable(BASE_URL);
+            UpdateConstants.init();
             _differ = new Differ(loadLatestCheckSums(), loadCurrentCheckSums());
         }
         catch (IOException ioe) {
@@ -79,14 +71,6 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
 
-    public void download(String fromURL, File toFile) throws IOException {
-        URL webFile = new URL(fromURL);
-        ReadableByteChannel rbc = Channels.newChannel(webFile.openStream());
-        FileOutputStream fos = new FileOutputStream(toFile);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-    }
-
-
     protected File loadCurrentCheckSums() throws IOException {
         File current = FileUtil.getLocalCheckSumFile();
         if (! current.exists()) {
@@ -96,19 +80,13 @@ public class UpdateChecker extends SwingWorker<Void, Void> {
     }
 
     protected File loadLatestCheckSums() throws IOException {
-        File latest = new File(getTmpDir(), CHECKSUM_FILE);
-        download(SOURCE_URL + "lib/" + CHECKSUM_FILE + SF_DOWNLOAD_SUFFIX, latest);
+        File latest = new File(getTmpDir(), UpdateConstants.CHECK_FILE);
+        URL url = UpdateConstants.getCheckUrl();
+        HttpUtil.download(url, latest);
         if (! latest.exists()) {
             throw new IOException("Unable to determine latest build version");
         }
         return latest;
-    }
-
-
-    protected void checkURLAvailable(String urlStr) throws IOException {
-        if (! TomcatUtil.isResponsive(new URL(urlStr))) {
-            throw new IOException("Update server is offline or unavailable");
-        }
     }
 
 

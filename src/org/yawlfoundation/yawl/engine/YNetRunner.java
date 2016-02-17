@@ -667,10 +667,12 @@ public class YNetRunner {
             throws YDataStateException, YStateException, YQueryException,
             YPersistenceException {
         try {
-            YIdentifier id = task.t_fire(pmgr).get(0);
-            task.t_start(pmgr, id);
-            _busyTasks.add(task);                             // pre-req for completeTask
-            completeTask(pmgr, null, task, id, null);
+            if (task.t_enabled(_caseIDForNet)) {            // may be already processed
+                YIdentifier id = task.t_fire(pmgr).get(0);
+                task.t_start(pmgr, id);
+                _busyTasks.add(task);                        // pre-req for completeTask
+                completeTask(pmgr, null, task, id, null);
+            }
         }
         catch (YStateException yse) {
             // ignore - task already removed due to alternate path or case completion

@@ -304,8 +304,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void download(List<AppUpdate> updates) {
         long downloadSize = getDownloadSize(updates);
         getProgressPanel().setDownloadSize(downloadSize);
-        _downloader = new Downloader(UpdateChecker.SOURCE_URL,
-                UpdateChecker.SF_DOWNLOAD_SUFFIX, _downloads,
+        _downloader = new Downloader(UpdateConstants.getBasePath(),
+                UpdateConstants.URL_SUFFIX, _downloads,
                 downloadSize, FileUtil.getTmpDir());
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
@@ -387,7 +387,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         }
 
         // copy downloaded checksums.xml to lib
-        File source = new File(tmpDir, UpdateChecker.CHECKSUM_FILE);
+        File source = new File(tmpDir, UpdateConstants.CHECK_FILE);
         File target = FileUtil.getLocalCheckSumFile();
         copy(source, target);
 

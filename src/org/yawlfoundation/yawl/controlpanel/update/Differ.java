@@ -177,7 +177,7 @@ public class Differ {
         }
 
         // checksums.xml,the yawl lib jar & props files are also needed in the lib dir
-        libNames.add(UpdateChecker.CHECKSUM_FILE);
+        libNames.add(UpdateConstants.CHECK_FILE);
         libNames.add(reader.getYawlLibNode().getAttributeValue("name"));
         libNames.add("log4j.properties");
         libNames.add("hibernate.properties");

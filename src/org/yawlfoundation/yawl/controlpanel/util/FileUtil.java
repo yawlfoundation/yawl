@@ -1,7 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.util;
 
 import org.yawlfoundation.yawl.controlpanel.YControlPanel;
-import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
+import org.yawlfoundation.yawl.controlpanel.update.UpdateConstants;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.*;
@@ -145,7 +145,7 @@ public class FileUtil {
 
     public static File getLocalCheckSumFile() {
         return new File(buildPath(TomcatUtil.getCatalinaHome(), "yawllib",
-                UpdateChecker.CHECKSUM_FILE));
+                UpdateConstants.CHECK_FILE));
     }
 
 

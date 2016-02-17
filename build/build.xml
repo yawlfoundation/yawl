@@ -2579,6 +2579,7 @@
              basedir="${classes.dir}"
              includes="org/yawlfoundation/yawl/controlpanel/**/*
                        org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/HttpUtil.class
                        org/yawlfoundation/yawl/util/CheckSummer.class
                        org/yawlfoundation/yawl/util/PasswordEncryptor.class
                        org/yawlfoundation/yawl/util/StartMenuUpdater.class
