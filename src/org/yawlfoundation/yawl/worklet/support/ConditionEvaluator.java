@@ -815,7 +815,7 @@ public class ConditionEvaluator {
 
     /** translates a bad result to 'undefined' */
     private String getFunctionResult(String func, Element data) throws RdrConditionException {
-        return clarifyResult(evalFunction(func, data));
+        return clarifyResult(evalFunction(func, data), null);
     }
 
 
@@ -833,19 +833,28 @@ public class ConditionEvaluator {
             if (varElement != null) {
                 result = varElement.getText();
                 String type = varElement.getAttributeValue("type");
-                if (type != null && type.equals("string")) {
-                    result = "\"" + result + "\"";
-                }
+                result = clarifyResult(result, type);
             }
-
         }
-        return clarifyResult(result);
+        return result;
     }
 
 
-    private String clarifyResult(String result) {
-        if (result == null || result.equals("null")) result = "undefined";
-        else if (result.length() == 0) result = "nodata";
+    private String clarifyResult(String result, String type) {
+        if (result == null || result.equals("null")) {
+            result = "undefined";
+        }
+        else if (result.length() == 0 && type != null) {
+            if (type.equals("string")) {
+                result = "\"" + result + "\"";
+            }
+            else if (type.equals("boolean")) {
+                result = "false";
+            }
+            else {
+                result = "0";          // assuming numeric
+            }
+        }
         return result;
     }
 

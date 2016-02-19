@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.elements;
 
 import org.jdom2.Attribute;
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.util.DynamicValue;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -208,6 +209,16 @@ public class YAttributeMap extends Hashtable<String, String> {
              xml += " " + toXMLElement(key);
         }
         return xml;
+    }
+
+
+    public void fromXMLElements(String xml) {
+        Element root = JDOMUtil.stringToElement(xml);
+        if (root != null) {
+            for (Element child : root.getChildren()) {
+                put(child.getName(), child.getText());
+            }
+        }
     }
 
 

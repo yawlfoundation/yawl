@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
@@ -200,6 +201,9 @@ public class WorkletGateway extends YHttpServlet {
                 }
                 else if (action.equalsIgnoreCase("getWorkletInfoList")) {
                     result = getWorkletInfoList();
+                }
+                else if (action.equalsIgnoreCase("updateRdrSetTaskIDs")) {
+                    result = updateRdrSetTaskIDs(req);
                 }
                 else {
                     result = fail("Unrecognised action: " + action);
@@ -517,6 +521,19 @@ public class WorkletGateway extends YHttpServlet {
             }
             return removed != null ? "<success/>" :
                     fail("No rule set for identifier: " + idString);
+        }
+        return fail("Invalid parameters");
+    }
+
+
+    private String updateRdrSetTaskIDs(HttpServletRequest req) {
+        YSpecificationID specID = makeSpecID(req);
+        String updateXML = req.getParameter("updates");
+        if (! (specID == null || updateXML == null)) {
+            YAttributeMap map = new YAttributeMap();
+            map.fromXMLElements(updateXML);
+            _rdr.updateTaskIDs(specID, map);
+            return "<success/>";
         }
         return fail("Invalid parameters");
     }

@@ -2221,7 +2221,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                         if (specID == null) specID = new YSpecificationID(wir);
                         if (removeFromAll(wir)) {
                             freeSecondaryResources(wir);
-        //                    _workItemCache.remove(wir);
                         }
                         EventLogger.log(wir, null, EventLogger.event.cancelled_by_case);
                     }
@@ -2232,7 +2231,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                 Participant p = _cache.getParticipantWithSessionHandle(userHandle);
                 String pid = (p != null) ? p.getID() : ADMIN_STR;
                 EventLogger.log(specID, caseID, pid, false);
-            } else _log.error("Error attempting to Cancel Case.");
+            } else {
+                _log.error("Error attempting to cancel case {}: {}",
+                        caseID, StringUtil.unwrap(result));
+            }
 
             return result;
         }

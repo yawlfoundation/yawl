@@ -21,9 +21,10 @@ package org.yawlfoundation.yawl.worklet.rdr;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -139,6 +140,11 @@ public class Rdr {
 
     public RdrSet removeRdrSet(String processName) {
         return _loader.removeSet(processName);
+    }
+
+
+    public void updateTaskIDs(YSpecificationID specID, Map<String, String> updates) {
+        updateTaskIDs(getRdrSet(specID), updates);
     }
 
 
@@ -261,6 +267,21 @@ public class Rdr {
         RdrTree tree = ruleSet.getTree(rType, taskID) ;
         if (tree != null) tree.setAttributes(ruleSet.getName(), rType);
         return tree;
+    }
+
+
+    public void updateTaskIDs(RdrSet rdrSet, Map<String, String> updates) {
+        if (rdrSet == null) return;
+        for (RdrTreeSet treeSet : rdrSet.getTreeSet()) {
+            if (treeSet.getRuleType().isCaseLevelType()) continue;  // ignore case trees
+            for (RdrTree tree : treeSet.getAll()) {
+                String taskID = tree.getTaskId();
+                if (taskID != null && updates.containsKey(taskID)) {
+                    tree.setTaskId(updates.get(taskID));
+                    Persister.update(tree);
+                }
+            }
+        }
     }
 
 }

@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.worklet.support;
 
 import org.jdom2.Element;
+import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -723,6 +724,26 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("loadFile", handle);
         params.put("path", path);
         params.put("type", extn);
+        return executePost(_wsURI, params);
+    }
+
+
+    /**
+     * Updates the task ids in a rule set for those they have been changed to via
+     * a specification edit
+     * @param specID the specification id for the rule set to update
+     * @param updateMap the map of changes [oldID -> newID]
+     * @param handle a current session handle to the worklet service
+     * @return a success or error message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String updateRdrSetTaskIDs(YSpecificationID specID,
+              Map<String, String> updateMap, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("updateRdrSetTaskIDs", handle);
+        params.putAll(specID.toMap());
+        String mapXML = StringUtil.wrap(new YAttributeMap(updateMap).toXMLElements(),
+                "updates");
+        params.put("updates", mapXML);
         return executePost(_wsURI, params);
     }
 
