@@ -320,6 +320,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // if pair is null there's no rules defined for this type of constraint
         if (pair == null) {
             _log.info("No {}-task constraints defined for task: {}", sType, taskID);
+            if (pre) _eventQueue.notifyExceptionHandlingCompleted(wir);
         }
         else {
             if (! pair.hasNullConclusion()) {                // there's been a violation
@@ -329,6 +330,7 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
             else {                                // there are rules but the case passes
                 getServer().announceConstraintPass(wir, data, xType);
                 _log.info("Workitem {} passed {}-task constraints", itemID, sType);
+                if (pre) _eventQueue.notifyExceptionHandlingCompleted(wir);
             }
         }
     }
@@ -412,6 +414,9 @@ public class ExceptionService extends WorkletService implements InterfaceX_Servi
         // if no more actions to do (or worklets) in runner, remove it
         if (! (runner.hasNextAction() || runner.hasRunningWorklet())) {
             _runners.remove(runner);
+            if (runner.getRuleType() == RuleType.ItemPreconstraint) {
+                _eventQueue.notifyExceptionHandlingCompleted(runner.getWir());
+            }
         }
     }
 

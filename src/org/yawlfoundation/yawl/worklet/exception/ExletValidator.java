@@ -106,6 +106,8 @@ public class ExletValidator {
         ExletState targetState = new ExletState();
         for (int i=1; i <= conclusion.getCount(); i++) {
             ExletAction action = conclusion.getPrimitive(i).getExletAction();
+            if (action == ExletAction.Compensate) continue;              // ignore comps.
+
             ExletTarget target = conclusion.getPrimitive(i).getExletTarget();
             ExletAction state = targetState.getState(target);
             String error = null;
@@ -126,8 +128,14 @@ public class ExletValidator {
                 error = "Invalid 'continue' action. Target '" + target.toString() +
                         "' has not been previously suspended";
             }
+            else if (action == ExletAction.Restart) {
+                if (state == ExletAction.Suspend) {
+                    error = "Invalid 'restart' action. Target '" + target.toString() +
+                            "' is suspended";
+                }                                          // else ignore restart
+            }
             else {
-                targetState.setState(action, target);
+                targetState.setState(action, target);      // suspend or continue
             }
 
             if (error != null) {

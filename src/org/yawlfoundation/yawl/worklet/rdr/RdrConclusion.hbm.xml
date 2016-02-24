@@ -34,7 +34,7 @@
             <key column="rdrprimitiveid" not-null="true"/>
             <list-index column="listindex"/>
             <composite-element class="org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive">
-                <property name="index"/>
+                <property name="index" column="primIndex"/>
                 <property name="action"/>
                 <property name="target"/>
             </composite-element>

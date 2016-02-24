@@ -169,7 +169,12 @@ public class MailService extends InterfaceBWebsideController {
         email.setFromAddress(settings.fromName, settings.fromAddress);
         email.addRecipient(settings.toName, settings.toAddress, Message.RecipientType.TO);
         email.setSubject(settings.subject);
-        email.setText(settings.content);
+        if (settings.content.contains("<")) {
+            email.setTextHTML(settings.content);
+        }
+        else {
+            email.setText(settings.content);            // plain text
+        }
         return email;
     }
 

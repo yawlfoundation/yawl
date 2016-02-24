@@ -71,8 +71,9 @@ public class WorkletService extends InterfaceBWebsideController {
     private static Logger _log;                         // debug log4j file
     private static WorkletService INSTANCE;             // reference to self
     private static ExceptionService _exService;         // reference to ExceptionService
-    protected RdrEvaluator _rdr;                                 // rule set interface
-    protected WorkletLoader _loader;                    // manages worklet persistence
+    protected final RdrEvaluator _rdr;                  // rule set interface
+    protected final WorkletLoader _loader;              // manages worklet persistence
+    protected final EnabledEventQueue _eventQueue;      // queues wir events
 
     private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
@@ -87,6 +88,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _engineClient = new EngineClient(engineLogonName, engineLogonPassword, this);
         _rdr = new RdrEvaluator(_engineClient);
         _loader = new WorkletLoader();
+        _eventQueue = new EnabledEventQueue();
         INSTANCE = this;
     }
 
@@ -166,12 +168,11 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param workItemRecord - a record describing the enabled workitem
      */
     public void handleEnabledWorkItemEvent(WorkItemRecord workItemRecord) {
-
-        _log.info("HANDLE ENABLED WORKITEM EVENT");        // note to log
-
-        if (!handleWorkletSelection(workItemRecord)) {
-            _engineClient.declineWorkItem(workItemRecord, null);
-            _log.info("Workitem returned to Engine: {}", workItemRecord.getID());
+        if (_exceptionServiceEnabled) {
+            _eventQueue.notifySelectionEventReceived(workItemRecord);
+        }
+        else {
+            processEnabledWorkItemEvent(workItemRecord);
         }
     }
 
@@ -200,6 +201,7 @@ public class WorkletService extends InterfaceBWebsideController {
         String itemId = wir.getID();
         _log.info("ID of cancelled workitem: {}", itemId);
 
+        if (_exceptionServiceEnabled) _eventQueue.removeItem(wir);
         Set<WorkletRunner> runnerSet = _runners.getRunnersForWorkItem(itemId);
         if (! runnerSet.isEmpty()) {
             if (cancelWorkletSet(runnerSet)) {
@@ -232,6 +234,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE COMPLETE CASE EVENT");
         _log.info("ID of completed case: {}", caseID);
 
+        if (_exceptionServiceEnabled) _eventQueue.removeCase(caseID);
         if (_runners.isWorklet(caseID)) {
             handleCompletingSelectionWorklet(caseID, casedata);
         }
@@ -243,6 +246,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE CANCELLED CASE EVENT");
         _log.info("ID of cancelled case: {}", caseID);
 
+        if (_exceptionServiceEnabled) _eventQueue.removeCase(caseID);
         if (isWorkletCase(caseID)) {
             handleCancelledWorklet(caseID);
         }
@@ -307,6 +311,17 @@ public class WorkletService extends InterfaceBWebsideController {
 
     //***************************************************************************//
 
+
+    public void processEnabledWorkItemEvent(WorkItemRecord wir) {
+        _log.info("HANDLE ENABLED WORKITEM EVENT");        // note to log
+
+        if (!handleWorkletSelection(wir)) {
+            _engineClient.declineWorkItem(wir, null);
+            _log.info("Workitem returned to Engine: {}", wir.getID());
+        }
+    }
+
+
     /**
      * Attempt to substitute the enabled workitem with a worklet
      *
@@ -348,8 +363,8 @@ public class WorkletService extends InterfaceBWebsideController {
                 logSelectionForMISummary(wir, checkedOutItems.size(), launchedCount);
             }
         }
-        else _log.warn("Rule set does not contain rules for task: {}" +
-                " OR No rule set found for specId: {}", wir.getTaskID(), specId);
+        else _log.warn("Rule set does not contain rules for task '{}'" +
+                " OR No rule set found for specification '{}'", wir.getTaskID(), specId);
 
         return launchedCount > 0;
     }

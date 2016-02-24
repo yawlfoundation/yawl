@@ -41,7 +41,7 @@
         <many-to-one name="conclusion" cascade="all"
                      class="org.yawlfoundation.yawl.worklet.rdr.RdrConclusion"/>
 
-        <property name="condition"/>
+        <property name="condition" column="ruleCondition"/>
         <property name="description" type="text"/>
         <property name="cornerstoneString" type="text"/>
 
