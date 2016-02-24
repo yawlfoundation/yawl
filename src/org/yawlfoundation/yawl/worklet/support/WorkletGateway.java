@@ -246,17 +246,19 @@ public class WorkletGateway extends YHttpServlet {
         String taskID = req.getParameter("taskid");
         String rTypeStr = req.getParameter("rtype");
         String nodeXML = req.getParameter("node");
-        if (rTypeStr == null) return fail("Rule Type has null value");
-        if (nodeXML == null) return fail("Node is null");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
+        if (nodeXML == null) return fail("Node is null");
         RdrNode node = new RdrNode(nodeXML);
 
         RdrConclusion conc = node.getConclusion();
         if (conc.isNullConclusion()) {
             return fail("Node conclusion contains no elements.");
         }
-        List<ExletValidationError> errList =  new ExletValidator().validate(
+        List<ExletValidationError> errList =  new ExletValidator().validate(rType,
                 node.getConclusion(), _ws.getLoader().getAllWorkletKeys());
         if (! errList.isEmpty()) {
             return fail("Node contains invalid conclusion: " + errList.get(0).getMessage());
@@ -290,7 +292,9 @@ public class WorkletGateway extends YHttpServlet {
         Element data = JDOMUtil.stringToElement(dataStr);
         if (data == null) return fail("No or invalid data provided for evaluation");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
         String taskID = req.getParameter("taskid");
         YSpecificationID specID = makeSpecID(req);
         String processName = req.getParameter("name");
@@ -326,7 +330,8 @@ public class WorkletGateway extends YHttpServlet {
 
         String rTypeStr = req.getParameter("rtype");
         if (rTypeStr == null) return fail("Rule Type has null value");
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
         WorkItemRecord wir;
         try {
@@ -366,7 +371,8 @@ public class WorkletGateway extends YHttpServlet {
         if (rTypeStr.contains("Case")) {
             return fail("Case-level exception types cannot be executed using this method");
         }
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
         WorkItemRecord wir;
         try {
@@ -383,8 +389,9 @@ public class WorkletGateway extends YHttpServlet {
 
     private String replace(HttpServletRequest req) {
         String itemID = req.getParameter("itemID");
-        String exType = req.getParameter("exType");
-        RuleType rType = RuleType.valueOf(exType);
+        String rTypeStr = req.getParameter("exType");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
 
         // get the service instance and call replace
         try {
@@ -415,9 +422,11 @@ public class WorkletGateway extends YHttpServlet {
         String processName = req.getParameter("name");
         String taskID = req.getParameter("taskid");
         String rTypeStr = req.getParameter("rtype");
-        if (rTypeStr == null) return fail("Rule Type has null value");
 
-        RuleType rType = RuleType.valueOf(rTypeStr);
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
         RdrTree tree;
         if (specID != null) {
             tree = _rdr.getRdrTree(specID, taskID, rType);

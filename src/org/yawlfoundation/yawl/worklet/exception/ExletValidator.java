@@ -3,11 +3,9 @@ package org.yawlfoundation.yawl.worklet.exception;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RdrPrimitive;
+import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -16,7 +14,7 @@ import java.util.Set;
 public class ExletValidator {
 
 
-    public List<ExletValidationError> validate(RdrConclusion conclusion,
+    public List<ExletValidationError> validate(RuleType ruleType, RdrConclusion conclusion,
                                                Set<String> workletList) {
         if (conclusion == null || conclusion.getCount() == 0) {
             return Collections.emptyList();                    // short circuit
@@ -29,6 +27,7 @@ public class ExletValidator {
         }
         if (validateSelect(conclusion)) {
             validateSequence(conclusion, errorList);
+            validateForRule(ruleType, conclusion, errorList);
         }
         else {
             errorList.add(new ExletValidationError(0, "A conclusion with a 'select' " +
@@ -152,6 +151,39 @@ public class ExletValidator {
     }
 
 
+    private void validateForRule(RuleType ruleType, RdrConclusion conclusion,
+                                 List<ExletValidationError> errorList) {
+        for (int i=1; i <= conclusion.getCount(); i++) {
+            ExletAction action = conclusion.getPrimitive(i).getExletAction();
+            ExletTarget target = conclusion.getPrimitive(i).getExletTarget();
+            if (action == ExletAction.Restart && !ruleType.isExecutingItemType()) {
+                errorList.add(new ExletValidationError(i,
+                        "Restart action cannot be used for non-executing workitem exception"));
+            }
+            if (ruleType.isCaseLevelType() && target == ExletTarget.Workitem) {
+                errorList.add(new ExletValidationError(i,
+                        "Exlets for case-level exceptions cannot contain workitem targets"));
+            }
+            if (ruleType == RuleType.CasePostconstraint && action != ExletAction.Compensate) {
+                errorList.add(new ExletValidationError(i,
+                        "Exlets for case post-constraint exceptions must contain compensate actions only"));
+            }
+            if (ruleType == RuleType.ItemPostconstraint && !
+                    isValidPostItemPrimitive(action, target)) {
+                errorList.add(new ExletValidationError(i,
+                        "Invalid action for item post-constraint exception"));
+            }
+        }
+    }
+
+
+    private boolean isValidPostItemPrimitive(ExletAction action, ExletTarget target) {
+        return action == ExletAction.Compensate ||
+                ((action == ExletAction.Suspend || action == ExletAction.Continue) &&
+                        target != ExletTarget.Workitem);
+    }
+
+
     private boolean isFinalState(ExletAction action) {
         switch (action) {
             case Remove:
@@ -187,7 +219,7 @@ public class ExletValidator {
         void setState(ExletAction action, ExletTarget target) {
             switch (target) {
                 case AllCases: allCasesState = action; break;
-                case AncestorCases: ancestorCasesState = action;  // deliberate fallthrough
+                case AncestorCases: ancestorCasesState = action; break;
                 case Case: caseState = action; break;
                 case Workitem: workitemState = action; break;
             }

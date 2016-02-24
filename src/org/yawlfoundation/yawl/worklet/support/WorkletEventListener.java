@@ -65,7 +65,7 @@ public abstract class WorkletEventListener extends HttpServlet {
         }
         else {
             String ruleTypeStr = req.getParameter("ruletype");
-            RuleType ruleType = (ruleTypeStr != null) ? RuleType.valueOf(ruleTypeStr) : null;
+            RuleType ruleType = (ruleTypeStr != null) ? RuleType.fromString(ruleTypeStr) : null;
             Element caseData = JDOMUtil.stringToElement(req.getParameter("casedata"));
             String wirStr = req.getParameter("wir");
             WorkItemRecord wir = wirStr != null ? Marshaller.unmarshalWorkItem(wirStr) : null;

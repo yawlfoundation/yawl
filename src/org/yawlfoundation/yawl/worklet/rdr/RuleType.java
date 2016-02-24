@@ -26,17 +26,17 @@ import java.util.Map;
  * @date 12/12/11
  */
 public enum RuleType {
-    CasePreconstraint("PreCaseConstraint", "Pre-case constraint violation"),
-    CasePostconstraint("PostCaseConstraint", "Post-case constraint violation"),
+    CasePreconstraint("CasePreconstraint", "Pre-case constraint violation"),
+    CasePostconstraint("CasePostconstraint", "Post-case constraint violation"),
     ItemPreconstraint("ItemPreConstraint", "Workitem pre-constraint violation"),
     ItemPostconstraint("ItemPostConstraint", "Workitem post-constraint violation"),
     ItemAbort("ItemAbort", "Workitem abort"),
     ItemTimeout("ItemTimeout", "Workitem timeout"),
-    ItemResourceUnavailable("ResourceUnavailable", "Resource unavailable"),
-    ItemConstraintViolation("ConstraintViolation", "Workitem constraint violation"),
-    CaseExternalTrigger("CaseExternal", "Case-level external trigger"),
-    ItemExternalTrigger("ItemExternal", "Workitem-level external trigger"),
-    ItemSelection("Selection", "Worklet Selection");          // 'pseudo' exception type
+    ItemResourceUnavailable("ItemResourceUnavailable", "Resource unavailable"),
+    ItemConstraintViolation("ItemConstraintViolation", "Workitem constraint violation"),
+    CaseExternalTrigger("CaseExternalTrigger", "Case-level external trigger"),
+    ItemExternalTrigger("ItemExternalTrigger", "Workitem-level external trigger"),
+    ItemSelection("ItemSelection", "Worklet Selection");      // 'pseudo' exception type
 
     private String shortForm;
     private String longForm;
