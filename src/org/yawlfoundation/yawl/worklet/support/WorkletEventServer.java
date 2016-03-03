@@ -230,7 +230,7 @@ public class WorkletEventServer extends Interface_Client {
                           RdrNode node, RuleType rType) {
         params.put("casedata", JDOMUtil.elementToString(caseData));
         if (node != null) params.put("node", node.toXML());
-        params.put("ruletype", rType.name());
+        params.put("ruletype", rType.toString());
         announce(params);
     }
 

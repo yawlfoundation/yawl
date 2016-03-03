@@ -26,6 +26,7 @@ import org.yawlfoundation.yawl.cost.interfce.CostGatewayClient;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
+import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_Service;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
@@ -61,7 +62,8 @@ import java.util.Set;
  *  @version 0.8, 09/10/2006
  */
 
-public class WorkletService extends InterfaceBWebsideController {
+public class WorkletService extends InterfaceBWebsideController
+        implements InterfaceX_Service {
 
     // required data for interfacing with the engine
     protected EngineClient _engineClient;
@@ -70,14 +72,14 @@ public class WorkletService extends InterfaceBWebsideController {
     protected boolean _persisting;                      // is persistence enabled?
     private static Logger _log;                         // debug log4j file
     private static WorkletService INSTANCE;             // reference to self
-    private static ExceptionService _exService;         // reference to ExceptionService
-    protected final RdrEvaluator _rdr;                  // rule set interface
+    private final ExceptionService _exService;         // reference to ExceptionService
+    protected RdrEvaluator _rdr;                  // rule set interface
     protected final WorkletLoader _loader;              // manages worklet persistence
     protected final EnabledEventQueue _eventQueue;      // queues wir events
 
     private boolean _initCompleted = false;             // has engine initialised?
     private boolean restored = false;
-    private boolean _exceptionServiceEnabled = false;
+    private boolean _exceptionHandlingEnabled = false;
 
     /**
      * the constructor
@@ -85,10 +87,10 @@ public class WorkletService extends InterfaceBWebsideController {
     protected WorkletService() {
         super();
         _log = LogManager.getLogger(WorkletService.class);
-        _engineClient = new EngineClient(engineLogonName, engineLogonPassword, this);
-        _rdr = new RdrEvaluator(_engineClient);
         _loader = new WorkletLoader();
         _eventQueue = new EnabledEventQueue();
+        _engineClient = new EngineClient(engineLogonName, engineLogonPassword, this);
+        _exService = new ExceptionService(this);
         INSTANCE = this;
     }
 
@@ -100,14 +102,6 @@ public class WorkletService extends InterfaceBWebsideController {
         return INSTANCE;
     }
 
-    /**
-     * allows the Exception Service to register an instance of itself
-     */
-    protected void registerExceptionService(ExceptionService es) {
-        _exService = es;
-    }
-
-
 
     public String getExternalServiceHandle(CostGatewayClient costClient)
             throws IOException {
@@ -116,16 +110,21 @@ public class WorkletService extends InterfaceBWebsideController {
 
 
     public void setExceptionServiceEnabled(boolean enable) {
-        _exceptionServiceEnabled = enable;
+        _exceptionHandlingEnabled = enable;
         _log.info("Exception monitoring and handling is {}",
                 (enable ? "enabled" : "disabled"));
     }
 
-    public boolean isExceptionServiceEnabled() { return _exceptionServiceEnabled; }
+    public boolean isExceptionHandlingEnabled() { return _exceptionHandlingEnabled; }
 
     public WorkletEventServer getServer() { return _engineClient.getServer(); }
 
-    public Rdr getRdrInterface() { return _rdr.getRdrInterface(); }
+    public Rdr getRdrInterface() {
+        if (_rdr == null) _rdr = new RdrEvaluator(_engineClient);
+        return _rdr.getRdrInterface();
+    }
+
+    public RdrEvaluator getRdrEvaluator() { return _rdr; }
 
     public String getResourceServiceURL() { return WorkletConstants.resourceServiceURL; }
 
@@ -133,17 +132,25 @@ public class WorkletService extends InterfaceBWebsideController {
 
     public EngineClient getEngineClient() { return _engineClient; }
 
+    public EnabledEventQueue getEventQueue() { return _eventQueue; }
+
+    public ExceptionService getExceptionService() { return _exService; }
+
 
     /**
      * completes the initialisation of the service load-up (mainly persistence)
      * called from servlet WorkletGateway after contexts are loaded
      */
     public void completeInitialisation() {
+        _engineClient.setupIXClient();
+
         _persisting = WorkletConstants.wsPersistOn;
         Persister.getInstance().setPersisting(_persisting);
 
         // reload running cases data
         if ((_persisting) && (!restored)) restoreDataSets();
+
+        _exService.completeInitialisation(_persisting);
     }
 
 
@@ -168,7 +175,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param workItemRecord - a record describing the enabled workitem
      */
     public void handleEnabledWorkItemEvent(WorkItemRecord workItemRecord) {
-        if (_exceptionServiceEnabled) {
+        if (_exceptionHandlingEnabled) {
             _eventQueue.notifySelectionEventReceived(workItemRecord);
         }
         else {
@@ -201,7 +208,7 @@ public class WorkletService extends InterfaceBWebsideController {
         String itemId = wir.getID();
         _log.info("ID of cancelled workitem: {}", itemId);
 
-        if (_exceptionServiceEnabled) _eventQueue.removeItem(wir);
+        if (_exceptionHandlingEnabled) _eventQueue.removeItem(wir);
         Set<WorkletRunner> runnerSet = _runners.getRunnersForWorkItem(itemId);
         if (! runnerSet.isEmpty()) {
             if (cancelWorkletSet(runnerSet)) {
@@ -234,7 +241,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE COMPLETE CASE EVENT");
         _log.info("ID of completed case: {}", caseID);
 
-        if (_exceptionServiceEnabled) _eventQueue.removeCase(caseID);
+        if (_exceptionHandlingEnabled) _eventQueue.removeCase(caseID);
         if (_runners.isWorklet(caseID)) {
             handleCompletingSelectionWorklet(caseID, casedata);
         }
@@ -246,7 +253,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _log.info("HANDLE CANCELLED CASE EVENT");
         _log.info("ID of cancelled case: {}", caseID);
 
-        if (_exceptionServiceEnabled) _eventQueue.removeCase(caseID);
+        if (_exceptionHandlingEnabled) _eventQueue.removeCase(caseID);
         if (isWorkletCase(caseID)) {
             handleCancelledWorklet(caseID);
         }
@@ -301,7 +308,7 @@ public class WorkletService extends InterfaceBWebsideController {
         _engineClient.setServiceURI();   // overwrite default with engine stored uri
 
         if (_engineClient.engineIsAvailable()) {
-            if (_exceptionServiceEnabled && (_exService != null)) {
+            if (_exceptionHandlingEnabled && (_exService != null)) {
                 _engineClient.addIXListener();
             }
         }
@@ -311,6 +318,55 @@ public class WorkletService extends InterfaceBWebsideController {
 
     //***************************************************************************//
 
+
+    @Override
+    public void handleCheckCaseConstraintEvent(YSpecificationID specID, String caseID,
+                                               String data, boolean precheck) {
+        _exService.handleCheckCaseConstraintEvent(specID, caseID, data, precheck);
+    }
+
+    @Override
+    public void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data,
+                                                   boolean precheck) {
+        _exService.handleCheckWorkItemConstraintEvent(wir, data, precheck);
+    }
+
+    @Override
+    public String handleWorkItemAbortException(WorkItemRecord wir, String caseData) {
+        return _exService.handleWorkItemAbortException(wir, caseData);
+    }
+
+    @Override
+    public void handleTimeoutEvent(WorkItemRecord wir, String taskList) {
+        _exService.handleTimeoutEvent(wir, taskList);
+    }
+
+    @Override
+    public void handleResourceUnavailableException(String resourceID, WorkItemRecord wir,
+                                                   String caseData, boolean primary) {
+        _exService.handleResourceUnavailableException(resourceID, wir, caseData, primary);
+    }
+
+    @Override
+    public String handleConstraintViolationException(WorkItemRecord wir, String caseData) {
+        return _exService.handleConstraintViolationException(wir, caseData);
+    }
+
+    @Override
+    public void handleCaseCancellationEvent(String caseID) {
+        _exService.handleCaseCancellationEvent(caseID);
+    }
+
+    public boolean suspendCase(String caseID) {
+        return _exService.suspendCase(caseID);
+    }
+
+    public boolean suspendWorkItem(String itemID) {
+        return _exService.suspendWorkItem(itemID);
+    }
+
+
+    /******************************************************************************/
 
     public void processEnabledWorkItemEvent(WorkItemRecord wir) {
         _log.info("HANDLE ENABLED WORKITEM EVENT");        // note to log
@@ -615,7 +671,7 @@ public class WorkletService extends InterfaceBWebsideController {
     }
 
 
-    protected String getRunnerCaseIdList(Set<WorkletRunner> runners) {
+    public String getRunnerCaseIdList(Set<WorkletRunner> runners) {
         List<String> caseIDs = new ArrayList<String>();
         for (WorkletRunner runner : runners) {
             caseIDs.add(runner.getCaseID());
@@ -632,7 +688,7 @@ public class WorkletService extends InterfaceBWebsideController {
      * @param out - the JDOM Element containing the output params
      * @return a JDOM Element with the data updated
      */
-    protected Element updateDataList(Element in, Element out) {
+    public Element updateDataList(Element in, Element out) {
 
         // get a copy of the 'in' list   	
         Element result = in.clone();
@@ -701,7 +757,9 @@ public class WorkletService extends InterfaceBWebsideController {
     }
 
 
-    public boolean isWorkletCase(String caseID) { return _runners.isWorklet(caseID); }
+    public boolean isWorkletCase(String caseID) {
+        return _runners.isWorklet(caseID) || _exService.isWorkletCase(caseID);
+    }
 
 
      /**

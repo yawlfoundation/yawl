@@ -26,7 +26,7 @@
 <%
     String caseID = request.getParameter("caseID");
     String triggerID = request.getParameter("trigger");
-    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
+    YSpecificationID specID = _workletService.getExceptionService().getSpecIDForCaseID(caseID);
 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {
@@ -40,7 +40,7 @@
             response.sendRedirect(response.encodeURL(url));
         }
         else {
-            _exceptionService.raiseExternalException("case", caseID, triggerID);
+            _workletService.getExceptionService().raiseExternalException("case", caseID, triggerID);
             response.sendRedirect(response.encodeURL(_caseMgtURL));
         }
     }
@@ -78,7 +78,7 @@
         </table>
 
 <%
-    List triggers = _exceptionService.getExternalTriggersForCase(caseID);
+    List triggers = _workletService.getExceptionService().getExternalTriggersForCase(caseID);
 
     if (triggers == null) {
 %>

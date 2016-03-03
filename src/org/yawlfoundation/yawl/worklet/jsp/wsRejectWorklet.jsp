@@ -24,8 +24,8 @@
 
 <%
     String caseID = request.getParameter("caseID");
-    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
-    boolean isWorklet = _exceptionService.isWorkletCase(caseID) ;
+    YSpecificationID specID = _workletService.getExceptionService().getSpecIDForCaseID(caseID);
+    boolean isWorklet = _workletService.isWorkletCase(caseID) ;
 
     String submit = request.getParameter("submit");
     if ((submit != null) && (submit.equals("Cancel"))) {

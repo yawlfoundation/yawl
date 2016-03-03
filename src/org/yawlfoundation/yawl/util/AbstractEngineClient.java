@@ -103,8 +103,13 @@ public abstract class AbstractEngineClient {
                 _interfaceBClient = new InterfaceB_EnvironmentBasedClient(_engineURI);
         }
         else throw new IllegalArgumentException("Unable to setup engine client. " +
-                    "Client = " + client);
+                    "Client or engine URI are null, or engine is unavailable");
     }
+
+
+    public String getEngineLogonName() { return _engineLogonName; }
+
+    public String getEngineLogonPassword() { return _engineLogonPassword; }
 
 
     /**

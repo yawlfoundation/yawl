@@ -24,7 +24,7 @@
 
 <%
     String itemID = request.getParameter("itemID");
-    WorkItemRecord wir = _exceptionService.getWorkItemRecord(itemID);
+    WorkItemRecord wir = _workletService.getExceptionService().getWorkItemRecord(itemID);
     String taskName = wir.getTaskName() ;
     String caseID = wir.getCaseID();
 

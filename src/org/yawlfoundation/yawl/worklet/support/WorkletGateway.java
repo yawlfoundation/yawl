@@ -35,6 +35,7 @@ import org.yawlfoundation.yawl.worklet.exception.ExletValidationError;
 import org.yawlfoundation.yawl.worklet.exception.ExletValidator;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrResult;
 import org.yawlfoundation.yawl.worklet.selection.WorkletRunner;
 
 import javax.servlet.ServletContext;
@@ -84,17 +85,13 @@ public class WorkletGateway extends YHttpServlet {
                 boolean exceptionHandlingEnabled = ixStr != null && ixStr.equalsIgnoreCase("TRUE");
                 _ws.setExceptionServiceEnabled(exceptionHandlingEnabled);
 
+                String engineLogonName = context.getInitParameter("EngineLogonUserName");
+                String engineLogonPassword = context.getInitParameter("EngineLogonPassword");
                 _sessions = new Sessions();
                 _sessions.setupInterfaceA(engineURI.replaceFirst("/ib", "/ia"),
-                        context.getInitParameter("EngineLogonUserName"),
-                        context.getInitParameter("EngineLogonPassword"));
+                        engineLogonName, engineLogonPassword);
 
-                if (exceptionHandlingEnabled) {
-                    ExceptionService.getInst().completeInitialisation();
-                }
-                else {
-                    _ws.completeInitialisation();
-                }
+                _ws.completeInitialisation();
             } catch (Exception e) {
                 _log.error("Gateway Initialisation Exception", e);
             } finally {
@@ -165,6 +162,9 @@ public class WorkletGateway extends YHttpServlet {
                 }
                 else if (action.equalsIgnoreCase("getNode")) {
                     result = getNode(req);
+                }
+                else if (action.equalsIgnoreCase("removeNode")) {
+                    result = removeNode(req);
                 }
                 else if (action.equalsIgnoreCase("getRdrTree")) {
                     result = getRdrTree(req);
@@ -320,7 +320,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String process(HttpServletRequest req) {
-        if (!_ws.isExceptionServiceEnabled()) {
+        if (!_ws.isExceptionHandlingEnabled()) {
             return fail("Exception handling is currently disabled. Please enable in it " +
                     "Worklet Service's web.xml");
         }
@@ -345,9 +345,9 @@ public class WorkletGateway extends YHttpServlet {
         if (data != null) wir.setUpdatedData(data);
 
         if (rType == RuleType.ItemAbort) {
-            return ExceptionService.getInst().handleWorkItemAbortException(wir, dataStr);
+            return WorkletService.getInstance().handleWorkItemAbortException(wir, dataStr);
         } else if (rType == RuleType.ItemConstraintViolation) {
-            return ExceptionService.getInst().handleConstraintViolationException(wir, dataStr);
+            return WorkletService.getInstance().handleConstraintViolationException(wir, dataStr);
         } else return fail("Invalid rule type '" + rType.toLongString() +
                 "'. This method can only be used for workitem constraint violation" +
                 " and workitem abort exception types");
@@ -355,7 +355,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String execute(HttpServletRequest req) {
-        if (!_ws.isExceptionServiceEnabled()) {
+        if (!_ws.isExceptionHandlingEnabled()) {
             return fail("Exception handling is currently disabled. Please enable in it " +
                     "Worklet Service's web.xml");
         }
@@ -383,7 +383,8 @@ public class WorkletGateway extends YHttpServlet {
         }
 
         loadWorklets(req.getParameter("workletset"));
-        return ExceptionService.getInst().raiseException(wir, rType, conclusion);
+        return WorkletService.getInstance().getExceptionService().
+                raiseException(wir, rType, conclusion);
     }
 
 
@@ -400,7 +401,7 @@ public class WorkletGateway extends YHttpServlet {
             }
             else {
                 String caseID = req.getParameter("caseID");
-                ExceptionService ex = ExceptionService.getInst();
+                ExceptionService ex = WorkletService.getInstance().getExceptionService();
                 return ex.replaceWorklet(rType, caseID, itemID);
             }
         }
@@ -414,6 +415,28 @@ public class WorkletGateway extends YHttpServlet {
         long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
         RdrNode node = _rdr.getNode(nodeID);
         return node != null ? node.toXML() : fail("No rule node found with id: " + nodeID);
+    }
+
+
+    private String removeNode(HttpServletRequest req) {
+        long nodeID = StringUtil.strToLong(req.getParameter("nodeid"), -1);
+        YSpecificationID specID = makeSpecID(req);
+        String taskID = req.getParameter("taskid");
+        String rTypeStr = req.getParameter("rtype");
+
+        if (rTypeStr == null) return fail("Rule Type has null value");
+        RuleType rType = RuleType.fromString(rTypeStr);
+        if (rType == null) return fail("Invalid rule type: " + rTypeStr);
+
+        RdrResult result;
+        if (specID != null) {
+            result = _rdr.removeNode(specID, taskID, rType, nodeID);
+        }
+        else {
+            String processName = req.getParameter("name");
+            result = _rdr.removeNode(processName, taskID, rType, nodeID);
+        }
+        return result.name();
     }
 
 
@@ -508,7 +531,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String addRdrSet(RdrSet rdrSet, String xml) {
-        rdrSet.fromXML(xml);
+        rdrSet.fromXML(xml, true);
         if (! rdrSet.hasRules()) {
             return fail("Malformed XML in rule set");
         }

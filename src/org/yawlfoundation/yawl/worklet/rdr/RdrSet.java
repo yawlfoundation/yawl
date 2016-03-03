@@ -135,6 +135,11 @@ public class RdrSet {
     }
 
 
+    public RdrTreeSet removeTreeSet(RuleType ruleType) {
+        return _treeMap != null ? _treeMap.remove(ruleType) : null;
+    }
+
+
     public void setTreeMap(Map<RuleType, RdrTreeSet> map) { _treeMap = map; }
 
 
@@ -228,8 +233,14 @@ public class RdrSet {
     }
 
 
-    public void fromXML(String xml) {
-        _treeMap = new RdrSetParser().parse(xml, false);
+    // XML is provided to this method:
+    //   1. on the service side from the API when adding a new set (INCOMING), in which
+    //      case the node ids are temporary and should be ignored by the parser; OR
+    //   2. on the client side when reconstituting a set sent from the service (OUTGOING),
+    //      in which case the node ids are permanent & valid and should be used by the
+    //      parser.
+    public void fromXML(String xml, boolean newSet) {
+        _treeMap = new RdrSetParser().parse(xml, newSet);
     }
 
 //===========================================================================//

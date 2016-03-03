@@ -59,6 +59,9 @@ public class TextAreaOutputStream extends OutputStream {
 
 
     private void append(String text) {
+        if (text.contains("memory leak")) {                  // ignore this warning
+            return;
+        }
         Color color = DEFAULT_COLOR;
         if (text.contains("ERROR") || text.contains("SEVERE")) {
             color = ERROR_COLOR;

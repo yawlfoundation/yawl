@@ -47,7 +47,7 @@
             return;
         }
     }
-    YSpecificationID specID = _exceptionService.getSpecIDForCaseID(caseID);
+    YSpecificationID specID = _workletService.getExceptionService().getSpecIDForCaseID(caseID);
 
 %>
 

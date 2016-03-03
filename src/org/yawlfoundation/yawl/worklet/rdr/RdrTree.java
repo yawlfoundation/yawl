@@ -139,7 +139,7 @@ public class RdrTree {
     public void setAttributes(String rdrSetName, RuleType rType) {
         attributes = new YAttributeMap();
         attributes.put("ruleset", rdrSetName);
-        attributes.put("ruletype", rType.name());
+        attributes.put("ruletype", rType.toString());
     }
 
 
@@ -175,6 +175,42 @@ public class RdrTree {
             parentNode.setFalseChild(newNode);
         }
         return newNode;
+    }
+
+
+    public RdrNode removeNode(long nodeID) {
+        RdrNode node = getNode(nodeID);
+        if (rootNode.equals(node)) {
+            node = null;                     // can't remove root
+        }
+        if (node != null) {
+            prune(node);
+            graft(node.getTrueChild());
+            graft(node.getFalseChild());
+        }
+        return node;
+    }
+
+
+    // detach branch at the specified node
+    private void prune(RdrNode node) {
+        RdrNode parent = node.getParent();
+        if (node.equals(parent.getTrueChild())) {
+            parent.setTrueChild(null);
+        }
+        else {
+            parent.setFalseChild(null);
+        }
+    }
+
+
+    private void graft(RdrNode node) {
+        if (node != null) {
+            RdrPair pair = search(node.getCornerStone());
+            if (pair != null) {
+                addNode(node, pair.getParentForNewNode(), pair.isPairEqual());
+            }
+        }
     }
     
     

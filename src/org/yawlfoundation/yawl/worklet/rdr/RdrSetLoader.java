@@ -2,14 +2,11 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.jdom2.Document;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.worklet.support.Persister;
-import org.yawlfoundation.yawl.worklet.rdrutil.RdrSetParser;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,11 +26,6 @@ public class RdrSetLoader {
 
     public RdrNode loadNode(long nodeID) {
         return (RdrNode) Persister.getInstance().get(RdrNode.class, nodeID);
-    }
-
-
-    public Map<RuleType, RdrTreeSet> load(Document doc) {
-        return new RdrSetParser().parse(doc, true);
     }
 
 
@@ -58,6 +50,14 @@ public class RdrSetLoader {
     public RdrSet removeSet(String processName) { return removeSet(loadSet(processName)); }
 
 
+    public RdrSet removeSet(RdrSet rdrSet) {
+        if (rdrSet != null) {
+            Persister.delete(rdrSet);
+        }
+        return rdrSet;
+    }
+
+
     private RdrSet loadSet(YSpecificationID specID) {
         String id = specID.getIdentifier();
         return id != null ? loadSet("_specID.identifier", id) :
@@ -74,14 +74,6 @@ public class RdrSetLoader {
         Criterion criterion = Restrictions.eq(column, value);
         List list = Persister.getInstance().getByCriteria(RdrSet.class, criterion);
         return ! (list == null || list.isEmpty()) ? (RdrSet) list.get(0) : null;
-    }
-
-
-    private RdrSet removeSet(RdrSet rdrSet) {
-        if (rdrSet != null) {
-            Persister.delete(rdrSet);
-        }
-        return rdrSet;
     }
 
 }

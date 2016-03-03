@@ -139,7 +139,6 @@ public class ResourceManager extends InterfaceBWebsideController {
     private ResourceManager() {
         super();
         _resAdmin = ResourceAdministrator.getInstance();
-        _services = new InterfaceClients(engineLogonName, engineLogonPassword);
         _log = LogManager.getLogger(getClass());
         _me = this;
     }
@@ -158,6 +157,11 @@ public class ResourceManager extends InterfaceBWebsideController {
      */
 
     // Initialisation methods //
+
+    public void initServices() {
+        _services = new InterfaceClients(engineLogonName, engineLogonPassword);
+    }
+
     public void initOrgDataSource(String dataSourceClassName, int refreshRate) {
         _log.info("Loading org data...");
 

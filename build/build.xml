@@ -505,7 +505,8 @@
                       ${dbClient} ${commonsCodec} ${saxon.libs} ${commonsLang}"/>
 
     <property name="webapp_documentStore.libs"
-              value="${persistence.libs} ${dbClient} ${commonsCodec} ${log4j.libs}"/>
+              value="${persistence.libs} ${dbClient} ${commonsCodec}
+                     ${jdom} ${xerces} ${log4j.libs}"/>
 
     <property name="webapp_procletService.libs"
               value="${persistence.libs} ${commonsCodec} ${proclet.libs}
@@ -944,12 +945,13 @@
         </copy>
 
         <copy todir="${classes.dir}">
-            <fileset dir="${src.dir}" includes="**/*.hbm.xml"/>
+            <fileset dir="${src.dir}" includes="**/*.hbm.xml **/cost/xsd/*.xsd"/>
         </copy>
 
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
             <fileset dir="${classes.dir}"
-                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml"
+                     includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml
+                               **/cost/xsd/*.xsd"
                      excludes="org/yawlfoundation/yawl/engine/gui/**/*
                                org/yawlfoundation/yawl/controlpanel/**/*"/>
             <manifest>
@@ -2012,9 +2014,16 @@
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce">
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
+        <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce/interfaceA">
+             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                      includes="InterfaceA_EnvironmentBasedClient.class"/>
+         </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
             <fileset dir="${classes.dir}${packageRoot}/cost"/>
         </copy>
+        <copy todir="${temp.dir}/${cost.app.name}/xsd">
+             <fileset dir="${src.dir}${packageRoot}/cost/xsd"/>
+         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
             <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
         </copy>
@@ -2421,13 +2430,16 @@
                      includes="YAWLServiceReference.class YVerifiable.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce">
-            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"
-                     includes="YHttpServlet.class"/>
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
+        <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce/interfaceA">
+             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                      includes="InterfaceA_EnvironmentBasedClient.class"/>
+         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="StringUtil.class CharsetFilter.class Sessions*.class
-                          PasswordEncryptor.class HibernateEngine.class"/>
+                          JDOMUtil.class PasswordEncryptor.class HibernateEngine.class"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}/WEB-INF">
             <fileset file="${build.dir}/${docStore.app.name}/web.xml"/>

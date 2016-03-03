@@ -176,12 +176,16 @@ public class RdrNode implements Cloneable {
     public String getDescription() {
         return description;
     }
+
+    public boolean isLeaf() { return trueChild == null && falseChild == null; }
     
 
 //===========================================================================//
 	
 
     // SETTERS //
+
+    public void setNodeID(long nodeID) { id = nodeID; }
     
     public void setCondition(String newCondition) {
         condition = newCondition;

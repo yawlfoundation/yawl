@@ -26,7 +26,7 @@
 <%
     String triggerID = request.getParameter("trigger");
     String workItemID  = request.getParameter("workItemID");
-    WorkItemRecord wir = _exceptionService.getWorkItemRecord(workItemID);
+    WorkItemRecord wir = _workletService.getExceptionService().getWorkItemRecord(workItemID);
     String taskName = wir.getTaskName() ;
 
     String submit = request.getParameter("submit");
@@ -41,7 +41,7 @@
             response.sendRedirect(response.encodeURL(url));
         }
         else {
-            _exceptionService.raiseExternalException("item", workItemID, triggerID);
+            _workletService.getExceptionService().raiseExternalException("item", workItemID, triggerID);
             response.sendRedirect(response.encodeURL(_worklistURL));
         }
     }
@@ -89,7 +89,7 @@
     </table>
 
 <%
-        List triggers = _exceptionService.getExternalTriggersForItem(workItemID);
+        List triggers = _workletService.getExceptionService().getExternalTriggersForItem(workItemID);
 
         if (triggers == null) {
 %>

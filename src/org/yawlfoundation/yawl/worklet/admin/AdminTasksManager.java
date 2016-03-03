@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet.admin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
@@ -67,7 +68,7 @@ public class AdminTasksManager {
         Persister.insert(task);
 
         // suspend case pending admin action
-        ExceptionService.getInst().suspendCase(caseID);
+        WorkletService.getInstance().suspendCase(caseID);
 
         return task;
     }
@@ -82,7 +83,7 @@ public class AdminTasksManager {
         Persister.insert(task);
 
         // suspend item pending admin action
-        ExceptionService.getInst().suspendWorkItem(itemID);
+        WorkletService.getInstance().suspendWorkItem(itemID);
 
         return task;
     }

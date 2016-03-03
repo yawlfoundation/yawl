@@ -27,7 +27,7 @@
       href="./graphics/favicon.ico"/>
 
 <%!
-    ExceptionService _exceptionService = null;
+    WorkletService _workletService = null;
     AdminTasksManager _adminTasksManager = null;
     String _worklistURL;
     String _adminlistURL;
@@ -35,12 +35,12 @@
 
     public void jspInit() {
         ServletContext context = getServletContext();
-        _exceptionService = (ExceptionService) context.getAttribute(
-                "org.yawlfoundation.yawl.worklet.exception.ExceptionService");
-        if (_exceptionService == null) {
-            _exceptionService = ExceptionService.getInst();
-            context.setAttribute("org.yawlfoundation.yawl.worklet.exception.ExceptionService",
-                    _exceptionService);
+        _workletService = (WorkletService) context.getAttribute(
+                "org.yawlfoundation.yawl.worklet.WorkletService");
+        if (_workletService == null) {
+            _workletService = WorkletService.getInstance();
+            context.setAttribute("org.yawlfoundation.yawl.worklet.WorkletService",
+                    _workletService);
         }
         _adminTasksManager = (AdminTasksManager) context.getAttribute(
                 "org.yawlfoundation.yawl.worklet.admin.AdminTasksManager");
@@ -51,7 +51,7 @@
         }
 
         // set resource service admin page urls
-        String resourceServiceURL = _exceptionService.getResourceServiceURL();
+        String resourceServiceURL = _workletService.getResourceServiceURL();
         if (resourceServiceURL == null) {
             resourceServiceURL = "http://localhost:8080/resourceService";   // a default
         }

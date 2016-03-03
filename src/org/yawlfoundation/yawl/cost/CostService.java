@@ -62,6 +62,7 @@ public class CostService implements InterfaceX_Service {
     private InterfaceX_ServiceSideClient _ixClient;    // interface client to engine
     private ResourceLogGatewayClient _rsLogClient;
     private ResourceGatewayClient _rsOrgDataClient;
+    private URL _xsdPath;
     private String _rsHandle = null;
     private String _engineHandle = null;
     private String _engineLogonName;
@@ -115,6 +116,8 @@ public class CostService implements InterfaceX_Service {
     public void setEngineLogonPassword(String password) {
         _engineLogonPassword = password;
     }
+
+    public void setXSDPath(URL xsdPath) { _xsdPath = xsdPath; }
 
     public String importModel(String costModel) {
         return importModel(new XNodeParser(false).parse(costModel));
@@ -376,8 +379,7 @@ public class CostService implements InterfaceX_Service {
 
     private boolean isValidModel(XNode costModel) {
         if (costModel == null) return false;
-        URL schema = getClass().getResource("/org/yawlfoundation/yawl/cost/xsd/costmodel.xsd");
-        SchemaHandler validator = new SchemaHandler(schema);
+        SchemaHandler validator = new SchemaHandler(_xsdPath);
         boolean valid = validator.compileAndValidate(costModel.toString());
         if (!valid) _log.error(validator.getConcatenatedMessage());
         return valid;
@@ -504,30 +506,10 @@ public class CostService implements InterfaceX_Service {
 
     // Implemented Interface Methods //
     public void handleCheckCaseConstraintEvent(YSpecificationID specID, String caseID,
-                                               String data, boolean precheck) {
-        //        CostModelCache cache = _models.get(specID);
-        //        if (cache != null) {
-        //            if (precheck) {
-        //                logCaseStart(cache, caseID, data);
-        //            }
-        //            else {
-        //                logCaseEnd(cache, caseID, data);
-        //            }
-        //        }
-    }
+                                               String data, boolean precheck) { }
 
     public void handleCheckWorkItemConstraintEvent(WorkItemRecord wir, String data,
-                                                   boolean precheck) {
-        //        CostModelCache cache = _models.get(new YSpecificationID(wir));
-        //        if (cache != null) {
-        //            if (precheck) {
-        //                logItemStart(cache, wir, data);
-        //            }
-        //            else {
-        // //               logItemEnd(cache, wir, data);
-        //            }
-        //        }
-    }
+                                                   boolean precheck) {  }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {

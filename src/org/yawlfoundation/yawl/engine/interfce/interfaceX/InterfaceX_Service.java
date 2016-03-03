@@ -72,4 +72,6 @@ public interface InterfaceX_Service {
 
      void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException ;
+
+//     void setEngineLogonCredentials(String user, String password);
 }

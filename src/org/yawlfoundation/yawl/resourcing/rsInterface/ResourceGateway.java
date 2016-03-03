@@ -51,7 +51,7 @@ import java.util.Map;
 
 public class ResourceGateway extends YHttpServlet {
 
-    private ResourceManager _rm = ResourceManager.getInstance();
+    private ResourceManager _rm;
     private static final String SUCCESS = "<success/>";
 
 
@@ -59,6 +59,9 @@ public class ResourceGateway extends YHttpServlet {
     public void init() {
         if (! ResourceManager.serviceInitialised) {
             try {
+                _rm = ResourceManager.getInstance();
+                _rm.initServices();
+
                 ServletContext context = getServletContext();
 
                 // set the engine uri and the exception service uri (if enabled)

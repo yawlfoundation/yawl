@@ -22,6 +22,7 @@ import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.worklet.rdrutil.RdrException;
+import org.yawlfoundation.yawl.worklet.rdrutil.RdrResult;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.Map;
@@ -121,10 +122,10 @@ public class Rdr {
     }
 
 
-
     public RdrSet getRdrSet(YSpecificationID specID) {
         return _loader.load(specID);
     }
+
 
     public RdrSet getRdrSet(String processName) {
         return _loader.load(processName);
@@ -138,8 +139,21 @@ public class Rdr {
         return _loader.removeSet(specID);
     }
 
+
     public RdrSet removeRdrSet(String processName) {
         return _loader.removeSet(processName);
+    }
+
+
+    public RdrResult removeNode(YSpecificationID specID, String taskID,
+                              RuleType rType, long nodeID) {
+        return removeNode(getRdrSet(specID), taskID, rType, nodeID);
+    }
+
+
+    public RdrResult removeNode(String processName, String taskID,
+                               RuleType rType, long nodeID) {
+        return removeNode(getRdrSet(processName), taskID, rType, nodeID);
     }
 
 
@@ -169,12 +183,27 @@ public class Rdr {
     }
 
 
+    public void updateTaskIDs(RdrSet rdrSet, Map<String, String> updates) {
+        if (rdrSet == null) return;
+        for (RdrTreeSet treeSet : rdrSet.getTreeSet()) {
+            if (treeSet.getRuleType().isCaseLevelType()) continue;  // ignore case trees
+            for (RdrTree tree : treeSet.getAll()) {
+                String taskID = tree.getTaskId();
+                if (taskID != null && updates.containsKey(taskID)) {
+                    tree.setTaskId(updates.get(taskID));
+                    Persister.update(tree);
+                }
+            }
+        }
+    }
+
+
     /*****************************************************************************/
 
     
     private RdrNode addNode(RdrSet set, String taskID, RuleType rType, RdrNode node)
             throws RdrException {
-        RdrNode addedNode = null;
+        RdrNode addedNode;
         RdrTree tree = getTree(set, taskID, rType);
         if (tree != null) {
             addedNode = addNode(tree, node);
@@ -221,7 +250,8 @@ public class Rdr {
         }
         return null;
     }
-    
+
+
     /**
      * Discovers whether this case or item has rules for this exception type, and if so,
      * returns the result of the rule evaluation. Note that if the conclusion
@@ -270,18 +300,55 @@ public class Rdr {
     }
 
 
-    public void updateTaskIDs(RdrSet rdrSet, Map<String, String> updates) {
-        if (rdrSet == null) return;
-        for (RdrTreeSet treeSet : rdrSet.getTreeSet()) {
-            if (treeSet.getRuleType().isCaseLevelType()) continue;  // ignore case trees
-            for (RdrTree tree : treeSet.getAll()) {
-                String taskID = tree.getTaskId();
-                if (taskID != null && updates.containsKey(taskID)) {
-                    tree.setTaskId(updates.get(taskID));
+    private RdrResult removeNode(RdrSet ruleSet, String taskID, RuleType rType, long nodeID) {
+        RdrTree tree = getTree(ruleSet, taskID, rType);
+        if (tree != null) {
+            RdrNode node = tree.removeNode(nodeID);
+            if (node != null) {
+                if (tree.getRootNode().isLeaf()) {       // tree is now empty
+                    return removeTree(ruleSet, taskID, rType);
+                }
+                else {
                     Persister.update(tree);
+                    return RdrResult.RdrNodeRemoved;
                 }
             }
         }
+        return RdrResult.Unknown;
+    }
+
+
+    private RdrResult removeTree(RdrSet ruleSet, String taskID, RuleType rType) {
+        RdrTreeSet treeSet = ruleSet.getTreeSet(rType);
+        if (treeSet != null) {
+            RdrTree tree = treeSet.remove(taskID);
+            if (tree != null) {
+                if (treeSet.isEmpty()) {
+                    return removeTreeSet(ruleSet, rType);
+                }
+                else {
+                    Persister.update(treeSet);
+                    return RdrResult.RdrTreeRemoved;
+                }
+            }
+        }
+        return RdrResult.Unknown;
+    }
+
+
+    private RdrResult removeTreeSet(RdrSet ruleSet, RuleType rType) {
+        RdrTreeSet treeSet = ruleSet.removeTreeSet(rType);
+        if (treeSet != null) {
+            if (! ruleSet.hasRules()) {
+                _loader.removeSet(ruleSet);
+                return RdrResult.RdrSetRemoved;
+            }
+            else {
+                Persister.update(ruleSet);
+                return RdrResult.RdrTreeSetRemoved;
+            }
+        }
+        return RdrResult.Unknown;
     }
 
 }

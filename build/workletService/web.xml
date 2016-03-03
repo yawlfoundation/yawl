@@ -33,7 +33,7 @@
 
     <context-param>
         <param-name>InterfaceX_Service</param-name>
-        <param-value>org.yawlfoundation.yawl.worklet.exception.ExceptionService
+        <param-value>org.yawlfoundation.yawl.worklet.WorkletService
         </param-value>
         <description>
             The class name of the Interface X Service implementation.
@@ -152,7 +152,7 @@
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedServer
         </servlet-class>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -163,7 +163,7 @@
         <servlet-class>
             org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_ServiceSideServer
         </servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <load-on-startup>3</load-on-startup>
     </servlet>
 
     <servlet>
@@ -219,7 +219,7 @@
             Handles an externally triggered exception for a workitem.
         </description>
         <jsp-file>/jsp/wsItemException.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -233,7 +233,7 @@
             Handles a request for a new handler for a item-level external exception.
         </description>
         <jsp-file>/jsp/wsNewItemException.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -247,7 +247,7 @@
             Handles an externally triggered exception for a case.
         </description>
         <jsp-file>/jsp/wsCaseException.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -261,7 +261,7 @@
             Handles a request for a new handler for a case-level external exception.
         </description>
         <jsp-file>/jsp/wsNewCaseException.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -276,7 +276,7 @@
             Handles a request for a new handler for a case-level external exception.
         </description>
         <jsp-file>/jsp/wsAdminTasks.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -291,7 +291,7 @@
             Handles a request for a new handler for a case-level external exception.
         </description>
         <jsp-file>/jsp/wsAdminTaskDetail.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -305,7 +305,7 @@
             Handles a request for a new handler for a case-level external exception.
         </description>
         <jsp-file>/jsp/wsRejectWorklet.jsp</jsp-file>
-        <load-on-startup>2</load-on-startup>
+        <load-on-startup>4</load-on-startup>
     </servlet>
 
     <servlet-mapping>

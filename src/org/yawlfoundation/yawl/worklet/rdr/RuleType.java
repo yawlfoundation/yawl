@@ -28,8 +28,8 @@ import java.util.Map;
 public enum RuleType {
     CasePreconstraint("CasePreconstraint", "Pre-case constraint violation"),
     CasePostconstraint("CasePostconstraint", "Post-case constraint violation"),
-    ItemPreconstraint("ItemPreConstraint", "Workitem pre-constraint violation"),
-    ItemPostconstraint("ItemPostConstraint", "Workitem post-constraint violation"),
+    ItemPreconstraint("ItemPreconstraint", "Workitem pre-constraint violation"),
+    ItemPostconstraint("ItemPostconstraint", "Workitem post-constraint violation"),
     ItemAbort("ItemAbort", "Workitem abort"),
     ItemTimeout("ItemTimeout", "Workitem timeout"),
     ItemResourceUnavailable("ItemResourceUnavailable", "Resource unavailable"),

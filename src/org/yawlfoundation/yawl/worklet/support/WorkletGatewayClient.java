@@ -170,7 +170,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("process", handle);
         params.put("wir", wir.toXML());
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -192,7 +192,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("evaluate", handle);
         params.put("wir", wir.toXML());
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -216,7 +216,7 @@ public class WorkletGatewayClient extends Interface_Client {
         params.putAll(specID.toMap());
         if (taskID != null) params.put("taskid", taskID);
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -240,7 +240,7 @@ public class WorkletGatewayClient extends Interface_Client {
         params.put("name", processName);
         if (taskID != null) params.put("taskid", taskID);
         params.put("data", JDOMUtil.elementToString(data));
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -261,7 +261,7 @@ public class WorkletGatewayClient extends Interface_Client {
                                   String handle) throws IOException {
         Map<String, String> params = prepareParamMap("process", handle);
         params.put("wir", wir.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         params.put("conclusion", conclusion.toXML());
         return executePost(_wsURI, params);
     }
@@ -285,7 +285,7 @@ public class WorkletGatewayClient extends Interface_Client {
                           Set<String> workletSet, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("process", handle);
         params.put("wir", wir.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         params.put("workletset", StringUtil.setToXML(workletSet));
         params.put("conclusion", conclusion.toXML());
         return executePost(_wsURI, params);
@@ -336,7 +336,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("addNode", handle);
         params.put("wir", wir.toXML());
         params.put("node", node.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -366,7 +366,7 @@ public class WorkletGatewayClient extends Interface_Client {
         params.putAll(specID.toMap());
         if (taskID != null) params.put("taskid", taskID);
         params.put("node", node.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -396,7 +396,7 @@ public class WorkletGatewayClient extends Interface_Client {
         params.put("name", processName);
         if (taskID != null) params.put("taskid", taskID);
         params.put("node", node.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executePost(_wsURI, params);
     }
 
@@ -417,6 +417,26 @@ public class WorkletGatewayClient extends Interface_Client {
 
 
     /**
+     * Removes a rule node from a rule tree, triggers a tree restructure
+     * @param specID the specification identifier
+     * @param taskID the task identifier (may be null for case-level rule types)
+     * @param rType the type of rule tree to get the node from
+     * @param handle a current session handle to the worklet service
+     * @return a success or failure message
+     * @throws java.io.IOException if the service can't be reached
+     */
+    public String removeNode(YSpecificationID specID, String taskID, RuleType rType,
+                             long nodeID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeNode", handle);
+        params.putAll(specID.toMap());
+        if (taskID != null) params.put("taskid", taskID);
+        params.put("rtype", rType.toString());
+        params.put("nodeid", String.valueOf(nodeID));
+        return executeGet(_wsURI, params);
+    }
+
+
+    /**
      * Gets a copy of a particular rule tree
      * @param wir the workitem containing specification and task identifiers
      * @param rType the type of rule tree to get the node from
@@ -428,7 +448,7 @@ public class WorkletGatewayClient extends Interface_Client {
             throws IOException {
         Map<String, String> params = prepareParamMap("getRdrTree", handle);
         params.put("wir", wir.toXML());
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executeGet(_wsURI, params);
     }
 
@@ -447,7 +467,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getRdrTree", handle);
         params.putAll(specID.toMap());
         if (taskID != null) params.put("taskid", taskID);
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executeGet(_wsURI, params);
     }
 
@@ -466,7 +486,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("getRdrTree", handle);
         params.put("name", processName);
         if (taskID != null) params.put("taskid", taskID);
-        params.put("rtype", rType.name());
+        params.put("rtype", rType.toString());
         return executeGet(_wsURI, params);
     }
 
@@ -615,7 +635,7 @@ public class WorkletGatewayClient extends Interface_Client {
             throws IOException {
         Map<String, String> params = prepareParamMap("replace", handle);
         params.put("itemID", itemID);
-        params.put("exType", RuleType.ItemSelection.name());
+        params.put("exType", RuleType.ItemSelection.toString());
         return executePost(_wsURI, params);
     }
 
@@ -635,7 +655,7 @@ public class WorkletGatewayClient extends Interface_Client {
         Map<String, String> params = prepareParamMap("replace", handle);
         params.put("caseID", caseID);
         params.put("itemID", itemID);
-        params.put("exType", ruleType.name());
+        params.put("exType", ruleType.toString());
         return executePost(_wsURI, params);
     }
 

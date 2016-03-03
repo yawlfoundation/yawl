@@ -44,6 +44,13 @@ public class RdrTreeSet {
 
     public void add(RdrTree tree) { _treeMap.put(tree.getTaskId(), tree); }
 
+    public RdrTree remove(String taskID) {
+        if (_ruleType.isCaseLevelType()) {
+            taskID = RdrSet.CASE_LEVEL_TREE_FLAG;
+        }
+        return _treeMap.remove(taskID);
+    }
+
 
     public boolean isEmpty() { return _treeMap.isEmpty(); }
 

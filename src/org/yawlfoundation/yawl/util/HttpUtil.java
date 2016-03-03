@@ -16,6 +16,7 @@ import java.nio.channels.ReadableByteChannel;
  */
 public class HttpUtil {
 
+    private static final int TIMEOUT_MSECS = 2000;
 
     public static boolean isResponsive(URL url) {
         try {
@@ -37,8 +38,8 @@ public class HttpUtil {
         while (url != null) {
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("HEAD");
-            httpConnection.setConnectTimeout(1000);
-            httpConnection.setReadTimeout(1000);
+            httpConnection.setConnectTimeout(TIMEOUT_MSECS);
+            httpConnection.setReadTimeout(TIMEOUT_MSECS);
             int responseCode = httpConnection.getResponseCode();
             if (responseCode < 300) {                        // some non-error response
                 break;

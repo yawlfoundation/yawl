@@ -80,7 +80,10 @@ public class CostGateway extends HttpServlet {
             _service.setEngineLogonPassword(engineLogonPassword);
             _sessions = new Sessions();
             _sessions.setupInterfaceA(iaURI, engineLogonName, engineLogonPassword);
-        } catch (Exception e) {
+
+            _service.setXSDPath(context.getResource("/xsd/costmodel.xsd"));
+        }
+        catch (Exception e) {
             _log.error("Cost Service Initialisation Exception", e);
         }
     }
