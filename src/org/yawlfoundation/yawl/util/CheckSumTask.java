@@ -10,7 +10,8 @@ import java.io.IOException;
 public class CheckSumTask extends AbstractCheckSumTask {
 
 
-    public String toXML(File baseDir, CheckSummer summer) throws IOException {
+    public String toXML(File baseDir, CheckSummer summer, FileLocations locations)
+            throws IOException {
         File checksumsFile = getChecksumsFile(baseDir);
         XNode root = parse(checksumsFile);
         if (root == null) {

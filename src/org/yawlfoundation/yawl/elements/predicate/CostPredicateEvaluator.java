@@ -28,9 +28,7 @@ public class CostPredicateEvaluator implements PredicateEvaluator {
             "(resource\\((['\"]*\\w+\\s*['\"]*(|,|\\s)\\s*)+\\))?\\s*\\)");
 
 
-    public CostPredicateEvaluator() {
-        CostGatewayClient _client = new CostGatewayClient();
-    }
+    public CostPredicateEvaluator() { }
 
 
     public boolean accept(String predicate) {
@@ -58,13 +56,13 @@ public class CostPredicateEvaluator implements PredicateEvaluator {
 
     private void connect() throws IOException {
         if (!checkHandle()) {
-            _handle = _client.connect("admin", "YAWL");
+            _handle = getClient().connect("admin", "YAWL");
         }
     }
 
 
     private boolean checkHandle() throws IOException {
-        return _handle != null && successful(_client.checkConnection(_handle));
+        return _handle != null && successful(getClient().checkConnection(_handle));
     }
 
 
@@ -83,11 +81,17 @@ public class CostPredicateEvaluator implements PredicateEvaluator {
     }
 
 
+    private CostGatewayClient getClient() {
+        if (_client == null) _client = new CostGatewayClient();
+        return _client;
+    }
+
+
     public String calculate(YDecomposition decomposition, String expression,
                             YIdentifier token) {
         try {
             connect();
-            return String.valueOf(_client.calculate(
+            return String.valueOf(getClient().calculate(
                     decomposition.getSpecification().getSpecificationID(),
                     token.getId(), expression, _handle));
         } catch (IOException ioe) {

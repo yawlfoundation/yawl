@@ -68,6 +68,7 @@ public class WorkletGateway extends YHttpServlet {
         if (!WorkletConstants.wsInitialised) {
             try {
                 _ws = WorkletService.getInstance();
+                _ws.setupEngineClient();
                 _rdr = _ws.getRdrInterface();
                 ServletContext context = getServletContext();
 

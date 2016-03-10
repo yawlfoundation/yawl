@@ -89,9 +89,9 @@ public final class Persister implements Serializable {
        return _db.getObjectsForClassWhere(className, whereClause) ;
     }
 
-    public List execQuery(String query) {
-        return _db.execQuery(query);
-    }
+    public List execQuery(String query) { return _db.execQuery(query); }
+
+    public List execSQLQuery(String query) { return _db.execSQLQuery(query); }
 
     public int execUpdate(String statement) {
         return _db.execUpdate(statement);

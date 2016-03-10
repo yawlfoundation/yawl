@@ -245,7 +245,7 @@ public class DynFormField implements Cloneable {
 
 
     public boolean hasZeroMinimum() {
-        return (_minoccurs == 0);
+        return  (hasParent() && _parent.hasZeroMinimum()) || _minoccurs == 0;
     }
     
     public void setEnumeratedValues(List<String> enumValues) {

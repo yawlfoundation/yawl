@@ -19,9 +19,6 @@
 package org.yawlfoundation.yawl.resourcing.datastore;
 
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.QueueSet;
-import org.yawlfoundation.yawl.resourcing.ResourceAdministrator;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 
 import java.util.HashSet;
@@ -186,24 +183,27 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         class CleanseRunnable implements Runnable {
             public void run() {
                 Set<String> referencedIDs = getReferencedIDs();
-                for (String id : new HashSet<String>(INSTANCE.keySet())) {
-                    if (! referencedIDs.contains(id)) {
-                        remove(id);
+                if (referencedIDs != null) {
+                    for (String id : new HashSet<String>(INSTANCE.keySet())) {
+                        if (!referencedIDs.contains(id)) {
+                            remove(id);
+                        }
                     }
                 }
             }
 
             Set<String> getReferencedIDs() {
-                Set<String> idSet = new HashSet<String>();
-                ResourceAdministrator ra = ResourceAdministrator.getInstance();
-                QueueSet qSet = ra.getWorkQueues();
-                for (WorkItemRecord wir : qSet.getQueuedWorkItems(WorkQueue.UNOFFERED)) {
-                     idSet.add(wir.getID());
+
+                // plain SQL used because table is not from a mapped class
+                List list = _persister.execSQLQuery("SELECT key_id FROM rs_queueItems");
+                if (list != null) {
+                    Set<String> idSet = new HashSet<String>();
+                    for (Object o : list) {        // list may be empty
+                        idSet.add((String) o);
+                    }
+                    return idSet;
                 }
-                for (WorkItemRecord wir : qSet.getQueuedWorkItems(WorkQueue.WORKLISTED)) {
-                     idSet.add(wir.getID());
-                }
-                return idSet;
+                return null;     // error reading table
             }
         }
 

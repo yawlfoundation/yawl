@@ -89,7 +89,6 @@ public class WorkletService extends InterfaceBWebsideController
         _log = LogManager.getLogger(WorkletService.class);
         _loader = new WorkletLoader();
         _eventQueue = new EnabledEventQueue();
-        _engineClient = new EngineClient(engineLogonName, engineLogonPassword, this);
         _exService = new ExceptionService(this);
         INSTANCE = this;
     }
@@ -100,6 +99,11 @@ public class WorkletService extends InterfaceBWebsideController
     public static WorkletService getInstance() {
         if (INSTANCE == null) INSTANCE = new WorkletService();
         return INSTANCE;
+    }
+
+
+    public void setupEngineClient() {
+        _engineClient = new EngineClient(engineLogonName, engineLogonPassword, this);
     }
 
 

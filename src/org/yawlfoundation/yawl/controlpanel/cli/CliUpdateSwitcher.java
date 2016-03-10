@@ -50,13 +50,13 @@ public class CliUpdateSwitcher {
             System.out.println("Command Line Usage:\n\n" +
                     FileUtil.getJarName() + " option [argument]\n\n" +
                     "where option is one of \n\n" +
-                    "-start:              Start the YAWL engine\n" +
-                    "-stop:               Stop the YAWL engine\n" +
-                    "-status:             Check whether the YAWL engine is running or stopped\n" +
-                    "-update:             Update installed components\n" +
-                    "-versions:           List installed and available components and their versions\n" +
-                    "-add [component]:    Add the named component (and perform updates)\n" +
-                    "-remove [component]: Remove the named component\n");
+                    "-start               // Start the YAWL engine\n" +
+                    "-stop                // Stop the YAWL engine\n" +
+                    "-status              // Check whether the YAWL engine is running or stopped\n" +
+                    "-update              // Update installed components\n" +
+                    "-versions            // List installed and available components and their versions\n" +
+                    "-add [component]     // Add the named component (and perform updates)\n" +
+                    "-remove [component]  // Remove the named component\n");
             return true;
         }
 

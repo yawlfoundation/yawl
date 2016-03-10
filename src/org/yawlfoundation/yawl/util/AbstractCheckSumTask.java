@@ -10,8 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michael Adams
@@ -23,6 +21,7 @@ public abstract class AbstractCheckSumTask extends Task {
     private String _antToDir;
     private String _antToFile;
     private String _antAppName;
+    protected String _antLocations;
     private List<String> _antIncludes;
     private List<String> _antExcludes;
     private Project _project;
@@ -32,9 +31,8 @@ public abstract class AbstractCheckSumTask extends Task {
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    protected static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     protected static final String COMMENT =
-           "<!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->";
+           "This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE";
 
 
     // these setters are called from the Ant task
@@ -54,6 +52,8 @@ public abstract class AbstractCheckSumTask extends Task {
         _antExcludes = toList(excludes);
     }
 
+    public void setLocations(String locations) { _antLocations = locations; }
+
 
     protected String getAppName() { return _antAppName; }
 
@@ -70,7 +70,8 @@ public abstract class AbstractCheckSumTask extends Task {
     }
 
 
-    public abstract String toXML(File checkDir, CheckSummer summer) throws IOException;
+    public abstract String toXML(File checkDir, CheckSummer summer,
+                                 FileLocations locations) throws IOException;
 
 
     /*****************************************************************************/
@@ -150,7 +151,8 @@ public abstract class AbstractCheckSumTask extends Task {
         if (file == null) file = DEFAULT_TO_FILE;
         if (_antIncludes == null) _antIncludes = Collections.emptyList();
         if (_antExcludes == null) _antExcludes = Collections.emptyList();
-        String xml = toXML(new File(rootDir), new CheckSummer());
+        String xml = toXML(new File(rootDir), new CheckSummer(),
+                new FileLocations(_antLocations));
         writeToFile(new File(toDir, file), xml);
     }
 
@@ -182,6 +184,45 @@ public abstract class AbstractCheckSumTask extends Task {
 
     private String removeLastChar(String s) {
         return s.substring(0, s.length()-1);
+    }
+
+
+    /**************************************************************************/
+
+    protected class FileLocations {
+
+        protected XNode paths = new XNode("paths");    // default
+        protected Map<String, String> locations = new HashMap<String, String>();
+
+
+        FileLocations(String fileName) {
+            if (fileName != null) {
+                String xml = StringUtil.fileToString(fileName);
+                if (xml != null) {
+                    XNode root = new XNodeParser().parse(xml);
+                    if (root != null) {
+                        paths = root.getChild("paths");
+                        loadLocations(root);
+                    }
+                }
+            }
+        }
+
+        void loadLocations(XNode root) {
+            XNode files = root.getChild("files");
+            for (XNode fNode : files.getChildren()) {
+                String name = fNode.getAttributeValue("name");
+                String path  = fNode.getAttributeValue("path");
+                locations.put(name, path);
+            }
+        }
+
+        public XNode getPaths() { return paths; }
+
+        public String get(String fileName) {
+            String path = locations.get(fileName);
+            return path != null ? path : "";
+        }
     }
 
 }

@@ -101,9 +101,12 @@ public abstract class AbstractRunner {
 
     public void fromXNode(XNode node) {
         _caseID = node.getChildText("caseid");
-        _wir = Marshaller.unmarshalWorkItem(node.getChild("workItemRecord").toString());
-        if (_wir != null) {
-            _wirID = _wir.getID();
+        XNode wirNode = node.getChild("workItemRecord");
+        if (wirNode != null) {
+            _wir = Marshaller.unmarshalWorkItem(wirNode.toString());
+            if (_wir != null) {
+                _wirID = _wir.getID();
+            }
         }
         _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));

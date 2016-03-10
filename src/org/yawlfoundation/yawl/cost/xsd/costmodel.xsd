@@ -31,7 +31,7 @@
                 <xs:element ref="drivers" minOccurs="0"/>
                 <xs:element ref="functions" minOccurs="0"/>
             </xs:sequence>
-            <xs:attribute name="id" type="xs:ID"/>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="mappings">
@@ -47,7 +47,7 @@
                 <xs:element name="cost" type="mappingElementType"/>
                 <xs:element name="workflow" type="mappingElementType"/>
             </xs:sequence>
-            <xs:attribute ref="aspect"/>
+            <xs:attribute ref="aspect" use="required"/>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="mappingElementType">

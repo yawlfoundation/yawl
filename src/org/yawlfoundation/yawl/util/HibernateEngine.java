@@ -220,8 +220,8 @@ public class HibernateEngine {
 
 
     /**
-     * executes a Query object based on the sql string passed
-     * @param queryString - the sql query to execute
+     * executes a Query object based on the hql string passed
+     * @param queryString - the hibernate query to execute
      * @return the List of objects returned, or null if the query has some problem
      */
     public List execQuery(String queryString) {
@@ -231,6 +231,34 @@ public class HibernateEngine {
             tx = getOrBeginTransaction();
             Query query = getSession().createQuery(queryString);
             if (query != null) result = query.list();
+        }
+        catch (JDBCConnectionException jce) {
+            _log.error("Caught Exception: Couldn't connect to datasource - " +
+                    "continuing with an empty dataset");
+            if (tx != null) tx.rollback();
+        }
+        catch (HibernateException he) {
+            _log.error("Caught Exception: Error executing query: " + queryString, he);
+            if (tx != null) tx.rollback();
+        }
+
+        return result;
+    }
+
+
+    /**
+     * executes a plain SQL Query
+     * @param queryString - the SQL query to execute
+     * @return the List of objects returned, or null if the query has some problem
+     */
+    public List execSQLQuery(String queryString) {
+        List result = null;
+        Transaction tx = null;
+        try {
+            tx = getOrBeginTransaction();
+            Query query = getSession().createSQLQuery(queryString);
+            if (query != null) result = query.list();
+        commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +

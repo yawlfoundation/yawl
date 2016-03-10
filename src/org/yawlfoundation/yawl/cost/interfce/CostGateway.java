@@ -78,8 +78,7 @@ public class CostGateway extends HttpServlet {
             String iaURI = (ixURI != null) ? ixURI.replace("/ix", "/ia") : null;
             _service.setEngineLogonName(engineLogonName);
             _service.setEngineLogonPassword(engineLogonPassword);
-            _sessions = new Sessions();
-            _sessions.setupInterfaceA(iaURI, engineLogonName, engineLogonPassword);
+            _sessions = new Sessions(iaURI, engineLogonName, engineLogonPassword);
 
             _service.setXSDPath(context.getResource("/xsd/costmodel.xsd"));
         }

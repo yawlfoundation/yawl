@@ -89,8 +89,15 @@ public class DataListGenerator {
             // if subpanel, build inner output recursively
             if (child instanceof SubPanel) {
                 DynFormField field = getField(child, fieldList);
-                result.append(generateDataList((PanelLayout) child,
-                                 field.getSubFieldList())) ;
+                String dataList = generateDataList((PanelLayout) child,
+                        field.getSubFieldList());
+
+                // don't add empty elements for field with minOccurs=0
+                if (field.hasZeroMinimum() && StringUtil.unwrap(dataList).isEmpty()) {
+                    continue;
+                }
+
+                result.append(dataList);
             }
 
             // if a complextype choice, then deal with it
