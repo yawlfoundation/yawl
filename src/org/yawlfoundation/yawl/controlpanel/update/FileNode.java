@@ -27,6 +27,8 @@ public class FileNode {
 
     public String getName() { return name; }
 
+    public void setName(String n) { name = n; }
+
     public long getSize() { return size; }
 
     public String getMd5() { return md5; }
