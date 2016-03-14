@@ -2,6 +2,7 @@ package org.yawlfoundation.yawl.controlpanel.cli;
 
 import org.yawlfoundation.yawl.controlpanel.update.DownloadWorker;
 import org.yawlfoundation.yawl.controlpanel.update.Downloader;
+import org.yawlfoundation.yawl.controlpanel.update.FileNode;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,9 +20,8 @@ public class CliDownloader extends Downloader {
     private CliProgressPanel _progressPanel;
 
 
-    public CliDownloader(String urlBase, String urlSuffix, List<String> fileNames,
-                                long totalBytes, File targetDir) {
-        super(urlBase, urlSuffix, fileNames, totalBytes, targetDir);
+    public CliDownloader(List<FileNode> fileNodes, long totalBytes, File targetDir) {
+        super(fileNodes, totalBytes, targetDir);
         _workerMap = new HashMap<DownloadWorker, Integer>();
     }
 
@@ -37,9 +37,8 @@ public class CliDownloader extends Downloader {
     public void download() {
         _progressPanel.setText("Downloading " + _totalBytes + " bytes...");
         boolean cancelled = false;
-        for (String fileName : _fileNames) {
-            CliDownloadWorker worker = new CliDownloadWorker(_urlBase, _urlSuffix,
-                     fileName, _totalBytes, _targetDir);
+        for (FileNode fileNode : _fileNodes) {
+            CliDownloadWorker worker = new CliDownloadWorker(fileNode, _totalBytes, _targetDir);
             _workerMap.put(worker, 0);
             worker.start();
         }

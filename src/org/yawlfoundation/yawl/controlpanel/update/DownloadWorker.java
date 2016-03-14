@@ -13,19 +13,14 @@ import java.net.URL;
  */
 public class DownloadWorker extends SwingWorker<Void, Void> {
 
-    protected String _urlBase;
-    protected String _urlSuffix;
-    protected String _fileName;
+    protected FileNode _fileNode;
     protected long _totalBytes;
     protected File _tmpDir;
     protected String _errorMsg;
 
 
-    public DownloadWorker(String urlBase, String urlSuffix, String fileName,
-                          long totalBytes, File tmpDir) {
-        _urlBase = urlBase;
-        _urlSuffix = urlSuffix;
-        _fileName = fileName;
+    public DownloadWorker(FileNode fileNode, long totalBytes, File tmpDir) {
+        _fileNode = fileNode;
         _totalBytes = totalBytes;
         _tmpDir = tmpDir;
     }
@@ -41,9 +36,9 @@ public class DownloadWorker extends SwingWorker<Void, Void> {
         byte[] buffer = new byte[bufferSize];
         int progress = 0;
         try {
-            URL webFile = new URL(_urlBase + _fileName.replace('\\', '/') + _urlSuffix);
-            makeDir(_fileName);
-            String fileTo = _tmpDir + File.separator + _fileName;
+            URL webFile = _fileNode.getAbsoluteURL();
+            makeDir(_fileNode.getName());
+            String fileTo = _tmpDir + File.separator + _fileNode.getName();
             BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
             FileOutputStream fos = new FileOutputStream(fileTo);
             BufferedOutputStream outStream = new BufferedOutputStream(fos);

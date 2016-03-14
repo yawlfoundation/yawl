@@ -959,6 +959,8 @@
             </manifest>
         </jar>
         <checksum file="${output.dir}/yawl-lib-${app.version}.jar"/>
+        <copy todir="${build.dir}/jar"
+              file="${output.dir}/yawl-lib-${app.version}.jar"/>
 
         <!-- copy in non-java files from source (ie. files that don't need compiling) -->
         <copy todir="${classes.dir}">
@@ -1139,6 +1141,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${engine.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    includes="*.jar *.xml *.properties"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
@@ -1216,6 +1219,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${wsInvoker.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1294,6 +1298,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${smsInvoker.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1429,6 +1434,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${worklet.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1587,6 +1593,7 @@
 
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${resource.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -1616,6 +1623,7 @@
             <param name="target" value="${off.app.name}"/>
         </antcall>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   locations="${checksums.dir}/locations.xml"
                    appname="${off.app.name}"/>
         <delete dir="${temp.dir}/${off.app.name}" deleteonexit="true"/>
     </target>
@@ -1828,6 +1836,7 @@
         <checksum file="${output.dir}/${monitor.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${monitor.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2032,6 +2041,7 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${cost.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2101,6 +2111,7 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${twitter.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2165,6 +2176,7 @@
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mail.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2246,6 +2258,7 @@
         </war>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${scheduling.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2324,6 +2337,7 @@
         <checksum file="${output.dir}/${digitalSignature.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${digitalSignature.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2395,6 +2409,7 @@
         <checksum file="${output.dir}/${mailSender.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${mailSender.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2450,6 +2465,7 @@
         <checksum file="${output.dir}/${docStore.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${docStore.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2517,6 +2533,7 @@
         <checksum file="${output.dir}/${proclet.app.name}.war"/>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
                    appname="${proclet.app.name}"
+                   locations="${checksums.dir}/locations.xml"
                    excludes="WEB-INF/lib/* classes/org/*
                              log4j2.xml hibernate.properties"/>
 
@@ -2576,6 +2593,8 @@
         </jar>
         <copy todir="${output.dir}"
               file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
+        <copy todir="${build.dir}/jar"
+              file="${temp.dir}/${proclet.app.name}${webinf.dir}/${proclet.app.name}/editor/procletEditor.jar"/>
     </target>
 
 
@@ -2619,7 +2638,10 @@
             </manifest>
         </jar>
         <checkSums rootdir="${basedir}" todir="${checksums.dir}"
+                   locations="${checksums.dir}/locations.xml"
                    appname="controlpanel"/>
+        <copy todir="${build.dir}/jar"
+              file="${output.dir}/YawlControlPanel-${app.version}.jar"/>
         <antcall target="updateBuildProperties">
             <param name="target" value="controlpanel"/>
         </antcall>

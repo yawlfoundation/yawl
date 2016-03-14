@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.controlpanel.cli;
 
 import org.yawlfoundation.yawl.controlpanel.update.DownloadWorker;
+import org.yawlfoundation.yawl.controlpanel.update.FileNode;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -20,9 +21,8 @@ public class CliDownloadWorker extends DownloadWorker {
     private Thread runner;
 
 
-    public CliDownloadWorker(String urlBase, String urlSuffix, String fileName,
-                              long totalBytes, File tmpDir) {
-        super(urlBase, urlSuffix, fileName, totalBytes, tmpDir);
+    public CliDownloadWorker(FileNode fileNode, long totalBytes, File tmpDir) {
+        super(fileNode, totalBytes, tmpDir);
         progressPercent = 0;
         cancelled = false;
     }
@@ -39,9 +39,9 @@ public class CliDownloadWorker extends DownloadWorker {
                 int bufferSize = 8192;
                 byte[] buffer = new byte[bufferSize];
                 try {
-                    URL webFile = new URL(_urlBase + _fileName.replace('\\', '/') + _urlSuffix);
-                    makeDir(_fileName);
-                    String fileTo = _tmpDir + File.separator + _fileName;
+                    URL webFile = _fileNode.getAbsoluteURL();
+                    makeDir(_fileNode.getName());
+                    String fileTo = _tmpDir + File.separator + _fileNode.getName();
                     BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
                     FileOutputStream fos = new FileOutputStream(fileTo);
                     BufferedOutputStream outStream = new BufferedOutputStream(fos);

@@ -66,10 +66,11 @@ public class ChecksumsReader {
 
     protected List<XNode> getLibList() { return getChildren(getLibNode()); }
 
-    protected Map<String, FileNode> getLibMap() {
+    protected Map<String, FileNode> getLibMap(PathResolver pathResolver) {
         Map<String, FileNode> map = new HashMap<String, FileNode>();
         for (XNode node : getLibList()) {
-            map.put(node.getAttributeValue("name"), new FileNode(node));
+            map.put(node.getAttributeValue("name"),
+                    new FileNode(node, pathResolver.get(node.getAttributeValue("path"))));
         }
         return map;
     }

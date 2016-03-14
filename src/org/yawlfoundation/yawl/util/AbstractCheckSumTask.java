@@ -70,8 +70,7 @@ public abstract class AbstractCheckSumTask extends Task {
     }
 
 
-    public abstract String toXML(File checkDir, CheckSummer summer,
-                                 FileLocations locations) throws IOException;
+    public abstract String toXML(File checkDir, CheckSummer summer) throws IOException;
 
 
     /*****************************************************************************/
@@ -151,8 +150,7 @@ public abstract class AbstractCheckSumTask extends Task {
         if (file == null) file = DEFAULT_TO_FILE;
         if (_antIncludes == null) _antIncludes = Collections.emptyList();
         if (_antExcludes == null) _antExcludes = Collections.emptyList();
-        String xml = toXML(new File(rootDir), new CheckSummer(),
-                new FileLocations(_antLocations));
+        String xml = toXML(new File(rootDir), new CheckSummer());
         writeToFile(new File(toDir, file), xml);
     }
 
@@ -189,13 +187,12 @@ public abstract class AbstractCheckSumTask extends Task {
 
     /**************************************************************************/
 
-    protected class FileLocations {
+    protected abstract class FileLocations {
 
         protected XNode paths = new XNode("paths");    // default
         protected Map<String, String> locations = new HashMap<String, String>();
 
-
-        FileLocations(String fileName) {
+        public FileLocations(String fileName) {
             if (fileName != null) {
                 String xml = StringUtil.fileToString(fileName);
                 if (xml != null) {
@@ -208,21 +205,14 @@ public abstract class AbstractCheckSumTask extends Task {
             }
         }
 
-        void loadLocations(XNode root) {
-            XNode files = root.getChild("files");
-            for (XNode fNode : files.getChildren()) {
-                String name = fNode.getAttributeValue("name");
-                String path  = fNode.getAttributeValue("path");
-                locations.put(name, path);
-            }
-        }
-
         public XNode getPaths() { return paths; }
 
         public String get(String fileName) {
             String path = locations.get(fileName);
             return path != null ? path : "";
         }
+
+        public abstract void loadLocations(XNode root);
     }
 
 }

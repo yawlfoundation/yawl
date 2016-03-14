@@ -32,9 +32,7 @@ public class CliUpdater extends Updater {
     protected void download(List<AppUpdate> updates) {
         long downloadSize = getDownloadSize(updates);
         getProgressPanel().setDownloadSize(downloadSize);
-        _downloader = new CliDownloader(UpdateConstants.getBasePath(),
-                UpdateConstants.URL_SUFFIX, _downloads,
-                downloadSize, FileUtil.getTmpDir());
+        _downloader = new CliDownloader(_downloads, downloadSize, FileUtil.getTmpDir());
         _downloader.setProgressPanel(getProgressPanel());
         _downloader.download();
         downloadCompleted();

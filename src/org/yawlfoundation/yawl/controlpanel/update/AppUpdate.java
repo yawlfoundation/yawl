@@ -27,12 +27,16 @@ public class AppUpdate {
 
     protected void addDownload(FileNode node) { add(_downloads, node); }
 
-    protected void addDownload(XNode xNode) { add(_downloads, xNode); }
+    protected void addDownload(XNode xNode, String path) {
+        add(_downloads, xNode, path);
+    }
 
 
     protected void addDeletion(FileNode node) { add(_deletes, node); }
 
-    protected void addDeletion(XNode xNode) { add(_deletes, xNode); }
+    protected void addDeletion(XNode xNode, String path) {
+        add(_deletes, xNode, path);
+    }
 
 
     protected String getAppName() { return _appName; }
@@ -57,7 +61,11 @@ public class AppUpdate {
 
     protected List<String> getDownloadNames() { return getNames(_downloads); }
 
+    protected Set<FileNode> getDownloads() { return _downloads; }
+
     protected List<String> getDeletionNames() { return getNames(_deletes); }
+
+    protected Set<FileNode> getDeletes() { return _deletes; }
 
 
     protected long getTotalUpdateSize() {
@@ -86,7 +94,10 @@ public class AppUpdate {
 
     private void add(Set<FileNode> list, FileNode node) { list.add(node); }
 
-    private void add(Set<FileNode> list, XNode node) { list.add(new FileNode(node)); }
+
+    private void add(Set<FileNode> list, XNode node, String path) {
+        list.add(new FileNode(node, path));
+    }
 
 
     private List<String> getNames(Set<FileNode> list) {

@@ -18,12 +18,14 @@ public class Differ {
     private ChecksumsReader _latest;
     private ChecksumsReader _current;
     private AppUpdate _mandatory;
+    private PathResolver _pathResolver;
 
 
     public Differ(File latest, File current) {
         _current = new ChecksumsReader(current);
         if (latest != null) {
             _latest = new ChecksumsReader(latest);
+            _pathResolver = new PathResolver(_latest.getNode("paths"));
         }
   //      _mandatory = new MandatoryUpdates().get();
     }
@@ -145,18 +147,24 @@ public class Differ {
         AppUpdate upList = new AppUpdate(appName);
         ChecksumsReader reader = adding ? _latest : _current;
         for (XNode node : reader.getAppFileList(appName)) {
-            if (adding) upList.addDownload(node);
-            else upList.addDeletion(node);
+            if (adding) {
+                upList.addDownload(node, getPath(node));
+            }
+            else upList.addDeletion(node, getPath(node));
         }
         return upList;
     }
 
 
+    private String getPath(XNode node) {
+        return _pathResolver.get(node.getAttributeValue("path"));
+    }
+
     // for new installs
     public AppUpdate getAppLibs(String appName) {
         List<String> installed = getInstalledLibNames();
         AppUpdate upList = new AppUpdate(null);
-        Map<String, FileNode> libMap = _latest.getLibMap();
+        Map<String, FileNode> libMap = _latest.getLibMap(_pathResolver);
         for (XNode node : _latest.getAppLibList(appName)) {
             String name = node.getAttributeValue("name");
             if (! installed.contains(name)) {
@@ -218,7 +226,7 @@ public class Differ {
             String latestMd5 = latestNode.getAttributeValue("md5");
             if (! (currentMd5 == null || latestMd5 == null || currentMd5.equals(latestMd5))) {
                 appUpdate = new AppUpdate(appName);
-                appUpdate.addDownload(latestNode);
+                appUpdate.addDownload(latestNode, getPath(latestNode));
             }
         }
         return appUpdate;
@@ -257,7 +265,7 @@ public class Differ {
     private Map<String, FileNode> getFileMap(List<XNode> fileList) {
         Map<String, FileNode> fileMap = new HashMap<String, FileNode>();
         for (XNode child : fileList) {
-            FileNode fileNode = new FileNode(child);
+            FileNode fileNode = new FileNode(child, getPath(child));
             fileMap.put(fileNode.getName(), fileNode);
         }
         return fileMap;

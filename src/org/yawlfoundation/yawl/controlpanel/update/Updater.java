@@ -39,7 +39,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
     protected Differ _differ;
     protected List<AppUpdate> _installs;
-    protected List<String> _downloads;
+    protected List<FileNode> _downloads;
     protected List<String> _deletions;
     protected State _state;
     protected boolean _updatingThis;                      // updating control panel?
@@ -215,16 +215,16 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     }
 
 
-    protected List<String> getDownloadList(List<AppUpdate> updates) {
+    protected List<FileNode> getDownloadList(List<AppUpdate> updates) {
         consolidateLibs(updates);
-        List<String> fileNames = new ArrayList<String>();
+        List<FileNode> fileNodes = new ArrayList<FileNode>();
         for (AppUpdate list : updates) {
             if (list.isControlPanelApp()) {
                 _updatingThis = true;
             }
-            fileNames.addAll(list.getDownloadNames());
+            fileNodes.addAll(list.getDownloads());
         }
-        return fileNames;
+        return fileNodes;
     }
 
 
@@ -304,9 +304,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected void download(List<AppUpdate> updates) {
         long downloadSize = getDownloadSize(updates);
         getProgressPanel().setDownloadSize(downloadSize);
-        _downloader = new Downloader(UpdateConstants.getBasePath(),
-                UpdateConstants.URL_SUFFIX, _downloads,
-                downloadSize, FileUtil.getTmpDir());
+        _downloader = new Downloader(_downloads, downloadSize, FileUtil.getTmpDir());
         _downloader.addPropertyChangeListener(this);
         _downloader.execute();
     }
@@ -375,7 +373,8 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
     protected File doUpdates(File tomcatDir)  {
         File tmpDir = FileUtil.getTmpDir();
         int port = TomcatUtil.getTomcatServerPort();
-        for (String fileName : _downloads) {
+        for (FileNode fileNode : _downloads) {
+            String fileName = fileNode.getName();
             if (! isControlPanelFileName(fileName)) {            // do CP last
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);
@@ -426,14 +425,15 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     protected boolean onlyUpdatingControlPanel() {
-        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0));
+        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0).getName());
     }
 
 
     private boolean updateThis() {
         File tmpDir = FileUtil.getTmpDir();
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
-        for (String fileName : _downloads) {
+        for (FileNode fileNode : _downloads) {
+            String fileName = fileNode.getName();
             if (isControlPanelFileName(fileName)) {
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);

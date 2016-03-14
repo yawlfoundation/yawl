@@ -11,17 +11,24 @@ import static org.yawlfoundation.yawl.util.HttpUtil.resolveURL;
  */
 public class UpdateConstants {
 
-    private static final String BASE_1 = "http://sourceforge.net";
-    private static final String PATH_1 = "/projects/yawl/files/updatecache4/engine/";
-    private static final String SUFFIX_1 = "/download";
+//    private static final String BASE_1 = "http://sourceforge.net";
+//    private static final String PATH_1 = "/projects/yawl/files/updatecache4/engine/";
+//    private static final String SUFFIX_1 = "/download";
+
+    private static final String BASE_1 = "https://raw.githubusercontent.com";
+    private static final String PATH_1 = "/yawlfoundation/yawl/master/";
+    private static final String CHECK_PATH_1 = "checksums/";
+    private static final String SUFFIX_1 = "";
 
     private static final String BASE_2 = "http://yawlfoundation.org";
     private static final String PATH_2 = "/yawl/updates/engine/";
+    private static final String CHECK_PATH_2 = "checksums/";
     private static final String SUFFIX_2 = "";
 
 
     public static String URL_BASE;
     public static String URL_PATH;
+    public static String CHECK_PATH;
     public static String URL_SUFFIX;
 
     public static final String CHECK_FILE = "checksums.xml";
@@ -31,8 +38,8 @@ public class UpdateConstants {
     // If neither set of values is responsive, leaves the values as null.
     public static void init() throws IOException {
         if (URL_BASE == null) {
-            if (!resolve(BASE_1, PATH_1, SUFFIX_1)) {
-                resolve(BASE_2, PATH_2, SUFFIX_2);
+            if (!resolve(BASE_1, PATH_1, CHECK_PATH_1, SUFFIX_1)) {
+                resolve(BASE_2, PATH_2, CHECK_PATH_2, SUFFIX_2);
             }
         }
         checkInitSuccess();
@@ -41,7 +48,7 @@ public class UpdateConstants {
 
     public static URL getCheckUrl() throws IOException {
         checkInitSuccess();
-        return new URL(URL_BASE + URL_PATH + "lib/" + CHECK_FILE + URL_SUFFIX);
+        return new URL(URL_BASE + URL_PATH + CHECK_PATH + CHECK_FILE + URL_SUFFIX);
     }
 
 
@@ -50,13 +57,14 @@ public class UpdateConstants {
     }
 
 
-    private static boolean resolve(String base, String path, String suffix) {
+    private static boolean resolve(String base, String path, String checkPath, String suffix) {
         try {
-            URL url = resolveURL(base + path + "lib/" + CHECK_FILE + suffix);
+            URL url = resolveURL(base + path + checkPath + CHECK_FILE + suffix);
             if (url != null) {
                 URL_BASE = url.getProtocol() + "://" + url.getAuthority();
                 String fullPath = url.getPath();
-                URL_PATH = fullPath.substring(0, fullPath.indexOf("lib/"));
+                URL_PATH = fullPath.substring(0, fullPath.indexOf(checkPath));
+                CHECK_PATH = checkPath;
                 URL_SUFFIX = fullPath.substring(fullPath.indexOf(CHECK_FILE) +
                         CHECK_FILE.length());
             }
