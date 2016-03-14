@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.0</version>
-  <timestamp>2016-03-14 10.38.22</timestamp>
+  <timestamp>2016-03-14 20.59.45</timestamp>
   <lib hash="4db2d9c16aab52d6672cd8ebcf2f98e6">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26" path="A"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T13:39:26" path="A"/>
@@ -843,15 +843,16 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.0.jar" md5="dc969d295583c0b522b83b63d4bc32f7" size="2494290" timestamp="2016-03-14T10:38:21" path="AM"/>
+    <file name="yawl-lib-4.0.jar" md5="d8c38a461223bce927ab9c7c4a3a7ee3" size="2494290" timestamp="2016-03-14T20:59:45" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>369</build>
-    <file name="YawlControlPanel-4.0.jar" md5="74f8d30a44d4f07ca4c12a006a4cd9b6" size="337315" timestamp="2016-03-14T10:38:22" path="AM"/>
+    <build>370</build>
+    <file name="YawlControlPanel-4.0.jar" md5="0f0d5e1f4af8ce6c9ea1daf33db6c9ba" size="337965" timestamp="2016-03-14T20:59:45" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>
     <path id="base">yawlfoundation/yawl/master/</path>
+    <path id="check">checksums/</path>
     <path id="A">build/3rdParty/lib/</path>
     <path id="B">build/engine/</path>
     <path id="C">src/org/yawlfoundation/yawl/engine/</path>

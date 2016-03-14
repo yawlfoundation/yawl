@@ -1,5 +1,9 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
+import org.yawlfoundation.yawl.util.XNode;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -35,12 +39,12 @@ public class UpdateConstants {
 
 
     // Checks the url values for a server response. If success, sets the values.
-    // If neither set of values is responsive, leaves the values as null.
+    // If no set of values is responsive, leaves the values as null.
     public static void init() throws IOException {
         if (URL_BASE == null) {
-            if (!resolve(BASE_1, PATH_1, CHECK_PATH_1, SUFFIX_1)) {
+            boolean ignore = initFromChecksums() ||
+                resolve(BASE_1, PATH_1, CHECK_PATH_1, SUFFIX_1) ||
                 resolve(BASE_2, PATH_2, CHECK_PATH_2, SUFFIX_2);
-            }
         }
         checkInitSuccess();
     }
@@ -77,9 +81,38 @@ public class UpdateConstants {
 
 
     private static void checkInitSuccess() throws IOException {
-        if (URL_BASE == null || URL_PATH == null || URL_SUFFIX == null) {
-            throw new IOException("Update servers are offline or unavailable");
+        if (anyAreNull(URL_BASE, URL_PATH, CHECK_PATH, URL_SUFFIX)) {
+            throw new IOException("Update servers are currently offline or unavailable");
         }
+    }
+
+
+    private static boolean initFromChecksums() {
+        File current = FileUtil.getLocalCheckSumFile();
+        if (current.exists()) {
+            ChecksumsReader reader = new ChecksumsReader(current);
+            XNode pathsNode = reader.getNode("paths");
+            if (pathsNode != null) {
+                PathResolver resolver = new PathResolver(pathsNode);
+                String base = resolver.get("host");
+                String path = resolver.get("base");
+                String check = resolver.get("check");
+                String suffix = resolver.get("suffix");
+                if (! anyAreNull(base, path, check)) {
+                    if (suffix == null) suffix = "";
+                    return resolve(base, path, check, suffix);
+                }
+            }
+        }
+        return false;
+    }
+
+
+    private static boolean anyAreNull(String... strings) {
+        for (String s : strings) {
+            if (s == null) return true;
+        }
+        return false;
     }
 
 }

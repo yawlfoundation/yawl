@@ -3,6 +3,7 @@
     <paths>
         <path id="host">https://raw.githubusercontent.com/</path>
         <path id="base">yawlfoundation/yawl/master/</path>
+        <path id="check">checksums/</path>
         <path id="A">build/3rdParty/lib/</path>
         <path id="B">build/engine/</path>
         <path id="C">src/org/yawlfoundation/yawl/engine/</path>
