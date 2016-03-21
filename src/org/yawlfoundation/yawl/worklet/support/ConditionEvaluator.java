@@ -452,7 +452,7 @@ public class ConditionEvaluator {
         try {
             if (expr.startsWith("{")) expr = deQuote(expr);      // remove braces
             String query = String.format("boolean(%s)", expr);
-            return SaxonUtil.evaluateQuery(query, new Document(data));
+            return SaxonUtil.evaluateQuery(query, new Document(data.clone()));
         }
         catch (SaxonApiException sae) {
             throw new RdrConditionException("Invalid XPath expression (" + expr + ").");
@@ -691,8 +691,11 @@ public class ConditionEvaluator {
             }
             else {
                 // evaluate parenthesised sub-expressions first
-                subExpr = extractSubExpr(s) ;                      // get ( subexpr )
-                ans = parseAndEvaluate(deQuote(subExpr), data) ;   // recurse
+                subExpr = extractSubExpr(s);                       // get ( subexpr )
+                String internal = deQuote(subExpr);
+
+                // recurse if required
+                ans = (internal.isEmpty()) ? internal : parseAndEvaluate(internal, data);
                 s = replaceStr(s, subExpr, ans) ;                  // insert result
             }
             parIndex = s.indexOf('(');

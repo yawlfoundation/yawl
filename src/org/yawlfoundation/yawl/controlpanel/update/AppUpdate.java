@@ -80,7 +80,6 @@ public class AppUpdate {
     protected Map<String, String> getMd5Map() {
         Map<String, String> map = new HashMap<String, String>();
         for (FileNode node : _downloads) {
-//             map.put(fixPath(node.getName()), node.getMd5());
             map.put(node.getName(), node.getMd5());
         }
         return map;
@@ -107,13 +106,14 @@ public class AppUpdate {
     private List<String> getNames(Set<FileNode> list) {
         List<String> names = new ArrayList<String>();
         for (FileNode node : list) {
-    //         names.add(fixPath(node.getName()));
             names.add(node.getName());
         }
         return names;
     }
 
 
+    // takes the path of the downloaded file and prefixes it with the appropriate
+    // actual installed path of the file
     private String fixPath(String path) {
         char sep = FileUtil.SEP;
         if (sep == '\\') path = path.replace('/', sep);
