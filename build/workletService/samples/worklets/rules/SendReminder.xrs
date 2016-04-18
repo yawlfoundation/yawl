@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<spec uri="SendReminder">
+<spec uri="SendReminder" version="0.4" identifier="UID_7f12c563-d237-4c41-9586-258eea4ace4d">
     <timeout>
-        <task name="Receive">
+        <task name="Receive_Reply">
             <ruleNode>
                 <id>0</id>
                 <parent>-1</parent>

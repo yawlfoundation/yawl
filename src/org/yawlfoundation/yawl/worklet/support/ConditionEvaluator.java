@@ -81,6 +81,8 @@ public class ConditionEvaluator {
     private static final String[] _AllOps     = { "*", "/", "+", "-", ">=", "<=",
             "<", ">", "!=", "=", "&", "|", "!"} ;
 
+    private boolean _isDesignTime = false;
+
     private static final Logger _log = LogManager.getLogger(ConditionEvaluator.class);
 
 
@@ -96,7 +98,8 @@ public class ConditionEvaluator {
      *
      *  @return the boolean result of the evaluation
      */
-    public boolean evaluate(String cond, Element data) throws RdrConditionException {
+    public boolean evaluate(String cond, Element data, boolean isDesignTime)
+            throws RdrConditionException {
         if (StringUtil.isNullOrEmpty(cond)) {
             throw new RdrConditionException("Cannot evaluate tree: condition is empty");
         }
@@ -104,6 +107,7 @@ public class ConditionEvaluator {
             throw new RdrConditionException("Cannot evaluate tree: data element is null");
         }
 
+        _isDesignTime = isDesignTime;
         String result;
 
         // DEBUG: log received items
@@ -122,6 +126,12 @@ public class ConditionEvaluator {
         if (isBoolean(result))
             return result.equalsIgnoreCase("TRUE") ;
         else throw new RdrConditionException(getMessage(1));   // result not T/F
+    }
+
+
+    // default runtime call
+    public boolean evaluate(String cond, Element data) throws RdrConditionException {
+        return evaluate(cond, data, false);
     }
 
     //==========================================================================//
@@ -729,7 +739,7 @@ public class ConditionEvaluator {
 
         // one token left - can be boolean string or single (boolean) function call
         if (isFunctionCall(tokens[0]))
-            tokens[0] = evalFunction(tokens[0], data);
+            tokens[0] = _isDesignTime ? "true" : evalFunction(tokens[0], data);
         if (negation) {
             tokens[0] = tokens[0].equalsIgnoreCase("true") ? "false" : "true";
         }

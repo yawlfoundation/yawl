@@ -127,7 +127,7 @@ public class ComponentsPane extends JLayeredPane
         JButton button = new JButton(label);
         button.setActionCommand(label);
         button.setMnemonic(label.charAt(0));
-        button.setPreferredSize(new Dimension(75, 30));
+        button.setPreferredSize(new Dimension(button.getPreferredSize().width, 30));
         button.setToolTipText(tip);
         button.addActionListener(this);
         return button;
