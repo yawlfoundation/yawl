@@ -28,7 +28,7 @@ public class ToolBar extends JToolBar implements ActionListener, EngineStatusLis
 
     private static final String YAWL_URL = "http://www.yawlfoundation.org/";
     private static final String EXAMPLES_URL = YAWL_URL + "pages/resources/examples.html";
-    private static final String MANUAL_URL = YAWL_URL + "manuals/YAWLUserManual3.0.pdf";
+    private static final String MANUAL_URL = YAWL_URL + "manuals/YAWLUserManual4.0.pdf";
 
     private static final Dimension spacer = new Dimension(11,16);
 

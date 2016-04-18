@@ -12,6 +12,8 @@ import java.util.Map;
 public class PathResolver {
     String host;
     String base;
+    String check;
+    String suffix;
     Map<String, String> paths;
 
     PathResolver(XNode pathsNode) {
@@ -26,6 +28,12 @@ public class PathResolver {
                 else if ("base".equals(id)) {
                     base = value;
                 }
+                else if ("check".equals(id)) {
+                    check = value;
+                }
+                else if ("suffix".equals(id)) {
+                    suffix = value;
+                }
                 else {
                     paths.put(id, value);
                 }
@@ -35,6 +43,11 @@ public class PathResolver {
 
 
     String get(String id) {
+        if (id == null) return "";
+        if (id.equals("host")) return host;
+        if (id.equals("base")) return base;
+        if (id.equals("check")) return check;
+        if (id.equals("suffix")) return suffix;
         String path = paths.get(id);
         return path != null ? host + base + path : "";
     }
