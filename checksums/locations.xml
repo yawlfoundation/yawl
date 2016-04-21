@@ -13,9 +13,9 @@
         <path id="G">graphics/</path>
         <path id="H">build/workletService/welcome/graphics/</path>
         <path id="I">src/org/yawlfoundation/yawl/worklet/jsp/</path>
-        <path id="J">build/workletService/samples/worklets</path>
-        <path id="JP">build/workletService/samples/parents</path>
-        <path id="JR">build/workletService/samples/worklets/rules</path>
+        <path id="J">build/workletService/samples/worklets/</path>
+        <path id="JP">build/workletService/samples/parents/</path>
+        <path id="JR">build/workletService/samples/worklets/rules/</path>
         <path id="K">build/workletService/</path>
         <path id="L">build/workletService/welcome/</path>
         <path id="M">src/org/yawlfoundation/yawl/resourcing/jsf/jsp/</path>
