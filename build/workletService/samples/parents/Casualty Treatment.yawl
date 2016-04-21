@@ -23,7 +23,7 @@
       </localVariable>
       <localVariable>
         <name>Age</name>
-        <type>double</type>
+        <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
         <initialValue>21</initialValue>
       </localVariable>
