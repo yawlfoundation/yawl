@@ -13,7 +13,9 @@
         <path id="G">graphics/</path>
         <path id="H">build/workletService/welcome/graphics/</path>
         <path id="I">src/org/yawlfoundation/yawl/worklet/jsp/</path>
-        <path id="J">build/workletService/samples/</path>
+        <path id="J">build/workletService/samples/worklets</path>
+        <path id="JP">build/workletService/samples/parents</path>
+        <path id="JR">build/workletService/samples/worklets/rules</path>
         <path id="K">build/workletService/</path>
         <path id="L">build/workletService/welcome/</path>
         <path id="M">src/org/yawlfoundation/yawl/resourcing/jsf/jsp/</path>
@@ -211,13 +213,15 @@
             <file name="jsp/wsNewCaseException.jsp" path="I"/>
             <file name="jsp/wsNewItemException.jsp" path="I"/>
             <file name="jsp/wsRejectWorklet.jsp" path="I"/>
-            <file name="samples/rules/Casualty_Treatment.xrs" path="J"/>
-            <file name="samples/rules/OrganiseConcert.xrs" path="J"/>
-            <file name="samples/rules/SendReminder.xrs" path="J"/>
-            <file name="samples/rules/TestCancelItem.xrs" path="J"/>
-            <file name="samples/rules/TimeoutTest2.xrs" path="J"/>
-            <file name="samples/rules/TimeoutTest3.xrs" path="J"/>
-            <file name="samples/rules/wListMaker.xrs" path="J"/>
+            <file name="samples/parents/Casualty_Treatment.yawl" path="JP"/>
+            <file name="samples/parents/OrganiseConcert.yawl" path="JP"/>
+            <file name="samples/parents/Sales.yawl" path="JP"/>
+            <file name="samples/parents/wListMaker.yawl" path="JP"/>
+            <file name="samples/worklets/rules/Casualty_Treatment.xrs" path="JR"/>
+            <file name="samples/worklets/rules/OrganiseConcert.xrs" path="JR"/>
+            <file name="samples/worklets/rules/SendReminder.xrs" path="JR"/>
+            <file name="samples/worklets/rules/Sales.xrs" path="JR"/>
+            <file name="samples/worklets/rules/wListMaker.xrs" path="JR"/>
             <file name="samples/worklets/BobFive.yawl" path="J"/>
             <file name="samples/worklets/BobFour.yawl" path="J"/>
             <file name="samples/worklets/BobOne.yawl" path="J"/>
@@ -226,18 +230,11 @@
             <file name="samples/worklets/BobZero.yawl" path="J"/>
             <file name="samples/worklets/CancelOrder.yawl" path="J"/>
             <file name="samples/worklets/CancelShow.yawl" path="J"/>
-            <file name="samples/worklets/CancelTest.yawl" path="J"/>
-            <file name="samples/worklets/Casualty Treatment.yawl" path="J"/>
             <file name="samples/worklets/ChangeToLargerVenue.yawl" path="J"/>
             <file name="samples/worklets/ChangeToMidVenue.yawl" path="J"/>
             <file name="samples/worklets/ChangeToSmallVenue.yawl" path="J"/>
-            <file name="samples/worklets/OrganiseConcert.yawl" path="J"/>
             <file name="samples/worklets/OrganiseRefreshments.yawl" path="J"/>
             <file name="samples/worklets/SendReminder.yawl" path="J"/>
-            <file name="samples/worklets/TestCancelItem.yawl" path="J"/>
-            <file name="samples/worklets/TimeoutTest.yawl" path="J"/>
-            <file name="samples/worklets/TimeoutTest2.yawl" path="J"/>
-            <file name="samples/worklets/TimeoutTest3.yawl" path="J"/>
             <file name="samples/worklets/TreatAbPain.yawl" path="J"/>
             <file name="samples/worklets/TreatFever.yawl" path="J"/>
             <file name="samples/worklets/TreatFracture.yawl" path="J"/>
@@ -247,8 +244,6 @@
             <file name="samples/worklets/TreatObesity.yawl" path="J"/>
             <file name="samples/worklets/TreatRash.yawl" path="J"/>
             <file name="samples/worklets/TreatWound.yawl" path="J"/>
-            <file name="samples/worklets/VarTest.yawl" path="J"/>
-            <file name="samples/worklets/wListMaker.yawl" path="J"/>
             <file name="WEB-INF/classes/version.properties" path="K"/>
             <file name="WEB-INF/web.xml" path="K"/>
             <file name="welcome.htm" path="L"/>
