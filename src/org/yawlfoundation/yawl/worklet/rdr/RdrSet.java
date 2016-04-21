@@ -177,12 +177,21 @@ public class RdrSet {
     }
     
     private XNode createRootXNode() {
-        String rootTag = _specID != null ? "spec" :
-                _processName != null ? "process" : "root";
-        XNode xRoot = new XNode(rootTag);
-        String name = getName();
-        if (name != null) xRoot.addAttribute("name", name);
-        return xRoot;
+        XNode xRoot = null;
+        if (_specID != null) {
+            xRoot = new XNode("spec");
+            xRoot.addAttribute("uri", _specID.getUri());
+            if (_specID.getIdentifier() != null) {
+                xRoot.addAttribute("version", _specID.getVersionAsString());
+                xRoot.addAttribute("identifier", _specID.getIdentifier());
+            }
+        }
+        else if (_processName != null) {
+            xRoot = new XNode("process");
+            String name = getName();
+            if (name != null) xRoot.addAttribute("name", name);
+        }
+        return xRoot != null ? xRoot : new XNode("root");
     }
     
     

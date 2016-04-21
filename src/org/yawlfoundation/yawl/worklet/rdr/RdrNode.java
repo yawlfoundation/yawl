@@ -330,6 +330,7 @@ public class RdrNode implements Cloneable {
      */
     protected void fromXNode(XNode xNode) {
         if (xNode != null) {
+            _attributes = new YAttributeMap(xNode.getAttributes());
             id = StringUtil.strToInt(xNode.getChildText("id"), -1);
             parent = null;
             trueChild = null;

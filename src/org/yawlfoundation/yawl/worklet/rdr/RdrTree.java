@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -136,9 +137,20 @@ public class RdrTree {
     	taskId = id ;
     }
 
-    public void setAttributes(String rdrSetName, RuleType rType) {
+    public void setAttributes(String processName, RuleType rType) {
         attributes = new YAttributeMap();
-        attributes.put("ruleset", rdrSetName);
+        attributes.put("name", processName);
+        attributes.put("ruletype", rType.toString());
+    }
+
+
+    public void setAttributes(YSpecificationID specID, RuleType rType) {
+        attributes = new YAttributeMap();
+        attributes.put("uri", specID.getUri());
+        if (specID.getIdentifier() != null) {
+            attributes.put("version", specID.getVersionAsString());
+            attributes.put("identifier", specID.getIdentifier());
+        }
         attributes.put("ruletype", rType.toString());
     }
 

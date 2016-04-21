@@ -295,7 +295,14 @@ public class Rdr {
     private RdrTree getTree(RdrSet ruleSet, String taskID, RuleType rType) {
         if (ruleSet == null || ! ruleSet.hasRules()) return null;
         RdrTree tree = ruleSet.getTree(rType, taskID) ;
-        if (tree != null) tree.setAttributes(ruleSet.getName(), rType);
+        if (tree != null) {
+            if (ruleSet.getProcessName() != null) {
+                tree.setAttributes(ruleSet.getName(), rType);
+            }
+            else {
+                tree.setAttributes(ruleSet.getSpecificationID(), rType);
+            }
+        }
         return tree;
     }
 
