@@ -235,8 +235,8 @@
         <file name="jsp/wsNewCaseException.jsp" md5="b1254186d21eeebffa6813b81a8ee705" size="4359" timestamp="2016-04-22T14:59:50" path="I"/>
         <file name="jsp/wsNewItemException.jsp" md5="e6b8870a32e4fd6c711ec4f1a43db290" size="4921" timestamp="2016-04-22T14:59:50" path="I"/>
         <file name="jsp/wsRejectWorklet.jsp" md5="875a60186f047ed0cdf09c2661aa9fa3" size="4219" timestamp="2016-04-22T14:59:50" path="I"/>
-        <file name="samples/parents/Casualty_Treatment.yawl" md5="312fbc3a0469736897c62af4ba42d69d" size="25426" timestamp="2016-04-22T14:59:50" path="JP"/>
-        <file name="samples/parents/OrganiseConcert.yawl" md5="5bc109c5873476b11f67446875e85f98" size="7381" timestamp="2016-04-22T14:59:50" path="JP"/>
+        <file name="samples/parents/Casualty_Treatment.yawl" md5="39ed1a689f5c887dbee8a208ba678f90" size="25426" timestamp="2016-04-22T14:59:50" path="JP"/>
+        <file name="samples/parents/OrganiseConcert.yawl" md5="4a8a917f8e5a46d4dbb652b8bd13032f" size="7381" timestamp="2016-04-22T14:59:50" path="JP"/>
         <file name="samples/parents/Sales.yawl" md5="59db5dc31307c56a331c80fb0e0e1324" size="13200" timestamp="2016-04-22T14:59:50" path="JP"/>
         <file name="samples/parents/wListMaker.yawl" md5="023765d58b6711fd419e198a3673c27c" size="5990" timestamp="2016-04-22T14:59:50" path="JP"/>
         <file name="samples/worklets/BobFive.yawl" md5="a4dde679312e0b74054a6e9494eee48e" size="2416" timestamp="2016-04-22T14:59:50" path="J"/>

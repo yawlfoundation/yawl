@@ -70,4 +70,22 @@ public class CheckSummer {
         }
     }
 
+
+    public static void main(String arg[]) {
+        CheckSummer cs = new CheckSummer();
+        String tp = "/private/var/folders/tv/j3c9pyjd5qzglkq2_yb83c2m0000gr/T/webapps/workletService/samples/parents/";
+        String sp = "/Users/adamsmj/Documents/Git/yawl/build/workletService/samples/parents/";
+        String ct = "Casualty_Treatment.yawl";
+        String oc = "OrganiseConcert.yawl";
+        try {
+            System.out.println(cs.getMD5Hex(tp + ct));
+            System.out.println(cs.getMD5Hex(sp + ct));
+            System.out.println(cs.getMD5Hex(tp + oc));
+            System.out.println(cs.getMD5Hex(sp + oc));
+        }
+        catch (IOException e) {
+            System.out.println("no");
+        }
+    }
+
 }
