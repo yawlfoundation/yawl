@@ -2,7 +2,7 @@
 <specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta4.xsd">
   <specification uri="Casualty_Treatment">
 	<name>Casualty Treatment</name>
-	<documentation>A simple medical treatment process designed to test and demonstrate the Worklet Dynamic Process Selection Service within the YAWL engine.</documentation>    <metaData />
+	<documentation>A simple medical treatment process designed to test and demonstrate the Worklet Dynamic Process Selection Service with the YAWL engine.</documentation>    <metaData />
     <schema xmlns="http://www.w3.org/2001/XMLSchema" />
     <decomposition id="Casualty_Treatment" isRootNet="true" xsi:type="NetFactsType">
       <inputParam>

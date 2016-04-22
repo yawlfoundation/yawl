@@ -6,7 +6,7 @@
     <metaData>
       <title>Organise Concert</title>
       <creator>Adams</creator>
-      <description>Example used to test workletService Exception Handling</description>
+      <description>Example used to test Worklet Service Exception Handling</description>
       <version>0.1</version>
     </metaData>
     <schema xmlns="http://www.w3.org/2001/XMLSchema" />
