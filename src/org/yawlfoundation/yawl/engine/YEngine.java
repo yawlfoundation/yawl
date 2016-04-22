@@ -1409,9 +1409,7 @@ public class YEngine implements InterfaceADesign,
 
                         case statusFired:
                             netRunner = getNetRunner(workItem.getCaseID().getParent());
-                            netRunner.startWorkItemInTask(_pmgr, workItem);
-                            workItem.setStatusToStarted(_pmgr, client);
-                            startedItem = workItem;
+                            startedItem = startFiredWorkItem(netRunner, workItem, client);
                             break;
 
                         case statusDeadlocked:
@@ -1474,6 +1472,21 @@ public class YEngine implements InterfaceADesign,
             }
         }
         return startedItem;
+    }
+
+
+    private YWorkItem startFiredWorkItem(YNetRunner netRunner, YWorkItem workItem, YClient client)
+            throws YStateException, YDataStateException, YQueryException,
+                   YPersistenceException, YEngineStateException {
+
+        netRunner.startWorkItemInTask(_pmgr, workItem);
+        workItem.setStatusToStarted(_pmgr, client);
+
+        YTask task = (YTask) netRunner.getNetElement(workItem.getTaskID());
+        Element dataList = task.getData(workItem.getCaseID());
+        workItem.setData(_pmgr, dataList);
+        _instanceCache.addParameters(workItem, task, dataList);
+        return workItem;
     }
 
 

@@ -1394,9 +1394,15 @@
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}"
               file="${build.dir}/${worklet.app.name}/welcome/welcome.htm"/>
-        <copy todir="${temp.dir}/${worklet.app.name}/samples">
-            <fileset dir="${build.dir}/${worklet.app.name}/samples"/>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/parents">
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/parents"/>
         </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets">
+             <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets"/>
+         </copy>
+        <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets/rules">
+             <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets/rules"/>
+         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/graphics">
             <fileset dir="${build.dir}/${worklet.app.name}/welcome/graphics"/>
         </copy>
