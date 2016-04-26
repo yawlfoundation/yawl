@@ -25,7 +25,6 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_Environment
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -119,7 +118,7 @@ public class Sessions {
                  iaClient.getCredentialsFromEngine(userid);
             }
             catch (IOException ioe) {
-                return "<failure>" + ioe.getMessage() + "</failure>";
+                return failMsg(ioe.getMessage());
             }
         }
 
@@ -128,9 +127,9 @@ public class Sessions {
             if (credentials.get(userid).equals(password)) {
                 return getHandle(userid);                      // session established!
             }
-            else return INVALID_PASSWORD;
+            else return failMsg(INVALID_PASSWORD);
         }
-        else return UNKNOWN_USER;
+        else return failMsg(UNKNOWN_USER);
     }
 
 
@@ -231,6 +230,9 @@ public class Sessions {
         final ScheduledFuture<?> inactivityTimer = handleToTimer.remove(handle);
         if (inactivityTimer != null) inactivityTimer.cancel(true);
     }
+
+
+    private String failMsg(String msg) { return StringUtil.wrap(msg, "failure"); }
 
 
     /*****************************************************************************/

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<spec uri="Casualty_Treatment">
+<spec uri="Casualty_Treatment" version="0.3" identifier="UID_9a382111-fde6-4a33-8a5b-1c1d9962660e">
     <selection>
-        <task name="3_Treat">
+        <task name="Treat">
             <ruleNode>
                 <id>0</id>
                 <parent>-1</parent>
@@ -19,10 +19,10 @@
                 <falseChild>2</falseChild>
                 <condition>Fever = true</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>select</action>
-                        <target>TreatFever</target>
-                    </_1>
+                        <target>UID_6c9aa77c-7806-4b0b-8485-4f78196f4cdf</target>
+                    </step>
                 </conclusion>
                 <cornerstone>
                     <PatientID>3457687</PatientID>
@@ -52,10 +52,10 @@
                 <falseChild>3</falseChild>
                 <condition>Wound = true</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>select</action>
-                        <target>TreatWound</target>
-                    </_1>
+                        <target>UID_26b60b7d-d6df-4074-ae6b-86828bd28440</target>
+                    </step>
                 </conclusion>
                 <cornerstone>
                     <PatientID>2375493</PatientID>
@@ -85,10 +85,10 @@
                 <falseChild>4</falseChild>
                 <condition>AbdominalPain = true</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>select</action>
-                        <target>TreatAbPain</target>
-                    </_1>
+                        <target>UID_33907530-4d3a-4f36-8f91-b3827a51b1a2</target>
+                    </step>
                 </conclusion>
                 <cornerstone>
                     <PatientID>3645748</PatientID>
@@ -118,10 +118,10 @@
                 <falseChild>5</falseChild>
                 <condition>Fracture = true</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>select</action>
-                        <target>TreatFracture</target>
-                    </_1>
+                        <target>UID_6729df58-3e96-4883-a8f9-8815ec36025d</target>
+                    </step>
                 </conclusion>
                 <cornerstone>
                     <PatientID>7392811</PatientID>
@@ -151,10 +151,10 @@
                 <falseChild>-1</falseChild>
                 <condition>Rash = true</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>select</action>
-                        <target>TreatRash</target>
-                    </_1>
+                        <target>UID_e5479e70-1895-4c47-9601-ebb9e241554e</target>
+                    </step>
                 </conclusion>
                 <cornerstone>
                     <PatientID>2009810</PatientID>
@@ -199,10 +199,10 @@
                     <falseChild>-1</falseChild>
                     <condition>Name = smith</condition>
                     <conclusion>
-                        <_1>
+                        <step index="1">
                             <action>remove</action>
                             <target>case</target>
-                        </_1>
+                        </step>
                     </conclusion>
                     <cornerstone>
                         <PatientID>3457687</PatientID>

@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
   <specification uri="BobFour">
-  	<name>Bob Four</name>
-  	<documentation>Worklet to enact when bob is four</documentation>
-    <metaData />
+    <name>Bob Four</name>
+    <documentation>Worklet to enact when bob is four</documentation>
+    <metaData>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_bf649034-069f-4b99-bf58-5c6a993732a6</identifier>
+    </metaData>
     <schema xmlns="http://www.w3.org/2001/XMLSchema" />
     <decomposition id="BobFour" isRootNet="true" xsi:type="NetFactsType">
       <inputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <processControlElements>
-        <inputCondition id="0_InputCondition">
+        <inputCondition id="InputCondition">
           <flowsInto>
-            <nextElementRef id="2_Get_Bob_Four" />
+            <nextElementRef id="Get_Bob_Four" />
           </flowsInto>
         </inputCondition>
-        <task id="2_Get_Bob_Four">
+        <task id="Get_Bob_Four">
+          <name>Get_Bob_Four</name>
           <flowsInto>
-            <nextElementRef id="1_OutputCondition" />
+            <nextElementRef id="OutputCondition" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
@@ -40,24 +47,80 @@
               <mapsTo>SomeBob</mapsTo>
             </mapping>
           </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Get_Bob_Four" />
         </task>
-        <outputCondition id="1_OutputCondition" />
+        <outputCondition id="OutputCondition" />
       </processControlElements>
     </decomposition>
     <decomposition id="Get_Bob_Four" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
+      <externalInteraction>manual</externalInteraction>
     </decomposition>
   </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="BobFour" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="BobFour" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="229" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Get_Bob_Four">
+          <vertex>
+            <attributes>
+              <bounds x="130" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="98" y="64" w="101" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="InputCondition" target="Get_Bob_Four">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Get_Bob_Four" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
 </specificationSet>
-
-

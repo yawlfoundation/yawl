@@ -25,7 +25,7 @@
                     </_1>
                     <_2>
                         <action>compensate</action>
-                        <target>CancelOrder</target>
+                        <target>UID_43037a6b-9539-41ee-afff-f53db6dfbae1</target>
                     </_2>
                     <_3>
                         <action>remove</action>

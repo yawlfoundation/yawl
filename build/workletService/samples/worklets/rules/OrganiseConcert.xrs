@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<spec uri="OrganiseConcert">
+<spec uri="OrganiseConcert" version="0.2" identifier="UID_d025e788-53b0-4c56-8817-209c652b9b00">
     <constraints>
         <item>
             <pre>
@@ -21,18 +21,18 @@
                         <falseChild>-1</falseChild>
                         <condition>TicketsSold &lt; (Seating * 0.75)</condition>
                         <conclusion>
-                            <_1>
+                            <step index="1">
                                 <action>suspend</action>
                                 <target>workitem</target>
-                            </_1>
-                            <_2>
+                            </step>
+                            <step index="2">
                                 <action>compensate</action>
-                                <target>ChangeToMidVenue</target>
-                            </_2>
-                            <_3>
+                                <target>UID_00e132e2-9a12-4abb-829f-635de4136c33</target>
+                            </step>
+                            <step index="3">
                                 <action>continue</action>
                                 <target>workitem</target>
-                            </_3>
+                            </step>
                         </conclusion>
                         <cornerstone>
                             <TicketsSold>20000</TicketsSold>
@@ -47,18 +47,18 @@
                         <falseChild>-1</falseChild>
                         <condition>TicketsSold &lt; (Seating * 0.5)</condition>
                         <conclusion>
-                            <_1>
+                            <step index="1">
                                 <action>suspend</action>
                                 <target>workitem</target>
-                            </_1>
-                            <_2>
+                            </step>
+                            <step index="2">
                                 <action>compensate</action>
-                                <target>ChangeToSmallVenue</target>
-                            </_2>
-                            <_3>
+                                <target>UID_8683f672-93dd-4001-86d2-594a78006a54</target>
+                            </step>
+                            <step index="3">
                                 <action>continue</action>
                                 <target>workitem</target>
-                            </_3>
+                            </step>
                         </conclusion>
                         <cornerstone>
                             <TicketsSold>8000</TicketsSold>
@@ -73,18 +73,18 @@
                         <falseChild>-1</falseChild>
                         <condition>TicketsSold &lt; (Seating * 0.2)</condition>
                         <conclusion>
-                            <_1>
+                            <step index="1">
                                 <action>suspend</action>
                                 <target>case</target>
-                            </_1>
-                            <_2>
+                            </step>
+                            <step index="2">
                                 <action>compensate</action>
-                                <target>CancelShow</target>
-                            </_2>
-                            <_3>
+                                <target>UID_425b7087-79cb-4429-a8ba-0a9e0f4a4dfb</target>
+                            </step>
+                            <step index="3">
                                 <action>remove</action>
                                 <target>case</target>
-                            </_3>
+                            </step>
                         </conclusion>
                         <cornerstone>
                             <TicketsSold>500</TicketsSold>
@@ -115,18 +115,18 @@
                 <falseChild>2</falseChild>
                 <condition>trigger="Support Act Breakup"</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>suspend</action>
                         <target>case</target>
-                    </_1>
-                    <_2>
+                    </step>
+                    <step index="2">
                         <action>compensate</action>
                         <target>HireSupportAct</target>
-                    </_2>
-                    <_3>
+                    </step>
+                    <step index="3">
                         <action>continue</action>
                         <target>case</target>
-                    </_3>
+                    </step>
                 </conclusion>
                 <cornerstone>
                 </cornerstone>
@@ -139,18 +139,18 @@
                 <falseChild>3</falseChild>
                 <condition>trigger="Singer Tired and Emotional"</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>suspend</action>
                         <target>case</target>
-                    </_1>
-                    <_2>
+                    </step>
+                    <step index="2">
                         <action>compensate</action>
                         <target>PostponeConcert</target>
-                    </_2>
-                    <_3>
+                    </step>
+                    <step index="3">
                         <action>continue</action>
                         <target>case</target>
-                    </_3>
+                    </step>
                 </conclusion>
                 <cornerstone>
                 </cornerstone>
@@ -163,18 +163,18 @@
                 <falseChild>4</falseChild>
                 <condition>trigger="Guitarist Refused Visa"</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>suspend</action>
                         <target>case</target>
-                    </_1>
-                    <_2>
+                    </step>
+                    <step index="2">
                         <action>compensate</action>
                         <target>HireNewBandMember</target>
-                    </_2>
-                    <_3>
+                    </step>
+                    <step index="3">
                         <action>continue</action>
                         <target>case</target>
-                    </_3>
+                    </step>
                 </conclusion>
                 <cornerstone>
                 </cornerstone>
@@ -187,18 +187,18 @@
                  <falseChild>5</falseChild>
                  <condition>trigger="Band Broken Up"</condition>
                  <conclusion>
-                     <_1>
+                     <step index="1">
                          <action>suspend</action>
                          <target>case</target>
-                     </_1>
-                     <_2>
+                     </step>
+                     <step index="2">
                          <action>compensate</action>
-                         <target>CancelShow</target>
-                     </_2>
-                     <_3>
+                         <target>UID_425b7087-79cb-4429-a8ba-0a9e0f4a4dfb</target>
+                     </step>
+                     <step index="3">
                          <action>remove</action>
                          <target>case</target>
-                     </_3>
+                     </step>
                  </conclusion>
                  <cornerstone>
                  </cornerstone>
@@ -211,18 +211,18 @@
                  <falseChild>6</falseChild>
                  <condition>trigger="Ticket Sales Better than Expected"</condition>
                  <conclusion>
-                     <_1>
+                     <step index="1">
                          <action>suspend</action>
                          <target>case</target>
-                     </_1>
-                     <_2>
+                     </step>
+                     <step index="2">
                          <action>compensate</action>
-                         <target>ChangeToLargerVenue</target>
-                     </_2>
-                     <_3>
+                         <target>UID_c6e0d685-f0ce-4737-8286-22355d708a6e</target>
+                     </step>
+                     <step index="3">
                          <action>continue</action>
                          <target>case</target>
-                     </_3>
+                     </step>
                 </conclusion>
                  <cornerstone>
                  </cornerstone>
@@ -235,18 +235,18 @@
                 <falseChild>-1</falseChild>
                 <condition>trigger="Band Requests Backstage Refreshments"</condition>
                 <conclusion>
-                    <_1>
+                    <step index="1">
                         <action>suspend</action>
                         <target>case</target>
-                    </_1>
-                    <_2>
+                    </step>
+                    <step index="2">
                         <action>compensate</action>
-                        <target>OrganiseRefreshments</target>
-                    </_2>
-                    <_3>
+                        <target>UID_494cc906-d649-43eb-af42-6bdcbd5bbd4e</target>
+                    </step>
+                    <step index="3">
                         <action>continue</action>
                         <target>case</target>
-                    </_3>
+                    </step>
                </conclusion>
                 <cornerstone>
                 </cornerstone>

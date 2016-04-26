@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<spec uri="wListMaker">
+<spec uri="wListMaker" version="0.2" identifier="UID_16b32cb7-2ffd-462d-a3da-73cc37fdc5b8">
     <selection>
         <task name="Verify_list">
             <ruleNode>
@@ -8,7 +8,7 @@
                 <trueChild>1</trueChild>
                 <falseChild>-1</falseChild>
                 <condition>True</condition>
-                <conclusion>BobZero</conclusion>
+                <conclusion>UID_49b6b6c3-8016-4457-8088-f6e5647f06f1</conclusion>
                 <cornerstone></cornerstone>
                 <description>root level default when bob is not one - five</description>
             </ruleNode>
@@ -21,7 +21,7 @@
                 <conclusion>
                     <_1>
                         <action>select</action>
-                        <target>BobOne</target>
+                        <target>UID_78476114-cbcc-4a60-860d-6119db8f4dde</target>
                     </_1>
                 </conclusion>
                 <cornerstone>
@@ -38,7 +38,7 @@
                 <conclusion>
                     <_1>
                         <action>select</action>
-                        <target>BobTwo</target>
+                        <target>UID_d30510f6-405e-4790-b3f9-c8ae2727baf4</target>
                     </_1>
                 </conclusion>
                 <cornerstone>
@@ -55,7 +55,7 @@
                 <conclusion>
                     <_1>
                         <action>select</action>
-                        <target>BobThree</target>
+                        <target>UID_77559052-3fdb-4d4d-9cfb-70b7995a074d</target>
                     </_1>
                 </conclusion>
                 <cornerstone>
@@ -72,7 +72,7 @@
                 <conclusion>
                     <_1>
                         <action>select</action>
-                        <target>BobFour</target>
+                        <target>UID_bf649034-069f-4b99-bf58-5c6a993732a6</target>
                     </_1>
                 </conclusion>
                 <cornerstone>
@@ -89,7 +89,7 @@
                 <conclusion>
                     <_1>
                         <action>select</action>
-                        <target>BobFive</target>
+                        <target>UID_aae48fdb-abb7-402c-9e35-a82d560b42c1</target>
                     </_1>
                 </conclusion>
                 <cornerstone>

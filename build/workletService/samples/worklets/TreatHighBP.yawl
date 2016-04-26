@@ -1,84 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
   <specification uri="TreatHighBP">
-  	<name>Treat High Blood Pressure</name>
-  	<documentation>Worklet to treat high blood pressure</documentation>
-    <metaData />
+    <name>Treat High Blood Pressure</name>
+    <documentation>Worklet to treat high blood pressure</documentation>
+    <metaData>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_5fd60609-a975-4805-a9be-49b859300ff6</identifier>
+    </metaData>
     <schema xmlns="http://www.w3.org/2001/XMLSchema" />
     <decomposition id="TreatHighBP" isRootNet="true" xsi:type="NetFactsType">
       <inputParam>
+        <index>0</index>
         <name>PatientID</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>1</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>2</index>
         <name>Wound</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>3</index>
         <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>4</index>
         <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>5</index>
         <name>Treatment</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
+        <index>1</index>
         <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
+        <index>2</index>
         <name>Treatment</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <processControlElements>
-        <inputCondition id="0_InputCondition">
+        <inputCondition id="InputCondition">
           <flowsInto>
-            <nextElementRef id="3_Test_BP" />
+            <nextElementRef id="Test_BP" />
           </flowsInto>
         </inputCondition>
-        <task id="3_Test_BP">
+        <task id="Test_BP">
+          <name>Test BP</name>
           <flowsInto>
-            <nextElementRef id="2_Treat_BP" />
+            <nextElementRef id="Treat_BP" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
           <startingMappings>
             <mapping>
-              <expression query="&lt;PatientID&gt;{/TreatHighBP/PatientID/text()}&lt;/PatientID&gt;" />
-              <mapsTo>PatientID</mapsTo>
+              <expression query="&lt;Wound&gt;{/TreatHighBP/Wound/text()}&lt;/Wound&gt;" />
+              <mapsTo>Wound</mapsTo>
             </mapping>
             <mapping>
               <expression query="&lt;Notes&gt;{/TreatHighBP/Notes/text()}&lt;/Notes&gt;" />
               <mapsTo>Notes</mapsTo>
             </mapping>
             <mapping>
-              <expression query="&lt;Wound&gt;{/TreatHighBP/Wound/text()}&lt;/Wound&gt;" />
-              <mapsTo>Wound</mapsTo>
-            </mapping>
-            <mapping>
               <expression query="&lt;Name&gt;{/TreatHighBP/Name/text()}&lt;/Name&gt;" />
               <mapsTo>Name</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;PatientID&gt;{/TreatHighBP/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
             </mapping>
           </startingMappings>
           <completedMappings>
@@ -87,18 +101,24 @@
               <mapsTo>Notes</mapsTo>
             </mapping>
           </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Test_BP" />
         </task>
-        <task id="2_Treat_BP">
+        <task id="Treat_BP">
+          <name>Treat BP</name>
           <flowsInto>
-            <nextElementRef id="1_OutputCondition" />
+            <nextElementRef id="OutputCondition" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
           <startingMappings>
             <mapping>
-              <expression query="&lt;PatientID&gt;{/TreatHighBP/PatientID/text()}&lt;/PatientID&gt;" />
-              <mapsTo>PatientID</mapsTo>
+              <expression query="&lt;Treatment&gt;{/TreatHighBP/Treatment/text()}&lt;/Treatment&gt;" />
+              <mapsTo>Treatment</mapsTo>
             </mapping>
             <mapping>
               <expression query="&lt;Notes&gt;{/TreatHighBP/Notes/text()}&lt;/Notes&gt;" />
@@ -113,8 +133,8 @@
               <mapsTo>Name</mapsTo>
             </mapping>
             <mapping>
-              <expression query="&lt;Treatment&gt;{/TreatHighBP/Treatment/text()}&lt;/Treatment&gt;" />
-              <mapsTo>Treatment</mapsTo>
+              <expression query="&lt;PatientID&gt;{/TreatHighBP/PatientID/text()}&lt;/PatientID&gt;" />
+              <mapsTo>PatientID</mapsTo>
             </mapping>
           </startingMappings>
           <completedMappings>
@@ -123,89 +143,177 @@
               <mapsTo>Treatment</mapsTo>
             </mapping>
             <mapping>
-              <expression query="&lt;Pharmacy&gt;{/Treat_BP/Pharmacy/text()}&lt;/Pharmacy&gt;" />
-              <mapsTo>Pharmacy</mapsTo>
-            </mapping>
-            <mapping>
               <expression query="&lt;Notes&gt;{/Treat_BP/Notes/text()}&lt;/Notes&gt;" />
               <mapsTo>Notes</mapsTo>
             </mapping>
+            <mapping>
+              <expression query="&lt;Pharmacy&gt;{/Treat_BP/Pharmacy/text()}&lt;/Pharmacy&gt;" />
+              <mapsTo>Pharmacy</mapsTo>
+            </mapping>
           </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Treat_BP" />
         </task>
-        <outputCondition id="1_OutputCondition" />
+        <outputCondition id="OutputCondition" />
       </processControlElements>
     </decomposition>
     <decomposition id="Test_BP" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
+        <index>0</index>
         <name>PatientID</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>1</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>2</index>
         <name>Wound</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>3</index>
         <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
+      <externalInteraction>manual</externalInteraction>
     </decomposition>
     <decomposition id="Treat_BP" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
+        <index>0</index>
         <name>PatientID</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>1</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>2</index>
         <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>3</index>
         <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>4</index>
         <name>Treatment</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
+        <index>1</index>
         <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
+        <index>2</index>
         <name>Treatment</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
+      <externalInteraction>manual</externalInteraction>
     </decomposition>
   </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="TreatHighBP" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="TreatHighBP" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="352" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Test_BP">
+          <vertex>
+            <attributes>
+              <bounds x="128" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="96" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Treat_BP">
+          <vertex>
+            <attributes>
+              <bounds x="256" y="32" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="224" y="64" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="InputCondition" target="Test_BP">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Treat_BP" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+        <flow source="Test_BP" target="Treat_BP">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
 </specificationSet>
-
-

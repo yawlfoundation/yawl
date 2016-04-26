@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.citi.qut.edu.au/yawl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="Beta 4" xsi:schemaLocation="http://www.citi.qut.edu.au/yawl d:/yawl/schema/YAWL_SchemaBeta4.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
   <specification uri="wListMaker">
-  	<name>List Maker Example (worklet enabled)</name>
-  	<documentation>A process to demonstrate how worklets handle a multiple task</documentation>    
-      <metaData />
+    <name>List Maker Example (worklet enabled)</name>
+    <documentation>A process to demonstrate how worklets handle a multiple task</documentation>
+    <metaData>
+      <version>0.2</version>
+      <persistent>false</persistent>
+      <identifier>UID_16b32cb7-2ffd-462d-a3da-73cc37fdc5b8</identifier>
+    </metaData>
     <schema xmlns="http://www.w3.org/2001/XMLSchema">
       <complexType name="BobList">
         <sequence>
@@ -13,24 +17,27 @@
     </schema>
     <decomposition id="List_Maker" isRootNet="true" xsi:type="NetFactsType">
       <inputParam>
+        <index>0</index>
         <name>MasterList</name>
         <type>BobList</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>MasterList</name>
         <type>BobList</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <processControlElements>
-        <inputCondition id="0_InputCondition">
+        <inputCondition id="InputCondition">
           <flowsInto>
-            <nextElementRef id="5_Create_list_items" />
+            <nextElementRef id="Create_list_items" />
           </flowsInto>
         </inputCondition>
-        <task id="5_Create_list_items">
+        <task id="Create_list_items">
+          <name>Create_list_items</name>
           <flowsInto>
-            <nextElementRef id="2_done" />
+            <nextElementRef id="done" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
@@ -46,28 +53,33 @@
               <mapsTo>MasterList</mapsTo>
             </mapping>
           </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Create_list_items" />
         </task>
-        <condition id="2_done">
+        <condition id="done">
           <flowsInto>
-            <nextElementRef id="5_Create_list_items" />
+            <nextElementRef id="Verify_list" />
           </flowsInto>
           <flowsInto>
-            <nextElementRef id="3_Verify_list" />
+            <nextElementRef id="Create_list_items" />
           </flowsInto>
         </condition>
-        <task id="3_Verify_list" xsi:type="MultipleInstanceExternalTaskFactsType">
+        <task id="Verify_list" xsi:type="MultipleInstanceExternalTaskFactsType">
+          <name>Verify_list</name>
           <flowsInto>
-            <nextElementRef id="4_Show_list" />
+            <nextElementRef id="Show_list" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
-          <completedMappings>
-            <mapping>
-              <expression query="&lt;bob&gt;{/Verify_list/SomeBob/text()}&lt;/bob&gt;" />
-              <mapsTo>MasterList</mapsTo>
-            </mapping>
-          </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Verify_list" />
           <minimum>1</minimum>
           <maximum>20</maximum>
@@ -84,9 +96,10 @@
             <resultAppliedToLocalVariable>MasterList</resultAppliedToLocalVariable>
           </miDataOutput>
         </task>
-        <task id="4_Show_list">
+        <task id="Show_list">
+          <name>Show_list</name>
           <flowsInto>
-            <nextElementRef id="1_OutputCondition" />
+            <nextElementRef id="OutputCondition" />
           </flowsInto>
           <join code="xor" />
           <split code="and" />
@@ -102,49 +115,201 @@
               <mapsTo>MasterList</mapsTo>
             </mapping>
           </completedMappings>
+          <resourcing>
+            <offer initiator="user" />
+            <allocate initiator="user" />
+            <start initiator="user" />
+          </resourcing>
           <decomposesTo id="Show_list" />
         </task>
-        <outputCondition id="1_OutputCondition" />
+        <outputCondition id="OutputCondition" />
       </processControlElements>
+    </decomposition>
+    <decomposition id="Create_list_items" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>UserList</name>
+        <type>BobList</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>UserList</name>
+        <type>BobList</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+    <decomposition id="Show_list" xsi:type="WebServiceGatewayFactsType">
+      <inputParam>
+        <index>0</index>
+        <name>UserList</name>
+        <type>BobList</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <outputParam>
+        <index>0</index>
+        <name>UserList</name>
+        <type>BobList</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <externalInteraction>manual</externalInteraction>
     </decomposition>
     <decomposition id="Verify_list" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
+        <index>0</index>
         <name>SomeBob</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <yawlService id="http://localhost:8080/workletService/ib" />
-    </decomposition>
-    <decomposition id="Show_list" xsi:type="WebServiceGatewayFactsType">
-      <inputParam>
-        <name>UserList</name>
-        <type>BobList</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <outputParam>
-        <name>UserList</name>
-        <type>BobList</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </outputParam>
-    </decomposition>
-    <decomposition id="Create_list_items" xsi:type="WebServiceGatewayFactsType">
-      <inputParam>
-        <name>UserList</name>
-        <type>BobList</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <outputParam>
-        <name>UserList</name>
-        <type>BobList</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </outputParam>
+      <externalInteraction>manual</externalInteraction>
     </decomposition>
   </specification>
+  <layout>
+    <locale language="en" country="AU"/>
+    <specification id="wListMaker" defaultBgColor="-526351">
+      <size w="69" h="26"/>
+      <net id="List_Maker" bgColor="-526351">
+        <bounds x="0" y="0" w="901" h="445"/>
+        <frame x="0" y="0" w="904" h="448"/>
+        <viewport x="0" y="0" w="904" h="448"/>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="64" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="done">
+          <attributes>
+            <bounds x="256" y="64" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="OutputCondition">
+          <attributes>
+            <bounds x="572" y="64" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <container id="Verify_list">
+          <vertex>
+            <attributes>
+              <bounds x="348" y="64" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="316" y="96" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <container id="Create_list_items">
+          <vertex>
+            <attributes>
+              <bounds x="146" y="64" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="94" y="96" w="124" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+          <decorator type="XOR_join">
+            <position>12</position>
+            <attributes>
+              <bounds x="136" y="64" w="11" h="32"/>
+            </attributes>
+          </decorator>
+        </container>
+        <container id="Show_list">
+          <vertex>
+            <attributes>
+              <bounds x="476" y="64" w="32" h="32"/>
+              <backgroundColor>-197913</backgroundColor>
+            </attributes>
+          </vertex>
+          <label>
+            <attributes>
+              <bounds x="444" y="96" w="96" h="18"/>
+              <foregroundColor>-16776961</foregroundColor>
+            </attributes>
+          </label>
+        </container>
+        <flow source="InputCondition" target="Create_list_items">
+          <ports in="13" out="2"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="63" y="83.5"/>
+              <value x="132" y="83.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="done" target="Create_list_items">
+          <ports in="10" out="4"/>
+          <attributes>
+            <lineStyle>13</lineStyle>
+            <points>
+              <value x="271.5" y="64"/>
+              <value x="260" y="36"/>
+              <value x="148" y="36"/>
+              <value x="141" y="64"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="Create_list_items" target="done">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="173" y="83.5"/>
+              <value x="252" y="83.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="done" target="Verify_list">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="283" y="83.5"/>
+              <value x="348" y="83.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="Verify_list" target="Show_list">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="379" y="83.5"/>
+              <value x="476" y="83.5"/>
+            </points>
+          </attributes>
+        </flow>
+        <flow source="Show_list" target="OutputCondition">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+            <points>
+              <value x="507" y="83.5"/>
+              <value x="572" y="83.5"/>
+            </points>
+          </attributes>
+        </flow>
+      </net>
+      <labelFontSize>14</labelFontSize>
+    </specification>
+  </layout>
 </specificationSet>
-
-
