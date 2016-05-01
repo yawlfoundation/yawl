@@ -43,7 +43,6 @@ public class Sessions {
     
     private Map<String, String> idToHandle;             // userid <-> sessionhandle
     private Map<String, ScheduledFuture> handleToTimer; // sessionhandle <-> activity timer
-    private Map<String, String> credentials;            // userid <-> password
     private InterfaceAClient iaClient;
 
     private static final ScheduledExecutorService scheduler =
@@ -58,8 +57,6 @@ public class Sessions {
     public Sessions() {
         idToHandle = new Hashtable<String, String>();
         handleToTimer = new Hashtable<String, ScheduledFuture>();
-        credentials = new Hashtable<String, String>();
-        credentials.put("admin", PasswordEncryptor.encrypt("YAWL", "YAWL")); // def. user
     }
 
 
@@ -111,25 +108,19 @@ public class Sessions {
      * other problems connecting to the engine or retrieving registered credentials)
      */
     public String connect(String userid, String password) {
-
-        // get credentials for userid from engine if we don't already have them
-        if (! credentials.containsKey(userid)) {
-            try {
-                 iaClient.getCredentialsFromEngine(userid);
+        try {
+            String storedPassword = iaClient.getPassword(userid);
+            if (storedPassword == null || storedPassword.startsWith("<fail")) {
+                return failMsg(UNKNOWN_USER);
             }
-            catch (IOException ioe) {
-                return failMsg(ioe.getMessage());
+            if (storedPassword.equals(password)) {
+                return getHandle(userid);                    // session established!
             }
+            return failMsg(INVALID_PASSWORD);
         }
-
-        // if the above succeeds, the credentials are now in the local cache
-        if (credentials.containsKey(userid)) {
-            if (credentials.get(userid).equals(password)) {
-                return getHandle(userid);                      // session established!
-            }
-            else return failMsg(INVALID_PASSWORD);
+        catch (IOException ioe) {
+            return failMsg(ioe.getMessage());
         }
-        else return failMsg(UNKNOWN_USER);
     }
 
 
@@ -164,17 +155,6 @@ public class Sessions {
             }
         }
         return false;
-    }
-
-
-    /**
-     * Removes a userid/password pair from the local cache (e.g. in the event that the
-     * password has been changed in the engine)
-     * @param userid the userid to clear
-     * @return true if the userid was in the cache
-     */
-    public boolean uncacheCredentials(String userid) {
-        return credentials.remove(userid) != null;
     }
 
 
@@ -268,29 +248,24 @@ public class Sessions {
 
 
         /**
-         * Gets the password from the engine for the userid passed, and if successful
-         * adds it to the local cache
-         * @param userid the userid to get the password for
-         * @return true if the password is already in the local cache, or if it is
-         * successfully retrieved; false if otherwise
+         * Gets the password from the engine for the userid passed
+         * @param id the userid to get the password for
+         * @return the retrieved password, or an error msg if the id is unknown
          * @throws IOException if there's a problem connecting to the engine, or if
          * there's some other problem getting the password from the engine
          */
-        boolean getCredentialsFromEngine(String userid) throws IOException {
-            if (credentials.containsKey(userid)) return true;          // already cached
+        String getPassword(String id) throws IOException {
             checkConnection();
+            if (id == null) throw new IOException(UNKNOWN_USER);
 
-            // try for custom service first, then client app
-            YClient engineClient = getServiceAccount(userid);
-            if (engineClient == null) {
-                engineClient = iaClient.getClientAccount(userid, iaHandle);
+            // try for custom service first
+            YClient service = getServiceAccount(id);
+            if (service != null) {
+                return service.getPassword();
             }
 
-            // if found, put the credentials in the local cache
-            if (engineClient != null) {
-                credentials.put(userid, engineClient.getPassword());
-            }
-            return engineClient != null;
+            // not a service, try a client
+            return iaClient.getPassword(id, iaHandle);
         }
 
 

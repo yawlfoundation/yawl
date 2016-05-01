@@ -100,7 +100,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     // String literals
     public static final String ADMIN_STR = "admin";
     private static final String FAIL_STR = "failure";
-    private static final String PASSWORD_ERR = "Incorrect Password";
+    private static final String INVALID_LOGON_ERR = "Invalid logon credentials";
     private static final String WORKITEM_ERR = "Unknown workitem";
 
     private static ResourceManager _me;                  // instance reference
@@ -2036,11 +2036,11 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _cache.addSession(result, p, jSessionID);
                 EventLogger.audit(userid, EventLogger.audit.logon);
             } else {
-                result = fail(PASSWORD_ERR);
+                result = fail(INVALID_LOGON_ERR);
                 EventLogger.audit(userid, EventLogger.audit.invalid);
             }
         } else {
-            result = fail("Unknown user name");
+            result = fail(INVALID_LOGON_ERR);
             EventLogger.audit(userid, EventLogger.audit.unknown);
         }
         return result;
@@ -2065,7 +2065,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _cache.addSession(handle, jSessionID);
                 EventLogger.audit(ADMIN_STR, EventLogger.audit.logon);
             } else {
-                handle = fail(PASSWORD_ERR);
+                handle = fail(INVALID_LOGON_ERR);
                 EventLogger.audit(ADMIN_STR, EventLogger.audit.invalid);
             }
         } else handle = adminPassword;     // an error message
@@ -2088,7 +2088,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             String adminPassword = _services.getAdminUserPassword();
             if (successful(adminPassword)) {
                 if (!password.equals(adminPassword)) {
-                    result = fail(PASSWORD_ERR);
+                    result = fail(INVALID_LOGON_ERR);
                 }
             } else result = adminPassword;
 
@@ -2101,7 +2101,7 @@ public class ResourceManager extends InterfaceBWebsideController {
                 if (admin && !p.isAdministrator()) {
                     result = fail("Administrative privileges required.");
                 }
-            } else result = fail(PASSWORD_ERR);
+            } else result = fail(INVALID_LOGON_ERR);
         } else result = fail("Unknown user name");
 
         return result;

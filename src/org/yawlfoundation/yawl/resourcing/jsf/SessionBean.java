@@ -672,8 +672,23 @@ public class SessionBean extends AbstractSessionBean {
     public void checkLogon() {
         if (! _rm.isValidUserSession(sessionhandle)) {
             doLogout();
-            gotoPage("Login");
+
+            // security: force redirect otherwise repeated requests
+            // can trick the application bypass login
+            try {
+                FacesContext.getCurrentInstance().getExternalContext().redirect("Login.jsp");
+            }
+            catch (IOException ignore) {
+                //
+            }
         }
+    }
+    
+    /**
+     * @return whether the current session is valid
+     */
+    public boolean isLoggedIn() {
+        return _rm.isValidUserSession(sessionhandle);
     }
 
 

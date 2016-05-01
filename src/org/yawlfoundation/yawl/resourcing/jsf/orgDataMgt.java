@@ -335,7 +335,8 @@ public class orgDataMgt extends AbstractPageBean {
                 _sb.setOrgDataMembers(null);
             }
             else {
-                btnRemove.setDisabled(_sb.getOrgDataOptions().length == 0);                
+                Option[] orgDataOptions = _sb.getOrgDataOptions();
+				btnRemove.setDisabled(orgDataOptions == null || orgDataOptions.length == 0);                
             }
             
             if (! _sb.getActiveTab().equals(selTabName)) {

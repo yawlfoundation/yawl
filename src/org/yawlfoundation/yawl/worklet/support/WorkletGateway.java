@@ -126,7 +126,7 @@ public class WorkletGateway extends YHttpServlet {
                         "Service and the external RDREditor (it isn't meant to be browsed " +
                         " to directly). It provides the " +
                         "functionality to trigger a running worklet replacement " +
-                        "due to an addtion to the ruleset (by the editor).</p>" +
+                        "due to an addition to the rule set (by the editor).</p>" +
                         "</body></html>";
             } else if (action.equals("connect")) {
                 String userid = req.getParameter("userid");
