@@ -376,7 +376,7 @@
         <file name="WEB-INF/faces-config.xml" md5="2bd114cafb5e18cd7f87e29f91b61d61" size="643" timestamp="2016-05-01T22:38:02" path="R"/>
         <file name="WEB-INF/managed-beans.xml" md5="5ac4f093f31d2367e5c01dadf980f416" size="7659" timestamp="2016-05-01T22:38:02" path="R"/>
         <file name="WEB-INF/navigation.xml" md5="0678dbb9a1cc4780f55212303572be60" size="25056" timestamp="2016-05-01T22:38:02" path="R"/>
-        <file name="WEB-INF/web.xml" md5="90ebf46920e2ee70c4d715ea4a62ce67" size="22715" timestamp="2016-05-01T22:38:02" path="P"/>
+        <file name="WEB-INF/web.xml" md5="50b9f5f8a93a058ae8599f883b5527b6" size="22715" timestamp="2016-05-01T22:38:02" path="P"/>
         <file name="welcome.htm" md5="a3dfe9a0fc668b839258b33667a229bc" size="778" timestamp="2016-05-01T22:38:02" path="Q"/>
       </files>
       <lib>
