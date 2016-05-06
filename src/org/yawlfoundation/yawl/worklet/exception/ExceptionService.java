@@ -1217,7 +1217,8 @@ public class ExceptionService {
      * @param wir - the wir being tested for an exception
      */
     private Element augmentItemData(WorkItemRecord wir, String dataStr) {
-        Element data = JDOMUtil.stringToElement(dataStr);
+        Element data = dataStr != null ? JDOMUtil.stringToElement(dataStr) :
+                new Element("data");
 
         //convert the wir contents to an Element
         Element eWir = JDOMUtil.stringToElement(wir.toXML()).detach();

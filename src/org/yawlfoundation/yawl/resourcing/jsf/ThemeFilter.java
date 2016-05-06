@@ -26,6 +26,7 @@ public class ThemeFilter implements Filter {
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 
 			if (isBlackListed(httpRequest)) {
+                httpRequest.getSession();       // stops potential IllegalStateException
 				httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
@@ -38,7 +39,9 @@ public class ThemeFilter implements Filter {
 	private boolean isBlackListed(HttpServletRequest request) {
 		String requestURI = request.getRequestURI();
 		return requestURI != null &&
-				(requestURI.endsWith(".properties") || requestURI.endsWith(".xml"));
+				(requestURI.endsWith(".properties") || requestURI.endsWith(".xml") ||
+                 requestURI.endsWith("/") || requestURI.endsWith(".class") ||
+                 !requestURI.contains("."));
 	}
 
 }
