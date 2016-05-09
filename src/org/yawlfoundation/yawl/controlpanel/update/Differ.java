@@ -266,7 +266,7 @@ public class Differ {
         Map<String, FileNode> fileMap = new HashMap<String, FileNode>();
         for (XNode child : fileList) {
             FileNode fileNode = new FileNode(child, getPath(child));
-            fileMap.put(fileNode.getName(), fileNode);
+            fileMap.put(fileNode.getURLFilePath(), fileNode);
         }
         return fileMap;
     }

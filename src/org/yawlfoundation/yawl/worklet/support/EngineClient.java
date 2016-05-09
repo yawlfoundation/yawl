@@ -410,9 +410,10 @@ public class EngineClient extends AbstractEngineClient {
      *         (launchCase() requires the input params as a String)
      */
     public String mapItemParamsToWorkletCaseParams(WorkItemRecord wir,
-                                                    YSpecificationID workletSpecID) {
+                                                   Element itemData,
+                                                   YSpecificationID workletSpecID) {
 
-        Element itemData = wir.getDataList();       // get datalist of work item
+        if (itemData == null) itemData = wir.getDataList();     // get datalist of work item
         Element wlData = new Element(workletSpecID.getUri());   // new datalist for worklet
         List<YParameter> inParams = getInputParams(workletSpecID);  // worklet input params
 
@@ -454,10 +455,11 @@ public class EngineClient extends AbstractEngineClient {
      * @return - the case id of the started worklet case
      */
     protected WorkletRunner launchWorklet(WorkItemRecord wir, YSpecificationID specID,
-                                          RuleType ruleType) {
+                                          Element data, RuleType ruleType) {
 
         // fill the case params with matching data values from the workitem
-        String caseData = wir != null ? mapItemParamsToWorkletCaseParams(wir, specID) : null;
+        String caseData = wir != null ?
+                mapItemParamsToWorkletCaseParams(wir, data, specID) : null;
         WorkletRunner runner = null;
 
         try {
@@ -501,7 +503,7 @@ public class EngineClient extends AbstractEngineClient {
      * @param specs - the ids of the worklets to launch
      * @return the set of worklets runners successfully launched
      */
-    public Set<WorkletRunner> launchWorkletList(WorkItemRecord wir,
+    public Set<WorkletRunner> launchWorkletList(WorkItemRecord wir, Element data,
                                         Set<WorkletSpecification> specs, RuleType ruleType) {
         Set<WorkletRunner> runners = new HashSet<WorkletRunner>();
 
@@ -510,7 +512,7 @@ public class EngineClient extends AbstractEngineClient {
 
             // load spec & launch case as substitute for checked out workitem
             if (uploadWorklet(spec)) {
-                WorkletRunner runner = launchWorklet(wir, spec.getSpecID(), ruleType);
+                WorkletRunner runner = launchWorklet(wir, spec.getSpecID(), data, ruleType);
                 if (runner != null) {
                     runners.add(runner);
                 }

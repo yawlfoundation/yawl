@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.worklet.exception;
 
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.worklet.rdr.RdrConclusion;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
 import org.yawlfoundation.yawl.worklet.selection.AbstractRunner;
@@ -50,6 +51,7 @@ public class ExletRunner extends AbstractRunner {
     private boolean _isItemSuspended;               // has excepted item been suspended?
     private boolean _isCaseSuspended;               // has case been suspended?
     private String _trigger;                        // trigger (external exceptions only)
+    private Element _dataElem;                      // blend of case/item data for compen.
     private final RunnerMap _worklets = new RunnerMap();  // set of running compensations
 
     // list of suspended items - can be child items, or for whole case
@@ -105,6 +107,14 @@ public class ExletRunner extends AbstractRunner {
     /** @return the list of currently suspended workitems for this runner */
     public Set<String> getSuspendedItems() { return _suspendedItems ; }
 
+
+    public void setData(Element dataElem) { _dataElem = dataElem; }
+
+
+    /** */
+    public Element getDataForCaseLaunch() {
+        return _dataElem != null ? _dataElem : JDOMUtil.stringToElement(getDataListString());
+    }
 
     /** @return the data params for the parent workitem/case */
     public Element getWorkItemDatalist() { return getWorkItemData(); }

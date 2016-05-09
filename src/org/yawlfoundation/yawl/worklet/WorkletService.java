@@ -473,7 +473,7 @@ public class WorkletService extends InterfaceBWebsideController
         _log.info("Rule search returned {} worklet(s)", wSelected.size());
 
         Set<WorkletRunner> runners =
-                _engineClient.launchWorkletList(wir, wSelected, RuleType.ItemSelection);
+                _engineClient.launchWorkletList(wir, null, wSelected, RuleType.ItemSelection);
         if (runners.isEmpty()) {
             raise("Failed launch worklet(s): " + wSelected);
         }

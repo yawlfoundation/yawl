@@ -80,7 +80,7 @@ public class AppUpdate {
     protected Map<String, String> getMd5Map() {
         Map<String, String> map = new HashMap<String, String>();
         for (FileNode node : _downloads) {
-            map.put(node.getName(), node.getMd5());
+            map.put(node.getDiskFilePath(), node.getMd5());
         }
         return map;
     }
@@ -98,7 +98,7 @@ public class AppUpdate {
 
 
     private void add(Set<FileNode> list, FileNode node) {
-        node.setName(fixPath(node.getName()));
+        node.setDiskFilePath(fixPath(node.getURLFilePath()));
         list.add(node);
     }
 
@@ -106,7 +106,7 @@ public class AppUpdate {
     private List<String> getNames(Set<FileNode> list) {
         List<String> names = new ArrayList<String>();
         for (FileNode node : list) {
-            names.add(node.getName());
+            names.add(node.getDiskFilePath());
         }
         return names;
     }

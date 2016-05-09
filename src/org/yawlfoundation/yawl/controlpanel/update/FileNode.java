@@ -12,38 +12,43 @@ import java.net.URL;
 */
 public class FileNode {
 
-    private String name;
+    private String urlFilePath;
+    private String diskFilePath;
     private String md5;
     private long size;
-    private String urlStr;
+    private String urlBase;
 
     public FileNode(XNode node, String url) {
-        name = node.getAttributeValue("name");
+        urlFilePath = node.getAttributeValue("name");
         md5 = node.getAttributeValue("md5");
         size = StringUtil.strToInt(node.getAttributeValue("size"), 0);
-        urlStr = url;
+        urlBase = url;
     }
 
 
-    public String getName() { return name; }
-
-    public void setName(String n) { name = n; }
+    public String getURLFilePath() { return urlFilePath; }
 
     public long getSize() { return size; }
 
     public String getMd5() { return md5; }
 
 
+    // disk path differs from url path on win os
+    public void setDiskFilePath(String n) { diskFilePath = n; }
+
+    public String getDiskFilePath() { return diskFilePath; }
+
+
     public boolean matches(FileNode other) { return md5.equals(other.md5); }
 
-    public String toString() { return name; }
+    public String toString() { return urlFilePath; }
 
 
     public URL getAbsoluteURL() {
         try {
-            String simpleName = name.contains("/") ?
-                    name.substring(name.lastIndexOf('/') + 1) : name;
-            return new URL(urlStr + simpleName);
+            String simpleName = urlFilePath.contains("/") ?
+                    urlFilePath.substring(urlFilePath.lastIndexOf('/') + 1) : urlFilePath;
+            return new URL(urlBase + simpleName);
         }
         catch (MalformedURLException mue) {
             return null;

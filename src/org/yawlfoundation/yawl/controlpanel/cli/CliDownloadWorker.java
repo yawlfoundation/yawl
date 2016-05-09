@@ -40,8 +40,8 @@ public class CliDownloadWorker extends DownloadWorker {
                 byte[] buffer = new byte[bufferSize];
                 try {
                     URL webFile = _fileNode.getAbsoluteURL();
-                    makeDir(_fileNode.getName());
-                    String fileTo = _tmpDir + File.separator + _fileNode.getName();
+                    makeDir(_fileNode.getDiskFilePath());
+                    String fileTo = _tmpDir + File.separator + _fileNode.getDiskFilePath();
                     BufferedInputStream inStream = new BufferedInputStream(webFile.openStream());
                     FileOutputStream fos = new FileOutputStream(fileTo);
                     BufferedOutputStream outStream = new BufferedOutputStream(fos);

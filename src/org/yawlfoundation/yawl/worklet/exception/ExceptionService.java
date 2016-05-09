@@ -36,10 +36,7 @@ import org.yawlfoundation.yawl.worklet.support.EventLogger;
 import org.yawlfoundation.yawl.worklet.support.WorkletSpecification;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.yawlfoundation.yawl.worklet.rdr.RuleType.*;
 
@@ -343,7 +340,7 @@ public class ExceptionService {
 
 
     /**
-     * Raises a case-level exception by creating a HandlerRunner for the exception
+     * Raises a case-level exception by creating a ExletRunner for the exception
      * process, then starting the processing of it
      * @param pair represents the exception handling process
      * @param xType the int descriptor of the exception type (WorkletService xType)
@@ -354,6 +351,7 @@ public class ExceptionService {
         _wService.getServer().announceException(caseID, data, pair.getLastTrueNode(), xType);
         ExletRunner runner = new ExletRunner(caseID, pair.getConclusion(), xType);
         runner.setRuleNodeID(pair.getLastTrueNode().getNodeId());
+        runner.setData(data);
         processException(runner);
     }
 
@@ -370,6 +368,7 @@ public class ExceptionService {
         _wService.getServer().announceException(wir, data, pair.getLastTrueNode(), xType);
         ExletRunner runner = new ExletRunner(wir, pair.getConclusion(), xType);
         runner.setRuleNodeID(pair.getLastTrueNode().getNodeId());
+        runner.setData(data);
         processException(runner);
     }
 
@@ -527,7 +526,8 @@ public class ExceptionService {
     private boolean doCompensate(ExletRunner runner, String target) {
         Set<WorkletSpecification> workletList = _wService.getLoader().parseTarget(target);
         Set<WorkletRunner> worklets = _wService.getEngineClient()
-                .launchWorkletList(runner.getWir(), workletList, runner.getRuleType());
+                .launchWorkletList(runner.getWir(), runner.getDataForCaseLaunch(),
+                        workletList, runner.getRuleType());
         if (!worklets.isEmpty()) {
             for (WorkletRunner worklet : worklets) {
                 worklet.setParentCaseID(runner.getCaseID());
@@ -1081,6 +1081,7 @@ public class ExceptionService {
                     new ExletRunner(caseID, pair.getConclusion(), xType) :
                     new ExletRunner(wir, pair.getConclusion(), xType);
                 runner.setTrigger(trigger);
+                runner.setData(eData);
                 raiseException(runner, pair, eData);
             }
         }
@@ -1220,6 +1221,9 @@ public class ExceptionService {
         Element data = dataStr != null ? JDOMUtil.stringToElement(dataStr) :
                 new Element("data");
 
+        // blend in any case level data not extant in the work item's data
+     //   data = blendInCaseData(wir, data);
+
         //convert the wir contents to an Element
         Element eWir = JDOMUtil.stringToElement(wir.toXML()).detach();
 
@@ -1227,6 +1231,28 @@ public class ExceptionService {
         eInfo.addContent(eWir);                          // add the wir
         data.addContent(eInfo);                          // add element to case data
         return data;
+    }
+
+
+    private Element blendInCaseData(WorkItemRecord wir, Element itemData) {
+        if (itemData == null) return null;
+        Element caseData = getCaseData(wir.getRootCaseID());
+        if (caseData != null) {
+            Iterator<Element> itr = caseData.getChildren().iterator();  // avoid ConModEx
+            while (itr.hasNext()) {
+                Element child = itr.next();
+                String name = child.getName();
+
+                // assumption: if itemData contains an element of the same name as
+                // caseData, then the itemData element's value is the same as, or newer
+                // than, the caseData element's value. Therefore, only missing elements
+                // should be added
+                if (itemData.getChild(name) == null) {
+                    itemData.addContent(child.clone());
+                }
+            }
+        }
+        return itemData;
     }
 
 

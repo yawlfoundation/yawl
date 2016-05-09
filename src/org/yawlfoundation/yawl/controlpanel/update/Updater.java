@@ -374,7 +374,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         File tmpDir = FileUtil.getTmpDir();
         int port = TomcatUtil.getTomcatServerPort();
         for (FileNode fileNode : _downloads) {
-            String fileName = fileNode.getName();
+            String fileName = fileNode.getDiskFilePath();
             if (! isControlPanelFileName(fileName)) {            // do CP last
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);
@@ -425,7 +425,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
 
 
     protected boolean onlyUpdatingControlPanel() {
-        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0).getName());
+        return _downloads.size() == 1 && isControlPanelFileName(_downloads.get(0).getURLFilePath());
     }
 
 
@@ -433,7 +433,7 @@ public class Updater implements PropertyChangeListener, EngineStatusListener {
         File tmpDir = FileUtil.getTmpDir();
         File tomcatDir = new File(TomcatUtil.getCatalinaHome());
         for (FileNode fileNode : _downloads) {
-            String fileName = fileNode.getName();
+            String fileName = fileNode.getDiskFilePath();
             if (isControlPanelFileName(fileName)) {
                 File source = FileUtil.makeFile(tmpDir.getAbsolutePath(), fileName);
                 File target = getCopyTarget(tomcatDir, fileName);
