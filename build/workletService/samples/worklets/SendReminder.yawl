@@ -7,7 +7,7 @@
       <title>SendReminder</title>
       <creator>Adams</creator>
       <description>Simple follow up request after timeout</description>
-      <version>0.4</version>
+      <version>0.6</version>
       <persistent>false</persistent>
       <identifier>UID_7f12c563-d237-4c41-9586-258eea4ace4d</identifier>
     </metaData>
@@ -37,6 +37,12 @@
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
+      <inputParam>
+        <index>4</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
       <outputParam>
         <index>0</index>
         <name>Paid</name>
@@ -58,6 +64,12 @@
       <outputParam>
         <index>3</index>
         <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>4</index>
+        <name>OrderNum</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
@@ -122,11 +134,35 @@
               <expression query="&lt;Paid&gt;{/SendReminder/Paid/text()}&lt;/Paid&gt;" />
               <mapsTo>Paid</mapsTo>
             </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/SendReminder/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;OrderNum&gt;{/SendReminder/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/SendReminder/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
+            </mapping>
           </startingMappings>
           <completedMappings>
             <mapping>
+              <expression query="&lt;OrderNum&gt;{/Receive_Reply/OrderNum/text()}&lt;/OrderNum&gt;" />
+              <mapsTo>OrderNum</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Item&gt;{/Receive_Reply/Item/text()}&lt;/Item&gt;" />
+              <mapsTo>Item</mapsTo>
+            </mapping>
+            <mapping>
               <expression query="&lt;Paid&gt;{/Receive_Reply/Paid/text()}&lt;/Paid&gt;" />
               <mapsTo>Paid</mapsTo>
+            </mapping>
+            <mapping>
+              <expression query="&lt;Name&gt;{/Receive_Reply/Name/text()}&lt;/Name&gt;" />
+              <mapsTo>Name</mapsTo>
             </mapping>
           </completedMappings>
           <timer>
@@ -167,10 +203,46 @@
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
+      <inputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>OrderNum</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
       <outputParam>
         <index>0</index>
         <name>Paid</name>
         <type>boolean</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
+        <name>Item</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>2</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>3</index>
+        <name>OrderNum</name>
+        <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <externalInteraction>manual</externalInteraction>

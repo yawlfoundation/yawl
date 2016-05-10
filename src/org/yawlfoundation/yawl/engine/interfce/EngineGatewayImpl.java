@@ -1482,7 +1482,7 @@ public class EngineGatewayImpl implements EngineGateway {
                 return failureMessage(taskID + " is not a multi-instance task");
         }
         else
-            return failureMessage("The was no task found with ID " + taskID);
+            return failureMessage("There was no task found with ID " + taskID);
     }
 
     /***************************************************************************/

@@ -107,7 +107,7 @@ public class WorkItemRecord implements Cloneable {
     private Element _dataList;
     private String _dataListString;
 
-    // interim data store - for use by custome services for temp storage
+    // interim data store - for use by custom services for temp storage
     private Element _dataListUpdated;
     private String _dataListUpdatedString;
 

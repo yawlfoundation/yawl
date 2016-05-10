@@ -389,6 +389,7 @@ public class WorkletService extends InterfaceBWebsideController
      */
     private boolean handleWorkletSelection(WorkItemRecord wir) {
         YSpecificationID specId = new YSpecificationID(wir);
+        boolean isMITask = isMultiInstance(wir);
         String itemId = wir.getID();
         int launchedCount = 0;
 
@@ -396,8 +397,9 @@ public class WorkletService extends InterfaceBWebsideController
         _log.info("   specId = {}", specId);
 
         // locate rdr conclusion for this task, if any
+        // or, if its an MI task, just verify a rule set exists for it
         RdrPair pair = _rdr.evaluate(wir);
-        if (! (pair == null || pair.hasNullConclusion())) {
+        if (pair != null && (! pair.hasNullConclusion() || isMITask)) {
 
             // OK - this workitem has an associated ruleset so check it out
             // all the child items get checked out here
@@ -405,15 +407,7 @@ public class WorkletService extends InterfaceBWebsideController
             Set<WorkItemRecord> checkedOutItems = _engineClient.checkOutItem(wir);
 
             // launch a worklet case for each checked out child workitem
-            try {
-                for (WorkItemRecord childWir : checkedOutItems) {
-                    launchedCount += processWorkItemSubstitution(pair, childWir);
-                }
-            }
-            catch (IOException ioe) {
-                _log.error(ioe.getMessage());
-            }
-
+            launchedCount = launchWorklets(checkedOutItems, pair, isMITask);
             if (launchedCount == 0) {
                 _log.warn("No worklets launched for workitem: {}", itemId);
             }
@@ -427,6 +421,24 @@ public class WorkletService extends InterfaceBWebsideController
                 " OR No rule set found for specification '{}'", wir.getTaskID(), specId);
 
         return launchedCount > 0;
+    }
+
+
+    private int launchWorklets(Set<WorkItemRecord> checkedOutItems, RdrPair pair,
+                               boolean isMITask) {
+        int launchedCount = 0;
+        for (WorkItemRecord childWir : checkedOutItems) {
+            if (isMITask) {
+                pair = _rdr.evaluate(childWir);        // get rule for each MI
+            }
+            try {
+                launchedCount += processWorkItemSubstitution(pair, childWir);
+            }
+            catch (IOException ioe) {
+                _log.error(ioe.getMessage());
+            }
+        }
+        return launchedCount;
     }
 
 
@@ -717,12 +729,20 @@ public class WorkletService extends InterfaceBWebsideController
 
     private String getMITaskInfo(WorkItemRecord wir) {
         try {
-            return _engineClient.getMITaskAttributes(new YSpecificationID(wir),
-                    wir.getTaskID());
+            String attributes = _engineClient.getMITaskAttributes(
+                    new YSpecificationID(wir), wir.getTaskID());
+            if (successful(attributes)) {
+                return attributes;
+            }
         } catch (IOException ioe) {
-            _log.error("IO Exception in dumpMITaskInfo", ioe);
-            return null;
+            _log.error("IO Exception in getMITaskInfo", ioe);
         }
+        return null;
+    }
+
+
+    private boolean isMultiInstance(WorkItemRecord wir) {
+        return getMITaskInfo(wir) != null;
     }
 
 
