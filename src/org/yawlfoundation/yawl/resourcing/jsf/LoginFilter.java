@@ -45,7 +45,8 @@ public class LoginFilter implements Filter {
 	}
 
 	private boolean isLoggedIn(HttpServletRequest httpServletRequest) {
-		return getSessionBean(httpServletRequest).isLoggedIn();
+        SessionBean sb = getSessionBean(httpServletRequest);
+		return sb != null && sb.isLoggedIn();
 	}
 
 	protected SessionBean getSessionBean(HttpServletRequest request) {
