@@ -32,7 +32,7 @@ public class YControlPanel extends JFrame {
     private JTabbedPane _tabbedPane;
     private ComponentsPane _componentsPane;
 
-    public static final String VERSION = "4.0";
+    public static final String VERSION = "4.1";
 
 
     public YControlPanel() {
