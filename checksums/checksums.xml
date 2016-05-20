@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.1</version>
-  <timestamp>2016-05-10 17.04.31</timestamp>
+  <timestamp>2016-05-20 12.46.25</timestamp>
   <lib hash="4db2d9c16aab52d6672cd8ebcf2f98e6">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26" path="A"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T13:39:26" path="A"/>
@@ -837,11 +837,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.1.jar" md5="4766d23016d8714d4371982871b4349a" size="2498658" timestamp="2016-05-10T17:04:29" path="AM"/>
+    <file name="yawl-lib-4.1.jar" md5="a34e5b4f2b4230aa0d650503f98377db" size="2500332" timestamp="2016-05-20T12:46:25" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>378</build>
-    <file name="YawlControlPanel-4.1.jar" md5="f64c4783dc1af2c1d3455c5abaac9634" size="338807" timestamp="2016-05-10T12:40:02" path="AM"/>
+    <build>380</build>
+    <file name="YawlControlPanel-4.1.jar" md5="068419ef561c841bd47372d4eb2fb138" size="338893" timestamp="2016-05-20T12:46:25" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>

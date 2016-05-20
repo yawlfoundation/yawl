@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.schema;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.schema.internal.YInternalType;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -31,7 +30,10 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This object acts as a reusable Schema validator for a given schema. Once

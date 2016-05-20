@@ -37,6 +37,8 @@ public class XNodeParser {
     private List<String> _openingComments;                          // if root node only
     private List<String> _closingComments;                          // if root node only
 
+    private static final String UTF8_BOM = "\uFEFF";
+
     public XNodeParser() {
         this(false);
     }
@@ -53,7 +55,10 @@ public class XNodeParser {
      * @return the root XNode, with contents
      */
     public XNode parse(String s) {
-        if (s == null) return null;
+        if (s == null || s.isEmpty()) return null;
+
+        // remove UTF-8 BOM char, if any
+        if (s.startsWith(UTF8_BOM)) s = s.substring(1);
 
         // remove any headers
         if (s.startsWith("<?xml")) s = s.substring(s.indexOf("?>") + 2).trim();

@@ -945,7 +945,8 @@
         </copy>
 
         <copy todir="${classes.dir}">
-            <fileset dir="${src.dir}" includes="**/*.hbm.xml **/cost/xsd/*.xsd"/>
+            <fileset dir="${src.dir}"
+                     includes="**/*.hbm.xml **/cost/xsd/*.xsd  **/worklet/rdr/xsd/*.xsd"/>
         </copy>
 
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
