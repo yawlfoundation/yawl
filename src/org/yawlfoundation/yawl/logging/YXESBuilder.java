@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.logging;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.schema.XSDType;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
@@ -290,7 +291,8 @@ public class YXESBuilder {
 
     private XNode formatDataNode(String name, String value, String typeDefinition) {
         String tag = getTagType(typeDefinition);
-        if (tag.equals("date")) value = formatDateValue(typeDefinition, value);
+        value = tag.equals("date") ? formatDateValue(typeDefinition, value) :
+                JDOMUtil.encodeEscapes(value);
         return entryNode(tag, name, value);
     }
 
