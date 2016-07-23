@@ -339,44 +339,37 @@ public final class YNet extends YDecomposition {
     }
 
 
-    public boolean orJoinEnabled(YTask orJoin, YIdentifier caseID) {
+    public boolean orJoinEnabled(YTask orJoinTask, YIdentifier caseID) {
 
-        if (orJoin == null || caseID == null) {
-            throw new RuntimeException("Irrelevant to check the enabledness of an orjoin if " +
-                    "this is called with null params.");
+        if (orJoinTask == null || caseID == null) {
+            throw new RuntimeException("Irrelevant to check the enabledness of an " +
+                    "or join if this is called with null params.");
         }
 
-        if (orJoin.getJoinType() != YTask._OR) {
-            throw new RuntimeException(orJoin + " is not an OR-Join.");
+        if (orJoinTask.getJoinType() != YTask._OR) {
+            throw new RuntimeException(orJoinTask + " is not an OR-Join.");
         }
 
         YMarking actualMarking = new YMarking(caseID);
-        List locations = new Vector(actualMarking.getLocations());
-        Set preSet = orJoin.getPresetElements();
+        List<YNetElement> locations = new Vector<YNetElement>(actualMarking.getLocations());
+        Set preSet = orJoinTask.getPresetElements();
         if (locations.containsAll(preSet)) {
             return true;
         }
 
-        boolean callORjoin = false;
-        for (Iterator locIter = locations.iterator(); locIter.hasNext();) {
-            YNetElement element = (YNetElement) locIter.next();
+        for (YNetElement element : locations) {
             if (preSet.contains(element)) {
-                callORjoin = true;
+                try {
+                    E2WFOJNet e2Net = new E2WFOJNet(this, orJoinTask);
+                    e2Net.restrictNet(actualMarking);
+                    e2Net.restrictNet(orJoinTask);
+                    return e2Net.orJoinEnabled(actualMarking, orJoinTask);
+                } catch (Exception e) {
+                    throw new RuntimeException("Exception in OR-join call:" + e);
+                }
             }
         }
-
-        if (callORjoin) {
-            try {
-                E2WFOJNet e2Net = new E2WFOJNet(this, orJoin);
-                e2Net.restrictNet(actualMarking);
-                e2Net.restrictNet(orJoin);
-                return e2Net.orJoinEnabled(actualMarking, orJoin);
-            } catch (Exception e) {
-                throw new RuntimeException("Exception in OR-join call:" + e);
-            }
-
-        }
-        // don't waste time on an orjoin with no tokens in preset
+        // or join task has no tokens in preset
         return false;
     }
 

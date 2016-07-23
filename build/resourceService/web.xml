@@ -531,6 +531,17 @@
     </filter-mapping>
 
     <filter>
+        <filter-name>PageFilter</filter-name>
+        <filter-class>
+            org.yawlfoundation.yawl.resourcing.jsf.PageFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>PageFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>ThemeFilter</filter-name>
         <filter-class>
             org.yawlfoundation.yawl.resourcing.jsf.ThemeFilter

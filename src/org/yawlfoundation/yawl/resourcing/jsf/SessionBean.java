@@ -692,6 +692,11 @@ public class SessionBean extends AbstractSessionBean {
     }
 
 
+    public boolean isAdminSession() {
+        return _rm.isAdminSession(sessionhandle);
+    }
+
+
     /**
      * redirects to the specified page
      * @param page the name of the page to go to
