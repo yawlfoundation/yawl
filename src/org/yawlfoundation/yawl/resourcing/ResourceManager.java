@@ -2084,7 +2084,9 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public boolean isAdminSession(String handle) {
         Participant p = _cache.getParticipantWithSessionHandle(handle);
-        return p != null && p.isAdministrator();
+
+        // p == null if 'admin' logon for handle
+        return _cache.isValidUserSession(handle) && (p == null || p.isAdministrator());
     }
 
 

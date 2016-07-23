@@ -57,6 +57,7 @@ public class PageFilter implements Filter {
         return requestURI != null &&
       				(requestURI.endsWith("orgDataMgt.jsp") ||
                      requestURI.endsWith("caseMgt.jsp") ||
+					 requestURI.endsWith("adminQueues.jsp") ||
                      requestURI.endsWith("nonHumanMgt.jsp") ||
                      requestURI.endsWith("customServices.jsp") ||
                      requestURI.endsWith("calendarMgt.jsp") ||
