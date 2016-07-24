@@ -6,9 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * The jsf ThemeServlet class makes all files on the classpath available via
- * the 'theme' uri. This filter prevents certain files from being accessed via
- * that method.
+ * This filter prevents users from accessing unauthorised (admin) pages by directly
+ * typing the admin page's url into the address bar of a browser.
  */
 public class PageFilter implements Filter {
 
@@ -58,6 +57,7 @@ public class PageFilter implements Filter {
       				(requestURI.endsWith("orgDataMgt.jsp") ||
                      requestURI.endsWith("caseMgt.jsp") ||
 					 requestURI.endsWith("adminQueues.jsp") ||
+                     requestURI.endsWith("participantData.jsp") ||
                      requestURI.endsWith("nonHumanMgt.jsp") ||
                      requestURI.endsWith("customServices.jsp") ||
                      requestURI.endsWith("calendarMgt.jsp") ||
