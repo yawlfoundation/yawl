@@ -7,10 +7,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.worklet.rdr.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Parses a rule set expressed as an XML doc
@@ -22,6 +19,10 @@ public class RdrSetParser {
 
     public Map<RuleType, RdrTreeSet> parse(String xml, boolean newSet) {
         return parse(JDOMUtil.stringToDocument(xml), newSet);
+    }
+
+    public Set<RdrTreeSet> parseSet(String xml, boolean newSet) {
+        return new HashSet<RdrTreeSet>(parse(xml, newSet).values());
     }
 
 

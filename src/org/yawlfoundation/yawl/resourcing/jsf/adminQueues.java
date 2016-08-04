@@ -537,10 +537,11 @@ public class adminQueues extends AbstractPageBean {
 
     /**
      * Enable or disable buttons based on the status of the selected workitem
+     * pre: workitem is worklisted (i.e. not unoffered)
      * @param wir the selected workitem
      */
     private void processButtonEnablement(WorkItemRecord wir) {
-        btnReoffer.setDisabled(! getApplicationBean().canReoffer(wir));
+        btnReoffer.setDisabled(false);
         btnSecRes.setDisabled(isBetaVersion(wir) || (! wir.isEnabledOrFired()));
         String status = wir.getResourceStatus();
         if (status != null) {
@@ -549,6 +550,7 @@ public class adminQueues extends AbstractPageBean {
                                    status.equals(WorkItemRecord.statusResourceAllocated));
         }
         else {                                      // null = no status; so play it safe
+        //    btnReoffer.setDisabled(! getApplicationBean().canReoffer(wir));
             btnReallocate.setDisabled(true);
             btnRestart.setDisabled(true);
         }

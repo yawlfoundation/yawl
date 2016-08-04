@@ -204,7 +204,18 @@ public class RdrTree {
     }
 
 
-    // detach branch at the specified node
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass()) &&
+                id == ((RdrTree) o).id;
+
+    }
+
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+
+    // detach branch at the specified node (pre: node != null)
     private void prune(RdrNode node) {
         RdrNode parent = node.getParent();
         if (node.equals(parent.getTrueChild())) {
@@ -213,6 +224,7 @@ public class RdrTree {
         else {
             parent.setFalseChild(null);
         }
+        node.setParent(null);
     }
 
 

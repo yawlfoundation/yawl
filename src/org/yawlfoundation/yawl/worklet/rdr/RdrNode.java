@@ -237,9 +237,20 @@ public class RdrNode implements Cloneable {
     private boolean equalContent(Element e, Element eOther) {
         return JDOMUtil.elementToString(e).equals(JDOMUtil.elementToString(eOther));
     }
-    
-    
-//===========================================================================//
+
+
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass()) &&
+                id == ((RdrNode) o).id;
+
+    }
+
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+
+    //===========================================================================//
 	
    /** 
     *  Recursively search each node using the condition of each to determine

@@ -72,27 +72,6 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         return (wir != null) ? this.put(wir.getID(), wir) : null;
     }
 
-    public WorkItemRecord remove(WorkItemRecord wir) {
-        return this.remove(wir.getID());
-    }
-
-    public WorkItemRecord replace(WorkItemRecord oldWir, WorkItemRecord newWir) {
-        if (oldWir != null) {
-            this.remove(oldWir.getID());
-            copyDocumentation(oldWir, newWir);
-        }
-        return add(newWir);
-    }
-    
-
-    public void removeCase(String caseID) {
-        Set<WorkItemRecord> clonedValues = new HashSet<WorkItemRecord>(this.values());
-        for (WorkItemRecord wir : clonedValues) {
-            if (wir.getRootCaseID().equals(caseID)) {
-                this.remove(wir);
-            }
-        }
-    }
 
     public WorkItemRecord update(WorkItemRecord wir) {
         return this.put(wir.getID(), wir) ;
@@ -104,14 +83,17 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         return this.put(wir.getID(), wir);
     }
 
+
     public WorkItemRecord updateStatus(WorkItemRecord wir, String status) {
         wir.setStatus(status);
         return this.put(wir.getID(), wir);
     }
 
+
     public void stopCleanserThread() {
         if (_cleanser != null) _cleanser.cancel();
     }
+
 
     public void restore() {
         if (_persistOn) {
@@ -130,15 +112,6 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
     }
 
 
-    private void copyDocumentation(WorkItemRecord oldWir, WorkItemRecord newWir) {
-        if ((newWir != null) && oldWir.isDocumentationChanged()) {
-            newWir.setDocumentation(oldWir.getDocumentation());
-            newWir.setDocumentationChanged(true);
-        }
-    }
-
-
-
     // OVERRIDES //
 
     public synchronized WorkItemRecord put(String id, WorkItemRecord wir) {
@@ -151,6 +124,8 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
         return super.put(id, wir);
     }
 
+
+    // this method must ONLY be called from the Cleanser below
     public synchronized WorkItemRecord remove(String id) {
         if (containsKey(id)) {
            if (_persistOn) _persister.delete(get(id)) ;

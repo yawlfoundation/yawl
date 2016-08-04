@@ -185,7 +185,7 @@ public class Rdr {
 
     public void updateTaskIDs(RdrSet rdrSet, Map<String, String> updates) {
         if (rdrSet == null) return;
-        for (RdrTreeSet treeSet : rdrSet.getTreeSet()) {
+        for (RdrTreeSet treeSet : rdrSet.getRuleSet()) {
             if (treeSet.getRuleType().isCaseLevelType()) continue;  // ignore case trees
             for (RdrTree tree : treeSet.getAll()) {
                 String taskID = tree.getTaskId();
@@ -215,7 +215,7 @@ public class Rdr {
             addedNode = tree.addNode(node, root, true);
         }
         if (addedNode != null) {
-            set.save();
+            Persister.update(set);
         }
         return addedNode;
     }
@@ -312,11 +312,12 @@ public class Rdr {
         if (tree != null) {
             RdrNode node = tree.removeNode(nodeID);
             if (node != null) {
+                updatePersistedTree(tree.getRootNode());
+                Persister.delete(node);
                 if (tree.getRootNode().isLeaf()) {       // tree is now empty
                     return removeTree(ruleSet, taskID, rType);
                 }
                 else {
-                    Persister.update(tree);
                     return RdrResult.RdrNodeRemoved;
                 }
             }
@@ -330,11 +331,11 @@ public class Rdr {
         if (treeSet != null) {
             RdrTree tree = treeSet.remove(taskID);
             if (tree != null) {
+                Persister.update(treeSet);
                 if (treeSet.isEmpty()) {
                     return removeTreeSet(ruleSet, rType);
                 }
                 else {
-                    Persister.update(treeSet);
                     return RdrResult.RdrTreeRemoved;
                 }
             }
@@ -346,16 +347,25 @@ public class Rdr {
     private RdrResult removeTreeSet(RdrSet ruleSet, RuleType rType) {
         RdrTreeSet treeSet = ruleSet.removeTreeSet(rType);
         if (treeSet != null) {
+            Persister.update(ruleSet);
             if (! ruleSet.hasRules()) {
                 _loader.removeSet(ruleSet);
                 return RdrResult.RdrSetRemoved;
             }
             else {
-                Persister.update(ruleSet);
                 return RdrResult.RdrTreeSetRemoved;
             }
         }
         return RdrResult.Unknown;
+    }
+
+
+    private void updatePersistedTree(RdrNode node) {
+        if (node != null) {
+            Persister.update(node);
+            updatePersistedTree(node.getTrueChild());
+            updatePersistedTree(node.getFalseChild());
+        }
     }
 
 }

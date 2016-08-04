@@ -113,7 +113,7 @@ public class HibernateEngine {
         try {
             getOrBeginTransaction();
             Query query = getSession().createQuery("from " + tableName).setMaxResults(1);
-            boolean hasTable = query.list().size() > 0;
+            boolean hasTable = ! query.list().isEmpty();
             commit();
             return hasTable;
         }
@@ -258,7 +258,7 @@ public class HibernateEngine {
             tx = getOrBeginTransaction();
             Query query = getSession().createSQLQuery(queryString);
             if (query != null) result = query.list();
-        commit();
+            commit();
         }
         catch (JDBCConnectionException jce) {
             _log.error("Caught Exception: Couldn't connect to datasource - " +

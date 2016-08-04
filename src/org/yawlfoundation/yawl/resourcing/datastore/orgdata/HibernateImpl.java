@@ -161,6 +161,8 @@ public class HibernateImpl extends DataSource {
        if (catList != null) for (NonHumanCategory cat : catList)
            ds.putNonHumanCategory(cat) ;
 
+        _db.commit();
+
        return ds ;
     }
 

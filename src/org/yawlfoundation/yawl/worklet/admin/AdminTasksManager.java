@@ -21,7 +21,6 @@ package org.yawlfoundation.yawl.worklet.admin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.worklet.WorkletService;
-import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.support.Persister;
 
 import java.util.*;
@@ -219,6 +218,7 @@ public class AdminTasksManager {
                 addTask((AdministrationTask) o);
             }
         }
+        Persister.getInstance().commit();
     }
 
 }

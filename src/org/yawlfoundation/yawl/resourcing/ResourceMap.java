@@ -204,6 +204,7 @@ public class ResourceMap {
             if ((map != null) && (! map.isEmpty())) {
                 result = (ResourceMap) map.iterator().next();
             }
+            _persister.commit();
         }
         return result;
     }

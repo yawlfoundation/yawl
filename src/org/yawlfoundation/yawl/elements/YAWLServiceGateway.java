@@ -126,6 +126,12 @@ public class YAWLServiceGateway extends YDecomposition implements YVerifiable {
 
 
     /**
+     * Clears any service associated with this gateway. Used at design time
+     */
+    public void clearYawlService() { _yawlServices.clear(); }
+
+
+    /**
      * Gets the enablement parameters.
      * @return a map of the parameters that become available to yawl
      * services when a task is enabled.

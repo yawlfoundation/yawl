@@ -375,7 +375,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                 _cache.cancelCodeletRunnersForCase(caseID);
                 _cache.removeDeferredGroupForCase(caseID);
                 freeSecondaryResourcesForCase(caseID);
-                _workItemCache.removeCase(caseID);
                 removeChain(caseID);
                 removeActiveCalendarEntriesForCase(caseID);
                 _services.removeCaseFromDocStore(caseID);
@@ -426,7 +425,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                     Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.STARTED);
                     if (p != null) {
                         p.getWorkQueues().movetoSuspend(cachedWir);
-                        cachedWir.setResourceStatus(WorkItemRecord.statusResourceSuspended);
+                        _workItemCache.updateResourceStatus(
+                                cachedWir, WorkItemRecord.statusResourceSuspended);
                     }
                     _workItemCache.updateStatus(cachedWir, newStatus);
                 }
@@ -447,7 +447,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                         Participant p = getParticipantAssignedWorkItem(cachedWir, WorkQueue.SUSPENDED);
                         if (p != null) {
                             p.getWorkQueues().movetoUnsuspend(cachedWir);
-                            cachedWir.setResourceStatus(WorkItemRecord.statusResourceStarted);
+                            _workItemCache.updateResourceStatus(
+                                    cachedWir, WorkItemRecord.statusResourceStarted);
                             _workItemCache.updateStatus(cachedWir, newStatus);
                         }
                     }
@@ -1728,9 +1729,7 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public ResourceMap getCachedResourceMap(WorkItemRecord wir) {
         if (wir == null) return null;
-        YSpecificationID specID = new YSpecificationID(wir);
-        String taskID = wir.getTaskID();
-        return _resMapCache.get(specID, taskID);
+        return getCachedResourceMap(new YSpecificationID(wir), wir.getTaskID());
     }
 
 
@@ -1894,7 +1893,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                         }
                     }
                     freeSecondaryResources(wir);
-            //        _workItemCache.remove(wir);
                 } else {
                     _cache.removeTaskCompleter(p, wir);
 
@@ -2893,7 +2891,6 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (wir == null) return fail("Unknown work item: " + itemID);
         String result = _services.redirectWorkItemToYawlService(wir, serviceName);
         if (successful(result)) {
-        //    if (removeFromAll(wir)) _workItemCache.remove(wir);
             removeFromAll(wir);
         } else if (result.startsWith(WORKITEM_ERR)) {
             result += ": " + itemID;

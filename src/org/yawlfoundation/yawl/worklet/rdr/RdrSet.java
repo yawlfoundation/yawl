@@ -20,10 +20,12 @@ package org.yawlfoundation.yawl.worklet.rdr;
 
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.worklet.support.Persister;
 import org.yawlfoundation.yawl.worklet.rdrutil.RdrSetParser;
+import org.yawlfoundation.yawl.worklet.support.Persister;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *  Maintains a set of RdrTrees for a particular specification, for each of the following
@@ -53,7 +55,7 @@ public class RdrSet {
 
     private YSpecificationID _specID ;
     private String _processName;
-    private Map<RuleType, RdrTreeSet> _treeMap;
+    private Set<RdrTreeSet> _ruleSet;
 
     public static final String CASE_LEVEL_TREE_FLAG = "__case_level_tree__";
 
@@ -82,25 +84,25 @@ public class RdrSet {
         RdrSetLoader loader = new RdrSetLoader();
         RdrSet reloaded = _specID != null ? loader.load(_specID) : loader.load(_processName);
         if (reloaded != null) {
-            setTreeMap(new HashMap<RuleType, RdrTreeSet>(reloaded._treeMap));
+            _ruleSet = reloaded._ruleSet;
         }
     }
 
 
     /** @return true if this spec's ruleset is not empty */
     public boolean hasRules() {
-        return ! (_treeMap == null || _treeMap.isEmpty());
+        return ! (_ruleSet == null || _ruleSet.isEmpty());
     }
 
 
     public void addTree(RdrTree tree, RuleType treeType) {
-        if (_treeMap == null) {
-            _treeMap = new HashMap<RuleType, RdrTreeSet>();
+        if (_ruleSet == null) {
+            _ruleSet = new HashSet<RdrTreeSet>();
         }
-        RdrTreeSet treeSet = _treeMap.get(treeType);
+        RdrTreeSet treeSet = getTreeSet(treeType);
         if (treeSet == null) {
             treeSet = new RdrTreeSet(treeType);
-            _treeMap.put(treeType, treeSet);
+            _ruleSet.add(treeSet);
         }
         treeSet.add(tree);
         Persister.update(this);
@@ -125,30 +127,52 @@ public class RdrSet {
 
     // get the RuleTypes that have trees in this set
     public Set<RuleType> getRules() {
-        return _treeMap != null ? _treeMap.keySet() : Collections.<RuleType>emptySet();
+        if (_ruleSet != null) {
+            Set<RuleType> ruleTypeSet = new HashSet<RuleType>();
+            for (RdrTreeSet treeSet : _ruleSet) {
+                ruleTypeSet.add(treeSet.getRuleType());
+            }
+            return ruleTypeSet;
+        }
+        return Collections.<RuleType>emptySet();
     }
 
 
     // get the tree sets for this rdrSet
     public RdrTreeSet getTreeSet(RuleType ruleType) {
-        return _treeMap != null ? _treeMap.get(ruleType) : null;
+        if (_ruleSet != null) {
+            for (RdrTreeSet treeSet : _ruleSet) {
+                if (treeSet.getRuleType().equals(ruleType)) {
+                    return treeSet;
+                }
+            }
+        }
+        return null;
     }
 
 
     public RdrTreeSet removeTreeSet(RuleType ruleType) {
-        return _treeMap != null ? _treeMap.remove(ruleType) : null;
+        RdrTreeSet treeSet = getTreeSet(ruleType);
+        if (treeSet != null) {
+            _ruleSet.remove(treeSet);
+        }
+        return treeSet;
     }
 
 
-    public void setTreeMap(Map<RuleType, RdrTreeSet> map) { _treeMap = map; }
-
-
-    public boolean save() {
-        Persister.update(this);
-        return true;
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass()) && id == ((RdrSet) o).id;
     }
-    
-    
+
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (_specID != null ? _specID.hashCode() : 0);
+        result = 31 * result + (_processName != null ? _processName.hashCode() : 0);
+        result = 31 * result + (_ruleSet != null ? _ruleSet.hashCode() : 0);
+        return result;
+    }
+
+
     public String toXML() {
          return toXNode().toPrettyString();
     }
@@ -162,20 +186,21 @@ public class RdrSet {
                 "case", "post");
         treeToXNode(getTree(RuleType.CaseExternalTrigger), ruleSet,  "external", "case");
 
-        treeListToXNode(_treeMap.get(RuleType.ItemSelection), ruleSet, "selection");
-        treeListToXNode(_treeMap.get(RuleType.ItemPreconstraint), ruleSet,
+        treeListToXNode(getTreeSet(RuleType.ItemSelection), ruleSet, "selection");
+        treeListToXNode(getTreeSet(RuleType.ItemPreconstraint), ruleSet,
                 "constraints", "item", "pre");
-        treeListToXNode(_treeMap.get(RuleType.ItemPostconstraint), ruleSet,
+        treeListToXNode(getTreeSet(RuleType.ItemPostconstraint), ruleSet,
                 "constraints", "item", "post");
-        treeListToXNode(_treeMap.get(RuleType.ItemAbort), ruleSet, "abort");
-        treeListToXNode(_treeMap.get(RuleType.ItemTimeout), ruleSet, "timeout");
-        treeListToXNode(_treeMap.get(RuleType.ItemResourceUnavailable), ruleSet,
+        treeListToXNode(getTreeSet(RuleType.ItemAbort), ruleSet, "abort");
+        treeListToXNode(getTreeSet(RuleType.ItemTimeout), ruleSet, "timeout");
+        treeListToXNode(getTreeSet(RuleType.ItemResourceUnavailable), ruleSet,
                 "resourceUnavailable");
-        treeListToXNode(_treeMap.get(RuleType.ItemConstraintViolation), ruleSet, "violation");
-        treeListToXNode(_treeMap.get(RuleType.ItemExternalTrigger), ruleSet, "external", "item");
+        treeListToXNode(getTreeSet(RuleType.ItemConstraintViolation), ruleSet, "violation");
+        treeListToXNode(getTreeSet(RuleType.ItemExternalTrigger), ruleSet, "external", "item");
         return ruleSet;
     }
-    
+
+
     private XNode createRootXNode() {
         XNode xRoot = null;
         if (_specID != null) {
@@ -249,22 +274,26 @@ public class RdrSet {
     //      in which case the node ids are permanent & valid and should be used by the
     //      parser.
     public void fromXML(String xml, boolean newSet) {
-        _treeMap = new RdrSetParser().parse(xml, newSet);
+        Set<RdrTreeSet> ruleSet = new RdrSetParser().parseSet(xml, newSet);
+        if (_ruleSet == null) {
+            _ruleSet = ruleSet;
+        }
+        else {
+            _ruleSet.clear();                // retain hibernate ref
+            _ruleSet.addAll(ruleSet);
+        }
     }
 
 //===========================================================================//
 
     // persistence
 
-    private void setTreeSet(Set<RdrTreeSet> treeSet) {
-        _treeMap = new HashMap<RuleType, RdrTreeSet>();
-        for (RdrTreeSet tree : treeSet) {
-            _treeMap.put(tree.getRuleType(), tree);
-        }
+    private void setRuleSet(Set<RdrTreeSet> treeSet) {
+        _ruleSet = treeSet;
     }
 
-    protected Set<RdrTreeSet> getTreeSet() {
-        return _treeMap != null ? new HashSet<RdrTreeSet>(_treeMap.values()) : null;
+    protected Set<RdrTreeSet> getRuleSet() {
+        return _ruleSet;
     }
 
 }

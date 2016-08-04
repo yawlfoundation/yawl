@@ -1,8 +1,7 @@
 package org.yawlfoundation.yawl.worklet.rdr;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,17 +15,14 @@ public class RdrTreeSet {
     private long id;
 
     private RuleType _ruleType;
-    private Map<String, RdrTree> _treeMap;
+    private Set<RdrTree> _treeSet;
 
     private RdrTreeSet() { }
 
-    public RdrTreeSet(RuleType ruleType) {
-        this(ruleType, new HashMap<String, RdrTree>());
-    }
 
-    public RdrTreeSet(RuleType ruleType, Map<String, RdrTree> treeMap) {
+    public RdrTreeSet(RuleType ruleType) {
+        this();
         _ruleType = ruleType;
-        _treeMap = treeMap;
     }
 
 
@@ -35,38 +31,79 @@ public class RdrTreeSet {
 
     public RdrTree get() { return get(RdrSet.CASE_LEVEL_TREE_FLAG); }
 
-    public RdrTree get(String taskId) { return _treeMap.get(taskId); }
 
-    public Set<RdrTree> getAll() { return new HashSet<RdrTree>(_treeMap.values()); }
+    public RdrTree get(String taskId) {
+        if (! (_treeSet == null || taskId == null)) {
+            for (RdrTree tree : _treeSet) {
+                if (tree.getTaskId().equals(taskId)) {
+                    return tree;
+                }
+            }
+        }
+        return null;
+    }
 
-    public Set<String> getAllTasks() { return _treeMap.keySet(); }
+
+    public Set<RdrTree> getAll() {
+        return _treeSet != null ? _treeSet : Collections.<RdrTree>emptySet();
+    }
+
+    // called at design time
+    public Set<String> getAllTasks() {
+        Set<String> taskIdSet = new HashSet<String>();
+        if (_treeSet != null) {
+            for (RdrTree tree : _treeSet) {
+                taskIdSet.add(tree.getTaskId());
+            }
+        }
+        return taskIdSet;
+    }
 
 
-    public void add(RdrTree tree) { _treeMap.put(tree.getTaskId(), tree); }
+    public void add(RdrTree tree) {
+        if (tree != null) {
+            if (_treeSet == null) {
+                _treeSet = new HashSet<RdrTree>();
+            }
+            _treeSet.add(tree);
+        }
+    }
+
 
     public RdrTree remove(String taskID) {
         if (_ruleType.isCaseLevelType()) {
             taskID = RdrSet.CASE_LEVEL_TREE_FLAG;
         }
-        return _treeMap.remove(taskID);
+        RdrTree tree = get(taskID);
+        if (! (_treeSet == null || tree == null)) {
+            _treeSet.remove(tree);
+        }
+        return tree;
     }
 
 
-    public boolean isEmpty() { return _treeMap.isEmpty(); }
+    public boolean isEmpty() { return _treeSet == null || _treeSet.isEmpty(); }
+
+
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass()) &&
+                id == ((RdrTreeSet) o).id;
+
+    }
+
+
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 
 
     // for hibernate
 
     private Set<RdrTree> getTreeSet() {
-        return new HashSet<RdrTree>(_treeMap.values());
+        return _treeSet;
     }
 
-    private void setTreeSet(Set<RdrTree> treeSet) {
-        _treeMap = new HashMap<String, RdrTree>();
-        if (treeSet != null) {
-            for (RdrTree tree : treeSet) {
-                _treeMap.put(tree.getTaskId(), tree);
-            }
-        }
-    }
+
+    private void setTreeSet(Set<RdrTree> treeSet) { _treeSet = treeSet; }
+
 }

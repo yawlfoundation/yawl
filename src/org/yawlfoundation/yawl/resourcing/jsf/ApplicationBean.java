@@ -238,7 +238,6 @@ public class ApplicationBean extends AbstractApplicationBean {
 
     public void removeWorkItemParams(WorkItemRecord wir) {
         _workItemParams.remove(wir.getID());
-        removeFromReofferMap(wir);
     }
 
 
@@ -252,7 +251,6 @@ public class ApplicationBean extends AbstractApplicationBean {
         for (String id : toRemove) {
             _workItemParams.remove(id);
         }
-        removeCaseFromReofferMap(caseID);
     }
 
 
@@ -491,31 +489,9 @@ public class ApplicationBean extends AbstractApplicationBean {
      */
 
     // if an offered workitem has no resource map (usually a pre-2.0 spec), it can't
-    // be reoffered on the admin screen. This map keeps track of listed workitems and
-    // whether they can be reoffered or not.
-
-    private Map<String, Boolean> _canReofferMap = new ConcurrentHashMap<String, Boolean>();
-
+    // be reoffered on the admin screen.
     public boolean canReoffer(WorkItemRecord wir) {
-        Boolean okToReoffer = _canReofferMap.get(wir.getID());
-        if (okToReoffer == null) {
-            okToReoffer = (_rm.getCachedResourceMap(wir) != null);
-            _canReofferMap.put(wir.getID(), okToReoffer);
-        }
-        return okToReoffer;
-    }
-
-    public void removeFromReofferMap(WorkItemRecord wir) {
-        _canReofferMap.remove(wir.getID());
-    }
-
-    public void removeCaseFromReofferMap(String caseID) {
-        int len = caseID.length();
-        for (String id : _canReofferMap.keySet()) {
-            if (id.startsWith(caseID) && ":.".contains(id.substring(len, len + 1))) {
-                _canReofferMap.remove(id);
-            }
-        }
+        return _rm.getCachedResourceMap(wir) != null;
     }
 
 
