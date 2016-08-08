@@ -380,7 +380,7 @@ public class ConditionEvaluator {
 
     /** removes the double quotes from around a string */
     private String deQuote(String s) {
-        return s.substring(1, s.length() - 1) ;
+        return s.startsWith("\"") ? s.substring(1, s.length() - 1) : s ;
     }
 
 
@@ -772,7 +772,7 @@ public class ConditionEvaluator {
         }
 
         // make sure the two operands are the same data type
-        if (!getType(lOp).equals(getType(rOp))) {
+        if (!compatibleDataTypes(lOp, rOp)) {
             throw new RdrConditionException(getMessage(15) + ". Left = " +
                     lOp + ", Right = " + rOp) ;
         }
@@ -831,6 +831,13 @@ public class ConditionEvaluator {
         return clarifyResult(evalFunction(func, data), null);
     }
 
+
+    private boolean compatibleDataTypes(String lOp, String rOp) {
+        String lType = getType(lOp);
+        String rType = getType(rOp);
+        return "string".equals(lType) || "string".equals(rType) ||
+                getType(lOp).equals(getType(rOp));
+    }
 
     /** retrieves the value for a variable or function from the datalist Element */
     private String getVarValue(String var, Element data) {

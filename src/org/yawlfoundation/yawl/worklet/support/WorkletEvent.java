@@ -53,7 +53,6 @@ public class WorkletEvent {
         _parentCaseId = parentCaseId ;
         _xType = xType ;
         _stamp = _sdfe.format(new Date());
-        _id = new Date().getTime();
     }
 
     /** getters & setters used by persistence */

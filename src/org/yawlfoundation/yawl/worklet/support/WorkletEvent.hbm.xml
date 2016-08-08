@@ -26,8 +26,8 @@
 	<class name="org.yawlfoundation.yawl.worklet.support.WorkletEvent"
            table="ws_EventLog">
 
-       <id name="_id" column="eventid" type="long" access="field">
-   		    <generator class="assigned"/>
+       <id name="_id" column="eventid" type="long">
+   		    <generator class="native"/>
        </id>
 
        <component name="_specId"
