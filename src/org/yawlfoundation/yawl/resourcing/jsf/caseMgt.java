@@ -22,7 +22,9 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.YSpecVersion;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
@@ -35,7 +37,6 @@ import org.yawlfoundation.yawl.schema.YSchemaVersion;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
-import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIColumn;
@@ -1047,19 +1048,23 @@ public class caseMgt extends AbstractPageBean {
 
     private YSpecificationID getDescriptors(String specxml) {
         YSpecificationID descriptors = null;
-        XNode specNode = new XNodeParser().parse(specxml);
-        if (specNode != null) {
+
+        Document doc = JDOMUtil.stringToDocument(specxml);
+        if (doc != null) {
+            Element root = doc.getRootElement();
+            Namespace ns = root.getNamespace();
             YSchemaVersion schemaVersion = YSchemaVersion.fromString(
-                    specNode.getAttributeValue("version"));
-            XNode specification = specNode.getChild("specification");
+                    root.getAttributeValue("version"));
+            Element specification = root.getChild("specification", ns);
+
             if (specification != null) {
                 String uri = specification.getAttributeValue("uri");
                 String version = "0.1";
                 String uid = null;
                 if (! (schemaVersion == null || schemaVersion.isBetaVersion())) {
-                    XNode metadata = specification.getChild("metaData");
-                    version = metadata.getChildText("version");
-                    uid = metadata.getChildText("identifier");
+                    Element metadata = specification.getChild("metaData", ns);
+                    version = metadata.getChildText("version", ns);
+                    uid = metadata.getChildText("identifier", ns);
                 }
                 descriptors = new YSpecificationID(uid, version, uri);
             }

@@ -145,19 +145,21 @@ public final class YMultiInstanceAttributes implements Cloneable, YVerifiable {
             _minInstances = new Integer(minInstancesQuery);
         } catch (NumberFormatException e) {
             _minInstancesQuery = minInstancesQuery;
+            _minInstances = null;
         }
         try {
             _maxInstances = new Integer(maxInstancesQuery);
         } catch (NumberFormatException e) {
             _maxInstancesQuery = maxInstancesQuery;
+            _maxInstances = null;
         }
         try {
             _threshold = new Integer(thresholdQuery);
         } catch (NumberFormatException e) {
             _thresholdQuery = thresholdQuery;
+            _threshold = null;
         }
         _creationMode = creationMode;
-
     }
 
 
