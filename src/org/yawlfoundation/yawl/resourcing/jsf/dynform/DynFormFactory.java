@@ -988,13 +988,19 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
 
         char[] chars = text.toCharArray();
 
-        // ignore leading and trailling underscores
+        // ignore leading and trailing underscores
         for (int i = 1; i < chars.length - 1; i++) {
             if (chars[i] == pre) chars[i] = post;
         }
         return new String(chars);
     }
 
+
+    public String getBodyStyle() {
+        String bgColour = getPageBackgroundColour();
+        return "-rave-layout: grid; background-color:" +
+                (bgColour != null ? bgColour : "#FFFFFF");
+    }
 
     // support for decomposition extended attributes
 
@@ -1035,7 +1041,7 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private String getFormHeaderFontStyle() {
+    public String getFormHeaderFontStyle() {
         return (getUserAttributes() == null) ? null :
                 getUserAttributes().getFormHeaderFontStyle();
     }

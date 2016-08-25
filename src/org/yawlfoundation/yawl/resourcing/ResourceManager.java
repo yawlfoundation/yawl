@@ -635,11 +635,10 @@ public class ResourceManager extends InterfaceBWebsideController {
                         }
                     }
 
-                    _workItemCache.add(wir);
-                    _resAdmin.addToUnoffered(wir, false);
                     _log.warn("Engine workItem '{}' was missing from local cache and " +
-                            "so has been readded and placed on the Administrator's " +
-                            "'Unoffered' queue for manual processing.", wir.getID());
+                            "so will be added and distributed according to its " +
+                            "resourcing parameters.", wir.getID());
+                    handleEnabledWorkItemEvent(wir);
                 }
                 engineIDs.add(wir.getID());
             }
@@ -1036,8 +1035,8 @@ public class ResourceManager extends InterfaceBWebsideController {
     //  - Offered: if this is the only p. that has received this offer, give it back to
     //             the admin for re-offering. If others have been offered the same item,
     //             there's nothing more to do.
-    //  - Allocated: give it back to admin for reallocating
-    //  - Started: forceComplete items (since we need another p. to reallocate to)
+    //  - Allocated: give it back to admin for reallocating (via unoffered queue)
+    //  - Started: give it back to admin for restarting (via unoffered queue)
     //  - Suspended: same as Started.
 
     public void handleWorkQueuesOnRemoval(Participant p) {
@@ -1048,9 +1047,9 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (qs == null) return;    // no queues = nothing to do
         synchronized (_removalMutex) {
             handleOfferedQueueOnRemoval(p, qs.getQueue(WorkQueue.OFFERED));
-            handleAllocatedQueueOnRemoval(qs.getQueue(WorkQueue.ALLOCATED));
-            handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.STARTED));
-            handleStartedQueuesOnRemoval(p, qs.getQueue(WorkQueue.SUSPENDED));
+            handleNonOfferedQueueOnRemoval(qs.getQueue(WorkQueue.ALLOCATED));
+            handleNonOfferedQueueOnRemoval(qs.getQueue(WorkQueue.STARTED));
+            handleNonOfferedQueueOnRemoval(qs.getQueue(WorkQueue.SUSPENDED));
         }
     }
 
@@ -1061,9 +1060,8 @@ public class ResourceManager extends InterfaceBWebsideController {
                 wq.setPersisting(false);                 // turn off circular persistence
                 if (wq.getQueueType() == WorkQueue.OFFERED)
                     handleOfferedQueueOnRemoval(null, wq);
-                else if (wq.getQueueType() == WorkQueue.ALLOCATED)
-                    handleAllocatedQueueOnRemoval(wq);
-                else handleStartedQueuesOnRemoval(null, wq);
+                else
+                    handleNonOfferedQueueOnRemoval(wq);
             }
         }
     }
@@ -1095,14 +1093,14 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    public void handleAllocatedQueueOnRemoval(WorkQueue qAlloc) {
+    public void handleNonOfferedQueueOnRemoval(WorkQueue queue) {
         synchronized (_removalMutex) {
 
             // allocated queue - all allocated go back to admin's unoffered
-            if ((qAlloc != null) && (!qAlloc.isEmpty())) {
-                _resAdmin.getWorkQueues().removeFromQueue(qAlloc, WorkQueue.WORKLISTED);
-                _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, qAlloc);
-                for (WorkItemRecord wir : qAlloc.getAll()) {
+            if (!(queue == null || queue.isEmpty())) {
+                _resAdmin.getWorkQueues().removeFromQueue(queue, WorkQueue.WORKLISTED);
+                _resAdmin.getWorkQueues().addToQueue(WorkQueue.UNOFFERED, queue);
+                for (WorkItemRecord wir : queue.getAll()) {
                     _services.announceResourceUnavailable(wir);
                 }
             }

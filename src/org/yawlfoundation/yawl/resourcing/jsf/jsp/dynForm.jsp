@@ -41,7 +41,7 @@
                 </ui:head>
                 <ui:body binding="#{dynForm.body1}" id="body1"
                          focus="#{DynFormFactory.focus}"
-                         style="-rave-layout: grid">
+                         style="#{DynFormFactory.bodyStyle}">
                     
                     <ui:form binding="#{dynForm.form1}" id="form1">
 
@@ -56,7 +56,8 @@
                         <ui:staticText binding="#{dynForm.txtHeader}"
                                        id="txtHeader"
                                        text="#{DynFormFactory.headerText}"
-                                       styleClass="pageHeading"/>
+                                       styleClass="pageHeading"
+                                       style="#{DynFormFactory.formHeaderFontStyle}"/>
 
                         <ui:panelLayout binding="#{DynFormFactory.compPanel}"
                                         id="compPanel"

@@ -183,7 +183,7 @@ public class dynForm extends AbstractPageBean {
         _sb.setActivePage(ApplicationBean.PageRef.dynForm);
         _sb.showMessagePanel();
         setupButtons();
-        loadBackground();
+        loadBackgroundImage();
     }
 
 
@@ -277,20 +277,15 @@ public class dynForm extends AbstractPageBean {
     /**
      * Loads the background image or colour for the entire page (not the form within)
      */
-    private void loadBackground() {
+    private void loadBackgroundImage() {
         String imageURL = getDynFormFactory().getPageBackgroundURL();
         if (imageURL != null) {
-           body1.setImageURL(imageURL);  
-        }
-        else {
-            String bgColor = getDynFormFactory().getPageBackgroundColour();
-            if (bgColor != null) {
-                body1.setStyle("background-color: " + bgColor);
-            }
+            body1.setImageURL(imageURL);
         }
     }
 
-    // adds or substracts an instance of fields for a complex type
+
+    // adds or subtracts an instance of fields for a complex type
     public String btnOccursAction(ActionEvent event) {
         Button source = (Button) event.getComponent() ;
         SubPanel parent = (SubPanel) source.getParent();
