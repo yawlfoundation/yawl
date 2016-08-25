@@ -505,7 +505,7 @@ public class participantData extends AbstractPageBean {
     }
 
 
-    // discards edits/iputs, and resets to original values
+    // discards edits/inputs, and resets to original values
     public String btnReset_action() {
 
         // if in 'add new' mode, discard inputs and go back to edit mode

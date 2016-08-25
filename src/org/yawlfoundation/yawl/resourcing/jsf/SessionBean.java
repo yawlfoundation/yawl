@@ -1215,6 +1215,7 @@ public class SessionBean extends AbstractSessionBean {
     }
 
     public Participant setEditedParticipant(String pid) throws CloneNotSupportedException {
+        setEditedParticipantToNull();                        // remove any previous
         Participant p = getParticipantMap().get(pid);
         if (p != null) {
             preEditAttributes = p.getAttributeReferences();
