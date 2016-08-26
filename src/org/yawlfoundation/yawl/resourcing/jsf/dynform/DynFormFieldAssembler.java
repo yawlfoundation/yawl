@@ -163,9 +163,12 @@ public class DynFormFieldAssembler {
             // check for a simpleType definition
             Element simple = eField.getChild("simpleType", ns);
             if (simple != null) {
-                field = addField(name, null, data, minOccurs, maxOccurs, level);
-                applySimpleTypeFacets(simple, ns, field);
-                result.add(field);
+                List<DynFormField> fieldList = addElementField(name, null, data,
+                        minOccurs, maxOccurs, level);
+                for (DynFormField aField : fieldList) {
+                    applySimpleTypeFacets(simple, ns, aField);
+                }
+                result.addAll(fieldList);
             }
             else {
                 // check for empty complex type (flag defn)
@@ -182,7 +185,7 @@ public class DynFormFieldAssembler {
                     // new populated complex type - recurse in a new field list
                     String groupID = getNextGroupID();
                     List<Element> dataList = (data != null) ? data.getChildren(name) : null;
-                    if ((dataList != null) && (! dataList.isEmpty())) {
+                    if (! (dataList == null || dataList.isEmpty())) {
                         for (Element var : dataList) {
                             field = addGroupField(name, eField, ns, var,
                                     minOccurs, maxOccurs, level);
