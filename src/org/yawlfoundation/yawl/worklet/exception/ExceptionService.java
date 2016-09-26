@@ -872,6 +872,7 @@ public class ExceptionService {
     // merge the input and output data together
     private Element mergeCompletionData(WorkItemRecord wir, Element in, Element out)
             throws IOException {
+        if (out == null) out = new Element(in.getName());
         String mergedOutputData = Marshaller.getMergedOutputData(in, out);
         if (StringUtil.isNullOrEmpty(mergedOutputData)) {
             if (_log.isWarnEnabled()) {
@@ -879,7 +880,6 @@ public class ExceptionService {
                         JDOMUtil.elementToStringDump(in),
                         JDOMUtil.elementToStringDump(out));
             }
-            return (in != null) ? in : out;
         }
         YSpecificationID specID = new YSpecificationID(wir);
         TaskInformation taskInfo = _wService.getTaskInformation(specID, wir.getTaskID(),

@@ -30,6 +30,8 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 
 public class EventLogger {
 
+    private static long lastID = 0;
+
     // event type descriptors
     public static final String eCheckOut = "CheckOutWorkItem";
     public static final String eDecline = "DeclineWorkItem";
@@ -49,14 +51,15 @@ public class EventLogger {
      *  @param parentCaseId - the case id of the original workitem
      *  @param xType - the reason for raising a worklet case (maps to WorkletService.XTYPE)
      */
-    public static void log(String event, String caseId,
+    public static boolean log(String event, String caseId,
                            YSpecificationID specId, String taskId,
                            String parentCaseId, int xType) {
 
         if (Persister.getInstance().isPersisting()) {
-            Persister.insert(new WorkletEvent(event, caseId, specId, taskId,
+            return Persister.insert(new WorkletEvent(getNextID(), event, caseId, specId, taskId,
                                 parentCaseId, xType));
         }
+        return false;
     }
 
 
@@ -65,9 +68,27 @@ public class EventLogger {
      *  @param event - the type of event to log
      *  @param wir - the workitem that triggered the event
      */
-    public static void log(String event, WorkItemRecord wir, int xType) {
-        log(event, wir.getCaseID(), new YSpecificationID(wir),
+    public static boolean log(String event, WorkItemRecord wir, int xType) {
+        return log(event, wir.getCaseID(), new YSpecificationID(wir),
                 wir.getTaskID(), "", xType);
+    }
+
+
+    /**
+     * This non-native private key generation method is required because:
+     *   - on recursive calls, the original implementation (using currentTimeMillis) was
+     *     producing duplicate keys; and
+     *   - H2 databases do not respond well to changing hibernate's key method from
+     *     assigned to native
+     * @return a id key unique to the eventlog table
+     */
+    private static long getNextID() {
+        long id = System.currentTimeMillis();
+        if (lastID == id) {
+            id += 4;
+        }
+        lastID = id;
+        return id;
     }
 
 }

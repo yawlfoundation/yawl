@@ -44,8 +44,9 @@ public class WorkletEvent {
     private WorkletEvent() {}                  // empty cons. required for persistence
 
     /** the one and only constructor */
-    public WorkletEvent(String event, String caseId, YSpecificationID specId,
+    public WorkletEvent(long id, String event, String caseId, YSpecificationID specId,
                          String taskId, String parentCaseId, int xType) {
+        _id = id;
         _event = event;
         _caseId = caseId ;
         _specId = specId ;

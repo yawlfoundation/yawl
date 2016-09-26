@@ -27,7 +27,7 @@
            table="ws_EventLog">
 
        <id name="_id" column="eventid" type="long">
-   		    <generator class="native"/>
+   		    <generator class="assigned"/>
        </id>
 
        <component name="_specId"

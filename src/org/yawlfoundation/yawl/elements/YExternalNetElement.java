@@ -22,10 +22,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.YNetElementDocoParser;
 import org.yawlfoundation.yawl.util.YVerificationHandler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -389,7 +386,10 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
         if (_documentation != null)
             xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
 
-        for (YFlow flow : _postsetFlows.values()) {
+        // using for(;;) to avoid concurrent modification exception with foreach
+        List<YFlow> postSetFlows = new ArrayList<YFlow>(_postsetFlows.values());
+        for (int i = 0; i < postSetFlows.size(); i++) {
+            YFlow flow = postSetFlows.get(i);
             String flowsToXML = flow.toXML();
             if (this instanceof YTask) {
                 YExternalNetElement nextElement = flow.getNextElement();

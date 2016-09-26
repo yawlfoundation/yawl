@@ -32,7 +32,7 @@ import java.util.*;
  * Handles the loading, mapping and runtime management of resources from data source.
  *
  * @author Michael Adams
- * @date 4/11/2009 (orginally extracted from ResourceManager class)
+ * @date 4/11/2009 (originally extracted from ResourceManager class)
  */
 
 public class ResourceDataSet {
