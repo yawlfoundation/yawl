@@ -73,9 +73,6 @@ public class YEngine implements InterfaceADesign,
     // Engine statuses
     public enum Status { Dormant, Initialising, Running, Terminating }
 
-    // Workitem completion types
-    public enum WorkItemCompletion { Normal, Force, Fail }
-
     // Constants
     private static final YPersistenceManager _pmgr = new YPersistenceManager();
     private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
@@ -1553,23 +1550,20 @@ public class YEngine implements InterfaceADesign,
                    YPersistenceException, YEngineStateException {
         workItem.setExternalLogPredicate(logPredicate);
         workItem.cancelTimer();                              // if any
-        if (completionType != WorkItemCompletion.Fail) {
-            announceIfTimeServiceTimeout(netRunner, workItem);
-            workItem.setStatusToComplete(_pmgr, completionType);
-            Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
-            workItem.completeData(_pmgr, doc);
-            if (netRunner.completeWorkItemInTask(_pmgr, workItem, doc)) {
-                cleanupCompletedWorkItem(workItem, netRunner, doc);
+        announceIfTimeServiceTimeout(netRunner, workItem);
+        workItem.setStatusToComplete(_pmgr, completionType);
+        Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
+        workItem.completeData(_pmgr, doc);
+        if (netRunner.completeWorkItemInTask(_pmgr, workItem, doc)) {
+            cleanupCompletedWorkItem(workItem, netRunner, doc);
 
-                /* When a Task is enabled twice by virtue of having two enabling sets of
-                 * tokens in the current marking the work items are not created twice.
-                 * Instead an Enabled work item is created for one of the enabling sets.
-                 * Once that task has well and truly finished it is then an appropriate
-                 * time to notify the worklists that it is enabled again.*/
-                netRunner.continueIfPossible(_pmgr);
-            }
+            /* When a Task is enabled twice by virtue of having two enabling sets of
+             * tokens in the current marking the work items are not created twice.
+             * Instead an Enabled work item is created for one of the enabling sets.
+             * Once that task has well and truly finished it is then an appropriate
+             * time to notify the worklists that it is enabled again.*/
+            netRunner.continueIfPossible(_pmgr);
         }
-        else cancelWorkItem(workItem);
     }
 
 

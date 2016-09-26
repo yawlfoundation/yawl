@@ -529,7 +529,7 @@ public class YWorkItem {
 
 
     public void setStatusToComplete(YPersistenceManager pmgr,
-                                    YEngine.WorkItemCompletion completionFlag)
+                                    WorkItemCompletion completionFlag)
            throws YPersistenceException {
         YWorkItemStatus completionStatus;
         switch (completionFlag) {

@@ -18,10 +18,7 @@
 
 package org.yawlfoundation.yawl.engine.time;
 
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.xml.datatype.Duration;
@@ -143,7 +140,7 @@ public class YWorkItemTimer implements YTimedObject {
                 else if (item.hasUnfinishedStatus()) {
                     if (item.requiresManualResourcing())              // not an autotask
                         engine.completeWorkItem(item, item.getDataString(), null,
-                                YEngine.WorkItemCompletion.Force) ;
+                                WorkItemCompletion.Force) ;
                     engine.getAnnouncer().announceTimerExpiryEvent(item);
                 }
             }

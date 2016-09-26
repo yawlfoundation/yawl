@@ -84,7 +84,7 @@ public class TestImproperCompletion extends TestCase{
             }
             while (_workItemRepository.getExecutingWorkItems().size() > 0) {
                 item = _workItemRepository.getExecutingWorkItems().iterator().next();
-                _engine.completeWorkItem(item, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+                _engine.completeWorkItem(item, "<data/>", null, WorkItemCompletion.Normal);
                 try{ Thread.sleep(_sleepTime);}
                 catch(InterruptedException ie){ie.printStackTrace();}
             }

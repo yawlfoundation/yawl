@@ -403,7 +403,8 @@ public class EngineGatewayImpl implements EngineGateway {
      * @param workItemID work item id
      * @param data data
      * @param logPredicate a pre-parsed configurable logging string
-     * @param sessionHandle  sessionhandle
+     * @param force true if this is a forded completion
+     * @param sessionHandle sessionhandle
      * @return result XML message.
      * @throws RemoteException if used in RMI mode
      */
@@ -416,8 +417,8 @@ public class EngineGatewayImpl implements EngineGateway {
         try {
             YWorkItem workItem = _engine.getWorkItem(workItemID);
             if (workItem != null) {
-                YEngine.WorkItemCompletion flag = force ?
-                     YEngine.WorkItemCompletion.Force : YEngine.WorkItemCompletion.Normal;
+                WorkItemCompletion flag = force ?
+                     WorkItemCompletion.Force : WorkItemCompletion.Normal;
                 _engine.completeWorkItem(workItem, data, logPredicate, flag);
                 return SUCCESS;
             } else {
@@ -1425,7 +1426,7 @@ public class EngineGatewayImpl implements EngineGateway {
         boolean forceFail = fail.equalsIgnoreCase("true");
         if (forceFail) {
             try {
-                _engine.completeWorkItem(item, data, null, YEngine.WorkItemCompletion.Fail);
+                _engine.completeWorkItem(item, data, null, WorkItemCompletion.Fail);
             }
             catch (Exception e) {
                 return failureMessage(e.getMessage());

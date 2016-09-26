@@ -73,7 +73,7 @@ public class TestEngineSystem1 extends TestCase {
             Thread.sleep(_sleepTime);
             //complete btop
 //            _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-            _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(anItem, "<data/>", null, WorkItemCompletion.Normal);
             //should atumatically fire multi inst comp task ctop
             //get mi attributes of f-leaf-c
             List leafNetRunners = new Vector();
@@ -116,7 +116,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
 //                _localWorklist.setWorkItemToComplete(
 //                        anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+                _engine.completeWorkItem(anItem, "<data/>", null, WorkItemCompletion.Normal);
                 assertTrue(_workItemRepository.get(
                         anItem.getCaseID().toString(), anItem.getTaskID())
                         == null);
@@ -168,7 +168,7 @@ public class TestEngineSystem1 extends TestCase {
                 assertTrue(anItem.getTaskID().equals("f-leaf-c")
                         || anItem.getTaskID().equals("g-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+                _engine.completeWorkItem(anItem, "<data/>", null, WorkItemCompletion.Normal);
                 if (anItem.getTaskID().equals("g-leaf-c")) {
                     assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 }
@@ -200,7 +200,7 @@ public class TestEngineSystem1 extends TestCase {
                 anItem = (YWorkItem) v.get(temp);
                 assertTrue(anItem.getTaskID().equals("h-leaf-c"));
 //                _localWorklist.setWorkItemToComplete(anItem.getCaseID().toString(), anItem.getTaskID(),"<data/>");
-                _engine.completeWorkItem(anItem, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+                _engine.completeWorkItem(anItem, "<data/>", null, WorkItemCompletion.Normal);
                 assertFalse(_workItemRepository.getWorkItems().contains(anItem));
                 Thread.sleep(_sleepTime);
             }

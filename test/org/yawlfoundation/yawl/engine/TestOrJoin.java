@@ -59,7 +59,7 @@ public class TestOrJoin extends TestCase {
             }
 
             itemA = (YWorkItem) _engine.getChildrenOfWorkItem(itemA).iterator().next();
-            _engine.completeWorkItem(itemA, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemA, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -84,7 +84,7 @@ public class TestOrJoin extends TestCase {
             }
 
             itemF = (YWorkItem) _engine.getChildrenOfWorkItem(itemF).iterator().next();
-            _engine.completeWorkItem(itemF, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemF, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -109,7 +109,7 @@ public class TestOrJoin extends TestCase {
             }
 
             itemB = (YWorkItem) _engine.getChildrenOfWorkItem(itemB).iterator().next();
-            _engine.completeWorkItem(itemB, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemB, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -142,7 +142,7 @@ public class TestOrJoin extends TestCase {
                 }
             }
 
-            _engine.completeWorkItem(itemA, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemA, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -177,7 +177,7 @@ public class TestOrJoin extends TestCase {
                 ie.printStackTrace();
             }
 
-            _engine.completeWorkItem(itemA, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemA, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -201,7 +201,7 @@ public class TestOrJoin extends TestCase {
                 ie.printStackTrace();
             }
 
-            _engine.completeWorkItem(itemF, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemF, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -224,7 +224,7 @@ public class TestOrJoin extends TestCase {
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
-            _engine.completeWorkItem(itemB, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemB, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {
@@ -249,7 +249,7 @@ public class TestOrJoin extends TestCase {
                 }
             }
 
-            _engine.completeWorkItem(itemA, "<data/>", null, YEngine.WorkItemCompletion.Normal);
+            _engine.completeWorkItem(itemA, "<data/>", null, WorkItemCompletion.Normal);
             try {
                 Thread.sleep(_sleepTime);
             } catch (InterruptedException ie) {

@@ -24,10 +24,7 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.YWorkItem;
-import org.yawlfoundation.yawl.engine.YWorkItemStatus;
+import org.yawlfoundation.yawl.engine.*;
 import org.yawlfoundation.yawl.engine.gui.YAdminGUI;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -276,7 +273,7 @@ public class YWorklistModel {
                     StringUtil.stringToFile(taskInputData.getAbsolutePath(), outputData);
 
                     _engineClient.completeWorkItem(item, outputData, null,
-                            YEngine.WorkItemCompletion.Normal);
+                            WorkItemCompletion.Normal);
                 } catch (YDataStateException e) {
                     String errors = e.getMessage();
                     if (errors.indexOf("FAILED TO VALIDATE AGAINST SCHEMA =") != -1) {
