@@ -44,10 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -766,10 +763,15 @@ public class WorkletService extends InterfaceBWebsideController
     }
 
 
-    public Set<WorkletRunner> getAllRunners() {
+    public Map<String, WorkletRunner> getAllRunners() {
         Set<WorkletRunner> runners = _runners.getAll();
         runners.addAll(_exService.getRunningWorklets());
-        return runners;
+
+        Map<String, WorkletRunner> runnerMap = new HashMap<String, WorkletRunner>();
+        for (WorkletRunner wRunner : runners) {
+             runnerMap.put(wRunner.getCaseID(), wRunner);
+        }
+        return runnerMap;
     }
 
 

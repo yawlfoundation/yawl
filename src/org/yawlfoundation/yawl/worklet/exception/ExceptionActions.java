@@ -9,6 +9,7 @@ import org.yawlfoundation.yawl.worklet.support.EngineClient;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -185,17 +186,17 @@ public class ExceptionActions {
      * @return the list of suspendable workitems
      */
     protected Set<WorkItemRecord> getSuspendableWorkItemsInChain(
-            ExletRunnerCache runners, String caseID) {
+            Map<String, WorkletRunner> runners, String caseID) {
         Set<WorkItemRecord> result = getSuspendableWorkItems("case", caseID);
 
         // if parent is also a worklet, get it's list too
-        WorkletRunner worklet = runners.getWorkletRunner(caseID);
+        WorkletRunner worklet = runners.get(caseID);
         while (worklet != null) {
 
             // get parent's caseID
             String parentCaseID = worklet.getParentCaseID();
             result.addAll(getSuspendableWorkItems("case", parentCaseID));
-            worklet = runners.getWorkletRunner(parentCaseID);
+            worklet = runners.get(parentCaseID);
         }
         return result;
     }
@@ -205,8 +206,8 @@ public class ExceptionActions {
      * Suspends all running worklet cases in the hierarchy of handlers
      * @param runner - the runner for the child worklet case
      */
-    protected boolean suspendAncestorCases(ExletRunnerCache runners,
-                                         ExletRunner runner) {
+    protected boolean suspendAncestorCases(Map<String, WorkletRunner> runners,
+                                           ExletRunner runner) {
         String caseID = runner.getCaseID();                    // i.e. id of parent case
         Set<WorkItemRecord> items = getSuspendableWorkItemsInChain(runners, caseID);
         return suspendAncestorCases(runner, items);
@@ -249,7 +250,7 @@ public class ExceptionActions {
                             ioe.getMessage());
                 }
             }
-            _log.debug("Completed unsuspend for all suspended work items");
+            _log.info("Completed unsuspend for work items: " + suspendedItems);
         }
         else _log.info("No suspended workitems to unsuspend") ;
     }

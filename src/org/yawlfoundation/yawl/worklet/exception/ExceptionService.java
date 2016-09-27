@@ -496,7 +496,8 @@ public class ExceptionService {
         switch (ExletTarget.fromString(target)) {
             case Workitem      : suspendWorkItem(runner); break;
             case Case          : _actions.suspendCase(runner); break;
-            case AncestorCases : _actions.suspendAncestorCases(_runners, runner);
+            case AncestorCases : _actions.suspendAncestorCases(_wService.getAllRunners(),
+                                                               runner);
                                  break;
             case AllCases      : _actions.suspendAllCases(runner); break;
             default: _log.error("Unexpected target type '{}' " +
@@ -705,7 +706,7 @@ public class ExceptionService {
      * Cancels all running worklet cases in the hierarchy of handlers
      * @param runner - the runner for the child worklet case
      */
-    private void removeAncestorCases(ExletRunner runner){
+    private void removeAncestorCases(ExletRunner runner) {
         String caseID = getFirstAncestorCase(runner);
 
         _log.info("The ultimate parent case of this worklet has an id of: {}", caseID);
@@ -718,14 +719,17 @@ public class ExceptionService {
 
     /** returns the ultimate ancestor case of the runner passed */
     private String getFirstAncestorCase(ExletRunner runner) {
-        String parentCaseID = null;         // i.e. id of parent case
+        if (runner == null) return null;
 
-        // if the caseid is a started worklet handler, get it's runner
-        while (runner != null) {
-            parentCaseID = runner.getCaseID();
-            runner = _runners.getRunnerForWorklet(parentCaseID);
+        String ultimateID = runner.getCaseID();         // i.e. id of parent case
+        Map<String, WorkletRunner> runnerMap = _wService.getAllRunners();
+        WorkletRunner wRunner = runnerMap.get(ultimateID);
+        while (wRunner != null) {                       // if parent case is a worklet
+            ultimateID = wRunner.getParentCaseID();     // get it's id
+            wRunner = runnerMap.get(ultimateID);
         }
-        return parentCaseID ;
+
+        return ultimateID ;
     }
 
 

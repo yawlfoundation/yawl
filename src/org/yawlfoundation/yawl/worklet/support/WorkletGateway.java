@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The WorkletGateway class acts as a gateway between the Worklet Selection
@@ -643,7 +643,7 @@ public class WorkletGateway extends YHttpServlet {
 
 
     private String getRunningWorklets() {
-        Set<WorkletRunner> runners = _ws.getAllRunners();
+        Collection<WorkletRunner> runners = _ws.getAllRunners().values();
         if (runners.isEmpty()) {
             return fail("No worklet instances currently running");
         }
