@@ -93,7 +93,8 @@ public class RdrTreeSet {
 
 
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        long seed = (id != 0) ? id : _ruleType.hashCode();
+        return (int) (seed ^ (seed >>> 32));
     }
 
 

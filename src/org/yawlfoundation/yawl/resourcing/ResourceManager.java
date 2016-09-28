@@ -431,14 +431,6 @@ public class ResourceManager extends InterfaceBWebsideController {
                     _workItemCache.updateStatus(cachedWir, newStatus);
                 }
 
-                // if it was 'suspended', it's been unsuspended or rolled back
-                else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
-                    _workItemCache.updateStatus(cachedWir, newStatus);
-                    for (Participant p : getParticipantsAssignedWorkItem(cachedWir)) {
-                        p.getWorkQueues().refresh(cachedWir);
-                    }
-                }
-
                 // if it has moved to started status
                 else if (newStatus.equals(WorkItemRecord.statusExecuting)) {
 
@@ -449,8 +441,16 @@ public class ResourceManager extends InterfaceBWebsideController {
                             p.getWorkQueues().movetoUnsuspend(cachedWir);
                             _workItemCache.updateResourceStatus(
                                     cachedWir, WorkItemRecord.statusResourceStarted);
-                            _workItemCache.updateStatus(cachedWir, newStatus);
                         }
+                        _workItemCache.updateStatus(cachedWir, newStatus);
+                    }
+                }
+
+                // if it was 'suspended', it's been unsuspended or rolled back
+                else if (oldStatus.equals(WorkItemRecord.statusSuspended)) {
+                    _workItemCache.updateStatus(cachedWir, newStatus);
+                    for (Participant p : getParticipantsAssignedWorkItem(cachedWir)) {
+                        p.getWorkQueues().refresh(cachedWir);
                     }
                 }
 
