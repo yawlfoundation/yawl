@@ -378,9 +378,10 @@ public class ConditionEvaluator {
      *  STRING MANIPULATION METHODS
      */
 
-    /** removes the double quotes from around a string */
+    /** removes the double quotes or parentheses from around a string */
     private String deQuote(String s) {
-        return s.startsWith("\"") ? s.substring(1, s.length() - 1) : s ;
+        return s.startsWith("\"") || s.startsWith("(") || s.startsWith("{") ?
+                s.substring(1, s.length() - 1) : s ;
     }
 
 
@@ -1005,7 +1006,8 @@ public class ConditionEvaluator {
 
         try {
             //		    t.p(t.evalExpression("27", "!=", "26")) ;
-            s = "cost(case()) > 5";
+           // s = "cost(case()) > 5";
+            s = "1 = (1";
             boolean b = t.evaluate(s, e) ;
             t.p("expression: " + s + ", returns: " + b) ;
         }

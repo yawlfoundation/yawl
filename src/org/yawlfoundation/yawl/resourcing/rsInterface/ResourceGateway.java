@@ -164,7 +164,7 @@ public class ResourceGateway extends YHttpServlet {
 
 
     public void destroy() {
-        _rm.shutdown();
+        if (_rm != null) _rm.shutdown();
         super.destroy();
     }
 
