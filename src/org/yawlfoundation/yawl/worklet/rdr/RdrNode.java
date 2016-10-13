@@ -246,7 +246,9 @@ public class RdrNode implements Cloneable {
     }
 
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        if (id > 0) return (int) (id ^ (id >>> 32));
+        if (condition != null) return condition.hashCode();
+        return super.hashCode();
     }
 
 

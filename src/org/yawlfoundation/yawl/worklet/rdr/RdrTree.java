@@ -211,7 +211,9 @@ public class RdrTree {
     }
 
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        if (id > 0) return (int) (id ^ (id >>> 32));
+        if (taskId != null) return taskId.hashCode();
+        return super.hashCode();
     }
 
 
