@@ -179,8 +179,8 @@ public class ExletValidator {
 
     private boolean isValidPostItemPrimitive(ExletAction action, ExletTarget target) {
         return action == ExletAction.Compensate ||
-                ((action == ExletAction.Suspend || action == ExletAction.Continue) &&
-                        target != ExletTarget.Workitem);
+                ((action == ExletAction.Suspend || action == ExletAction.Continue ||
+                  action == ExletAction.Remove) && target != ExletTarget.Workitem);
     }
 
 
