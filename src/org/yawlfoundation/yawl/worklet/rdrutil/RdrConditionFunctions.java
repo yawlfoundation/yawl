@@ -116,14 +116,18 @@ public class RdrConditionFunctions {
 
     private static String isNotCompleted(String itemInfo) {
         Element eItem = JDOMUtil.stringToElement(itemInfo);
-        String status = eItem.getChildText("status");
-        return String.valueOf(! isFinishedStatus(status) );
+        if (eItem != null) {
+            String status = eItem.getChildText("status");
+            return String.valueOf(!isFinishedStatus(status));
+        }
+        return "false";
     }
 
 
     private static String hasTimerExpired(String itemInfo) {
         Element eItem = JDOMUtil.stringToElement(itemInfo);
-        return String.valueOf((eItem.getChildText("timerexpiry") != null));
+        return eItem == null ? "false" :
+                String.valueOf((eItem.getChildText("timerexpiry") != null));
     }
 
 

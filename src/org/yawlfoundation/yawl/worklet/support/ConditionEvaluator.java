@@ -891,8 +891,13 @@ public class ConditionEvaluator {
     /** get the value of the 'this' argument */
     private String getThisData(Element data) {
         String result = null;
-        Element eThis = data.getChild("process_info").getChild("workItemRecord");
-        if (eThis != null) result = JDOMUtil.elementToString(eThis);
+        Element eProcessInfo = data.getChild("process_info");
+        if (eProcessInfo != null) {
+            Element eThis = eProcessInfo.getChild("workItemRecord");
+            if (eThis != null) {
+                result = JDOMUtil.elementToString(eThis);
+            }
+        }
         return result;
     }
 
