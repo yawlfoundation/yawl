@@ -7,6 +7,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.rdr.RuleType;
+import org.yawlfoundation.yawl.worklet.support.EngineClient;
 
 import java.io.IOException;
 
@@ -75,8 +76,10 @@ public abstract class AbstractRunner {
     public WorkItemRecord getWir() {
         if (_wirID != null && _wir == null) {
             try {
-                _wir = WorkletService.getInstance().getEngineClient()
-                        .getEngineStoredWorkItem(_wirID);
+                EngineClient client = WorkletService.getInstance().getEngineClient();
+                if (client != null) {
+                    _wir = client.getEngineStoredWorkItem(_wirID);
+                }
             }
             catch (IOException ioe) {
                 // fall through
@@ -89,6 +92,7 @@ public abstract class AbstractRunner {
     public XNode toXNode() {
         XNode root = new XNode("runner");
         root.addChild("caseid", _caseID);
+        if (_wirID != null) root.addChild("wirid", _wirID);
         if (getWir() != null) root.addContent(_wir.toXML());
         if (_dataString != null) {
             root.addChild("datastring", _dataString);
@@ -108,6 +112,7 @@ public abstract class AbstractRunner {
                 _wirID = _wir.getID();
             }
         }
+        _wirID = node.getChildText("wirid");
         _dataString = node.getChildText("datastring");
         _ruleType = RuleType.fromString(node.getChildText("ruletype"));
         _ruleNodeId = StringUtil.strToLong(node.getChildText("ruleNode"), -1);

@@ -635,7 +635,7 @@ public class ConditionEvaluator {
             tmp++ ;                                       // add one more for the ']'
         }
 
-        if (tmp > 0) return s.substring(start, tmp);
+        if (tmp > 0) return s.substring(start, tmp).trim();
         throw new RdrConditionException("Invalid expression: unbalanced parentheses");
     }
 
@@ -768,7 +768,7 @@ public class ConditionEvaluator {
 
         // make sure any data variables used contain valid data
         if ((lOp.equals("undefined")) || (rOp.equals("undefined") ) ||
-                (lOp.length() == 0 )  || (rOp.length() == 0) ) {
+                (lOp.length() == 0)  || (rOp.length() == 0) ) {
             throw new RdrConditionException(getMessage(12)) ;
         }
 
@@ -865,15 +865,17 @@ public class ConditionEvaluator {
         if (result == null || result.equals("null")) {
             result = "undefined";
         }
-        else if (result.length() == 0 && type != null) {
+        else if (type != null) {
             if (type.equals("string")) {
                 result = "\"" + result + "\"";
             }
-            else if (type.equals("boolean")) {
-                result = "false";
-            }
-            else {
-                result = "0";          // assuming numeric
+            else if (result.length() == 0) {
+                if (type.equals("boolean")) {
+                    result = "false";
+                }
+                else {
+                    result = "0";          // assuming numeric
+                }
             }
         }
         return result;
