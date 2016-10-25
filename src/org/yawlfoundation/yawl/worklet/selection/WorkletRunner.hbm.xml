@@ -63,6 +63,8 @@
             </type>
         </property>
 
+        <property name="wirString"     type="text"/>
+
     </class>
 	
 </hibernate-mapping>

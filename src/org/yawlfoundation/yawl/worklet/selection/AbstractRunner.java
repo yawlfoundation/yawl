@@ -134,4 +134,14 @@ public abstract class AbstractRunner {
 
     private void setID(long id) { _id = id; }
 
+
+    private void setWirString(String xml) {
+        if (xml != null) _wir = Marshaller.unmarshalWorkItem(xml);
+    }
+
+    private String getWirString() {
+        return _wir != null ? _wir.toXML() : null;
+    }
+
+
 }

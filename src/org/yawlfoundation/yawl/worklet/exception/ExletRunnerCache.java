@@ -135,6 +135,13 @@ public class ExletRunnerCache {
     }
 
 
+    public void removeWorkletRunners(Set<WorkletRunner> toRemove) {
+        for (ExletRunner runner : _runners) {
+            runner.removeWorklets(toRemove);
+        }
+    }
+
+
     /** restores active ExletRunner instances from persistence */
     public void restore() {
         List items = Persister.getInstance().getObjectsForClass(

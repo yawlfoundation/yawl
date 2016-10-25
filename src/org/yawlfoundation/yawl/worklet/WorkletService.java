@@ -312,6 +312,7 @@ public class WorkletService extends InterfaceBWebsideController
             if (_exceptionHandlingEnabled && (_exService != null)) {
                 _engineClient.addIXListener();
             }
+            cleanseRestoredRunners();
         }
 
         _initCompleted = true;
@@ -681,6 +682,23 @@ public class WorkletService extends InterfaceBWebsideController
     protected void raise(String msg) throws IOException {
         _log.error(msg);
         throw new IOException(msg);
+    }
+
+
+    private void cleanseRestoredRunners() {
+        Set<String> runningCaseIDs = _engineClient.getAllRunningCaseIDs();
+        Set<WorkletRunner> toRemove = new HashSet<WorkletRunner>();
+        Map<String, WorkletRunner> runners = getAllRunners();
+        for (String caseID : runners.keySet()) {
+            if (! runningCaseIDs.contains(caseID)) {
+                toRemove.add(runners.get(caseID));
+            }
+        }
+        _runners.removeRunners(toRemove);
+
+        if (_exceptionHandlingEnabled && (_exService != null)) {
+            _exService.cleanseWorkletRunners(toRemove);
+        }
     }
 
 

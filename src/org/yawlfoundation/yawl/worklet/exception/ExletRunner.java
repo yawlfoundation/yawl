@@ -133,6 +133,10 @@ public class ExletRunner extends AbstractRunner {
         return _worklets.remove(caseID);
     }
 
+    public void removeWorklets(Set<WorkletRunner> toRemove) {
+        _worklets.removeRunners(toRemove);
+    }
+
     public boolean hasRunningWorklet() { return ! _worklets.isEmpty(); }
 
     public Set<WorkletRunner> getWorkletRunners() { return _worklets.getAll(); }

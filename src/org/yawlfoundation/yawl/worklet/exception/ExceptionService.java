@@ -965,6 +965,11 @@ public class ExceptionService {
     }
 
 
+    public void cleanseWorkletRunners(Set<WorkletRunner> toRemove) {
+        _runners.removeWorkletRunners(toRemove);
+    }
+
+
     /**
      * Retrieves a list of all workitems that are instances of the specified task
      * within the specified spec
