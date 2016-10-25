@@ -1190,7 +1190,7 @@ public class ExceptionService {
                 if (wir != null) handleWorkItemAbortException(wir,
                                     wir.getDataListString()); break ;
             case ItemTimeout :
-                if (wir != null) handleTimeoutEvent(wir, wir.getTaskID()); break ;
+                if (wir != null) handleTimeout(wir); break ;
             case ItemResourceUnavailable : break;   // todo
             case ItemConstraintViolation :
                 if (wir != null) handleConstraintViolationException(wir,
