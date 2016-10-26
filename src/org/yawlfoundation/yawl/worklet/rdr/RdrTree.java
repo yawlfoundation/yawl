@@ -312,6 +312,8 @@ public class RdrTree {
     private void fromXNode(XNode node) {
         Map<Long, RdrNode> nodeMap = new HashMap<Long, RdrNode>();
         if (node != null) {
+
+            taskId = node.getAttributeValue("name");
             
             // 2 passes - one to unmarshal the nodes, one to link them
             for (XNode xRuleNode : node.getChildren()) {

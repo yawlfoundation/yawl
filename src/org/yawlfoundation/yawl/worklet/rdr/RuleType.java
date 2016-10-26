@@ -74,9 +74,18 @@ public enum RuleType {
     public boolean isExecutingItemType() {
         switch (this) {
             case ItemAbort:
-            case ItemTimeout:
             case ItemConstraintViolation:
             case ItemExternalTrigger: return true;
+        }
+        return false;
+    }
+
+
+    /** returns true if the exception type passed occurs after a workitem completes */
+    public boolean isCompletedItemType() {
+        switch (this) {
+            case ItemTimeout:
+            case ItemPostconstraint: return true;
         }
         return false;
     }
