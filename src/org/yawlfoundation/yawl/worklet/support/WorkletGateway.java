@@ -265,6 +265,13 @@ public class WorkletGateway extends YHttpServlet {
             return fail("Node contains invalid conclusion: " + errList.get(0).getMessage());
         }
 
+        if (rType.isExternalType()) {
+            Element cs = node.getCornerStone();
+            if (cs == null || cs.getChildText("trigger") == null) {
+                return fail("Missing 'trigger' value in external rule type node");
+            }
+        }
+
         try {
             if (specID != null) {
                 node = _rdr.addNode(specID, taskID, rType, node);

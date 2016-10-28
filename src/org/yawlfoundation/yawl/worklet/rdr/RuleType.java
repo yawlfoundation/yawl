@@ -91,6 +91,15 @@ public enum RuleType {
     }
 
 
+    public boolean isExternalType() {
+        switch (this) {
+            case CaseExternalTrigger:
+            case ItemExternalTrigger: return true;
+        }
+        return false;
+    }
+
+
     public String toLongString() {
         return longForm;
     }
