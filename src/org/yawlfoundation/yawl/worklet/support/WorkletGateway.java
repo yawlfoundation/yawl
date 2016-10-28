@@ -267,8 +267,9 @@ public class WorkletGateway extends YHttpServlet {
 
         if (rType.isExternalType()) {
             Element cs = node.getCornerStone();
-            if (cs == null || cs.getChildText("trigger") == null) {
-                return fail("Missing 'trigger' value in external rule type node");
+            if (cs == null || StringUtil.isNullOrEmpty(cs.getChildText("trigger"))) {
+                return fail("Condition for external rule type node must include " +
+                        "'trigger=[some value]'");
             }
         }
 
