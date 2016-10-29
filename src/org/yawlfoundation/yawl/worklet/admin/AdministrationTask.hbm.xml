@@ -26,8 +26,8 @@
 	<class name="org.yawlfoundation.yawl.worklet.admin.AdministrationTask"
            table="ws_AdminTask">
 
-       <id name="_wsTaskID" column="wstaskid" type="integer" access="field">
-   		    <generator class="assigned"/>
+       <id name="_wsTaskID" column="wstaskid" type="integer">
+   		    <generator class="native"/>
        </id>
 		
        <property name="_caseID"   column="caseID"/>

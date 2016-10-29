@@ -37,7 +37,6 @@ import java.util.*;
 public class AdminTasksManager {
 
     private final Map<Integer, AdministrationTask> _tasks;   // set of tasks to attend to
-    private Integer _nextID;                                // next unique id
 
     private static Logger _log = LogManager.getLogger(AdminTasksManager.class);
 
@@ -45,7 +44,6 @@ public class AdminTasksManager {
     /** the constructor */
     public AdminTasksManager() {
         _tasks = new HashMap<Integer, AdministrationTask>();
-        _nextID = 0;
         restore();
     }
 
@@ -78,8 +76,8 @@ public class AdminTasksManager {
                                       String scenario, String process, int taskType) {
         AdministrationTask task = new AdministrationTask(caseID, itemID, title,
                                                         scenario, process, taskType);
-        addTask(task);
         Persister.insert(task);
+        addTask(task);
 
         // suspend item pending admin action
         WorkletService.getInstance().suspendWorkItem(itemID);
@@ -93,9 +91,7 @@ public class AdminTasksManager {
      * @param task - the task to add
      */
     public void addTask(AdministrationTask task) {
-        task.setID(_nextID);
-        _tasks.put(_nextID, task);
-        _nextID++;                                     // increment the id
+        _tasks.put(task.getID(), task);
     }
 
 
