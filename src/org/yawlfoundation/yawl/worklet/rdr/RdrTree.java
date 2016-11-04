@@ -259,7 +259,7 @@ public class RdrTree {
     /**
      * @return the number of nodes in the tree
      */
-    private int nodeCount() {
+    public int nodeCount() {
         return countNodes(rootNode);
     }
     

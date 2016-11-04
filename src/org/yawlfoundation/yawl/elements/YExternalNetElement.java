@@ -290,6 +290,7 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
     private void updateImplicitConditionID(YExternalNetElement element,
                                            String newID, boolean prior) {
         if (element instanceof YCondition && ((YCondition) element).isImplicit()) {
+            String oldID = element.getID();
 
             // an implicit condition will always have exactly 1 preset and 1 postset
             String source = prior ? element.getPresetElements().iterator().next().getID()
@@ -297,6 +298,20 @@ public abstract class YExternalNetElement extends YNetElement implements YVerifi
             String target = prior ? newID :
                     element.getPostsetElements().iterator().next().getID();
             element.setID("c{" + source + "_" + target + "}");
+
+            // update map key with changed implicit condition id
+            if (prior) {
+                YFlow flow = this._presetFlows.remove(oldID);
+                if (flow != null) {
+                    this._presetFlows.put(element.getID(), flow);
+                }
+            }
+            else {
+                YFlow flow = this._postsetFlows.remove(oldID);
+                if (flow != null) {
+                    this._postsetFlows.put(element.getID(), flow);
+                }
+            }
         }
     }
     
