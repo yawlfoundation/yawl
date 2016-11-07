@@ -74,10 +74,10 @@ public class YEngine implements InterfaceADesign,
     public enum Status { Dormant, Initialising, Running, Terminating }
 
     // Constants
-    private static final YPersistenceManager _pmgr = new YPersistenceManager();
+    private static YPersistenceManager _pmgr;
     private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
 
-    private static YEngine _thisInstance;                         // reference to self
+    protected static YEngine _thisInstance;                         // reference to self
     private static YEventLogger _yawllog;
     private static YCaseNbrStore _caseNbrStore;
     private static Logger _logger;
@@ -111,7 +111,7 @@ public class YEngine implements InterfaceADesign,
     /**
      * The Constructor - called from getInstance().
      */
-    private YEngine() {
+    protected YEngine() {
         _engineStatus = Status.Initialising;
 
         // initialise global objects
@@ -139,29 +139,7 @@ public class YEngine implements InterfaceADesign,
             throws YPersistenceException {
         if (_thisInstance == null) {
             _thisInstance = new YEngine();
-            _persisting = persisting;
-            _logger.debug("--> YEngine: Creating initial instance");
-
-            // init the process logger
-            _yawllog = YEventLogger.getInstance(_thisInstance);
-
-            // Initialise the persistence layer & restore state
-            if (_persisting) {
-                _pmgr.initialise(true);
-                _pmgr.setStatisticsEnabled(gatherHbnStats);
-                _caseNbrStore.setPersisting(true);
-                _thisInstance.restore();
-            }
-            else {
-                _pmgr.setEnabled(false);
-
-                // Default clients and services should always be available
-                _thisInstance.loadDefaultClients();            
-            }
-
-            // Init completed - set engine status to up and running
-            _logger.info("Marking engine status = RUNNING");
-            _thisInstance.setEngineStatus(Status.Running);
+            initialise(null, persisting, gatherHbnStats);
         }
         return _thisInstance;
     }
@@ -184,6 +162,35 @@ public class YEngine implements InterfaceADesign,
         catch (Exception e) {
             throw new RuntimeException("Failure to instantiate the engine.");
         }
+    }
+
+
+    protected static void initialise(YPersistenceManager pmgr, boolean persisting,
+                                     boolean gatherHbnStats) throws YPersistenceException {
+        _logger.debug("--> YEngine: Creating initial instance");
+        _persisting = persisting;
+
+        // init the process logger
+        _yawllog = YEventLogger.getInstance(_thisInstance);
+
+        // Initialise the persistence layer & restore state
+        _pmgr = pmgr != null ? pmgr : new YPersistenceManager();
+        if (_persisting) {
+            _pmgr.initialise(true);
+            _pmgr.setStatisticsEnabled(gatherHbnStats);
+            _caseNbrStore.setPersisting(true);
+            _thisInstance.restore();
+        }
+        else {
+            _pmgr.setEnabled(false);
+
+            // Default clients and services should always be available
+            _thisInstance.loadDefaultClients();
+        }
+
+        // Init completed - set engine status to up and running
+        _logger.info("Marking engine status = RUNNING");
+        _thisInstance.setEngineStatus(Status.Running);
     }
 
 

@@ -38,8 +38,14 @@ public class YHttpServlet extends HttpServlet {
     }
 
 
-    protected boolean getInitBooleanValue(String param, boolean defValue) {
-        return (param != null) ? param.equalsIgnoreCase("TRUE") : defValue;
+    protected boolean getBooleanFromContext(String param) {
+        return getBooleanFromContext(param, false);
+    }
+
+
+    protected boolean getBooleanFromContext(String param, boolean defValue) {
+        String s = getServletContext().getInitParameter(param);
+        return s != null ? s.equalsIgnoreCase("true") : defValue;
     }
 
 

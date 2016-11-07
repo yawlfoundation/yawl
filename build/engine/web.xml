@@ -111,6 +111,14 @@
         </description>
     </context-param>
 
+    <context-param>
+   		<param-name>EngineImpl</param-name>
+   		<param-value></param-value>
+   		<description>
+   			Set this value to a fully qualified name of a class on the classpath that
+            extends YEngine and supports additional functionality as required.
+         </description>
+   	</context-param>
 
 
 	<context-param>

@@ -43,6 +43,7 @@ import org.yawlfoundation.yawl.util.*;
 
 import javax.xml.datatype.Duration;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -61,13 +62,12 @@ import java.util.*;
  */
 public class EngineGatewayImpl implements EngineGateway {
 
-    Logger logger = LogManager.getLogger(EngineGatewayImpl.class);
-
     private YEngine _engine;
     private YSessionCache _sessionCache;
+    private final Logger _logger;
+
     private boolean enginePersistenceFailure = false;
-    private static final String OPEN_FAILURE = "<failure><reason>";
-    private static final String CLOSE_FAILURE = "</reason></failure>";
+
     private static final String SUCCESS = "<success/>";
 
 
@@ -78,22 +78,45 @@ public class EngineGatewayImpl implements EngineGateway {
      *  unavailable
      */
     public EngineGatewayImpl(boolean persist) throws YPersistenceException {
-        _engine = YEngine.getInstance(persist);
-        _sessionCache = _engine.getSessionCache();
+        this(persist, false);
     }
 
     /**
       *  Constructor
       *  @param persist true if a reference to a persisting engine is required
-     *   @param gatherHbnStats true to turn on hibernate statistics gathering
+      *  @param gatherHbnStats true to turn on hibernate statistics gathering
       *  @throws YPersistenceException if persist is true and a persisting engine is
       *  unavailable
       */
     public EngineGatewayImpl(boolean persist, boolean gatherHbnStats) throws YPersistenceException {
-        _engine = YEngine.getInstance(persist, gatherHbnStats);
-        _sessionCache = _engine.getSessionCache();
+        this(null, persist, gatherHbnStats);
     }
 
+
+    public EngineGatewayImpl(Class<? extends YEngine> engine, boolean persist,
+                             boolean gatherHbnStats) throws YPersistenceException {
+        _logger = LogManager.getLogger(EngineGatewayImpl.class);
+
+        // attempt to instantiate the YEngine subclass passed in
+        if (engine != null) {
+            try {
+                Method method = engine.getDeclaredMethod("getInstance",
+                        boolean.class, boolean.class);
+                if (method == null) throw new Exception();
+                _engine = engine.cast(method.invoke(null, persist, gatherHbnStats));
+            }
+            catch (Exception e) {
+                _logger.warn("Failed to instantiate extended YEngine class", e);
+            }
+        }
+
+        if (_engine == null) {
+
+            // instantiation failed or no subclass passed
+            _engine = YEngine.getInstance(persist, gatherHbnStats);
+        }
+        _sessionCache = _engine.getSessionCache();
+    }
 
     /*******************************************************************************/
 
@@ -307,7 +330,7 @@ public class EngineGatewayImpl implements EngineGateway {
             return YMarshal.marshal(spec);
         }
         catch (Exception e) {
-            logger.error("Failed to marshal a specification into XML.", e);
+            _logger.error("Failed to marshal a specification into XML.", e);
             return failureMessage("Failed to marshal the specification into XML.");
         }
     }
@@ -842,7 +865,7 @@ public class EngineGatewayImpl implements EngineGateway {
                     return YMarshal.marshal(spec);
                 }
                 catch (Exception e) {
-                    logger.error("Failed to marshal a specification into XML.", e);
+                    _logger.error("Failed to marshal a specification into XML.", e);
                     return failureMessage("Failed to marshal the specification into XML.");
                 }
             }

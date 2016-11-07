@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.engine.interfce.interfaceB;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
+import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
@@ -69,13 +70,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             // init engine reference
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
-                String persistOn = context.getInitParameter("EnablePersistence");
-                boolean persist = (persistOn != null) && persistOn.equalsIgnoreCase("true");
-                String enableHbnStatsStr =
-                        context.getInitParameter("EnableHibernateStatisticsGathering");
-                boolean enableHbnStats = ((enableHbnStatsStr != null) &&
-                        enableHbnStatsStr.equalsIgnoreCase("true"));
-                _engine = new EngineGatewayImpl(persist, enableHbnStats);
+                Class<? extends YEngine> engineImpl = getEngineImplClass();
+                boolean persist = getBooleanFromContext("EnablePersistence");
+                boolean enableHbnStats = getBooleanFromContext("EnableHibernateStatisticsGathering");
+                _engine = new EngineGatewayImpl(engineImpl, persist, enableHbnStats);
                 _engine.setActualFilePath(context.getRealPath("/"));
                 context.setAttribute("engine", _engine);
             }
@@ -178,6 +176,27 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     gatewayClassName + "'.", e);
         }
     }
+
+
+    private Class<? extends YEngine> getEngineImplClass() {
+        String implClassName = getServletContext().getInitParameter("EngineImpl");
+        if (! StringUtil.isNullOrEmpty(implClassName)) {
+            try {
+                Class c = Class.forName(implClassName);
+                if (YEngine.class.isAssignableFrom(c)) {
+                    return (Class<? extends YEngine>) c;
+                }
+                _log.warn("Class '{}' is not a superclass of YEngine.", implClassName);
+            }
+            catch (ClassNotFoundException e) {
+                 _log.warn("Unable to locate external YEngine class '" +
+                         implClassName + "'.", e);
+            }
+            _log.warn("Reverting to the default YEngine implementation.");
+        }
+        return null;
+    }
+
 
     public void destroy() {
         _engine.shutdown();

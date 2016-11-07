@@ -76,17 +76,15 @@ public class ResourceGateway extends YHttpServlet {
                 PluginFactory.setExternalPaths(pluginPath);
 
                 // enable/or disable persistence
-                String persist = context.getInitParameter("EnablePersistence");
-                _rm.setPersisting(getInitBooleanValue(persist, true));
+                _rm.setPersisting(getBooleanFromContext("EnablePersistence", true));
                 if (_rm.isPersisting()) {
 
                     // enable/disable process logging
-                    String enableLogging = context.getInitParameter("EnableLogging");
-                    EventLogger.setLogging(getInitBooleanValue(enableLogging, true));
+                    EventLogger.setLogging(getBooleanFromContext("EnableLogging", true));
 
                     // enable/disable logging of all offers
                     String logOffers = context.getInitParameter("LogOffers");
-                    EventLogger.setOfferLogging(getInitBooleanValue(logOffers, true));
+                    EventLogger.setOfferLogging(getBooleanFromContext("LogOffers", true));
                 }
 
                 // set the org data source and refresh rate
@@ -106,25 +104,22 @@ public class ResourceGateway extends YHttpServlet {
                 // for non-default org data sources, check the allow mods &
                 // user authentication values
                 if (! orgDataSource.equals("HibernateImpl")) {
-                    String allowMods = context.getInitParameter("AllowExternalOrgDataMods");
-                    _rm.setAllowExternalOrgDataMods(getInitBooleanValue(allowMods, false));
-                    String externalAuth = context.getInitParameter("ExternalUserAuthentication");
-                    _rm.setExternalUserAuthentication(getInitBooleanValue(externalAuth, false));
+                    _rm.setAllowExternalOrgDataMods(
+                            getBooleanFromContext("AllowExternalOrgDataMods"));
+                    _rm.setExternalUserAuthentication(
+                            getBooleanFromContext("ExternalUserAuthentication"));
                 }
 
                 // enable/disable blocking process when 2ndary resources unavailable
-                String blockOnMissingResources =
-                        context.getInitParameter("BlockOnUnavailableSecondaryResources");
                 _rm.setBlockOnUnavailableSecondaryResources(
-                        getInitBooleanValue(blockOnMissingResources, false)) ;
+                        getBooleanFromContext("BlockOnUnavailableSecondaryResources"));
 
                 // enable/disable the dropping of task piling on logout
-                String dropPiling = context.getInitParameter("DropTaskPilingOnLogoff");
-                _rm.setPersistPiling(! getInitBooleanValue(dropPiling, false)) ;
+                _rm.setPersistPiling(! getBooleanFromContext("DropTaskPilingOnLogoff"));
 
                 // enable the visualiser applet, if necessary
                 String enableVisualiser = context.getInitParameter("EnableVisualizer");
-                if (getInitBooleanValue(enableVisualiser, false)) {
+                if (getBooleanFromContext("EnableVisualizer")) {
                     _rm.setVisualiserEnabled(true);
                     String visualiserSize = context.getInitParameter("VisualizerViewSize");
                     if (visualiserSize != null) {
