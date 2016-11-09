@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * On occasion, a workitem may be delegated to the worklet service for selection AND
  * have a workitem pre-constraint rule set that has to be evaluated by the exception
- * service (if exception handling is enabled). In those cases, selection has to been
+ * service (if exception handling is enabled). In those cases, selection has to be
  * postponed until exception evaluation and handling of the item has completed.
  *
  * This class queues selection events until the exception service notifies that it

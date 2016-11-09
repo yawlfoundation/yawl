@@ -624,17 +624,15 @@ public class WorkletService extends InterfaceBWebsideController
      * Cancels each of the worklets listed in the wr as running
      *
      * @param runnerSet - the worklet record containing the list of worklets to cancel
-     * @return true if *any* of the worklets are successfully cancelled
+     * @return true if all of the worklets are successfully cancelled
      */
     protected boolean cancelWorkletSet(Set<WorkletRunner> runnerSet) {
-        boolean cancelSuccess = false;
+        boolean cancelSuccess = true;
 
         // cancel each worklet running for the workitem
         for (WorkletRunner runner : runnerSet) {
-            if (_engineClient.cancelWorkletCase(runner)) {
-                _runners.remove(runner);
-                cancelSuccess = true;
-            }
+            _runners.remove(runner);
+            cancelSuccess = _engineClient.cancelWorkletCase(runner) && cancelSuccess;
         }
         return cancelSuccess;
     }
