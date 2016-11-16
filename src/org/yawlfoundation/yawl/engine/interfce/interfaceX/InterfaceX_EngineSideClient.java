@@ -218,10 +218,10 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
         // POST the event
         public void run() {
 
-           Map<String, String> paramsMap = new HashMap<String, String>();
-           try {
+            Map<String, String> paramsMap = new HashMap<String, String>();
+            try {
 
-               // all events have an event type
+                // all events have an event type
                 paramsMap.put("action", String.valueOf(_command));
 
                 // additional params as required
@@ -242,6 +242,7 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                     case NOTIFY_CANCELLED_CASE:
                         paramsMap.put("caseID", _caseID);
                         break ;
+                    case NOTIFY_WORKITEM_ABORT:
                     case NOTIFY_TIMEOUT:
                         paramsMap.put("workItem", _workItem.toXML());
                         if (_taskList != null)
@@ -253,8 +254,8 @@ public class InterfaceX_EngineSideClient extends Interface_Client implements Exc
                 executePost(_observerURI, paramsMap);
 
             } catch (IOException e) {
-               LogManager.getLogger(InterfaceX_EngineSideClient.class).error(
-                       "failed to call YAWL service", e);
+                LogManager.getLogger(InterfaceX_EngineSideClient.class).error(
+                        "failed to call YAWL service", e);
                 e.printStackTrace();
             }
         }

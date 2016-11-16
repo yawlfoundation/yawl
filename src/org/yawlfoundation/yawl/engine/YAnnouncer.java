@@ -312,7 +312,7 @@ public class YAnnouncer {
     }
 
 
-    // this method should be called by an IB service when it decides it is not going
+    // this method triggered by an IB service when it decides it is not going
     // to handle (i.e. checkout) a workitem announced to it. It passes the workitem to
     // the default worklist service for normal assignment.
     public void rejectAnnouncedEnabledTask(YWorkItem item) {
@@ -322,6 +322,9 @@ public class YAnnouncer {
                     defaultWorklist.getServiceID());
             announceToGateways(createAnnouncement(defaultWorklist, item, ITEM_ADD));
         }
+
+        // also raise an item abort exception for custom handling by services
+        announceWorkItemAbortToInterfaceXListeners(item);
     }
 
 
@@ -353,6 +356,13 @@ public class YAnnouncer {
             _logger.debug("Announcing Time Out for item {} on client {}",
                     item.getWorkItemID().toString(), listener.toString());
             listener.announceTimeOut(item, timeOutTaskIds);
+        }
+    }
+
+
+    private void announceWorkItemAbortToInterfaceXListeners(YWorkItem item) {
+        for (InterfaceX_EngineSideClient listener : _interfaceXListeners) {
+            listener.announceWorkitemAbort(item);
         }
     }
 

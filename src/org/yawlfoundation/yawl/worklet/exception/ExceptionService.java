@@ -1227,7 +1227,8 @@ public class ExceptionService {
      * @param wir - the wir being tested for an exception
      */
     private Element augmentItemData(WorkItemRecord wir, String dataStr) {
-        Element data = dataStr != null ? JDOMUtil.stringToElement(dataStr) :
+        Element data = !StringUtil.isNullOrEmpty(dataStr) ?
+                JDOMUtil.stringToElement(dataStr) :
                 new Element("data");
 
         // blend in any case level data not extant in the work item's data

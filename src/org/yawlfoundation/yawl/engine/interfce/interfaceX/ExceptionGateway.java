@@ -82,10 +82,14 @@ public interface ExceptionGateway
     void shutdown();
 
 
-
-    /************** FOR FUTURE IMPLEMENTATION *************/
+    /**
+     * Announced by the engine when a work item has been checked out and then
+     * declined (returned) by a service (before completion)
+     * @param item the aborted item
+     */
     void announceWorkitemAbort(YWorkItem item);
 
+    /************** FOR FUTURE IMPLEMENTATION *************/
     void announceConstraintViolation(YWorkItem item);
     /******************************************************/
 
