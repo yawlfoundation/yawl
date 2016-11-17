@@ -942,10 +942,13 @@ public class ExceptionService {
 
 
     private WorkItemRecord moveToExecuting(WorkItemRecord wir) {
-        if (wir.getStatus().equals(WorkItemRecord.statusSuspended))
+        if (wir.getStatus().equals(WorkItemRecord.statusSuspended)) {
             _actions.unsuspendWorkItem(wir);
-        if (wir.getStatus().equals(WorkItemRecord.statusFired) ||
-                wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
+        }
+        if (wir.getStatus().equals(WorkItemRecord.statusFired)) {
+            wir = _wService.getEngineClient().checkOutFiredWorkItem(wir);
+        }
+        else if (wir.getStatus().equals(WorkItemRecord.statusEnabled)) {
             Set<WorkItemRecord> cos = _wService.getEngineClient().checkOutItem(wir);
             if (! cos.isEmpty()) {
                 wir = cos.iterator().next();

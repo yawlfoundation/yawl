@@ -276,22 +276,27 @@ public class EngineClient extends AbstractEngineClient {
      * @return true if checkout was successful
      */
     protected boolean checkOutWorkItem(WorkItemRecord wir) {
-
-        try {
-            if (null != _controller.checkOut(wir.getID(), getSessionHandle())) {
-                _log.info("   checkout successful: {}", wir.getID());
-                return true;
-            } else {
-                _log.info("   checkout unsuccessful: {}", wir.getID());
-                return false;
-            }
-        } catch (YAWLException ye) {
-            _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
-            return false;
-        } catch (IOException ioe) {
-            _log.error("IO Exception with checkout: " + wir.getID(), ioe);
+        if (null != checkOutFiredWorkItem(wir)) {
+            _log.info("   checkout successful: {}", wir.getID());
+            return true;
+        } else {
+            _log.info("   checkout unsuccessful: {}", wir.getID());
             return false;
         }
+    }
+
+
+    public WorkItemRecord checkOutFiredWorkItem(WorkItemRecord wir) {
+        try {
+            return _controller.checkOut(wir.getID(), getSessionHandle());
+        }
+        catch (YAWLException ye) {
+            _log.error("YAWL Exception with checkout: " + wir.getID(), ye);
+        }
+        catch (IOException ioe) {
+            _log.error("IO Exception with checkout: " + wir.getID(), ioe);
+        }
+        return wir;
     }
 
 
