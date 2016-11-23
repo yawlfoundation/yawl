@@ -49,7 +49,7 @@
         <property name="caseSuspended" column="isCaseSuspended" type="boolean"/>
         <property name="wirString"     type="text"/>
 
-        <set name="_suspendedItems" table="ws_suspitems" access="field">
+        <set name="_suspendedItems" table="ws_suspitems" access="field" lazy="false">
             <key column="rowid"/>
             <element column="wirid" type="string"/>
         </set>

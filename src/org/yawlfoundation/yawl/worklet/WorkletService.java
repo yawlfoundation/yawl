@@ -205,7 +205,7 @@ public class WorkletService extends InterfaceBWebsideController
             return;
         }
 
-        _log.info("HANDLE CANCELLED WORKITEM EVENT");
+        _log.info("CANCELLED WORKITEM EVENT");
         String itemId = wir.getID();
         _log.info("ID of cancelled workitem: {}", itemId);
 
@@ -239,7 +239,7 @@ public class WorkletService extends InterfaceBWebsideController
      */
 
     public void handleCompleteCaseEvent(String caseID, String casedata) {
-        _log.info("HANDLE COMPLETE CASE EVENT");
+        _log.info("COMPLETED WORKLET CASE EVENT");
         _log.info("ID of completed case: {}", caseID);
 
         if (_exceptionHandlingEnabled) _eventQueue.removeCase(caseID);
@@ -251,7 +251,7 @@ public class WorkletService extends InterfaceBWebsideController
 
 
     public synchronized void handleCancelledCaseEvent(String caseID) {
-        _log.info("HANDLE CANCELLED CASE EVENT");
+        _log.info("CANCELLED CASE EVENT");
         _log.info("ID of cancelled case: {}", caseID);
 
         if (_exceptionHandlingEnabled) _eventQueue.removeCase(caseID);
@@ -360,7 +360,7 @@ public class WorkletService extends InterfaceBWebsideController
     }
 
     public boolean suspendCase(String caseID) {
-        return _exService.suspendCase(caseID);
+        return ! _exService.suspendCase(caseID).isEmpty();
     }
 
     public boolean suspendWorkItem(String itemID) {
@@ -371,7 +371,7 @@ public class WorkletService extends InterfaceBWebsideController
     /******************************************************************************/
 
     public void processEnabledWorkItemEvent(WorkItemRecord wir) {
-        _log.info("HANDLE ENABLED WORKITEM EVENT");        // note to log
+        _log.info("ENABLED WORKITEM EVENT");        // note to log
 
         if (!handleWorkletSelection(wir)) {
             _engineClient.declineWorkItem(wir, null);

@@ -420,7 +420,7 @@ public class ExceptionService {
         String target = runner.getNextTarget();
         boolean success = true;
 
-        _log.debug("Exception process step {}. Action = {}, Target = {}",
+        _log.info("Exception process step {}. Action = {}, Target = {}",
                 runner.getActionIndex(), action, target);
 
         // short circuit if action doesn't apply to target
@@ -626,7 +626,7 @@ public class ExceptionService {
     }
 
 
-    public boolean suspendCase(String caseID) {
+    public Set<WorkItemRecord> suspendCase(String caseID) {
         return _actions.suspendCase(caseID);
     }
 

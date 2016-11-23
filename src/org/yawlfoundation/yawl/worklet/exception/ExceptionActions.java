@@ -111,16 +111,13 @@ public class ExceptionActions {
      */
     protected boolean suspendCase(ExletRunner hr) {
         String caseID = hr.getCaseID();
-        Set<WorkItemRecord> suspendedItems = getSuspendableWorkItems("case", caseID) ;
-
-        if (suspendWorkItemList(suspendedItems)) {
+        Set<WorkItemRecord> suspendedItems = suspendCase(caseID);
+        if (! suspendedItems.isEmpty()) {
             hr.setSuspendedItems(suspendedItems);
             hr.setCaseSuspended();
-            _log.debug("Completed suspend for all work items in case: {}", caseID);
             return true ;
         }
         else {
-            _log.error("Attempt to suspend case failed for case: {}", caseID);
             return false ;
         }
     }
@@ -131,16 +128,19 @@ public class ExceptionActions {
      * @param caseID - the id of the case to suspend
      * @return true on successful suspend
      */
-    protected boolean suspendCase(String caseID) {
+    protected Set<WorkItemRecord> suspendCase(String caseID) {
         Set<WorkItemRecord> suspendItems = getSuspendableWorkItems("case", caseID) ;
+        if (suspendItems.isEmpty()) {
+            _log.info("Unable to suspend case {} because it has no 'live' work items. " +
+                    "Perhaps the case has already completed?", caseID);
+        }
         if (suspendWorkItemList(suspendItems)) {
-            _log.debug("Completed suspend for case: {}", caseID);
-            return true ;
+            _log.debug("Completed suspend for all work items in case: {}", caseID);
         }
         else {
             _log.error("Attempt to suspend case failed for case: {}", caseID);
-            return false ;
         }
+        return suspendItems;
     }
 
 
@@ -240,7 +240,7 @@ public class ExceptionActions {
     /** unsuspends all previously suspended workitems in this case and/or spec */
     protected void unsuspendList(ExletRunner runner) {
         Set<String> suspendedItems = runner.getSuspendedItems();
-        if (suspendedItems != null) {
+        if (! (suspendedItems == null || suspendedItems.isEmpty())) {
             for (String wirID : suspendedItems) {
                 try {
                     unsuspendWorkItem(_engineClient.getEngineStoredWorkItem(wirID));
