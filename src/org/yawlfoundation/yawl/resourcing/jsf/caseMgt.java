@@ -22,6 +22,7 @@ import com.sun.rave.web.ui.appbase.AbstractPageBean;
 import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -46,10 +47,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.Duration;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -950,6 +948,8 @@ public class caseMgt extends AbstractPageBean {
 
 
     private void downloadLog() {
+        InputStream is = null;
+        OutputStream os = null;
         try {
             Integer selectedRowIndex = new Integer((String) hdnRowIndex.getValue());
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
@@ -966,13 +966,11 @@ public class caseMgt extends AbstractPageBean {
                     response.setCharacterEncoding("UTF-8");
                     response.setHeader("Content-Disposition",
                             "attachment;filename=\"" + filename + "\"");
-                    OutputStream os = response.getOutputStream();
-                    OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-                    osw.write(log);
-                    osw.flush();
-                    osw.close();
+
+                    is = new ByteArrayInputStream(log.getBytes("UTF-8"));
+                    os = response.getOutputStream();
+                    IOUtils.copy(is, os);
                     FacesContext.getCurrentInstance().responseComplete();
-               //     msgPanel.success("Data successfully exported to file '" + filename + "'.");
                 }
                 else msgPanel.error("Unable to create export file: malformed xml.");
             }
@@ -982,6 +980,10 @@ public class caseMgt extends AbstractPageBean {
         }
         catch (NumberFormatException nfe) {
             msgPanel.error("Please select a specification to download the log for.") ;
+        }
+        finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(os);
         }
     }
 
