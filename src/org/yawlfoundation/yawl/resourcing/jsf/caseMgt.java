@@ -955,7 +955,10 @@ public class caseMgt extends AbstractPageBean {
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
 
             if (spec != null) {
+                System.out.println("**** XES: calling LogMiner");
+                long x = System.currentTimeMillis();
                 String log = LogMiner.getInstance().getMergedXESLog(spec.getID(), true);
+                System.out.println("**** XES: LogMiner returned log, elapsed " + (System.currentTimeMillis() - x));
                 if (log != null) {
                     String filename = String.format("%s%s.xes", spec.getSpecURI(),
                             spec.getSpecVersion());
@@ -969,7 +972,9 @@ public class caseMgt extends AbstractPageBean {
 
                     is = new ByteArrayInputStream(log.getBytes("UTF-8"));
                     os = response.getOutputStream();
+                    System.out.println("**** XES: Outputting starts, elapsed " + (System.currentTimeMillis() - x));
                     IOUtils.copy(is, os);
+                    System.out.println("**** XES: Outputting ends, elapsed " + (System.currentTimeMillis() - x));
                     FacesContext.getCurrentInstance().responseComplete();
                 }
                 else msgPanel.error("Unable to create export file: malformed xml.");

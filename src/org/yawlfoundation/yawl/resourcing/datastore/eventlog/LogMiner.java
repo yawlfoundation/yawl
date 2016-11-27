@@ -363,8 +363,12 @@ public class LogMiner {
 
 
     public String getMergedXESLog(YSpecificationID specid, boolean withData) {
+        long x = System.currentTimeMillis();
+        System.out.println("**** XES: get log starts " + x);
         XNode rsCases = getXESLog(specid);
+        System.out.println("**** XES: resource log ends, elapsed " + (System.currentTimeMillis() - x));
         String engCases = ResourceManager.getInstance().getClients().getEngineXESLog(specid, withData);
+        System.out.println("**** XES: engine log ends, elapsed " + (System.currentTimeMillis() - x));
         if ((rsCases != null) && (engCases != null)) {
             return new ResourceXESLog().mergeLogs(rsCases, engCases);
         }
