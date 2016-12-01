@@ -596,7 +596,7 @@ public class OfferInteraction extends AbstractInteraction {
         private String getNetParamValue (WorkItemRecord wir, String name) {
             String result = null ;
             try {
-                result = _rm.getNetParamValue(wir.getCaseID(), _name);
+                result = _rm.getNetParamValue(wir.getNetID(), _name);
                 if (result == null)
                     _log.error("Unable to retrieve value from net parameter '{}'" +
                                " for deferred allocation of workitem '{}'.",

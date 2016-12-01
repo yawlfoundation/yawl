@@ -368,7 +368,18 @@ public class WorkItemRecord implements Cloneable {
             int firstDot = _caseID.indexOf('.');
             return (firstDot > -1) ? _caseID.substring(0, firstDot) : _caseID;
         }
-        return _caseID ;
+        return null;
+    }
+
+    public String getNetID() {
+        if (_status.equals(statusIsParent)) {
+            return _caseID;
+        }
+        if (_caseID != null) {
+            int pos = _caseID.lastIndexOf('.');
+            return (pos < 0) ? _caseID : _caseID.substring(0, pos);
+        }
+        return null;
     }
 
     public String getParentID() {
