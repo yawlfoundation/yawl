@@ -23,6 +23,8 @@ import com.sun.rave.web.ui.component.*;
 import com.sun.rave.web.ui.model.Option;
 import com.sun.rave.web.ui.model.UploadedFile;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -948,6 +950,8 @@ public class caseMgt extends AbstractPageBean {
 
 
     private void downloadLog() {
+        Logger logger = LogManager.getLogger(this.getClass());
+        logger.info("XES #downloadLog: begins ->");
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -955,10 +959,8 @@ public class caseMgt extends AbstractPageBean {
             SpecificationData spec = _sb.getLoadedSpec(selectedRowIndex);
 
             if (spec != null) {
-                System.out.println("**** XES: calling LogMiner");
-                long x = System.currentTimeMillis();
                 String log = LogMiner.getInstance().getMergedXESLog(spec.getID(), true);
-                System.out.println("**** XES: LogMiner returned log, elapsed " + (System.currentTimeMillis() - x));
+                logger.info("XES #downloadLog: merged log returned, response prep begins");
                 if (log != null) {
                     String filename = String.format("%s%s.xes", spec.getSpecURI(),
                             spec.getSpecVersion());
@@ -969,13 +971,12 @@ public class caseMgt extends AbstractPageBean {
                     response.setCharacterEncoding("UTF-8");
                     response.setHeader("Content-Disposition",
                             "attachment;filename=\"" + filename + "\"");
-
+                    logger.info("XES #downloadLog: response prep ends, output begins");
                     is = new ByteArrayInputStream(log.getBytes("UTF-8"));
                     os = response.getOutputStream();
-                    System.out.println("**** XES: Outputting starts, elapsed " + (System.currentTimeMillis() - x));
                     IOUtils.copy(is, os);
-                    System.out.println("**** XES: Outputting ends, elapsed " + (System.currentTimeMillis() - x));
                     FacesContext.getCurrentInstance().responseComplete();
+                    logger.info("XES #downloadLog: output ends");
                 }
                 else msgPanel.error("Unable to create export file: malformed xml.");
             }
@@ -989,6 +990,7 @@ public class caseMgt extends AbstractPageBean {
         finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
+            logger.info("XES #downloadLog: -> ends");
         }
     }
 

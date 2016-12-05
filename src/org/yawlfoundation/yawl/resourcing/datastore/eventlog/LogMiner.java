@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.resourcing.datastore.eventlog;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
@@ -363,14 +365,23 @@ public class LogMiner {
 
 
     public String getMergedXESLog(YSpecificationID specid, boolean withData) {
-        long x = System.currentTimeMillis();
-        System.out.println("**** XES: get log starts " + x);
+        Logger logger = LogManager.getLogger(this.getClass());
+        logger.info("XES #getMergedXESLog: begins ->");
+        logger.info("XES #getMergedXESLog: resource log generation begins");
+
         XNode rsCases = getXESLog(specid);
-        System.out.println("**** XES: resource log ends, elapsed " + (System.currentTimeMillis() - x));
+
+        logger.info("XES #getMergedXESLog: resource log generation ends, engine log requested");
+
         String engCases = ResourceManager.getInstance().getClients().getEngineXESLog(specid, withData);
-        System.out.println("**** XES: engine log ends, elapsed " + (System.currentTimeMillis() - x));
+
+        logger.info("XES #getMergedXESLog: engine log returned, merge logs begins");
+
         if ((rsCases != null) && (engCases != null)) {
-            return new ResourceXESLog().mergeLogs(rsCases, engCases);
+            String log = new ResourceXESLog().mergeLogs(rsCases, engCases);
+            logger.info("XES #getMergedXESLog: merge logs ends");
+            logger.info("XES #getMergedXESLog: -> ends");
+            return log;
         }
         return "";
     }

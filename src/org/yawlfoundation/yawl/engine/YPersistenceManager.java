@@ -448,7 +448,7 @@ public class YPersistenceManager {
      */
     public Object selectScalar(String className, String field, String value)
             throws YPersistenceException {
-        String qryStr = String.format("from %s as tbl where tbl.%s=%s",
+        String qryStr = String.format("select distinct t from %s as t where t.%s=%s",
                 className, field, value);
         Iterator itr = createQuery(qryStr).iterate();
         if (itr.hasNext()) return itr.next();

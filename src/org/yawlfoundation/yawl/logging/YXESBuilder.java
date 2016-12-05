@@ -18,6 +18,8 @@
 
 package org.yawlfoundation.yawl.logging;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.schema.XSDType;
@@ -36,13 +38,21 @@ import java.util.Map;
  */
 public class YXESBuilder {
 
+    Logger _log = LogManager.getLogger(this.getClass());
+
     public YXESBuilder() { }
 
     public String buildLog(YSpecificationID specid, XNode events) {
         if (events != null) {
+            _log.info("XES #buildLog: begins ->");
             XNode root = beginLogOutput(specid);
+            _log.info("XES #buildLog: XES headers written, processing events begins");
             processEvents(root, events);
-            return root.toPrettyString(true);
+            _log.info("XES #buildLog: processing events ends, converting to string begins");
+            String s = root.toPrettyString(true);
+            _log.info("XES #buildLog: converting to string ends");
+            _log.info("XES #buildLog: -> ends");
+            return s;
         }
         return null;
     }

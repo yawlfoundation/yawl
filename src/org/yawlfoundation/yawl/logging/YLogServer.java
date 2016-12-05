@@ -30,9 +30,7 @@ import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * The server side of interface E. An API to retrieve data from the process event logs
@@ -683,18 +681,31 @@ public class YLogServer {
 
 
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
+        _log.info("XES #getXESLog: begins ->");
         if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
+                _log.info("XES #getXESLog: specification record retrieved");
                 if (spec != null) {
-                    XNode cases = new XNode("cases");
-                    for (Object o : getNetInstanceObjects(spec.getRootNetID())) {
-                        YLogNetInstance logNetInstance = (YLogNetInstance) o;
-                        XNode caseNode = cases.addChild("case");
-                        caseNode.addAttribute("id", logNetInstance.getEngineInstanceID());
-                        addNetInstance(caseNode, logNetInstance, withData);
-                    }
-                    return cases;
+                    return new SpecHistory().get(_pmgr, spec.getRootNetID(), withData);
+//                    StringUtil.stringToFile("/Users/adamsmj/Desktop/history.xml", x.toPrettyString());
+//
+//                    XNode cases = new XNode("cases");
+//                    _log.info("XES #getXESLog: getting net instance records begins");
+//                    List nio = getNetInstanceObjects(spec.getRootNetID());
+//                    _log.info("XES #getXESLog: getting net instance records ends");
+//                    _log.info("XES #getXESLog: processing net instances begins");
+//                    for (Object o : nio) {
+//                        YLogNetInstance logNetInstance = (YLogNetInstance) o;
+//                        XNode caseNode = cases.addChild("case");
+//                        caseNode.addAttribute("id", logNetInstance.getEngineInstanceID());
+//                        addNetInstance(caseNode, logNetInstance, withData);
+//                    }
+//                    _log.info("XES #getXESLog: processing net instances ends");
+//                    _log.info("XES #getXESLog: -> ends");
+//                    StringUtil.stringToFile("/Users/adamsmj/Desktop/cases.xml", cases.toPrettyString());
+//
+//                    return cases;
                 }
             }
             catch (YPersistenceException ype) {
@@ -874,9 +885,18 @@ public class YLogServer {
 
 
     public String getSpecificationXESLog(YSpecificationID specid, boolean withData) {
+        _log.info("XES #getSpecificationXESLog: begins ->");
+        _log.info("XES #getSpecificationXESLog: case data gathering begins");
+
         XNode cases = getXESLog(specid, withData);
+
+        _log.info("XES #getSpecificationXESLog: case data gathering ends, build XES begins");
+
         if (cases != null) {
-            return new YXESBuilder().buildLog(specid, cases);
+            String s =  new YXESBuilder().buildLog(specid, cases);
+            _log.info("XES #getSpecificationXESLog: build XES ends");
+            _log.info("XES #getSpecificationXESLog: -> ends");
+            return s;
         }
         return "<failure>No records for specification '" +
                             specid.toString() + "'.</failure>";
@@ -980,7 +1000,8 @@ public class YLogServer {
             String identifier = specID.getIdentifier();
             Iterator itr;
             if (identifier != null) {
-                itr = _pmgr.createQuery("from YLogSpecification as s where " +
+                itr = _pmgr.createQuery(
+                        "select distinct s from YLogSpecification s where " +
                         "s.identifier=:id and s.version=:version and s.uri=:uri")
                         .setString("id", identifier)
                         .setString("version", specID.getVersionAsString())
@@ -988,7 +1009,8 @@ public class YLogServer {
                         .iterate();
             }
             else {
-                itr = _pmgr.createQuery("from YLogSpecification as s where " +
+                itr = _pmgr.createQuery(
+                        "select distinct s from YLogSpecification s where " +
                         "s.version=:version and s.uri=:uri")
                         .setString("version", specID.getVersionAsString())
                         .setString("uri", specID.getUri())
