@@ -681,31 +681,11 @@ public class YLogServer {
 
 
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
-        _log.info("XES #getXESLog: begins ->");
         if (connected()) {
             try {
                 YLogSpecification spec = getSpecification(specID);
-                _log.info("XES #getXESLog: specification record retrieved");
                 if (spec != null) {
                     return new SpecHistory().get(_pmgr, spec.getRootNetID(), withData);
-//                    StringUtil.stringToFile("/Users/adamsmj/Desktop/history.xml", x.toPrettyString());
-//
-//                    XNode cases = new XNode("cases");
-//                    _log.info("XES #getXESLog: getting net instance records begins");
-//                    List nio = getNetInstanceObjects(spec.getRootNetID());
-//                    _log.info("XES #getXESLog: getting net instance records ends");
-//                    _log.info("XES #getXESLog: processing net instances begins");
-//                    for (Object o : nio) {
-//                        YLogNetInstance logNetInstance = (YLogNetInstance) o;
-//                        XNode caseNode = cases.addChild("case");
-//                        caseNode.addAttribute("id", logNetInstance.getEngineInstanceID());
-//                        addNetInstance(caseNode, logNetInstance, withData);
-//                    }
-//                    _log.info("XES #getXESLog: processing net instances ends");
-//                    _log.info("XES #getXESLog: -> ends");
-//                    StringUtil.stringToFile("/Users/adamsmj/Desktop/cases.xml", cases.toPrettyString());
-//
-//                    return cases;
                 }
             }
             catch (YPersistenceException ype) {
@@ -713,65 +693,6 @@ public class YLogServer {
             }
         }
         return null;
-    }
-
-
-    private void addNetInstance(XNode node, YLogNetInstance logNetInstance, boolean withData)
-            throws YPersistenceException {
-
-        XNode netInstance = node.addChild("netinstance");
-
-        // for each task instance in the net
-        for (Object o : getTaskInstanceObjects(logNetInstance.getNetInstanceID())) {
-            YLogTaskInstance logTaskInstance = (YLogTaskInstance) o;
-            YLogTask task = getTask(logTaskInstance.getTaskID());
-            XNode taskInstance = netInstance.addChild("taskinstance");
-            if (task != null) taskInstance.addChild("taskname", task.getName());
-            taskInstance.addChild("engineinstanceid", logTaskInstance.getEngineInstanceID());
-
-            // for each event for the task
-            for (Object o1 : getInstanceEventObjects(logTaskInstance.getTaskInstanceID())) {
-                YLogEvent logEvent = (YLogEvent) o1;
-                String descriptor = logEvent.getDescriptor();
-
-                // don't include data change events if withData is false
-                if (withData || (!descriptor.equals("DataValueChange"))) {
-                    XNode event = new XNode("event");
-                    event.addChild("descriptor", descriptor);
-                    event.addChild("timestamp", logEvent.getTimestampString());
-                    if (descriptor.equals("DataValueChange")) {
-                        event.addChild(addDataInstances(logEvent.getEventID()));
-                    }
-                    taskInstance.addChild(event);
-                }
-            }
-
-            // now do any sub-nets
-            YLogNetInstance logSubNetInstance =
-                    getSubNetInstance(logTaskInstance.getTaskInstanceID());
-            if (logSubNetInstance != null) {
-                addNetInstance(node, logSubNetInstance, withData);     // recurse
-            }
-        }
-    }
-
-
-    private XNode addDataInstances(long eventKey) throws YPersistenceException {
-        XNode dataInstances = new XNode("dataItems");
-
-        for (Object o : getDataItemInstanceObjects(eventKey)) {
-            YLogDataItemInstance dataItemInstance = (YLogDataItemInstance) o;
-            YLogDataType dataType = getDataType(dataItemInstance.getDataTypeID());
-            XNode dataItem = dataInstances.addChild("dataItem");
-            dataItem.addChild("descriptor", dataItemInstance.getDescriptor());
-            dataItem.addChild("name", dataItemInstance.getName());
-            dataItem.addChild("value", dataItemInstance.getValue());
-            if (dataType != null) {
-                dataItem.addChild("typeName", dataType.getName());
-                dataItem.addChild("typeDefinition", dataType.getDefinition());
-            }
-        }
-        return dataInstances;
     }
 
 

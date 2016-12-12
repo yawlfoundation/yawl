@@ -71,6 +71,9 @@ public class ResourceGatewayClientAdapter {
 
     public String getClientURI() { return _uri ; }
 
+    public ResourceGatewayClient getClient() { return _rgclient; }
+
+
     /*****************************************************************************/
 
     // PRIVATE METHODS //

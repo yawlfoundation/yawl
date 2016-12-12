@@ -43,17 +43,17 @@ public class SpecHistory {
     public XNode get(YPersistenceManager pMgr, long specKey, boolean withData)
             throws YPersistenceException {
 
-        _log.info("XES #get: SQL select begins");
+        _log.debug("XES #get: SQL select begins");
         List events = pMgr.createQuery(EVENT_QUERY).setLong("id", specKey).list();
         List dataValues = pMgr.createQuery(DATA_QUERY).setLong("id", specKey).list();
-        _log.info("XES #get: SQL select ends");
+        _log.debug("XES #get: SQL select ends");
         processDataResults(dataValues);
         return process(events, withData);
     }
 
 
     private XNode process(List events, boolean withData) {
-        _log.info("XES #process: begins");
+        _log.debug("XES #process: begins");
         Map<String, XNode> caseMap = new TreeMap<String, XNode>();
         for (Object o : events) {
             Object[] array = (Object[]) o;
@@ -90,7 +90,7 @@ public class SpecHistory {
             }
         });
         cases.addChildren(caseNodes);
-        _log.info("XES #process: ends");
+        _log.debug("XES #process: ends");
         return cases;
     }
 

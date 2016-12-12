@@ -58,7 +58,7 @@ public class SaxonUtil {
      */
     public static String evaluateQuery(String query, Document dataDoc)
             throws SaxonApiException {
-        log(query, dataDoc);
+        if (_log.isDebugEnabled()) log(query, dataDoc);
 
         // initialise, compile & load the evaluator
         XQueryEvaluator evaluator = initEvaluator(query, dataDoc);
@@ -70,7 +70,7 @@ public class SaxonUtil {
         // evaluate the query & return the result as a string
         evaluator.run(_output);
         String result = writer.toString();
-        log(result, null);
+        if (_log.isDebugEnabled()) log(result, null);
         return removeHeader(result);
     }
 
@@ -166,10 +166,10 @@ public class SaxonUtil {
 
     private static void log(String query, Document doc) {
         if (doc != null) {
-            _log.info("Evaluating query: '{}' using data document: {}", query,
+            _log.debug("Evaluating query: '{}' using data document: {}", query,
                     JDOMUtil.documentToStringDump(doc));
         }
-        else _log.info("Query result: {}", query);
+        else _log.debug("Query result: {}", query);
     }
 
 }

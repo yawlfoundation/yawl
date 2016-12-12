@@ -67,6 +67,8 @@ public class WorkQueueGatewayClientAdapter {
 
     public String getClientURI() { return _uri; }
 
+    public WorkQueueGatewayClient getClient() { return _wqclient; }
+
 
     public boolean successful(String result) {
         return (result != null) && (!result.startsWith("<failure>"));

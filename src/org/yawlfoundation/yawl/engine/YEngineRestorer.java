@@ -221,7 +221,7 @@ public class YEngineRestorer {
             int delim2 = id.indexOf('!');
             String caseID = id.substring(0, delim1);
             String taskID = id.substring(delim1 + 1, delim2);
-            String uniqueID = id.substring(delim2 + 1);
+            String uniqueID = delim2 > -1 ? id.substring(delim2 + 1) : null;
 
             YIdentifier yCaseID = _idLookupTable.get(caseID);
 
