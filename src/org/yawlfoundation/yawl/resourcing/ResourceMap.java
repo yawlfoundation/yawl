@@ -328,25 +328,25 @@ public class ResourceMap {
 
 
     private Set<Participant> doOffer(WorkItemRecord wir) {
-        Set<Participant> offerSet = null;
+        Set<Participant> distributionSet = null;
         if (_offer.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // put workitem in admin's unoffered queue & DONE
             addToAdminUnofferedQueue(wir);
         }
         else {
-           offerSet = _offer.performOffer(wir);
-           if (offerSet.isEmpty()) {
+           distributionSet = _offer.performOffer(wir);
+           if (distributionSet.isEmpty()) {
                _log.warn("Parse of resource specifications for workitem {} resulted in" +
                          " an empty distribution set. The workitem will be passed to" +
                          " an administrator for manual distribution.", wir.getID());
 
                // put workitem in admin's unoffered queue & DONE
                addToAdminUnofferedQueue(wir);
-               offerSet = null ;
+               distributionSet = null ;
            }
         }
-        return offerSet ;
+        return distributionSet ;
     }    
 
     private Participant doAllocate(Set<Participant> pSet, WorkItemRecord wir) {
@@ -439,9 +439,11 @@ public class ResourceMap {
     
     public void addToOfferedSet(WorkItemRecord wir, Participant p) {
         Set<Participant> pSet = _offered.get(wir.getID());
-        if (pSet == null) pSet = new HashSet<Participant>();
+        if (pSet == null) {
+            pSet = new HashSet<Participant>();
+            _offered.put(wir.getID(), pSet);
+        }
         pSet.add(p);
-        _offered.put(wir.getID(), pSet);
     }
 
     /**

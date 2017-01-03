@@ -476,6 +476,11 @@ public class YWorkItem {
     }
 
 
+    public boolean isParent() {
+        return _status.equals(statusIsParent);
+    }
+
+
     /** @return true if workitem is not finished */
     public boolean hasUnfinishedStatus() {
         return hasLiveStatus() || _status.equals(statusSuspended) ||
