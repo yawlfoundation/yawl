@@ -349,19 +349,19 @@ public class ResourceMap {
         return distributionSet ;
     }    
 
-    private Participant doAllocate(Set<Participant> pSet, WorkItemRecord wir) {
+    private Participant doAllocate(Set<Participant> distributionSet, WorkItemRecord wir) {
         Participant chosenOne = null;
         rm.getWorkItemCache().updateResourceStatus(wir, WorkItemRecord.statusResourceOffered);
         if (_allocate.getInitiator() == AbstractInteraction.USER_INITIATED) {
 
             // for each participant in set, place workitem on their offered queue
-            for (Participant p : pSet) {
+            for (Participant p : distributionSet) {
                 QueueSet qs = p.getWorkQueues() ;
                 if (qs == null) qs = p.createQueueSet(rm.isPersisting());
                 qs.addToQueue(wir, WorkQueue.OFFERED);
                 rm.announceModifiedQueue(p.getID()) ;
             }
-            _offered.put(wir.getID(), pSet) ;
+            _offered.put(wir.getID(), distributionSet) ;
         }
         else {
             if (rm.isDeferredChoiceHandled(wir)) {
@@ -369,7 +369,7 @@ public class ResourceMap {
                 return null;
             }
 
-            chosenOne = _allocate.performAllocation(pSet, wir);
+            chosenOne = _allocate.performAllocation(distributionSet, wir);
             if (chosenOne != null) {
                 rm.setDeferredChoiceHandled(wir);
             }

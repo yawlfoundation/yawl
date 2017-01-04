@@ -51,7 +51,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.util.OrgDataRefreshe
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
-import org.yawlfoundation.yawl.resourcing.interactions.StartInteraction;
 import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -934,11 +933,20 @@ public class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    private void withdrawOffer(ResourceMap rMap, WorkItemRecord wir) {
+        if (rMap != null && isDefaultOrgDB()) {
+            rMap.withdrawOffer(wir);
+        }
+        else {
+            withdrawOfferFromAll(wir);   // non-default org db or beta spec
+        }
+    }
+
+
     public void withdrawOfferFromAll(WorkItemRecord wir) {
         for (Participant p : _orgDataSet.getParticipants()) {
             QueueSet qSet = p.getWorkQueues();
-            if (qSet != null) {
-                qSet.removeFromQueue(wir, WorkQueue.OFFERED);
+            if (qSet != null && qSet.removeFromQueue(wir, WorkQueue.OFFERED)) {
                 announceModifiedQueue(p.getID());
             }
         }
@@ -981,16 +989,12 @@ public class ResourceManager extends InterfaceBWebsideController {
             setDeferredChoiceHandled(wir);
         }
 
-        StartInteraction starter = null;
         ResourceMap rMap = getResourceMap(wir);
-        if (rMap != null) {
-            rMap.withdrawOffer(wir);
-            starter = rMap.getStartInteraction();
-        } else withdrawOfferFromAll(wir);        // beta version spec
+        withdrawOffer(rMap, wir);
 
         // take the appropriate start action
-        if ((starter != null) &&
-                (starter.getInitiator() == AbstractInteraction.SYSTEM_INITIATED)) {
+        if (rMap != null && rMap.getStartInteraction().getInitiator() ==
+                AbstractInteraction.SYSTEM_INITIATED) {
             startImmediate(p, wir);
             WorkItemRecord startedItem = getExecutingChild(getChildren(wir.getID()));
             if (startedItem != null) {
@@ -1222,13 +1226,13 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private boolean secondaryResourcesAvailable(WorkItemRecord wir, Participant p) {
-        ResourceMap map = getResourceMap(wir);
-        if (!((map == null) || map.getSecondaryResources().available(wir))) {
+        ResourceMap rMap = getResourceMap(wir);
+        if (!(rMap == null || rMap.getSecondaryResources().available(wir))) {
             _log.warn("Workitem '{}' could not be started due " +
                     "to one or more unavailable secondary resources. The workitem " +
                     "has been placed on the participant's allocated queue.", wir.getID());
             if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
-                map.withdrawOffer(wir);
+                withdrawOffer(rMap, wir);
             }
             wir.setResourceStatus(WorkItemRecord.statusResourceAllocated);
             p.getWorkQueues().addToQueue(wir, WorkQueue.ALLOCATED);
@@ -1502,7 +1506,7 @@ public class ResourceManager extends InterfaceBWebsideController {
         if (rMap != null) {
             result = addChain(p, wir);
             if (result.contains("success"))
-                rMap.withdrawOffer(wir);
+                withdrawOffer(rMap, wir);
         } else
             result = "Cannot chain tasks: no resourcing parameters defined for specification.";
 
@@ -2651,7 +2655,7 @@ public class ResourceManager extends InterfaceBWebsideController {
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {
                 if (wir.getResourceStatus().equals(WorkItemRecord.statusResourceOffered)) {
-                    rMap.withdrawOffer(wir);
+                    withdrawOffer(rMap, wir);
                 }
                 for (String pid : pidList) {
                     Participant p = _orgDataSet.getParticipant(pid);

@@ -104,7 +104,7 @@ public class OrgDataRefresher {
 
     class RefreshRunnable implements Runnable {
         public void run() {
-            LogManager.getLogger(this.getClass()).info("Refresh Org Data starts");
+            LogManager.getLogger(this.getClass()).debug("--> Refresh Org Data starts");
             ResourceDataSet orgDataSet = _rm.getOrgDataSet();
             Map<String, QueueSet> qMap = saveQueueSets(orgDataSet);
             boolean authenticatesExternally = orgDataSet.isUserAuthenticationExternal();
@@ -116,7 +116,7 @@ public class OrgDataRefresher {
             orgDataSet.setExternalUserAuthentication(authenticatesExternally);
             orgDataSet.setAllowExternalOrgDataMods(allowExternalMods);
             _rm.setOrgDataRefreshing(false);
-            LogManager.getLogger(this.getClass()).info("Refresh Org Data ends");
+            LogManager.getLogger(this.getClass()).debug("Refresh Org Data ends <---");
         }
 
         Map<String, QueueSet> saveQueueSets(ResourceDataSet orgDataSet) {

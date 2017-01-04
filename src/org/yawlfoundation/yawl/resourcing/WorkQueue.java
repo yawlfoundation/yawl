@@ -219,11 +219,13 @@ public class WorkQueue {
      * Removes a workitem from the queue
      * @param item the workitem to remove
      */
-    public void remove(WorkItemRecord item) {
+    public boolean remove(WorkItemRecord item) {
+        WorkItemRecord removed = null;
         if (item != null && _workitems.containsKey(item.getID())) {
-            _workitems.remove(item.getID());
+            removed = _workitems.remove(item.getID());
             persistThis();
-        }    
+        }
+        return removed != null;
     }
 
 

@@ -180,8 +180,8 @@ public class QueueSet {
     }
 
 
-    public void removeFromQueue(WorkItemRecord wir, int queue) {
-        if (! isNullQueue(queue)) getQueue(queue).remove(wir);
+    public boolean removeFromQueue(WorkItemRecord wir, int queue) {
+        return ! isNullQueue(queue) && getQueue(queue).remove(wir);
     }
 
     public void removeFromQueue(WorkQueue queueToRemove, int queue) {
