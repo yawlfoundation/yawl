@@ -934,8 +934,8 @@ public class ResourceManager extends InterfaceBWebsideController {
 
 
     private void withdrawOffer(ResourceMap rMap, WorkItemRecord wir) {
-        if (rMap != null && isDefaultOrgDB()) {
-            rMap.withdrawOffer(wir);
+        if (rMap != null && rMap.hasOffers(wir.getID())) {
+            rMap.withdrawOffer(wir);     // rMap has record of who was offered wir
         }
         else {
             withdrawOfferFromAll(wir);   // non-default org db or beta spec

@@ -259,6 +259,12 @@ public class ResourceMap {
     }
 
 
+    public boolean hasOffers(String itemID) {
+        Set<Participant> offeredTo = getOfferedParticipants(itemID);
+        return ! (offeredTo == null || offeredTo.isEmpty());
+    }
+
+
     public boolean equals(Object other) {
         if (other instanceof ResourceMap) {
             ResourceMap otherMap = (ResourceMap) other;

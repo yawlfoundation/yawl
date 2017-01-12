@@ -1342,16 +1342,16 @@ public class EngineGatewayImpl implements EngineGateway {
         StringBuilder specs = new StringBuilder();
         for (YSpecification spec : specSet) {
             specs.append("<specificationData>");
-            specs.append(StringUtil.wrap(spec.getURI(), "uri"));
+            specs.append(StringUtil.wrapEscaped(spec.getURI(), "uri"));
 
             if (spec.getID() != null) {
                 specs.append(StringUtil.wrap(spec.getID(), "id"));
             }
             if (spec.getName() != null) {
-                specs.append(StringUtil.wrap(spec.getName(), "name"));
+                specs.append(StringUtil.wrapEscaped(spec.getName(), "name"));
             }
             if (spec.getDocumentation() != null) {
-                specs.append(StringUtil.wrap(spec.getDocumentation(), "documentation"));
+                specs.append(StringUtil.wrapEscaped(spec.getDocumentation(), "documentation"));
             }
             
             Iterator inputParams = spec.getRootNet().getInputParameters().values().iterator();
@@ -1370,12 +1370,12 @@ public class EngineGatewayImpl implements EngineGateway {
                          "status"));
             YMetaData metadata = spec.getMetaData();
             if (metadata != null) {
-                specs.append(StringUtil.wrap(metadata.getTitle(), "metaTitle"));
+                specs.append(StringUtil.wrapEscaped(metadata.getTitle(), "metaTitle"));
                 List<String> creators = metadata.getCreators();
                 if (creators != null) {
                     specs.append("<authors>");
                     for (String author : creators) {
-                        specs.append(StringUtil.wrap(author, "author"));
+                        specs.append(StringUtil.wrapEscaped(author, "author"));
                     }
                     specs.append("</authors>");
                 }
