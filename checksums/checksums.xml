@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.1</version>
-  <timestamp>2017-01-12 14.38.32</timestamp>
+  <timestamp>2017-01-13 10.35.27</timestamp>
   <lib hash="4db2d9c16aab52d6672cd8ebcf2f98e6">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T05:39:26" path="A"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T05:39:26" path="A"/>
@@ -112,11 +112,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1435</build>
+      <build>1436</build>
       <files>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2017-01-12T14:38:31" path="C"/>
-        <file name="WEB-INF/classes/version.properties" md5="eb0bd9ce8b999f09d8e347d75215fbd6" size="188" timestamp="2017-01-12T14:38:31" path="B"/>
-        <file name="WEB-INF/web.xml" md5="8d95cd1f1829090311adac50962c0aaa" size="10109" timestamp="2017-01-12T14:38:31" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2017-01-13T10:35:25" path="C"/>
+        <file name="WEB-INF/classes/version.properties" md5="811ee831ad2b109d1c3d53973bc1febf" size="188" timestamp="2017-01-13T10:35:26" path="B"/>
+        <file name="WEB-INF/web.xml" md5="8d95cd1f1829090311adac50962c0aaa" size="10109" timestamp="2017-01-13T10:35:25" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -836,7 +836,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.1.jar" md5="4be1f5336ee4b3a8a32823ae5c58b21c" size="2512314" timestamp="2017-01-12T14:38:31" path="AM"/>
+    <file name="yawl-lib-4.1.jar" md5="b2aab6bcef437ce32a0e4672cfcda9fb" size="2512370" timestamp="2017-01-13T10:35:25" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>380</build>

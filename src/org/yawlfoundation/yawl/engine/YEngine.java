@@ -1518,6 +1518,10 @@ public class YEngine implements InterfaceADesign,
             startTransaction();
             try {
                 if (workItem != null) {
+                    if (! workItem.getCaseID().hasParent()) {
+                        throw new YStateException("WorkItem with ID [" + workItem.getIDString() +
+                                "] is a 'parent' and so may not be completed.");
+                    }
                     YNetRunner netRunner = getNetRunner(workItem.getCaseID().getParent());
                     if (workItem.getStatus().equals(YWorkItemStatus.statusExecuting)) {
                         completeExecutingWorkitem(workItem, netRunner, data,
