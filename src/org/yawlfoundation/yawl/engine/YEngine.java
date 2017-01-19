@@ -44,7 +44,6 @@ import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.logging.YLogPredicate;
-import org.yawlfoundation.yawl.logging.table.YAuditEvent;
 import org.yawlfoundation.yawl.schema.XSDType;
 import org.yawlfoundation.yawl.schema.YDataValidator;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
@@ -2131,8 +2130,8 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    private void doPersistAction(Object obj, int action) throws YPersistenceException {
-        if (isPersisting() && (_pmgr != null)) {
+    private synchronized void doPersistAction(Object obj, int action) throws YPersistenceException {
+        if (isPersisting() && _pmgr != null) {
             synchronized(_pmgr) {
                 boolean isLocalTransaction = startTransaction();
                 switch (action) {
@@ -2217,17 +2216,6 @@ public class YEngine implements InterfaceADesign,
                 _pmgr.deleteObject(item);
         }
     }
-
-
-    public void writeAudit(YAuditEvent event) {
-        try {
-            storeObject(event);
-        }
-        catch (YPersistenceException ype) {
-            LogManager.getLogger(YEngine.class).warn("Unable to write audit event to log.");
-        }
-    }
-
 
 
     /** sets the URI passed as an listener for exception events */

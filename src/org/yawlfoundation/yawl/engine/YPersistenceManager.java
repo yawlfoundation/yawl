@@ -63,7 +63,7 @@ public class YPersistenceManager {
             YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class,
             YLogSpecification.class, YLogNet.class, YLogTask.class, YLogNetInstance.class,
             YLogTaskInstance.class, YLogEvent.class, YLogDataItemInstance.class,
-            YLogDataType.class, YLogService.class, YAuditEvent.class
+            YLogDataType.class, YLogService.class
     };
 
     private static final boolean INSERT = false;

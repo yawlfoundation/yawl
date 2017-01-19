@@ -194,7 +194,7 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
             }
         }
         catch (Exception e) {
-            logger.error("Exception in Interface B with action: " + action, e);
+            logger.error("Exception in Interface A with action: " + action, e);
         }
         if (msg.length() == 0) {
             msg.append("<failure><reason>Invalid action or exception was thrown." +

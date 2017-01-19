@@ -21,12 +21,14 @@ package org.yawlfoundation.yawl.authentication;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.logging.table.YAuditEvent;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 
-import java.util.Timer;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * An extended Hashtable that manages connections to the engine from custom services
+ * An extended HashMap that manages connections to the engine from custom services
  * and external applications.
  * <p/>
  * The map is of the form [sessionHandle, session].
@@ -40,10 +42,12 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession>
                            implements ISessionCache {
 
     private YSessionTimer _timer;
+    private HibernateEngine _db;                         // writes audit log
 
     public YSessionCache() {
         super();
         _timer = new YSessionTimer(this);
+        initDb();
     }
 
     /******************************************************************************/
@@ -252,7 +256,7 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession>
 
 
     private void audit(String username, YAuditEvent.Action action) {
-        YEngine.getInstance().writeAudit(new YAuditEvent(username, action));
+        _db.exec(new YAuditEvent(username, action), HibernateEngine.DB_INSERT, true);
     }
 
 
@@ -265,6 +269,13 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession>
     private String unknownUser(String username) {
         audit(username, YAuditEvent.Action.unknown);        
         return failMsg("Unknown service or client: " + username);
+    }
+
+
+    private void initDb() {
+        Set<Class> classSet = new HashSet<Class>();
+        classSet.add(YAuditEvent.class);
+        _db = new HibernateEngine(true, classSet);
     }
 
 }

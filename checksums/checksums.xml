@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.1</version>
-  <timestamp>2017-01-13 10.35.27</timestamp>
+  <timestamp>2017-01-19 18.27.21</timestamp>
   <lib hash="4db2d9c16aab52d6672cd8ebcf2f98e6">
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T05:39:26" path="A"/>
     <file name="antlr-2.7.7.jar" md5="f8f1352c52a4c6a500b597596501fc64" size="445288" timestamp="2015-08-12T05:39:26" path="A"/>
@@ -112,11 +112,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1436</build>
+      <build>1442</build>
       <files>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2017-01-13T10:35:25" path="C"/>
-        <file name="WEB-INF/classes/version.properties" md5="811ee831ad2b109d1c3d53973bc1febf" size="188" timestamp="2017-01-13T10:35:26" path="B"/>
-        <file name="WEB-INF/web.xml" md5="8d95cd1f1829090311adac50962c0aaa" size="10109" timestamp="2017-01-13T10:35:25" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2017-01-19T18:27:20" path="C"/>
+        <file name="WEB-INF/classes/version.properties" md5="c4d32778233bdbd1c398b04b19ff31b0" size="188" timestamp="2017-01-19T18:27:20" path="B"/>
+        <file name="WEB-INF/web.xml" md5="8d95cd1f1829090311adac50962c0aaa" size="10109" timestamp="2017-01-19T18:27:20" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -489,13 +489,13 @@
       </lib>
     </monitorService>
     <costService>
-      <build>184</build>
+      <build>188</build>
       <files>
-        <file name="WEB-INF/web.xml" md5="7404ebecadd8472e828fced609644fec" size="4509" timestamp="2016-12-06T16:53:48" path="X"/>
-        <file name="xsd/cost.xesext" md5="3a3a60471fe05b06fe7407967b0e086e" size="1264" timestamp="2016-12-06T16:53:48" path="Y"/>
-        <file name="xsd/costinput.xsd" md5="661e97f9a3811fd46c239ae48830f9a4" size="6260" timestamp="2016-12-06T16:53:48" path="Y"/>
-        <file name="xsd/costmodel.xsd" md5="371b3352878a8b76652dae312dad7c1e" size="2260" timestamp="2016-12-06T16:53:48" path="Y"/>
-        <file name="xsd/costprocess.xsd" md5="b3ac555c74063f5b0a3d9cbb800b9e2f" size="1296" timestamp="2016-12-06T16:53:48" path="Y"/>
+        <file name="WEB-INF/web.xml" md5="7404ebecadd8472e828fced609644fec" size="4509" timestamp="2017-01-19T18:06:47" path="X"/>
+        <file name="xsd/cost.xesext" md5="3a3a60471fe05b06fe7407967b0e086e" size="1264" timestamp="2017-01-19T18:06:47" path="Y"/>
+        <file name="xsd/costinput.xsd" md5="661e97f9a3811fd46c239ae48830f9a4" size="6260" timestamp="2017-01-19T18:06:47" path="Y"/>
+        <file name="xsd/costmodel.xsd" md5="371b3352878a8b76652dae312dad7c1e" size="2260" timestamp="2017-01-19T18:06:47" path="Y"/>
+        <file name="xsd/costprocess.xsd" md5="b3ac555c74063f5b0a3d9cbb800b9e2f" size="1296" timestamp="2017-01-19T18:06:47" path="Y"/>
       </files>
       <lib>
         <file name="jdom-2.0.5.jar"/>
@@ -836,7 +836,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.1.jar" md5="b2aab6bcef437ce32a0e4672cfcda9fb" size="2512370" timestamp="2017-01-13T10:35:25" path="AM"/>
+    <file name="yawl-lib-4.1.jar" md5="5eeed1711ee57c9d8d5333ce67da788a" size="2512431" timestamp="2017-01-19T18:27:20" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>380</build>

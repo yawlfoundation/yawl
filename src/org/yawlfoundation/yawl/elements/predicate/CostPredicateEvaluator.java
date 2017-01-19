@@ -91,6 +91,9 @@ public class CostPredicateEvaluator implements PredicateEvaluator {
                             YIdentifier token) {
         try {
             connect();
+//            if (! checkHandle()) {
+//                throw new IOException(_handle);
+//            }
             return String.valueOf(getClient().calculate(
                     decomposition.getSpecification().getSpecificationID(),
                     token.getId(), expression, _handle));
