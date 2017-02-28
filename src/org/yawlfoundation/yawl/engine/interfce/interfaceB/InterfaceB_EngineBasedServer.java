@@ -281,6 +281,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     URI completionObserver = getCompletionObserver(request);
                     String caseParams = request.getParameter("caseParams");
                     String logDataStr = request.getParameter("logData");
+                    String caseID = request.getParameter("caseid");
                     String mSecStr = request.getParameter("mSec");
                     String startStr = request.getParameter("start");
                     String waitStr = request.getParameter("wait");
@@ -299,6 +300,10 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                         msg.append(_engine.launchCase(specID, caseParams,
                                    completionObserver, logDataStr,
                                    StringUtil.strToDuration(waitStr), sessionHandle));
+                    }
+                    else if (caseID != null) {
+                        msg.append(_engine.launchCase(specID, caseParams,
+                                completionObserver, caseID, logDataStr, sessionHandle));
                     }
                     else msg.append(_engine.launchCase(specID, caseParams,
                                     completionObserver, logDataStr, sessionHandle));

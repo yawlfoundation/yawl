@@ -565,4 +565,14 @@ public class WorkQueueGatewayClientAdapter {
                 handle);
     }
 
+
+    public boolean addResourceEventListener(String uri, String handle) throws IOException {
+        return successful(_wqclient.addResourceEventListener(uri, handle));
+    }
+
+
+    public boolean removeResourceEventListener(String uri, String handle) throws IOException {
+        return successful(_wqclient.removeResourceEventListener(uri, handle));
+    }
+
 }

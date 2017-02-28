@@ -23,9 +23,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
+import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +43,9 @@ public class EventLogger {
 
     private static boolean _loggingEnabled = false;
     private static boolean _logOffers = false;
-    private static Persister _persister = Persister.getInstance();
+    private static ResourceGatewayServer _eventServer;
     private static Map<String, Object> _specMap;
+    private static Set<ResourceEventListener> _listeners;
 
     private static final ExecutorService _executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors());
@@ -63,6 +67,20 @@ public class EventLogger {
 
     public static void setOfferLogging(boolean flag) { _logOffers = flag ; }
 
+    public static void setEventServer(ResourceGatewayServer server) {
+        _eventServer = server;
+    }
+
+
+    public static void addListener(ResourceEventListener listener) {
+        if (_listeners == null) _listeners = new HashSet<ResourceEventListener>();
+        _listeners.add(listener);
+    }
+
+    public static void removeListener(ResourceEventListener listener) {
+        _listeners.remove(listener);
+    }
+    
 
     public static List<Runnable> shutdown() {
         List<Runnable> x = _executor.shutdownNow();
@@ -136,21 +154,35 @@ public class EventLogger {
     private static void insertEvent(long specKey, String caseID, String pid, event eType) {
         ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
         insertEvent(resEvent);
+        announceEvent(resEvent);
     }
 
 
     private static void insertEvent(long specKey, WorkItemRecord wir, String pid, event eType) {
         ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
         insertEvent(resEvent);
+        announceEvent(resEvent);
     }
 
 
     private static void insertEvent(final Object event) {
         _executor.execute(new Runnable() {
             public void run() {
-                _persister.insert(event);
+                Persister.getInstance().insert(event);
             }
         });
+    }
+
+
+    private static void announceEvent(ResourceEvent event) {
+        if (_eventServer != null) {
+            _eventServer.announceResourceEvent(event);
+        }
+        if (_listeners != null) {
+            for (ResourceEventListener listener : _listeners) {
+                listener.eventOccurred(event);
+            }
+        }
     }
 
 
@@ -162,12 +194,12 @@ public class EventLogger {
      */
     public static long getSpecificationKey(YSpecificationID ySpecID) {
         if (ySpecID == null) return -1;
-        if (_specMap == null) _specMap = _persister.selectMap("SpecLog");
+        if (_specMap == null) _specMap = Persister.getInstance().selectMap("SpecLog");
         String key = ySpecID.getKey() + ySpecID.getVersionAsString();
         long result = getSpecificationKey(key);
         if (result < 0) {
             SpecLog specEntry = new SpecLog(ySpecID);
-            _persister.insert(specEntry);
+            Persister.getInstance().insert(specEntry);
             _specMap.put(key, specEntry);
             result = specEntry.getLogID();
         }

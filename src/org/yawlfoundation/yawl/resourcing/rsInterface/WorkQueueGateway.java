@@ -318,6 +318,15 @@ public class WorkQueueGateway extends HttpServlet {
             String serviceName = req.getParameter("serviceName");
             result = _rm.redirectWorkItemToYawlService(itemid, serviceName);
         }
+        else if (action.equals("addResourceEventListener")) {
+            String uri = req.getParameter("uri");
+            result = _rm.addEventListener(uri);
+        }
+        else if (action.equals("removeResourceEventListener")) {
+            String uri = req.getParameter("uri");
+            _rm.removeEventListener(uri);
+            result = success;
+        }
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 

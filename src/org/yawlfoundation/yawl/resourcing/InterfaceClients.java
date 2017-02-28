@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_Environment
 import org.yawlfoundation.yawl.engine.interfce.interfaceE.YLogGatewayClient;
 import org.yawlfoundation.yawl.resourcing.client.CostClient;
 import org.yawlfoundation.yawl.resourcing.client.DocStoreClient;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.resource.AbstractResource;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
 import org.yawlfoundation.yawl.util.AbstractEngineClient;
@@ -62,6 +63,7 @@ public class InterfaceClients extends AbstractEngineClient {
     protected InterfaceClients(String logonName, String password) {
         super(logonName, password, DEF_URI, SERVICE_NAME);
         _gatewayServer = new ResourceGatewayServer();
+        EventLogger.setEventServer(_gatewayServer);
     }
 
 
@@ -153,6 +155,16 @@ public class InterfaceClients extends AbstractEngineClient {
 
     public void removeCalendarStatusChangeListeners(String userID) {
         if (userID != null) _gatewayServer.removeSchedulingInterfaceListeners(userID);
+    }
+
+
+    public String addEventListener(String uri) {
+        return _gatewayServer.addEventListener(uri);
+    }
+
+
+    public boolean removeEventListener(String uri) {
+        return _gatewayServer.removeEventListener(uri);
     }
 
 

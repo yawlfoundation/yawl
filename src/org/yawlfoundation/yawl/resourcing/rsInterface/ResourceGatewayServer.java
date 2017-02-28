@@ -18,13 +18,18 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.apache.logging.log4j.LogManager;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
 import org.yawlfoundation.yawl.resourcing.util.TaggedStringList;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Author: Michael Adams
@@ -36,14 +41,17 @@ public class ResourceGatewayServer extends Interface_Client {
     protected static final int NOTIFY_RESOURCE_UNAVAILABLE = 4;
 
     public static final int NOTIFY_UTILISATION_STATUS_CHANGE = 0;
+    public static final int NOTIFY_RESOURCE_EVENT = 1;
 
 
     private String _ixURI ;      // the uri to Interface X Service (exception handling)
     private String _isURI ;      // the uri to Interface S Service (resource scheduling)
     private Map<String, TaggedStringList> _isListeners;
+    private Set<String> _eventListeners;
 
     public ResourceGatewayServer() {
-        _isListeners = new Hashtable<String, TaggedStringList>();
+        _isListeners = new HashMap<String, TaggedStringList>();
+        _eventListeners = new HashSet<String>();
     }
 
 
@@ -90,6 +98,20 @@ public class ResourceGatewayServer extends Interface_Client {
     public void removeSchedulingInterfaceListeners(String logonID) {
         _isListeners.remove(logonID);
     }
+
+
+    public String addEventListener(String uri) {
+        String msg = HttpURLValidator.validate(uri);
+        if (successful(msg)) {
+            _eventListeners.add(uri);
+        }
+        return msg;
+    }
+
+
+    public boolean removeEventListener(String uri) {
+        return _eventListeners.remove(uri);
+    }
  
 
     public void announceResourceUnavailable(String resourceID, WorkItemRecord wir,
@@ -112,6 +134,21 @@ public class ResourceGatewayServer extends Interface_Client {
             params.put("xml", xml);
             for (String listener : getSchedulingInterfaceListeners(origOwner)) {
                 executePost(listener, params);
+            }
+        }
+    }
+
+
+    public void announceResourceEvent(ResourceEvent event) {
+        for (String listener : _eventListeners) {
+            Map<String, String> params = prepareParams(NOTIFY_RESOURCE_EVENT);
+            params.put("event", event.toXML());
+            try {
+                executePost(listener, params);
+            }
+            catch (IOException ioe) {
+                LogManager.getLogger(this.getClass()).warn(
+                        "Failed to announce event to listener: {}", listener);
             }
         }
     }

@@ -160,7 +160,7 @@ public interface ObserverGateway {
      * @param id the identifier of the deadlocked case
      * @param tasks the set of deadlocked tasks
      */
-    public void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
+    void announceDeadlock(Set<YAWLServiceReference> services, YIdentifier id,
                                Set<YTask> tasks);
 
 

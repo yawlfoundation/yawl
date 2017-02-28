@@ -44,6 +44,7 @@ import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.TestEventListener;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
@@ -82,7 +83,7 @@ import java.util.List;
  * @date 03/08/2007
  */
 
-public class ResourceManager extends InterfaceBWebsideController {
+public final class ResourceManager extends InterfaceBWebsideController {
 
     // a cache of misc. runtime items
     private RuntimeCache _cache = new RuntimeCache();
@@ -133,6 +134,7 @@ public class ResourceManager extends InterfaceBWebsideController {
     // Mappings for specid -> version -> taskid <-> resourceMap
     private ResourceMapCache _resMapCache = new ResourceMapCache();
 
+    private TestEventListener l = new TestEventListener();
 
     // Constructor - called exclusively by getInstance()
     private ResourceManager() {
@@ -311,6 +313,14 @@ public class ResourceManager extends InterfaceBWebsideController {
 
     public void removeCalendarStatusChangeListeners(String handle) {
         _services.removeCalendarStatusChangeListeners(getUserIDForSessionHandle(handle));
+    }
+
+    public String addEventListener(String uri) {
+        return _services.addEventListener(uri);
+    }
+
+    public boolean removeEventListener(String uri) {
+        return _services.removeEventListener(uri);
     }
 
 

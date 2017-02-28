@@ -712,6 +712,31 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
                 sessionHandle, logData, completionObserverURI);
         return executePost(_backEndURIStr, params);
     }
+
+
+    /**
+     * Override of launchCase to provide a pre-selected (unique) case identifier
+     * @param specID the specification id
+     * @param caseParams the case params in XML.
+     * @param caseID the pre-selected case identifier
+     * @param logData a list of log data items for logging when the case starts
+     *                (can be null)
+     * @param sessionHandle the session handle
+     * @param completionObserverURI the URI of the IB service that will listen
+     *        for a case-completed event
+     * @return returns a diagnostic message in case of failure
+     * @throws IOException if engine can't be found
+     */
+    public String launchCase(YSpecificationID specID, String caseParams,
+                             String sessionHandle, String caseID,
+                             YLogDataItemList logData, String completionObserverURI)
+            throws IOException {
+        Map<String, String> params = buildLaunchCaseParamMap(specID, caseParams,
+                sessionHandle, logData, completionObserverURI);
+        params.put("caseid", caseID);
+        return executePost(_backEndURIStr, params);
+    }
+
     
     
     /**

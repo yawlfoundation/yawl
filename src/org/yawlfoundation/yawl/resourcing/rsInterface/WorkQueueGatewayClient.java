@@ -622,4 +622,17 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String addResourceEventListener(String uri, String handle) throws IOException {
+        params.clear();
+        params.put("uri", uri);
+        return performPost("addResourceEventListener", params, handle);
+    }
+
+
+    public String removeResourceEventListener(String uri, String handle) throws IOException {
+        params.clear();
+        params.put("uri", uri);
+        return performPost("removeResourceEventListener", params, handle);
+    }
+
 }
