@@ -44,7 +44,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.WorkItemCache;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
-import org.yawlfoundation.yawl.resourcing.datastore.eventlog.TestEventListener;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.EmptyDataSource;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
@@ -134,7 +133,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
     // Mappings for specid -> version -> taskid <-> resourceMap
     private ResourceMapCache _resMapCache = new ResourceMapCache();
 
-    private TestEventListener l = new TestEventListener();
+//    private TestEventListener l = new TestEventListener();
 
     // Constructor - called exclusively by getInstance()
     private ResourceManager() {

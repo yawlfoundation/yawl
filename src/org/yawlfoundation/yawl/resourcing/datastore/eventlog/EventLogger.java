@@ -175,12 +175,15 @@ public class EventLogger {
 
 
     private static void announceEvent(ResourceEvent event) {
+        SpecLog specLog = (SpecLog) Persister.getInstance().get(
+                SpecLog.class, event.get_specKey());
+        YSpecificationID specID = specLog != null ? specLog.getSpecID() : null;
         if (_eventServer != null) {
             _eventServer.announceResourceEvent(event);
         }
         if (_listeners != null) {
             for (ResourceEventListener listener : _listeners) {
-                listener.eventOccurred(event);
+                listener.eventOccurred(specID, event);
             }
         }
     }
