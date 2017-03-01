@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.apache.logging.log4j.LogManager;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEvent;
@@ -139,9 +140,10 @@ public class ResourceGatewayServer extends Interface_Client {
     }
 
 
-    public void announceResourceEvent(ResourceEvent event) {
+    public void announceResourceEvent(YSpecificationID specID, ResourceEvent event) {
         for (String listener : _eventListeners) {
             Map<String, String> params = prepareParams(NOTIFY_RESOURCE_EVENT);
+            params.putAll(specID.toMap());
             params.put("event", event.toXML());
             try {
                 executePost(listener, params);

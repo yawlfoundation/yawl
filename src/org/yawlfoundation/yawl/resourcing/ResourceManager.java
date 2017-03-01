@@ -133,8 +133,6 @@ public final class ResourceManager extends InterfaceBWebsideController {
     // Mappings for specid -> version -> taskid <-> resourceMap
     private ResourceMapCache _resMapCache = new ResourceMapCache();
 
-//    private TestEventListener l = new TestEventListener();
-
     // Constructor - called exclusively by getInstance()
     private ResourceManager() {
         super();

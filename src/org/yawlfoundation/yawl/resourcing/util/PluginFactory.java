@@ -4,6 +4,7 @@ import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.resourcing.allocators.AbstractAllocator;
 import org.yawlfoundation.yawl.resourcing.codelets.AbstractCodelet;
 import org.yawlfoundation.yawl.resourcing.constraints.AbstractConstraint;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.ResourceEventListener;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataSource;
 import org.yawlfoundation.yawl.resourcing.filters.AbstractFilter;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.AbstractDynAttribute;
@@ -54,6 +55,10 @@ public class PluginFactory {
 
     public static Set<AbstractDynAttribute> getDynAttributes() {
         return _loader.toInstanceSet(_loader.load(AbstractDynAttribute.class).values());
+    }
+
+    public static Set<ResourceEventListener> getEventListeners() {
+        return _loader.toInstanceSet(_loader.load(ResourceEventListener.class).values());
     }
 
 

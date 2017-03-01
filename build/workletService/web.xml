@@ -192,9 +192,7 @@
         <url-pattern>/error</url-pattern>
     </servlet-mapping>
 
-
-    <!-- this servlet provides a gateway from the .NET rdrEditor -->
-
+    
     <servlet>
         <servlet-name>wsGateway</servlet-name>
         <description>

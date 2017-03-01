@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
+import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +59,11 @@ public class EventLogger {
 
     public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
+
+
+    static {
+        _listeners = PluginFactory.getEventListeners();
+    }
 
 
     public EventLogger() { }
@@ -96,7 +102,7 @@ public class EventLogger {
 
     public static void log(WorkItemRecord wir, String pid, event eType) {
         if (_loggingEnabled) {
-            insertEvent(getSpecificationKey(wir), wir, pid, eType);
+            insertEvent(wir, pid, eType);
         }
     }
 
@@ -121,7 +127,7 @@ public class EventLogger {
 
     public static void log(YSpecificationID specID, String caseID, String id, event eType) {
         if (_loggingEnabled) {
-            insertEvent(getSpecificationKey(specID), caseID, id, eType);
+            insertEvent(specID, caseID, id, eType);
         }
     }
 
@@ -151,17 +157,21 @@ public class EventLogger {
     }
 
 
-    private static void insertEvent(long specKey, String caseID, String pid, event eType) {
+    private static void insertEvent(YSpecificationID specID, String caseID,
+                                    String pid, event eType) {
+        long specKey = getSpecificationKey(specID);
         ResourceEvent resEvent = new ResourceEvent(specKey, caseID, pid, eType);
         insertEvent(resEvent);
-        announceEvent(resEvent);
+        announceEvent(specID, resEvent);
     }
 
 
-    private static void insertEvent(long specKey, WorkItemRecord wir, String pid, event eType) {
+    private static void insertEvent(WorkItemRecord wir, String pid, event eType) {
+        YSpecificationID specID = new YSpecificationID(wir);
+        long specKey = getSpecificationKey(specID);
         ResourceEvent resEvent = new ResourceEvent(specKey, wir, pid, eType);
         insertEvent(resEvent);
-        announceEvent(resEvent);
+        announceEvent(specID, resEvent);
     }
 
 
@@ -174,12 +184,9 @@ public class EventLogger {
     }
 
 
-    private static void announceEvent(ResourceEvent event) {
-        SpecLog specLog = (SpecLog) Persister.getInstance().get(
-                SpecLog.class, event.get_specKey());
-        YSpecificationID specID = specLog != null ? specLog.getSpecID() : null;
+    private static void announceEvent(YSpecificationID specID, ResourceEvent event) {
         if (_eventServer != null) {
-            _eventServer.announceResourceEvent(event);
+            _eventServer.announceResourceEvent(specID, event);
         }
         if (_listeners != null) {
             for (ResourceEventListener listener : _listeners) {
@@ -192,30 +199,37 @@ public class EventLogger {
     /**
      * Gets the primary key for a specification record, or inserts a new entry if it
      * doesn't exist and returns its key.
-     * @param ySpecID the identifiers of the specification
+     * @param specID the identifiers of the specification
      * @return the primary key for the specification
      */
-    public static long getSpecificationKey(YSpecificationID ySpecID) {
-        if (ySpecID == null) return -1;
-        if (_specMap == null) _specMap = Persister.getInstance().selectMap("SpecLog");
-        String key = ySpecID.getKey() + ySpecID.getVersionAsString();
-        long result = getSpecificationKey(key);
+    public static long getSpecificationKey(YSpecificationID specID) {
+        if (specID == null) return -1;
+        long result = getSpecificationKey(specID.toKeyString());
         if (result < 0) {
-            SpecLog specEntry = new SpecLog(ySpecID);
-            Persister.getInstance().insert(specEntry);
-            _specMap.put(key, specEntry);
-            result = specEntry.getLogID();
+            result = addToSpecMap(specID);
         }
         return result;
     }
 
-    private static long getSpecificationKey(WorkItemRecord wir) {
-        return getSpecificationKey(new YSpecificationID(wir));
+
+    private static Map<String, Object> getSpecMap() {
+        if (_specMap == null) {
+            _specMap = Persister.getInstance().selectMap("SpecLog");
+        }
+        return _specMap;
     }
 
-    // pre: specMap != null
+
+    private static long addToSpecMap(YSpecificationID specID) {
+        SpecLog specEntry = new SpecLog(specID);
+        Persister.getInstance().insert(specEntry);
+        getSpecMap().put(specID.toKeyString(), specEntry);
+        return specEntry.getLogID();
+    }
+
+
     private static long getSpecificationKey(String key) {
-        SpecLog specEntry = (SpecLog) _specMap.get(key);
+        SpecLog specEntry = (SpecLog) getSpecMap().get(key);
         return (specEntry != null) ? specEntry.getLogID() : -1;
     }
 
