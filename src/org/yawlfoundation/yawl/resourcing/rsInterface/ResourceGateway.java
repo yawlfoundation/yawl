@@ -75,6 +75,9 @@ public class ResourceGateway extends YHttpServlet {
                 String pluginPath = context.getInitParameter("ExternalPluginsPath");
                 PluginFactory.setExternalPaths(pluginPath);
 
+                // load any plugin event listeners
+                EventLogger.addListeners(PluginFactory.getEventListeners());
+
                 // enable/or disable persistence
                 _rm.setPersisting(getBooleanFromContext("EnablePersistence", true));
                 if (_rm.isPersisting()) {

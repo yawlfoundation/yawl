@@ -24,7 +24,6 @@ import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.WorkQueue;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.rsInterface.ResourceGatewayServer;
-import org.yawlfoundation.yawl.resourcing.util.PluginFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -61,10 +60,6 @@ public class EventLogger {
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
 
 
-    static {
-        _listeners = PluginFactory.getEventListeners();
-    }
-
 
     public EventLogger() { }
 
@@ -77,16 +72,20 @@ public class EventLogger {
         _eventServer = server;
     }
 
+    public static void addListeners(Set<ResourceEventListener> listeners) {
+        getListeners().addAll(listeners);
+    }
+
 
     public static void addListener(ResourceEventListener listener) {
-        if (_listeners == null) _listeners = new HashSet<ResourceEventListener>();
-        _listeners.add(listener);
+        getListeners().add(listener);
     }
 
     public static void removeListener(ResourceEventListener listener) {
-        _listeners.remove(listener);
+        getListeners().remove(listener);
     }
-    
+
+
 
     public static List<Runnable> shutdown() {
         List<Runnable> x = _executor.shutdownNow();
@@ -188,10 +187,8 @@ public class EventLogger {
         if (_eventServer != null) {
             _eventServer.announceResourceEvent(specID, event);
         }
-        if (_listeners != null) {
-            for (ResourceEventListener listener : _listeners) {
-                listener.eventOccurred(specID, event);
-            }
+        for (ResourceEventListener listener : getListeners()) {
+            listener.eventOccurred(specID, event);
         }
     }
 
@@ -254,5 +251,10 @@ public class EventLogger {
         }
     }
 
+
+    private static Set<ResourceEventListener> getListeners() {
+        if (_listeners == null) _listeners = new HashSet<ResourceEventListener>();
+        return _listeners;
+    }
 
 }
