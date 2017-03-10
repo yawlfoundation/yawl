@@ -35,7 +35,6 @@ import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.logging.table.*;
 import org.yawlfoundation.yawl.util.HibernateStatistics;
 
 import java.util.Iterator;
@@ -60,10 +59,7 @@ public class YPersistenceManager {
     private static Class[] persistedClasses = {
             YSpecification.class, YNetRunner.class, YWorkItem.class, YIdentifier.class,
             YNetData.class, YAWLServiceReference.class, YExternalClient.class,
-            YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class,
-            YLogSpecification.class, YLogNet.class, YLogTask.class, YLogNetInstance.class,
-            YLogTaskInstance.class, YLogEvent.class, YLogDataItemInstance.class,
-            YLogDataType.class, YLogService.class
+            YWorkItemTimer.class, YLaunchDelayer.class, YCaseNbrStore.class, Problem.class
     };
 
     private static final boolean INSERT = false;

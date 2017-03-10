@@ -783,7 +783,7 @@ public class YEngine implements InterfaceADesign,
                 logData.add(new YLogDataItem("Predicate", "OnLaunch", predicate, "string"));
             }
         }
-        _yawllog.logCaseCreated(_pmgr, specID, caseID, logData, serviceRef);
+        _yawllog.logCaseCreated(specID, caseID, logData, serviceRef);
 
         // cache instance
         _instanceCache.addCase(caseID.toString(), specID, caseParams,
@@ -833,9 +833,9 @@ public class YEngine implements InterfaceADesign,
             removeCaseFromCaches(caseID);
             if (runner != null) runner.cancel(_pmgr);
             clearCaseFromPersistence(caseID);
-            _yawllog.logCaseCancelled(_pmgr, caseID, null, serviceHandle);
+            _yawllog.logCaseCancelled(caseID, null, serviceHandle);
             for (YWorkItem item : removedItems) {
-                _yawllog.logWorkItemEvent(_pmgr, item,
+                _yawllog.logWorkItemEvent(item,
                         YWorkItemStatus.statusCancelledByCase, null);
             }
             commitTransaction();
@@ -1563,7 +1563,7 @@ public class YEngine implements InterfaceADesign,
         announceIfTimeServiceTimeout(netRunner, workItem);
         workItem.setStatusToComplete(_pmgr, completionType);
         Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
-        workItem.completeData(_pmgr, doc);
+        workItem.completeData(doc);
         if (netRunner.completeWorkItemInTask(_pmgr, workItem, doc)) {
             cleanupCompletedWorkItem(workItem, netRunner, doc);
 

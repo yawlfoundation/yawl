@@ -109,7 +109,7 @@ public class YWorkItem {
         _task = task;
         if (task != null) _documentation = task.getDocumentationPreParsed(); 
         _enablementTime = new Date();
-        _eventLog.logWorkItemEvent(pmgr, this, _status, null);
+        _eventLog.logWorkItemEvent(this, _status, null);
         if ((pmgr != null) && (! isDeadlocked)) pmgr.storeObject(this);
     }
 
@@ -127,7 +127,7 @@ public class YWorkItem {
         _enablementTime = workItemCreationTime;
         _firingTime = new Date();
         _parent = parent;
-        _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList("fired"));
+        _eventLog.logWorkItemEvent(this, _status, createLogDataList("fired"));
         if (pmgr != null) pmgr.storeObject(this);
     }
 
@@ -193,7 +193,7 @@ public class YWorkItem {
 
     private void logAndUnpersist(YPersistenceManager pmgr, YWorkItem item)
             throws YPersistenceException {
-        _eventLog.logWorkItemEvent(pmgr, item, _status, createLogDataList(_status.name()));
+        _eventLog.logWorkItemEvent(item, _status, createLogDataList(_status.name()));
         if (pmgr != null) pmgr.deleteObject(item);
     }
 
@@ -252,7 +252,7 @@ public class YWorkItem {
             // if this parent has no children yet, create the set and log it
             if (_children == null) {
                 _children = new HashSet<YWorkItem>();
-                _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList("createChild"));
+                _eventLog.logWorkItemEvent(this, _status, createLogDataList("createChild"));
             }
 
             YWorkItem childItem = new YWorkItem(pmgr,
@@ -288,14 +288,14 @@ public class YWorkItem {
         if (pmgr != null) pmgr.updateObject(this);
 
         YLogDataItemList logData = assembleLogDataItemList(data, true);
-        _eventLog.logDataEvent(pmgr, this, "DataValueChange", logData);
+        _eventLog.logDataEvent(this, "DataValueChange", logData);
     }
 
 
     /** write output data values to event log */
-    public void completeData(YPersistenceManager pmgr, Document output) {
+    public void completeData(Document output) {
         YLogDataItemList logData = assembleLogDataItemList(output.getRootElement(), false);
-        _eventLog.logDataEvent(pmgr, this, "DataValueChange", logData);
+        _eventLog.logDataEvent(this, "DataValueChange", logData);
     }
 
 
@@ -383,7 +383,7 @@ public class YWorkItem {
     private void deleteWorkItem(YPersistenceManager pmgr, YWorkItem item)
             throws YPersistenceException {
         pmgr.deleteObject(item);
-        _eventLog.logWorkItemEvent(pmgr, item, YWorkItemStatus.statusDeleted,
+        _eventLog.logWorkItemEvent(item, YWorkItemStatus.statusDeleted,
                 createLogDataList(YWorkItemStatus.statusDeleted.name()));
         _engine.getAnnouncer().announceCancelledWorkItem(item);
     }
@@ -529,7 +529,7 @@ public class YWorkItem {
         _externalClient = client;
         if (! _timerStarted) checkStartTimer(pmgr, null) ;
         if (pmgr != null) pmgr.updateObject(this);
-        _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList(_status.name()));
+        _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
     }
 
 
@@ -557,10 +557,10 @@ public class YWorkItem {
      * announces and logs that this workitem has been discarded - ie. left in the net when
      * the net completed
      */
-    public void setStatusToDiscarded(YPersistenceManager pmgr) {
+    public void setStatusToDiscarded() {
         try {
             set_status(null, statusDiscarded);
-            _eventLog.logWorkItemEvent(pmgr, this, _status, null);
+            _eventLog.logWorkItemEvent(this, _status, null);
         }
         catch (YPersistenceException ype) {
             // no action required
@@ -576,7 +576,7 @@ public class YWorkItem {
         }
 
         set_status(pmgr, statusFired);
-        _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList(_status.name()));
+        _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
         _startTime = null;
         _externalClient = null;
         if (pmgr != null) pmgr.updateObject(this);
@@ -588,7 +588,7 @@ public class YWorkItem {
         if (hasLiveStatus()) {
             _prevStatus = _status ;
             set_status(pmgr, statusSuspended);
-            _eventLog.logWorkItemEvent(pmgr, this, _status, createLogDataList(_status.name()));
+            _eventLog.logWorkItemEvent(this, _status, createLogDataList(_status.name()));
         }
         else throw new RuntimeException(this + " [when current status is \""
                                 + _status + "\" it cannot be moved to \"Suspended\".]");
@@ -599,7 +599,7 @@ public class YWorkItem {
             throws YPersistenceException {
         set_status(pmgr, _prevStatus);
         _prevStatus = null ;
-        _eventLog.logWorkItemEvent(pmgr, this, "resume", createLogDataList("resume"));
+        _eventLog.logWorkItemEvent(this, "resume", createLogDataList("resume"));
     }
 
 

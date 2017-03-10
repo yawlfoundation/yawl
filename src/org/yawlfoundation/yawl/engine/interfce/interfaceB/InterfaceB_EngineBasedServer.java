@@ -205,6 +205,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if ("HEAD".equals(request.getMethod())) return;
         doPost(request, response);                 // redirect all GETs to POSTs
     }
 
@@ -246,7 +247,8 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         String specVersion = request.getParameter("specversion");
         String specURI = request.getParameter("specuri");
         String taskID = request.getParameter("taskID");
-
+//        long start = System.currentTimeMillis();
+        
         try {
             debug(request, "Post");
 
@@ -447,6 +449,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             _log.error("Remote Exception in Interface B with action: " + action, e);
         }
         _log.debug("InterfaceB_EngineBasedServer::doPost() result = {}", msg);
+//        System.out.println("*Elapsed: " + action + ", " + (System.currentTimeMillis() - start));
         return msg.toString();
     }
 

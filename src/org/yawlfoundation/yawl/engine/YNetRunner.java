@@ -309,7 +309,7 @@ public class YNetRunner {
             // if root net can't continue it means a case completion
             if ((_engine != null) && isRootNet()) {
                 announceCaseCompletion();
-                if (endOfNetReached() && warnIfNetNotEmpty(pmgr)) {
+                if (endOfNetReached() && warnIfNetNotEmpty()) {
                     _cancelling = true;                       // flag its not a deadlock                                   
                 }
 
@@ -329,7 +329,7 @@ public class YNetRunner {
                                      "OnCompletion", predicate, "string"));
                     }
                 }                
-                YEventLogger.getInstance().logNetCompleted(pmgr, _caseIDForNet, logData);
+                YEventLogger.getInstance().logNetCompleted(_caseIDForNet, logData);
             }
             if (! _cancelling && deadLocked()) notifyDeadLock(pmgr);
             cancel(pmgr);
@@ -423,7 +423,7 @@ public class YNetRunner {
         if (busyCompositeTask.t_complete(pmgr, caseIDForSubnet, rawSubnetData)) {
             _busyTasks.remove(busyCompositeTask);
             if (pmgr != null) pmgr.updateObject(this);
-            logCompletingTask(pmgr, caseIDForSubnet, busyCompositeTask);
+            logCompletingTask(caseIDForSubnet, busyCompositeTask);
 
             //check to see if completing this task resulted in completing the net.
             if (endOfNetReached()) {
@@ -696,7 +696,7 @@ public class YNetRunner {
             if (announcement != null) _announcements.add(announcement);
 
             // log it
-            YEventLogger.getInstance().logWorkItemEvent(pmgr, wItem,
+            YEventLogger.getInstance().logWorkItemEvent(wItem,
                     YWorkItemStatus.statusWithdrawn, null);
 
             // cancel any live timer
@@ -809,7 +809,7 @@ public class YNetRunner {
                         synchronized (parentRunner) {
                             if (_containingCompositeTask.t_isBusy()) {
 
-                                warnIfNetNotEmpty(pmgr);
+                                warnIfNetNotEmpty();
 
                                 Document dataDoc = _net.usesSimpleRootData() ?
                                                    _net.getInternalDataDocument() :
@@ -864,7 +864,7 @@ public class YNetRunner {
         _busyTasks = new HashSet<YTask>();
 
         if (_containingCompositeTask != null) {
-            YEventLogger.getInstance().logNetCancelled(pmgr,
+            YEventLogger.getInstance().logNetCancelled(
                     getSpecificationID(), this, _containingCompositeTask.getID(), null);
         }
         if (isRootNet()) _workItemRepository.removeWorkItemsForCase(_caseIDForNet);
@@ -887,8 +887,8 @@ public class YNetRunner {
     }
 
 
-    private void logCompletingTask(YPersistenceManager pmgr, YIdentifier caseIDForSubnet,
-                                  YCompositeTask busyCompositeTask) {
+    private void logCompletingTask(YIdentifier caseIDForSubnet,
+                                   YCompositeTask busyCompositeTask) {
         YLogPredicate logPredicate = busyCompositeTask.getDecompositionPrototype().getLogPredicate();
         YLogDataItemList logData = null;
         if (logPredicate != null) {
@@ -899,7 +899,7 @@ public class YNetRunner {
                         "OnCompletion", predicate, "string"));
             }
         }
-        YEventLogger.getInstance().logNetCompleted(pmgr, caseIDForSubnet, logData);
+        YEventLogger.getInstance().logNetCompleted(caseIDForSubnet, logData);
     }
 
 
@@ -970,7 +970,7 @@ public class YNetRunner {
     }
 
 
-    private boolean warnIfNetNotEmpty(YPersistenceManager pmgr) {
+    private boolean warnIfNetNotEmpty() {
         List<YExternalNetElement> haveTokens = new ArrayList<YExternalNetElement>();
         for (YExternalNetElement element : _net.getNetElements().values()) {
             if (! (element instanceof YOutputCondition)) {  // ignore end condition tokens
@@ -985,7 +985,7 @@ public class YNetRunner {
                     for (YIdentifier id : exeCondition.getIdentifiers()) {
                         YWorkItem executingItem = _workItemRepository.get(
                                 id.toString(), element.getID());
-                        if (executingItem != null) executingItem.setStatusToDiscarded(pmgr);
+                        if (executingItem != null) executingItem.setStatusToDiscarded();
                     }
                 }
             }
