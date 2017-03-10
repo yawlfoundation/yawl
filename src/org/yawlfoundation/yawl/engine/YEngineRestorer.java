@@ -32,6 +32,7 @@ import org.yawlfoundation.yawl.engine.time.YTimedObject;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
+import org.yawlfoundation.yawl.logging.YEventLogger;
 import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 
@@ -155,17 +156,7 @@ public class YEngineRestorer {
 
             // secondary attempt: eg. if there's no case number stored (as will be
             // the case if this is the first restart after a database rebuild)
-            query = _pmgr.createQuery("select max(engineInstanceID) from YLogNetInstance");
-            if ((query != null) && (!query.list().isEmpty())) {
-                String engineID = (String) query.iterate().next();
-                try {
-                    // only want integral case numbers
-                    caseNbrStore.setCaseNbr(new Double(engineID).intValue());
-                } catch (Exception e) {
-                    // last resort - assumes tables must be empty
-                    caseNbrStore.setCaseNbr(0);           // will inc on first get
-                }
-            }
+            caseNbrStore.setCaseNbr(YEventLogger.getInstance().getMaxCaseNbr());
         }
 
         // persisting flag must be reset as it is not itself persisted

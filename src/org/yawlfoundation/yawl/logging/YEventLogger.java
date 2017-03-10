@@ -20,6 +20,7 @@ package org.yawlfoundation.yawl.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.yawlfoundation.yawl.authentication.YClient;
 import org.yawlfoundation.yawl.authentication.YSession;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
@@ -303,6 +304,28 @@ public class YEventLogger {
             logEvent(instanceID, descriptor, datalist, -1,
                     getRootNetInstanceID(workitem.getCaseID()));
         }
+    }
+
+
+    /**
+     * Gets the last allocated case number from the logs (called as secondary
+     * source on engine startup)
+     * @return the last allocated case number
+     */
+    public int getMaxCaseNbr() {
+        Query query = getDb().createQuery(
+                "select max(engineInstanceID) from YLogNetInstance");
+        if (query != null && !query.list().isEmpty()) {
+            String engineID = (String) query.iterate().next();
+            try {
+                // only want integral case numbers
+                return new Double(engineID).intValue();
+            }
+            catch (Exception e) {
+                // ignore - fallthrough
+            }
+        }
+        return 0;    // will increment to one on first case start
     }
 
 
