@@ -123,6 +123,9 @@ public class YEventLogger {
     public void disable() { _enabled = false; }
 
 
+    public boolean isEnabled() { return _enabled; }
+
+
     public String getDataSchema(YSpecificationID specID, String dataTypeName) {
         if (XSDType.isBuiltInType(dataTypeName)) {
             return dataTypeName;                        // most likely scenario
@@ -845,7 +848,7 @@ public class YEventLogger {
     }
 
 
-    private HibernateEngine getDb() {
+    protected HibernateEngine getDb() {
         if (_db == null) {
             Set<Class> classSet = new HashSet<Class>(Arrays.asList(LOG_CLASSES));
             _db = new HibernateEngine(true, classSet);
