@@ -2,9 +2,8 @@ package org.yawlfoundation.yawl.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -40,12 +39,10 @@ public class SpecHistory {
     public SpecHistory() {  }
 
 
-    public XNode get(YPersistenceManager pMgr, long specKey, boolean withData)
-            throws YPersistenceException {
-
+    public XNode get(HibernateEngine logDb, long specKey, boolean withData) {
         _log.debug("XES #get: SQL select begins");
-        List events = pMgr.createQuery(EVENT_QUERY).setLong("id", specKey).list();
-        List dataValues = pMgr.createQuery(DATA_QUERY).setLong("id", specKey).list();
+        List events = logDb.createQuery(EVENT_QUERY).setLong("id", specKey).list();
+        List dataValues = logDb.createQuery(DATA_QUERY).setLong("id", specKey).list();
         _log.debug("XES #get: SQL select ends");
         processDataResults(dataValues);
         return process(events, withData);

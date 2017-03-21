@@ -20,17 +20,19 @@ package org.yawlfoundation.yawl.logging;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.yawlfoundation.yawl.engine.YEngine;
-import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.instance.InstanceCache;
 import org.yawlfoundation.yawl.engine.instance.WorkItemInstance;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.table.*;
+import org.yawlfoundation.yawl.util.HibernateEngine;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * The server side of interface E. An API to retrieve data from the process event logs
@@ -45,8 +47,8 @@ import java.util.*;
 
 public class YLogServer {
 
-    private static YLogServer _me;
-    private YPersistenceManager _pmgr;
+    private static YLogServer _instance;
+    private HibernateEngine _logDb;
     private static final Logger _log = LogManager.getLogger(YLogServer.class);
 
     // some error messages
@@ -60,41 +62,32 @@ public class YLogServer {
 
     private YLogServer() {
         if (YEngine.isPersisting()) {
-            _pmgr = YEngine.getPersistenceManager();
+            _logDb = YEventLogger.getInstance().getDb();
         }
     }
 
     public static YLogServer getInstance() {
-        if (_me == null) _me = new YLogServer();
-        return _me;
+        if (_instance == null) _instance = new YLogServer();
+        return _instance;
     }
 
 
     public boolean startTransaction() {
-        try {
-            return (connected()) && _pmgr.startTransaction();
-        } catch (YPersistenceException ype) {
-            _log.error("Could not initialise connection to log tables.", ype);
-            return false;
-        }
+        return (isEnabled()) && _logDb.getOrBeginTransaction() != null;
     }
 
 
     public void commitTransaction() {
-        try {
-            if (connected()) _pmgr.commit();
-        } catch (YPersistenceException ype) {
-            _log.error("Could not commit after log table read.", ype);
-        }
+        if (isEnabled()) _logDb.commit();
     }
 
-    public YPersistenceManager getPersistenceManager() {
-        return _pmgr;
+    public HibernateEngine getPersistenceManager() {
+        return _logDb;
     }
 
 
-    private boolean connected() {
-        return (_pmgr != null) && _pmgr.isEnabled();
+    private boolean isEnabled() {
+        return YEventLogger.getInstance().isEnabled();
     }
 
 
@@ -104,19 +97,14 @@ public class YLogServer {
 
     public String getNetInstancesOfSpecification(YSpecificationID specID) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specID);
-                if (spec != null) {
-                    result = getNetInstancesOfSpecification(spec.getRowKey());
-                }
-                else {
-                    result = "<failure>No records for specification '" +
-                            specID.toString() + "'.</failure>";
-                }
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specID);
+            if (spec != null) {
+                result = getNetInstancesOfSpecification(spec.getRowKey());
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
+            else {
+                result = "<failure>No records for specification '" +
+                        specID.toString() + "'.</failure>";
             }
         }
         else result = CONNECTION_ERROR;
@@ -131,12 +119,13 @@ public class YLogServer {
      */
     public String getNetInstancesOfSpecification(long specKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery(
-                        "select ni from YLogNet as n, YLogNetInstance as ni " +
-                                "where ni.netID=n.netID and n.specKey=:specKey")
-                        .setLong("specKey", specKey).iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "select ni from YLogNet as n, YLogNetInstance as ni " +
+                            "where ni.netID=n.netID and n.specKey=:specKey")
+                    .setLong("specKey", specKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<netInstances specID=\"%d\">", specKey));
@@ -149,9 +138,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -164,12 +151,12 @@ public class YLogServer {
 
     public String getCaseEvents(long rootNetInstanceKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogEvent as e where " +
-                        "e.rootNetInstanceID=:key")
-                        .setLong("key", rootNetInstanceKey)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogEvent as e where " +
+                    "e.rootNetInstanceID=:key")
+                    .setLong("key", rootNetInstanceKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<events rootNetInstanceKey=\"%d\">",
@@ -183,9 +170,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -195,20 +180,19 @@ public class YLogServer {
 
     public String getCaseEvents(String caseID) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery(
-                        "from YLogNetInstance as n where n.engineInstanceID=:caseID")
-                        .setString("caseID", caseID).iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "from YLogNetInstance as n where n.engineInstanceID=:caseID")
+                    .setString("caseID", caseID);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     YLogNetInstance instance = (YLogNetInstance) itr.next();
                     result = getCaseEvents(instance.getNetInstanceID());
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -218,17 +202,18 @@ public class YLogServer {
 
     public String getTaskInstancesForTask(String caseID, String taskName) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery(
-                        "from YLogTaskInstance as ti, YLogTask as t " +
-                                "where (ti.engineInstanceID=:caseID " +
-                                "or ti.engineInstanceID like :caseIDlike) " +
-                                "and ti.taskID=t.taskID " +
-                                "and t.name=:taskName")
-                        .setString("caseID", caseID)
-                        .setString("caseIDlike", caseID + ".%")
-                        .setString("taskName", taskName).iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "from YLogTaskInstance as ti, YLogTask as t " +
+                            "where (ti.engineInstanceID=:caseID " +
+                            "or ti.engineInstanceID like :caseIDlike) " +
+                            "and ti.taskID=t.taskID " +
+                            "and t.name=:taskName")
+                    .setString("caseID", caseID)
+                    .setString("caseIDlike", caseID + ".%")
+                    .setString("taskName", taskName);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<taskinstances caseID=\"%s\" taskname=\"%s\">",
@@ -243,9 +228,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -255,12 +238,12 @@ public class YLogServer {
 
     public String getInstanceEvents(long instanceKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogEvent as e where " +
-                        "e.instanceID=:key")
-                        .setLong("key", instanceKey)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogEvent as e where " +
+                    "e.instanceID=:key")
+                    .setLong("key", instanceKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<events instanceKey=\"%d\">",
@@ -274,9 +257,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -286,12 +267,12 @@ public class YLogServer {
 
     public String getDataForEvent(long eventKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogDataItemInstance as di where " +
-                        "di.eventID=:key")
-                        .setLong("key", eventKey)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogDataItemInstance as di where " +
+                    "di.eventID=:key")
+                    .setLong("key", eventKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<dataitems eventKey=\"%d\">", eventKey));
@@ -304,9 +285,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -316,12 +295,12 @@ public class YLogServer {
 
     public String getDataTypeForDataItem(long dataTypeKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogDataType as dt where " +
-                        "dt.dataTypeID=:key")
-                        .setLong("key", dataTypeKey)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogDataType as dt where " +
+                    "dt.dataTypeID=:key")
+                    .setLong("key", dataTypeKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     YLogDataType dataType = (YLogDataType) itr.next();
@@ -330,9 +309,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -342,12 +319,12 @@ public class YLogServer {
 
     public String getTaskInstancesForCase(String caseID) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogTaskInstance as ti where " +
-                        "ti.engineInstanceID like :key")
-                        .setString("key", caseID + ".%")
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogTaskInstance as ti where " +
+                    "ti.engineInstanceID like :key")
+                    .setString("key", caseID + ".%");
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<taskinstances caseID=\"%s\">", caseID));
@@ -360,9 +337,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -372,12 +347,12 @@ public class YLogServer {
 
     public String getTaskInstancesForTask(long taskKey) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery("from YLogTaskInstance as ti where " +
-                        "ti.taskID=:key")
-                        .setLong("key", taskKey)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogTaskInstance as ti where " +
+                    "ti.taskID=:key")
+                    .setLong("key", taskKey);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<taskinstances key=\"%d\">", taskKey));
@@ -390,9 +365,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -402,9 +375,10 @@ public class YLogServer {
 
     public String getAllSpecifications() {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.execQuery("from YLogSpecification").iterator();
+        if (isEnabled()) {
+            List list = _logDb.execQuery("from YLogSpecification");
+            if (list != null) {
+                Iterator itr = list.iterator();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder("<specifications>");
                     while (itr.hasNext()) {
@@ -416,9 +390,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -432,15 +404,15 @@ public class YLogServer {
 
     public String getCaseEvent(String caseID, String eventType) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery(
-                        "select e from YLogEvent as e, YLogNetInstance as ni where " +
-                                "ni.engineInstanceID=:caseID and e.instanceID=ni.netInstanceID " +
-                                "and e.descriptor=:eventType")
-                        .setString("caseID", caseID)
-                        .setString("eventType", eventType)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "select e from YLogEvent as e, YLogNetInstance as ni where " +
+                            "ni.engineInstanceID=:caseID and e.instanceID=ni.netInstanceID " +
+                            "and e.descriptor=:eventType")
+                    .setString("caseID", caseID)
+                    .setString("eventType", eventType);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<caseEvent caseID=\"%s\">", caseID));
@@ -453,9 +425,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -465,15 +435,15 @@ public class YLogServer {
 
     public String getAllCaseEventsByService(String serviceName, String eventType) {
         String result;
-        if (connected()) {
-            try {
-                Iterator itr = _pmgr.createQuery(
-                        "select e from YLogEvent as e, YLogService as s where " +
-                                "s.serviceID=e.serviceID and " +
-                                "s.name=:serviceName and e.descriptor=:event")
-                        .setString("serviceName", serviceName)
-                        .setString("event", eventType)
-                        .iterate();
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "select e from YLogEvent as e, YLogService as s where " +
+                            "s.serviceID=e.serviceID and " +
+                            "s.name=:serviceName and e.descriptor=:event")
+                    .setString("serviceName", serviceName)
+                    .setString("event", eventType);
+            if (query != null) {
+                Iterator itr = query.iterate();
                 if (itr.hasNext()) {
                     StringBuilder xml = new StringBuilder();
                     xml.append(String.format("<caseEvent serviceName=\"%s\">", serviceName));
@@ -486,9 +456,7 @@ public class YLogServer {
                 }
                 else result = NO_ROWS_ERROR;
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = GENERAL_ERROR;
         }
         else result = CONNECTION_ERROR;
 
@@ -507,18 +475,13 @@ public class YLogServer {
 
     public String getCompleteCaseLogsForSpecification(YSpecificationID specID) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specID);
-                if (spec != null) {
-                    result = getCompleteCaseLogsForSpecification(spec.getRowKey());
-                }
-                else result = "<failure>No records for specification '" +
-                        specID.toString() + "'.</failure>";
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specID);
+            if (spec != null) {
+                result = getCompleteCaseLogsForSpecification(spec.getRowKey());
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = "<failure>No records for specification '" +
+                    specID.toString() + "'.</failure>";
         }
         else result = CONNECTION_ERROR;
 
@@ -532,18 +495,13 @@ public class YLogServer {
 
     public String getSpecificationStatistics(YSpecificationID specID, long from, long to) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specID);
-                if (spec != null) {
-                    result = getSpecificationStatistics(spec.getRowKey(), from, to);
-                }
-                else result = "<failure>No records for specification '" +
-                        specID.toString() + "'.</failure>";
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specID);
+            if (spec != null) {
+                result = getSpecificationStatistics(spec.getRowKey(), from, to);
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = "<failure>No records for specification '" +
+                    specID.toString() + "'.</failure>";
         }
         else result = CONNECTION_ERROR;
 
@@ -557,75 +515,70 @@ public class YLogServer {
 
     public String getSpecificationStatistics(long specKey, long from, long to) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specKey);
-                if (spec == null) return NO_KEY_ERROR;
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specKey);
+            if (spec == null) return NO_KEY_ERROR;
 
-                int casesStarted = 0;
-                int casesCompleted = 0;
-                int casesCancelled = 0;
-                long maxCompletedTime = 0;
-                long minCompletedTime = Long.MAX_VALUE;
-                double totalCompletedTime = 0;
-                long maxCancelledTime = 0;
-                long minCancelledTime = Long.MAX_VALUE;
-                double totalCancelledTime = 0;
-                if (to == -1) to = Long.MAX_VALUE;
-                List instances = getNetInstanceObjects(spec.getRootNetID());
-                for (Object o : instances) {
-                    YLogNetInstance instance = (YLogNetInstance) o;
-                    List events = getInstanceEventObjects(instance.getNetInstanceID());
-                    long startTime = 0;
-                    long completeTime = 0;
-                    long cancelTime = 0;
-                    for (Object obj : events) {
-                        YLogEvent event = (YLogEvent) obj;
-                        if ((event.getTimestamp() >= from) && (event.getTimestamp() <= to)) {
-                            String eventLabel = event.getDescriptor();
-                            if (eventLabel.equals("CaseStart")) {
-                                casesStarted++;
-                                startTime = event.getTimestamp();
-                            } else if (eventLabel.equals("CaseComplete")) {
-                                casesCompleted++;
-                                completeTime = event.getTimestamp();
-                            } else if (eventLabel.equals("CaseCancel")) {
-                                casesCancelled++;
-                                cancelTime = event.getTimestamp();
-                            }
+            int casesStarted = 0;
+            int casesCompleted = 0;
+            int casesCancelled = 0;
+            long maxCompletedTime = 0;
+            long minCompletedTime = Long.MAX_VALUE;
+            double totalCompletedTime = 0;
+            long maxCancelledTime = 0;
+            long minCancelledTime = Long.MAX_VALUE;
+            double totalCancelledTime = 0;
+            if (to == -1) to = Long.MAX_VALUE;
+            List instances = getNetInstanceObjects(spec.getRootNetID());
+            for (Object o : instances) {
+                YLogNetInstance instance = (YLogNetInstance) o;
+                List events = getInstanceEventObjects(instance.getNetInstanceID());
+                long startTime = 0;
+                long completeTime = 0;
+                long cancelTime = 0;
+                for (Object obj : events) {
+                    YLogEvent event = (YLogEvent) obj;
+                    if ((event.getTimestamp() >= from) && (event.getTimestamp() <= to)) {
+                        String eventLabel = event.getDescriptor();
+                        if (eventLabel.equals("CaseStart")) {
+                            casesStarted++;
+                            startTime = event.getTimestamp();
+                        } else if (eventLabel.equals("CaseComplete")) {
+                            casesCompleted++;
+                            completeTime = event.getTimestamp();
+                        } else if (eventLabel.equals("CaseCancel")) {
+                            casesCancelled++;
+                            cancelTime = event.getTimestamp();
                         }
                     }
-                    if (completeTime > 0) {
-                        long expiredTime = completeTime - startTime;
-                        maxCompletedTime = Math.max(maxCompletedTime, expiredTime);
-                        minCompletedTime = Math.min(minCompletedTime, expiredTime);
-                        totalCompletedTime += expiredTime;
-                    } else if (cancelTime > 0) {
-                        long expiredTime = cancelTime - startTime;
-                        maxCancelledTime = Math.max(maxCancelledTime, expiredTime);
-                        minCancelledTime = Math.min(minCancelledTime, expiredTime);
-                        totalCancelledTime += expiredTime;
-                    }
                 }
-                XNode node = new XNode("specification");
-                node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
-                node.addAttribute("key", specKey);
-                node.addChild("started", casesStarted);
-                node.addChild("completed", casesCompleted);
-                node.addChild("cancelled", casesCancelled);
-                node.addChild("completionMaxtime", StringUtil.formatTime(maxCompletedTime));
-                node.addChild("completionMintime", StringUtil.formatTime(minCompletedTime));
-                node.addChild("completionAvgtime",
-                        StringUtil.formatTime((long) totalCompletedTime / casesCompleted));
-                node.addChild("cancelledMaxtime", StringUtil.formatTime(maxCancelledTime));
-                node.addChild("cancelledMintime", StringUtil.formatTime(minCancelledTime));
-                node.addChild("cancelledAvgtime",
-                        StringUtil.formatTime((long) totalCancelledTime / casesCancelled));
-                result = node.toString();
+                if (completeTime > 0) {
+                    long expiredTime = completeTime - startTime;
+                    maxCompletedTime = Math.max(maxCompletedTime, expiredTime);
+                    minCompletedTime = Math.min(minCompletedTime, expiredTime);
+                    totalCompletedTime += expiredTime;
+                } else if (cancelTime > 0) {
+                    long expiredTime = cancelTime - startTime;
+                    maxCancelledTime = Math.max(maxCancelledTime, expiredTime);
+                    minCancelledTime = Math.min(minCancelledTime, expiredTime);
+                    totalCancelledTime += expiredTime;
+                }
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            XNode node = new XNode("specification");
+            node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
+            node.addAttribute("key", specKey);
+            node.addChild("started", casesStarted);
+            node.addChild("completed", casesCompleted);
+            node.addChild("cancelled", casesCancelled);
+            node.addChild("completionMaxtime", StringUtil.formatTime(maxCompletedTime));
+            node.addChild("completionMintime", StringUtil.formatTime(minCompletedTime));
+            node.addChild("completionAvgtime",
+                    StringUtil.formatTime((long) totalCompletedTime / casesCompleted));
+            node.addChild("cancelledMaxtime", StringUtil.formatTime(maxCancelledTime));
+            node.addChild("cancelledMintime", StringUtil.formatTime(minCancelledTime));
+            node.addChild("cancelledAvgtime",
+                    StringUtil.formatTime((long) totalCancelledTime / casesCancelled));
+            result = node.toString();
         }
         else result = CONNECTION_ERROR;
 
@@ -635,19 +588,15 @@ public class YLogServer {
 
     public String getSpecificationCaseIDs(YSpecificationID specID) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specID);
-                if (spec != null) {
-                    result = getSpecificationCaseIDs(spec.getRowKey());
-                }
-                else result = "<failure>No records for specification '" +
-                        specID.toString() + "'.</failure>";
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specID);
+            if (spec != null) {
+                result = getSpecificationCaseIDs(spec.getRowKey());
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = "<failure>No records for specification '" +
+                    specID.toString() + "'.</failure>";
         }
+
         else result = CONNECTION_ERROR;
 
         return result;
@@ -656,23 +605,18 @@ public class YLogServer {
 
     public String getSpecificationCaseIDs(long specKey) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specKey);
-                if (spec == null) return NO_KEY_ERROR;
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specKey);
+            if (spec == null) return NO_KEY_ERROR;
 
-                XNode node = new XNode("cases");
-                node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
-                node.addAttribute("key", specKey);
+            XNode node = new XNode("cases");
+            node.addAttribute("id", spec.getUri() + " - " + spec.getVersion());
+            node.addAttribute("key", specKey);
 
-                for (Object o : getNetInstanceObjects(spec.getRootNetID())) {
-                    node.addChild("case", ((YLogNetInstance) o).getEngineInstanceID());
-                }
-                result = node.toString();
+            for (Object o : getNetInstanceObjects(spec.getRootNetID())) {
+                node.addChild("case", ((YLogNetInstance) o).getEngineInstanceID());
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            result = node.toString();
         }
         else result = CONNECTION_ERROR;
 
@@ -681,15 +625,10 @@ public class YLogServer {
 
 
     public XNode getXESLog(YSpecificationID specID, boolean withData) {
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specID);
-                if (spec != null) {
-                    return new SpecHistory().get(_pmgr, spec.getRootNetID(), withData);
-                }
-            }
-            catch (YPersistenceException ype) {
-                _log.error(ype.getMessage(), ype);
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specID);
+            if (spec != null) {
+                return new SpecHistory().get(_logDb, spec.getRootNetID(), withData);
             }
         }
         return null;
@@ -698,26 +637,22 @@ public class YLogServer {
 
     public String getCompleteCaseLogsForSpecification(long specKey) {
         String result;
-        if (connected()) {
-            try {
-                YLogSpecification spec = getSpecification(specKey);
-                if (spec != null) {
-                    List instances = getNetInstanceObjects(spec.getRootNetID());
-                    StringBuilder xml = new StringBuilder();
-                    xml.append(String.format("<cases specKey=\"%d\">", specKey));
-                    for (Object o : instances) {
-                        YLogNetInstance instance = (YLogNetInstance) o;
-                        xml.append(getCompleteCaseLog(instance.getEngineInstanceID()));
-                    }
-                    xml.append("</cases>");
-                    result = xml.toString();
+        if (isEnabled()) {
+            YLogSpecification spec = getSpecification(specKey);
+            if (spec != null) {
+                List instances = getNetInstanceObjects(spec.getRootNetID());
+                StringBuilder xml = new StringBuilder();
+                xml.append(String.format("<cases specKey=\"%d\">", specKey));
+                for (Object o : instances) {
+                    YLogNetInstance instance = (YLogNetInstance) o;
+                    xml.append(getCompleteCaseLog(instance.getEngineInstanceID()));
                 }
-                else result = NO_KEY_ERROR;
+                xml.append("</cases>");
+                result = xml.toString();
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
-        } else result = CONNECTION_ERROR;
+            else result = NO_KEY_ERROR;
+        }
+        else result = CONNECTION_ERROR;
 
         return result;
     }
@@ -725,29 +660,24 @@ public class YLogServer {
 
     public String getCompleteCaseLog(String caseID) {
         String result;
-        if (connected()) {
-            try {
-                YLogNetInstance rootNet = getNetInstance(caseID);
-                if (rootNet != null) {
-                    YLogNet net = getNet(rootNet.getNetID());
-                    if (net != null) {
-                        YLogSpecification spec = getSpecification(net.getSpecKey());
-                        if (spec != null) {
-                            StringBuilder xml = new StringBuilder();
-                            xml.append(String.format("<case id=\"%s\">", caseID));
-                            xml.append(spec.toXML());
-                            xml.append(getFullyPopulatedNetInstance(rootNet, net, true));
-                            xml.append("</case>");
-                            return xml.toString();
-                        }
+        if (isEnabled()) {
+            YLogNetInstance rootNet = getNetInstance(caseID);
+            if (rootNet != null) {
+                YLogNet net = getNet(rootNet.getNetID());
+                if (net != null) {
+                    YLogSpecification spec = getSpecification(net.getSpecKey());
+                    if (spec != null) {
+                        StringBuilder xml = new StringBuilder();
+                        xml.append(String.format("<case id=\"%s\">", caseID));
+                        xml.append(spec.toXML());
+                        xml.append(getFullyPopulatedNetInstance(rootNet, net, true));
+                        xml.append("</case>");
+                        return xml.toString();
                     }
                 }
-                result = String.format(
-                        "<failure>No full record of case '%s'.</failure>", caseID);
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            result = String.format(
+                    "<failure>No full record of case '%s'.</failure>", caseID);
         }
         else result = CONNECTION_ERROR;
 
@@ -757,47 +687,36 @@ public class YLogServer {
 
     public String getServiceName(long key) {
         String result;
-        if (connected()) {
-            try {
-                YLogService service = getService(key);
-                if (service != null) {
-                    result = StringUtil.wrap(service.getName(), "service");
-                }
-                else result = NO_KEY_ERROR;
+        if (isEnabled()) {
+            YLogService service = getService(key);
+            if (service != null) {
+                result = StringUtil.wrap(service.getName(), "service");
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = NO_KEY_ERROR;
         }
         else result = CONNECTION_ERROR;
 
         return result;
-
     }
 
 
     public String getEventsForTaskInstance(String itemID) {
         String result;
         if (itemID != null) {
-            try {
-                YLogTaskInstance itemInstance = getTaskInstance(itemID);
-                if (itemInstance != null) {
-                    StringBuilder xml = new StringBuilder();
-                    xml.append(String.format("<taskevents id=\"%s\">", itemID));
-                    xml.append(getEventListAsXML(itemInstance.getTaskInstanceID()));
+            YLogTaskInstance itemInstance = getTaskInstance(itemID);
+            if (itemInstance != null) {
+                StringBuilder xml = new StringBuilder();
+                xml.append(String.format("<taskevents id=\"%s\">", itemID));
+                xml.append(getEventListAsXML(itemInstance.getTaskInstanceID()));
 
-                    long parentInstanceID = itemInstance.getParentTaskInstanceID();
-                    if (parentInstanceID > -1) {
-                        xml.append(getEventListAsXML(parentInstanceID));
-                    }
-                    xml.append("</taskevents>");
-                    result = xml.toString();
+                long parentInstanceID = itemInstance.getParentTaskInstanceID();
+                if (parentInstanceID > -1) {
+                    xml.append(getEventListAsXML(parentInstanceID));
                 }
-                else result = NO_ROWS_ERROR;
+                xml.append("</taskevents>");
+                result = xml.toString();
             }
-            catch (YPersistenceException ype) {
-                result = GENERAL_ERROR;
-            }
+            else result = NO_ROWS_ERROR;
         }
         else result = "<failure>Null item id.</failure>";
 
@@ -828,7 +747,7 @@ public class YLogServer {
      */
 
     private String getFullyPopulatedNetInstance(YLogNetInstance instance, YLogNet net,
-                                                boolean root) throws YPersistenceException {
+                                                boolean root) {
         StringBuilder xml = new StringBuilder();
         xml.append(String.format("<netinstance key=\"%d\" root=\"%b\">",
                 instance.getNetInstanceID(), root));
@@ -844,8 +763,7 @@ public class YLogServer {
         return xml.toString();
     }
 
-    private String getFullyPopulatedTaskInstance(YLogTaskInstance instance)
-            throws YPersistenceException {
+    private String getFullyPopulatedTaskInstance(YLogTaskInstance instance) {
         StringBuilder xml = new StringBuilder();
         xml.append(String.format("<taskinstance key=\"%d\">", instance.getTaskInstanceID()));
         YLogTask task = getTask(instance.getTaskID());
@@ -868,7 +786,7 @@ public class YLogServer {
         return xml.toString();
     }
 
-    private String getFullyPopulatedEvent(YLogEvent event) throws YPersistenceException {
+    private String getFullyPopulatedEvent(YLogEvent event) {
         StringBuilder xml = new StringBuilder();
         xml.append(String.format("<event key=\"%d\">", event.getEventID()));
         xml.append(StringUtil.wrap(event.getDescriptor(), "descriptor"));
@@ -886,8 +804,7 @@ public class YLogServer {
     }
 
 
-    private String getFullyPopulatedDataItem(YLogDataItemInstance instance)
-            throws YPersistenceException {
+    private String getFullyPopulatedDataItem(YLogDataItemInstance instance) {
         StringBuilder xml = new StringBuilder(150);
         xml.append(String.format("<dataitem key=\"%d\">", instance.getDataItemID()));
         xml.append(instance.getDataItem().toXMLShort());
@@ -898,7 +815,7 @@ public class YLogServer {
     }
 
 
-    private String getEventListAsXML(long instanceID) throws YPersistenceException {
+    private String getEventListAsXML(long instanceID) {
         StringBuilder xml = new StringBuilder();
         for (Object o : getInstanceEventObjects(instanceID)) {
             YLogEvent event = (YLogEvent) o;
@@ -908,184 +825,180 @@ public class YLogServer {
     }
 
 
-    private YLogSpecification getSpecification(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogSpecification) _pmgr.selectScalar("YLogSpecification", "rowKey", key);
+    private YLogSpecification getSpecification(long key) {
+        if (isEnabled()) {
+            return (YLogSpecification) _logDb.get(YLogSpecification.class, key, false);
         }
         else return null;
     }
 
-    private YLogSpecification getSpecification(YSpecificationID specID)
-            throws YPersistenceException {
-        if (connected()) {
+    private YLogSpecification getSpecification(YSpecificationID specID) {
+        if (isEnabled()) {
             String identifier = specID.getIdentifier();
-            Iterator itr;
+            Query query;
             if (identifier != null) {
-                itr = _pmgr.createQuery(
+                query = _logDb.createQuery(
                         "select distinct s from YLogSpecification s where " +
                         "s.identifier=:id and s.version=:version and s.uri=:uri")
                         .setString("id", identifier)
                         .setString("version", specID.getVersionAsString())
-                        .setString("uri", specID.getUri())
-                        .iterate();
+                        .setString("uri", specID.getUri());
             }
             else {
-                itr = _pmgr.createQuery(
+                query = _logDb.createQuery(
                         "select distinct s from YLogSpecification s where " +
                         "s.version=:version and s.uri=:uri")
                         .setString("version", specID.getVersionAsString())
-                        .setString("uri", specID.getUri())
-                        .iterate();
+                        .setString("uri", specID.getUri());
             }
-            if (itr.hasNext()) {
-                return (YLogSpecification) itr.next();
-            }
-        }
-        return null;
-    }
-
-
-    private YLogNet getNet(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogNet) _pmgr.selectScalar("YLogNet", "netID", key);
-        }
-        else return null;
-    }
-
-
-    private List getNets(long specKey) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery("from YLogNet as n where n.specKey=:specKey")
-                    .setLong("specKey", specKey)
-                    .list();
-        }
-        else return Collections.emptyList();
-    }
-
-
-    private YLogNetInstance getNetInstance(String caseID) throws YPersistenceException {
-        if (connected()) {
-            String quotedCaseID = String.format("'%s'", caseID);
-            return (YLogNetInstance) _pmgr.selectScalar(
-                    "YLogNetInstance", "engineInstanceID", quotedCaseID);
-        }
-        else return null;
-    }
-
-    private YLogNetInstance getNetInstance(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogNetInstance) _pmgr.selectScalar("YLogNetInstance", "netID", key);
-        }
-        else return null;
-    }
-
-    private YLogNetInstance getSubNetInstance(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogNetInstance) _pmgr.selectScalar(
-                    "YLogNetInstance", "parentTaskInstanceID", key);
-        }
-        else return null;
-    }
-
-
-    private List getNetInstances(String caseID) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery("from YLogNetInstance as ni where " +
-                    "ni.engineInstanceID=:caseid or ni.engineInstanceID like :likeid")
-                    .setString("caseid", caseID)
-                    .setString("likeid", caseID + ".%")
-                    .list();
-        }
-        else return Collections.emptyList();
-    }
-
-
-    private YLogTaskInstance getTaskInstance(String itemID) throws YPersistenceException {
-        if ((itemID != null) && (connected())) {
-            String caseID = itemID.split(":")[0];
-            String taskName = getTaskNameForWorkItem(caseID, itemID);
-            if (taskName != null) {
-                List result = _pmgr.createQuery(
-                        "from YLogTaskInstance as ti, YLogTask as t where ti.engineInstanceID=:caseID" +
-                                " and t.name=:taskName and t.taskID=ti.taskID")
-                        .setString("caseID", caseID)
-                        .setString("taskName", taskName)
-                        .list();
-
-                if (!result.isEmpty()) {
-                    Object[] rows = (Object[]) result.get(0);
-                    return (YLogTaskInstance) rows[0];
+            if (query != null) {
+                Iterator itr = query.iterate();
+                if (itr.hasNext()) {
+                    return (YLogSpecification) itr.next();
                 }
             }
         }
         return null;
     }
 
-    private YLogTaskInstance getTaskInstance(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogTaskInstance) _pmgr.selectScalar(
-                    "YLogTaskInstance", "taskInstanceID", key);
+
+    private YLogNet getNet(long key) {
+        if (isEnabled()) {
+            return (YLogNet) _logDb.get(YLogNet.class, key, false);
         }
         else return null;
     }
 
-    private YLogTask getTask(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogTask) _pmgr.selectScalar("YLogTask", "taskID", key);
+
+    private List getNets(long specKey) {
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(
+                    "from YLogNet as n where n.specKey=:specKey")
+                    .setLong("specKey", specKey);
+            if (query != null) {
+                return query.list();
+            }
+        }
+        return Collections.emptyList();
+    }
+
+
+    private YLogNetInstance getNetInstance(String caseID) {
+        if (isEnabled()) {
+            String quotedCaseID = String.format("'%s'", caseID);
+            return (YLogNetInstance) _logDb.selectScalar(
+                    "YLogNetInstance", "engineInstanceID", quotedCaseID);
         }
         else return null;
     }
 
-    private YLogService getService(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogService) _pmgr.selectScalar("YLogService", "serviceID", key);
+    private YLogNetInstance getNetInstance(long key) {
+        if (isEnabled()) {
+            return (YLogNetInstance) _logDb.get(YLogNetInstance.class, key, false);
         }
         else return null;
     }
 
-    private YLogDataType getDataType(long key) throws YPersistenceException {
-        if (connected()) {
-            return (YLogDataType) _pmgr.selectScalar("YLogDataType", "dataTypeID", key);
+    private YLogNetInstance getSubNetInstance(long key) {
+        if (isEnabled()) {
+            return (YLogNetInstance) _logDb.selectScalar(
+                    "YLogNetInstance", "parentTaskInstanceID", String.valueOf(key));
         }
         else return null;
     }
 
-    private List getInstanceEventObjects(long key) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery("from YLogEvent as e where e.instanceID=:key " +
-                    "order by e.timestamp")
-                    .setLong("key", key)
-                    .list();
+
+    private List getNetInstances(String caseID) {
+        if (isEnabled()) {
+            Query query = _logDb.createQuery("from YLogNetInstance as ni where " +
+                    "ni.engineInstanceID=:caseid or ni.engineInstanceID like :likeid")
+                    .setString("caseid", caseID)
+                    .setString("likeid", caseID + ".%");
+            if (query != null) {
+                return query.list();
+            }
         }
-        else return Collections.emptyList();
+        return Collections.emptyList();
     }
 
-    private List getTaskInstanceObjects(long key) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery(
-                    "from YLogTaskInstance as ti where ti.parentNetInstanceID=:key")
-                    .setLong("key", key)
-                    .list();
+
+    private YLogTaskInstance getTaskInstance(String itemID) {
+        if ((itemID != null) && (isEnabled())) {
+            String caseID = itemID.split(":")[0];
+            String taskName = getTaskNameForWorkItem(caseID, itemID);
+            if (taskName != null) {
+                Query query = _logDb.createQuery(
+                        "from YLogTaskInstance as ti, YLogTask as t where ti.engineInstanceID=:caseID" +
+                                " and t.name=:taskName and t.taskID=ti.taskID")
+                        .setString("caseID", caseID)
+                        .setString("taskName", taskName);
+                if (query != null) {
+                    List result = query.list();
+                    if (!result.isEmpty()) {
+                        Object[] rows = (Object[]) result.get(0);
+                        return (YLogTaskInstance) rows[0];
+                    }
+                }
+            }
         }
-        else return Collections.emptyList();
+        return null;
     }
 
-    private List getNetInstanceObjects(long key) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery("from YLogNetInstance as ni where ni.netID=:key")
-                    .setLong("key", key)
-                    .list();
+    private YLogTaskInstance getTaskInstance(long key) {
+        if (isEnabled()) {
+            return (YLogTaskInstance) _logDb.get(YLogTaskInstance.class, key, false);
         }
-        else return Collections.emptyList();
+        else return null;
     }
 
-    private List getDataItemInstanceObjects(long key) throws YPersistenceException {
-        if (connected()) {
-            return _pmgr.createQuery("from YLogDataItemInstance as di where di.eventID=:key")
-                    .setLong("key", key)
-                    .list();
+    private YLogTask getTask(long key) {
+        if (isEnabled()) {
+            return (YLogTask) _logDb.get(YLogTask.class, key, false);
         }
-        else return Collections.emptyList();
+        else return null;
+    }
+
+    private YLogService getService(long key) {
+        if (isEnabled()) {
+            return (YLogService) _logDb.get(YLogService.class, key, false);
+        }
+        else return null;
+    }
+
+    private YLogDataType getDataType(long key) {
+        if (isEnabled()) {
+            return (YLogDataType) _logDb.get(YLogDataType.class, key, false);
+        }
+        else return null;
+    }
+
+    private List getInstanceEventObjects(long key) {
+        return getObjects("from YLogEvent as e where e.instanceID=:key " +
+                    "order by e.timestamp", key);
+    }
+
+    private List getTaskInstanceObjects(long key) {
+        return getObjects("from YLogTaskInstance as ti where ti.parentNetInstanceID=:key",
+                    key);
+    }
+
+    private List getNetInstanceObjects(long key) {
+        return getObjects("from YLogNetInstance as ni where ni.netID=:key", key);
+    }
+
+    private List getDataItemInstanceObjects(long key) {
+        return getObjects("from YLogDataItemInstance as di where di.eventID=:key", key);
+   }
+
+    
+    private List getObjects(String qStr, long key) {
+        if (isEnabled()) {
+            Query query = _logDb.createQuery(qStr).setLong("key", key);
+            if (query != null) {
+                return query.list();
+            }
+        }
+        return Collections.emptyList();
     }
 
 

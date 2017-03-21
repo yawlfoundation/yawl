@@ -320,19 +320,27 @@ public class HibernateEngine {
 
 
     public Object load(Class claz, Serializable key) {
+        return load(claz, key, true);
+    }
+
+    public Object load(Class claz, Serializable key, boolean doCommit) {
         getOrBeginTransaction();
         Object result = getSession().load(claz, key);
         Hibernate.initialize(result);
-        commit();
+        if (doCommit) commit();
         return result;
     }
 
 
     public Object get(Class claz, Serializable key) {
+        return get(claz, key, true);
+    }
+
+    public Object get(Class claz, Serializable key, boolean doCommit) {
         getOrBeginTransaction();
         Object result = getSession().get(claz, key);
         Hibernate.initialize(result);
-        commit();
+        if (doCommit) commit();
         return result;
     }
 

@@ -43,7 +43,7 @@ import java.io.PrintWriter;
 
 public class YLogGateway extends HttpServlet {
 
-    private YLogServer _logMgr = YLogServer.getInstance() ;
+    private YLogServer _logSvr = YLogServer.getInstance() ;
     private EngineGatewayImpl _engine ;
 
     private final String _noEngine = "<failure>Not connected to YAWL Engine.</failure>";
@@ -85,110 +85,110 @@ public class YLogGateway extends HttpServlet {
             else result = _noEngine ;
         }
         else if (validConnection(handle)) {
-            synchronized(_logMgr.getPersistenceManager()) {
-                boolean isLocalTransaction = _logMgr.startTransaction();
+            synchronized(_logSvr.getPersistenceManager()) {
+                boolean isLocalTransaction = _logSvr.startTransaction();
                 if (action.equals("getAllSpecifications")) {
-                    result = _logMgr.getAllSpecifications();
+                    result = _logSvr.getAllSpecifications();
                 }
                 else if (action.equals("getNetInstancesOfSpecification")) {
                     if (key != null) {
-                        result = _logMgr.getNetInstancesOfSpecification(new Long(key)) ;
+                        result = _logSvr.getNetInstancesOfSpecification(new Long(key)) ;
                     }
                     else {
                         YSpecificationID specID = getSpecificationID(req);
-                        result = _logMgr.getNetInstancesOfSpecification(specID) ;
+                        result = _logSvr.getNetInstancesOfSpecification(specID) ;
                     }
                 }
                 else if (action.equals("getCompleteCaseLogsForSpecification")) {
                     if (key != null) {
-                        result = _logMgr.getCompleteCaseLogsForSpecification(new Long(key)) ;
+                        result = _logSvr.getCompleteCaseLogsForSpecification(new Long(key)) ;
                     }
                     else {
                         YSpecificationID specID = getSpecificationID(req);
-                        result = _logMgr.getCompleteCaseLogsForSpecification(specID) ;
+                        result = _logSvr.getCompleteCaseLogsForSpecification(specID) ;
                     }
                 }
                 else if (action.equals("getSpecificationStatistics")) {
                     if (key != null) {
-                        result = _logMgr.getSpecificationStatistics(new Long(key)) ;
+                        result = _logSvr.getSpecificationStatistics(new Long(key)) ;
                     }
                     else {
                         long from = strToLong(req.getParameter("from"));
                         long to = strToLong(req.getParameter("to"));
                         YSpecificationID specID = getSpecificationID(req);
-                        result = _logMgr.getSpecificationStatistics(specID, from, to) ;
+                        result = _logSvr.getSpecificationStatistics(specID, from, to) ;
                     }
                 }
                 else if (action.equals("getSpecificationCaseIDs")) {
                     if (key != null) {
-                        result = _logMgr.getSpecificationCaseIDs(new Long(key));
+                        result = _logSvr.getSpecificationCaseIDs(new Long(key));
                     }
                     else {
                         YSpecificationID specID = getSpecificationID(req);
-                        result = _logMgr.getSpecificationCaseIDs(specID);
+                        result = _logSvr.getSpecificationCaseIDs(specID);
                     }
                 }
                 else if (action.equals("getCaseEvents")) {
                     if (key != null) {
-                        result = _logMgr.getCaseEvents(new Long(key));
+                        result = _logSvr.getCaseEvents(new Long(key));
                     }
                     else {
                         String caseID = req.getParameter("caseid") ;
-                        result = _logMgr.getCaseEvents(caseID);
+                        result = _logSvr.getCaseEvents(caseID);
                     }
                 }
                 else if (action.equals("getDataForEvent")) {
-                    result = _logMgr.getDataForEvent(new Long(key)) ;
+                    result = _logSvr.getDataForEvent(new Long(key)) ;
                 }
                 else if (action.equals("getDataTypeForDataItem")) {
-                    result = _logMgr.getDataTypeForDataItem(new Long(key)) ;
+                    result = _logSvr.getDataTypeForDataItem(new Long(key)) ;
                 }
                 else if (action.equals("getTaskInstancesForCase")) {
                     String caseID = req.getParameter("caseid") ;
-                    result = _logMgr.getTaskInstancesForCase(caseID);
+                    result = _logSvr.getTaskInstancesForCase(caseID);
                 }
                 else if (action.equals("getTaskInstancesForTask")) {
-                    result = _logMgr.getTaskInstancesForTask(new Long(key));
+                    result = _logSvr.getTaskInstancesForTask(new Long(key));
                 }
                 else if (action.equals("getCaseEvent")) {
                     String event = req.getParameter("event");
                     String caseID = req.getParameter("caseid") ;
-                    result = _logMgr.getCaseEvent(caseID, event);
+                    result = _logSvr.getCaseEvent(caseID, event);
                 }
                 else if (action.equals("getAllCasesStartedByService")) {
                     String name = req.getParameter("name") ;
-                    result = _logMgr.getAllCasesStartedByService(name) ;
+                    result = _logSvr.getAllCasesStartedByService(name) ;
                 }
                 else if (action.equals("getAllCasesCancelledByService")) {
                     String name = req.getParameter("name") ;
-                    result = _logMgr.getAllCasesCancelledByService(name) ;
+                    result = _logSvr.getAllCasesCancelledByService(name) ;
                 }
                 else if (action.equals("getInstanceEvents")) {
-                    result = _logMgr.getInstanceEvents(new Long(key)) ;
+                    result = _logSvr.getInstanceEvents(new Long(key)) ;
                 }
                 else if (action.equals("getServiceName")) {
-                    result = _logMgr.getServiceName(new Long(key)) ;
+                    result = _logSvr.getServiceName(new Long(key)) ;
                 }
                 else if (action.equals("getCompleteCaseLog")) {
                     String caseID = req.getParameter("caseid") ;
-                    result = _logMgr.getCompleteCaseLog(caseID) ;
+                    result = _logSvr.getCompleteCaseLog(caseID) ;
                 }
                 else if (action.equals("getEventsForTaskInstance")) {
                     String itemID = req.getParameter("itemid") ;
-                    result = _logMgr.getEventsForTaskInstance(itemID) ;
+                    result = _logSvr.getEventsForTaskInstance(itemID) ;
                 }
                 else if (action.equals("getTaskInstancesForCaseTask")) {
                     String caseID = req.getParameter("caseid") ;
                     String taskName = req.getParameter("taskname") ;
-                    result = _logMgr.getTaskInstancesForTask(caseID, taskName);
+                    result = _logSvr.getTaskInstancesForTask(caseID, taskName);
                 }
                 else if (action.equals("getSpecificationXESLog")) {
                     YSpecificationID specID = getSpecificationID(req);
                     String withDataStr = req.getParameter("withdata");
                     boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
-                    result = _logMgr.getSpecificationXESLog(specID, withData);
+                    result = _logSvr.getSpecificationXESLog(specID, withData);
                 }
-                if (isLocalTransaction) _logMgr.commitTransaction();
+                if (isLocalTransaction) _logSvr.commitTransaction();
             }
         }
         else throw new IOException("Invalid or disconnected session handle.");
