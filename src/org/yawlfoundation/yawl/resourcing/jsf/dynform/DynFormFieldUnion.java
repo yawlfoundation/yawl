@@ -87,10 +87,13 @@ public class DynFormFieldUnion {
 
 
     public String getBaseType() {
-        if (hasEnumeration())
+        if (hasEnumeration()) {
             return _restrictionList.get(0).getBaseType();
-        else
-            return "xsd:string";                     // should never have to return this
+        }
+        else if (! _memberTypes.isEmpty()) {
+            return _memberTypes.get(0);
+        }
+        return "xsd:string";                     // should never have to return this
     }
 
 

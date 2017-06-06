@@ -22,7 +22,6 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
@@ -331,7 +330,9 @@ public class DataSchemaBuilder {
     private String getAttributeValue(Attribute attribute, String prefix, Namespace defNS) {
         String value = attribute.getValue();
         if (prefix.length() > 0) {
-            value = value.replaceFirst(prefix, defNS.getPrefix());
+
+            // adding ':' to handle union member types
+            value = value.replace(prefix + ":", defNS.getPrefix() + ":");
         }
         return value;
     }

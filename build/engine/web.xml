@@ -112,6 +112,24 @@
     </context-param>
 
     <context-param>
+   		<param-name>WorkdayTimerGeoCodes</param-name>
+   		<param-value></param-value>
+   		<description>
+   			Set this value to a country code and optional region code, separated by
+            a semi-colon (;) if you intend to use the working-day-only constraint
+            for work item timers. The codes will allow for the loading of local public
+            holiday data for use in timer duration calculations. Example values
+            include 'usa;New York', 'aus;Victoria' and 'chn'.
+
+            The value can be left blank if working-day-only calculations are not
+            required, or if local public holiday data should be excluded.
+
+            The full list of supported country and region codes can be found at
+            http://holidays.kayaposoft.com/
+         </description>
+   	</context-param>
+
+    <context-param>
    		<param-name>EngineImpl</param-name>
    		<param-value></param-value>
    		<description>

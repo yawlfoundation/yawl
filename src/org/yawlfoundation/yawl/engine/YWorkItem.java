@@ -411,7 +411,7 @@ public class YWorkItem {
                     }
                     case Duration: {
                         timer = new YWorkItemTimer(_workItemID.toString(),
-                                _timerParameters.getDuration(), (pmgr != null));
+                                _timerParameters.getWorkDayDuration(), (pmgr != null));
                         break;
                     }
                     case Interval: {

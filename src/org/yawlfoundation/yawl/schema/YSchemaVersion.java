@@ -39,10 +39,11 @@ public enum YSchemaVersion {
     TwoPointZero ("2.0", 2.0),
     TwoPointOne  ("2.1", 2.1),
     TwoPointTwo  ("2.2", 2.2),
-    ThreePointZero ("3.0", 3.0);
+    ThreePointZero ("3.0", 3.0),
+    FourPointZero ("4.0", 4.0);
 
 
-    public static YSchemaVersion DEFAULT_VERSION = ThreePointZero;
+    public static YSchemaVersion DEFAULT_VERSION = FourPointZero;
 
     private final String betaNS = "http://www.citi.qut.edu.au/yawl";
     private final String betaSchemaLocation = betaNS +
@@ -149,6 +150,7 @@ public enum YSchemaVersion {
 
     public boolean isBetaVersion() {
         switch(this) {
+            case FourPointZero:
             case ThreePointZero:
             case TwoPointTwo:
             case TwoPointOne:

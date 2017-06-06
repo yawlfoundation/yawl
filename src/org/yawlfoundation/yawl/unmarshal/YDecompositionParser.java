@@ -445,6 +445,9 @@ public class YDecompositionParser {
                     }
                 }
             }
+            Element workDaysElem = timerElem.getChild("workdays", _yawlNS);
+            timerParameters.setWorkDaysOnly(workDaysElem != null);
+            
             task.setTimerParameters(timerParameters);
         }
     }

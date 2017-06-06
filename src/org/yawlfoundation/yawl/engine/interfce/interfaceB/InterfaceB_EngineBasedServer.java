@@ -27,6 +27,7 @@ import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
+import org.yawlfoundation.yawl.engine.time.workdays.HolidayLoader;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -67,6 +68,11 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         try {
             ServletContext context = getServletContext();
 
+            // set the path to external db gateway plugin classes (if any)
+            String pluginPath = context.getInitParameter("ExternalPluginsPath");
+            ExternalDBGatewayFactory.setExternalPaths(pluginPath);
+            PredicateEvaluatorFactory.setExternalPaths(pluginPath);
+
             // init engine reference
             _engine = (EngineGateway) context.getAttribute("engine");
             if (_engine == null) {
@@ -94,16 +100,17 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 _engine.setAllowAdminID(true);
             }
 
-            // set the path to external db gateway plugin classes (if any)
-            String pluginPath = context.getInitParameter("ExternalPluginsPath");
-            ExternalDBGatewayFactory.setExternalPaths(pluginPath);
-            PredicateEvaluatorFactory.setExternalPaths(pluginPath);
-
             // override the max time that initialisation events wait for between
             // final engine init and server start completion
             int maxWait = StringUtil.strToInt(
                     context.getInitParameter("InitialisationAnnouncementTimeout"), -1);
             if (maxWait >= 0) maxWaitSeconds = maxWait;
+
+            // set the country/region codes used for calculating work-day-only timers (if any)
+            String timerLocationConfig = context.getInitParameter("WorkdayTimerGeoCodes");
+            if (timerLocationConfig != null) {
+                new HolidayLoader(false).startupCheck(timerLocationConfig);
+            }
 
             // read the current version properties
             _engine.initBuildProperties(context.getResourceAsStream(

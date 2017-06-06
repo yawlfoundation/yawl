@@ -262,7 +262,7 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Creates a list of SpecificationData objects for the specifications currently
      * loaded into the engine. These are brief meta data summary
-     * information objects that describe a worklfow specification.
+     * information objects that describe a workflow specification.
      * @param sessionHandle the session handle
      * @return  the list of spec data objects
      * @throws IOException if engine can't be found.

@@ -22,6 +22,7 @@ class YTimerType implements YDataType {
                     "\t\t\t\t</xs:simpleType>\n" +
                     "\t\t\t</xs:element>\n" +
                     "\t\t\t<xs:element name=\"expiry\" type=\"xs:string\"/>\n" +
+                    "\t\t\t<xs:element name=\"workdays\" type=\"xs:boolean\"/>\n" +
                     "\t\t</xs:sequence>\n" +
                     "\t</xs:complexType>\n";
 
@@ -51,6 +52,10 @@ class YTimerType implements YDataType {
         Element expiry = addElement(sequence, "element");
         expiry.setAttribute("name", "expiry");
         expiry.setAttribute("type", "xs:string");
+
+        Element workdays = addElement(sequence, "element");
+        expiry.setAttribute("name", "workdays");
+        expiry.setAttribute("type", "xs:boolean");
 
         return element;
     }

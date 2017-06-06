@@ -556,6 +556,20 @@ public class StringUtil {
     }
 
 
+    public static Duration msecsToDuration(long msecs) {
+        if (msecs > -1) {
+            try {
+                return DatatypeFactory.newInstance().newDuration(msecs);
+            } catch (DatatypeConfigurationException dce) {
+                // nothing to do - null will be returned
+            } catch (IllegalArgumentException dce) {
+                // nothing to do - null will be returned
+            }
+        }
+        return null;
+    }
+
+
     public static boolean isValidDurationString(String s) {
         try {
             DatatypeFactory.newInstance().newDuration(s);
