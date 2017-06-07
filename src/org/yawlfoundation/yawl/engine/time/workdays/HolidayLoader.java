@@ -51,6 +51,9 @@ public class HolidayLoader {
 
     public boolean isHoliday(Calendar date) {
         for (Holiday holiday : getHolidays(date.get(Calendar.YEAR))) {
+            if (holiday.isAfter(date)) {                    // can ignore later hols
+                return false;
+            }
             if (holiday.matches(date)) {
                 return true;
             }
@@ -64,9 +67,7 @@ public class HolidayLoader {
         try {
             if (holidays == null) {
                 holidays = load(String.valueOf(year));
-                if (!holidays.isEmpty()) {
-                    _yearHolidayMap.put(year, holidays);
-                }
+                _yearHolidayMap.put(year, holidays);
             }
         }
         catch (Exception e) {
@@ -114,6 +115,7 @@ public class HolidayLoader {
         for (XNode holidayNode : root.getChildren()) {
             holidays.add(new Holiday(holidayNode));
         }
+        Collections.sort(holidays);
         return holidays;
     }
 
@@ -140,6 +142,9 @@ public class HolidayLoader {
                 }
                 holidays.add(holiday);
             }
+        }
+        for (List<Holiday> holidays : holidayMap.values()) {
+           Collections.sort(holidays);
         }
         return holidayMap;
     }

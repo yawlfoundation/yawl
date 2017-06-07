@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
  * @author Michael Adams
  * @date 26/5/17
  */
-public class Holiday {
+public class Holiday implements Comparable<Holiday> {
 
     private Calendar _date;
     private String _name;
@@ -33,6 +33,9 @@ public class Holiday {
             _date.get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR);
     }
 
+    public boolean isAfter(Calendar date) {
+        return _date != null && date != null && _date.after(date);
+    }
 
     public int getYear() {
         return _date != null ? _date.get(Calendar.YEAR) : -1;
@@ -57,6 +60,12 @@ public class Holiday {
     public String toString() {
         String date = _date != null ? _date.toString() : "";
         return _name + ": " + date;
+    }
+
+
+    public int compareTo(Holiday other) {
+        if (other == null) return 1;
+        return Long.signum(this.getTime() - other.getTime());
     }
 
 
