@@ -23,10 +23,7 @@ import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorFactory;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YEngine;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
-import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
-import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
-import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
+import org.yawlfoundation.yawl.engine.interfce.*;
 import org.yawlfoundation.yawl.engine.time.workdays.HolidayLoader;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
@@ -64,6 +61,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
     public void init() throws ServletException {
         int maxWaitSeconds = 5;                             // a default
+ //       PerfReporter.start();
 
         try {
             ServletContext context = getServletContext();
@@ -254,7 +252,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         String specVersion = request.getParameter("specversion");
         String specURI = request.getParameter("specuri");
         String taskID = request.getParameter("taskID");
-//        long start = System.currentTimeMillis();
+//        long start = System.nanoTime();
         
         try {
             debug(request, "Post");
@@ -442,6 +440,9 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 else if (action.equals("getStartingDataSnapshot")) {
                     msg.append(_engine.getStartingDataSnapshot(workItemID, sessionHandle));
                 }
+                else if (action.equals("pollPerfStats")) {
+                    msg.append(PerfReporter.poll());
+                }
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
@@ -456,7 +457,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             _log.error("Remote Exception in Interface B with action: " + action, e);
         }
         _log.debug("InterfaceB_EngineBasedServer::doPost() result = {}", msg);
-//        System.out.println("*Elapsed: " + action + ", " + (System.currentTimeMillis() - start));
+//        PerfReporter.record(action, start);
         return msg.toString();
     }
 

@@ -61,8 +61,8 @@ public class AdminTasksManager {
                         String process, int taskType) {
         AdministrationTask task = new AdministrationTask(caseID, title, scenario,
                                                            process, taskType);
-        addTask(task);
         Persister.insert(task);
+        addTask(task);
 
         // suspend case pending admin action
         WorkletService.getInstance().suspendCase(caseID);

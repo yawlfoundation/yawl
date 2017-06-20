@@ -1144,6 +1144,12 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String pollPerfStats(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("pollPerfStats", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+     }
+
+
     /**
      * Removes the outermost set of xml tags from a string, if any
      * @param xml the xml string to strip

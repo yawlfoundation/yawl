@@ -16,7 +16,9 @@
  * License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.yawlfoundation.yawl.util;
+package org.yawlfoundation.yawl.controlpanel.util;
+
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
