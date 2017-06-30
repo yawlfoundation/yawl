@@ -57,11 +57,10 @@ import java.util.Enumeration;
 public class InterfaceB_EngineBasedServer extends YHttpServlet {
 
     private EngineGateway _engine;
-
+    private boolean _gatherPerfStats = false;
 
     public void init() throws ServletException {
         int maxWaitSeconds = 5;                             // a default
- //       PerfReporter.start();
 
         try {
             ServletContext context = getServletContext();
@@ -82,6 +81,8 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 context.setAttribute("engine", _engine);
             }
 
+            // enable performance statistics gathering if requested
+            _gatherPerfStats = getBooleanFromContext("EnablePerformanceStatisticsGathering");
             // set flag to disable logging (only if false) - enabled with persistence by
             // default
             String logStr = context.getInitParameter("EnableLogging");
@@ -252,7 +253,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         String specVersion = request.getParameter("specversion");
         String specURI = request.getParameter("specuri");
         String taskID = request.getParameter("taskID");
-//        long start = System.nanoTime();
+        long start = System.nanoTime();
         
         try {
             debug(request, "Post");
@@ -443,6 +444,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 else if (action.equals("pollPerfStats")) {
                     msg.append(PerfReporter.poll());
                 }
+                if (_gatherPerfStats) PerfReporter.add(action, start);
             }  // action is null
             else if (request.getRequestURI().endsWith("ib")) {
                 msg.append(_engine.getAvailableWorkItemIDs(sessionHandle));
@@ -457,7 +459,6 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
             _log.error("Remote Exception in Interface B with action: " + action, e);
         }
         _log.debug("InterfaceB_EngineBasedServer::doPost() result = {}", msg);
-//        PerfReporter.record(action, start);
         return msg.toString();
     }
 

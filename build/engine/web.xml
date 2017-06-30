@@ -66,11 +66,21 @@
 
     <context-param>
         <param-name>EnableHibernateStatisticsGathering</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
         <description>
             When set to 'true', the hibernate database layer will collect statistics of
             all operations for later perusal.
-            When set to 'false', hibernate statistics collection is disabled.
+            When set to any other value, hibernate statistics collection is disabled.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>EnablePerformanceStatisticsGathering</param-name>
+        <param-value>false</param-value>
+        <description>
+            When set to 'true', statistics will be collected that capture the timespan of
+            each request-response operation.
+            When set to any other value, performance statistics collection is disabled.
         </description>
     </context-param>
 

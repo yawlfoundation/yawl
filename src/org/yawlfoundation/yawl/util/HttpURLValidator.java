@@ -74,8 +74,9 @@ public class HttpURLValidator {
 
         // escape early if urlStr is obviously bad
         if (urlStr == null) throw new MalformedURLException("URL is null");
-        if (!urlStr.startsWith("http://"))
-            throw new MalformedURLException("URL does not begin with 'http://'");
+        if (! (urlStr.startsWith("http://") || urlStr.startsWith("https://"))) {
+            throw new MalformedURLException("Invalid protocol for http");
+        }
 
         // this will throw an exception if the URL is invalid
         return new URL(urlStr);
