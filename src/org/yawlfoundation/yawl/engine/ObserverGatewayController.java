@@ -50,7 +50,7 @@ public class ObserverGatewayController {
      * Constructor
      */
     public ObserverGatewayController() {
-        _gateways = new Hashtable<String, Set<ObserverGateway>>();
+        _gateways = new HashMap<String, Set<ObserverGateway>>();
         _executor = Executors.newFixedThreadPool(THREADPOOL_SIZE);
     }
 

@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.engine.announcement.AnnouncementContext;
 import org.yawlfoundation.yawl.engine.announcement.YAnnouncement;
 import org.yawlfoundation.yawl.engine.announcement.YEngineEvent;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EngineBasedClient;
+import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_HttpsEngineBasedClient;
 import org.yawlfoundation.yawl.engine.interfce.interfaceX.InterfaceX_EngineSideClient;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
@@ -63,10 +64,12 @@ public class YAnnouncer {
         _announcementContext = AnnouncementContext.NORMAL;
         _controller = new ObserverGatewayController();
 
-        // Initialise the standard Observer Gateway.
-        // Currently the only standard gateway is the HTTP driven IB Servlet client.
+        // Initialise the standard Observer Gateways.
+        // Currently the two standard gateways are the HTTP and HTTPS driven
+        // IB Servlet client.
         try {
             _controller.addGateway(new InterfaceB_EngineBasedClient());
+            _controller.addGateway(new InterfaceB_HttpsEngineBasedClient());
         }
         catch (YAWLException ye) {
             _logger.warn("Failed to register default observer gateway. The Engine " +
