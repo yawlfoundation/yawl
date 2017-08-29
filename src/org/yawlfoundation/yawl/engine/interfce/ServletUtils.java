@@ -40,6 +40,12 @@ import java.util.Map;
  */
 public class ServletUtils {
 
+    public static  void sendResponse(HttpServletResponse resp, String result)
+            throws IOException {
+        finalizeResponse(prepareResponse(resp), result);
+    }
+
+
     public static OutputStreamWriter prepareResponse(HttpServletResponse response) throws IOException {
         response.setContentType("text/xml; charset=UTF-8");
         return new OutputStreamWriter(response.getOutputStream(), "UTF-8");

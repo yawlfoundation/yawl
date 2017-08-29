@@ -272,6 +272,17 @@ public class XNode implements Comparable<XNode> {
     }
 
 
+    public void removeDuplicateChildren() {
+        Map<String, XNode> childMap = new HashMap<String, XNode>();
+        for (XNode child : getChildren()) {
+            childMap.put(child.toString(), child);
+        }
+        removeChildren();
+        addChildren(childMap.values());
+    }
+
+
+
     /**************************************************************************/
 
     public XNode addComment(String comment) {

@@ -26,6 +26,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaderSAX2Factory;
+import org.jdom2.output.EscapeStrategy;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
@@ -179,6 +180,12 @@ public class JDOMUtil {
             }
         }
         return sb.toString();
+    }
+
+
+    public static String encodeAttributeEscapes(String s) {
+        EscapeStrategy strategy = Format.getRawFormat().getEscapeStrategy();
+        return Format.escapeAttribute(strategy, s);
     }
 
 

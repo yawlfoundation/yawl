@@ -1501,40 +1501,40 @@ public abstract class YTask extends YExternalNetElement {
     }
 
     public String getInformation() {
-        try {
-            YAWLServiceGateway gateway = (YAWLServiceGateway) getDecompositionPrototype();
-            StringBuilder result = new StringBuilder();
-            result.append("<taskInfo>");
+        StringBuilder result = new StringBuilder();
+        result.append("<taskInfo>");
 
-            YSpecification ySpec = _net.getSpecification();
-            result.append("<specification>");
-            result.append(StringUtil.wrap(ySpec.getID(), "id"));
-            result.append(StringUtil.wrap(ySpec.getSpecVersion(), "version"));
-            result.append(StringUtil.wrap(ySpec.getURI(), "uri"));
-            result.append("</specification>");
+        YSpecification ySpec = _net.getSpecification();
+        result.append("<specification>");
+        result.append(StringUtil.wrap(ySpec.getID(), "id"));
+        result.append(StringUtil.wrap(ySpec.getSpecVersion(), "version"));
+        result.append(StringUtil.wrap(ySpec.getURI(), "uri"));
+        result.append("</specification>");
 
-            result.append("<taskID>");
-            result.append(getID());
-            result.append("</taskID>");
+        result.append("<taskID>");
+        result.append(getID());
+        result.append("</taskID>");
 
-            result.append("<taskName>");
-            result.append(_name != null ? _name : _decompositionPrototype.getID());
-            result.append("</taskName>");
+        result.append("<taskName>");
+        result.append(_name != null ? _name :
+                _decompositionPrototype != null ? _decompositionPrototype.getID() : "null");
+        result.append("</taskName>");
 
-            if (_documentation != null) {
-                result.append("<taskDocumentation>");
-                result.append(_documentation);
-                result.append("</taskDocumentation>");
-            }
-            if (_decompositionPrototype != null) {
-                result.append("<decompositionID>");
-                result.append(_decompositionPrototype.getID());
-                result.append("</decompositionID>");
+        if (_documentation != null) {
+            result.append("<taskDocumentation>");
+            result.append(_documentation);
+            result.append("</taskDocumentation>");
+        }
+        if (_decompositionPrototype != null) {
+            result.append("<decompositionID>");
+            result.append(_decompositionPrototype.getID());
+            result.append("</decompositionID>");
 
-                result.append("<attributes>");
-                result.append(_decompositionPrototype.getAttributes().toXMLElements());
-                result.append("</attributes>");
+            result.append("<attributes>");
+            result.append(_decompositionPrototype.getAttributes().toXMLElements());
+            result.append("</attributes>");
 
+            if (_decompositionPrototype instanceof YAWLServiceGateway) {
                 YAWLServiceGateway wsgw = (YAWLServiceGateway) _decompositionPrototype;
                 YAWLServiceReference ys = wsgw.getYawlService();
                 if (ys != null) {
@@ -1546,33 +1546,32 @@ public abstract class YTask extends YExternalNetElement {
                     result.append("</yawlService>");
                 }
             }
-
-            result.append("<params>");
-            if (isMultiInstance()) {
-                result.append("<formalInputParam>").
-                        append(getMultiInstanceAttributes().getMIFormalInputParam()).
-                        append("</formalInputParam>");
-            }
-            for (YParameter parameter : gateway.getInputParameters().values()) {
-                result.append(parameter.toSummaryXML());
-            }
-            for (YParameter parameter : gateway.getOutputParameters().values()) {
-                result.append(parameter.toSummaryXML());
-            }
-            result.append("</params>");
-
-            if (_customFormURL != null) {
-                result.append(StringUtil.wrap(_customFormURL.toExternalForm(), "customform"));
-            } else {
-                result.append("<customform/>");
-            }
-
-            result.append("</taskInfo>");
-            return result.toString();
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
         }
+
+        result.append("<params>");
+        if (isMultiInstance()) {
+            result.append("<formalInputParam>").
+                    append(getMultiInstanceAttributes().getMIFormalInputParam()).
+                    append("</formalInputParam>");
+        }
+        if (_decompositionPrototype != null) {
+            for (YParameter parameter : _decompositionPrototype.getInputParameters().values()) {
+                result.append(parameter.toSummaryXML());
+            }
+            for (YParameter parameter : _decompositionPrototype.getOutputParameters().values()) {
+                result.append(parameter.toSummaryXML());
+            }
+        }
+        result.append("</params>");
+
+        if (_customFormURL != null) {
+            result.append(StringUtil.wrap(_customFormURL.toExternalForm(), "customform"));
+        } else {
+            result.append("<customform/>");
+        }
+
+        result.append("</taskInfo>");
+        return result.toString();
     }
 
 

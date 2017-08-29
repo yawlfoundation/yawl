@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  ~ Copyright (c) 2004-2014 The YAWL Foundation. All rights reserved.
+  ~ The YAWL Foundation is a collaboration of individuals and
+  ~ organisations who are committed to improving workflow technology.
+  ~
+  ~ This file is part of YAWL. YAWL is free software: you can
+  ~ redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation.
+  ~
+  ~ YAWL is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+  ~ Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with YAWL. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<web-app version="2.4">
+
+    <display-name>YAWL Load Balancing Service</display-name>
+    <description>
+        Copyright © 2017 The YAWL Foundation. All rights reserved.
+        Author: Michael Adams
+        For more information about the YAWL SOFTWARE LICENCE refer to the 'downloads' section under
+        http://www.yawlfoundation.org/.
+    </description>
+
+    <context-param>
+ 	    <param-name>Locations</param-name>
+     	<param-value>localhost:8081,localhost:8082,localhost:8083,localhost:8084</param-value>
+     	<description>
+     		A comma-separated list of YAWL engine deployments (host:port)
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>OperatingMode</param-name>
+    	<param-value>2</param-value>
+    	<description>
+            0 = random distribution
+            1 = snapshot of engine load
+            2 = weighted average of engine load (also see param 'ForgetFactor')
+            3 = (2) with prediction
+            4 = (3) with process logs (not yet implemented)
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>ForgetFactor</param-name>
+    	<param-value>0.5</param-value>
+    	<description>
+    		For use in mode 2. A value between 0.0 and 1.0 providing an alpha (sliding weighting) for
+            an Exponential Moving Average.
+            Alphas greater than 0.5 favour later values; 1.0 is the equivalent of
+            a snapshot (latest value only).
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>Verbose</param-name>
+    	<param-value>true</param-value>
+    	<description>
+    		'true' to enable detailed statistics logging to output
+        </description>
+    </context-param>
+
+    <context-param>
+ 	    <param-name>PollingInterval</param-name>
+     	<param-value>5</param-value>
+     	<description>
+     		The number of seconds interval between polling an engine for load statistics.
+            Set the value to -1 to limit load statistics to snapshots at case launch only.
+        </description>
+    </context-param>
+
+    <context-param>
+ 	    <param-name>RequestLimit</param-name>
+     	<param-value>500</param-value>
+     	<description>
+     		The maximum number of requests per polling interval an engine should be
+            expected to process.
+        </description>
+    </context-param>
+
+    <context-param>
+ 	    <param-name>ProcessTimeLimit</param-name>
+     	<param-value>70</param-value>
+     	<description>
+     		The maximum number of milliseconds in which an engine should be expected
+            to complete a process.
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>ThreadsLimit</param-name>
+    	<param-value>16</param-value>
+    	<description>
+    		The maximum number of process threads that an engine should be expected
+            to comfortably run (typically CPUs x 2).
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>MaxInitWaitSecs</param-name>
+    	<param-value>60</param-value>
+    	<description>
+    		The maximum number of seconds to wait for all engines to complete
+            initialisation. Any engine that does not initialise before this period
+            expires will be removed from the set.
+        </description>
+    </context-param>
+
+    <context-param>
+	    <param-name>ForecastQueueSize</param-name>
+    	<param-value>60</param-value>
+    	<description>
+    		For use with mode 3. Specifies how many readings will be recorded and used 
+        to forecast busyness.  
+        </description>
+    </context-param>
+
+
+    <servlet>
+		<servlet-name>LoadBalancerServlet</servlet-name>
+		<description>balancer</description>
+		<servlet-class>org.yawlfoundation.yawl.balancer.servlet.LoadBalancerServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+    <servlet-mapping>
+        <servlet-name>LoadBalancerServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>60</session-timeout>    <!-- 60 minutes -->
+    </session-config>
+
+</web-app>

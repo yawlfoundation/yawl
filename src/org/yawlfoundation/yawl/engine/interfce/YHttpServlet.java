@@ -49,6 +49,18 @@ public class YHttpServlet extends HttpServlet {
     }
 
 
+    protected int getIntFromContext(String param) {
+        String s = getServletContext().getInitParameter(param);
+        return StringUtil.strToInt(s, -1);
+    }
+
+
+    protected double getDoubleFromContext(String param) {
+        String s = getServletContext().getInitParameter(param);
+        return StringUtil.strToDouble(s, -1);
+    }
+
+
     protected String fail(String msg) {
         return StringUtil.wrap(msg, "failure");
     }

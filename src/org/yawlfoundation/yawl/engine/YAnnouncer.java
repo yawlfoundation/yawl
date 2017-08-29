@@ -72,7 +72,7 @@ public class YAnnouncer {
             _controller.addGateway(new InterfaceB_HttpsEngineBasedClient());
         }
         catch (YAWLException ye) {
-            _logger.warn("Failed to register default observer gateway. The Engine " +
+            _logger.warn("Failed to register default observer gateways. The Engine " +
                     "may be unable to send notifications to services!", ye);
         }
     }

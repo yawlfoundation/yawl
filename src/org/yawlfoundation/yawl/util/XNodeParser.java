@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 public class XNodeParser {
 
     private boolean _check;                                         // validation flag
+    private boolean _suppressMessages;
     private Pattern _attributeSplitter;
     private List<String> _openingComments;                          // if root node only
     private List<String> _closingComments;                          // if root node only
@@ -45,6 +46,7 @@ public class XNodeParser {
 
     public XNodeParser(boolean check) {
         _check = check;
+        _suppressMessages = false;
         _attributeSplitter = Pattern.compile("\\s*=\\s*\"|\\s*\"\\s*");
     }
 
@@ -79,6 +81,9 @@ public class XNodeParser {
     public XNode parse(Document d) {
         return parse(JDOMUtil.documentToString(d));
     }
+
+
+    public void suppressMessages(boolean suppress) { _suppressMessages = suppress; }
 
 
     /************************************************************************/
@@ -120,12 +125,15 @@ public class XNodeParser {
             return node;
         }
         catch (Exception e) {
-            LogManager.getLogger(this.getClass()).error(
-                    "Invalid format parsing string [{}] - {}", s, e.getMessage());
+            if (! _suppressMessages) {
+                LogManager.getLogger(this.getClass()).error(
+                        "Invalid format parsing string [{}] - {}", s, e.getMessage());
+            }
             return null;
         }
     }
 
+    
     /**
      * Creates a new XNode from the text provided
      * @param s the inner contents of an opening tag (ie. name + attributes)
