@@ -623,6 +623,10 @@ public class YNetRunner {
 
         YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
         if (groupID != null) item.setDeferredChoiceGroupID(groupID);
+        _enabledTasks.add(task);
+        _enabledTaskNames.add(task.getID());
+        if (pmgr != null) pmgr.updateObject(this);
+
         YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
         YAnnouncement announcement = _announcer.createAnnouncement(wsgw.getYawlService(),
                 item, YEngineEvent.ITEM_ADD);
@@ -631,9 +635,6 @@ public class YNetRunner {
             _announcer.announceCheckWorkItemConstraints(item,
                     _net.getInternalDataDocument(), true);
         }
-        _enabledTasks.add(task);
-        _enabledTaskNames.add(task.getID());
-        if (pmgr != null) pmgr.updateObject(this);
 
         return announcement;
     }
