@@ -191,7 +191,7 @@ public class YWorkItemRepository {
                 if (! foundOne) itemsToRemove.add(workitem.getIDString());
             }
         }
-        removeItems(itemsToRemove);
+        if (! itemsToRemove.isEmpty()) removeItems(itemsToRemove);
     }
 
 
