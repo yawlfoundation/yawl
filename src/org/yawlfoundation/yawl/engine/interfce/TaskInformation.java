@@ -21,7 +21,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class TaskInformation {
     }
 
 
-    public void setAttributes(Hashtable<String, String> map) {
+    public void setAttributes(Map<String, String> map) {
 	      _attributes.set(map);
     }
 
@@ -61,7 +61,7 @@ public class TaskInformation {
 	      _attributes.put(key,value);
     }
 
-    public Hashtable<String, String> getAttributes() {
+    public Map<String, String> getAttributes() {
 	      return _attributes;
     }
 

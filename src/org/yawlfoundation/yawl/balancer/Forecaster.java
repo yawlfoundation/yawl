@@ -31,14 +31,15 @@ public class Forecaster {
     }
 
 
-    public DataPoint forecast() {
+    public DataPoint forecast(int lookAhead) {
+        if (lookAhead > 1) {
+            List<DataPoint> dataPoints = _forecaster.forecast(lookAhead);
+            return dataPoints.get(dataPoints.size() -1);
+        }
         return _forecaster.forecast();
     }
 
-
-    public List<DataPoint> forecast(int ahead) {
-        return _forecaster.forecast(ahead);
-    }
+    public DataPoint forecast() { return forecast(1); }
 
 
     private org.hawkular.datamining.forecast.Forecaster.Config initConfig(int windowSize) {

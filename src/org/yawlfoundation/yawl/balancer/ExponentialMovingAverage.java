@@ -15,14 +15,13 @@ public class ExponentialMovingAverage {
     }
 
 
-    public void add(double value) { getAverage(value); }
+    public double getAverage() { return _average; }
 
 
     // Sn = αY + (1-α)Sn-1
     //    = Sn + α(Y - Sn)
-    public double getAverage(double value) {
+    public void add(double value) {
         _average = _average == -1 ? value : _average + _alpha * (value - _average);
-        return _average;
     }
     
 }

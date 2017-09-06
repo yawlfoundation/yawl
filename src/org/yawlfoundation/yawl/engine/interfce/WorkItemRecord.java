@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * A 'stringified' record of a workitem for passing across various HTTP interfaces
@@ -73,7 +74,7 @@ public class WorkItemRecord implements Cloneable {
     private String _codelet;
 
     // task/decomp level attribs
-    private Hashtable<String, String> _attributeTable;
+    private Map<String, String> _attributeTable;
     private String _extendedAttributes = "";
 
     // identifies this item as a member of a group of deferred choice items
@@ -183,7 +184,7 @@ public class WorkItemRecord implements Cloneable {
 
     public void setDeferredChoiceGroupID(String id) { _deferredChoiceGroupID = id ; }
 
-    public void setExtendedAttributes(Hashtable<String, String> attribs) {
+    public void setExtendedAttributes(Map<String, String> attribs) {
         _attributeTable = attribs ;
         _extendedAttributes = attributeTableToAttributeString() ;
     }
@@ -287,7 +288,7 @@ public class WorkItemRecord implements Cloneable {
 
     public String getExtendedAttributes() { return _extendedAttributes ; }
 
-    public Hashtable<String, String> getAttributeTable() {
+    public Map<String, String> getAttributeTable() {
         if ((_extendedAttributes.length() > 0) && (_attributeTable == null))
             _attributeTable = attributeStringToTable();
         return _attributeTable;

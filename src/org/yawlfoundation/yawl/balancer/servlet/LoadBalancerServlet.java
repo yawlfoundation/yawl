@@ -2,11 +2,14 @@ package org.yawlfoundation.yawl.balancer.servlet;
 
 import org.yawlfoundation.yawl.balancer.EngineInstance;
 import org.yawlfoundation.yawl.balancer.OperatingMode;
+import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
+import org.yawlfoundation.yawl.exceptions.YSyntaxException;
+import org.yawlfoundation.yawl.unmarshal.YMarshal;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -68,6 +71,7 @@ public class LoadBalancerServlet extends YHttpServlet {
         int requestLimit = getIntFromContext("RequestLimit");
         int procTimeLimit = getIntFromContext("ProcessTimeLimit");
         int threadsLimit = getIntFromContext("ThreadsLimit");
+        int lookAhead = getIntFromContext("ForecastLookAhead");
 
         double alpha = getDoubleFromContext("ForgetFactor");
         int queueSize = getIntFromContext("ForecastQueueSize");
@@ -83,7 +87,10 @@ public class LoadBalancerServlet extends YHttpServlet {
             instance.setMode(_mode);
             switch (_mode) {
                 case MOVING_AVERAGE: instance.setAlpha(alpha); break;
-                case PREDICTIVE_MOVING_AVERAGE: instance.setForecastQueueSize(queueSize); break;
+                case PREDICTIVE_MOVING_AVERAGE: {
+                    instance.setForecastQueueSize(queueSize);
+                    instance.setForecastLookAhead(lookAhead);
+                } break;
             }
             _engineSet.add(instance);
         }
@@ -104,7 +111,7 @@ public class LoadBalancerServlet extends YHttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        if (! _allActive) {
+        if (!_allActive) {
 //            System.out.print("Waiting for engine(s) initialisation...");
             waitUntilAllActive();
             _authenticator = getRandomInstance();
@@ -113,7 +120,7 @@ public class LoadBalancerServlet extends YHttpServlet {
         }
 //        _log.warn("\n" + RequestDumpUtil.dump(req) + "\n");
         String requri = req.getRequestURI();
-        if (requri != null && ! req.getRequestURI().startsWith("/bal")) {
+        if (requri != null && !req.getRequestURI().startsWith("/bal")) {
             _log.error("Balancer received invalid request URI: {}", requri);
             processResponse(resp, "<error/>");
         }
@@ -254,18 +261,19 @@ public class LoadBalancerServlet extends YHttpServlet {
 
     private String handleSpecAction(HttpServletRequest req) throws IOException {
         String action = req.getParameter("action");
-        String specIdentifier = req.getParameter("specidentifier");
-        String specVersion = req.getParameter("specversion");
-        String specURI = req.getParameter("specuri");
-        YSpecificationID specID = new YSpecificationID(specIdentifier, specVersion, specURI);
         if (action.equals("upload")) {
             String result = forwardPost(getRandomInstance(), buildParamMap(req), "/ia");
             if (successful(result)) {
-                _specMap.put(specID, req.getParameter("specXML"));
+                String specXML = req.getParameter("specXML");
+                _specMap.put(getSpecIDFromXML(specXML), specXML);
             }
             return result;
         }
         else {           // unload
+            String specIdentifier = req.getParameter("specidentifier");
+            String specVersion = req.getParameter("specversion");
+            String specURI = req.getParameter("specuri");
+            YSpecificationID specID = new YSpecificationID(specIdentifier, specVersion, specURI);
             for (EngineInstance instance : _engineSet) {
                 if (isLoaded(instance, specID)) {
                     forwardPost(instance, buildParamMap(req), "/ia");
@@ -510,6 +518,21 @@ public class LoadBalancerServlet extends YHttpServlet {
     }
 
 
+    // xml has already been validated via upload call
+    private YSpecificationID getSpecIDFromXML(String specXML) throws IOException {
+        try {
+            List<YSpecification> specList = YMarshal.unmarshalSpecifications(specXML, false);
+            if (specList.isEmpty()) {
+                throw new IOException("Failed to parse specification xml");
+            }
+            return specList.get(0).getSpecificationID();
+        }
+        catch (YSyntaxException yse) {
+             throw new IOException(yse.getMessage());
+        }
+    }
+
+    
     private List<SpecificationData> getSpecList(EngineInstance instance) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "getSpecificationPrototypesList");

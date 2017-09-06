@@ -30,8 +30,8 @@ import org.yawlfoundation.yawl.util.JDOMUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -271,7 +271,7 @@ public class Marshaller {
     }
 
 
-    public static Hashtable<String, String> unmarshalWorkItemAttributes(Element item) {
+    public static Map<String, String> unmarshalWorkItemAttributes(Element item) {
         YAttributeMap result = new YAttributeMap();
         result.fromJDOM(item.getAttributes());
         return result ;

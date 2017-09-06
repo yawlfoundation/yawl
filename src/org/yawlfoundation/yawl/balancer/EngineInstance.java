@@ -26,6 +26,7 @@ public class EngineInstance {
     private ScheduledExecutorService _executor;
 
     private int _pollInterval = DEF_POLL_INTERVAL;
+    private int _lookAhead;
     private String _sessionHandle;
     private boolean _active;
     private boolean _restored;
@@ -82,6 +83,10 @@ public class EngineInstance {
         _forecaster = new Forecaster(maxSize, _pollInterval);
     }
 
+    public void setForecastLookAhead(int ahead) {
+        _lookAhead = ahead;
+    }
+
     public void setMode(OperatingMode mode) { _mode = mode; }
 
 
@@ -115,7 +120,7 @@ public class EngineInstance {
                                         _forecaster != null) {
                                     _forecaster.add(busyness);
                                 }
-                                else if (_mode != OperatingMode.MOVING_AVERAGE &&
+                                else if (_mode == OperatingMode.MOVING_AVERAGE &&
                                         _expAverage != null) {
                                     _expAverage.add(busyness);
                                 }
@@ -192,14 +197,13 @@ public class EngineInstance {
 
 
     public double getBusyness(boolean verbose) throws IOException, JSONException {
-        double busyness = _loadReader.getBusyness(verbose);
         if (_mode == OperatingMode.PREDICTIVE_MOVING_AVERAGE && _forecaster != null) {
-            busyness = _forecaster.forecast().getValue();
+            return _forecaster.forecast().getValue();
         }
-        else if (_mode != OperatingMode.SNAPSHOT && _expAverage != null) {
-            busyness = _expAverage.getAverage(busyness);
+        else if (_mode == OperatingMode.MOVING_AVERAGE && _expAverage != null) {
+            return _expAverage.getAverage();
         }
-        return busyness;
+        return _loadReader.getBusyness(verbose);
     }
 
 }

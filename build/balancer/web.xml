@@ -118,10 +118,19 @@
     	<param-value>60</param-value>
     	<description>
     		For use with mode 3. Specifies how many readings will be recorded and used 
-        to forecast busyness.  
+            to forecast busyness.
         </description>
     </context-param>
 
+    <context-param>
+	    <param-name>ForecastLookAhead</param-name>
+    	<param-value>1</param-value>
+    	<description>
+    		For use with mode 3. Specifies how many data points into the future to use
+            to forecast busyness. A value less than or equal to 1 means the next
+            forecasted value will be used.
+        </description>
+    </context-param>
 
     <servlet>
 		<servlet-name>LoadBalancerServlet</servlet-name>

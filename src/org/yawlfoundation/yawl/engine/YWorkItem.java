@@ -651,7 +651,7 @@ public class YWorkItem {
     }
     
 
-    public Hashtable<String, String> getAttributes() {
+    public Map<String, String> getAttributes() {
         return _attributes;
     }
 

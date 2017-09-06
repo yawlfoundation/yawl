@@ -32,7 +32,7 @@ import java.util.*;
  * @since 2.1
  * @date 11/11/2009
  */
-public class YAttributeMap extends Hashtable<String, String> {
+public class YAttributeMap extends TreeMap<String, String> {
 
     // a map of dynamically constructed values (each time the attributes are read)
     Map<String, DynamicValue> _dynamics;
@@ -41,7 +41,7 @@ public class YAttributeMap extends Hashtable<String, String> {
      * Construct an (initially) empty attribute map.
      */
     public YAttributeMap() {
-        _dynamics = new Hashtable<String, DynamicValue>();
+        _dynamics = new TreeMap<String, DynamicValue>();
     }
 
     /**

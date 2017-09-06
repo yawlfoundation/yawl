@@ -621,10 +621,10 @@ public class YNetRunner {
             throws YDataStateException, YStateException, YQueryException,
             YPersistenceException {
 
-        YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
-        if (groupID != null) item.setDeferredChoiceGroupID(groupID);
         _enabledTasks.add(task);
         _enabledTaskNames.add(task.getID());
+        YWorkItem item = createEnabledWorkItem(pmgr, _caseIDForNet, task);
+        if (groupID != null) item.setDeferredChoiceGroupID(groupID);
         if (pmgr != null) pmgr.updateObject(this);
 
         YAWLServiceGateway wsgw = (YAWLServiceGateway) task.getDecompositionPrototype();
