@@ -1064,10 +1064,12 @@ public class SessionBean extends AbstractSessionBean {
         if (pidList != null) {
             if (action.startsWith("Re")) {
                 wir = getChosenWIR(WorkQueue.WORKLISTED);
+                if (wir == null) return false;
                 _rm.reassignWorklistedItem(wir, pidList, action) ;
             }
             else  {
                 wir = getChosenWIR(WorkQueue.UNOFFERED);
+                if (wir == null) return false;
                 success = _rm.assignUnofferedItem(wir, pidList, action) ;
             }
         }

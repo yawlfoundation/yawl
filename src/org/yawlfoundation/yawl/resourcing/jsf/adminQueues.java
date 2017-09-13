@@ -298,7 +298,8 @@ public class adminQueues extends AbstractPageBean {
 
         // take appropriate postback action if required
         if (! _sb.performAdminQueueAction()) {
-           _msgPanel.error("Could not complete workitem action." +
+           _msgPanel.error("Could not complete workitem administration action, " +
+                    "perhaps because of a user-initiated change of state." +
                     " Please see the log files for details.");               
         }
         showMessagePanel();
