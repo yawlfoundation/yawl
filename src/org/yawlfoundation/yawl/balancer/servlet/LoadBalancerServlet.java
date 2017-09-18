@@ -2,6 +2,9 @@ package org.yawlfoundation.yawl.balancer.servlet;
 
 import org.yawlfoundation.yawl.balancer.EngineInstance;
 import org.yawlfoundation.yawl.balancer.OperatingMode;
+import org.yawlfoundation.yawl.balancer.config.Config;
+import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
+import org.yawlfoundation.yawl.balancer.polling.PollingService;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.Marshaller;
@@ -25,16 +28,15 @@ import java.util.*;
  * @author Michael Adams
  * @date 22/6/17
  */
-public class LoadBalancerServlet extends YHttpServlet {
+public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeListener {
+
+    private final ForwardClient _forwardClient = new ForwardClient();
+    private final XNodeParser _parser = new XNodeParser();
 
     private Set<EngineInstance> _engineSet;
     private EngineInstance _authenticator;
-    private ForwardClient _forwardClient = new ForwardClient();
-    private XNodeParser _parser = new XNodeParser();
     private Map<String, String> _connectionParams;
     private Map<YSpecificationID, String> _specMap;
-    private OperatingMode _mode;
-    private boolean _verbose;
     private boolean _allActive = false;
     private Random _random = new Random();
     private int _lastCaseNbr = 0;
@@ -63,40 +65,19 @@ public class LoadBalancerServlet extends YHttpServlet {
     public void init() throws ServletException {
         _engineSet = new HashSet<EngineInstance>();
         _parser.suppressMessages(true);
-        
-        _mode = getModeFromContext();
-        _verbose = getBooleanFromContext("Verbose");
+        Config.load(getServletContext());
+        Config.addChangeListener(this);
 
-        int pollInterval = getIntFromContext("PollingInterval");
-        int requestLimit = getIntFromContext("RequestLimit");
-        int procTimeLimit = getIntFromContext("ProcessTimeLimit");
-        int threadsLimit = getIntFromContext("ThreadsLimit");
-        int lookAhead = getIntFromContext("ForecastLookAhead");
-
-        double alpha = getDoubleFromContext("ForgetFactor");
-        int queueSize = getIntFromContext("ForecastQueueSize");
-        String locations = getServletContext().getInitParameter("Locations");
-        
-        for (String location : locations.split(",")) {
+        List<String> locations = Config.getLocations();
+        for (String location : locations) {
             String[] parts = location.split(":");
             String host = parts[0];
             int port = StringUtil.strToInt(parts[1], -1);
-            EngineInstance instance = new EngineInstance(host, port);
-            instance.setLimits(requestLimit, procTimeLimit, threadsLimit);
-            instance.setPollInterval(pollInterval);
-            instance.setMode(_mode);
-            switch (_mode) {
-                case MOVING_AVERAGE: instance.setAlpha(alpha); break;
-                case PREDICTIVE_MOVING_AVERAGE: {
-                    instance.setForecastQueueSize(queueSize);
-                    instance.setForecastLookAhead(lookAhead);
-                } break;
-            }
-            _engineSet.add(instance);
+            _engineSet.add(new EngineInstance(host, port));
         }
 
-        _authenticator = getRandomInstance();
-        _authenticator.setAuthenticator(true);
+//        _authenticator = getRandomInstance();
+//        _authenticator.setAuthenticator(true);
     }
 
 
@@ -112,11 +93,9 @@ public class LoadBalancerServlet extends YHttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!_allActive) {
-//            System.out.print("Waiting for engine(s) initialisation...");
             waitUntilAllActive();
             _authenticator = getRandomInstance();
             _authenticator.setAuthenticator(true);
-//            System.out.println("done.");
         }
 //        _log.warn("\n" + RequestDumpUtil.dump(req) + "\n");
         String requri = req.getRequestURI();
@@ -157,9 +136,18 @@ public class LoadBalancerServlet extends YHttpServlet {
     @Override
     public void destroy() {
         for (EngineInstance instance : _engineSet) {
-            instance.stopPolling();
+            instance.close();
         }
+        PollingService.shutdown();
+        Config.stopConfigMonitoring();
         super.destroy();
+    }
+
+
+    public void configChanged(Map<String, String> changedValues) {
+        if (changedValues.containsKey("poll_interval")) {
+            PollingService.reschedule();
+        }
     }
 
     
@@ -203,19 +191,12 @@ public class LoadBalancerServlet extends YHttpServlet {
         if (! _authenticator.isRestored() && "connect".equals(req.getParameter("action"))) {
             restoreCases();
             restoreSpecifications();
-            startPolling();
+            PollingService.schedule();
         }
         return forwardPost(_authenticator.getURL(req.getPathInfo()), buildParamMap(req));
     }
 
 
-    private void startPolling() {
-        for (EngineInstance instance : _engineSet) {
-            instance.startPolling(_verbose);
-        }
-    }
-
-    
     private String handleLaunchAction(HttpServletRequest req) throws IOException {
         EngineInstance instance = getIdlestEngine();
         Map<String, String> params = buildParamMap(req);
@@ -313,7 +294,7 @@ public class LoadBalancerServlet extends YHttpServlet {
 
 
     private EngineInstance getIdlestEngine() {
-        if (_mode == OperatingMode.RANDOM) {
+        if (Config.getOperatingMode() == OperatingMode.RANDOM) {
             return getRandomInstance();
         }
         EngineInstance idlest = null;
@@ -641,7 +622,7 @@ public class LoadBalancerServlet extends YHttpServlet {
 
 
     private int getInitialisationWaitLimit() {
-       int limit = getIntFromContext("MaxInitWaitSecs");
+       int limit = Config.getEngineInitWait();
        return limit > 0 ? limit * 1000 : 60000;
     }
 
@@ -655,15 +636,6 @@ public class LoadBalancerServlet extends YHttpServlet {
             }
         }
         _engineSet.removeAll(inactive);
-    }
-
-
-    private OperatingMode getModeFromContext() {
-        int modeValue = getIntFromContext("OperatingMode");
-        if (modeValue == -1 || modeValue > OperatingMode.values().length - 1) {
-            return OperatingMode.RANDOM;            // default
-        }
-        return OperatingMode.values()[modeValue];
     }
 
 }

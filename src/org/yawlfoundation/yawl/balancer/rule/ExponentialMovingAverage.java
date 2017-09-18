@@ -1,10 +1,10 @@
-package org.yawlfoundation.yawl.balancer;
+package org.yawlfoundation.yawl.balancer.rule;
 
 /**
  * @author Michael Adams
  * @date 8/8/17
  */
-public class ExponentialMovingAverage {
+public class ExponentialMovingAverage implements BusynessRule {
 
     private double _alpha;
     private double _average;
@@ -15,7 +15,7 @@ public class ExponentialMovingAverage {
     }
 
 
-    public double getAverage() { return _average; }
+    public double get() { return _average; }
 
 
     // Sn = αY + (1-α)Sn-1

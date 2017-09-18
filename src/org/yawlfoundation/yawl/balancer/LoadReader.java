@@ -1,6 +1,7 @@
 package org.yawlfoundation.yawl.balancer;
 
 import org.json.JSONException;
+import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.jmx.JMXReader;
 import org.yawlfoundation.yawl.balancer.jmx.JMXStatistics;
 import org.yawlfoundation.yawl.balancer.output.BusynessOutputter;
@@ -16,9 +17,6 @@ import java.util.Map;
 public class LoadReader {
 
     private final JMXReader _jmxReader;
-    private double _requestLimit = 500;
-    private double _procTimeLimit = 70;
-    private double _threadsLimit = 16;
     private int _prevReqCount = 0;
     private double _prevProcTime = 0;
     private BusynessOutputter _outputter;
@@ -33,14 +31,6 @@ public class LoadReader {
     public LoadReader(String host, int port) {
         _jmxReader = new JMXReader(host, port);
         _engineName = host + ":" + port;
-    }
-
-
-    public void setLimits(int requestsPerSec, int meanProcessingTimeInMsecs,
-                          int busyThreads) {
-        _requestLimit = requestsPerSec;
-        _procTimeLimit = meanProcessingTimeInMsecs;
-        _threadsLimit = busyThreads;
     }
 
 
@@ -62,15 +52,15 @@ public class LoadReader {
         if (_prevReqCount > 0) {
             int netReqCount = reqCount - _prevReqCount;
             double meanTime = (procTime - _prevProcTime) / (double) (netReqCount);
-            timeFactor = meanTime / _procTimeLimit;
-            reqFactor = netReqCount / _requestLimit;
+            timeFactor = (meanTime / Config.getWeightedProcessTimeLimit());
+            reqFactor = netReqCount / Config.getWeightedRequestLimitPerPollInterval();
         }
         _prevReqCount = reqCount;
         _prevProcTime = procTime;
 
         JMXStatistics threadStats = getThreads();
         int busy = threadStats.getIntValue("currentThreadsBusy");
-        double threadFactor = busy / _threadsLimit;
+        double threadFactor = busy / Config.getWeightedThreadsLimit();
 
         double score = ((timeFactor + reqFactor + threadFactor) / 3) * 100;
 
@@ -93,20 +83,6 @@ public class LoadReader {
             verboseValues.put("threads_factor", String.format("%.3f", threadFactor));
             verboseValues.put("busyness", String.format("%.3f", score));
             getOutputter().add(verboseValues);
-
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").
-//                    format(new Date()));
-//            sb.append(" :- Load statistics for engine ").append(_host).append(":")
-//                    .append(_port).append('\n');
-//            sb.append(String.format("CPU %% (process/system): %.3f / %.3f\n",
-//                    procLoad, sysLoad));
-//            sb.append(String.format("Threads (count/busy/free): %d / %d / %d\n",
-//                    count, busy, (max - busy)));
-//            sb.append(String.format("Factors (proctime/reqs/threads): %.3f / %.3f / %.3f\n",
-//                    timeFactor, reqFactor, threadFactor));
-//            sb.append(String.format("Overall Busyness Factor: %.1f%%\n\n", score));
-//            System.out.println(sb.toString());
         }
 
         return score;

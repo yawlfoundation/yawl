@@ -2,6 +2,13 @@ package org.yawlfoundation.yawl.balancer;
 
 import org.apache.logging.log4j.LogManager;
 import org.json.JSONException;
+import org.yawlfoundation.yawl.balancer.config.Config;
+import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
+import org.yawlfoundation.yawl.balancer.polling.Pollable;
+import org.yawlfoundation.yawl.balancer.polling.PollingService;
+import org.yawlfoundation.yawl.balancer.rule.BusynessRule;
+import org.yawlfoundation.yawl.balancer.rule.ExponentialMovingAverage;
+import org.yawlfoundation.yawl.balancer.rule.Forecaster;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -9,49 +16,67 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 /**
  * @author Michael Adams
  * @date 20/7/17
  */
-public class EngineInstance {
+public class EngineInstance implements ConfigChangeListener, Pollable {
 
     private String _host;
     private int _port;
     private final LoadReader _loadReader;
-    private final Poller _poller;
-    private ScheduledExecutorService _executor;
-
-    private int _pollInterval = DEF_POLL_INTERVAL;
-    private int _lookAhead;
+    private BusynessRule _busyRule;
     private String _sessionHandle;
     private boolean _active;
     private boolean _restored;
     private boolean _authenticator;
-    private ExponentialMovingAverage _expAverage;
-    private Forecaster _forecaster;
-    private OperatingMode _mode;
     private List<String> _runningCases;
 
     private static final String YAWL_URL_TEMPLATE = "http://%s:%d/yawl%s";
-    private static final int DEF_POLL_INTERVAL = 5;
 
 
     public EngineInstance(String host, int port) {
         _host = host;
         _port = port;
         _loadReader = new LoadReader(host, port);
-        _poller = new Poller(host, port);
         _active = false;
         _authenticator = false;
         _runningCases = new ArrayList<String>();
+        _busyRule = getBusyRule();
+        PollingService.add(new RequestCollator(host, port));
+        PollingService.add(this);
+        Config.addChangeListener(this);
         pingUntilActive();
     }
 
-    
+
+    @Override
+    public void configChanged(Map<String, String> changedValues) {
+        if (changedValues.containsKey("mode")) {
+            _busyRule = getBusyRule();
+        }
+    }
+
+
+    @Override
+    public void scheduledEvent() {
+        if (_busyRule != null) {
+            try {
+                _busyRule.add(_loadReader.getBusyness(Config.isWriteLog()));
+            }
+            catch (Exception e) {
+                LogManager.getLogger(this.getClass()).error(
+                        e.getMessage() + " for engine {}:{}",
+                        _host, _port
+                );
+                // later
+            }
+        }
+    }
+
+
     public String getURL(String path) {
         return String.format(YAWL_URL_TEMPLATE, _host, _port, path);
     }
@@ -62,81 +87,9 @@ public class EngineInstance {
     public int getPort() { return _port; }
 
 
-    public void setLimits(int requests, int procTime, int threads) {
-        _loadReader.setLimits(requests, procTime, threads);
-    }
 
-
-    public void setPollInterval(int interval) {
-        _pollInterval = interval > 0 ? interval : DEF_POLL_INTERVAL;
-    }
-
-
-    public void setAlpha(double alpha) {
-        if (alpha < 0) alpha = 0.0;
-        else if (alpha > 1.0) alpha = 1.0;
-        _expAverage = new ExponentialMovingAverage(alpha);
-    }
-
-    public void setForecastQueueSize(int maxSize) {
-        if (maxSize < 1) maxSize = 60;
-        _forecaster = new Forecaster(maxSize, _pollInterval);
-    }
-
-    public void setForecastLookAhead(int ahead) {
-        _lookAhead = ahead;
-    }
-
-    public void setMode(OperatingMode mode) { _mode = mode; }
-
-
-    public void startPolling(boolean verbose) {
-        if (_pollInterval > -1) {
-            startPolling(_pollInterval, verbose);
-            _poller.start(_pollInterval, verbose);
-        }
-    }
-
-
-    public void stopPolling() {
-        if (_executor != null) _executor.shutdownNow();  
-        _poller.stop();
+    public void close() {
         _loadReader.close();
-    }
-
-
-    private void startPolling(int interval, final boolean verbose) {
-        _executor = Executors.newScheduledThreadPool(1);
-        _executor.scheduleAtFixedRate(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (_mode == OperatingMode.RANDOM || _mode == OperatingMode.SNAPSHOT) {
-                            return;
-                        }
-                        try {
-                                double busyness = _loadReader.getBusyness(verbose);
-                                if (_mode == OperatingMode.PREDICTIVE_MOVING_AVERAGE &&
-                                        _forecaster != null) {
-                                    _forecaster.add(busyness);
-                                }
-                                else if (_mode == OperatingMode.MOVING_AVERAGE &&
-                                        _expAverage != null) {
-                                    _expAverage.add(busyness);
-                                }
-
-                            }
-                            catch (Exception e) {
-                                LogManager.getLogger(this.getClass()).error(
-                                        e.getMessage() + " for engine {}:{}",
-                                        _host, _port
-                                );
-                                // later
-                            }
-                    }
-
-                }, 0, interval, TimeUnit.SECONDS
-        );
     }
 
 
@@ -197,13 +150,19 @@ public class EngineInstance {
 
 
     public double getBusyness(boolean verbose) throws IOException, JSONException {
-        if (_mode == OperatingMode.PREDICTIVE_MOVING_AVERAGE && _forecaster != null) {
-            return _forecaster.forecast().getValue();
+        return _busyRule != null ? _busyRule.get() : _loadReader.getBusyness(verbose);
+    }
+
+
+    private BusynessRule getBusyRule() {
+        switch (Config.getOperatingMode()) {
+            case MOVING_AVERAGE:
+                return new ExponentialMovingAverage(Config.getForgetFactor());
+            case PREDICTIVE_MOVING_AVERAGE:
+                return new Forecaster(Config.getForecastQueueSize(), Config.getPollInterval());
+            default:
+                return null;
         }
-        else if (_mode == OperatingMode.MOVING_AVERAGE && _expAverage != null) {
-            return _expAverage.getAverage();
-        }
-        return _loadReader.getBusyness(verbose);
     }
 
 }

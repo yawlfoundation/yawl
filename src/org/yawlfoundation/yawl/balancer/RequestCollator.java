@@ -1,6 +1,8 @@
 package org.yawlfoundation.yawl.balancer;
 
+import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.output.RequestStatOutputter;
+import org.yawlfoundation.yawl.balancer.polling.Pollable;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceB_EnvironmentBasedClient;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
@@ -8,66 +10,47 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Michael Adams
  * @date 16/6/17
  */
-public class Poller {
+public class RequestCollator implements Pollable {
 
     private static final String YAWL_URL_TEMPLATE = "http://%s:%d/yawl/ib";
     private final InterfaceB_EnvironmentBasedClient client;
     private final Map<String, ResponseStats> statMap;
     private String handle;
-    private ScheduledExecutorService _executor;
     private RequestStatOutputter _outputter;
     private final String _engineName;
 
-    public Poller() {
+    
+    public RequestCollator() {
         this("localhost", 8080);
     }
 
     
-    public Poller(String host, int port) {
+    public RequestCollator(String host, int port) {
         String yawlURL = String.format(YAWL_URL_TEMPLATE, host, port);
         client = new InterfaceB_EnvironmentBasedClient(yawlURL);
         statMap = new TreeMap<String, ResponseStats>();
         _engineName = host + ':' + port;
     }
 
+
+    public void scheduledEvent() {
+        try {
+            parse(pollRequests());
+            if (Config.isWriteLog()) {
+                dump();
+            }
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     
-    public void start() { start(10, false); }
-
-
-    public void start(int pollPeriodAsSeconds, final boolean verbose) {
-        _executor = Executors.newScheduledThreadPool(1);
-        _executor.scheduleAtFixedRate(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            parse(pollRequests());
-                            if (verbose) {
-                                dump();
-                            }
-                        }
-                        catch (IOException ioe) {
-                            ioe.printStackTrace();
-                        }
-                    }
-
-                }, 0, pollPeriodAsSeconds, TimeUnit.SECONDS
-        );
-    }
-
-    public void stop() {
-        if (_executor != null) _executor.shutdownNow();
-        if (_outputter != null) _outputter.closeFile();
-    }
-
     public Map<String, ResponseStats> getStatisics() { return statMap; }
 
 
@@ -143,12 +126,12 @@ public class Poller {
         }
     }
 
+
     private RequestStatOutputter getOutputter() {
         if (_outputter == null) {
             _outputter = new RequestStatOutputter(_engineName);
         }
         return _outputter;
     }
-
 
 }

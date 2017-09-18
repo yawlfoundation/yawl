@@ -1,9 +1,10 @@
-package org.yawlfoundation.yawl.balancer;
+package org.yawlfoundation.yawl.balancer.rule;
 
 import org.hawkular.datamining.forecast.AutomaticForecaster;
 import org.hawkular.datamining.forecast.DataPoint;
 import org.hawkular.datamining.forecast.ImmutableMetricContext;
 import org.hawkular.datamining.forecast.MetricContext;
+import org.yawlfoundation.yawl.balancer.config.Config;
 
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * @author Michael Adams
  * @date 14/8/17
  */
-public class Forecaster {
+public class Forecaster implements BusynessRule {
 
     private AutomaticForecaster _forecaster;
 
@@ -30,8 +31,13 @@ public class Forecaster {
         _forecaster.learn(new DataPoint(value, new Date().getTime()));
     }
 
+    public double get() {
+        return forecast().getValue();
+    }
 
-    public DataPoint forecast(int lookAhead) {
+
+    public DataPoint forecast() {
+        int lookAhead = Config.getForecastLookahead();
         if (lookAhead > 1) {
             List<DataPoint> dataPoints = _forecaster.forecast(lookAhead);
             return dataPoints.get(dataPoints.size() -1);
@@ -39,7 +45,6 @@ public class Forecaster {
         return _forecaster.forecast();
     }
 
-    public DataPoint forecast() { return forecast(1); }
 
 
     private org.hawkular.datamining.forecast.Forecaster.Config initConfig(int windowSize) {
