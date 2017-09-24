@@ -42,6 +42,7 @@ public class Config {
     private static final double DEFAULT_FORGET_FACTOR = 0.5;
     private static final int DEFAULT_FORECAST_QUEUE_SIZE = 60;
     private static final int DEFAULT_FORECAST_LOOKAHEAD = 1;
+    private static final double DEFAULT_MAX_BUSYNESS = 0.0;
 
     
     public static boolean load(ServletContext context) {
@@ -102,6 +103,11 @@ public class Config {
 
     public static int getEngineInitWait() {
         return getInt("max_init_wait_secs", DEFAULT_INIT_WAIT);
+    }
+
+
+    public static int getEngineInitWaitMSecs() {
+        return getEngineInitWait() * 1000;
     }
 
 
@@ -185,6 +191,11 @@ public class Config {
 
     public static int getForecastLookahead() {
         return getInt("forecast_lookahead", DEFAULT_FORECAST_LOOKAHEAD);
+    }
+
+
+    public static double getBusynessLimit() {
+        return getDouble("max_busyness", DEFAULT_MAX_BUSYNESS);
     }
 
 

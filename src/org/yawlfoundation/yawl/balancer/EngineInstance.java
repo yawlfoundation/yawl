@@ -30,6 +30,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
     private BusynessRule _busyRule;
     private String _sessionHandle;
     private boolean _active;
+    private boolean _initialized;
     private boolean _restored;
     private boolean _authenticator;
     private List<String> _runningCases;
@@ -42,6 +43,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
         _port = port;
         _loadReader = new LoadReader(host, port);
         _active = false;
+        _initialized = false;
         _authenticator = false;
         _runningCases = new ArrayList<String>();
         _busyRule = getBusyRule();
@@ -93,6 +95,9 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
     }
 
 
+    public boolean isInitialized() { return _initialized; }
+
+
     public boolean isActive() { return _active; }
 
     public void setActive(boolean active) { _active = active; }
@@ -136,7 +141,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
                     @Override
                     public void run() {
                         try {
-                            _active = HttpURLValidator.pingUntilAvailable(
+                            _initialized = HttpURLValidator.pingUntilAvailable(
                                     getURL("/ib"), 60);
                         }
                         catch (MalformedURLException mue) {
