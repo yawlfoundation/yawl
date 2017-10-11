@@ -11,7 +11,7 @@ public class BusynessOutputter extends AbstractLoadOutputter {
 
 
     public BusynessOutputter(String engineName) {
-        super("busyness", engineName);
+        super("busyness", engineName, ".log");
     }
 
 
@@ -41,5 +41,8 @@ public class BusynessOutputter extends AbstractLoadOutputter {
                "threads_busy,threads_free,process_time_factor,requests_factor," +
                "threads_factor,busyness";
     }
+
+
+    protected void finalise() { }
 
 }

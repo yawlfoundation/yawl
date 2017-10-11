@@ -45,6 +45,8 @@ import org.yawlfoundation.yawl.resourcing.jsf.SessionBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.dynattributes.DynAttributeFactory;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -834,18 +836,17 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
                 }
             }
         }
+        componentList.ensureRadioButtonSelection();
         return componentList;
     }
 
 
     private DynFormComponentList buildChoiceSelector(SubPanel container,
-                                                     DynFormComponentBuilder builder, DynFormField field) {
+                                                     DynFormComponentBuilder builder,
+                                                     DynFormField field) {
         DynFormComponentList compList = new DynFormComponentList();
-
         RadioButton rButton = builder.makeRadioButton(field);
-        rButton.setSelected((container == null) ||
-                isFirstRadioGroupMember(container.getChildren(), rButton.getName()));
-
+        rButton.setSelected(container == null || isMatchingRadioForData(field));
         compList.add(rButton);
         return compList;
     }
@@ -879,15 +880,18 @@ public class DynFormFactory extends AbstractSessionBean implements DynamicForm {
     }
 
 
-    private boolean isFirstRadioGroupMember(List content, String groupID) {
-        for (Object component : content) {
-            if (component instanceof RadioButton) {
-                if (((RadioButton) component).getName().equals(groupID)) {
-                    return false;
-                }
+    private boolean isMatchingRadioForData(DynFormField field) {
+        String name = field.getName();
+        String data = field.getParam().getValue();
+        if (data !=  null) {
+            XNodeParser parser = new XNodeParser();
+            XNode dNode = parser.parse(data);
+            if (dNode != null) {
+                XNode child = dNode.getChild(0);
+                return child != null && child.getName().equals(name);
             }
         }
-        return true;
+        return false;
     }
 
 

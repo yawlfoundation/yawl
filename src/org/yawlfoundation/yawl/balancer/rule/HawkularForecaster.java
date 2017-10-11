@@ -13,14 +13,14 @@ import java.util.List;
  * @author Michael Adams
  * @date 14/8/17
  */
-public class Forecaster implements BusynessRule {
+public class HawkularForecaster implements BusynessRule {
 
     private AutomaticForecaster _forecaster;
 
 
-    public Forecaster(int maxValues, long interval) {
-        MetricContext context = ImmutableMetricContext.getDefault();
-        context.setCollectionInterval(interval);
+    public HawkularForecaster(int maxValues, long interval) {
+        MetricContext context = new ImmutableMetricContext(null,
+                "YAWL Load Balancer", interval);
 
         _forecaster = new AutomaticForecaster(context, initConfig(maxValues));
         _forecaster.config().setWindowsSize(maxValues);

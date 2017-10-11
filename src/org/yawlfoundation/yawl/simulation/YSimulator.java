@@ -66,10 +66,10 @@ public class YSimulator {
 
     private void init() {
         _props = new SimulatorProperties(this);
-        _summaryMap = new Hashtable<String, ParticipantSummary>();
-        _userToPidMap = new Hashtable<String, String>();
-        _roleToPidsMap = new Hashtable<String, Set<String>>();
-        _caseStartTimeMap = new Hashtable<String, Long>();
+        _summaryMap = new HashMap<String, ParticipantSummary>();
+        _userToPidMap = new HashMap<String, String>();
+        _roleToPidsMap = new HashMap<String, Set<String>>();
+        _caseStartTimeMap = new HashMap<String, Long>();
         _slowestCaseTime = 0;
         _fastestCaseTime = Long.MAX_VALUE;
         _totalTime = 0;
@@ -171,8 +171,36 @@ public class YSimulator {
     }
 
 
-    protected Set<WorkItemRecord> getAllocated(String pid)
+    protected void allocateOffers() throws IOException, ResourceGatewayException {
+        Map<String, List<String>> taskToOfferMap = new HashMap<String, List<String>>();
+        for (String pid : _props.getResources()) {
+             Set<WorkItemRecord> offered = getOffered(pid);
+             for (WorkItemRecord wir : offered) {
+                 List<String> offerees = taskToOfferMap.get(wir.getID());
+                 if (offerees == null) {
+                     offerees = new ArrayList<String>();
+                     taskToOfferMap.put(wir.getID(), offerees);
+                 }
+                 offerees.add(pid);
+             }
+        }
+        Random r = new Random();
+        for (String itemID : taskToOfferMap.keySet()) {
+            List<String> offerees = taskToOfferMap.get(itemID);
+            String pid = offerees.get(r.nextInt(offerees.size()));
+            _wqAdapter.acceptOffer(pid, itemID, _handle);
+        }
+    }
+
+
+    protected Set<WorkItemRecord> getOffered(String pid)
             throws IOException, ResourceGatewayException {
+        return _wqAdapter.getQueuedWorkItems(pid, WorkQueue.OFFERED, _handle);
+    }
+
+
+    protected Set<WorkItemRecord> getAllocated(String pid)
+            throws IOException, ResourceGatewayException {    
         return _wqAdapter.getQueuedWorkItems(pid, WorkQueue.ALLOCATED, _handle);
     }
 
@@ -251,13 +279,13 @@ public class YSimulator {
                 .append(" ms")
                 .append("\n\tNumber of cases completed: ")
                 .append(_props.getCaseCount())
-                .append("\n\tFastest case completion: ")
+                .append("\n\tFastest case cycle time: ")
                 .append(_fastestCaseTime)
                 .append(" ms")
-                .append("\n\tSlowest case completion: ")
+                .append("\n\tSlowest case cycle time: ")
                 .append(_slowestCaseTime)
                 .append(" ms")
-                .append("\n\tAverage case completion: ")
+                .append("\n\tAverage case cycle time: ")
                 .append(_totalTime / _props.getCaseCount())
                 .append(" ms");
         return s.toString();
@@ -273,6 +301,7 @@ public class YSimulator {
         public void run() {
             try {
                 if (hasRunningCases()) {
+                    allocateOffers();
                     boolean startedOne = false;
                     for (String pid : _props.getResources()) {
                         for (WorkItemRecord wir : getAllocated(pid)) {
@@ -388,7 +417,7 @@ public class YSimulator {
 
         ParticipantSummary(Participant p) {
             this.p = p;
-            taskMap = new Hashtable<String, List<Integer>>();
+            taskMap = new HashMap<String, List<Integer>>();
         }
 
 

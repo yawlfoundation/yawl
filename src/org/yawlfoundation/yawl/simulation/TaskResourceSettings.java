@@ -1,28 +1,26 @@
 package org.yawlfoundation.yawl.simulation;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 // per task resource configs
 class TaskResourceSettings {
 
-    private List<Integer> timings;
+    private int maxTime;
+    private int minTime;
     private int concurrent = 1;
-    private static final int DEFAULT_PROCESSING_TIME = 4000;
+    private static final Random RANDOM = new Random();
 
 
-    TaskResourceSettings() { timings = new ArrayList<Integer>(); }
+    TaskResourceSettings() { }
 
 
-    void addTiming(int timing) { timings.add(timing); }
+    void addTiming(int time, int deviation) {
+        maxTime = time + deviation;
+        minTime = time - deviation;
+    }
 
     int getTiming() {
-        switch (timings.size()) {
-            case 0  : return DEFAULT_PROCESSING_TIME;
-            case 1  : return timings.get(0);
-            default : return timings.get(new Random().nextInt(timings.size()));
-        }
+        return RANDOM.nextInt((maxTime - minTime) + 1) + minTime;
     }
 
 

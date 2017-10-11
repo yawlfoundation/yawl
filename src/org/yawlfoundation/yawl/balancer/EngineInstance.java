@@ -4,11 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.json.JSONException;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
+import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
 import org.yawlfoundation.yawl.balancer.polling.Pollable;
 import org.yawlfoundation.yawl.balancer.polling.PollingService;
 import org.yawlfoundation.yawl.balancer.rule.BusynessRule;
 import org.yawlfoundation.yawl.balancer.rule.ExponentialMovingAverage;
-import org.yawlfoundation.yawl.balancer.rule.Forecaster;
+import org.yawlfoundation.yawl.balancer.rule.HawkularForecaster;
+import org.yawlfoundation.yawl.balancer.rule.OpenForecaster;
 import org.yawlfoundation.yawl.util.HttpURLValidator;
 import org.yawlfoundation.yawl.util.StringUtil;
 
@@ -76,6 +78,11 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
                 // later
             }
         }
+    }
+
+
+    public void setArffWriter(ArffOutputter writer) {
+        if (_loadReader != null) _loadReader.setArffWriter(writer);
     }
 
 
@@ -164,7 +171,11 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
             case MOVING_AVERAGE:
                 return new ExponentialMovingAverage(Config.getForgetFactor());
             case PREDICTIVE_MOVING_AVERAGE:
-                return new Forecaster(Config.getForecastQueueSize(), Config.getPollInterval());
+                if (Config.getPreferredForecastModeller() == 1) {
+                    return new HawkularForecaster(Config.getForecastQueueSize(),
+                            Config.getPollInterval());
+                }
+                else return new OpenForecaster();
             default:
                 return null;
         }

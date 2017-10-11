@@ -3,6 +3,7 @@ package org.yawlfoundation.yawl.balancer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.balancer.config.Config;
+import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -16,6 +17,7 @@ public class EngineSet {
     private final Set<EngineInstance> _set;
     private final Random _random;
     private final Logger _log;
+    private final ArffOutputter _arffWriter;
 
     private EngineInstance _authenticator;
     private int _lastCaseNbr = 0;
@@ -24,7 +26,8 @@ public class EngineSet {
     public EngineSet() {
         _set = new HashSet<EngineInstance>();
         _random = new Random();
-        _log = LogManager.getLogger(this.getClass());
+        _log = LogManager.getFormatterLogger(this.getClass());
+        _arffWriter = new ArffOutputter();
     }
 
 
@@ -37,6 +40,7 @@ public class EngineSet {
             int port = StringUtil.strToInt(parts[1], -1);
             if (port > 0) {
                 EngineInstance instance = new EngineInstance(host, port);
+                instance.setArffWriter(_arffWriter);
                 if (activateAll) instance.setActive(true);
                 _set.add(instance);
             }
@@ -184,7 +188,7 @@ public class EngineSet {
         for (EngineInstance instance : _set) {
             if (!instance.isInitialized()) {
                 uninitialized.add(instance);
-                _log.warn("Engine at port {} has not initialised, " +
+                _log.warn("Engine at port %d has not initialised, " +
                         "and so has been removed from the pool.", instance.getPort());
             }
         }
@@ -202,7 +206,7 @@ public class EngineSet {
         EngineInstance instance = getInactiveInstance();
         if (instance != null) {
             instance.setActive(true);
-            _log.info("Activated idle engine at {}", instance.getName());
+            _log.info("Activated idle engine at %s", instance.getName());
             return instance;
         }
         _log.warn("Busyness limit exceeded but no more idle engines available.");

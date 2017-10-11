@@ -100,9 +100,10 @@ public class DataListGenerator {
                 result.append(dataList);
             }
 
-            // if a complextype choice, then deal with it
+            // if a complextype choice, then forward start and stop to correct posns
             else if (child instanceof RadioButton) {
                 SelectedChoiceBounds.calcBounds(children);
+                i = SelectedChoiceBounds.start - 1;   // will readd +1 in next loop
                 stop = SelectedChoiceBounds.stop;
             }
 

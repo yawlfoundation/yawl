@@ -14,11 +14,13 @@ import java.util.Map;
 abstract class AbstractLoadOutputter {
 
     protected FileWriter _out;
+    private boolean _writeTime;
 
 
-    public AbstractLoadOutputter(String baseFileName, String engineName) {
+    public AbstractLoadOutputter(String baseFileName, String engineName, String extn) {
         try {
-            _out = openFile(baseFileName, engineName);
+            _out = openFile(baseFileName, engineName, extn);
+            _writeTime = true;
             writeHeader();
         }
         catch (IOException ioe) {
@@ -31,10 +33,16 @@ abstract class AbstractLoadOutputter {
 
     abstract String getHeader();
 
+    abstract void finalise() throws IOException;
+
+
+    public void setWriteTime(boolean write) { _writeTime = write; }
+
 
     public void closeFile() {
         if (_out != null) {
             try {
+                finalise();
                 _out.flush();
                 _out.close();
             }
@@ -86,7 +94,7 @@ abstract class AbstractLoadOutputter {
 
 
     private void writeTime() throws IOException {
-        if (_out != null) {
+        if (_out != null && _writeTime) {
             Date date = new Date();
             String fDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(new Date());
@@ -96,8 +104,9 @@ abstract class AbstractLoadOutputter {
     }
 
 
-    private FileWriter openFile(String baseFileName, String engineName) throws IOException {
-        File f = getFile(baseFileName, engineName);
+    private FileWriter openFile(String baseFileName, String engineName, String extn)
+            throws IOException {
+        File f = getFile(baseFileName, engineName, extn);
         if (f.createNewFile()) {
             return new FileWriter(f);
         }
@@ -105,10 +114,9 @@ abstract class AbstractLoadOutputter {
     }
 
 
-    private File getFile(String baseFileName, String engineName) {
+    private File getFile(String baseFileName, String engineName, String extn) {
         String root = System.getenv("CATALINA_HOME");
         String baseName = root + "/logs/" + baseFileName + '_' + engineName;
-        String extn = ".log";
         File f = new File(baseName + extn);
         int i = 1;
         while (f.exists()) {

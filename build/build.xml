@@ -293,6 +293,8 @@
     <!-- sml -->
     <property name="mysql" value="mysql-connector-java-5.1.22-bin.jar"/>
     <!-- off -->
+    <property name="openforecast" value="OpenForecast-0.5.0.jar"/>
+    <!-- bal -->
     <property name="orderfulfillment" value="orderfulfillment.jar"/>
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
@@ -656,6 +658,7 @@
         <pathelement location="${lib.dir}/${commonsVfs}"/>
         <pathelement location="${lib.dir}/${guava}"/>
         <pathelement location="${lib.dir}/${hawkular}"/>
+        <pathelement location="${lib.dir}/${openforecast}"/>
     </path>
 
     <path id="cp.etc">

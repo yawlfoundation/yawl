@@ -43,7 +43,7 @@ public class Config {
     private static final int DEFAULT_FORECAST_QUEUE_SIZE = 60;
     private static final int DEFAULT_FORECAST_LOOKAHEAD = 1;
     private static final double DEFAULT_MAX_BUSYNESS = 0.0;
-
+    private static final int DEFAULT_FORECAST_MODELLER = 2;
     
     public static boolean load(ServletContext context) {
         try {
@@ -196,6 +196,11 @@ public class Config {
 
     public static double getBusynessLimit() {
         return getDouble("max_busyness", DEFAULT_MAX_BUSYNESS);
+    }
+
+
+    public static int getPreferredForecastModeller() {
+        return getInt("preferred_forecaster", DEFAULT_FORECAST_MODELLER);
     }
 
 

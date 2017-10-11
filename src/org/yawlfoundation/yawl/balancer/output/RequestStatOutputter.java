@@ -11,7 +11,7 @@ public class RequestStatOutputter extends AbstractLoadOutputter {
 
 
     public RequestStatOutputter(String engineName) {
-        super("requests", engineName);
+        super("requests", engineName, ".log");
     }
 
 
@@ -25,5 +25,7 @@ public class RequestStatOutputter extends AbstractLoadOutputter {
         sb.append("allMin,allMax,allMean,allCount,allPerSec");
         return sb.toString();
     }
+
+    protected void finalise() { }
 
 }

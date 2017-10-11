@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.jmx.JMXReader;
 import org.yawlfoundation.yawl.balancer.jmx.JMXStatistics;
+import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
 import org.yawlfoundation.yawl.balancer.output.BusynessOutputter;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class LoadReader {
     private int _prevReqCount = 0;
     private double _prevProcTime = 0;
     private BusynessOutputter _outputter;
+    private ArffOutputter _arffWriter;
     private final String _engineName;
 
 
@@ -41,6 +43,12 @@ public class LoadReader {
 
     public void close() {
         if (_outputter != null) _outputter.closeFile();
+        if (_arffWriter != null) _arffWriter.closeFile();
+    }
+
+
+    public void setArffWriter(ArffOutputter writer) {
+        _arffWriter = writer;
     }
 
     public double getBusyness(boolean verbose) throws IOException, JSONException {
@@ -49,9 +57,12 @@ public class LoadReader {
         int procTime = requestStats.getIntValue("processingTime");
         double timeFactor = 0;
         double reqFactor = 0;
+        int netReqCount = 0;
+        double meanTime = 0;
+
         if (_prevReqCount > 0) {
-            int netReqCount = reqCount - _prevReqCount;
-            double meanTime = (procTime - _prevProcTime) / (double) (netReqCount);
+            netReqCount = reqCount - _prevReqCount;
+            meanTime = (procTime - _prevProcTime) / (double) (netReqCount);
             timeFactor = (meanTime / Config.getWeightedProcessTimeLimit());
             reqFactor = netReqCount / Config.getWeightedRequestLimitPerPollInterval();
         }
@@ -83,6 +94,12 @@ public class LoadReader {
             verboseValues.put("threads_factor", String.format("%.3f", threadFactor));
             verboseValues.put("busyness", String.format("%.3f", score));
             getOutputter().add(verboseValues);
+
+            if (_arffWriter != null) {
+                verboseValues.put("process_time", String.format("%.3f", meanTime));
+                verboseValues.put("requests_count", String.format("%d", netReqCount));
+                _arffWriter.add(verboseValues);
+            }
         }
 
         return score;
