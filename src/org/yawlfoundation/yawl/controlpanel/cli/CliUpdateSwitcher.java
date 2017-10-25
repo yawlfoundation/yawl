@@ -5,6 +5,7 @@ import org.yawlfoundation.yawl.controlpanel.update.UpdateChecker;
 import org.yawlfoundation.yawl.controlpanel.update.table.UpdateRow;
 import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.Console;
 
@@ -22,10 +23,13 @@ public class CliUpdateSwitcher {
     public boolean handle(String[] args) {
         String arg = args[0].toLowerCase();
         if (arg.equals("-start")) {
-            return doStart();
+            return doStart(getPortArg(args));
         }
         if (arg.equals("-stop")) {
             return doStop();
+        }
+        if (arg.equals("-restart")) {
+            return doRestart(getPortArg(args));
         }
         if (arg.equals("-update") || arg.equals("-u")) {
             return doUpdates();
@@ -71,7 +75,8 @@ public class CliUpdateSwitcher {
     }
 
 
-    private boolean doStart() {
+    private boolean doStart(int port) {
+        updatePort(port);
         new CliStarter().run();
         return true;
     }
@@ -80,6 +85,11 @@ public class CliUpdateSwitcher {
     private boolean doStop() {
         new CliStopper().run();
         return true;
+    }
+
+
+    private boolean doRestart(int port) {
+        return doStop() & doStart(port);
     }
 
 
@@ -206,6 +216,16 @@ public class CliUpdateSwitcher {
         if (!updater.hasErrors()) {
             System.out.println(msg);
         }
+    }
+
+
+    private int getPortArg(String[] args) {
+        return args.length > 1 ? StringUtil.strToInt(args[1], 0) : 0;
+    }
+
+
+    private void updatePort(int port) {
+        if (port > 0) TomcatUtil.setTomcatServerPort(port);
     }
 
 

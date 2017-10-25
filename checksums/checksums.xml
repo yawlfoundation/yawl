@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.1</version>
-  <timestamp>2017-10-11 13.11.33</timestamp>
+  <timestamp>2017-10-25 13.04.58</timestamp>
   <lib hash="8d151352d51b86db7a07e69309dbec67">
     <file name="log4j-1.2-api-2.3.jar" md5="97f562c4f299dc5f5f72e66ded465416" size="36875" timestamp="2015-05-11T07:19:00" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -836,11 +836,11 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.1.jar" md5="6a711718858fd7a7118f51161fd7e882" size="2625238" timestamp="2017-10-11T13:11:30" path="AM"/>
+    <file name="yawl-lib-4.1.jar" md5="dca5128981def7fe94c301e3858179d2" size="2625238" timestamp="2017-10-25T13:04:58" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>380</build>
-    <file name="YawlControlPanel-4.1.jar" md5="068419ef561c841bd47372d4eb2fb138" size="338893" timestamp="2016-05-20T12:46:25" path="AM"/>
+    <build>382</build>
+    <file name="YawlControlPanel-4.1.jar" md5="914b39bb1b577717d672cc67af5d2cff" size="339578" timestamp="2017-10-25T13:04:58" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>
