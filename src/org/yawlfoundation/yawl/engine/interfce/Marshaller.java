@@ -214,11 +214,8 @@ public class Marshaller {
         String caseID = workItemElement.getChildText("caseid");
         String taskID = workItemElement.getChildText("taskid");
         String specURI = workItemElement.getChildText("specuri");
-        String enablementTime = workItemElement.getChildText("enablementTime");
-        if (caseID != null && taskID != null && specURI != null &&
-            enablementTime != null && status != null) {
-
-            wir = new WorkItemRecord(caseID, taskID, specURI, enablementTime, status);
+        if (caseID != null && taskID != null && specURI != null && status != null) {
+            wir = new WorkItemRecord(caseID, taskID, specURI, status);
 
             wir.setExtendedAttributes(unmarshalWorkItemAttributes(workItemElement));
             wir.setUniqueID(workItemElement.getChildText("uniqueid"));
@@ -232,9 +229,6 @@ public class Marshaller {
             wir.setDeferredChoiceGroupID(workItemElement.getChildText(
                                                               "deferredChoiceGroupID"));
             wir.setSpecVersion(workItemElement.getChildText("specversion"));
-            wir.setFiringTime(workItemElement.getChildText("firingTime"));
-            wir.setStartTime(workItemElement.getChildText("startTime"));
-            wir.setCompletionTimeMs(workItemElement.getChildText("completionTime"));
             wir.setEnablementTimeMs(workItemElement.getChildText("enablementTimeMs"));
             wir.setFiringTimeMs(workItemElement.getChildText("firingTimeMs"));
             wir.setStartTimeMs(workItemElement.getChildText("startTimeMs"));

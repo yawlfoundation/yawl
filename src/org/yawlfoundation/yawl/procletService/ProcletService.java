@@ -316,7 +316,7 @@ public class ProcletService extends InterfaceBWebsideController  {
 
     public static void main(String [ ] args) {
     	ProcletService serv = new ProcletService();
-    	WorkItemRecord wir = new WorkItemRecord("103","meet","visit","","");
+    	WorkItemRecord wir = new WorkItemRecord("103","meet","visit", "");
     	serv.handleEnabledWorkItemEvent(wir);
     	String newOne = ProcletService.changeCaseID("15.1");
     	System.out.println(newOne);

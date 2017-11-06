@@ -27,7 +27,7 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.util.*;
 
 /**
- * An extended Hashtable of key=attribute pairs.
+ * An extended map of key=attribute pairs.
  * @author Michael Adams
  * @since 2.1
  * @date 11/11/2009

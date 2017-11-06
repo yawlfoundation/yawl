@@ -342,7 +342,7 @@ public class BlockPI {
 						}
 					}
 					String id = BlockCP.getUniqueID();
-					WorkItemRecord wir = new WorkItemRecord(procletID,blockID,classID,"","");
+					WorkItemRecord wir = new WorkItemRecord(procletID,blockID,classID, "");
 					ProcletModels pmodelsInst = ProcletModels.getInstance();
 					ProcletModel pmodel = pmodelsInst.getProcletClass(classID);
 					ProcletBlock block = pmodel.getBlock(blockID);

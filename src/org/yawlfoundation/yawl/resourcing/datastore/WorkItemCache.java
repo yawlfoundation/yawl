@@ -102,8 +102,6 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
             if (wirList != null) {
                 for (Object o : wirList) {
                     WorkItemRecord wir = (WorkItemRecord) o ;
-                    wir.restoreDataList();
-                    wir.restoreAttributeTable();                    
                     super.put(wir.getID(), wir);
                 }
             }

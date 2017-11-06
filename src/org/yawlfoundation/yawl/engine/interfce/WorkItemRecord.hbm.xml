@@ -39,14 +39,10 @@
         <property name="_taskName" column="taskName" access="field"/>
         <property name="_documentation" column="documentation" access="field" type="text"/>
         <property name="_docoChanged" column="documentationChanged" access="field" type="boolean"/>
-        <property name="_extendedAttributes" column="ExtendedAttributes" access="field" type="text"/>
+        <property name="_extendedAttributes" column="ExtendedAttributes" type="text"/>
         <property name="_allowsDynamicCreation" column="canCreate" access="field"/>
         <property name="_codelet" column="codelet" access="field"/>
         <property name="_deferredChoiceGroupID" column="deferredID" access="field"/>
-        <property name="_firingTime" column="firingTime" access="field"/>
-        <property name="_enablementTime" column="enablementTime" access="field"/>
-        <property name="_startTime" column="startTime" access="field"/>
-        <property name="_completionTime" column="completionTime" access="field"/>
         <property name="_status" column="status" access="field"/>
         <property name="_resourceStatus" column="resourceStatus" access="field"/>
         <property name="_startedBy" column="startedBy" access="field"/>

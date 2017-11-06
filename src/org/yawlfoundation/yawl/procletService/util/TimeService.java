@@ -139,7 +139,7 @@ public class TimeService extends InterfaceBWebsideController {
     
     public static void main(String [] args) {
     	TimeService ts = new TimeService();
-    	WorkItemRecord wir = new WorkItemRecord("1","t","s1","","");
+    	WorkItemRecord wir = new WorkItemRecord("1","t","s1", "");
     	ts.handleEnabledWorkItemEvent(wir);
     }
 }

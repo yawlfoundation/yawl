@@ -183,9 +183,18 @@ public class JDOMUtil {
     }
 
 
-    public static String encodeAttributeEscapes(String s) {
+    public static String encodeAttributeEscapes(String attrValue) {
+        if (attrValue == null) return null;
         EscapeStrategy strategy = Format.getRawFormat().getEscapeStrategy();
-        return Format.escapeAttribute(strategy, s);
+        return Format.escapeAttribute(strategy, attrValue);
+    }
+
+
+    public static String decodeAttributeEscapes(String attrValue) {
+        if (attrValue == null) return null;
+        String temp = "<temp key=\"" + attrValue + "\"/>";
+        Element e = stringToElement(temp);
+        return e.getAttributeValue("key");
     }
 
 

@@ -189,7 +189,7 @@ public class BlockFO {
 		graph2.addNode(node13);
 		graph2.addArc(arc11);
 		igraphs.addGraph(graph2);
-		WorkItemRecord wir = new WorkItemRecord("15","register","mdoMeeting","","");
+		WorkItemRecord wir = new WorkItemRecord("15","register","mdoMeeting", "");
 		ProcletModels pmodels = ProcletModels.getInstance();
 		// c1
 		ProcletModel pmodel1 = new ProcletModel("c1");
