@@ -97,7 +97,7 @@ public class StartMenuUpdater {
                     "goto usage\r\n\r\n" +
                     ":cp\r\n" +
                     "cd controlpanel\r\n" +
-                    java + " -jar YawlControlPanel-4.1.jar\r\n" +
+                    java + " -jar YawlControlPanel-4.2.jar\r\n" +
                     "goto end\r\n\r\n" +
                     ":editor\r\n" +
                     "cd editor\r\n" +

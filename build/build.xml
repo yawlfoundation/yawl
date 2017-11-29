@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="4.1"/>
+    <property name="app.version" value="4.2"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -2195,7 +2195,7 @@
              <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
          </copy>
          <copy todir="${temp.dir}/balancer/WEB-INF/lib"
-               file="${output.dir}/yawl-lib-4.1.jar"/>
+               file="${output.dir}/yawl-lib-4.2.jar"/>
      </target>
 
     <!--

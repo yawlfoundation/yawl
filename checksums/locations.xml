@@ -463,10 +463,10 @@
             <file name="style.css" path="AO"/>
         </orderfulfillment>
         <yawllib>
-            <file name="yawl-lib-4.1.jar" path="AM"/>
+            <file name="yawl-lib-4.2.jar" path="AM"/>
         </yawllib>
         <controlpanel>
-            <file name="YawlControlPanel-4.1.jar" path="AM"/>
+            <file name="YawlControlPanel-4.2.jar" path="AM"/>
         </controlpanel>
     </files>
 </locations>
