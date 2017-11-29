@@ -2,7 +2,7 @@
 
 YAWL is a BPM/Workflow system, based on a concise and powerful modelling language, that handles complex data transformations, and full integration with organizational resources and external Web Services. 
 
-##Features
+### Major Features
 YAWL offers these distinctive features:
 
 * the most powerful process specification language for capturing control-flow dependencies and resourcing requirements.
@@ -20,7 +20,7 @@ YAWL offers these distinctive features:
 * Through the C-YAWL approach a theory has been developed for the configuration of YAWL models. For more information on process configuration visit [www.processconfiguration.com]
 * Simulation support is offered through a link with the [ProM](www.processmining.org) environment. Through this environment it is also possible to conduct post-execution analysis of YAWL processes (e.g. in order to identify bottlenecks).
 
-##Other Features
+### Other Features
 * new: completely rewritten Process Editor
 * new: Auto Update + Install/Uninstall of selected components
 * delayed case starting
