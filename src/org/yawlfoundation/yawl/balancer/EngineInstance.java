@@ -66,17 +66,18 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
 
     @Override
     public void scheduledEvent() {
-        if (_busyRule != null) {
-            try {
-                _busyRule.add(_loadReader.getBusyness(Config.isWriteLog()));
+        try {
+
+            // this will write values to log for all options (if configured)
+            double busyness = _loadReader.getBusyness(Config.isWriteLog());
+            if (_busyRule != null) {
+                _busyRule.add(busyness);
             }
-            catch (Exception e) {
-                LogManager.getLogger(this.getClass()).error(
-                        e.getMessage() + " for engine {}:{}",
-                        _host, _port
-                );
-                // later
-            }
+        }
+        catch (Exception e) {
+            LogManager.getLogger(this.getClass()).error(
+                    e.getMessage() + " for engine {}:{}", _host, _port);
+            // later
         }
     }
 

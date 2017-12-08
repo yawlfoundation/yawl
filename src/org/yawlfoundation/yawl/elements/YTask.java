@@ -544,22 +544,21 @@ public abstract class YTask extends YExternalNetElement {
         for (YParameter param : _decompositionPrototype.getOutputParameters().values()) {
             String defaultValue = param.getDefaultValue();
             if (! StringUtil.isNullOrEmpty(defaultValue)) {
-                Element paramData = dataElem.getChild(param.getPreferredName());
+                Element paramElem = dataElem.getChild(param.getPreferredName());
 
-                // if there's an element, but no value, add the default
-                if (paramData != null) {
-                    if (StringUtil.isNullOrEmpty(paramData.getText())) {
-                        paramData.setText(defaultValue);
-                    }
-                }
-
-                // else if there's no element at all, add it with the default value
-                else {
+                // if there's no element, or it has with no content, add the default
+                if (paramElem == null || paramElem.getContent().isEmpty()) {
                     Element defElem = JDOMUtil.stringToElement(
-                            StringUtil.wrap(defaultValue, param.getPreferredName()));
+                            StringUtil.wrap(param.getDefaultValue(),
+                                    param.getPreferredName())).detach();
                     defElem.setNamespace(dataElem.getNamespace());
-                    dataElem.addContent(Math.min(dataElem.getContentSize(), param.getOrdering()),
-                            defElem.detach());
+                    if (paramElem != null) {                     // insert content
+                        paramElem.addContent(defElem.removeContent());
+                    }
+                    else {                                       // insert whole element
+                        dataElem.addContent(Math.min(dataElem.getContentSize(),
+                                param.getOrdering()), defElem);
+                    }
                 }
             }
         }
