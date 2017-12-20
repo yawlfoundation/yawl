@@ -267,7 +267,7 @@ public class HibernateEngine {
         }
         catch (HibernateException he) {
             _log.error("Caught Exception: Error executing query: " + queryString, he);
-            if (tx != null) tx.rollback();
+            rollback();
         }
 
         return result;

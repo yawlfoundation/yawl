@@ -190,6 +190,12 @@ public class DataSchemaBuilder {
 
 
     private Element createDataTypeElement(String varName, String dataType, Namespace defNS) {
+
+        // internal types already have a definition 
+        if (YInternalType.isType(dataType)) {
+            return YInternalType.getSchemaFor(dataType, varName);
+        }
+
         Element element = new Element("element", defNS);
         element.setAttribute("name", varName);
 

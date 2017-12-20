@@ -155,9 +155,10 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
 
         class CleanseRunnable implements Runnable {
             public void run() {
+                Set<String> cachedItems = new HashSet<String>(INSTANCE.keySet());
                 Set<String> referencedIDs = getReferencedIDs();
                 if (referencedIDs != null) {
-                    for (String id : new HashSet<String>(INSTANCE.keySet())) {
+                    for (String id : cachedItems) {
                         if (!referencedIDs.contains(id)) {
                             remove(id);
                         }

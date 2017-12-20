@@ -145,7 +145,7 @@ public class YSimulator {
 
     private void startPoller() {
         TimedQueuePoller poller = new TimedQueuePoller();
-        _timer.scheduleAtFixedRate(poller, _props.getInterval() * 2, _props.getInterval());
+        _timer.scheduleAtFixedRate(poller, _props.getInterval() * 8, _props.getInterval() * 2);
     }
 
 
@@ -184,11 +184,13 @@ public class YSimulator {
                  offerees.add(pid);
              }
         }
-        Random r = new Random();
-        for (String itemID : taskToOfferMap.keySet()) {
-            List<String> offerees = taskToOfferMap.get(itemID);
-            String pid = offerees.get(r.nextInt(offerees.size()));
-            _wqAdapter.acceptOffer(pid, itemID, _handle);
+        if (!taskToOfferMap.isEmpty()) {
+            Random r = new Random();
+            for (String itemID : taskToOfferMap.keySet()) {
+                List<String> offerees = taskToOfferMap.get(itemID);
+                String pid = offerees.get(r.nextInt(offerees.size()));
+                _wqAdapter.acceptOffer(pid, itemID, _handle);
+            }
         }
     }
 
@@ -223,24 +225,24 @@ public class YSimulator {
     protected boolean process(String pid, WorkItemRecord wir)
             throws IOException, ResourceGatewayException {
 
-        ResourceLimit limit = _props.getLimit(pid);
-        if (limit.hasBeenExceeded()) {
-            _summaryMap.get(pid).reportLimitReached();
-            _wqAdapter.deallocateItem(pid, wir.getID(), _handle);
-            return false;
-        }
-
-        // ignore busy resources if required
-        if (_props.getConcurrent(wir.getTaskID(), pid) <= getExecutingCount(pid)) {
-            return false;
-        }
+//        ResourceLimit limit = _props.getLimit(pid);
+//        if (limit.hasBeenExceeded()) {
+//            _summaryMap.get(pid).reportLimitReached();
+//            _wqAdapter.deallocateItem(pid, wir.getID(), _handle);
+//            return false;
+//        }
+//
+//        // ignore busy resources if required
+//        if (_props.getConcurrent(wir.getTaskID(), pid) <= getExecutingCount(pid)) {
+//            return false;
+//        }
 
         wir = _wqAdapter.startItem(pid, wir.getID(), _handle);
         int processingTime = _props.getProcessingTime(wir.getTaskID(), pid);
         _summaryMap.get(pid).addWork(wir.getTaskID(), processingTime);
         print(MessageFormat.format("{0} - Started workitem {1} and processing for {2} ms",
                 now(), wir.getID(), processingTime));
-        limit.increment(processingTime);
+//        limit.increment(processingTime);
         TimedItemCompleter completer = new TimedItemCompleter(wir, pid);
         _timer.schedule(completer, processingTime);
         return true;
@@ -300,19 +302,17 @@ public class YSimulator {
 
         public void run() {
             try {
-                if (hasRunningCases()) {
-                    allocateOffers();
-                    boolean startedOne = false;
-                    for (String pid : _props.getResources()) {
-                        for (WorkItemRecord wir : getAllocated(pid)) {
-                            startedOne = process(pid, wir) || startedOne;
-                        }
+ //               allocateOffers();
+                boolean startedOne = false;
+                for (String pid : _props.getResources()) {
+                    for (WorkItemRecord wir : getAllocated(pid)) {
+                        startedOne = process(pid, wir) || startedOne;
                     }
-                    if (!startedOne && deadlocked()) {
-                        summariseAndExit(false);
+                }
+                if (!startedOne) {                       // no more wirs to start
+                    if (deadlocked()) {                  // all queues empty
+                        summariseAndExit(!hasRunningCases());
                     }
-                } else {
-                    summariseAndExit(true);
                 }
             } catch (Exception e) {
                 // break
@@ -452,18 +452,22 @@ public class YSimulator {
             for (String task : taskMap.keySet()) {
                 List<Integer> times = taskMap.get(task);
                 long sumTime = sumTimes(times);
+                int min = Collections.min(times);
+                int max = Collections.max(times);
                 totalTasks += times.size();
                 totalTime += sumTime;
                 s.append("\tTask '").append(task).append("': ")
                         .append(times.size()).append(" instances, ")
-                        .append(sumTime).append(" msec total time.\n");
+                        .append(min).append(" ms min, ")
+                        .append(max).append(" ms max, ")
+                        .append(sumTime).append(" ms total time.\n");
             }
             s.append("\tTotal: ").append(totalTasks).append(" instances, ")
                     .append(totalTime);
             if (totalTasks > 0) {
-                s.append(" msec total time, ")
+                s.append(" ms total time, ")
                         .append((int) totalTime / totalTasks).append(" average per instance.\n");
-            } else s.append(" msec total time.\n");
+            } else s.append(" ms total time.\n");
 
             return s.toString();
         }

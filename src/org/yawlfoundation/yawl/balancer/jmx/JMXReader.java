@@ -108,6 +108,8 @@ public class JMXReader extends Interface_Client {
 
     private String execute(String body) throws IOException {
         HttpURLConnection connection = initPostConnection(_jolokiaURL);
+        connection.setReadTimeout(500);
+        connection.setConnectTimeout(500);
         connection.setRequestProperty("content-type", "application/json;charset:UTF-8");
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
         out.write(body);

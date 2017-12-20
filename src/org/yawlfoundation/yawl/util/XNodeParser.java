@@ -118,6 +118,9 @@ public class XNodeParser {
                         node.addChild(parse(content, depth + 1));      // recurse
                     }
                     else {
+                        if (content.contains("{")) {
+                            content = JDOMUtil.decodeEscapes(content);
+                        }
                         node.setText(content);
                     }
                 }

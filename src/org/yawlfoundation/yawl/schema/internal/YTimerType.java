@@ -54,8 +54,8 @@ class YTimerType implements YDataType {
         expiry.setAttribute("type", "xs:string");
 
         Element workdays = addElement(sequence, "element");
-        expiry.setAttribute("name", "workdays");
-        expiry.setAttribute("type", "xs:boolean");
+        workdays.setAttribute("name", "workdays");
+        workdays.setAttribute("type", "xs:boolean");
 
         return element;
     }

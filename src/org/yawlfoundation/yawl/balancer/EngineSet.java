@@ -40,7 +40,7 @@ public class EngineSet {
             int port = StringUtil.strToInt(parts[1], -1);
             if (port > 0) {
                 EngineInstance instance = new EngineInstance(host, port);
-                instance.setArffWriter(_arffWriter);
+         //       instance.setArffWriter(_arffWriter);
                 if (activateAll) instance.setActive(true);
                 _set.add(instance);
             }
