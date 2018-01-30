@@ -124,12 +124,13 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
 
 
     // this method must ONLY be called from the Cleanser below
-    public synchronized WorkItemRecord remove(String id) {
-        if (containsKey(id)) {
-           if (_persistOn) _persister.delete(get(id)) ;
-           return super.remove(id);
+    protected synchronized void remove(Set<String> idSet) {
+        boolean unpersisted;
+        for (String id : idSet) {
+            unpersisted = !_persistOn || _persister.delete(get(id), false);
+            if (unpersisted) super.remove(id);
         }
-        else return null ;
+        _persister.commit();
     }
 
 
@@ -157,18 +158,21 @@ public class WorkItemCache extends ConcurrentHashMap<String, WorkItemRecord> {
             public void run() {
                 Set<String> cachedItems = new HashSet<String>(INSTANCE.keySet());
                 Set<String> referencedIDs = getReferencedIDs();
+                Set<String> toRemove = new HashSet<String>();
                 if (referencedIDs != null) {
                     for (String id : cachedItems) {
                         if (!referencedIDs.contains(id)) {
-                            remove(id);
+                            toRemove.add(id);
                         }
                     }
+                    remove(toRemove);
                 }
             }
 
+            
             Set<String> getReferencedIDs() {
 
-                // plain SQL used because table is not from a mapped class
+                // plain SQL is used because table is not a hibernate mapped class
                 List list = _persister.execSQLQuery("SELECT key_id FROM rs_queueItems");
                 if (list != null) {
                     Set<String> idSet = new HashSet<String>();

@@ -2716,42 +2716,38 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
 
     private void processAutoTask(WorkItemRecord wir, boolean init) {
-        try {
-            String codelet = wir.getCodelet();
+        String codelet = wir.getCodelet();
+        if (StringUtil.isNullOrEmpty(codelet)) {
+            checkInAutoTask(wir, wir.getDataList());     // check in immediately
+            return;
+        }
 
-            // if wir has a codelet, execute it in its own thread
-            if (!StringUtil.isNullOrEmpty(codelet)) {
-                TaskInformation taskInfo = getTaskInformation(wir);
-                if (taskInfo != null) {
-                    CodeletRunner runner = new CodeletRunner(wir, taskInfo, init);
-                    Thread runnerThread = new Thread(runner, wir.getID() + ":codelet");
-                    runnerThread.start();                     // will callback when done
-                    if (_persisting && runner.persist()) persistAutoTask(wir, true);
-                    _cache.addCodeletRunner(wir.getID(), runner);
-                } else {
-                    _log.error("Could not run codelet '{}' for workitem '{}' - error " +
-                               "getting task information from engine. Codelet ignored.",
-                            codelet, wir.getID());
-                    checkInAutoTask(wir, wir.getDataList());     // check in immediately
-                }
-            } else {
+        // wir has a codelet, so execute it in its own thread
+        try {
+            TaskInformation taskInfo = getTaskInformation(wir);
+            if (taskInfo == null) {
+                _log.error("Could not run codelet '{}' for workitem '{}' - error " +
+                                "getting task information from engine. Codelet ignored.",
+                        codelet, wir.getID());
                 checkInAutoTask(wir, wir.getDataList());     // check in immediately
+                return;
             }
-        } catch (Exception e) {
+
+            CodeletRunner runner = new CodeletRunner(wir, taskInfo, init, _persisting);
+            new Thread(runner, wir.getID() + ":codelet").start();  // will callback when done
+            _cache.addCodeletRunner(wir.getID(), runner);
+        }
+        catch (Exception e) {
             _log.error("Exception attempting to execute automatic task: " +
                     wir.getID(), e);
         }
     }
 
 
-    private void persistAutoTask(WorkItemRecord wir, boolean isSaving) {
-        if (isSaving) {
-            new PersistedAutoTask(wir);
-        } else {
-            PersistedAutoTask task = (PersistedAutoTask) _persister.selectScalar(
-                    "PersistedAutoTask", wir.getID());
-            if (task != null) task.unpersist();
-        }
+    public void unpersistAutoTask(WorkItemRecord wir) {
+        PersistedAutoTask task = (PersistedAutoTask) _persister.selectScalar(
+                "PersistedAutoTask", wir.getID());
+        if (task != null) task.unpersist();
         _persister.commit();
     }
 
@@ -2763,8 +2759,8 @@ public final class ResourceManager extends InterfaceBWebsideController {
                 PersistedAutoTask task = (PersistedAutoTask) o;
                 WorkItemRecord wir = task.getWIR();
                 if (wir != null) {
-                    persistAutoTask(wir, false);             // remove persisted
-                    processAutoTask(wir, false);             // resume processing task
+                    unpersistAutoTask(wir);             // remove persisted
+                    processAutoTask(wir, false);    // resume processing task
                 }
             }
             _persister.commit();
@@ -2783,7 +2779,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
         } else {
             _log.warn("A codelet has completed for a non-existent workitem '{}' - it " +
                     "was most likely cancelled during the codelet's execution.", wir.getID());
-            if (_persisting) persistAutoTask(wir, false);
+            if (_persisting) unpersistAutoTask(wir);
         }
     }
 
@@ -2791,7 +2787,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
     public void checkInAutoTask(WorkItemRecord wir, Element outData) {
         checkCacheForWorkItem(wir);     // won't be cached if this is a restored item
         try {
-            if (_persisting) persistAutoTask(wir, false);
+            if (_persisting) unpersistAutoTask(wir);
             String msg = checkInWorkItem(wir.getID(), wir.getDataList(),
                     outData, null, getEngineSessionHandle());
             if (successful(msg)) {
