@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.engine;
 
+import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
@@ -31,12 +32,16 @@ import org.yawlfoundation.yawl.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.logging.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.SaxonUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 
@@ -217,14 +222,29 @@ public class YWorkItem {
         if (timerParams == null) return false ;            // no var with param's name
 
         try {
+            timerParams = evaluateParamQuery(timerParams, new Document(eData.detach()));
             return _timerParameters.parseYTimerType(timerParams);
         }
-        catch (IllegalArgumentException iae) {
+        catch (Exception iae) {
             _log.warn("Unable to set timer for workitem '" + getIDString() +
                       "' - " + iae.getMessage()) ;
             return false ;
 
         }
+    }
+
+
+    /**
+     * Evaluates any XQueries embedded in timer parameters
+     * @param timerParams the parameters to evaluate
+     * @param data the current net data document
+     * @return the evaluated element
+     * @throws SaxonApiException if queries are malformed
+     */
+    private Element evaluateParamQuery(Element timerParams, Document data)
+            throws SaxonApiException {
+        String result = SaxonUtil.evaluateQuery(JDOMUtil.elementToString(timerParams), data);
+        return JDOMUtil.stringToElement(result);
     }
 
 
