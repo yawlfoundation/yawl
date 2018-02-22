@@ -51,6 +51,7 @@ public class MailServiceGateway extends HttpServlet {
             service.setFromName(context.getInitParameter("senderName"));
             service.setFromAddress(context.getInitParameter("senderAddress"));
             service.setPort(StringUtil.strToInt(context.getInitParameter("port"), 25));
+            service.setTransportStrategy(context.getInitParameter("transportStrategy"));
         }
         catch (Exception e) {
             LogManager.getLogger(MailServiceGateway.class).error(

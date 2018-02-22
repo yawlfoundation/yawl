@@ -2,8 +2,8 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.2</version>
-  <timestamp>2018-02-06 12.26.46</timestamp>
-  <lib hash="8d151352d51b86db7a07e69309dbec67">
+  <timestamp>2018-02-22 17.34.37</timestamp>
+  <lib hash="c9559ac27e981327449b90abc66f1848">
     <file name="log4j-1.2-api-2.3.jar" md5="97f562c4f299dc5f5f72e66ded465416" size="36875" timestamp="2015-05-11T07:19:00" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="log4j-core-2.3.jar" md5="110ab3e3e4f3780921e8ee5dde3373ad" size="827024" timestamp="2015-05-11T07:16:46" path="A"/>
@@ -90,7 +90,6 @@
     <file name="ecore.jar" md5="67f985f03eca639fdea2ff2a3f537777" size="692868" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="commons-lang-2.3.jar" md5="dcdcbb47176603907c9f79a1349193eb" size="245274" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="slf4j-api-1.7.12.jar" md5="5de95ad1ae22d0b4c1dfea1101826a6e" size="32127" timestamp="2015-03-26T21:55:20" path="A"/>
-    <file name="simple-java-mail-v1.8.jar" md5="2ef96c4b5dade609fd944ce6f5ee1a50" size="18146" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="twitter4j-core-2.1.8.jar" md5="d2f16345df898a0be8ab8dd4290108f3" size="450442" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="common.jar" md5="b39420f2b597357f143181c67e141c5a" size="119342" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="collections-generic-4.01.jar" md5="4102d1e52ef23f97ba20821642d1df18" size="531557" timestamp="2015-08-12T13:39:27" path="A"/>
@@ -101,6 +100,7 @@
     <file name="ucp.jar" md5="d3641d9524d625ee46b0558b3fd53617" size="420234" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="jung-jai-samples-2.0.jar" md5="0401252ab703ba7c44b07244cacb03f8" size="2067" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="c3p0-0.9.2.1.jar" md5="35085ff8cfaf6576d118ad4492236ae6" size="423876" timestamp="2014-05-01T13:50:50" path="A"/>
+    <file name="simple-java-mail-4.4.5.jar" md5="d7d07d8f3e0e83855b35b1646e785f4a" size="189587" timestamp="2018-02-22T17:01:33" path="A"/>
     <file name="saaj.jar" md5="84e8f72a75171a6b4b0d0639f3726b65" size="18402" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="jung-visualization-2.0.jar" md5="abf99e893cdcd9cd4916d72c599faf58" size="322128" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="hibernate-ehcache-4.3.11.Final.jar" md5="1d4e3392670df753792e8c83d5b495bd" size="135728" timestamp="2015-08-05T21:02:06" path="A"/>
@@ -656,9 +656,9 @@
       </lib>
     </mailSender>
     <mailService>
-      <build>160</build>
+      <build>162</build>
       <files>
-        <file name="WEB-INF/web.xml" md5="17cdb1fcdaaa59ce82c045cb12391bdc" size="6212" timestamp="2017-11-29T13:02:19" path="AK"/>
+        <file name="WEB-INF/web.xml" md5="a226455872f299f11eb979ab74b6e67c" size="6531" timestamp="2018-02-22T17:34:36" path="AK"/>
       </files>
       <lib>
         <file name="jdom-2.0.5.jar"/>
@@ -667,7 +667,7 @@
         <file name="log4j-1.2-api-2.3.jar"/>
         <file name="log4j-slf4j-impl-2.3.jar"/>
         <file name="mailapi.jar"/>
-        <file name="simple-java-mail-v1.8.jar"/>
+        <file name="simple-java-mail-4.4.5.jar"/>
         <file name="smtp.jar"/>
         <file name="commons-codec-1.9.jar"/>
         <file name="xercesImpl.jar"/>
@@ -836,7 +836,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.2.jar" md5="341c54c6d4ef3fc4f86de589dbaa2e23" size="2625648" timestamp="2018-02-06T12:26:44" path="AM"/>
+    <file name="yawl-lib-4.2.jar" md5="6852759b7e9afb023ad5517e8ed5876b" size="2626327" timestamp="2018-02-22T17:34:36" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>383</build>

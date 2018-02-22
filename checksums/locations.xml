@@ -146,7 +146,7 @@
             <file name="saxon9-s9api.jar" path="A"/>
             <file name="saxon9.jar" path="A"/>
             <file name="servlet-api.jar" path="A"/>
-            <file name="simple-java-mail-v1.8.jar" path="A"/>
+            <file name="simple-java-mail-4.4.5.jar" path="A"/>
             <file name="slf4j-api-1.7.12.jar" path="A"/>
             <file name="smtp.jar" path="A"/>
             <file name="sqlx.jar" path="A"/>

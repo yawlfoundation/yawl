@@ -313,7 +313,7 @@
     <!-- mul -->
     <property name="servlet" value="servlet-api.jar"/>
     <!-- mul -->
-    <property name="simplemail" value="simple-java-mail-v1.8.jar"/>
+    <property name="simplemail" value="simple-java-mail-4.4.5.jar"/>
     <!-- sml -->
     <property name="slf4j" value="slf4j-api-1.7.12.jar"/>
     <!-- hbn -->
@@ -792,7 +792,7 @@
             <link offline="false" href="http://www.jdom.org/docs/apidocs/"/>
             <link offline="false" href="http://www.bouncycastle.org/docs/mdocs1.5/"/>
             <link offline="false"
-                  href="http://simple-java-mail.googlecode.com/svn/trunk/javadoc/users/"/>
+                  href="http://www.javadoc.io/doc/org.simplejavamail/simple-java-mail/4.4.5/"/>
 
             <!-- referenced class paths -->
             <classpath refid="cp.standard"/>

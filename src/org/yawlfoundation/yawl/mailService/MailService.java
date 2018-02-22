@@ -18,10 +18,11 @@
 
 package org.yawlfoundation.yawl.mailService;
 
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
-import org.codemonkey.simplejavamail.Mailer;
 import org.jdom2.Element;
+import org.simplejavamail.MailException;
+import org.simplejavamail.email.Email;
+import org.simplejavamail.mailer.Mailer;
+import org.simplejavamail.mailer.config.TransportStrategy;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
@@ -78,7 +79,7 @@ public class MailService extends InterfaceBWebsideController {
     // these parameters are automatically inserted (in the Editor) into a task
     // decomposition when this service is selected from the list
     public YParameter[] describeRequiredParams() {
-        YParameter[] params = new YParameter[13];
+        YParameter[] params = new YParameter[14];
         params[0] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
                 "senderName", "The name of the person or system who is sending the email", false);
         params[1] = createParameter(YParameter._INPUT_PARAM_TYPE, "string",
@@ -103,7 +104,9 @@ public class MailService extends InterfaceBWebsideController {
                 "The user name of an account on the host email server", true);
         params[11] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "password",
                 "The password of the account on the host email server", true);
-        params[12] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
+        params[12] = createParameter(YParameter._INPUT_PARAM_TYPE, "string", "transportStrategy",
+                "The encryption required to use the host. Choose between PLAIN, SSL and TLS", true);
+        params[13] = createParameter(YParameter._OUTPUT_PARAM_TYPE, "string", "result",
                 "The success or error message returned", false);
         return params;
     }
@@ -111,6 +114,10 @@ public class MailService extends InterfaceBWebsideController {
     protected void setHost(String host) { _defaults.host = host; }
 
     protected void setPort(int port) { if (port > -1) _defaults.port = port; }
+
+    protected void setTransportStrategy(String strategy) {
+        _defaults.strategy = getTransportStrategy(strategy);
+    }
 
     protected void setUser(String user) { _defaults.user = user; }
 
@@ -139,7 +146,8 @@ public class MailService extends InterfaceBWebsideController {
 
     private String sendMail(Email email, MailSettings settings) {
         try {
-            new Mailer(settings.host, settings.port, settings.user, settings.password)
+            new Mailer(settings.host, settings.port, settings.user,
+                    settings.password, settings.strategy)
                     .sendMail(email);
             return "Mail successfully sent.";
         }
@@ -156,6 +164,7 @@ public class MailService extends InterfaceBWebsideController {
         MailSettings settings = new MailSettings();
         settings.host = getSetting(data, "host");
         settings.port = getPort(data);
+        settings.strategy = getTransportStrategy(data);
         settings.user = getSetting(data, "user");
         settings.password = getSetting(data, "password");
         settings.fromName = getSetting(data, "senderName");
@@ -227,6 +236,20 @@ public class MailService extends InterfaceBWebsideController {
         return port;
     }
 
+    private TransportStrategy getTransportStrategy(String strategyString) {
+        if (StringUtil.isNullOrEmpty(strategyString)) return _defaults.strategy;
+        if ("PLAIN".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_PLAIN;
+        if ("SSL".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_SSL;
+        if ("TLS".equalsIgnoreCase(strategyString)) return TransportStrategy.SMTP_TLS;
+        
+        _logger.error("Unknown transport strategy ('" + strategyString + "'). " +
+                "Fall back to default (SSL).");
+        return _defaults.strategy;
+    }
+
+    private TransportStrategy getTransportStrategy(Element data) {
+        return getTransportStrategy(getDataValue(data, "transportStrategy"));
+    }
 
     private String getDataValue(Element data, String name) {
         return (data != null) ? data.getChildText(name) : null;
@@ -260,6 +283,7 @@ public class MailService extends InterfaceBWebsideController {
     private class MailSettings {
         String host = null;
         int port = 25;
+        TransportStrategy strategy = TransportStrategy.SMTP_SSL;
         String user = null;
         String password = null;
         String fromName = null;
@@ -281,7 +305,7 @@ public class MailService extends InterfaceBWebsideController {
             if (name.equals("recipientAddress")) return toAddress;
             if (name.equals("CC")) return ccAddress;
             if (name.equals("BCC")) return bccAddress;
-            if (name.equals("subject")) return subject;
+            if (name.equals("subject")) return subject;    
             if (name.equals("content")) return content;
             return null;
         }
