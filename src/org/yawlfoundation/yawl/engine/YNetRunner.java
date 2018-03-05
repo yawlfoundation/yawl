@@ -1128,10 +1128,12 @@ public class YNetRunner {
 
     public void restoreTimerStates() {
         if (! _timerStates.isEmpty()) {
-            for (String taskName : _timerStates.keySet()) {
+            for (String timerKey : _timerStates.keySet()) {
                 for (YTask task : _netTasks) {
-                    if (task.getName().equals(taskName)) {
-                        String stateStr = _timerStates.get(taskName);
+                    String taskName = task.getName();
+                    if (taskName == null) taskName = task.getID();
+                    if (taskName != null && taskName.equals(timerKey)) {
+                        String stateStr = _timerStates.get(timerKey);
                         YTimerVariable timerVar = task.getTimerVariable();
                         timerVar.setState(YWorkItemTimer.State.valueOf(stateStr), true);
                         break;

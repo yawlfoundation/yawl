@@ -421,7 +421,7 @@ public class YWorkItem {
             }
 
             // if current workitem status equals trigger status, start the timer
-            if (_timerParameters.statusMatchesTrigger(_status)) {
+            if (_timerParameters.triggerMatchesStatus(_status)) {
                 YWorkItemTimer timer = null ;
                 switch (_timerParameters.getTimerType()) {
                     case Expiry: {

@@ -86,7 +86,7 @@ public class YAnnouncer {
             throws YAWLException {
         boolean firstGateway = _controller.isEmpty();
         _controller.addGateway(gateway);
-        if (firstGateway) rennounceRestoredItems();
+        if (firstGateway) reannounceRestoredItems();
     }
 
 
@@ -389,7 +389,7 @@ public class YAnnouncer {
     /******************************************************************************/
     // WORKITEM REANNOUNCEMENTS //
 
-    private void rennounceRestoredItems() {
+    private void reannounceRestoredItems() {
 
         //MLF: moved from restore logic. There is no point in reannouncing before the first gateway
         //     is registered as the announcements will simply fall on deaf errors. Obviously we

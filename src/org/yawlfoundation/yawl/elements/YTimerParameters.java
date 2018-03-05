@@ -88,7 +88,7 @@ public class YTimerParameters {
     }
 
 
-    public boolean statusMatchesTrigger(YWorkItemStatus status) {
+    public boolean triggerMatchesStatus(YWorkItemStatus status) {
         if (_timerType == TimerType.Nil) return false;
         switch (_trigger) {
             case OnEnabled: return status.equals(statusEnabled);
