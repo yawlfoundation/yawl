@@ -114,6 +114,7 @@ public class YWorkItemTimer implements YTimedObject {
 
             
     public void handleTimerExpiry() {
+        unpersistThis();                                 // unpersist this timer
         YEngine engine = YEngine.getInstance();
         YWorkItem item = engine.getWorkItem(_ownerID) ;
         if (item != null) {
@@ -147,7 +148,6 @@ public class YWorkItemTimer implements YTimedObject {
                 // handle exc.
             }
         }
-        unpersistThis() ;                                 // unpersist this timer
     }
 
 

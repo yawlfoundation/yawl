@@ -641,7 +641,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
                         }
                     }
 
-                    _log.warn("Engine workItem '{}' was missing from local cache and " +
+                    _log.info("Engine workItem '{}' was missing from local cache and " +
                             "so will be added and distributed according to its " +
                             "resourcing parameters.", wir.getID());
                     handleEnabledWorkItemEvent(wir);
@@ -669,7 +669,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
             // remove from queues first to avoid a db foreign key violation
             // then let the cache 'cleanser' runner remove it
             removeFromAll(deadWir);
-            _log.warn("Cached workitem '{}' did not exist in the Engine and was removed.",
+            _log.info("Cached workitem '{}' did not exist in the Engine and so was removed.",
                     missingID);
         }
     }

@@ -94,9 +94,14 @@ public class YEnabledTransitionSet {
         Set<String> priorSet = new HashSet<String>();
         for (YFlow flow : task.getPresetFlows()) {
             YNetElement prior = flow.getPriorElement();
-            if (prior != null) priorSet.add(prior.getID()) ;
+            if (isEnablingCondition(prior)) priorSet.add(prior.getID()) ;
         }
         return priorSet;
+    }
+
+
+    private boolean isEnablingCondition(YNetElement element) {
+        return (element instanceof YCondition) && ((YCondition) element).containsIdentifier();
     }
 
 

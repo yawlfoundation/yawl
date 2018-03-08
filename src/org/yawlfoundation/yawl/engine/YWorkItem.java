@@ -443,7 +443,14 @@ public class YWorkItem {
                     _timerExpiry = timer.getEndTime();
                     setTimerActive();
                     _timerStarted = true ;
-                    if (pmgr != null) pmgr.storeObject(timer);
+                    if (pmgr != null) {
+
+                        // workaround check to avoid double persist of timer - causes unknown
+                        Object o = pmgr.getSession().get(YWorkItemTimer.class, timer.getOwnerID());
+                        if (o == null) {
+                            pmgr.storeObject(timer);
+                        }
+                    }
                 }
             }
         }
