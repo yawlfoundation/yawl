@@ -445,7 +445,7 @@
               value="${saxon} ${saxondom} ${saxonapi} ${saxonjdom}"/>
 
     <property name="simplemail.libs"
-              value="${mailapi} ${simplemail} ${smtp}"/>
+              value="${mailapi} ${simplemail} ${smtp} ${slf4j}"/>
 
     <property name="scheduling.libs"
               value="${json} ${commonsDbcp} ${commonsPool} ${jaxen} ${ucp}
