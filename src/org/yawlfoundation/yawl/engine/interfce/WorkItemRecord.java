@@ -420,10 +420,10 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_caseID, "caseid"))
            .append(StringUtil.wrap(_taskID, "taskid"))
            .append(StringUtil.wrap(_uniqueID, "uniqueid"))
-           .append(StringUtil.wrap(_taskName, "taskname"));
+           .append(StringUtil.wrapEscaped(_taskName, "taskname"));
 
         if (_documentation != null) {
-            xml.append(StringUtil.wrap(_documentation, "documentation"));
+            xml.append(StringUtil.wrapEscaped(_documentation, "documentation"));
         }
 
         xml.append(StringUtil.wrap(_allowsDynamicCreation, "allowsdynamiccreation"))
@@ -442,8 +442,8 @@ public class WorkItemRecord implements Cloneable {
            .append(StringUtil.wrap(_completedBy, "completedBy"))
            .append(StringUtil.wrap(_tag, "tag"))
            .append(StringUtil.wrap(_customFormURL, "customform"))
-           .append(StringUtil.wrap(_logPredicateStarted, "logPredicateStarted"))
-           .append(StringUtil.wrap(_logPredicateCompletion, "logPredicateCompletion"));
+           .append(StringUtil.wrapEscaped(_logPredicateStarted, "logPredicateStarted"))
+           .append(StringUtil.wrapEscaped(_logPredicateCompletion, "logPredicateCompletion"));
 
         if (_specIdentifier != null) {
             xml.append(StringUtil.wrap(_specIdentifier, "specidentifier"));
