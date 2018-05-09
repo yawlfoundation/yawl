@@ -112,7 +112,7 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1507</build>
+      <build>1508</build>
       <files>
         <file name="WEB-INF/classes/version.properties" md5="f1bd8842ea19e506b3c53fda6d2a8152" size="188" timestamp="2018-03-08T13:08:29" path="B"/>
         <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2018-03-08T13:08:29" path="C"/>
