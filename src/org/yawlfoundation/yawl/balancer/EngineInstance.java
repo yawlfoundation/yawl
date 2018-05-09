@@ -165,14 +165,14 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
 
 
     public double getBusyness(boolean verbose) throws IOException, JSONException {
-        double casesLaunched = _reqCollator.getResponsesPerSec("launchCase");
-        double itemsStarted = _reqCollator.getResponsesPerSec("checkout");
-        double itemsCompleted = _reqCollator.getResponsesPerSec("checkin");
-        double busyness = (casesLaunched * 3) + (itemsStarted * 2) + itemsCompleted;
-        System.out.println(String.format("** %s: %.3f, %.3f, %.3f, %.3f", _port,
-                casesLaunched, itemsStarted, itemsCompleted, busyness));
-        return busyness;
-    //    return _busyRule != null ? _busyRule.get() : _loadReader.getBusyness(verbose);
+//        double casesLaunched = _reqCollator.getResponsesPerSec("launchCase");
+//        double itemsStarted = _reqCollator.getResponsesPerSec("checkout");
+//        double itemsCompleted = _reqCollator.getResponsesPerSec("checkin");
+//        double busyness = (casesLaunched * 3) + (itemsStarted * 2) + itemsCompleted;
+//        System.out.println(String.format("** %s: %.3f, %.3f, %.3f, %.3f", _port,
+//                casesLaunched, itemsStarted, itemsCompleted, busyness));
+//        return busyness;
+        return _busyRule != null ? _busyRule.get() : _loadReader.getBusyness(verbose);
     }
 
 
