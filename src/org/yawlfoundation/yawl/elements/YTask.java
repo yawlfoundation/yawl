@@ -1520,7 +1520,7 @@ public abstract class YTask extends YExternalNetElement {
         String taskName = _name != null ? _name :
                         _decompositionPrototype != null ?
                                 _decompositionPrototype.getID() : "null";
-        StringUtil.wrapEscaped(taskName, "taskName");
+        result.append(StringUtil.wrapEscaped(taskName, "taskName"));
 
         if (_documentation != null) {
             result.append(StringUtil.wrapEscaped(_documentation, "taskDocumentation"));
