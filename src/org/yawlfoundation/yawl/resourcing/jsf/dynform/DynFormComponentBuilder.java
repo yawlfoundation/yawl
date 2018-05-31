@@ -99,7 +99,7 @@ public class DynFormComponentBuilder {
                 spc.setOccursButtonsEnablement();
             }    
         }
-        subPanel.setVisible(! field.hasHideAttribute());
+        subPanel.setVisible(! field.isHidden(_factory.getWorkItemData()));
         return subPanel ;
     }
 
