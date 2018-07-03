@@ -105,15 +105,9 @@ public class YSessionCache extends ConcurrentHashMap<String, YSession>
      * @return true if the handle's session is active.
      */
     public boolean checkConnection(String handle) {
-        boolean result = false;
-        if (handle != null) {
-            YSession session = this.get(handle) ;
-            if (session != null) {
-                _timer.reset(session);
-                result = true ;
-            }
-        }
-        return result ;
+        if (handle == null) return false;
+        YSession session = this.get(handle);
+        return session != null && _timer.reset(session);
     }
 
 

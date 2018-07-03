@@ -400,7 +400,7 @@ public class DigitalSignature extends InterfaceBWebsideController
                  System.out.println("Beginning of XmlSignature:");
                  //Call the function to sign the document
                  byte[] signeddata = SignedData(Document).getEncoded();
-                 if(signeddata.toString().compareTo(null)==0) return null;
+			     if (signeddata == null || signeddata.length == 0) return null;
                  else
                  {
                  System.out.println("End of Xml Signature");

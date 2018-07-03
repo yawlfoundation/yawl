@@ -1,7 +1,5 @@
 package org.yawlfoundation.yawl.authentication;
 
-import org.junit.rules.Timeout;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -29,18 +27,19 @@ public class YSessionTimer {
 
 
     public boolean add(YAbstractSession session) {
-        if (session != null) {
-            _sessionMap.put(session, scheduleTimeout(session));
+        if (session == null) return false;
+        TimerTask timerTask = scheduleTimeout(session);
+        if (timerTask != null) {
+            _sessionMap.put(session, timerTask);
         }
-        return session != null;
+        return timerTask != null;
     }
 
+
     public boolean reset(YAbstractSession session) {
-        if (session != null) {
-            expire(session);
-            add(session);
-        }
-        return session != null;
+        if (session == null) return false;
+        expire(session);
+        return add(session);
     }
 
 

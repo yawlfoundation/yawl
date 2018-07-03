@@ -23,7 +23,8 @@ import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.jdom2.filter.ElementFilter;
+import org.jdom2.Namespace;
+import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaderSAX2Factory;
 import org.jdom2.output.EscapeStrategy;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 
 /**
@@ -210,9 +212,29 @@ public class JDOMUtil {
     /****************************************************************************/
 
     public static Element selectElement(Document doc, String path) {
-        XPathExpression<Element> expression =
-                XPathFactory.instance().compile(path, new ElementFilter());
-        return expression.evaluateFirst(doc);
+        return getXPathExpression(path, null).evaluateFirst(doc);
+    }
+
+
+    public static Element selectElement(Document doc, String path, Namespace ns) {
+         return getXPathExpression(path, ns).evaluateFirst(doc);
+     }
+
+
+    public static List<Element> selectElementList(Document doc, String path) {
+        return getXPathExpression(path, null).evaluate(doc);
+    }
+
+
+    public static List<Element> selectElementList(Document doc, String path, Namespace ns) {
+        return getXPathExpression(path, ns).evaluate(doc);
+    }
+
+
+    public static XPathExpression<Element> getXPathExpression(String path, Namespace ns) {
+        return ns != null ?
+                XPathFactory.instance().compile(path, Filters.element(), null, ns) :
+                XPathFactory.instance().compile(path, Filters.element());
     }
 
 
