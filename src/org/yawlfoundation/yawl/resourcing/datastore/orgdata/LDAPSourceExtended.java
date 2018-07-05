@@ -594,7 +594,7 @@ public class LDAPSourceExtended extends DataSource {
             throw new YAuthenticationException("Unknown userid");
         }
 
-        Hashtable<String,Object> env = getEnvironment() ;
+        Hashtable<String,Object> env = new Hashtable<String, Object>(getEnvironment());
         String userBinding = _uid2dnMap.get(userid);
         System.out.println("get user " + userBinding);
         Object prevID = env.put(Context.SECURITY_PRINCIPAL, userBinding);
