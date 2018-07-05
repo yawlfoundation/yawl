@@ -1,0 +1,13 @@
+Load yawl schema into openLDAP (using cn=config)
+1. Copy yawl.ldif and yawl.schema to /etc/ldap/schema
+2. Run 
+	# ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/yawl.ldif
+3. The schema should now be active
+
+Uninstall schema
+1. Stop the openLDAP service
+	service slapd stop
+2. Delete the schema file from cn=config folder, e.g.
+	rm /etc/ldap/slapd.d/cn\=config/cn\=schema/cn\=\{4\}yawl.ldif
+3. Start the openLDAP service
+	service slapd start
