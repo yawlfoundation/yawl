@@ -78,6 +78,12 @@ public class YHttpServlet extends HttpServlet {
     }
 
 
+    protected boolean isAllowedRedundantAction(String action) {
+        return action == null ||
+                action.contains("onnect") ||  // 'connect' 'checkConnection', 'disconnect'
+                action.equals("promote") || action.equals("demote");
+    }
+
     private void deregisterDbDrivers() {
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         while (drivers.hasMoreElements()) {

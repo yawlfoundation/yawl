@@ -21,6 +21,7 @@ package org.yawlfoundation.yawl.engine.interfce;
 import org.yawlfoundation.yawl.engine.ObserverGateway;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
+import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.xml.datatype.Duration;
 import java.io.InputStream;
@@ -63,6 +64,12 @@ public interface EngineGateway extends Remote {
     void notifyServletInitialisationComplete(int maxWaitSeconds);
     
     void setActualFilePath(String path);
+
+    String promote(String sessionHandle) throws YPersistenceException;
+
+    String demote(String sessionHandle);
+
+    boolean isRedundantMode();
 
     /**
      *

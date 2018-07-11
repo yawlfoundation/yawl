@@ -64,6 +64,7 @@ public class EngineGatewayImpl implements EngineGateway {
 
     private YEngine _engine;
     private YSessionCache _sessionCache;
+    private boolean _redundantMode;
     private final Logger _logger;
 
     private boolean enginePersistenceFailure = false;
@@ -95,15 +96,24 @@ public class EngineGatewayImpl implements EngineGateway {
 
     public EngineGatewayImpl(Class<? extends YEngine> engine, boolean persist,
                              boolean gatherHbnStats) throws YPersistenceException {
+        this(null, persist, gatherHbnStats, false);
+    }
+
+
+    public EngineGatewayImpl(Class<? extends YEngine> engine, boolean persist,
+                             boolean gatherHbnStats, boolean redundantMode)
+            throws YPersistenceException {
         _logger = LogManager.getLogger(EngineGatewayImpl.class);
+        _redundantMode = redundantMode;
 
         // attempt to instantiate the YEngine subclass passed in
         if (engine != null) {
             try {
                 Method method = engine.getDeclaredMethod("getInstance",
-                        boolean.class, boolean.class);
+                        boolean.class, boolean.class, boolean.class);
                 if (method == null) throw new Exception();
-                _engine = engine.cast(method.invoke(null, persist, gatherHbnStats));
+                _engine = engine.cast(method.invoke(null, persist,
+                        gatherHbnStats, redundantMode));
             }
             catch (Exception e) {
                 _logger.warn("Failed to instantiate extended YEngine class", e);
@@ -113,7 +123,7 @@ public class EngineGatewayImpl implements EngineGateway {
         if (_engine == null) {
 
             // instantiation failed or no subclass passed
-            _engine = YEngine.getInstance(persist, gatherHbnStats);
+            _engine = YEngine.getInstance(persist, gatherHbnStats, redundantMode);
         }
         _sessionCache = _engine.getSessionCache();
     }
@@ -1638,5 +1648,36 @@ public class EngineGatewayImpl implements EngineGateway {
 
         return _engine.getHibernateStatistics();
     }
+
+    @Override
+    public String promote(String sessionHandle) throws YPersistenceException {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        if (! _redundantMode) {
+            return failureMessage("Engine is already in active mode");
+        }
+        
+        _engine.promote();
+        _redundantMode = false;
+        return successMessage("Engine successfully promoted to active mode");
+
+    }
+
+    @Override
+    public String demote(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        if (_redundantMode) {
+            return failureMessage("Engine is already in redundant mode");
+        }
+
+        _engine.demote();
+        _redundantMode = true;
+        return successMessage("Engine successfully demoted to redundant mode");
+    }
+
+    public boolean isRedundantMode() { return _redundantMode; }
 
 }

@@ -24,12 +24,12 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.EngineGateway;
 import org.yawlfoundation.yawl.engine.interfce.EngineGatewayImpl;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.Enumeration;
  *
  * @author Michael Adams (refactored for v2.0, 06/2008; 12/2008)
  */
-public class InterfaceA_EngineBasedServer extends HttpServlet {
+public class InterfaceA_EngineBasedServer extends YHttpServlet {
     private EngineGateway _engine;
     private static final Logger logger = LogManager.getLogger(InterfaceA_EngineBasedServer.class);
 
@@ -107,6 +107,10 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
 
         try {
             debug(request, "Post");
+            
+            if (_engine.isRedundantMode() && ! isAllowedRedundantAction(action)) {
+                return fail("Engine is in redundant mode, unable to process requests");
+            }
 
             if (action != null) {
                 if ("connect".equals(action)) {
@@ -190,6 +194,12 @@ public class InterfaceA_EngineBasedServer extends HttpServlet {
                 }
                 else if ("getHibernateStatistics".equals(action)) {
                     msg.append(_engine.getHibernateStatistics(sessionHandle));
+                }
+                else if ("promote".equals(action)) {
+                    msg.append(_engine.promote(sessionHandle));
+                }
+                else if ("demote".equals(action)) {
+                    msg.append(_engine.demote(sessionHandle));
                 }
             }
         }

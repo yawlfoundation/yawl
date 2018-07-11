@@ -134,11 +134,12 @@ public class YEngine implements InterfaceADesign,
      * @return a reference to the initialised engine
      * @throws YPersistenceException if there's a problem restoring from persistence
      */
-    public static YEngine getInstance(boolean persisting, boolean gatherHbnStats)
+    public static YEngine getInstance(boolean persisting, boolean gatherHbnStats,
+                                      boolean redundantMode)
             throws YPersistenceException {
         if (_thisInstance == null) {
             _thisInstance = new YEngine();
-            initialise(null, persisting, gatherHbnStats);
+            initialise(null, persisting, gatherHbnStats, redundantMode);
         }
         return _thisInstance;
     }
@@ -147,6 +148,13 @@ public class YEngine implements InterfaceADesign,
     public static YEngine getInstance(boolean persisting) throws YPersistenceException {
         return getInstance(persisting, false);
     }
+
+
+    public static YEngine getInstance(boolean persisting, boolean gatherHbnStats)
+            throws YPersistenceException {
+        return getInstance(persisting, gatherHbnStats, false);
+    }
+
 
 
     /**
@@ -165,7 +173,8 @@ public class YEngine implements InterfaceADesign,
 
 
     protected static void initialise(YPersistenceManager pmgr, boolean persisting,
-                                     boolean gatherHbnStats) throws YPersistenceException {
+                                     boolean gatherHbnStats, boolean redundantMode)
+            throws YPersistenceException {
         _logger.debug("--> YEngine: Creating initial instance");
         _persisting = persisting;
 
@@ -178,7 +187,7 @@ public class YEngine implements InterfaceADesign,
             _pmgr.initialise(true);
             _pmgr.setStatisticsEnabled(gatherHbnStats);
             _caseNbrStore.setPersisting(true);
-            _thisInstance.restore();
+            _thisInstance.restore(redundantMode);
         }
         else {
             _pmgr.setEnabled(false);
@@ -203,11 +212,25 @@ public class YEngine implements InterfaceADesign,
     }
 
 
+    public void promote() throws YPersistenceException {
+        restore(false);
+    }
+
+
+    public void demote() {
+        _netRunnerRepository.clear();
+        _workItemRepository.clear();
+        _instanceCache.clear();
+        _specifications.clear();
+        YTimer.getInstance().cancelAll();
+        YTimer.getInstance().shutdown();
+    }
+
     /**
      * Restores persisted data when the engine restarts.
      * @throws YPersistenceException when there's a problem with the restore process
      */
-    private void restore() throws YPersistenceException {
+    private void restore(boolean redundantMode) throws YPersistenceException {
         _logger.debug("--> restore");
         _restoring = true;
 
@@ -217,12 +240,16 @@ public class YEngine implements InterfaceADesign,
             startTransaction();
 
             // restore data objects from persistence (sequence is important)
-            restorer.restoreStaticObjects();
-            _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
-            restorer.restoreInstances();
-            _expiredTimers = restorer.restoreTimedObjects();
-            restorer.restartRestoredProcessInstances();
+            restorer.restoreServicesAndClients();
 
+            if (! redundantMode) {
+                restorer.restoreSpecifications();
+                _caseNbrStore = restorer.restoreNextAvailableCaseNumber();
+                restorer.restoreInstances();
+                _expiredTimers = restorer.restoreTimedObjects();
+                restorer.restartRestoredProcessInstances();
+            }
+            
             // complete transaction
             commitTransaction();
             _pmgr.setRestoring(false);

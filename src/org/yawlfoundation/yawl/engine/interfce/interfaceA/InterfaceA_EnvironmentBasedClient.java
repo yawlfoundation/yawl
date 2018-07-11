@@ -403,5 +403,15 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return executeGet(_backEndURIStr, params);
     }
 
+    public String promote(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("promote", sessionHandle);
+        return executePost(_backEndURIStr, params);
+    }
+
+    public String demote(String sessionHandle) throws IOException {
+         Map<String, String> params = prepareParamMap("demote", sessionHandle);
+         return executePost(_backEndURIStr, params);
+     }
+
 
 }

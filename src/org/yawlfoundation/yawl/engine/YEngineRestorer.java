@@ -70,10 +70,9 @@ public class YEngineRestorer {
     }
 
 
-    protected void restoreStaticObjects() throws YPersistenceException {
+    protected void restoreServicesAndClients() throws YPersistenceException {
         restoreYAWLServices();
         restoreExternalClients();
-        restoreSpecifications();
     }
 
 

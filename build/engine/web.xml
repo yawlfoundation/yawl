@@ -148,6 +148,15 @@
          </description>
    	</context-param>
 
+    <context-param>
+   		<param-name>StartInRedundantMode</param-name>
+   		<param-value>false</param-value>
+   		<description>
+   			When set to 'true', will start the engine in redundant (or shadow) mode.
+            This allows the engine to be brought online (promoted) when the engine it
+            is shadowing goes offline. See the user manual for more information.
+         </description>
+   	</context-param>
 
 	<context-param>
 		<param-name>RMIServerName</param-name>

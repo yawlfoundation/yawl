@@ -76,13 +76,16 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 Class<? extends YEngine> engineImpl = getEngineImplClass();
                 boolean persist = getBooleanFromContext("EnablePersistence");
                 boolean enableHbnStats = getBooleanFromContext("EnableHibernateStatisticsGathering");
-                _engine = new EngineGatewayImpl(engineImpl, persist, enableHbnStats);
+                boolean redundantMode = getBooleanFromContext("StartInRedundantMode");
+                _engine = new EngineGatewayImpl(engineImpl, persist,
+                        enableHbnStats, redundantMode);
                 _engine.setActualFilePath(context.getRealPath("/"));
                 context.setAttribute("engine", _engine);
             }
 
             // enable performance statistics gathering if requested
             _gatherPerfStats = getBooleanFromContext("EnablePerformanceStatisticsGathering");
+
             // set flag to disable logging (only if false) - enabled with persistence by
             // default
             String logStr = context.getInitParameter("EnableLogging");
@@ -257,6 +260,9 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
         
         try {
             debug(request, "Post");
+            if (_engine.isRedundantMode() && ! isAllowedRedundantAction(action)) {
+                return fail("Unable to process request - engine is in redundant mode");
+            }
 
             if (action != null) {
                 if (action.equals("checkConnection")) {
