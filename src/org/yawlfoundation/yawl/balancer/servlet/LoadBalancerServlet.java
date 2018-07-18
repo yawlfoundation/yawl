@@ -1,9 +1,6 @@
 package org.yawlfoundation.yawl.balancer.servlet;
 
-import org.yawlfoundation.yawl.balancer.Actions;
-import org.yawlfoundation.yawl.balancer.EngineInstance;
-import org.yawlfoundation.yawl.balancer.EngineSet;
-import org.yawlfoundation.yawl.balancer.ResultProcessor;
+import org.yawlfoundation.yawl.balancer.*;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
 import org.yawlfoundation.yawl.balancer.polling.PollingService;
@@ -38,6 +35,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
 
     private Map<String, String> _connectionParams;
     private Map<YSpecificationID, String> _specMap;
+    private Map<YSpecificationID, Double> _specComplexityMap;
     private boolean _allInitialized = false;
 
 
@@ -50,7 +48,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         Config.load(getServletContext());
         Config.addChangeListener(this);
         _engineSet.initialize();
-    }
+   }
 
 
     @Override
@@ -68,7 +66,10 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         String action = req.getParameter("action");
         if (action != null) {
             String result;
-            if (_actions.isSessionAction(action)) {
+            if (action.startsWith("obs_")) {      // case completion/cancellation
+                result = removeCase(req);
+            }
+            else if (_actions.isSessionAction(action)) {
                 result = handleSessionAction(req);
             }
             else if (_actions.isItemAction(action)) {
@@ -133,8 +134,8 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             throws IOException {
         EngineInstance authenticator = _engineSet.getAuthenticator();
         if (! authenticator.isRestored() && "connect".equals(req.getParameter("action"))) {
-            restoreCases();
             restoreSpecifications();
+            restoreCases();
             PollingService.schedule();
         }
         return forwardPost(authenticator.getURL(req.getPathInfo()), buildParamMap(req));
@@ -148,7 +149,9 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             params.put("caseid", _engineSet.getNextCaseNbr());
             String result = forwardPost(instance, params, req.getPathInfo());
             if (successful(result)) {
-                instance.addCase(result);
+                YSpecificationID specID = getSpecID(params);
+                instance.addCase(result, specID);
+                instance.addComplexityMetric(_specComplexityMap.get(specID));
                 _log.info("Case {} launched on engine {}",
                         result, instance.getName());
             }
@@ -186,26 +189,26 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
 
     private String handleSpecAction(HttpServletRequest req) throws IOException {
         String action = req.getParameter("action");
+        Map<String, String> params = buildParamMap(req);
         if (action.equals("upload")) {
-            String result = forwardPost(_engineSet.getRandomInstance(),
-                    buildParamMap(req), "/ia");
+            String result = forwardPost(_engineSet.getRandomInstance(), params, "/ia");
             if (successful(result)) {
                 String specXML = req.getParameter("specXML");
-                _specMap.put(getSpecIDFromXML(specXML), specXML);
+                YSpecificationID specID = getSpecIDFromXML(specXML);
+                _specMap.put(specID, specXML);
+                _specComplexityMap.put(specID, new ComplexityMetric().calc(specXML));
             }
             return result;
         }
         else {           // unload
-            String specIdentifier = req.getParameter("specidentifier");
-            String specVersion = req.getParameter("specversion");
-            String specURI = req.getParameter("specuri");
-            YSpecificationID specID = new YSpecificationID(specIdentifier, specVersion, specURI);
+            YSpecificationID specID = getSpecID(params);
             for (EngineInstance instance : _engineSet.getAll()) {
                 if (isLoaded(instance, specID)) {
-                    forwardPost(instance, buildParamMap(req), "/ia");
+                    forwardPost(instance, params, "/ia");
                 }
             }
             _specMap.remove(specID);
+            _specComplexityMap.remove(specID);
             return "<success/>";
         }
     }
@@ -299,13 +302,15 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             if (successful(result)) {
                 XNode node = _resultProcessor.parse(result);
                 if (node != null) {
-                    List<String> caseList = new ArrayList<String>();
+                    Map<String, YSpecificationID> caseMap =
+                            new HashMap<String, YSpecificationID>();
                     for (XNode specNode : node.getChildren()) {
+                        YSpecificationID specID = getSpecIDFromXNode(specNode);
                         for (XNode caseNode : specNode.getChildren()) {
-                            caseList.add(caseNode.getText());
+                            caseMap.put(caseNode.getText(), specID);
                         }
                     }
-                    instance.addCases(caseList);
+                    instance.addCases(caseMap);
                 }
             }
             instance.setRestored(true);
@@ -315,14 +320,33 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
 
     private void restoreSpecifications() throws IOException {
         _specMap = new HashMap<YSpecificationID, String>();
+        _specComplexityMap = new HashMap<YSpecificationID, Double>();
+        ComplexityMetric complexityMetric = new ComplexityMetric();
         for (EngineInstance instance : _engineSet.getAll()) {
             for (SpecificationData specData : getSpecList(instance)) {
                 String specXML = getSpecification(instance, specData);
                 if (specXML != null) {
                     _specMap.put(specData.getID(), specXML);
+                    _specComplexityMap.put(specData.getID(),
+                            complexityMetric.calc(specXML));
                 }
             }
         }
+    }
+
+
+    private String removeCase(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        for (EngineInstance instance : _engineSet.getAll()) {
+            if (instance.hasCase(caseID)) {
+                YSpecificationID specID = instance.removeCase(caseID);
+                if (specID != null) {
+                    instance.removeComplexityMetric(_specComplexityMap.get(specID));
+                }
+                return "OK";
+            }
+        }
+        return "NOK";
     }
 
 
@@ -338,6 +362,13 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         catch (YSyntaxException yse) {
              throw new IOException(yse.getMessage());
         }
+    }
+
+
+    private YSpecificationID getSpecIDFromXNode(XNode node) {
+        return new YSpecificationID(node.getAttributeValue("identifier"),
+                node.getAttributeValue("version"),
+                node.getAttributeValue("uri"));
     }
 
     
@@ -366,8 +397,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
 
     private boolean checkOrAddSpec(EngineInstance instance, Map<String, String> params)
             throws IOException {
-        YSpecificationID specID = new YSpecificationID(params.get("specidentifier"),
-                params.get("specversion"), params.get("specuri"));
+        YSpecificationID specID = getSpecID(params);
         if (! isLoaded(instance, specID)) {
             String specXML = _specMap.get(specID);
             if (specXML != null) {
@@ -375,6 +405,12 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             }
         }
         return true;
+    }
+
+
+    private YSpecificationID getSpecID(Map<String, String> params) {
+        return new YSpecificationID(params.get("specidentifier"),
+                        params.get("specversion"), params.get("specuri"));
     }
 
 

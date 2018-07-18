@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
+import org.yawlfoundation.yawl.balancer.output.CombinedBusynessOutputter;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.util.*;
@@ -32,6 +33,7 @@ public class EngineSet {
 
 
     public void initialize() {
+        CombinedBusynessOutputter combinedOutputter = new CombinedBusynessOutputter();
         boolean activateAll = Config.getBusynessLimit() <= 0;
         List<String> locations = Config.getLocations();
         for (String location : locations) {
@@ -41,6 +43,7 @@ public class EngineSet {
             if (port > 0) {
                 EngineInstance instance = new EngineInstance(host, port);
          //       instance.setArffWriter(_arffWriter);
+                instance.setCombinedOutputter(combinedOutputter);
                 if (activateAll) instance.setActive(true);
                 _set.add(instance);
             }
@@ -73,6 +76,9 @@ public class EngineSet {
 
 
     public EngineInstance getAuthenticator() {
+        if (_authenticator == null) {
+            promoteAuthenticator();
+        }
         return _authenticator;
     }
 

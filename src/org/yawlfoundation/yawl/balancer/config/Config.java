@@ -39,12 +39,18 @@ public class Config {
     private static final int DEFAULT_REQUEST_WEIGHT = 1;
     private static final int DEFAULT_PROC_TIME_WEIGHT = 1;
     private static final int DEFAULT_THREADS_WEIGHT = 1;
+    private static final double DEFAULT_CARDUSO_COMPLEXITY_WEIGHT = 0.5;
+    private static final double DEFAULT_TASKCOUNT_COMPLEXITY_WEIGHT = 0.5;
+    private static final double DEFAULT_UDT_COMPLEXITY_WEIGHT = 0.5;
+    private static final double DEFAULT_DATA_MAPPINGS_COMPLEXIY_WEIGHT = 0.5;
+    private static final double DEFAULT_RESOURCING_COMPLEXITY_WEIGHT = 0.5;
     private static final double DEFAULT_FORGET_FACTOR = 0.5;
     private static final int DEFAULT_FORECAST_QUEUE_SIZE = 60;
     private static final int DEFAULT_FORECAST_LOOKAHEAD = 1;
     private static final double DEFAULT_MAX_BUSYNESS = 0.0;
     private static final int DEFAULT_FORECAST_MODELLER = 2;
-    
+
+
     public static boolean load(ServletContext context) {
         try {
             PROPS.load(context.getResourceAsStream(FILE_PATH));
@@ -148,6 +154,31 @@ public class Config {
 
     public static double getThreadsWeight() {
         return getDouble("threads_weight", DEFAULT_THREADS_WEIGHT);
+    }
+
+
+    public static double getCardusoComplexityWeight() {
+        return getDouble("carduso_complexity_weight", DEFAULT_CARDUSO_COMPLEXITY_WEIGHT);
+    }
+
+
+    public static double getTaskCardinalityComplexityWeight() {
+        return getDouble("task_count_complexity_weight", DEFAULT_TASKCOUNT_COMPLEXITY_WEIGHT);
+    }
+
+
+    public static double getUDTComplexityWeight() {
+        return getDouble("udt_complexity_weight", DEFAULT_UDT_COMPLEXITY_WEIGHT);
+    }
+
+
+    public static double getDataMappingsComplexityWeight() {
+        return getDouble("data_mappings_complexity_weight", DEFAULT_DATA_MAPPINGS_COMPLEXIY_WEIGHT);
+    }
+
+
+    public static double getResourcingComplexityWeight() {
+        return getDouble("resourcing_complexity_weight", DEFAULT_RESOURCING_COMPLEXITY_WEIGHT);
     }
 
 
