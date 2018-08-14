@@ -33,41 +33,47 @@ public class ComplexityMetric {
 
 
     public double getWeightedCarduso(List<Element> taskElements) {
-        return taskElements == null ? 0 :
-                getCardusoMetric(taskElements) * Config.getCardusoComplexityWeight();
+        double weight = Config.getCardusoComplexityWeight();
+        return taskElements == null || weight <= 0 ? 0 :
+                getCardusoMetric(taskElements) * weight;
     }
 
 
     public double getWeightedTaskCardinality(List<Element> taskElements) {
-        return taskElements == null ? 0 :
-                taskElements.size() * Config.getTaskCardinalityComplexityWeight();
+        double weight = Config.getTaskCardinalityComplexityWeight();
+        return taskElements == null || weight <= 0 ? 0 :
+                taskElements.size() * weight;
     }
 
 
     public double getWeightedUDTCount(Document doc) {
-        if (doc == null) return 0;
+        double weight = Config.getUDTComplexityWeight();
+        if (doc == null || weight <= 0) return 0;
         Element root = doc.getRootElement();
-        Element spec = root.getChild("yawl:specification", YAWL_NAMESPACE);
-        Element dataSchema = spec.getChild("xs:schema", XSD_NAMESPACE);
-        return dataSchema.getChildren().size() * Config.getUDTComplexityWeight();
+        Element spec = root.getChild("specification", YAWL_NAMESPACE);
+        Element dataSchema = spec.getChild("schema", XSD_NAMESPACE);
+        return dataSchema.getChildren().size() * weight;
     }
 
 
     public double getWeightedIOCount(List<Element> taskElements) {
-        if (taskElements == null) return 0;
+        double weight = Config.getDataMappingsComplexityWeight();
+        if (taskElements == null || weight <= 0) return 0;
         int mappingCount = 0;
         for (Element te : taskElements) {
             mappingCount += te.getChildren("startingMappings", YAWL_NAMESPACE).size();
             mappingCount += te.getChildren("completedMappings", YAWL_NAMESPACE).size();
         }
-        return mappingCount * Config.getDataMappingsComplexityWeight();
+        return mappingCount * weight;
     }
 
 
     public double getWeightedResourceCount(Document doc) {
+        double weight = Config.getResourcingComplexityWeight();
+        if (doc == null || weight <= 0) return 0;
         List<Element> elementList = JDOMUtil.selectElementList(
                 doc, "//yawl:role", YAWL_NAMESPACE);
-        return elementList.size() + Config.getResourcingComplexityWeight();
+        return elementList.size() + weight;
     }
 
 

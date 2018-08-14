@@ -115,7 +115,7 @@ public class ResourceXESLog extends YXESBuilder {
         eventNode.addChild(stringNode("concept:name", yEvent.getChildText("taskname")));
         eventNode.addChild(stringNode("lifecycle:transition",
                 translateEvent(yEvent.getChildText("descriptor"))));
-        eventNode.addChild(stringNode("lifecycle:instance", yEvent.getChildText("instanceid")));
+        eventNode.addChild(stringNode("concept:instance", yEvent.getChildText("instanceid")));
         eventNode.addChild(stringNode("org:resource", yEvent.getChildText("resource")));
         return eventNode;
     }
@@ -204,7 +204,7 @@ public class ResourceXESLog extends YXESBuilder {
 
 
     private String getInstanceID(XNode event) {
-        return getEventValue(event, "lifecycle:instance");
+        return getEventValue(event, "concept:instance");
     }
 
 
@@ -259,7 +259,7 @@ public class ResourceXESLog extends YXESBuilder {
             if (getTransition(event).equals(transition) &&
                     getInstanceID(event).equals(instanceID) &&
                     getTaskName(event).equals(taskName)) {
-                int pos = event.posChildWithAttribute("key", "lifecycle:instance");
+                int pos = event.posChildWithAttribute("key", "concept:instance");
                 if (pos > -1) {
                     event.insertChild(pos + 1, stringNode("org:resource", orgResource));
                 }

@@ -30,6 +30,7 @@ public class CombinedBusynessOutputter extends AbstractLoadOutputter {
                 String fDate = SDF.format(new Date());
                 _out.write(fDate);
                 for (String s : buffer) {
+                    if (s == null) continue;
                     _out.write(',');
                     _out.write(s);
                 }

@@ -82,7 +82,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
             if (_busyRule != null) {
                 _busyRule.add(busyness);
             }
-            writeCombinedValues(busyness + getComplexityFactor());
+            writeCombinedValues(busyness + _runningCasesComplexityMetric);
         }
         catch (Exception e) {
             LogManager.getLogger(this.getClass()).error(
@@ -209,7 +209,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
 //        return busyness;
         double baseBusyness = _busyRule != null ? _busyRule.get() :
                 _loadReader.getBusyness(verbose);
-        return baseBusyness + getComplexityFactor();
+        return baseBusyness + _runningCasesComplexityMetric;
     }
 
 
@@ -227,14 +227,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
                 return null;
         }
     }
-
-
-    private double getComplexityFactor() {
-        double cardusoWeight = Math.max(Config.getCardusoComplexityWeight(), 0);
-        double taskCountWeight = Math.max(Config.getTaskCardinalityComplexityWeight(), 0);
-        return _runningCasesComplexityMetric * (cardusoWeight + taskCountWeight);
-    }
-
+    
 
     private String getIndexFromPort(int port) {
         String s = String.valueOf(port-1);          // make it zero based

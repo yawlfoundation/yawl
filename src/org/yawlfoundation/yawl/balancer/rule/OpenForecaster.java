@@ -36,7 +36,7 @@ public class OpenForecaster implements BusynessRule {
             return getLastValue(_series);
         }
         ForecastingModel forecaster = net.sourceforge.openforecast.Forecaster.getBestForecast(_series);
-        _log.info("Selected forecasting model: " + forecaster.getForecastType());
+        System.out.println("Selected forecasting model: " + forecaster.getForecastType());
         DataSet transport = getForecastTransport();
         forecaster.forecast(transport);
         return getLastValue(transport);
