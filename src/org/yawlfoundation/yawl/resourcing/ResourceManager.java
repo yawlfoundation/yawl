@@ -2096,6 +2096,13 @@ public final class ResourceManager extends InterfaceBWebsideController {
         return _cache.isValidUserSession(handle) && (p == null || p.isAdministrator());
     }
 
+    public UserPrivileges getSessionPrivileges(String handle) {
+        if (! _cache.isValidUserSession(handle)) return null;
+
+        Participant p = _cache.getParticipantWithSessionHandle(handle);
+        return p != null ? p.getUserPrivileges() : null;
+    }
+
 
     public String validateUserCredentials(String userid, String password, boolean admin) {
         String result = "<success/>";

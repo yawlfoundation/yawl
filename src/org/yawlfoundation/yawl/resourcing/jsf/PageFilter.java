@@ -1,5 +1,7 @@
 package org.yawlfoundation.yawl.resourcing.jsf;
 
+import org.yawlfoundation.yawl.resourcing.resource.UserPrivileges;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,18 +38,32 @@ public class PageFilter implements Filter {
 
 
     private boolean isAuthorised(HttpServletRequest request) {
-        return !isAdminPage(request) || isAdminSession(request);
+        return !isAdminPage(request) || isAdminSession(request) ||
+				isPrivilegedSession(request);
     }
 
 
-    private boolean isAdminSession(HttpServletRequest httpServletRequest) {
-        SessionBean sb = getSessionBean(httpServletRequest);
+    private boolean isAdminSession(HttpServletRequest request) {
+        SessionBean sb = getSessionBean(request);
    		return sb != null && sb.isAdminSession();
    	}
 
 
+   	private boolean isPrivilegedSession(HttpServletRequest request) {
+		String requestURI = request.getRequestURI();
+        if (requestURI != null && requestURI.endsWith("caseMgt.jsp")) {
+			SessionBean sb = getSessionBean(request);
+	        if (sb != null) {
+				UserPrivileges up = sb.getSessionPrivileges();
+				return up != null && up.canManageCases();
+			}
+		}
+		return false;
+	}
+
+
    	protected SessionBean getSessionBean(HttpServletRequest request) {
-   		return (SessionBean) (request).getSession().getAttribute("SessionBean");
+   		return (SessionBean) request.getSession().getAttribute("SessionBean");
    	}
 
 

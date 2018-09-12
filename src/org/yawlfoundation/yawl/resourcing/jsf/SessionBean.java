@@ -696,6 +696,10 @@ public class SessionBean extends AbstractSessionBean {
         return _rm.isAdminSession(sessionhandle);
     }
 
+    public UserPrivileges getSessionPrivileges() {
+        return _rm.getSessionPrivileges(sessionhandle);
+    }
+
 
     /**
      * redirects to the specified page
