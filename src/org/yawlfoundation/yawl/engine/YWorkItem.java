@@ -644,7 +644,9 @@ public class YWorkItem {
 
     public void add_child(YWorkItem child) { _children.add(child); }
 
-	  public void add_children(Set children) { _children.addAll(children); }
+    public void add_children(Set children) { _children.addAll(children); }
+
+    protected void setChildren(Set<YWorkItem> children) { _children = children; }
 
     public void setWorkItemID(YWorkItemID workitemid) { _workItemID = workitemid; } //
 
