@@ -215,6 +215,9 @@ public class XNode implements Comparable<XNode> {
     }
 
     public void addContent(String content, String nsPrefix, String nsURI) {
+        if (content == null) {
+            return;
+        }
         if (content.trim().startsWith(_header)) {
             content = content.substring(_header.length() + 1);
         }

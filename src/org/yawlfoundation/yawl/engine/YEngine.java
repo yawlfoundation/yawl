@@ -73,7 +73,7 @@ public class YEngine implements InterfaceADesign,
     public enum Status { Dormant, Initialising, Running, Terminating }
 
     // Constants
-    private static YPersistenceManager _pmgr;
+    protected static YPersistenceManager _pmgr;
     private static final boolean ENGINE_PERSISTS_BY_DEFAULT = false;
 
     protected static YEngine _thisInstance;                         // reference to self
@@ -486,7 +486,7 @@ public class YEngine implements InterfaceADesign,
      * @param primaryCaseID the id of the case
      * @return Vector of net runners for the case
      */
-    private List<YNetRunner> getRunnersForPrimaryCase(YIdentifier primaryCaseID) {
+    public List<YNetRunner> getRunnersForPrimaryCase(YIdentifier primaryCaseID) {
         return _netRunnerRepository.getAllRunnersForCase(primaryCaseID);
     }
 

@@ -55,7 +55,7 @@ import java.util.*;
  */
 public class YNetRunner {
 
-    public static enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
+    public enum ExecutionStatus { Normal, Suspending, Suspended, Resuming }
 
     private static final Logger _logger = LogManager.getLogger(YNetRunner.class);
 
@@ -71,8 +71,8 @@ public class YNetRunner {
     private YEngine _engine;
     private YAnnouncer _announcer;
     private boolean _cancelling;
-    private final Set<String> _enabledTaskNames = new HashSet<String>();
-    private final Set<String> _busyTaskNames = new HashSet<String>();
+    private Set<String> _enabledTaskNames = new HashSet<String>();
+    private Set<String> _busyTaskNames = new HashSet<String>();
     private String _caseID = null;
     private String _containingTaskID = null;
     private YNetData _netdata = null;
@@ -271,6 +271,10 @@ public class YNetRunner {
     public Set<String> getBusyTaskNames() {
         return _busyTaskNames;
     }
+
+    protected void setEnabledTaskNames(Set<String> names) { _enabledTaskNames = names; }
+
+    protected void setBusyTaskNames(Set<String> names) { _busyTaskNames = names; }
 
 
     public long getStartTime() { return _startTime; }
@@ -1044,9 +1048,9 @@ public class YNetRunner {
 
 
    /** these two methods are here to support persistence of the IB Observer */
-    private String get_caseObserverStr() { return _caseObserverStr ; }
+    protected String get_caseObserverStr() { return _caseObserverStr ; }
 
-    private void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
+    protected void set_caseObserverStr(String obStr) { _caseObserverStr = obStr ; }
 
 
     /** cancels the specified task */

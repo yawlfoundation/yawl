@@ -967,6 +967,26 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     }
 
 
+    public String exportCaseState(String caseID, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("exportCaseState", sessionHandle);
+        params.put("caseID", caseID);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String exportAllCaseStates(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("exportAllCaseStates", sessionHandle);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
+    public String importCases(String xml, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("importCases", sessionHandle);
+        params.put("xml", xml);
+        return stripOuterElement(executeGet(_backEndURIStr, params));
+    }
+
+
     /**
      * Gets the data of the case
      * @param caseID the case id.

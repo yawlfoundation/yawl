@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
+import org.yawlfoundation.yawl.engine.CaseExporter;
 import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
@@ -1679,5 +1680,40 @@ public class EngineGatewayImpl implements EngineGateway {
     }
 
     public boolean isRedundantMode() { return _redundantMode; }
+
+
+    public String exportCaseState(String caseID, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        YIdentifier id = _engine.getCaseID(caseID);
+        if (id == null) {
+            return failureMessage("Case [" + caseID + "] not found.");
+        }
+
+        return new CaseExporter(_engine).export(id);
+    }
+
+
+    public String exportAllCaseStates(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        return new CaseExporter(_engine).exportAll();
+    }
+
+
+    public String importCases(String caseXML, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int caseCount = new CaseImporter(_engine).add(caseXML);
+            return successMessage(caseCount + " case(s) imported successfully");
+        }
+        catch (Exception e) {
+            return failureMessage("Failed to import case(s): " + e.getMessage());
+        }
+    }
 
 }

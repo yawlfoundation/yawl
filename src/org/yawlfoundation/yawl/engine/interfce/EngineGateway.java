@@ -71,6 +71,12 @@ public interface EngineGateway extends Remote {
 
     boolean isRedundantMode();
 
+    String exportCaseState(String caseID, String sessionHandle);
+
+    String exportAllCaseStates(String sessionHandle);
+
+    String importCases(String caseXML, String sessionHandle);
+
     /**
      *
      * @param sessionHandle

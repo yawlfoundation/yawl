@@ -405,6 +405,17 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseState(caseID, sessionHandle));
                 }
+                else if (action.equals("exportCaseState")) {
+                    String caseID = request.getParameter("caseID");
+                    msg.append(_engine.exportCaseState(caseID, sessionHandle));
+                }
+                else if (action.equals("exportAllCaseStates")) {
+                    msg.append(_engine.exportAllCaseStates(sessionHandle));
+                }
+                else if (action.equals("importCases")) {
+                    String xml = request.getParameter("xml");
+                    msg.append(_engine.importCases(xml, sessionHandle));
+                }
                 else if (action.equals("getCaseData")) {
                     String caseID = request.getParameter("caseID");
                     msg.append(_engine.getCaseData(caseID, sessionHandle));
