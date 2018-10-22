@@ -1,8 +1,10 @@
-package org.yawlfoundation.yawl.balancer;
+package org.yawlfoundation.yawl.balancer.instance;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.yawlfoundation.yawl.balancer.OperatingMode;
 import org.yawlfoundation.yawl.balancer.config.Config;
+import org.yawlfoundation.yawl.balancer.monitor.Monitor;
 import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
 import org.yawlfoundation.yawl.balancer.output.CombinedBusynessOutputter;
 import org.yawlfoundation.yawl.util.StringUtil;
@@ -19,16 +21,19 @@ public class EngineSet {
     private final Random _random;
     private final Logger _log;
     private final ArffOutputter _arffWriter;
-
+    private final Monitor _monitor;
+    
     private EngineInstance _authenticator;
     private int _lastCaseNbr = 0;
+    private int _activeCount = 0;
 
 
-    public EngineSet() {
+    public EngineSet(Monitor monitor) {
         _set = new HashSet<EngineInstance>();
         _random = new Random();
         _log = LogManager.getFormatterLogger(this.getClass());
         _arffWriter = new ArffOutputter();
+        _monitor = monitor;
     }
 
 
@@ -44,7 +49,10 @@ public class EngineSet {
                 EngineInstance instance = new EngineInstance(host, port);
          //       instance.setArffWriter(_arffWriter);
                 instance.setCombinedOutputter(combinedOutputter);
-                if (activateAll) instance.setActive(true);
+                instance.addBusynessListener(_monitor);
+                if (activateAll) {
+                    activate(instance);
+                }
                 _set.add(instance);
             }
         }
@@ -65,11 +73,14 @@ public class EngineSet {
     }
 
 
+    public int getActiveCount() { return _activeCount; }
+
+
     public EngineInstance promoteAuthenticator() {
         _authenticator = getRandomInstance();
         if (_authenticator != null) {
             _authenticator.setAuthenticator(true);
-            _authenticator.setActive(true);
+            activate(_authenticator);
         }
         return _authenticator;
     }
@@ -228,5 +239,25 @@ public class EngineSet {
         }
         return null;
     }
+
+
+    private boolean activate(EngineInstance instance) {
+        return setActive(instance, true);
+    }
+
+    
+    public boolean deactivate(EngineInstance instance) {
+        return setActive(instance, false);
+    }
+
+
+    private boolean setActive(EngineInstance instance, boolean activate) {
+         if (activate != instance.isActive()) {
+             instance.setActive(activate);
+             _activeCount += activate ? 1 : -1;
+             return true;
+         }
+         return false;
+     }
 
 }

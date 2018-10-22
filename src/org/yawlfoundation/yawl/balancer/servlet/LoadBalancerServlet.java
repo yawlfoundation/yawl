@@ -1,8 +1,13 @@
 package org.yawlfoundation.yawl.balancer.servlet;
 
-import org.yawlfoundation.yawl.balancer.*;
+import org.yawlfoundation.yawl.balancer.Actions;
+import org.yawlfoundation.yawl.balancer.ComplexityMetric;
+import org.yawlfoundation.yawl.balancer.ResultProcessor;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
+import org.yawlfoundation.yawl.balancer.instance.EngineInstance;
+import org.yawlfoundation.yawl.balancer.instance.EngineSet;
+import org.yawlfoundation.yawl.balancer.monitor.Monitor;
 import org.yawlfoundation.yawl.balancer.polling.PollingService;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -28,12 +33,12 @@ import java.util.*;
  */
 public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeListener {
 
-    private final ForwardClient _forwardClient = new ForwardClient();
-    private final ResultProcessor _resultProcessor = new ResultProcessor();
-    private final EngineSet _engineSet = new EngineSet();
-    private final Actions _actions = new Actions();
+    private final ForwardClient _forwardClient;
 
-    private Map<String, String> _connectionParams;
+    private final ResultProcessor _resultProcessor;
+    private final EngineSet _engineSet;
+    private final Actions _actions;
+
     private Map<YSpecificationID, String> _specMap;
     private Map<YSpecificationID, Double> _specComplexityMap;
     private boolean _allInitialized = false;
@@ -41,7 +46,12 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
 
     public LoadBalancerServlet() {
         super();
+        _forwardClient = new ForwardClient("loadBalancer", "yBalance");
+        _resultProcessor = new ResultProcessor();
+        _engineSet = new EngineSet(new Monitor(this));
+        _actions = new Actions();
     }
+
 
     @Override
     public void init() throws ServletException {
@@ -138,7 +148,8 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             restoreCases();
             PollingService.schedule();
         }
-        return forwardPost(authenticator.getURL(req.getPathInfo()), buildParamMap(req));
+        return _forwardClient.executePost(authenticator.getURL(
+                req.getPathInfo()), buildParamMap(req));
     }
 
 
@@ -147,7 +158,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         Map<String, String> params = buildParamMap(req);
         if (checkOrAddSpec(instance, params)) {
             params.put("caseid", _engineSet.getNextCaseNbr());
-            String result = forwardPost(instance, params, req.getPathInfo());
+            String result = _forwardClient.executePost(instance, params, req.getPathInfo());
             if (successful(result)) {
                 YSpecificationID specID = getSpecID(params);
                 instance.addCase(result, specID);
@@ -180,7 +191,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         if (caseID != null) {
             EngineInstance instance = _engineSet.getEngineForCase(caseID);
             if (instance != null) {
-                return forwardPost(instance, buildParamMap(req), "/ib");
+                return _forwardClient.executePost(instance, buildParamMap(req), "/ib");
             }
         }
         return "<failure>Unknown Case Identifier</failure>";
@@ -191,7 +202,8 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         String action = req.getParameter("action");
         Map<String, String> params = buildParamMap(req);
         if (action.equals("upload")) {
-            String result = forwardPost(_engineSet.getRandomInstance(), params, "/ia");
+            String result = _forwardClient.executePost(_engineSet.getRandomInstance(),
+                    params, "/ia");
             if (successful(result)) {
                 String specXML = req.getParameter("specXML");
                 YSpecificationID specID = getSpecIDFromXML(specXML);
@@ -204,7 +216,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             YSpecificationID specID = getSpecID(params);
             for (EngineInstance instance : _engineSet.getAll()) {
                 if (isLoaded(instance, specID)) {
-                    forwardPost(instance, params, "/ia");
+                    _forwardClient.executePost(instance, params, "/ia");
                 }
             }
             _specMap.remove(specID);
@@ -225,51 +237,16 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         Set<String> resultSet = new HashSet<String>();
         Map<String, String> params = buildParamMap(req);
         for (EngineInstance instance : _engineSet.getAll()) {
-            resultSet.add(forward(instance, params, req.getPathInfo(), req.getMethod()));
+            resultSet.add(_forwardClient.forward(instance, params,
+                    req.getPathInfo(), req.getMethod()));
         }
         return _resultProcessor.process(resultSet);
     }
 
 
-    private String forwardPost(String url, Map<String, String> params) throws IOException {
-        return _forwardClient.executePost(url, params);
-    }
+    public ForwardClient getForwardClient() { return _forwardClient; }
 
-
-    private String forwardGet(String url, Map<String, String> params) throws IOException {
-        return _forwardClient.executeGet(url, params);
-    }
-
-
-    private String checkOrConnect(EngineInstance instance) throws IOException {
-        String handle = instance.getSessionHandle();
-        if (handle != null) {
-            getConnectionParams().put("sessionHandle", handle);
-            getConnectionParams().put("action", "checkConnection");
-            String result = forwardPost(instance.getURL("/ib"), getConnectionParams());
-            if (successful(result)) {
-                return handle;
-            }
-        }
-        getConnectionParams().put("action", "connect");
-        String result = forwardPost(instance.getURL("/ib"), getConnectionParams());
-        if (successful(result)) {
-            handle = StringUtil.unwrap(result);
-            instance.setSessionHandle(handle);
-            return handle;
-        }
-        return "FAIL";
-    }
-
-
-    private Map<String, String> getConnectionParams() {
-        if (_connectionParams == null) {
-            _connectionParams = new HashMap<String, String>();
-            _connectionParams.put("userid", "loadBalancer");
-            _connectionParams.put("password", "yBalance");
-        }
-        return _connectionParams;
-    }
+    public EngineSet getEngineSet() { return _engineSet; }
 
 
     private String getRootCaseID(String itemID) {
@@ -298,7 +275,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "getAllRunningCases");
         for (EngineInstance instance : _engineSet.getAll()) {
-            String result = forwardPost(instance, params, "/ib");
+            String result = _forwardClient.executePost(instance, params, "/ib");
             if (successful(result)) {
                 XNode node = _resultProcessor.parse(result);
                 if (node != null) {
@@ -333,6 +310,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
             }
         }
     }
+
 
 
     private String removeCase(HttpServletRequest req) {
@@ -375,7 +353,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
     private List<SpecificationData> getSpecList(EngineInstance instance) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "getSpecificationPrototypesList");
-        String result = forwardPost(instance, params, "/ib");
+        String result = _forwardClient.executePost(instance, params, "/ib");
         return successful(result) && ! StringUtil.unwrap(result).isEmpty() ?
                 Marshaller.unmarshalSpecificationSummary(response(result)) :
                 Collections.<SpecificationData>emptyList();
@@ -390,7 +368,7 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         params.put("specversion", specData.getSpecVersion());
         params.put("specuri", specData.getSpecURI());
 
-        String result = forwardPost(instance, params, "/ib");
+        String result = _forwardClient.executePost(instance, params, "/ib");
         return successful(result) ? result : null;
     }
 
@@ -418,34 +396,11 @@ public class LoadBalancerServlet extends YHttpServlet implements ConfigChangeLis
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "upload");
         params.put("specXML", specXML);
-        return successful(forwardPost(instance, params, "/ia"));
+        return successful(_forwardClient.executePost(instance, params, "/ia"));
     }
 
 
-    private String forwardPost(EngineInstance instance, Map<String, String> params,
-                               String path) throws IOException {
-        return forward(instance, params, path, "POST");
-    }
 
-
-    private String forward(EngineInstance instance, Map<String, String> params,
-                               String path, String method) throws IOException {
-        String handle = checkOrConnect(instance);
-        if (! handle.equals("FAIL")) {
-            params.put("sessionHandle", handle);
-            try {
-                return method.equals("GET") ? forwardGet(instance.getURL(path), params) :
-                        forwardPost(instance.getURL(path), params);
-            }
-            catch (Exception e) {
-                return StringUtil.wrap(e.getMessage(), "failure");
-            }
-        }
-        return StringUtil.wrap("Failed to connect to " + instance.getName(),
-                "failure");
-    }
-
-    
     private boolean isLoaded(EngineInstance instance, YSpecificationID specID)
             throws IOException {
         for (SpecificationData specData : getSpecList(instance)) {

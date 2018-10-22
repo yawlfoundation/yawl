@@ -1,9 +1,12 @@
-package org.yawlfoundation.yawl.balancer;
+package org.yawlfoundation.yawl.balancer.instance;
 
 import org.apache.logging.log4j.LogManager;
 import org.json.JSONException;
+import org.yawlfoundation.yawl.balancer.LoadReader;
+import org.yawlfoundation.yawl.balancer.RequestCollator;
 import org.yawlfoundation.yawl.balancer.config.Config;
 import org.yawlfoundation.yawl.balancer.config.ConfigChangeListener;
+import org.yawlfoundation.yawl.balancer.monitor.BusynessListener;
 import org.yawlfoundation.yawl.balancer.output.ArffOutputter;
 import org.yawlfoundation.yawl.balancer.output.CombinedBusynessOutputter;
 import org.yawlfoundation.yawl.balancer.polling.Pollable;
@@ -19,7 +22,9 @@ import org.yawlfoundation.yawl.util.StringUtil;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -40,6 +45,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
     private boolean _restored;
     private boolean _authenticator;
     private Map<String, YSpecificationID> _runningCases;
+    private final Set<BusynessListener> _busynessListeners;
     private double _runningCasesComplexityMetric;
 
     private static final String YAWL_URL_TEMPLATE = "http://%s:%d/yawl%s";
@@ -57,6 +63,7 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
         _combinedOutputterMap.put("index", getIndexFromPort(port));
         _runningCasesComplexityMetric = 0;
         _busyRule = getBusyRule();
+        _busynessListeners = new HashSet<BusynessListener>();
         _reqCollator = new RequestCollator(host, port);
         PollingService.add(_reqCollator);
         PollingService.add(this);
@@ -82,6 +89,9 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
             if (_busyRule != null) {
                 _busyRule.add(busyness);
             }
+            for (BusynessListener listener : _busynessListeners) {
+                listener.busynessEvent(this, busyness);
+            }
             writeCombinedValues(busyness + _runningCasesComplexityMetric);
         }
         catch (Exception e) {
@@ -91,6 +101,10 @@ public class EngineInstance implements ConfigChangeListener, Pollable {
         }
     }
 
+
+    public void addBusynessListener(BusynessListener listener) {
+        _busynessListeners.add(listener);
+    }
 
     public void setArffWriter(ArffOutputter writer) {
         if (_loadReader != null) _loadReader.setArffWriter(writer);

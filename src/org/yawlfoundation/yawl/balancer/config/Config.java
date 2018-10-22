@@ -49,7 +49,10 @@ public class Config {
     private static final int DEFAULT_FORECAST_LOOKAHEAD = 1;
     private static final double DEFAULT_MAX_BUSYNESS = 0.0;
     private static final int DEFAULT_FORECAST_MODELLER = 2;
-
+    private static final int DEFAULT_MONITOR_INIT_COUNT = 20;
+    private static final double DEFAULT_MIN_LOAD_THRESHOLD = 30.0;
+    private static final int DEFAULT_MIN_ENGINE_COUNT = 2;
+    private static final int DEFAULT_MAX_ENGINE_COUNT = 4;
 
     public static boolean load(ServletContext context) {
         try {
@@ -232,6 +235,25 @@ public class Config {
 
     public static int getPreferredForecastModeller() {
         return getInt("preferred_forecaster", DEFAULT_FORECAST_MODELLER);
+    }
+
+
+    public static double getMinLoadThreshold() {
+        return getDouble("min_load_threshold", DEFAULT_MIN_LOAD_THRESHOLD);
+    }
+
+
+    public static int getMonitorInitCount() {
+        return getInt("monitor_init_count", DEFAULT_MONITOR_INIT_COUNT);
+    }
+
+
+    public static int getMinEngineCount() {
+        return getInt("min_engine_count", DEFAULT_MIN_ENGINE_COUNT);
+    }
+
+    public static int getMaxEngineCount() {
+        return getInt("max_engine_count", DEFAULT_MAX_ENGINE_COUNT);
     }
 
 
