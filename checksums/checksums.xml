@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.2</version>
-  <timestamp>2018-10-18 09.39.31</timestamp>
+  <timestamp>2019-03-20 16.59.49</timestamp>
   <lib hash="c9559ac27e981327449b90abc66f1848">
     <file name="log4j-1.2-api-2.3.jar" md5="97f562c4f299dc5f5f72e66ded465416" size="36875" timestamp="2015-05-11T07:19:00" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -306,7 +306,7 @@
       </lib>
     </workletService>
     <resourceService>
-      <build>4029</build>
+      <build>4030</build>
       <files>
         <file name="error404.html" md5="782732510f88e5df725eb7cac7591f1a" size="2473" timestamp="2018-09-12T15:53:58" path="M"/>
         <file name="userWorkQueues.jsp" md5="8c9a3f5accec4adb70cc0c850561abf9" size="14524" timestamp="2018-09-12T15:53:58" path="M"/>
@@ -357,7 +357,7 @@
         <file name="Login.jsp" md5="bf2e86ace94ce3c7a18c0896cc242a23" size="4448" timestamp="2018-09-12T15:53:58" path="M"/>
         <file name="pfAddRemove.jspf" md5="211947cb1beb76ddd6a7caf316907421" size="2536" timestamp="2018-09-12T15:53:58" path="M"/>
         <file name="secResourceMgt.jsp" md5="81dbdd82b24e9c7dc52ba879bc73b5a5" size="12524" timestamp="2018-09-12T15:53:58" path="M"/>
-        <file name="WEB-INF/classes/version.properties" md5="c0f7218022bcf148ed270b71893a696b" size="188" timestamp="2018-09-12T15:53:58" path="P"/>
+        <file name="WEB-INF/classes/version.properties" md5="fd0d990c47b3c0cd1203a9eba7ccad44" size="188" timestamp="2019-03-20T16:59:47" path="P"/>
         <file name="WEB-INF/classes/LDAPSource.properties" md5="7b733d2108b2837bc37647d935db5475" size="3864" timestamp="2018-09-12T15:53:58" path="S"/>
         <file name="WEB-INF/faces-config.xml" md5="2bd114cafb5e18cd7f87e29f91b61d61" size="643" timestamp="2018-09-12T15:53:58" path="R"/>
         <file name="WEB-INF/managed-beans.xml" md5="5ac4f093f31d2367e5c01dadf980f416" size="7659" timestamp="2018-09-12T15:53:58" path="R"/>
@@ -837,7 +837,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.2.jar" md5="997b4afbd6076797bb014d6c2fbd5c44" size="2659556" timestamp="2018-10-18T09:39:29" path="AM"/>
+    <file name="yawl-lib-4.2.jar" md5="3dbb88240213ec1a230f9167ec131095" size="2664474" timestamp="2019-03-20T16:59:47" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>383</build>

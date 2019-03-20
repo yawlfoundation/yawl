@@ -133,6 +133,13 @@ public class RuntimeCache {
         groupIDList.add(groupID);
     }
 
+
+    protected boolean unsetDeferredGroupHandled(String caseID, String groupID) {
+        TaggedStringList groupIDList = _deferredItemGroups.get(caseID);
+        return groupIDList != null && groupIDList.remove(groupID);
+    }
+
+
     protected boolean isDeferredGroupHandled(String caseID, String groupID) {
         TaggedStringList groupIDList = _deferredItemGroups.get(caseID);
         if (groupIDList != null) {

@@ -1032,6 +1032,13 @@ public final class ResourceManager extends InterfaceBWebsideController {
     }
 
 
+    protected boolean unsetDeferredChoiceHandled(WorkItemRecord wir) {
+        return wir.isDeferredChoiceGroupMember() &&
+                _cache.unsetDeferredGroupHandled(wir.getRootCaseID(),
+                        wir.getDeferredChoiceGroupID());
+        } 
+
+
     protected boolean isDeferredChoiceHandled(WorkItemRecord wir) {
         return wir.isDeferredChoiceGroupMember() &&
                 _cache.isDeferredGroupHandled(wir.getRootCaseID(),
@@ -1324,6 +1331,8 @@ public final class ResourceManager extends InterfaceBWebsideController {
         boolean success = false;
         if (hasUserTaskPrivilege(p, wir, TaskPrivileges.CAN_DEALLOCATE)) {
             p.getWorkQueues().removeFromQueue(wir, WorkQueue.ALLOCATED);
+
+            if (wir.isDeferredChoiceGroupMember()) unsetDeferredChoiceHandled(wir);
 
             ResourceMap rMap = getResourceMap(wir);
             if (rMap != null) {

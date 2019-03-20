@@ -2245,7 +2245,9 @@ public class SessionBean extends AbstractSessionBean {
             int i = 0;
             for (AbstractResource resource : attribute.getResources()) {
                 Participant p = (Participant) resource;
-                orgDataMembers[i++] = new Option(p.getID(), p.getFullName()) ;
+                if (! (p == null || p.getID() == null || p.getFullName() == null)) {
+                    orgDataMembers[i++] = new Option(p.getID(), p.getFullName());
+                }
             }
         }
         else orgDataMembers = null;
