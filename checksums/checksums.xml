@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.2</version>
-  <timestamp>2019-03-20 16.59.49</timestamp>
+  <timestamp>2019-09-20 08.45.14</timestamp>
   <lib hash="c9559ac27e981327449b90abc66f1848">
     <file name="log4j-1.2-api-2.3.jar" md5="97f562c4f299dc5f5f72e66ded465416" size="36875" timestamp="2015-05-11T07:19:00" path="A"/>
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -112,11 +112,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1532</build>
+      <build>1533</build>
       <files>
-        <file name="WEB-INF/classes/version.properties" md5="da5a20342d2d1a97d256df9003efa9bc" size="186" timestamp="2018-10-18T09:39:30" path="B"/>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2018-10-18T09:39:30" path="C"/>
-        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2018-10-18T09:39:30" path="B"/>
+        <file name="WEB-INF/classes/version.properties" md5="f083372b5398ac6c2082653fd749e285" size="188" timestamp="2019-09-20T08:45:14" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="4a7a1e002df95e9ca062ee83c9e3fad8" size="1215" timestamp="2019-09-20T08:45:13" path="C"/>
+        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2019-09-20T08:45:13" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -837,7 +837,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.2.jar" md5="3dbb88240213ec1a230f9167ec131095" size="2664474" timestamp="2019-03-20T16:59:47" path="AM"/>
+    <file name="yawl-lib-4.2.jar" md5="b66917c605756d03220155539dbcb4d0" size="2665013" timestamp="2019-09-20T08:45:13" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>383</build>

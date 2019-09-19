@@ -885,9 +885,8 @@ public class YLogServer {
 
     private YLogNetInstance getNetInstance(String caseID) {
         if (isEnabled()) {
-            String quotedCaseID = String.format("'%s'", caseID);
             return (YLogNetInstance) _logDb.selectScalar(
-                    "YLogNetInstance", "engineInstanceID", quotedCaseID);
+                    "YLogNetInstance", "engineInstanceID", caseID);
         }
         else return null;
     }
