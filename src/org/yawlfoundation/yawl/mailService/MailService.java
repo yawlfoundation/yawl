@@ -32,7 +32,7 @@ import javax.mail.Message;
 import java.io.IOException;
 
 /**
- * A simple service that provides for status updates to the YAWL Twitter account
+ * A service that provides for emails to be sent by tasks
  *
  * @author Michael Adams
  * @date 25/07/2009

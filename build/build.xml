@@ -969,13 +969,15 @@
 
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}"
-                     includes="**/*.hbm.xml **/cost/xsd/*.xsd  **/worklet/rdr/xsd/*.xsd"/>
+                     includes="**/*.hbm.xml **/cost/xsd/*.xsd  **/worklet/rdr/xsd/*.xsd
+                               **/ldap_schema/*"/>
         </copy>
 
         <jar destfile="${output.dir}/yawl-lib-${app.version}.jar">
             <fileset dir="${classes.dir}"
                      includes="**/*.class **/unmarshal/*.xsd **/*.hbm.xml
-                               **/cost/xsd/*.xsd"
+                               **/cost/xsd/*.xsd **/worklet/rdr/xsd/*.xsd
+                               **/ldap_schema/*"
                      excludes="org/yawlfoundation/yawl/engine/gui/**/*
                                org/yawlfoundation/yawl/controlpanel/**/*"/>
             <manifest>
@@ -1560,7 +1562,8 @@
         <!-- 2. copy resourcing classes to relevant dirs -->
         <copy todir="${temp.dir}/${resource.app.name}${webinf.dir}/resourcing">
             <fileset dir="${classes.dir}${packageRoot}/resourcing"
-                     includes="**/*.class **/*.xml **/YawlUI.properties"/>
+                     includes="**/*.class **/*.xml **/YawlUI.properties
+                               **/ldap_schema/*"/>
         </copy>
 
         <!-- 2b. Copy required resourcing support files into dir root -->
