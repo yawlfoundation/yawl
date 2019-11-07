@@ -314,7 +314,7 @@ public class YPersistenceManager {
             } else {
                 getSession().save(obj);
             }
-            getSession().flush();
+   //         getSession().flush();
         } catch (Exception e) {
             logger.error("Failure detected whilst persisting instance of " +
                     obj.getClass().getName(), e);
@@ -327,11 +327,11 @@ public class YPersistenceManager {
                     obj.getClass().getName(), e);
         }
 
-        try {
-            getSession().evict(obj);
-        } catch (HibernateException e) {
-            logger.warn("Failure whilst evicting object from Hibernate session cache", e);
-        }
+//        try {
+//            getSession().evict(obj);
+//        } catch (HibernateException e) {
+//            logger.warn("Failure whilst evicting object from Hibernate session cache", e);
+//        }
         logger.debug("<-- doPersistAction");
     }
 
