@@ -299,7 +299,7 @@
     <!-- dbd -->
     <property name="oracle" value="ojdbc6_9.jar"/>
     <!-- dbd -->
-    <property name="postgres8" value="postgresql-9.4.1207.jre6.jar"/>
+    <property name="postgres8" value="postgresql-42.2.8.jar"/>
     <!-- dbd -->
     <property name="saaj" value="saaj.jar"/>
     <!-- wsi -->
@@ -944,7 +944,7 @@
 
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
-               deprecation="true" verbose="true" includeantruntime="true"
+               deprecation="true" verbose="false" includeantruntime="true"
                bootclasspath="${java.boot.classpath}" encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
@@ -2717,6 +2717,73 @@
         </antcall>
     </target>
 
+    
+    <!-- Build the Demo Service WAR -->
+    <target name="build_DemoService" depends="compile">
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/elements">
+            <fileset dir="${classes.dir}/${packageRoot}/elements"
+                     includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/elements/data">
+            <fileset dir="${classes.dir}/${packageRoot}/elements/data"
+                     includes="YParameter.class YVariable.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine">
+            <fileset dir="${classes.dir}/${packageRoot}/engine"
+                     includes="YSpecification.class YSpecificationID.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine/interfce">
+            <fileset dir="${classes.dir}/${packageRoot}/engine/interfce"
+                     includes="AuthenticationConfig.class Interface_Client.class
+                               Marshaller.class ServletUtils.class
+                               SpecificationData.class TaskInformation.class
+                               WorkItemRecord.class YParametersSchema.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/engine/interfce/interfaceB">
+            <fileset dir="${classes.dir}/${packageRoot}/engine/interfce/interfaceB"
+                     includes="IBControllerCache.class
+                               InterfaceB_EnvironmentBasedClient.class
+                               InterfaceB_EnvironmentBasedServer.class
+                               InterfaceBWebsideController.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/exceptions">
+               <fileset dir="${classes.dir}/${packageRoot}/exceptions"
+                        includes="Y*.class"/>
+         </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/logging">
+              <fileset dir="${classes.dir}/${packageRoot}/logging"
+                       includes="YLogDataItem.class YLogDataItemList.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/schema">
+              <fileset dir="${classes.dir}/${packageRoot}/schema"
+                       includes="YSchemaVersion.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/unmarshal">
+              <fileset dir="${classes.dir}/${packageRoot}/unmarshal"
+                       includes="YDecompositionParser.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/demoService">
+            <fileset dir="${classes.dir}/${packageRoot}/demoService"/>
+        </copy>
+
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/util">
+              <fileset dir="${classes.dir}/${packageRoot}/util"
+                       includes="*.class"/>
+        </copy>
+        <copy todir="${temp.dir}/demoService/WEB-INF"
+              file="${build.dir}/demoService/web.xml"/>
+        <copy todir="${temp.dir}/demoService/WEB-INF/classes"
+              file="${properties.dir}/log4j.properties"/>
+        <copy todir="${temp.dir}/demoService/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${jdom} ${commonsCodec} ${xerces} log4j*"/>
+        </copy>
+        
+        <jar destfile="${output.dir}/demoService.war">
+             <fileset dir="${temp.dir}/demoService"/>
+         </jar>
+         <delete dir="${temp.dir}/demoService"/>
+
+    </target>
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
