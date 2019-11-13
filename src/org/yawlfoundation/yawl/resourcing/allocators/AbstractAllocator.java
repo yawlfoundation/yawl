@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.resourcing.allocators;
 
-import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.resourcing.AbstractSelector;
@@ -100,7 +99,7 @@ public abstract class AbstractAllocator extends AbstractSelector {
             YSpecificationID specID = new YSpecificationID(wir);
             long specKey = EventLogger.getSpecificationKey(specID);
             String eventStr = event.name();
-            String taskName = wir.getTaskName();
+            String taskName = wir.getTaskID();
             List events = persister.selectWhere("ResourceEvent",
                   String.format("_event='%s' AND tbl._specKey=%d AND tbl._taskID='%s'",
                                 eventStr, specKey, taskName));
