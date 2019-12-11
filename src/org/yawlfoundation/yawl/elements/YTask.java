@@ -609,11 +609,16 @@ public abstract class YTask extends YExternalNetElement {
 
     private void updateExternalFromTaskCompletion(AbstractExternalDBGateway gateway,
                                                   String query,
-                                                  Document outputData) {
-        String paramName = query.split(":")[2];
-        Element data = outputData.getRootElement().getChild(paramName);
-        Element netData = _net.getInternalDataDocument().getRootElement();
-        gateway.updateFromTaskCompletion(paramName, data, netData);
+                                                  Document outputData) throws YStateException {
+        try {
+            String paramName = query.split(":")[2];
+            Element data = outputData.getRootElement().getChild(paramName);
+            Element netData = _net.getInternalDataDocument().getRootElement();
+            gateway.updateFromTaskCompletion(paramName, data, netData);
+        }
+        catch (Throwable t) {
+            throw new YStateException("Failed to update external data: " + t.getMessage());
+        }
     }
 
 
@@ -1103,7 +1108,7 @@ public abstract class YTask extends YExternalNetElement {
     protected Element performExternalDataExtraction(String expression, YParameter inputParam)
             throws YStateException, YDataStateException {
         Element result = null;
-        if (ExternalDBGatewayFactory.isExternalDBMappingExpression(expression)) {
+        try {
             AbstractExternalDBGateway extractor =
                     ExternalDBGatewayFactory.getInstance(expression);
             if (extractor != null) {
@@ -1111,17 +1116,20 @@ public abstract class YTask extends YExternalNetElement {
                 result = extractor.populateTaskParameter(this, inputParam, netData);
             }
         }
-        if (result != null) {
-            if (_net.getSpecification().getSchemaVersion().isSchemaValidating()) {
-                if (!skipOutboundSchemaChecks()) {
+        catch (Throwable t) {
+            throw new YStateException("External data pull failure: " + t.getMessage());
+        }
 
-                    // remove any dynamic attributes for schema checking
-                    Element resultSansAttributes = JDOMUtil.stripAttributes((Element) result.clone());
-                    performSchemaValidationOverExtractionResult(expression, inputParam, resultSansAttributes);
-                }
-            }
-        } else {
-            throw new YStateException("External data pull failure.");
+        if (result == null) {
+            throw new YStateException("External data pull failure: No data");
+        }
+
+        if (_net.getSpecification().getSchemaVersion().isSchemaValidating() &&
+                !skipOutboundSchemaChecks()) {
+
+            // remove any dynamic attributes for schema checking
+            Element resultSansAttributes = JDOMUtil.stripAttributes((Element) result.clone());
+            performSchemaValidationOverExtractionResult(expression, inputParam, resultSansAttributes);
         }
         return result;
     }

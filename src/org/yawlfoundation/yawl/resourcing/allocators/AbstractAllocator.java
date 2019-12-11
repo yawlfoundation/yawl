@@ -103,7 +103,7 @@ public abstract class AbstractAllocator extends AbstractSelector {
             List events = persister.selectWhere("ResourceEvent",
                   String.format("_event='%s' AND tbl._specKey=%d AND tbl._taskID='%s'",
                                 eventStr, specKey, taskName));
-            persister.commit();
+            persister.commit();          
             return events;
         }
         else return null;

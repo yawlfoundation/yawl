@@ -32,7 +32,11 @@ import org.yawlfoundation.yawl.elements.state.YMarking;
 import org.yawlfoundation.yawl.engine.YPersistenceManager;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
-import org.yawlfoundation.yawl.util.*;
+import org.yawlfoundation.yawl.exceptions.YStateException;
+import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.YVerificationHandler;
 
 import java.util.*;
 
@@ -542,27 +546,39 @@ public final class YNet extends YDecomposition {
     }
 
     // only called when a case successfully completes
-    public void postCaseDataToExternal(String caseID) {
+    public void postCaseDataToExternal(String caseID) throws YStateException {
         AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
-            gateway.updateFromCaseData(getSpecification().getSpecificationID(),
-                      caseID,
-                      new ArrayList<YParameter>(getOutputParameters().values()),
-                      _data.getRootElement());
+            try {
+                gateway.updateFromCaseData(getSpecification().getSpecificationID(),
+                        caseID,
+                        new ArrayList<YParameter>(getOutputParameters().values()),
+                        _data.getRootElement());
+            }
+            catch (Throwable t) {
+                throw new YStateException("Failed to write completion data to external source: " +
+                        t.getMessage());
+            }
         }
     }
 
     // called when a case begins
-    public Element getCaseDataFromExternal(String caseID) {
+    public Element getCaseDataFromExternal(String caseID) throws YStateException {
         AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
-            return gateway.populateCaseData(getSpecification().getSpecificationID(),
-                           caseID,
-                           new ArrayList<YParameter>(getInputParameters().values()),
-                           new ArrayList<YVariable>(getLocalVariables().values()),
-                           _data.getRootElement());
+            try {
+                return gateway.populateCaseData(getSpecification().getSpecificationID(),
+                        caseID,
+                        new ArrayList<YParameter>(getInputParameters().values()),
+                        new ArrayList<YVariable>(getLocalVariables().values()),
+                        _data.getRootElement());
+            }
+            catch (Throwable t) {
+                throw new YStateException("Failed to get starting data from external source: " +
+                        t.getMessage());
+            }
         }
-        else return null;
+        return null;
     }
 
     private AbstractExternalDBGateway getInstantiatedExternalDataGateway() {

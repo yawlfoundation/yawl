@@ -851,7 +851,7 @@ public class caseMgt extends AbstractPageBean {
                 handleCaseLevelDocComponents(docCompIDs, result);
             }
             else {
-                msgPanel.error("Unsuccessful case start:" + msgPanel.format(result)) ;
+                msgPanel.error("Unsuccessful case start: " + msgPanel.format(result)) ;
                 handleCaseLevelDocComponents(docCompIDs, null);
             }
         }

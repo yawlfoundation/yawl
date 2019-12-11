@@ -96,7 +96,7 @@ public class YNetRunner {
 
 
     public YNetRunner(YPersistenceManager pmgr, YNet netPrototype, Element paramsData,
-                      String caseID) throws YDataStateException, YPersistenceException {
+                      String caseID) throws YStateException, YDataStateException, YPersistenceException {
          this();
 
         // initialise and persist case identifier - if caseID is null, a new one is supplied
