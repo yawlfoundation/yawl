@@ -196,8 +196,8 @@ public class YPluginLoader extends URLClassLoader {
             if (mask.isInterface())  {
                 return (Class<T>) loadIfImplementer(c, mask);
             }
-            else {
-                return (Class<T>) loadIfSubclass(c, mask);
+            else if (mask.isAssignableFrom(c)) {
+                return (Class<T>) c;
             }
         }
         catch (Throwable e) {
@@ -218,16 +218,16 @@ public class YPluginLoader extends URLClassLoader {
     }
 
 
-    // returns an instance of c if c (or its ancestors) extend from the specified superclass
-    private <T> Class<T> loadIfSubclass(Class<?> c, Class<T> superclassToMatch)
-            throws Throwable {
-        Class<?> superClass = c.getSuperclass();
-        if (superClass == null || superClass == Object.class) return null;
-        if (superClass.getName().equals(superclassToMatch.getName())) {
-            return (Class<T>) c;
-        }
-        return loadIfSubclass(superClass, superclassToMatch);
-    }
+//    // returns an instance of c if c (or its ancestors) extend from the specified superclass
+//    private <T> Class<T> loadIfSubclass(Class<?> c, Class<T> superclassToMatch)
+//            throws Throwable {
+//        Class<?> superClass = c.getSuperclass();
+//        if (superClass == null || superClass == Object.class) return null;
+//        if (superClass.getName().equals(superclassToMatch.getName())) {
+//            return (Class<T>) c;
+//        }
+//        return loadIfSubclass(superClass, superclassToMatch);
+//    }
 
 
     // transforms a path string to a qualified class name
