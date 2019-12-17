@@ -18,38 +18,49 @@ public class SpecHistory {
     private final Map<String, Set<Object[]>> _dataMap = new HashMap<String, Set<Object[]>>();
     private final Logger _log = LogManager.getLogger(this.getClass());
 
-    private static final String EVENT_QUERY = "select ni,ti,e,t " +
-            "FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e, YLogTask t " +
-            "WHERE (ti.parentNetInstanceID=ni.netInstanceID OR " +
-            "ni.parentTaskInstanceID=ti.taskInstanceID) " +
-            "AND t.taskID=ti.taskID AND e.instanceID=ti.taskInstanceID " +
-            "AND ni.netID = (:id)";
+    private static final String EVENT_QUERY = "select ni,ti,e,t" +
+            " FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e, YLogTask t" +
+            " WHERE e.instanceID = ti.taskInstanceID" +
+            " AND t.taskID = ti.taskID"+
+            " AND e.rootNetInstanceID = ni.netInstanceID" +
+            " AND ni.netID = (:id)";
 
-    private static final String DATA_QUERY = "select di,dt " +
-            "FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e, " +
-            "YLogDataItemInstance di, YLogDataType dt " +
-            "WHERE (ti.parentNetInstanceID=ni.netInstanceID OR " +
-            "ni.parentTaskInstanceID=ti.taskInstanceID) " +
-            "AND e.instanceID=ti.taskInstanceID " +
-            "AND ni.netID = (:id) " +
-            "AND e.descriptor='DataValueChange' " +
-            "AND di.eventID=e.eventID AND dt.dataTypeID=di.dataTypeID";
+    private static final String DATA_QUERY = "select di,dt" +
+            "FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e," +
+            " YLogDataItemInstance di, YLogDataType dt" +
+            " WHERE e.instanceID = ti.taskInstanceID" +
+            " AND e.descriptor='DataValueChange'" +
+            " AND di.eventID=e.eventID" +
+            " AND dt.dataTypeID=di.dataTypeID" +
+            " AND e.rootNetInstanceID = ni.netInstanceID" +
+            " AND ni.netID = (:id)";
 
 
     public SpecHistory() {  }
 
 
     public XNode get(HibernateEngine logDb, long specKey, boolean withData) {
-        _log.debug("XES #get: SQL select begins");
-        List events = logDb.createQuery(EVENT_QUERY).setLong("id", specKey).list();
-        List dataValues = logDb.createQuery(DATA_QUERY).setLong("id", specKey).list();
-        _log.debug("XES #get: SQL select ends");
-        processDataResults(dataValues);
-        return process(events, withData);
+        processDataResults(getDataEvents(logDb, specKey));
+        return processResults(getEvents(logDb, specKey), withData);
+    }
+
+    
+    private List getEvents(HibernateEngine logDb, long specKey) {
+        return get(logDb, specKey, EVENT_QUERY);
     }
 
 
-    private XNode process(List events, boolean withData) {
+    private List getDataEvents(HibernateEngine logDb, long specKey) {
+        return get(logDb, specKey, DATA_QUERY);
+    }
+
+
+    private List get(HibernateEngine logDb, long specKey, String query) {
+        return logDb.createQuery(query).setLong("id", specKey).list();
+    }
+
+
+    private XNode processResults(List events, boolean withData) {
         _log.debug("XES #process: begins");
         Map<String, XNode> caseMap = new TreeMap<String, XNode>();
         for (Object o : events) {

@@ -47,13 +47,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
      */
     private String _serviceURI;
 
-
-    /**
-     * a mapping of parameter names and values
-     */
- //   private Map<String, String> params = new HashMap<String, String>();
-
-
+    
     /**
      * empty constructor
      */
@@ -72,45 +66,7 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
     /*******************************************************************************/
-
-    // GET & POST WRAPPER METHODS //
-
-    /**
-     * a wrapper for the executeGet method
-     *
-     * @param action the name of the gateway method to call
-     * @return the resultant reply String
-     * @throws IOException if the service can't be reached
-     */
-    private String performGet(String action, String handle) throws IOException {
-        return executeGet(_serviceURI, prepareParamMap(action, handle));
-
-    }
-
-//    /**
-//     * a wrapper for the executeGet method - returns a String
-//     *
-//     * @param action the name of the gateway method to call
-//     * @param map    a map of parameters and values
-//     * @param handle an active sessionhandle
-//     * @return the resultant reply String
-//     * @throws java.io.IOException if there's a problem connecting to the engine
-//     */
-//    private String performGet(String action, Map<String, String> map, String handle)
-//            throws IOException {
-//        Map<String, String> params = prepareParamMap(action, handle);
-//        if (map != null) params.putAll(map);
-//        return executeGet(_serviceURI, params);
-//    }
-//
-//    private String performPost(String action, Map<String, String> map, String handle)
-//            throws IOException {
-//        Map<String, String> params = prepareParamMap(action, handle);
-//        if (map != null) params.putAll(map);
-//        return executePost(_serviceURI, params);
-//    }
-
-
+    
     private String idListToXML(Set<String> idList) {
         StringBuilder ids = new StringBuilder("<ids>");
         if (idList != null) {
