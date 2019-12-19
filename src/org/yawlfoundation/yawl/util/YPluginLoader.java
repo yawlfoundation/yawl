@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 The YAWL Foundation. All rights reserved.
+ * Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
  * The YAWL Foundation is a collaboration of individuals and
  * organisations who are committed to improving workflow technology.
  *
@@ -216,19 +216,7 @@ public class YPluginLoader extends URLClassLoader {
         }
         return null;
     }
-
-
-//    // returns an instance of c if c (or its ancestors) extend from the specified superclass
-//    private <T> Class<T> loadIfSubclass(Class<?> c, Class<T> superclassToMatch)
-//            throws Throwable {
-//        Class<?> superClass = c.getSuperclass();
-//        if (superClass == null || superClass == Object.class) return null;
-//        if (superClass.getName().equals(superclassToMatch.getName())) {
-//            return (Class<T>) c;
-//        }
-//        return loadIfSubclass(superClass, superclassToMatch);
-//    }
-
+    
 
     // transforms a path string to a qualified class name
     private String fileToQualifiedClassName(String path) {

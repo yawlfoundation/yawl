@@ -2,7 +2,7 @@
 <%@ page import="org.yawlfoundation.yawl.engine.interfce.WorkItemRecord" %>
 <%@ page import="org.yawlfoundation.yawl.resourcing.rsInterface.WorkQueueGatewayClient" %>
     <%--
-  ~ Copyright (c) 2004-2012 The YAWL Foundation. All rights reserved.
+  ~ Copyright (c) 2004-2020 The YAWL Foundation. All rights reserved.
   ~ The YAWL Foundation is a collaboration of individuals and
   ~ organisations who are committed to improving workflow technology.
   ~

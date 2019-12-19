@@ -36,9 +36,6 @@
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
-    <property name="ant.build.javac.source" value="${java.target.version}"/>
-    <property name="ant.build.javac.target" value="${java.target.version}"/>
-
     <!--
         Tomcat root (environment setting takes priority over build.properties value)
     -->
@@ -945,7 +942,7 @@
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
                deprecation="true" verbose="false" includeantruntime="true"
-               bootclasspath="${java.boot.classpath}" encoding="UTF-8">
+               encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
             <classpath refid="cp.wsif"/>
