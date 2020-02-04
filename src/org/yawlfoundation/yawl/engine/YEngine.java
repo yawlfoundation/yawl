@@ -606,25 +606,25 @@ public class YEngine implements InterfaceADesign,
 
         _logger.debug("--> unloadSpecification: URI={}", specID.toString());
 
-        if (_specifications.contains(specID)) {
-            YSpecification specToUnload = _specifications.getSpecification(specID);
+        YSpecification specToUnload = _specifications.getSpecification(specID);
 
-            // Reject unload request if we have active cases using it
-            if (_runningCaseIDToSpecMap.values().contains(specToUnload)) {
-                throw new YStateException("Cannot unload specification '" + specID +
-                            "' as one or more cases are currently active against it.");
-            }
-
-            _logger.info("Removing process specification {}", specID);
-            _specifications.unloadSpecification(specToUnload);
-            _yawllog.removeSpecificationFromCache(specID);
-            deleteObject(specToUnload);
-        }
-        else {
-            // the spec's not in the engine
+        // reject request if the spec's not in the engine
+        if (specToUnload == null) {
             throw new YStateException("Engine contains no such specification with id '"
                     + specID + "'.");
         }
+
+        // reject request if there are active cases using the spec
+        if (_runningCaseIDToSpecMap.containsValue(specToUnload)) {
+            throw new YStateException("Cannot unload specification '" + specID +
+                    "' as one or more cases are currently active against it.");
+        }
+
+        _logger.info("Removing process specification {}", specID.toString());
+        _specifications.unloadSpecification(specToUnload);
+        _yawllog.removeSpecificationFromCache(specID);
+        deleteObject(specToUnload);
+
         _logger.debug("<-- unloadSpecification");
     }
 

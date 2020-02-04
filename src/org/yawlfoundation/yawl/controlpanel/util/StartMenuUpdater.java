@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.controlpanel.util;
 
+import org.yawlfoundation.yawl.controlpanel.YControlPanel;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.io.File;
@@ -97,13 +98,13 @@ public class StartMenuUpdater {
                     "goto usage\r\n\r\n" +
                     ":cp\r\n" +
                     "cd controlpanel\r\n" +
-                    java + " -jar YawlControlPanel-4.2.jar\r\n" +
+                    java + " -jar YawlControlPanel-" + YControlPanel.VERSION + ".jar\r\n" +
                     "goto end\r\n\r\n" +
                     ":editor\r\n" +
                     "cd editor\r\n" +
                     "shift\r\n" +
                     java + " -Xms256m -Xmx256m -XX:PermSize=128m " +
-                    "-XX:MaxPermSize=128m -jar YAWLEditor4.0.jar \"%1\"\r\n" +
+                    "-XX:MaxPermSize=128m -jar YAWLEditor" + YControlPanel.VERSION + ".jar \"%1\"\r\n" +
                     "goto end\r\n\r\n" +
                     ":usage\r\n" +
                     "echo USAGE: One of the following\r\n" +
