@@ -44,7 +44,7 @@ public class SpecHistory {
             " AND ni.netID = (:id)";
 
     private static final String DATA_QUERY = "select di,dt" +
-            "FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e," +
+            " FROM YLogNetInstance ni, YLogTaskInstance ti, YLogEvent e," +
             " YLogDataItemInstance di, YLogDataType dt" +
             " WHERE e.instanceID = ti.taskInstanceID" +
             " AND e.descriptor='DataValueChange'" +
