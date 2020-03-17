@@ -1685,13 +1685,8 @@ public class EngineGatewayImpl implements EngineGateway {
     public String exportCaseState(String caseID, String sessionHandle) {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
-
-        YIdentifier id = _engine.getCaseID(caseID);
-        if (id == null) {
-            return failureMessage("Case [" + caseID + "] not found.");
-        }
-
-        return new CaseExporter(_engine).export(id);
+        
+        return new CaseExporter(_engine).export(caseID);
     }
 
 

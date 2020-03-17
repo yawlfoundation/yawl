@@ -19,11 +19,10 @@
 package org.yawlfoundation.yawl.engine;
 
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
+import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -40,17 +39,25 @@ public class CaseExporter {
 
 
     public String exportAll() {
-        XNode root = new XNode("cases");
-        for (YIdentifier caseID : _engine.getRunningCaseIDs()) {
-            root.addChild(getCaseNode(caseID));
-        }
-        return root.toString();
+        return export(_engine.getRunningCaseIDs());
     }
 
 
     public String export(YIdentifier caseID) {
+        return export(Collections.<YIdentifier>singletonList(caseID));
+    }
+
+
+    public String export(String caseCSV) {
+        return export(csvToIdentifierList(caseCSV));
+    }
+
+
+    private String export(List<YIdentifier> caseList) {
         XNode root = new XNode("cases");
-        root.addChild(getCaseNode(caseID));
+        for (YIdentifier caseID : caseList) {
+            root.addChild(getCaseNode(caseID));
+        }
         return root.toString();
     }
 
@@ -177,6 +184,46 @@ public class CaseExporter {
 
     private long getTime(Date date) {
         return date != null ? date.getTime() : 0;
+    }
+
+
+    private List<YIdentifier> csvToIdentifierList(String csv) {
+        if (csv == null) return Collections.emptyList();
+        List<YIdentifier> caseList = new ArrayList<>();
+        String[] caseArray = csv.split("\\s*,\\s*");
+        for (String caseStr : caseArray) {
+            if (StringUtil.isNullOrEmpty(caseStr)) continue;
+            if (caseStr.contains("-")) {
+                caseList.addAll(getCasesInRange(caseStr));
+            }
+            else {
+                addCaseToList(caseList, caseStr);
+            }
+        }
+        return caseList;
+    }
+
+
+    private List<YIdentifier> getCasesInRange(String caseStr) {
+        List<YIdentifier> caseList = new ArrayList<>();
+        String[] caseArray = caseStr.split("\\s*-\\s*");
+        int a = StringUtil.strToInt(caseArray[0], Integer.MAX_VALUE);
+        int b = StringUtil.strToInt(caseArray[1], Integer.MAX_VALUE);
+        if (a == Integer.MAX_VALUE || b == Integer.MAX_VALUE) {
+            return caseList;
+        }
+        for (int caseNbr = Math.min(a, b); caseNbr <= Math.max(a, b); caseNbr++) {
+            addCaseToList(caseList, String.valueOf(caseNbr));
+         }
+        return caseList;
+    }
+
+
+    private void addCaseToList(List<YIdentifier> caseList, String caseStr) {
+        YIdentifier caseID = _engine.getCaseID(caseStr);
+        if (caseID  != null) {
+            caseList.add(caseID);
+        }
     }
 
 }
