@@ -68,7 +68,7 @@ public class SimpleExternalDBGatewayImpl extends AbstractExternalDBGateway {
     }
 
 
-    public void updateFromTaskCompletion(String paramName, Element outputData, Element caseData) {}
+    public void updateFromTaskCompletion(YTask task, String paramName, Element outputData, Element caseData) {}
 
     
     public Element populateCaseData(YSpecificationID specID, String caseID,

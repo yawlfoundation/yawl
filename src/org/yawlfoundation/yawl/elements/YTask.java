@@ -614,7 +614,7 @@ public abstract class YTask extends YExternalNetElement {
             String paramName = query.split(":")[2];
             Element data = outputData.getRootElement().getChild(paramName);
             Element netData = _net.getInternalDataDocument().getRootElement();
-            gateway.updateFromTaskCompletion(paramName, data, netData);
+            gateway.updateFromTaskCompletion(this, paramName, data, netData);
         }
         catch (Throwable t) {
             throw new YStateException("Failed to update external data: " + t.getMessage());

@@ -690,9 +690,9 @@
     <target name="updateBuildProperties">
         <propertyfile file="${build.dir}/build.properties">
             <entry key="${target}.build.number" type="int" default="0" operation="+"
-                    pattern="0000"/>
+                   pattern="0000"/>
             <entry key="${target}.build.date" type="date" value="now"
-                    pattern="yyyy-MM-dd HH.mm.ss"/>
+                   pattern="yyyy-MM-dd HH.mm.ss"/>
         </propertyfile>
     </target>
 
@@ -701,10 +701,10 @@
         <propCopy name="build.number" from="${app.prefix}.build.number"/>
         <propCopy name="build.date" from="${app.prefix}.build.date"/>
         <manifest file="${manifestFile}">
-            <attribute name="Specification-Vendor" value="The YAWL Foundation" />
-            <attribute name="Specification-Version" value="${app.version}" />
-            <attribute name="Implementation-Version" value="${build.number}" />
-            <attribute name="Implementation-Date" value="${build.date}" />
+            <attribute name="Specification-Vendor" value="The YAWL Foundation"/>
+            <attribute name="Specification-Version" value="${app.version}"/>
+            <attribute name="Implementation-Version" value="${build.number}"/>
+            <attribute name="Implementation-Date" value="${build.date}"/>
             <attribute name="Compile-OS" value="${os.name}"/>
             <attribute name="Compile-OSVersion" value="${os.version}"/>
             <attribute name="Compiled-By" value="${user.name}"/>
@@ -712,11 +712,11 @@
     </target>
 
     <macrodef name="propCopy">
-      <attribute name="name"/>
-      <attribute name="from"/>
-      <sequential>
-        <property name="@{name}" value="${@{from}}"/>
-      </sequential>
+        <attribute name="name"/>
+        <attribute name="from"/>
+        <sequential>
+            <property name="@{name}" value="${@{from}}"/>
+        </sequential>
     </macrodef>
 
 
@@ -1140,7 +1140,7 @@
             <param name="target" value="${engine.app.name}"/>
         </antcall>
 
-        <property name="manifestFile" value="${engine.app.name}.mf" />
+        <property name="manifestFile" value="${engine.app.name}.mf"/>
         <antcall target="writeManifest" inheritall="false">
             <param name="manifestFile" value="${manifestFile}"/>
             <param name="app.prefix" value="yawl"/>
@@ -1170,7 +1170,7 @@
                              log4j2.xml hibernate.properties"/>
 
         <delete dir="${temp.dir}/${engine.app.name}" deleteonexit="true"/>
-        <delete file="${manifestFile}" />
+        <delete file="${manifestFile}"/>
     </target>
 
     <target name="build_engine_SharedTomcat" unless="tomcat.isDedicated">
@@ -1421,11 +1421,11 @@
             <fileset dir="${build.dir}/${worklet.app.name}/samples/parents"/>
         </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets">
-             <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets"/>
-         </copy>
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets"/>
+        </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/samples/worklets/rules">
-             <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets/rules"/>
-         </copy>
+            <fileset dir="${build.dir}/${worklet.app.name}/samples/worklets/rules"/>
+        </copy>
         <copy todir="${temp.dir}/${worklet.app.name}/graphics">
             <fileset dir="${build.dir}/${worklet.app.name}/welcome/graphics"/>
         </copy>
@@ -2054,15 +2054,15 @@
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/engine/interfce/interfaceA">
-             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
-                      includes="InterfaceA_EnvironmentBasedClient.class"/>
-         </copy>
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                     includes="InterfaceA_EnvironmentBasedClient.class"/>
+        </copy>
         <copy todir="${temp.dir}/${cost.app.name}${webinf.dir}/cost">
             <fileset dir="${classes.dir}${packageRoot}/cost"/>
         </copy>
         <copy todir="${temp.dir}/${cost.app.name}/xsd">
-             <fileset dir="${src.dir}${packageRoot}/cost/xsd"/>
-         </copy>
+            <fileset dir="${src.dir}${packageRoot}/cost/xsd"/>
+        </copy>
         <copy todir="${temp.dir}/${cost.app.name}/WEB-INF">
             <fileset file="${build.dir}/${cost.app.name}/web.xml"/>
         </copy>
@@ -2165,38 +2165,38 @@
          Build the Load Balancer servlet
      -->
 
-     <target name="build_balancer.war"
-             depends="compile, build_balancer_SharedTomcat">
-         
-         <copy todir="${temp.dir}/balancer/WEB-INF"
-               file="${build.dir}/balancer/web.xml"/>
+    <target name="build_balancer.war"
+            depends="compile, build_balancer_SharedTomcat">
 
-         <jar destfile="${output.dir}/balancer.war">
-             <fileset dir="${temp.dir}/balancer"/>
-         </jar>
-         <!--<checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
-                    <!--appname="${twitter.app.name}"-->
-                    <!--locations="${checksums.dir}/locations.xml"-->
-                    <!--excludes="WEB-INF/lib/* classes/org/*-->
-                              <!--log4j2.xml hibernate.properties"/>-->
+        <copy todir="${temp.dir}/balancer/WEB-INF"
+              file="${build.dir}/balancer/web.xml"/>
 
-         <!--<antcall target="updateBuildProperties">-->
-             <!--<param name="target" value="${twitter.app.name}"/>-->
-         <!--</antcall>-->
+        <jar destfile="${output.dir}/balancer.war">
+            <fileset dir="${temp.dir}/balancer"/>
+        </jar>
+        <!--<checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
+        <!--appname="${twitter.app.name}"-->
+        <!--locations="${checksums.dir}/locations.xml"-->
+        <!--excludes="WEB-INF/lib/* classes/org/*-->
+        <!--log4j2.xml hibernate.properties"/>-->
 
-         <delete dir="${temp.dir}/balancer" deleteonexit="true"/>
-     </target>
+        <!--<antcall target="updateBuildProperties">-->
+        <!--<param name="target" value="${twitter.app.name}"/>-->
+        <!--</antcall>-->
 
-     <target name="build_balancer_SharedTomcat" unless="tomcat.isDedicated">
-         <copy todir="${temp.dir}/balancer/WEB-INF/classes">
-             <fileset dir="${classes.dir}" includes="log4j2.xml"/>
-         </copy>
-         <copy todir="${temp.dir}/balancer/WEB-INF/lib">
-             <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
-         </copy>
-         <copy todir="${temp.dir}/balancer/WEB-INF/lib"
-               file="${output.dir}/yawl-lib-${app.version}.jar"/>
-     </target>
+        <delete dir="${temp.dir}/balancer" deleteonexit="true"/>
+    </target>
+
+    <target name="build_balancer_SharedTomcat" unless="tomcat.isDedicated">
+        <copy todir="${temp.dir}/balancer/WEB-INF/classes">
+            <fileset dir="${classes.dir}" includes="log4j2.xml"/>
+        </copy>
+        <copy todir="${temp.dir}/balancer/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="${webapp_testService.libs}"/>
+        </copy>
+        <copy todir="${temp.dir}/balancer/WEB-INF/lib"
+              file="${output.dir}/yawl-lib-${app.version}.jar"/>
+    </target>
 
     <!--
         Build the simple mail service WAR
@@ -2317,7 +2317,7 @@
             <fileset dir="${build.dir}/${scheduling.app.name}/schema"/>
         </copy>
         <copy todir="${temp.dir}/${scheduling.app.name}/WEB-INF"
-               file="${build.dir}/${scheduling.app.name}/web.xml"/>
+              file="${build.dir}/${scheduling.app.name}/web.xml"/>
 
         <war destfile="${output.dir}/${scheduling.app.name}.war"
              webxml="${build.dir}/${scheduling.app.name}/web.xml">
@@ -2515,9 +2515,9 @@
             <fileset dir="${classes.dir}${packageRoot}/engine/interfce"/>
         </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/engine/interfce/interfaceA">
-             <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
-                      includes="InterfaceA_EnvironmentBasedClient.class"/>
-         </copy>
+            <fileset dir="${classes.dir}${packageRoot}/engine/interfce/interfaceA"
+                     includes="InterfaceA_EnvironmentBasedClient.class"/>
+        </copy>
         <copy todir="${temp.dir}/${docStore.app.name}${webinf.dir}/util">
             <fileset dir="${classes.dir}${packageRoot}/util"
                      includes="StringUtil.class CharsetFilter.class Sessions*.class
@@ -2714,7 +2714,7 @@
         </antcall>
     </target>
 
-    
+
     <!-- Build the Demo Service WAR -->
     <target name="build_DemoService" depends="compile">
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/elements">
@@ -2744,41 +2744,42 @@
                                InterfaceBWebsideController.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/exceptions">
-               <fileset dir="${classes.dir}/${packageRoot}/exceptions"
-                        includes="Y*.class"/>
-         </copy>
+            <fileset dir="${classes.dir}/${packageRoot}/exceptions"
+                     includes="Y*.class"/>
+        </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/logging">
-              <fileset dir="${classes.dir}/${packageRoot}/logging"
-                       includes="YLogDataItem.class YLogDataItemList.class"/>
+            <fileset dir="${classes.dir}/${packageRoot}/logging"
+                     includes="YLogDataItem.class YLogDataItemList.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/schema">
-              <fileset dir="${classes.dir}/${packageRoot}/schema"
-                       includes="YSchemaVersion.class"/>
+            <fileset dir="${classes.dir}/${packageRoot}/schema"
+                     includes="YSchemaVersion.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/unmarshal">
-              <fileset dir="${classes.dir}/${packageRoot}/unmarshal"
-                       includes="YDecompositionParser.class"/>
+            <fileset dir="${classes.dir}/${packageRoot}/unmarshal"
+                     includes="YDecompositionParser.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/demoService">
             <fileset dir="${classes.dir}/${packageRoot}/demoService"/>
         </copy>
 
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/util">
-              <fileset dir="${classes.dir}/${packageRoot}/util"
-                       includes="*.class"/>
+            <fileset dir="${classes.dir}/${packageRoot}/util"
+                     includes="*.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF"
               file="${build.dir}/demoService/web.xml"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes"
               file="${properties.dir}/log4j.properties"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/lib">
-            <fileset dir="${lib.dir}" includes="${jdom} ${commonsCodec} ${xerces} log4j*"/>
+            <fileset dir="${lib.dir}"
+                     includes="${jdom} ${commonsCodec} ${xerces} log4j*"/>
         </copy>
-        
+
         <jar destfile="${output.dir}/demoService.war">
-             <fileset dir="${temp.dir}/demoService"/>
-         </jar>
-         <delete dir="${temp.dir}/demoService"/>
+            <fileset dir="${temp.dir}/demoService"/>
+        </jar>
+        <delete dir="${temp.dir}/demoService"/>
 
     </target>
 
@@ -3055,20 +3056,21 @@
         <delete dir="${temp.dir}/analyze"/>
         <mkdir dir="${temp.dir}/analyze"/>
         <copy todir="${temp.dir}/analyze">
-             <fileset dir="${lib.dir}"/>
-             <fileset dir="${output.dir}" includes="*.war *.jar"/>
+            <fileset dir="${lib.dir}"/>
+            <fileset dir="${output.dir}" includes="*.war *.jar"/>
         </copy>
         <move todir="${temp.dir}/analyze">
-          <fileset dir="${temp.dir}/analyze"/>
-          <mapper type="glob" from="*.war" to="*.jar"/>
+            <fileset dir="${temp.dir}/analyze"/>
+            <mapper type="glob" from="*.war" to="*.jar"/>
         </move>
 
         <jaranalyzer srcdir="${temp.dir}/analyze"
                      destfile="${analyzer.dir}/dependencies.xml"
                      summaryclass="com.kirkk.analyzer.textui.XMLUISummary"
-                     packageFilter="java.*;javax.*;" />
+                     packageFilter="java.*;javax.*;"/>
 
-        <xslt in="${analyzer.dir}/dependencies.xml" out="${analyzer.dir}/dependencies.html"
+        <xslt in="${analyzer.dir}/dependencies.xml"
+              out="${analyzer.dir}/dependencies.html"
               style="${analyzer.dir}/jaranalyzer.xsl"/>
 
         <delete dir="${temp.dir}/analyze" deleteonexit="true"/>

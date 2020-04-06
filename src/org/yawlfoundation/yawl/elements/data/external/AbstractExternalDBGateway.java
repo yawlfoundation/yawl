@@ -112,12 +112,14 @@ public abstract class AbstractExternalDBGateway {
     /**
      * Update the database with the workitem's values. Called by the engine when the
      * workitem completes.
+     * @param task the task template for the completing workitem.
      * @param paramName the name of the task of which this workitem is an instance.
      * @param outputData the datalist from which the corresponding database values are
      * to be updated.
      * @param caseData the current set of case variables and values.
      */
-    public abstract void updateFromTaskCompletion(String paramName, Element outputData,
+    public abstract void updateFromTaskCompletion(YTask task, String paramName,
+                                                  Element outputData,
                                                   Element caseData);
 
 

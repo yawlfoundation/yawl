@@ -23,10 +23,9 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.elements.YAttributeMap;
 import org.yawlfoundation.yawl.util.JDOMUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Michael Adams
@@ -120,7 +119,7 @@ public class DynFormFieldAssembler {
             String eName = eField.getName();
             if (eName.equals("sequence") || eName.equals("all")) {
                 List<DynFormField> subList = createSequence(eField, data, ns, level + 1);
-                DynFormField field = addField("choicePanel", subList, null, null, level);
+                DynFormField field = addField("choicePanel", subList, null, null, level, null);
                 field.setGroupID(getNextGroupID());
                 fieldList.add(field);
             }
@@ -154,6 +153,7 @@ public class DynFormFieldAssembler {
         String minOccurs = eField.getAttributeValue("minOccurs");
         String maxOccurs = eField.getAttributeValue("maxOccurs");
         String name = eField.getAttributeValue("name");
+        Map<String, String> appInfo = getAppInfo(eField);                // uda, value
         String type = getElementDataType(eField, ns);
 
         if (level == 0) _currentParam = _params.get(name);
@@ -164,7 +164,7 @@ public class DynFormFieldAssembler {
             Element simple = eField.getChild("simpleType", ns);
             if (simple != null) {
                 List<DynFormField> fieldList = addElementField(name, null, data,
-                        minOccurs, maxOccurs, level);
+                        minOccurs, maxOccurs, level, appInfo);
                 for (DynFormField aField : fieldList) {
                     applySimpleTypeFacets(simple, ns, aField);
                 }
@@ -174,7 +174,7 @@ public class DynFormFieldAssembler {
                 // check for empty complex type (flag defn)
                 Element complex = eField.getChild("complexType", ns);
                 if ((complex != null) && complex.getContentSize() == 0) {
-                    field = addField(name, null, data, minOccurs, maxOccurs, level);
+                    field = addField(name, null, data, minOccurs, maxOccurs, level, appInfo);
                     field.setEmptyComplexTypeFlag(true);
                     if ((data != null) && (data.getChild(name) != null)) {
                         field.setValue("true");
@@ -188,14 +188,14 @@ public class DynFormFieldAssembler {
                     if (! (dataList == null || dataList.isEmpty())) {
                         for (Element var : dataList) {
                             field = addGroupField(name, eField, ns, var,
-                                    minOccurs, maxOccurs, level);
+                                    minOccurs, maxOccurs, level, appInfo);
                             field.setGroupID(groupID);
                             result.add(field);
                         }
                     }
                     else {
                         field = addGroupField(name, eField, ns, null,
-                                minOccurs, maxOccurs, level);
+                                minOccurs, maxOccurs, level, appInfo);
                         field.setGroupID(groupID);
                         result.add(field);
                     }
@@ -204,7 +204,7 @@ public class DynFormFieldAssembler {
         }
         else  {
             // a plain element
-            result.addAll(addElementField(name, type, data, minOccurs, maxOccurs, level));
+            result.addAll(addElementField(name, type, data, minOccurs, maxOccurs, level, appInfo));
         }
 
         return result;
@@ -220,17 +220,17 @@ public class DynFormFieldAssembler {
 
     private DynFormField addGroupField(String name, Element eField, Namespace ns,
                                        Element data, String minOccurs, String maxOccurs,
-                                       int level) throws DynFormException {
+                                       int level, Map<String, String> appInfo) throws DynFormException {
         DynFormField field ;
         List<DynFormField> simpleContents = new ArrayList<DynFormField>();
         int instances = getInitialInstanceCount(minOccurs, data, name) ;
 
         if (instances == 1) {
             field = addField(name, createFieldList(eField, data, ns, level),
-                             minOccurs, maxOccurs, level);
+                             minOccurs, maxOccurs, level, appInfo);
         }
         else {
-            field = addContainingField(name, minOccurs, maxOccurs, level);
+            field = addContainingField(name, minOccurs, maxOccurs, level, appInfo);
             String subGroupID = getNextGroupID();
             for (int i = 0; i < instances; i++) {
                 Element data4Inst = getIteratedContent(data, i, name) ;
@@ -250,7 +250,8 @@ public class DynFormFieldAssembler {
     
     private List<DynFormField> addElementField(String name, String type,
                                                Element data, String minOccurs,
-                                               String maxOccurs, int level) {
+                                               String maxOccurs, int level,
+                                               Map<String, String> appInfo) {
         List<DynFormField> result = new ArrayList<DynFormField>();
         DynFormField field ;
         String groupID = null;
@@ -260,7 +261,7 @@ public class DynFormFieldAssembler {
         
         for (int i = 0; i < instances; i++) {
             Element data4Inst = (instances > 1) ? getIteratedContent(data, i, name) : data ;
-            field = addField(name, type, data4Inst, minOccurs, maxOccurs, level);
+            field = addField(name, type, data4Inst, minOccurs, maxOccurs, level, appInfo);
             field.setGroupID(groupID);
             field.setOccursCount(instances);
             result.add(field);
@@ -270,25 +271,28 @@ public class DynFormFieldAssembler {
 
 
     private DynFormField addField(String name, String type, Element data,
-                                  String minOccurs, String maxOccurs, int level) {
+                                  String minOccurs, String maxOccurs, int level,
+                                  Map<String, String> appInfo) {
         String value = (data != null) ? data.getChildText(name) : "";
         DynFormField input = new DynFormField(name, type, value);
-        populateField(input, name, minOccurs, maxOccurs, level) ;
+        populateField(input, name, minOccurs, maxOccurs, level, appInfo) ;
         return input;
     }
 
 
     private DynFormField addField(String name, List<DynFormField> subFieldList,
-                                  String minOccurs, String maxOccurs,int level) {
+                                  String minOccurs, String maxOccurs, int level,
+                                  Map<String, String> appInfo) {
         if (name == null) name = "choice";
         DynFormField input = new DynFormField(name, subFieldList);
-        populateField(input, name, minOccurs, maxOccurs, level) ;
+        populateField(input, name, minOccurs, maxOccurs, level, appInfo) ;
         return input;
     }
 
 
     private void populateField(DynFormField input, String name,
-                                  String minOccurs, String maxOccurs,int level) {
+                                  String minOccurs, String maxOccurs,int level,
+                                  Map<String, String> appInfo) {
         input.setMinoccurs(minOccurs);
         input.setMaxoccurs(maxOccurs);
         input.setParam(_currentParam);
@@ -298,18 +302,21 @@ public class DynFormFieldAssembler {
         if (level == 0) {
             attributes.set(getAttributeMap(name));
         }
+        attributes.merge(appInfo);
         input.setAttributes(attributes);
     }
 
 
     private DynFormField addContainingField(String name, String minOccurs,
-                                            String maxOccurs,int level) {
+                                            String maxOccurs,int level,
+                                            Map<String, String> appInfo) {
         if (name == null) name = "choice";
         DynFormField input = new DynFormField(name, null);
         input.setMinoccurs(minOccurs);
         input.setMaxoccurs(maxOccurs);
         input.setParam(_currentParam);
         input.setLevel(level);
+        input.getAttributes().merge(appInfo);
         return input;
     }
 
@@ -407,6 +414,27 @@ public class DynFormFieldAssembler {
         FormParameter param = _params.get(name);
         if (param != null) map.set(param.getAttributes());
         return map;
+    }
+
+
+    private Map<String, String> getAppInfo(Element eField) {
+        Namespace ns = eField.getNamespace();
+        Element annotation = eField.getChild("annotation", ns);
+        if (annotation != null) {
+            Map<String, String> infoMap = new HashMap<>();
+            Element appInfo = annotation.getChild("appinfo", ns);
+            if (appInfo != null) {
+                for (Element child : appInfo.getChildren()) {
+                    String text = child.getText();
+                    if (!StringUtil.isNullOrEmpty(text)) {
+                        infoMap.put(child.getName(), text);
+                    }
+                }
+            }
+            eField.removeChild("annotation", ns);   // done processing the annotation
+            return infoMap;
+        }
+        return Collections.emptyMap();
     }
 
     

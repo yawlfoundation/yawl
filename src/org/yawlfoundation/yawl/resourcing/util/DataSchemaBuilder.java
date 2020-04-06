@@ -302,6 +302,12 @@ public class DataSchemaBuilder {
     private Element cloneElement(Element element, Namespace defNS) {
         Element cloned = new Element(element.getName(), defNS);
         cloned.setAttributes(cloneAttributes(element, defNS));
+
+        // clone appinfo children literally
+        Element parent = element.getParentElement();
+        if (parent != null && parent.getName().equals("appinfo")) {
+            cloned.setText(element.getText());
+        }
         return cloned;
     }
 

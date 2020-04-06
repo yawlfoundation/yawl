@@ -20,7 +20,6 @@ package org.yawlfoundation.yawl.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.net.www.protocol.file.FileURLConnection;
 
 import java.io.File;
 import java.io.IOException;
@@ -259,7 +258,7 @@ public class YPluginLoader extends URLClassLoader {
             if (connection instanceof JarURLConnection) {
                 processJAR(mask, plugins, (JarURLConnection) connection);
             }
-            else if (connection instanceof FileURLConnection) {
+            else {    // single file or directory
                 String filePath = URLDecoder.decode(url.getPath(), "UTF-8");
                 String[] fileList = new File(filePath).list();
                 if (fileList != null) {

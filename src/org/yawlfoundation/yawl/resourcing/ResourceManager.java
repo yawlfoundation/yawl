@@ -410,11 +410,12 @@ public final class ResourceManager extends InterfaceBWebsideController {
     // by services other than this one
     public void handleWorkItemStatusChangeEvent(WorkItemRecord wir,
                                                 String oldStatus, String newStatus) {
-        synchronized (_ibEventMutex) {
-            WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
+        WorkItemRecord cachedWir = _workItemCache.get(wir.getID());
 
-            // if its a status change this service didn't cause
-            if (!(cachedWir == null || newStatus.equals(cachedWir.getStatus()))) {
+        // if its a status change this service didn't cause
+        if (!(cachedWir == null || newStatus.equals(cachedWir.getStatus()))) {
+
+            synchronized (_ibEventMutex) {
 
                 // if it has been 'finished', remove it from all queues
                 if ((newStatus.equals(WorkItemRecord.statusComplete)) ||
