@@ -166,8 +166,11 @@ public class YNetRunner {
 
 
     public Set<YAnnouncement> refreshAnnouncements() {
-         Set<YAnnouncement> current = _announcements;
-        _announcements = new HashSet<YAnnouncement>();
+        Set<YAnnouncement> current = new HashSet<>();
+        if (_announcements != null) {
+            current.addAll(_announcements);
+        }
+        _announcements = new HashSet<>();
         return current;
     }
 

@@ -37,10 +37,11 @@ public enum YEngineEvent {
     CASE_SUSPENDED ("announceCaseSuspended", true),
     CASE_RESUMED ("announceCaseResumed", true),
     TIMER_EXPIRED ("announceTimerExpiry", false),
-    ENGINE_INIT ("announceEngineInitialised", true);
+    ENGINE_INIT ("announceEngineInitialised", true),
+    NO_EVENT("noEvent", false);
 
-    private String _label;
-    private boolean _broadcast;
+    private final String _label;
+    private final boolean _broadcast;
 
     YEngineEvent (String l, boolean b) {
         _label = l;
@@ -50,4 +51,13 @@ public enum YEngineEvent {
     public String label() { return _label; }
 
     public boolean isBroadcast() { return _broadcast; }
+
+    public static YEngineEvent fromString(String s) {
+        for (YEngineEvent event : YEngineEvent.values()) {
+            if (event.label().equals(s)) {
+                return event;
+            }
+        }
+        return NO_EVENT;
+    }
 }

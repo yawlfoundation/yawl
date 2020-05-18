@@ -795,7 +795,7 @@ public class YAdminGUI extends JPanel implements InterfaceBClientObserver,
             c.add(scroller);
             repaint();
             this.setSize(500, 300);
-            show();
+            setVisible(true);
         }
     }
 

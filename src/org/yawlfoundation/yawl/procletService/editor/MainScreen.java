@@ -578,7 +578,7 @@ public class MainScreen {
 		    			  String dataReturn = "<" + yidSelected.getUri() + ">" + "</" + yidSelected.getUri() + ">";
 		    			  System.out.println("dataReturn is " + dataReturn);
 		    			  // http://localhost:8080/yawl/ib
-		    			  String yawlResponse = client.launchCase(yidSelected.getIdentifier(), "", sessionHandle,ProcletServiceLocation);
+		    			  String yawlResponse = client.launchCase(yidSelected, "", null,sessionHandle,ProcletServiceLocation);
 		    			  System.out.println("start case for " + yidSelected.getUri() + ", yawlResponse is " + yawlResponse);
 		    			  JOptionPane.showMessageDialog(null,
 	    						    "Response of YAWL for starting an instance for Proclet Class " 

@@ -2689,6 +2689,16 @@ public class SessionBean extends AbstractSessionBean {
         int height = 20 * (calendarRows.size() + 1);
         return String.format("height: %dpx", Math.min(height, 330));
     }
+
+    public String stripXMLChars(String s) {
+        if (StringUtil.isNullOrEmpty(s)) return s;
+
+        StringBuilder sb = new StringBuilder(s.length());
+        for (char c : s.toCharArray()) {
+            if (! (c == '<' || c == '>' || c == '&')) sb.append(c);
+        }
+        return sb.toString();
+    }
     
     /******************************************************************************/
 

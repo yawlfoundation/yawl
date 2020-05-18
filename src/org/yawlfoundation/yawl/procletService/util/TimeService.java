@@ -27,6 +27,7 @@ package org.yawlfoundation.yawl.procletService.util;
  */
 
 import org.yawlfoundation.yawl.elements.data.YParameter;
+import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.interfce.AuthenticationConfig;
 import org.yawlfoundation.yawl.engine.interfce.TaskInformation;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
@@ -121,14 +122,14 @@ public class TimeService extends InterfaceBWebsideController {
     public synchronized void finish(WorkItemRecord itemRecord, String _sessionHandle) {
         try {
             //System.out.println("Checking in work Item: " + itemRecord.getID());
-
-            TaskInformation taskinfo = getTaskInformation(itemRecord.getSpecURI(),
+            YSpecificationID specID = new YSpecificationID(itemRecord);
+            TaskInformation taskinfo = getTaskInformation(specID,
                     itemRecord.getTaskID(),
                     _sessionHandle);
 
             checkInWorkItem(itemRecord.getID(),
-                    itemRecord.getWorkItemData(),
-                    new Element(taskinfo.getDecompositionID()),
+                    itemRecord.getDataList(),
+                    new Element(taskinfo.getDecompositionID()), null,
                     _sessionHandle);
 
         } catch (Exception e) {

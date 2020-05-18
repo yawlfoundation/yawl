@@ -522,7 +522,7 @@ public class pfNHResources extends AbstractFragmentBean {
         }
 
         // check that any name change is valid
-        String name = (String) txtName.getText();
+        String name = _sb.stripXMLChars((String) txtName.getText());
         if ((! name.equals(category.getName())) && _orgDataSet.isKnownNonHumanCategoryName(name)) {
             addDuplicationError("Category");
             return false;
@@ -536,7 +536,7 @@ public class pfNHResources extends AbstractFragmentBean {
 
     /* saves a newly added resource or category to the org database */
     public boolean addNewItem(nonHumanMgt.SelType sType) {
-        String newName = (String) txtName.getText();
+        String newName = _sb.stripXMLChars((String) txtName.getText());
         if ((newName == null) || (newName.length() == 0)) {
             _msgPanel.error("Please enter a name for the new Item.");
             return false;
@@ -654,7 +654,7 @@ public class pfNHResources extends AbstractFragmentBean {
     }
 
     private void storeSimpleFieldValues(NonHumanResource resource) {
-        String name = (String) txtName.getText();
+        String name = _sb.stripXMLChars((String) txtName.getText());
         if ((name != null) && (name.length() > 0)) resource.setName(name);
         String desc = (String) txtDesc.getText();
         if (desc != null) resource.setDescription(desc);
@@ -664,7 +664,7 @@ public class pfNHResources extends AbstractFragmentBean {
 
 
     private void storeSimpleFieldValues(NonHumanCategory category) {
-        String name = (String) txtName.getText();
+        String name = _sb.stripXMLChars((String) txtName.getText());
         if (name.length() > 0) category.setName(name);
         category.setDescription((String) txtDesc.getText());
         category.setNotes((String) txtNotes.getText());

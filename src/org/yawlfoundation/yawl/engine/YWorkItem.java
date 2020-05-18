@@ -56,9 +56,9 @@ import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
  */
 public class YWorkItem {
 
-    private static DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
-    private static YEngine _engine = YEngine.getInstance();
-    private YWorkItemRepository _workItemRepository = _engine.getWorkItemRepository();
+    private static final DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
+    private static final YEngine _engine = YEngine.getInstance();
+    private final YWorkItemRepository _workItemRepository = _engine.getWorkItemRepository();
     private YWorkItemID _workItemID;
     private String _thisID = null;
     private YSpecificationID _specID;

@@ -375,7 +375,7 @@ public class pfOrgData extends AbstractFragmentBean {
             if (hasCyclicReferences(attrib, belongsToID)) return false;
 
             setCommonFields(attrib);
-            String name = toUTF8((String) txtName.getText());
+            String name = _sb.stripXMLChars(toUTF8((String) txtName.getText()));
             if (attrib instanceof Capability) {
                 ((Capability) attrib).setCapability(name);
             }

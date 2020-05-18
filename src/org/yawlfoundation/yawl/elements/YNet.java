@@ -24,8 +24,8 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.elements.state.YMarking;
@@ -547,7 +547,7 @@ public final class YNet extends YDecomposition {
 
     // only called when a case successfully completes
     public void postCaseDataToExternal(String caseID) throws YStateException {
-        AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
+        ExternalDataGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
             try {
                 gateway.updateFromCaseData(getSpecification().getSpecificationID(),
@@ -564,7 +564,7 @@ public final class YNet extends YDecomposition {
 
     // called when a case begins
     public Element getCaseDataFromExternal(String caseID) throws YStateException {
-        AbstractExternalDBGateway gateway = getInstantiatedExternalDataGateway();
+        ExternalDataGateway gateway = getInstantiatedExternalDataGateway();
         if (gateway != null) {
             try {
                 return gateway.populateCaseData(getSpecification().getSpecificationID(),
@@ -581,9 +581,9 @@ public final class YNet extends YDecomposition {
         return null;
     }
 
-    private AbstractExternalDBGateway getInstantiatedExternalDataGateway() {
+    private ExternalDataGateway getInstantiatedExternalDataGateway() {
         if (_externalDataGateway != null) {
-            return ExternalDBGatewayFactory.getInstance(_externalDataGateway);
+            return ExternalDataGatewayFactory.getInstance(_externalDataGateway);
         }
         else return null;
     }

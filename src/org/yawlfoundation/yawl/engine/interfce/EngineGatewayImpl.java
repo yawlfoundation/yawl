@@ -27,11 +27,10 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
 import org.yawlfoundation.yawl.engine.*;
-import org.yawlfoundation.yawl.engine.CaseExporter;
 import org.yawlfoundation.yawl.engine.time.YLaunchDelayer;
 import org.yawlfoundation.yawl.exceptions.YAWLException;
 import org.yawlfoundation.yawl.exceptions.YEngineStateException;
@@ -1613,13 +1612,16 @@ public class EngineGatewayImpl implements EngineGateway {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
-        Set<AbstractExternalDBGateway> gateways = ExternalDBGatewayFactory.getInstances();
+        Set<ExternalDataGateway> gateways = ExternalDataGatewayFactory.getInstances();
         if (gateways != null) {
-            StringBuilder s = new StringBuilder("<ExternalDBGateways>");
-            for (AbstractExternalDBGateway gateway : gateways) {
-                s.append(gateway.toXML());
+            StringBuilder s = new StringBuilder("<ExternalDataGateways>");
+            for (ExternalDataGateway gateway : gateways) {
+                s.append("<ExternalDataGateway>");
+                s.append("<name>").append(gateway.getClass().getName()).append("</name>");
+                s.append("<description>").append(gateway.getDescription()).append("</description>");
+                s.append("</ExternalDataGateway>");
             }
-            s.append("</ExternalDBGateways>");
+            s.append("</ExternalDataGateways>");
             return s.toString();
         }
         else {

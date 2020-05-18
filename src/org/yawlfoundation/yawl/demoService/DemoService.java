@@ -18,12 +18,17 @@
 
 package org.yawlfoundation.yawl.demoService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.interfaceB.InterfaceBWebsideController;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Michael Adams
@@ -36,6 +41,10 @@ public class DemoService extends InterfaceBWebsideController {
     private boolean started = false;
     private long startTime;
 
+    private static final Logger _log = LogManager.getLogger(DemoService.class);
+
+    private static DateFormat _DF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+    
     @Override
     public void handleEnabledWorkItemEvent(WorkItemRecord wir) {
         if (!started) {
@@ -66,6 +75,12 @@ public class DemoService extends InterfaceBWebsideController {
 
     }
 
+
+    @Override
+    public void handleCompleteCaseEvent(String caseID, String casedata) {
+        String timeStamp = _DF.format(new Date());
+        _log.warn("Announcing case '{}' complete received at {}", caseID, timeStamp);
+    }
 
     public YParameter[] describeRequiredParams() {
         YParameter[] params = new YParameter[2];

@@ -25,8 +25,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
-import org.yawlfoundation.yawl.elements.data.external.ExternalDBGatewayFactory;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGateway;
+import org.yawlfoundation.yawl.elements.data.external.ExternalDataGatewayFactory;
 import org.yawlfoundation.yawl.elements.e2wfoj.E2WFOJNet;
 import org.yawlfoundation.yawl.elements.predicate.PredicateEvaluatorCache;
 import org.yawlfoundation.yawl.elements.state.YIdentifier;
@@ -211,7 +211,7 @@ public abstract class YTask extends YExternalNetElement {
 
     protected void checkXQuery(String xQuery, String param, YVerificationHandler handler) {
         if (!StringUtil.isNullOrEmpty(xQuery)) {
-            if (ExternalDBGatewayFactory.isExternalDBMappingExpression(xQuery)) {
+            if (ExternalDataGatewayFactory.isExternalDataMappingExpression(xQuery)) {
                 checkExternalMapping(xQuery, handler);
             } else {
                 try {
@@ -229,7 +229,7 @@ public abstract class YTask extends YExternalNetElement {
 
 
     protected void checkExternalMapping(String query, YVerificationHandler handler) {
-        AbstractExternalDBGateway dbClass = ExternalDBGatewayFactory.getInstance(query);
+        ExternalDataGateway dbClass = ExternalDataGatewayFactory.getInstance(query);
         if (dbClass == null) {
             handler.error(this, this +
                     "(id= " + this.getID() + ") the mapping could not be successfully" +
@@ -459,9 +459,9 @@ public abstract class YTask extends YExternalNetElement {
             validateOutputs(validator, decompositionOutputData);
 
             for (String query : getQueriesForTaskCompletion()) {
-                if (ExternalDBGatewayFactory.isExternalDBMappingExpression(query)) {
-                    AbstractExternalDBGateway gateway =
-                            ExternalDBGatewayFactory.getInstance(query);
+                if (ExternalDataGatewayFactory.isExternalDataMappingExpression(query)) {
+                    ExternalDataGateway gateway =
+                            ExternalDataGatewayFactory.getInstance(query);
                     updateExternalFromTaskCompletion(gateway, query, decompositionOutputData);
                     continue;
                 }
@@ -607,7 +607,7 @@ public abstract class YTask extends YExternalNetElement {
     }
 
 
-    private void updateExternalFromTaskCompletion(AbstractExternalDBGateway gateway,
+    private void updateExternalFromTaskCompletion(ExternalDataGateway gateway,
                                                   String query,
                                                   Document outputData) throws YStateException {
         try {
@@ -801,7 +801,7 @@ public abstract class YTask extends YExternalNetElement {
     private Set<String> getLocalVariablesForTaskCompletion() {
         Set<String> localVars = new HashSet<String>();
         for (String query : _dataMappingsForTaskCompletion.keySet()) {
-            if (!ExternalDBGatewayFactory.isExternalDBMappingExpression(query)) {
+            if (!ExternalDataGatewayFactory.isExternalDataMappingExpression(query)) {
                 localVars.add(_dataMappingsForTaskCompletion.get(query));
             }
         }
@@ -1038,7 +1038,7 @@ public abstract class YTask extends YExternalNetElement {
                     dataForChildCase.addContent(specificMIData.detach());
                 }
             } else {
-                Element result = ExternalDBGatewayFactory.isExternalDBMappingExpression(expression) ?
+                Element result = ExternalDataGatewayFactory.isExternalDataMappingExpression(expression) ?
                         performExternalDataExtraction(expression, parameter) :
                         performDataExtraction(expression, parameter);
 
@@ -1109,8 +1109,8 @@ public abstract class YTask extends YExternalNetElement {
             throws YStateException, YDataStateException {
         Element result = null;
         try {
-            AbstractExternalDBGateway extractor =
-                    ExternalDBGatewayFactory.getInstance(expression);
+            ExternalDataGateway extractor =
+                    ExternalDataGatewayFactory.getInstance(expression);
             if (extractor != null) {
                 Element netData = _net.getInternalDataDocument().getRootElement();
                 result = extractor.populateTaskParameter(this, inputParam, netData);

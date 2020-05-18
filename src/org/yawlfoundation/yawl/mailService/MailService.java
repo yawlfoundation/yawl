@@ -204,11 +204,8 @@ public class MailService extends InterfaceBWebsideController {
     private void addRecipients(Email email, String name, String address,
                               Message.RecipientType mailType) {
         if (! StringUtil.isNullOrEmpty(address)) {
-            String[] addresses = address.split(";");
-            if (name == null || addresses.length > 1) name = "";
-            for (int i = 0; i < addresses.length; i++) {
-                email.addRecipient(name, addresses[i], mailType);
-            }
+            if (name == null) name = "";
+            email.addRecipients(name, mailType, address);
         }
     }
 

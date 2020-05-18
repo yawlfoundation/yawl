@@ -112,7 +112,7 @@ public class YApplicationXForm extends JDialog implements ActionListener {
 //        pack();
         setSize(1000, 800);
         setLocationRelativeTo(null);
-        show();
+        setVisible(true);
     }
 
     private void storeData() {

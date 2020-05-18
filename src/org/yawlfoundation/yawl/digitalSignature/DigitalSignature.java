@@ -134,7 +134,7 @@ public class DigitalSignature extends InterfaceBWebsideController
 	                        Outputelement.addContent(Child3);
 	                        
 	                        //Check In the work item and finish the task. 
-	                        this.checkInWorkItem(itemRecord.getID(), itemRecord.getDataList(), Outputelement,_sessionHandle);
+	                        this.checkInWorkItem(itemRecord.getID(), itemRecord.getDataList(), Outputelement,null, _sessionHandle);
 	                     
 	                        }
 	                 }

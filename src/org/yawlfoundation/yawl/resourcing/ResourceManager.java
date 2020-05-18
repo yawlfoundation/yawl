@@ -70,8 +70,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * The ResourceManager singleton manages all aspects of the resource perspective,
@@ -375,7 +375,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
     public void handleCancelledCaseEvent(String caseID) {
         if (_serviceEnabled) {
-            synchronized (_ibEventMutex) {
+  //          synchronized (_ibEventMutex) {
                 removeCaseFromAllQueues(caseID);                          // workqueues
                 _cache.removeCaseFromTaskCompleters(caseID);
                 _cache.cancelCodeletRunnersForCase(caseID);
@@ -384,7 +384,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
                 removeChain(caseID);
                 removeActiveCalendarEntriesForCase(caseID);
                 _services.removeCaseFromDocStore(caseID);
-            }
+  //          }
         }
     }
 

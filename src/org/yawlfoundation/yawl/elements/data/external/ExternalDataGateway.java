@@ -18,85 +18,30 @@
 
 package org.yawlfoundation.yawl.elements.data.external;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YTask;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.elements.data.YVariable;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
-import org.yawlfoundation.yawl.util.XNode;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: Michael Adams
- * Creation Date: 8/07/2009
+ * Creation Date: 6/04/2020
  */
-public abstract class AbstractExternalDBGateway {
-
-    protected Logger _log = LogManager.getLogger(AbstractExternalDBGateway.class);
-
-
-    // an instance of the backend 'engine' that provides the interface to the database
-    protected HibernateEngine _dbEngine = HibernateEngine.getInstance();
-
-    /**
-     * Configures the engine to the database specified. Examples given are for postgres.
-     * @param dialect the database dialect (e.g. "org.hibernate.dialect.PostgreSQLDialect")
-     * @param driver the database driver (e.g. "org.postgresql.Driver")
-     * @param url the database url (e.g. "jdbc:postgresql:yawl")
-     * @param username the logon name for the database
-     * @param password the logon password
-     * @param classes a list of classes for Hibernate to use to converse with the
-     * underlying tables (can be null if no classes are involved) 
-     */
-    protected void configureSession(String dialect, String driver, String url,
-                                 String username, String password, List<Class> classes) {
-        _dbEngine.configureSession(dialect, driver, url, username, password, classes);
-    }
-
-
-    /**
-     * Configures the engine to the database specified in a properties file
-     * @param propertiesFileName the full path & name of the properties file
-     */
-    protected void configureSession(String propertiesFileName, List<Class> classes) {
-        if (propertiesFileName == null) return;
-        Properties props = new Properties();
-        try {
-            props.load(new FileInputStream(propertiesFileName));
-            _dbEngine.configureSession(props, classes);
-        }
-        catch (IOException e) {
-            _log.error("Could not open properties file " + propertiesFileName, e);
-        }
-    }
-
-
-    public String toXML() {
-        XNode node = new XNode("ExternalDBGateway");
-        node.addChild("name", getClass().getName());
-        node.addChild("description", getDescription());
-        return node.toString();
-    }
+public interface ExternalDataGateway {
     
-    /********************************************************************************/
-    /***** ABSTRACT METHODS *****/
-
     /**
      * @return a user-understandable description of the use of the particular
      * extending class, which will be seen in a list in the editor and from which the
      * user can choose the class.
      */
-    public abstract String getDescription() ;
+    String getDescription() ;
 
 
     /**
-     * Populates the task parameter passed with a value selected from a database.
+     * Populates the task parameter passed with a value selected externally.
      * Called by the engine to populate a workitem when the workitem starts.
      * @param task the task template for the starting workitem.
      * @param param the name of the parameter that requires values.
@@ -104,13 +49,11 @@ public abstract class AbstractExternalDBGateway {
      * @return an Element named after the param (use param.getName()), populated with 
      * the appropriate value.
      */
-    public abstract Element populateTaskParameter(YTask task, YParameter param,
-                                                  Element caseData);
-
+    Element populateTaskParameter(YTask task, YParameter param, Element caseData);
 
 
     /**
-     * Update the database with the workitem's values. Called by the engine when the
+     * Update the data source with the workitem's values. Called by the engine when the
      * workitem completes.
      * @param task the task template for the completing workitem.
      * @param paramName the name of the task of which this workitem is an instance.
@@ -118,8 +61,7 @@ public abstract class AbstractExternalDBGateway {
      * to be updated.
      * @param caseData the current set of case variables and values.
      */
-    public abstract void updateFromTaskCompletion(YTask task, String paramName,
-                                                  Element outputData,
+    void updateFromTaskCompletion(YTask task, String paramName, Element outputData,
                                                   Element caseData);
 
 
@@ -139,14 +81,14 @@ public abstract class AbstractExternalDBGateway {
      * @param caseDataTemplate the data structure that requires values.
      * @return an Element of the same structure as 'caseDataTemplate', with populated values.
      */
-    public abstract Element populateCaseData(YSpecificationID specID, String caseID,
+    Element populateCaseData(YSpecificationID specID, String caseID,
                                              List<YParameter> inputParams,
                                              List<YVariable> localVars,
                                              Element caseDataTemplate) ;
 
 
     /**
-     * Update the database with the case's values. Called by the engine when the
+     * Update the data source with the case's values. Called by the engine when the
      * case completes.
      * @param specID the specification identifier of the case.
      * @param caseID the case identifier.
@@ -154,8 +96,7 @@ public abstract class AbstractExternalDBGateway {
      * @param updatingData the datalist from which the corresponding database values are
      * to be updated.
      */
-    public abstract void updateFromCaseData(YSpecificationID specID,
-                                            String caseID,
+    void updateFromCaseData(YSpecificationID specID,String caseID,
                                             List<YParameter> outputParams,
                                             Element updatingData) ;
 

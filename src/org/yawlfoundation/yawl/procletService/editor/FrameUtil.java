@@ -18,12 +18,12 @@
 
 package org.yawlfoundation.yawl.procletService.editor;
 
-import java.util.*;
-import java.util.List;
-
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class FrameUtil {
 
@@ -118,7 +118,7 @@ public class FrameUtil {
    * @return Object
    */
   public static Object[] getSelecetdAllList(JList anJList) {
-    return anJList.getSelectedValues();
+    return anJList.getSelectedValuesList().toArray();
   }
 
   public static int indexList(JList list, Object object) {
@@ -179,7 +179,7 @@ public class FrameUtil {
    */
   protected static Object[] getSelectedMultipleList(JList anJList) {
     Object[] el = null;
-    el = anJList.getSelectedValues();
+    el = anJList.getSelectedValuesList().toArray();
     return el;
   }
 

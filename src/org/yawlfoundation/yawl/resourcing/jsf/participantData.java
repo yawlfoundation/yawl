@@ -737,11 +737,11 @@ public class participantData extends AbstractPageBean {
     private void saveChanges(Participant p) {
 
         // update fields     
-        p.setFirstName((String) txtFirstName.getText());
-        p.setLastName((String) txtLastName.getText());
-        p.setUserID((String) txtUserID.getText());
-        p.setDescription((String) txtDesc.getText());
-        p.setNotes((String) txtNotes.getText());
+        p.setFirstName(_sb.stripXMLChars((String) txtFirstName.getText()));
+        p.setLastName(_sb.stripXMLChars((String) txtLastName.getText()));
+        p.setUserID(_sb.stripXMLChars((String) txtUserID.getText()));
+        p.setDescription(_sb.stripXMLChars((String) txtDesc.getText()));
+        p.setNotes(_sb.stripXMLChars((String) txtNotes.getText()));
         p.setAdministrator((Boolean) cbxAdmin.getValue());
 
         // only change password if a new one is entered and after its been validated

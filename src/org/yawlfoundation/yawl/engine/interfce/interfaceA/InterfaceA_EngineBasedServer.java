@@ -74,6 +74,7 @@ public class InterfaceA_EngineBasedServer extends YHttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if ("HEAD".equals(request.getMethod())) return;
         doPost(request, response);                       // all gets redirected as posts
     }
 
@@ -218,14 +219,12 @@ public class InterfaceA_EngineBasedServer extends YHttpServlet {
 
     private void debug(HttpServletRequest request, String service) {
         if (logger.isDebugEnabled()) {
-            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.getRequestURL={}",
-                    service, request.getRequestURL());
-            logger.debug("\nInterfaceA_EngineBasedServer::do{}() request.parameters:",
-                    service);
+            logger.debug("do{}() request.getRequestURL={}", service, request.getRequestURL());
+            logger.debug("do{}() request.parameters:", service);
             Enumeration paramNms = request.getParameterNames();
             while (paramNms.hasMoreElements()) {
                 String name = (String) paramNms.nextElement();
-                logger.debug("\trequest.getParameter({}) = {}", name,request.getParameter(name));
+                logger.debug("request.getParameter({}) = {}", name,request.getParameter(name));
             }
         }
     }

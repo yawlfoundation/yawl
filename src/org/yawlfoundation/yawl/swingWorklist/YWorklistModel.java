@@ -478,7 +478,7 @@ class UserInputValidationErrorBox extends JDialog implements ActionListener {
         Dimension labelSize = this.getSize();
         setLocation(screenWidth.intValue() / 2 - (labelSize.width / 2),
                     screenHeight.intValue() / 2 - (labelSize.height / 2));
-        show();
+        setVisible(true);
     }
 
     private void this_windowClosing() {
@@ -716,7 +716,7 @@ class SpecificationQueryProcessingValidationErrorBox extends JDialog implements 
         Dimension labelSize = this.getSize();
         setLocation(screenWidth.intValue() / 2 - (labelSize.width / 2),
                     screenHeight.intValue() / 2 - (labelSize.height / 2));
-        show();
+        setVisible(true);
     }
 
     private void this_windowClosing() {

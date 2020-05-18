@@ -2741,6 +2741,7 @@
                      includes="IBControllerCache.class
                                InterfaceB_EnvironmentBasedClient.class
                                InterfaceB_EnvironmentBasedServer.class
+                               InterfaceB_EnvironmentBasedServer$EventHandler.class
                                InterfaceBWebsideController.class"/>
         </copy>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes/${packageRoot}/exceptions">
@@ -2770,7 +2771,7 @@
         <copy todir="${temp.dir}/demoService/WEB-INF"
               file="${build.dir}/demoService/web.xml"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/classes"
-              file="${properties.dir}/log4j.properties"/>
+              file="${classes.dir}/log4j2.xml"/>
         <copy todir="${temp.dir}/demoService/WEB-INF/lib">
             <fileset dir="${lib.dir}"
                      includes="${jdom} ${commonsCodec} ${xerces} log4j*"/>

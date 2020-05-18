@@ -232,6 +232,7 @@ public class YAnnouncer {
      */
     protected void announceCaseCompletion(YAWLServiceReference service,
                                           YIdentifier caseID, Document caseData) {
+        _logger.debug("Announcing case '{}' complete.", caseID.toString());
         if (service == null) {
             _controller.notifyCaseCompletion(_engine.getYAWLServices(), caseID, caseData);
         }
@@ -280,7 +281,7 @@ public class YAnnouncer {
      * @param announcements A set of work item enabling or cancellation events
      */
     protected void announceToGateways(Set<YAnnouncement> announcements) {
-        if (announcements != null) {
+        if (! (announcements == null || announcements.isEmpty())) {
             _logger.debug("Announcing {} events.", announcements.size());
             _controller.announce(announcements);
         }

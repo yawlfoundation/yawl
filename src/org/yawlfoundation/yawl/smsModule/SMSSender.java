@@ -267,7 +267,7 @@ public class SMSSender extends InterfaceBWebsideController implements Runnable {
                             inter._caseDataBoundForEngine.addContent(smsReplyMessage);
                             String result = checkInWorkItem(inter._workItemRecord.getID(),
                                     inter._workItemRecord.getDataList(),
-                                    inter._caseDataBoundForEngine,
+                                    inter._caseDataBoundForEngine, null,
                                     _sessionHandle);
                             _logger.info("result of work item checkin = " + result);
                         }

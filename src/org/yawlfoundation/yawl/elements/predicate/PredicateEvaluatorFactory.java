@@ -18,13 +18,7 @@
 
 package org.yawlfoundation.yawl.elements.predicate;
 
-import org.apache.logging.log4j.Logger;
-import org.yawlfoundation.yawl.elements.data.external.AbstractExternalDBGateway;
 import org.yawlfoundation.yawl.util.PluginLoaderUtil;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 

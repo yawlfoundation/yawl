@@ -378,7 +378,7 @@ public class YWorklistGUI extends JPanel implements ActionListener, ListSelectio
             c.add(addInstanceButton, BorderLayout.SOUTH);
             setSize(700, 500);
             setLocation(150, 50);
-            show();
+            setVisible(true);
         }
 
         /**
