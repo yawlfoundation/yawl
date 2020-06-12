@@ -725,18 +725,16 @@ public class YLogServer {
 
 
     public String getSpecificationXESLog(YSpecificationID specid, boolean withData) {
-        _log.info("XES #getSpecificationXESLog: begins ->");
-        _log.info("XES #getSpecificationXESLog: case data gathering begins");
+        return getSpecificationXESLog(specid, withData, false);
+    }
 
+
+    public String getSpecificationXESLog(YSpecificationID specid, boolean withData,
+                                         boolean ignoreUnknownEventLabels) {
         XNode cases = getXESLog(specid, withData);
 
-        _log.info("XES #getSpecificationXESLog: case data gathering ends, build XES begins");
-
         if (cases != null) {
-            String s =  new YXESBuilder().buildLog(specid, cases);
-            _log.info("XES #getSpecificationXESLog: build XES ends");
-            _log.info("XES #getSpecificationXESLog: -> ends");
-            return s;
+            return new YXESBuilder(ignoreUnknownEventLabels).buildLog(specid, cases);
         }
         return "<failure>No records for specification '" +
                             specid.toString() + "'.</failure>";

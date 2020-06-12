@@ -38,21 +38,20 @@ import java.util.Map;
  */
 public class YXESBuilder {
 
+    private boolean _ignoreUnknownEvents = false;
     Logger _log = LogManager.getLogger(this.getClass());
 
     public YXESBuilder() { }
 
+    public YXESBuilder(boolean ignoreUnknownEvents) {
+        _ignoreUnknownEvents = ignoreUnknownEvents;
+    }
+
     public String buildLog(YSpecificationID specid, XNode events) {
         if (events != null) {
-            _log.info("XES #buildLog: begins ->");
             XNode root = beginLogOutput(specid);
-            _log.info("XES #buildLog: XES headers written, processing events begins");
             processEvents(root, events);
-            _log.info("XES #buildLog: processing events ends, converting to string begins");
-            String s = root.toPrettyString(true);
-            _log.info("XES #buildLog: converting to string ends");
-            _log.info("XES #buildLog: -> ends");
-            return s;
+            return root.toPrettyString(true);
         }
         return null;
     }
@@ -372,11 +371,15 @@ public class YXESBuilder {
         String instanceID = taskInstance.getChildText("engineinstanceid");
         XNode dataChanges = extractDataChangeEvents(taskInstance);
         for (XNode event : taskInstance.getChildren("event")) {
-            if (!getDescriptor(event).equals("DataValueChange")) {
+            String descriptor = getDescriptor(event);
+            if (_ignoreUnknownEvents && "unknown".equals(descriptor)) {
+                continue;
+            }
+            if (!descriptor.equals("DataValueChange")) {
                 XNode node = eventNode(event, taskName, instanceID);
-                if (getDescriptor(event).equals("Executing")) {
+                if (descriptor.equals("Executing")) {
                     addDataEvents(node, dataChanges.getChild("input"));
-                } else if (getDescriptor(event).equals("Complete")) {
+                } else if (descriptor.equals("Complete")) {
                     addDataEvents(node, dataChanges.getChild("output"));
                 }
                 trace.addChild(node);

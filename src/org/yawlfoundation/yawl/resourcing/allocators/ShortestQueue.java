@@ -61,10 +61,11 @@ public class ShortestQueue extends AbstractAllocator {
         int qSize ;
         Participant result = null ;
         for (Participant p : resSet) {
-            if (p.getWorkQueues() != null)
-                qSize = p.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED) ;
-            else
-                qSize = 0 ;
+            if (p.getWorkQueues() != null) {
+                qSize = p.getWorkQueues().getQueueSize(WorkQueue.ALLOCATED) +
+                        p.getWorkQueues().getQueueSize(WorkQueue.STARTED);
+            }
+            else qSize = 0 ;
             if (qSize < shortest) {
                 shortest = qSize;
                 result = p ;

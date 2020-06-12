@@ -41,6 +41,7 @@ public class SpecHistory {
             " WHERE e.instanceID = ti.taskInstanceID" +
             " AND t.taskID = ti.taskID"+
             " AND e.rootNetInstanceID = ni.netInstanceID" +
+            " AND NOT e.descriptor in ('CaseStart','CaseComplete', 'NetStart', 'NetComplete')" +
             " AND ni.netID = (:id)";
 
     private static final String DATA_QUERY = "select di,dt" +

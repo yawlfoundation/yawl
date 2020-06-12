@@ -185,8 +185,10 @@ public class YLogGateway extends HttpServlet {
                 else if (action.equals("getSpecificationXESLog")) {
                     YSpecificationID specID = getSpecificationID(req);
                     String withDataStr = req.getParameter("withdata");
+                    String ignoreUnknownsStr = req.getParameter("ignoreUnknowns");
                     boolean withData = (withDataStr != null) && withDataStr.equalsIgnoreCase("true");
-                    result = _logSvr.getSpecificationXESLog(specID, withData);
+                    boolean ignoreUnknowns = (ignoreUnknownsStr != null) && ignoreUnknownsStr.equalsIgnoreCase("true");
+                    result = _logSvr.getSpecificationXESLog(specID, withData, ignoreUnknowns);
                 }
                 if (isLocalTransaction) _logSvr.commitTransaction();
             }

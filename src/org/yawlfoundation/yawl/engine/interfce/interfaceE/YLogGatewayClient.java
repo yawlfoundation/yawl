@@ -472,6 +472,33 @@ public class YLogGatewayClient extends Interface_Client {
      * @param version the specification's version number
      * @param uri the specification's uri
      * @param withData if true, all data change events will be included
+     * @param ignoreUnknownEventLabels if true, all data events with descriptor 'unknown'
+     *                                 will NOT be included
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see #getSpecificationXESLog(YSpecificationID, boolean, String)
+     */
+    public String getSpecificationXESLog(String identifier, String version,
+                        String uri, boolean withData, boolean ignoreUnknownEventLabels,
+                                         String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
+        params.put("identifier", identifier);
+        params.put("version", version);
+        params.put("uri", uri);
+        params.put("withdata", String.valueOf(withData));
+        params.put("ignoreUnknowns", String.valueOf(ignoreUnknownEventLabels));
+        return executeGet(_logURI, params);
+    }
+
+
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param identifier the unique identifier of the specification
+     * @param version the specification's version number
+     * @param uri the specification's uri
+     * @param withData if true, all data change events will be included
      * @param handle an active sessionhandle
      * @return the resultant String response (log data or error message)
      * @throws java.io.IOException if there's a problem connecting to the engine
@@ -479,13 +506,9 @@ public class YLogGatewayClient extends Interface_Client {
      */
     public String getSpecificationXESLog(String identifier, String version,
                         String uri, boolean withData, String handle) throws IOException {
-        Map<String, String> params = prepareParamMap("getSpecificationXESLog", handle);
-        params.put("identifier", identifier);
-        params.put("version", version);
-        params.put("uri", uri);
-        params.put("withdata", String.valueOf(withData));
-        return executeGet(_logURI, params);
+        return  getSpecificationXESLog(identifier, version, uri, withData, false, handle);
     }
+
 
 
     /**
