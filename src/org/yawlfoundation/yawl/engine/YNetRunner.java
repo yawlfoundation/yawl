@@ -829,7 +829,7 @@ public class YNetRunner {
                                             dataDoc);
 
                                 _logger.debug("YNetRunner::completeTask() finished local task: {}," +
-                                        " composite task: {}, caseid for decomposed net: {}" +
+                                        " composite task: {}, caseid for decomposed net: {}",
                                         atomicTask, _containingCompositeTask, _caseIDForNet);
                             }
                         }

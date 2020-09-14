@@ -942,6 +942,7 @@
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
                deprecation="true" verbose="false" includeantruntime="true"
+               excludes="org/yawlfoundation/yawl/stateless/**"
                encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>

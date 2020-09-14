@@ -2504,7 +2504,7 @@ public class SessionBean extends AbstractSessionBean {
     public void setCalMgtMinDate(Date date) { calMgtMinDate = date; }
 
 
-    private Date calMgtMaxDate = createDate("2020-01-01");
+    private Date calMgtMaxDate = createDate("2030-01-01");
 
     public Date getCalMgtMaxDate() { return calMgtMaxDate; }
 
