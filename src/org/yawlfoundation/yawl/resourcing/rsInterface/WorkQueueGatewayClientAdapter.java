@@ -18,6 +18,7 @@
 
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
+import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.data.YParameter;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
@@ -564,6 +565,19 @@ public class WorkQueueGatewayClientAdapter {
                 service.getPassword(), service.getDocumentation(), service.isAssignable(),
                 handle);
     }
+
+
+    public String removeExternalClient(String id, String handle) throws IOException {
+        return _wqclient.removeExternalClient(id, handle);
+    }
+
+
+    public String addExternalClient(YExternalClient client, String handle)
+            throws IOException {
+        return _wqclient.addExternalClient(client.getUserName(),
+                client.getPassword(), client.getDocumentation(),  handle);
+    }
+
 
 
     public boolean addResourceEventListener(String uri, String handle) throws IOException {

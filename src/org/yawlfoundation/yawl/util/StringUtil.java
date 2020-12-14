@@ -697,12 +697,12 @@ public class StringUtil {
     }
 
 
-    public static String join(List<String> strList, char separator) {
-        if (strList == null || strList.isEmpty()) return "";
-        if (strList.size() == 1) return strList.get(0);
+    public static String join(List<?> list, char separator) {
+        if (list == null || list.isEmpty()) return "";
+        if (list.size() == 1) return list.get(0).toString();
         StringBuilder sb = new StringBuilder();
-        for (String s : strList) {
-            if (sb.length() > 0) sb.append(separator);
+        for (Object s : list) {
+            if (sb.length() > 0) sb.append(separator);     
             sb.append(s);
         }
         return sb.toString();

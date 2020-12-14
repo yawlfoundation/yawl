@@ -1064,13 +1064,17 @@ public class EngineGatewayImpl implements EngineGateway {
             e.printStackTrace();
             return failureMessage(e.getMessage());
         }
-
-        String result = ! (uploadedList == null || uploadedList.isEmpty()) ? SUCCESS :
-                failureMessage("Upload failed: invalid specification");
-        if (verificationHandler.hasMessages()) {
-            result = failureMessage(verificationHandler.getMessagesXML());
+        if (uploadedList == null || uploadedList.isEmpty()) {
+            return failureMessage("Upload failed: invalid specification.");
         }
-        return result;
+
+        XNode uploadRoot = new XNode("upload");
+        XNode specNode = uploadRoot.addChild("specifications");
+        for (YSpecificationID id : uploadedList) {
+            specNode.addChild(id.toXNode());
+        }
+        uploadRoot.addContent(verificationHandler.getMessagesXML());
+        return uploadRoot.toString();
     }
 
 

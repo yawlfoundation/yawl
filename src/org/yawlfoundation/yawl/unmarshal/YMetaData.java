@@ -19,12 +19,13 @@
 package org.yawlfoundation.yawl.unmarshal;
 
 import org.yawlfoundation.yawl.elements.YSpecVersion;
-import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Holds the Specification Metadata
@@ -38,7 +39,7 @@ import java.util.*;
 public class YMetaData {
 
   	static final String INITIAL_VERSION = "0.1";
-    static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
     private String title;
     private List<String> creators = new ArrayList<String>();

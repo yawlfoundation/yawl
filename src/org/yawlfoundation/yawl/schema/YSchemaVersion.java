@@ -18,7 +18,7 @@
 
 package org.yawlfoundation.yawl.schema;
 
-import org.apache.commons.lang.StringUtils;
+import org.yawlfoundation.yawl.util.StringUtil;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -184,7 +184,7 @@ public enum YSchemaVersion {
     }
 
     private String toCompactString() {
-        return StringUtils.deleteWhitespace(toString());
+        return StringUtil.removeAllWhiteSpace(toString());
     }
 
 }

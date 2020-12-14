@@ -574,6 +574,21 @@ public class WorkQueueGatewayClient extends Interface_Client {
         return executePost(_serviceURI, params);
     }
 
+    public String removeExternalClient(String id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeExternalClient", handle);
+        params.put("name", id);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String addExternalClient(String name, String password, String doco, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addExternalClient", handle);
+        params.put("name", name);
+        params.put("password", password);
+        params.put("doco", doco);
+        return executePost(_serviceURI, params);
+    }
 
     public String addResourceEventListener(String uri, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("addResourceEventListener", handle);

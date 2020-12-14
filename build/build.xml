@@ -942,7 +942,6 @@
     <target name="compile" depends="init, configureDatabaseAccess">
         <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}"
                deprecation="true" verbose="false" includeantruntime="true"
-               excludes="org/yawlfoundation/yawl/stateless/**"
                encoding="UTF-8">
             <classpath refid="cp.standard"/>
             <classpath refid="cp.compile"/>
@@ -2784,6 +2783,65 @@
         <delete dir="${temp.dir}/demoService"/>
 
     </target>
+
+
+    <target name="build_stateless.jar" depends="compile">
+        <tstamp/>
+        <copy todir="${classes.dir}${packageRoot}/unmarshal"
+              file="${src.dir}${packageRoot}/stateless/unmarshal/YAWL_Schema4.0.xsd"/>
+        <jar destfile="${output.dir}/yawlstateless-${app.version}.jar"
+             basedir="${classes.dir}"
+             includes="org/yawlfoundation/yawl/stateless/**/*
+                       org/yawlfoundation/yawl/unmarshal/YAWL_Schema4.0.xsd
+                       org/yawlfoundation/yawl/unmarshal/YMetaData.class
+                       org/yawlfoundation/yawl/util/StringUtil.class
+                       org/yawlfoundation/yawl/util/XNode*.class
+                       org/yawlfoundation/yawl/authentication/YClient.class
+                       org/yawlfoundation/yawl/elements/YSpecVersion.class
+                       org/yawlfoundation/yawl/elements/YAttributeMap.class
+                       org/yawlfoundation/yawl/elements/YVerifiable.class
+                       org/yawlfoundation/yawl/elements/YNetElement.class
+                       org/yawlfoundation/yawl/elements/e2wfoj/*
+                       org/yawlfoundation/yawl/engine/YSpecificationID.class
+                       org/yawlfoundation/yawl/engine/YNetData.class
+                       org/yawlfoundation/yawl/engine/time/YTimedObject.class
+                       org/yawlfoundation/yawl/engine/time/YTimer.class
+                       org/yawlfoundation/yawl/engine/YWorkItemStatus.class
+                       org/yawlfoundation/yawl/engine/WorkItemCompletion.class
+                       org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
+                       org/yawlfoundation/yawl/schema/XSDType.class
+                       org/yawlfoundation/yawl/schema/YSchemaVersion*.class
+                       org/yawlfoundation/yawl/schema/internal/YInternalType.class
+                       org/yawlfoundation/yawl/schema/ErrorHandler.class
+                       org/yawlfoundation/yawl/schema/SchemaHandler.class
+                       org/yawlfoundation/yawl/exceptions/YAWLException.class
+                       org/yawlfoundation/yawl/exceptions/YDataStateException.class
+                       org/yawlfoundation/yawl/exceptions/YDataQueryException.class
+                       org/yawlfoundation/yawl/exceptions/YEngineStateException.class
+                       org/yawlfoundation/yawl/exceptions/YQueryException.class
+                       org/yawlfoundation/yawl/exceptions/YStateException.class
+                       org/yawlfoundation/yawl/exceptions/YDataValidationException.class
+                       org/yawlfoundation/yawl/exceptions/YSyntaxException.class
+                       org/yawlfoundation/yawl/logging/YLogDataItem.class
+                       org/yawlfoundation/yawl/logging/YLogDataItemList.class
+                       org/yawlfoundation/yawl/util/DynamicValue.class
+                       org/yawlfoundation/yawl/util/JDOMUtil.class
+                       org/yawlfoundation/yawl/util/YNetElementDocoParser.class
+                       org/yawlfoundation/yawl/util/SaxonErrorListener.class
+                       org/yawlfoundation/yawl/util/PluginLoaderUtil.class
+                       org/yawlfoundation/yawl/util/YVerificationHandler.class
+                       org/yawlfoundation/yawl/util/YBuildProperties.class
+                       org/yawlfoundation/yawl/util/YPredicateParser.class
+                       org/yawlfoundation/yawl/util/DOMUtil.class"
+            excludes="org/yawlfoundation/yawl/elements/e2wfoj/E2WFOJNet.class">
+            <manifest>
+                <attribute name="Created-By" value="The YAWL Foundation"/>
+                <attribute name="Implementation-Version"
+                           value="${app.version} ${TODAY}"/>
+            </manifest>
+        </jar>
+    </target>
+
 
     <!-- ==================DEPLOYMENT RELATED TARGETS====================== -->
 
