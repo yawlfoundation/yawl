@@ -44,7 +44,8 @@ public class CharsetFilter implements Filter {
 
         // security check: suppress stack trace if faces path browsed
         String requestURI = ((HttpServletRequest) request).getRequestURI();
-        if (requestURI != null && requestURI.endsWith("/faces/")) {
+        if (requestURI != null && 
+                requestURI.contains("/faces/") && requestURI.endsWith("/")) {
             ((HttpServletRequest) request).getSession();
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

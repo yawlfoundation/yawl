@@ -138,7 +138,7 @@
             <file name="mysql-connector-java-5.1.22-bin.jar" path="A"/>
             <file name="ojdbc6_9.jar" path="A"/>
             <file name="orderfulfillment.jar" path="A"/>
-            <file name="postgresql-9.4.1207.jre6.jar" path="A"/>
+            <file name="postgresql-42.2.8.jar" path="A"/>
             <file name="rowset.jar" path="A"/>
             <file name="saaj.jar" path="A"/>
             <file name="saxon9-dom.jar" path="A"/>
