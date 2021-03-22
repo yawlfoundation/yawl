@@ -423,8 +423,8 @@ public final class E2WFOJNet {
       for (Iterator iterT = restrictedTrans.iterator();iterT.hasNext();)
       { RTransition t = (RTransition) iterT.next(); 
         if (t.isCancelTransition())
-        { Set removeSet = new HashSet(t.getRemoveSet());
-           removeSet.retainAll(restrictedPlaces);
+        {
+            t.getRemoveSet().retainAll(restrictedPlaces);  // getRemoveSet() guaranteed not null
         }
          
      //Change F remove postset places that are not in P'
