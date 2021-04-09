@@ -171,6 +171,19 @@ public class InterfaceA_EngineBasedServer extends YHttpServlet {
                 else if ("getExternalDBGateways".equals(action)) {
                     msg.append(_engine.getExternalDBGateways(sessionHandle));
                 }
+                else if ("reannounceEnabledWorkItems".equals(action)) {
+                    msg.append(_engine.reannounceEnabledWorkItems(sessionHandle));
+                }
+                else if ("reannounceExecutingWorkItems".equals(action)) {
+                     msg.append(_engine.reannounceExecutingWorkItems(sessionHandle));
+                 }
+                else if ("reannounceFiredWorkItems".equals(action)) {
+                     msg.append(_engine.reannounceFiredWorkItems(sessionHandle));
+                 }
+                else if ("reannounceWorkItem".equals(action)) {
+                     String itemID = request.getParameter("id");
+                     msg.append(_engine.reannounceWorkItem(itemID, sessionHandle));
+                 }
                 else if ("unload".equals(action)) {
                     String specIdentifier = request.getParameter("specidentifier");
                     String version = request.getParameter("specversion");

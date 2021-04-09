@@ -374,6 +374,50 @@ public class InterfaceA_EnvironmentBasedClient extends Interface_Client {
         return executePost(_backEndURIStr, params);
     }
 
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "enabled" state.<P>
+     *
+     * @return The number of enabled workitems that were reannounced
+     */
+    public String reannounceEnabledWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceEnabledWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "executing" state.<P>
+     *
+     * @return The number of executing workitems that were reannounced
+     */
+    public String reannounceExecutingWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceExecutingWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce all workitems which are in an "fired" state.<P>
+     *
+     * @return The number of fired workitems that were reannounced
+     */
+    public String reannounceFiredWorkItems(String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceFiredWorkItems", sessionHandle);
+        return executeGet(_backEndURIStr, params);
+    }
+
+    /**
+     * Causes the engine to re-announce a specific workitem in one of the following states:
+     * <li>Enabled
+     * <li>Executing
+     * <li>Fired
+     */
+    public String reannounceWorkItem(String itemID, String sessionHandle) throws IOException {
+        Map<String, String> params = prepareParamMap("reannounceWorkItem", sessionHandle);
+        params.put("id", itemID);
+        return executeGet(_backEndURIStr, params);
+    }
+
+
     public String getBuildProperties(String sessionHandle) throws IOException {
         Map<String, String> params = prepareParamMap("getBuildProperties", sessionHandle);
         return executeGet(_backEndURIStr, params);

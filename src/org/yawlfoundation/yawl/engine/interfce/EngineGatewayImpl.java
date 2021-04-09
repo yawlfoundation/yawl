@@ -1717,4 +1717,66 @@ public class EngineGatewayImpl implements EngineGateway {
         }
     }
 
+
+    @Override
+    public String reannounceEnabledWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceEnabledWorkItems();
+            return successMessage(count + " enabled work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceExecutingWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceExecutingWorkItems();
+            return successMessage(count + " executing work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceFiredWorkItems(String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            int count = _engine.reannounceFiredWorkItems();
+            return successMessage(count + " fired work items reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public String reannounceWorkItem(String itemID, String sessionHandle) {
+        String sessionMessage = checkSession(sessionHandle);
+        if (isFailureMessage(sessionMessage)) return sessionMessage;
+
+        try {
+            YWorkItem item = _engine.getWorkItem(itemID);
+            if (item == null) {
+                return failureMessage("Unknown work item: " + itemID);
+            }
+            _engine.reannounceWorkItem(item);
+            return successMessage("Work item' " + itemID + "' reannounced");
+        }
+        catch (YStateException e) {
+            return failureMessage(e.getMessage());
+        }
+    }
+
+
 }

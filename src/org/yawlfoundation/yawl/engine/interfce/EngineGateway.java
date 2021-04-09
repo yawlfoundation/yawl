@@ -241,4 +241,13 @@ public interface EngineGateway extends Remote {
     String isHibernateStatisticsEnabled(String sessionHandle);
 
     String getHibernateStatistics(String sessionHandle);
+
+    String reannounceEnabledWorkItems(String sessionHandle);
+
+    String reannounceExecutingWorkItems(String sessionHandle);
+
+    String reannounceFiredWorkItems(String sessionHandle);
+
+    String reannounceWorkItem(String itemID, String sessionHandle);
+
 }
