@@ -661,6 +661,8 @@
     <path id="cp.etc">
         <pathelement location="${lib.dir}/${twitter4j}"/>
         <pathelement location="${lib.dir}/${macify}"/>
+        <pathelement location="${lib.dir}/jolokia-client-java-1.2.3.jar"/>
+        <pathelement location="${lib.dir}/json-simple-1.1.1.jar"/>
     </path>
 
     <!--

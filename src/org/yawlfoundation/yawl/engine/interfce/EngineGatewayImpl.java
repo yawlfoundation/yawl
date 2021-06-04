@@ -1064,10 +1064,16 @@ public class EngineGatewayImpl implements EngineGateway {
             e.printStackTrace();
             return failureMessage(e.getMessage());
         }
-        if (uploadedList == null || uploadedList.isEmpty()) {
-            return failureMessage("Upload failed: invalid specification.");
+
+        if (verificationHandler.hasErrors()) {             // more detailed error msg
+            return failureMessage(verificationHandler.getMessagesXML());
         }
 
+        if (uploadedList == null || uploadedList.isEmpty()) {
+           return failureMessage("Upload failed: invalid specification.");
+        }
+
+        // all good
         XNode uploadRoot = new XNode("upload");
         XNode specNode = uploadRoot.addChild("specifications");
         for (YSpecificationID id : uploadedList) {

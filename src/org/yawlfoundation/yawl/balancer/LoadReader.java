@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class LoadReader {
 
-    private final JMXReader _jmxReader;
+    private JMXReader _jmxReader;
     private int _prevReqCount = 0;
     private double _prevProcTime = 0;
     private BusynessOutputter _outputter;
@@ -52,6 +52,8 @@ public class LoadReader {
         _jmxReader = new JMXReader(host, port);
         _engineName = host + ":" + port;
     }
+
+    public void setJMXReader(JMXReader reader) { _jmxReader = reader; }
 
 
     public double getBusyNess() throws IOException, JSONException {
@@ -111,6 +113,8 @@ public class LoadReader {
             verboseValues.put("requests_factor", String.format("%.3f", reqFactor));
             verboseValues.put("threads_factor", String.format("%.3f", threadFactor));
             verboseValues.put("busyness", String.format("%.3f", score));
+            verboseValues.put("process_time", String.format("%.3f", meanTime));
+            verboseValues.put("requests_count", String.format("%d", netReqCount));
             getOutputter().add(verboseValues);
 
             if (_arffWriter != null) {

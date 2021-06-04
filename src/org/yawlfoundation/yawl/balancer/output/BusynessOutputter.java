@@ -50,6 +50,10 @@ public class BusynessOutputter extends AbstractLoadOutputter {
         _out.write(',');
         _out.write(values.get("threads_factor"));
         _out.write(',');
+        _out.write(values.get("process_time"));
+        _out.write(',');
+        _out.write(values.get("requests_count"));
+        _out.write(',');
         _out.write(values.get("busyness"));
     }
 
@@ -57,7 +61,7 @@ public class BusynessOutputter extends AbstractLoadOutputter {
     protected String getHeader() {
         return "time,timestamp,cpu_process,cpu_system,thread_count," +
                "threads_busy,threads_free,process_time_factor,requests_factor," +
-               "threads_factor,busyness";
+               "threads_factor,process_time,requests_count,busyness";
     }
 
 
