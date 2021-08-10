@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.controlpanel.components;
 
-import org.simplericity.macify.eawt.DefaultApplication;
 import org.yawlfoundation.yawl.controlpanel.icons.IconLoader;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatus;
 import org.yawlfoundation.yawl.controlpanel.pubsub.EngineStatusListener;
@@ -26,9 +25,9 @@ import org.yawlfoundation.yawl.controlpanel.pubsub.Publisher;
 import org.yawlfoundation.yawl.controlpanel.util.EngineMonitor;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 
 /**
  * @author Michael Adams
@@ -37,12 +36,19 @@ import java.awt.image.BufferedImage;
 public class MacIcon implements ActionListener, EngineStatusListener {
 
     private final EngineMonitor _engineMonitor;
-    private static final DefaultApplication _macApp = new DefaultApplication();
+//    private DefaultApplication _macApp;
 
     private int _waitIndex;
 
 
     public MacIcon(EngineMonitor monitor) {
+//        try {
+//            _macApp = new DefaultApplication();
+//        }
+//        catch (Throwable e) {
+//            // forget it, must be running Java 9 or later on OS 11 or later
+//        }
+
         _engineMonitor = monitor;
         Publisher.addEngineStatusListener(this);
     }
@@ -67,8 +73,17 @@ public class MacIcon implements ActionListener, EngineStatusListener {
 
     private void setIcon(String name) {
         ImageIcon icon = IconLoader.get("Yawl" + name);
-        _macApp.setApplicationIconImage((BufferedImage) icon.getImage());
-    }
+//        if (_macApp != null) {
+//            _macApp.setApplicationIconImage((BufferedImage) icon.getImage());
+//        }
+//        else {    // running java 9 or later
+        try {
+            Taskbar.getTaskbar().setIconImage(icon.getImage());
+        }
+        catch (Exception e) {
+            // taskbar unsupported
+        }
+     }
 
 
     private void setWaiting(boolean start) {

@@ -46,11 +46,11 @@ import java.beans.PropertyChangeListener;
  */
 public class YControlPanel extends JFrame {
 
-    private EngineMonitor _engineMonitor;
+    private final EngineMonitor _engineMonitor;
     private JTabbedPane _tabbedPane;
     private ComponentsPane _componentsPane;
 
-    public static final String VERSION = "4.3.1";
+    public static final String VERSION = "4.5";
 
 
     public YControlPanel() {

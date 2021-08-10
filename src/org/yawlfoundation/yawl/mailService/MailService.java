@@ -19,7 +19,6 @@
 package org.yawlfoundation.yawl.mailService;
 
 import org.jdom2.Element;
-import org.simplejavamail.MailException;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.mailer.Mailer;
 import org.simplejavamail.mailer.config.TransportStrategy;
@@ -151,8 +150,9 @@ public class MailService extends InterfaceBWebsideController {
                     .sendMail(email);
             return "Mail successfully sent.";
         }
-        catch (MailException me) {
-            return me.getMessage();
+        catch (Exception e) {
+            _logger.error("Error sending mail.", e.getCause());
+            return e.getMessage();
         }
     }
 

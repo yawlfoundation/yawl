@@ -44,13 +44,12 @@ import java.io.IOException;
  */
 public class ToolBar extends JToolBar implements ActionListener, EngineStatusListener {
 
-    private static final String YAWL_URL = "http://www.yawlfoundation.org/";
-    private static final String EXAMPLES_URL = YAWL_URL + "pages/resources/examples.html";
-    private static final String MANUAL_URL = YAWL_URL + "manuals/YAWLUserManual4.1.pdf";
+    private static final String EXAMPLES_URL = "http://www.yawlfoundation.org/pages/resources/examples.html";
+    private static final String MANUAL_URL = "https://yawlfoundation.github.io/assets/files/YAWLUserManual4.3.pdf";
 
     private static final Dimension spacer = new Dimension(11,16);
 
-    private YControlPanel _mainWindow;
+    private final YControlPanel _mainWindow;
 
     private JButton _btnStart;
     private JButton _btnStop;

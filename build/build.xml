@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="4.3.1"/>
+    <property name="app.version" value="4.5"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -198,6 +198,8 @@
     <property name="hsql" value="hsqldb.jar"/>
     <!-- hbn -->
     <property name="jandex" value="jandex-1.1.0.Final.jar"/>
+    <!-- eng -->
+    <property name="jakarta-xml" value="jakarta.xml.bind-api-3.0.1.jar"/>
     <!-- dbd -->
     <property name="javaAssist" value="javassist-3.18.1-GA.jar"/>
     <!--off-->
@@ -465,7 +467,8 @@
 
     <property name="webapp_yawl.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs} ${xerces}
-                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}"/>
+                     ${dbClient} ${saxon.libs} ${commonsLang} ${commonsCodec} ${jaxen}
+                     ${jakarta-xml}"/>
 
     <property name="webapp_resourceService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
@@ -663,6 +666,7 @@
         <pathelement location="${lib.dir}/${macify}"/>
         <pathelement location="${lib.dir}/jolokia-client-java-1.2.3.jar"/>
         <pathelement location="${lib.dir}/json-simple-1.1.1.jar"/>
+        <pathelement location="${lib.dir}/${jakarta-xml}"/>
     </path>
 
     <!--
@@ -754,8 +758,8 @@
                      build_Standalone,
                      build_sourcecode,
                      build_YResourceServiceClient.jar,
-                     build_controlPanel.jar,
-                     javadoc">
+                     build_controlPanel.jar">
+
     </target>
 
     <!--
@@ -777,9 +781,9 @@
 
             <!-- titles, headers & footers -->
             <doctitle>
-                <![CDATA[<h1>YAWL Environment version 4.3</h1>]]></doctitle>
+                <![CDATA[<h1>YAWL Environment version 4.5</h1>]]></doctitle>
             <bottom>
-                <![CDATA[<i>Copyright &#169; 2004-2020 The YAWL Foundation.</i>]]></bottom>
+                <![CDATA[<i>Copyright &#169; 2004-2021 The YAWL Foundation.</i>]]></bottom>
 
             <!-- custom tags -->
             <tag name="date" scope="all" description="Created/Last Date:"/>
@@ -820,7 +824,7 @@
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
             <fileset dir="${lib.dir}"
-                     includes="${persistence.libs} ${xsd.libs} ${jdom}
+                     includes="${persistence.libs} ${xsd.libs} ${jdom} ${jakarta-xml}
                                ${saxon.libs} ${xerces} ${commonsLang} ${dbClient}
                                ${commonsCodec} ${jaxen} ${log4j.libs} ${junit}"
                      excludes="hibernate.cfg.xml"/>
@@ -2243,11 +2247,11 @@
         <jar destfile="${output.dir}/${mail.app.name}.war">
             <fileset dir="${temp.dir}/${mail.app.name}"/>
         </jar>
-        <checkSums rootdir="${basedir}" todir="${checksums.dir}"
-                   appname="${mail.app.name}"
-                   locations="${checksums.dir}/locations.xml"
-                   excludes="WEB-INF/lib/* classes/org/*
-                             log4j2.xml hibernate.properties"/>
+<!--        <checkSums rootdir="${basedir}" todir="${checksums.dir}"-->
+<!--                   appname="${mail.app.name}"-->
+<!--                   locations="${checksums.dir}/locations.xml"-->
+<!--                   excludes="WEB-INF/lib/* classes/org/*-->
+<!--                             log4j2.xml hibernate.properties"/>-->
 
         <antcall target="updateBuildProperties">
             <param name="target" value="${mail.app.name}"/>
