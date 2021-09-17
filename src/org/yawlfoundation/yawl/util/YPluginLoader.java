@@ -228,7 +228,7 @@ public class YPluginLoader extends URLClassLoader {
         if (pathStr == null || pathStr.isEmpty()) {
             return Collections.emptyList();
         }
-        return Arrays.asList(pathStr.replace('\\', '/').split(";"));
+        return Arrays.asList(pathStr.split(";"));
     }
 
 
