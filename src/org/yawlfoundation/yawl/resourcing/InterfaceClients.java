@@ -215,10 +215,11 @@ public class InterfaceClients extends AbstractEngineClient {
 
     // Interface E methods //
 
-    public String getEngineXESLog(YSpecificationID specID, boolean withData) {
+    public String getEngineXESLog(YSpecificationID specID, boolean withData,
+                                  boolean ignoreUnknownLabels) {
         try {
             return _interfaceEClient.getSpecificationXESLog(specID, withData,
-                                                     getSessionHandle());
+                    ignoreUnknownLabels, getSessionHandle());
         }
         catch (IOException ioe) {
             return null;

@@ -30,6 +30,7 @@ import org.yawlfoundation.yawl.util.XNodeParser;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ import java.util.Map;
  */
 public class YXESBuilder {
 
-    private boolean _ignoreUnknownEvents = false;
+    protected boolean _ignoreUnknownEvents = false;
     Logger _log = LogManager.getLogger(this.getClass());
 
     public YXESBuilder() { }
@@ -60,6 +61,7 @@ public class YXESBuilder {
     protected void processEvents(XNode root, XNode yawlEvents) {
         for (XNode yawlEvent : yawlEvents.getChildren()) {
             XNode trace = root.addChild(traceNode(yawlEvent.getAttributeValue("id")));
+            processCasePredicates(yawlEvent, trace);
             processCaseEvents(yawlEvent, trace);
             trace.sort(new XESTimestampComparator());
         }
@@ -205,12 +207,11 @@ public class YXESBuilder {
     }
 
 
-    private XNode eventNode(XNode yawlEvent, String taskName, String instanceID) {
+    private XNode eventNode(String timestamp, String taskName, String transition, String instanceID) {
         XNode eventNode = new XNode("event");
-        eventNode.addChild(dateNode("time:timestamp", yawlEvent.getChildText("timestamp")));
+        eventNode.addChild(dateNode("time:timestamp", timestamp));
         eventNode.addChild(stringNode("concept:name", taskName));
-        eventNode.addChild(stringNode("lifecycle:transition",
-                translateEvent(yawlEvent.getChildText("descriptor"))));
+        eventNode.addChild(stringNode("lifecycle:transition", transition));
         eventNode.addChild(stringNode("concept:instance", instanceID));
         return eventNode;
     }
@@ -358,6 +359,16 @@ public class YXESBuilder {
     }
 
 
+    private void processCasePredicates(XNode yawlEvent, XNode trace) {
+        List<XNode> predNodes = yawlEvent.getChildren("predicate");
+        for (XNode predNode : predNodes) {
+            String key = predNode.getChildText("key");
+            trace.addChild(stringNode(key, predNode.getChildText("value")));
+            yawlEvent.removeChild(predNode);
+        }
+    }
+
+
     private void processCaseEvents(XNode yawlEvent, XNode trace) {
         for (XNode netInstance : yawlEvent.getChildren()) {
             for (XNode taskInstance : netInstance.getChildren()) {
@@ -372,17 +383,31 @@ public class YXESBuilder {
         XNode dataChanges = extractDataChangeEvents(taskInstance);
         for (XNode event : taskInstance.getChildren("event")) {
             String descriptor = getDescriptor(event);
-            if (_ignoreUnknownEvents && "unknown".equals(descriptor)) {
-                continue;
-            }
             if (!descriptor.equals("DataValueChange")) {
-                XNode node = eventNode(event, taskName, instanceID);
+                String transition = translateEvent(descriptor);
+                if (_ignoreUnknownEvents && "unknown".equals(transition)) {
+                   continue;
+                }
+                String timestamp = event.getChildText("timestamp");
+                XNode node = eventNode(timestamp, taskName, transition, instanceID);
                 if (descriptor.equals("Executing")) {
                     addDataEvents(node, dataChanges.getChild("input"));
                 } else if (descriptor.equals("Complete")) {
                     addDataEvents(node, dataChanges.getChild("output"));
                 }
+                addLogPredicates(node, event.getChild("dataItems"));
                 trace.addChild(node);
+            }
+        }
+    }
+
+    private void addLogPredicates(XNode eventNode, XNode dataItems) {
+        if (dataItems != null) {
+            for (XNode item : dataItems.getChildren()) {
+                if ("Predicate".equals(item.getChildText("descriptor"))) {
+                    eventNode.addChild(formatDataNode("logpredicate",
+                            item.getChildText("value"), "string"));
+                }
             }
         }
     }
@@ -392,13 +417,32 @@ public class YXESBuilder {
         XNode node = new XNode("dataItems");
         XNode inputs = node.addChild("input");
         XNode outputs = node.addChild("output");
+
         for (XNode event : taskInstance.getChildren("event")) {
             if (getDescriptor(event).equals("DataValueChange")) {
                 XNode items = event.getChild("dataItems");
                 for (XNode item : items.getChildren()) {
-                    if (getDescriptor(item).startsWith("Input")) {
+                    String descriptor = getDescriptor(item);
+                    if (descriptor.startsWith("Input")) {
                         inputs.addChild(item);
-                    } else outputs.addChild(item);
+                    }
+                    else if (descriptor.startsWith("Output")) {
+                        outputs.addChild(item);
+                    }
+                    else if (descriptor.equals("Predicate")) {
+                        String name = item.getChildText("name");
+
+                        // reset name to generic key with var name attached
+                        item.getChild("name").setText(name.replaceFirst(".*(?=#)",
+                                "logpredicate"));
+
+                        if (name.startsWith("Start")) {
+                            inputs.addChild(item);
+                        }
+                        else if (name.startsWith("Completion")){
+                            outputs.addChild(item);
+                        }
+                    }
                 }
             }
         }

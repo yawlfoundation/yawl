@@ -51,12 +51,12 @@ public class EventLogger {
             Runtime.getRuntime().availableProcessors());
 
 
-    public static enum event { offer, allocate, start, suspend, deallocate, delegate,
+    public enum event { offer, allocate, start, suspend, deallocate, delegate,
         reallocate_stateless, reallocate_stateful, skip, pile, cancel, chain, complete,
         unoffer, unchain, unpile, resume, timer_expired, launch_case, cancel_case,
         cancelled_by_case, busy, released, autotask_start, autotask_complete }
 
-    public static enum audit { logon, logoff, invalid, unknown, shutdown, expired,
+    public enum audit { logon, logoff, invalid, unknown, shutdown, expired,
         gwlogon, gwlogoff, gwinvalid, gwunknown, gwexpired }
 
 

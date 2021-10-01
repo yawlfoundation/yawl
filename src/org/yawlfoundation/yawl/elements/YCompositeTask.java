@@ -147,7 +147,7 @@ public final class YCompositeTask extends YTask {
             String predicate = logPredicate.getParsedStartPredicate(_decompositionPrototype);
             if (predicate != null) {
                 logData = new YLogDataItemList(new YLogDataItem("Predicate",
-                             "OnStart", predicate, "string"));
+                             "OnNetStart", predicate, "string"));
             }
         }
         YEventLogger.getInstance().logSubNetCreated(specID, netRunner,

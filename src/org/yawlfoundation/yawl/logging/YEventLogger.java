@@ -83,6 +83,7 @@ public class YEventLogger {
     private YEngine _engine;
     private HibernateEngine _db;
 
+    private static final Object TASK_INST_MUTEX = new Object();
     private final YEventKeyCache _keyCache = new YEventKeyCache();
 
     private static final Class[] LOG_CLASSES = {
@@ -298,17 +299,11 @@ public class YEventLogger {
     public void logWorkItemEvent(final YWorkItem workItem, final String eventName,
                                  final YLogDataItemList datalist) {
         if (loggingEnabled()) {
-            _executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    long taskInstanceID = YEventLogger.this.getTaskInstanceID(workItem);
-                    if (taskInstanceID < 0) {
-                        taskInstanceID = YEventLogger.this.insertTaskInstance(workItem);
-                    }
-                    YEventLogger.this.logEvent(taskInstanceID, eventName, datalist,
-                            YEventLogger.this.getServiceID(workItem),
-                            YEventLogger.this.getRootNetInstanceID(workItem.getCaseID()));
-                }
+            _executor.execute(() -> {
+                long taskInstanceID = YEventLogger.this.getOrCreateTaskInstanceID(workItem);
+                YEventLogger.this.logEvent(taskInstanceID, eventName, datalist,
+                        YEventLogger.this.getServiceID(workItem),
+                        YEventLogger.this.getRootNetInstanceID(workItem.getCaseID()));
             });
         }
     }
@@ -322,13 +317,13 @@ public class YEventLogger {
      */
     public void logWorkItemEvent(final YWorkItem workItem,
                                  final YWorkItemStatus event, final YLogDataItemList datalist) {
-        _executor.execute(new Runnable() {
-            @Override
-            public void run() {
+//        _executor.execute(new Runnable() {
+//            @Override
+//            public void run() {
                 String eventName = event.equals(statusIsParent) ? "Decompose" : event.toString();
-                YEventLogger.this.logWorkItemEvent(workItem, eventName, datalist);
-            }
-        });
+                logWorkItemEvent(workItem, eventName, datalist);
+//            }
+//        });
     }
 
 
@@ -344,7 +339,7 @@ public class YEventLogger {
             _executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    long instanceID = YEventLogger.this.getTaskInstanceID(workitem);
+                    long instanceID = YEventLogger.this.getOrCreateTaskInstanceID(workitem);
                     YEventLogger.this.populateDataListSchemas(workitem.getSpecificationID(), datalist);
                     YEventLogger.this.logEvent(instanceID, descriptor, datalist, -1,
                             YEventLogger.this.getRootNetInstanceID(workitem.getCaseID()));
@@ -539,6 +534,16 @@ public class YEventLogger {
         return result;
     }
 
+
+    private long getOrCreateTaskInstanceID(YWorkItem workItem) {
+        synchronized (TASK_INST_MUTEX) {
+            long taskInstanceID = getTaskInstanceID(workItem);
+            if (taskInstanceID < 0) {
+                taskInstanceID = insertTaskInstance(workItem);
+            }
+            return taskInstanceID;
+        }
+    }
 
     /**
      * Gets the (primary key) id for a task instance

@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -44,7 +45,9 @@ import java.util.*;
 public class LogMiner {
 
     private static LogMiner _me ;
-    private Persister _reader ;
+    private final Persister _reader ;
+    private boolean _replaceResourceIdsWithUserIds;
+    private boolean _ignoreUnknownXesEvents;
 
     // some error messages
     private static final String _exErrStr = "<failure>Unable to retrieve data.</failure>";
@@ -64,6 +67,16 @@ public class LogMiner {
     public static LogMiner getInstance() {
         if (_me == null) _me = new LogMiner();
         return _me ;
+    }
+
+
+    // used for XES logs only
+    public void setReplaceResourceIdsWithUserIds(boolean b) {
+        _replaceResourceIdsWithUserIds = b;
+    }
+
+    public void setIgnoreUnknownEventsInXesLogs(boolean b) {
+        _ignoreUnknownXesEvents = b;
     }
 
 
@@ -353,7 +366,7 @@ public class LogMiner {
     public String getSpecificationXESLog(YSpecificationID specid) {
         XNode cases = getXESLog(specid);
         if (cases != null) {
-            return new ResourceXESLog().buildLog(specid, cases);
+            return new ResourceXESLog(_ignoreUnknownXesEvents).buildLog(specid, cases);
         }
         return "";
     }
@@ -373,12 +386,13 @@ public class LogMiner {
 
         logger.info("XES #getMergedXESLog: resource log generation ends, engine log requested");
 
-        String engCases = ResourceManager.getInstance().getClients().getEngineXESLog(specid, withData);
+        String engCases = ResourceManager.getInstance().getClients()
+                .getEngineXESLog(specid, withData, _ignoreUnknownXesEvents);
 
         logger.info("XES #getMergedXESLog: engine log returned, merge logs begins");
 
         if ((rsCases != null) && (engCases != null)) {
-            String log = new ResourceXESLog().mergeLogs(rsCases, engCases);
+            String log = new ResourceXESLog(_ignoreUnknownXesEvents).mergeLogs(rsCases, engCases);
             logger.info("XES #getMergedXESLog: merge logs ends");
             logger.info("XES #getMergedXESLog: -> ends");
             return log;
@@ -870,6 +884,9 @@ public class LogMiner {
 
 
     private XNode getXESLog(YSpecificationID specID) {
+        ResourceDataSet orgDataSet = _replaceResourceIdsWithUserIds ?
+                ResourceManager.getInstance().getOrgDataSet() : null;
+
         XNode cases = new XNode("cases");
         XNode caseNode = null;
         long specKey = getSpecificationKey(specID);
@@ -895,7 +912,15 @@ public class LogMiner {
                     eventNode.addChild("instanceid", event.get_caseID());
                     eventNode.addChild("descriptor", event.get_event());
                     eventNode.addChild("timestamp", event.getTimeStampString());
-                    eventNode.addChild("resource", event.get_resourceID());
+
+                    String id = event.get_resourceID();
+                    if (orgDataSet != null) {
+                        Participant p = orgDataSet.getParticipant(id);
+                        if (p != null) {
+                            id = p.getUserID();
+                        }
+                    }
+                    eventNode.addChild("resource", id);
                 }    
             }
             _reader.commit();

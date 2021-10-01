@@ -35,7 +35,9 @@ import java.util.Map;
  */
 public class ResourceXESLog extends YXESBuilder {
 
-    public ResourceXESLog() { super(); }
+    public ResourceXESLog(boolean ignoreUnknownEvents) {
+        super(ignoreUnknownEvents);
+    }
 
 
     protected void processEvents(XNode root, XNode yawlCases) {
@@ -59,14 +61,14 @@ public class ResourceXESLog extends YXESBuilder {
             case complete             : xesEvent = "complete";   break;
             case suspend              : xesEvent = "suspend";    break;
             case deallocate           : xesEvent = "withdraw";   break;
-            case delegate             : xesEvent = "reassign";   break;
-            case reallocate_stateful  : xesEvent = "reassign";   break;
+            case delegate             :
+            case reallocate_stateful  :
             case reallocate_stateless : xesEvent = "reassign";   break;
             case skip                 : xesEvent = "manualskip"; break;
             case resume               : xesEvent = "resume";     break;
-            case cancel               : xesEvent = "ate_abort";  break;
+            case cancel               :
             case timer_expired        : xesEvent = "ate_abort";  break;
-            case cancel_case          : xesEvent = "pi_abort";   break;
+            case cancel_case          :
             case cancelled_by_case    : xesEvent = "pi_abort";   break;
             default                   : xesEvent = "unknown";
         }
@@ -103,18 +105,21 @@ public class ResourceXESLog extends YXESBuilder {
         List<XNode> events = yawlCase.getChildren();
         if (events != null) {
             for (XNode yEvent : events) {
-                trace.addChild(eventNode(yEvent));
+                String transition = translateEvent(yEvent.getChildText("descriptor"));
+                if (_ignoreUnknownEvents && "unknown".equals(transition)) {
+                    continue;
+                }
+                trace.addChild(eventNode(yEvent, transition));
             }
         }
     }
 
 
-    private XNode eventNode(XNode yEvent) {
+    private XNode eventNode(XNode yEvent, String transition) {
         XNode eventNode = new XNode("event");
         eventNode.addChild(dateNode("time:timestamp", yEvent.getChildText("timestamp")));
         eventNode.addChild(stringNode("concept:name", yEvent.getChildText("taskname")));
-        eventNode.addChild(stringNode("lifecycle:transition",
-                translateEvent(yEvent.getChildText("descriptor"))));
+        eventNode.addChild(stringNode("lifecycle:transition", transition));
         eventNode.addChild(stringNode("concept:instance", yEvent.getChildText("instanceid")));
         eventNode.addChild(stringNode("org:resource", yEvent.getChildText("resource")));
         return eventNode;
@@ -140,7 +145,7 @@ public class ResourceXESLog extends YXESBuilder {
     private XNode mergeLogs(XNode engLog, XNode rsLog) {
         Map<String, XNode> rsCaseMap = buildCaseMap(rsLog);
         for (XNode trace : engLog.getChildren("trace")) {
-            String caseID = trace.getChild("string").getAttributeValue("value");
+            String caseID = getEventValue(trace, "concept:name");
             if (rsCaseMap.containsKey(caseID)) {
                 mergeTraces(trace, rsCaseMap.get(caseID));
                 trace.sort(new XESTimestampComparator());
@@ -191,7 +196,6 @@ public class ResourceXESLog extends YXESBuilder {
         }
         return null;
     }
-
     
     private String getTransition(XNode event) {
         return getEventValue(event, "lifecycle:transition");

@@ -22,6 +22,7 @@ import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
+import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
@@ -120,8 +121,15 @@ public class ResourceGateway extends YHttpServlet {
                 // enable/disable the dropping of task piling on logout
                 _rm.setPersistPiling(! getBooleanFromContext("DropTaskPilingOnLogoff"));
 
+                // enable/disable replacing resource ids with user ids in XES logs
+                LogMiner.getInstance().setReplaceResourceIdsWithUserIds(
+                        getBooleanFromContext("UserIdsInXesLogs"));
+
+                // enable/disable removing events with 'unknown' labels from XES logs
+                LogMiner.getInstance().setIgnoreUnknownEventsInXesLogs(
+                        getBooleanFromContext("IgnoreUnknownEventsInXesLogs"));
+
                 // enable the visualiser applet, if necessary
-                String enableVisualiser = context.getInitParameter("EnableVisualizer");
                 if (getBooleanFromContext("EnableVisualizer")) {
                     _rm.setVisualiserEnabled(true);
                     String visualiserSize = context.getInitParameter("VisualizerViewSize");

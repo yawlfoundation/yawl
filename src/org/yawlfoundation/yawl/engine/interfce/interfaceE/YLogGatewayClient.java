@@ -562,6 +562,24 @@ public class YLogGatewayClient extends Interface_Client {
     }
 
 
+    /**
+     * Gets a complete listing of all the cases launched from the specification data
+     * passed, in OpenXES format
+     * @param specID the unique identifier of the specification
+     * @param withData if true, all data change events will be included
+     * @param ignoreUnknown if true, all events with 'unknown' labels will be ignored
+     * @param handle an active sessionhandle
+     * @return the resultant String response (log data or error message)
+     * @throws java.io.IOException if there's a problem connecting to the engine
+     * @see #getSpecificationXESLog(String, String, String, String)
+     */
+    public String getSpecificationXESLog(YSpecificationID specID, boolean withData, boolean ignoreUnknown, String handle)
+            throws IOException {
+        return getSpecificationXESLog(specID.getIdentifier(), specID.getVersionAsString(),
+                                      specID.getUri(), withData, ignoreUnknown, handle);
+    }
+
+
 
     /*****************************************************************************/
 

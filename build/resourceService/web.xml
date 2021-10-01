@@ -189,6 +189,28 @@
     </context-param>
 
     <context-param>
+        <param-name>UserIdsInXesLogs</param-name>
+        <param-value>false</param-value>
+        <description>
+            When true, all org:resource entries in XES logs will use the user id of
+            the resource (if available) rather than the underlying resource id. When
+            false (the default) resource ids will be used.
+        </description>
+    </context-param>
+
+    <context-param>
+        <param-name>IgnoreUnknownEventsInXesLogs</param-name>
+        <param-value>true</param-value>
+        <description>
+            When true (the default), all entries in XES logs with an event type of
+            'unknown' (i.e. the event name does not match that of a valid XES event
+            type) will be ignored and so will not appear in the log. When false, all
+            events will be included.
+        </description>
+    </context-param>
+
+
+    <context-param>
         <param-name>DropTaskPilingOnLogoff</param-name>
         <param-value>false</param-value>
         <description>
