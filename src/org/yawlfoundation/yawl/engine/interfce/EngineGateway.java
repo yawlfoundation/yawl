@@ -114,7 +114,7 @@ public interface EngineGateway extends Remote {
 
     String completeWorkItem(String workItemID, String data, String logPredicate, boolean force, String sessionHandle) throws RemoteException;
 
-    String startWorkItem(String workItemID, String sessionHandle) throws RemoteException;
+    String startWorkItem(String workItemID, String logPredicate, String sessionHandle) throws RemoteException;
 
     String skipWorkItem(String workItemID, String sessionHandle) throws RemoteException;
 

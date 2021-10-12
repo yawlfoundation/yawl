@@ -473,12 +473,13 @@ public class EngineGatewayImpl implements EngineGateway {
      * @return the started child workitem
      * @throws RemoteException
      */
-    public String startWorkItem(String workItemID, String sessionHandle) throws RemoteException {
+    public String startWorkItem(String workItemID, String logPredicate, String sessionHandle)
+            throws RemoteException {
         String sessionMessage = checkSession(sessionHandle);
         if (isFailureMessage(sessionMessage)) return sessionMessage;
 
         try {
-            YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle));
+            YWorkItem child = _engine.startWorkItem(workItemID, getClient(sessionHandle), logPredicate);
             return successMessage(child.toXML());
         }
         catch (YAWLException e) {
@@ -1454,7 +1455,7 @@ public class EngineGatewayImpl implements EngineGateway {
         YWorkItem item = _engine.getWorkItem(workItemID);
         if (item != null) {
             item.setStatus(YWorkItemStatus.statusEnabled);
-            result = startWorkItem(workItemID, sessionHandle);
+            result = startWorkItem(workItemID, null, sessionHandle);
         }
         return result ;
     }

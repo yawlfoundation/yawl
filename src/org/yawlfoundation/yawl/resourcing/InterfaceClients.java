@@ -47,7 +47,7 @@ public class InterfaceClients extends AbstractEngineClient {
 
     // client reference objects
     private YLogGatewayClient _interfaceEClient;
-    private ResourceGatewayServer _gatewayServer;
+    private final ResourceGatewayServer _gatewayServer;
     private CostClient _costServiceClient;
     private DocStoreClient _docStoreClient;
 

@@ -89,7 +89,8 @@ public class YWorkItem {
     private URL _customFormURL ;
     private String _codelet ;
     private String _documentation;
-    private String _externalLogPredicate;                 // set by services on checkin
+    private String _externalStartingLogPredicate;         // set by services on checkout
+    private String _externalCompletionLogPredicate;       // set by services on checkin
 
 
     private final YEventLogger _eventLog = YEventLogger.getInstance();
@@ -286,6 +287,7 @@ public class YWorkItem {
             childItem.setTimerParameters(getTimerParameters());
             childItem.setCustomFormURL(getCustomFormURL());
             childItem.setCodelet(getCodelet());
+            childItem.setExternalStartingLogPredicate(_externalStartingLogPredicate);
 
             _children.add(childItem);
             if (pmgr != null) pmgr.updateObject(this);
@@ -295,9 +297,15 @@ public class YWorkItem {
     }
 
     // set by custom service on checkin, and immediately before workitem completes 
-    public void setExternalLogPredicate(String predicate) {
-        _externalLogPredicate = predicate;
+    public void setExternalCompletionLogPredicate(String predicate) {
+        _externalCompletionLogPredicate = predicate;
     }
+
+    // set by custom service on checkout, and immediately before workitem starts
+    public void setExternalStartingLogPredicate(String predicate) {
+        _externalStartingLogPredicate = predicate;
+    }
+
 
     /** write data input values to event log */
     public void setData(YPersistenceManager pmgr, Element data)
@@ -933,8 +941,7 @@ public class YWorkItem {
                     _externalClient.getUserName(), "string"));
         }
         if (tag.equals(statusExecuting.name())) {
-            YLogDataItem dataItem = getDecompLogPredicate(YWorkItemStatus.valueOf(tag));
-            if (dataItem != null) itemList.add(dataItem);
+            itemList.addAll(getStartingPredicates());
         }
         else if (tag.equals(statusComplete.name()) || tag.equals(statusForcedComplete.name())) {
             itemList.addAll(getCompletionPredicates());
@@ -943,48 +950,53 @@ public class YWorkItem {
     }
 
 
-    private YLogDataItemList getCompletionPredicates() {
-        YLogDataItemList completionList = new YLogDataItemList();
-        YLogDataItem externalCompletionItem = null;
-        if (_externalLogPredicate != null) {
-            if (_externalLogPredicate.startsWith("<logdataitemlist>")) {
-                completionList.fromXML(_externalLogPredicate);
-                for (YLogDataItem item : completionList) {
-                    if (item.getName().equals("Complete")) {
-                        externalCompletionItem = item;
+    private YLogDataItemList getLogPredicates(String predicate, YWorkItemStatus itemStatus) {
+        YLogDataItemList itemList = new YLogDataItemList();
+        String name = itemStatus.equals(statusExecuting) ? "Start" : "Complete";
+        YLogDataItem externalItem = null;
+        if (predicate != null) {
+            if (predicate.startsWith("<logdataitemlist>")) {
+                itemList.fromXML(_externalCompletionLogPredicate);
+                for (YLogDataItem item : itemList) {
+                    if (item.getName().equals(name)) {
+                        externalItem = item;
                         break;
                     }
                 }
             }
-            else if (_externalLogPredicate.startsWith("<logdataitem>")) {
-                YLogDataItem item = new YLogDataItem(_externalLogPredicate);
-                completionList.add(item);
-                if (item.getName().equals("Complete")) externalCompletionItem = item;
+            else if (predicate.startsWith("<logdataitem>")) {
+                YLogDataItem item = new YLogDataItem(predicate);
+                itemList.add(item);
+                if (item.getName().equals(name)) externalItem = item;
             }
             else {
-                externalCompletionItem = new YLogDataItem("Predicate",
-                        "OnTaskCompletion (External)",
-                        _externalLogPredicate, "string");
-                completionList.add(externalCompletionItem);
+                externalItem = new YLogDataItem("Predicate", name,
+                         predicate, "string");
+                itemList.add(externalItem);
             }
-        }
-        if (externalCompletionItem != null) {
-            externalCompletionItem.setValue(
-                    new YLogPredicateWorkItemParser(this).parse(externalCompletionItem.getValue()));
         }
 
-        // only add decomp predicate if it's different to the external one
-        YLogDataItem decompCompletionItem = getDecompLogPredicate(YWorkItemStatus.statusComplete);
-        if (decompCompletionItem != null) {
-            if (externalCompletionItem != null &&
-                    decompCompletionItem.getValue().equals(externalCompletionItem.getValue())) {
-                externalCompletionItem.setName(decompCompletionItem.getName());
-            }
-            else {
-                completionList.add(decompCompletionItem);
+        // external predicate takes precedence over the internal one
+        if (externalItem != null) {
+            externalItem.setValue(
+                    new YLogPredicateWorkItemParser(this).parse(externalItem.getValue()));
+        }
+        else {
+            YLogDataItem decompCompletionItem = getDecompLogPredicate(itemStatus);
+            if (decompCompletionItem != null) {
+                itemList.add(decompCompletionItem);
             }
         }
-        return completionList;
+        return itemList;
+    }
+
+    private YLogDataItemList getStartingPredicates() {
+        return getLogPredicates(_externalStartingLogPredicate, statusExecuting);
+    }
+
+    
+    private YLogDataItemList getCompletionPredicates() {
+        return getLogPredicates(_externalCompletionLogPredicate, statusComplete);
     }
 
 

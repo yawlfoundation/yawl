@@ -1373,11 +1373,12 @@ public class YEngine implements InterfaceADesign,
     }
 
 
-    public YWorkItem startWorkItem(String itemID, YClient client)
+    public YWorkItem startWorkItem(String itemID, YClient client, String logPredicate)
             throws YStateException, YDataStateException, YQueryException,
                    YPersistenceException, YEngineStateException {
         YWorkItem item = getWorkItem(itemID);
         if (item != null) {
+            item.setExternalStartingLogPredicate(logPredicate);
             return startWorkItem(item, client);
         }
         throw new YStateException("No work item found with id = " + itemID);
@@ -1585,7 +1586,7 @@ public class YEngine implements InterfaceADesign,
                                            WorkItemCompletion completionType)
             throws YStateException, YDataStateException, YQueryException,
                    YPersistenceException, YEngineStateException {
-        workItem.setExternalLogPredicate(logPredicate);
+        workItem.setExternalCompletionLogPredicate(logPredicate);
         workItem.cancelTimer();                              // if any
         announceIfTimeServiceTimeout(netRunner, workItem);
         workItem.setStatusToComplete(_pmgr, completionType);

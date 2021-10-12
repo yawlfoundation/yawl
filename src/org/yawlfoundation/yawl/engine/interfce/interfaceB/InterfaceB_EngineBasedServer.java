@@ -278,7 +278,8 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                     msg.append(_engine.disconnect(sessionHandle));
                 }
                 else if (action.equals("checkout")) {
-                    msg.append(_engine.startWorkItem(workItemID, sessionHandle));
+                    String logPredicate = request.getParameter("logPredicate");
+                    msg.append(_engine.startWorkItem(workItemID, logPredicate, sessionHandle));
                 }
                 else if (action.equals("checkin")) {
                     String data = request.getParameter("data");
@@ -331,7 +332,7 @@ public class InterfaceB_EngineBasedServer extends YHttpServlet {
                 }
                 else if (action.equals("startOne")) {
                     String userID = request.getParameter("user");
-                    msg.append(_engine.startWorkItem(userID, sessionHandle));
+                    msg.append(_engine.startWorkItem(userID, null, sessionHandle));
                 }
                 else if (action.equals("getLiveItems")) {
                     msg.append(_engine.describeAllWorkItems(sessionHandle));

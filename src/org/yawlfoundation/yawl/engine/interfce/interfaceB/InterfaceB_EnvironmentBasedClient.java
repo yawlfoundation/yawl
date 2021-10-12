@@ -384,17 +384,24 @@ public class InterfaceB_EnvironmentBasedClient extends Interface_Client {
     /**
      * Allow a client to obtain ownership of a unit of work. This means that the
      * workitem must be enabled or fired first, and that upon successful checkout the
-     * workitem will be exectuing.
+     * workitem will be executing.
      * @param workItemID the workitem id.
+     * @param logPredicate configurable logging string to be logged with the checkout
      * @param sessionHandle the sessionhandle
      * @return in case of success returns a WorkItemRecord object of the created
      * workitem. In case of failure returns a diagnostic XML message.
      * @throws IOException if the engine can't be found.
      */
-    public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
+    public String checkOutWorkItem(String workItemID, String logPredicate, String sessionHandle)
+            throws IOException {
         Map<String, String> params = prepareParamMap("checkout", sessionHandle);
         params.put("workItemID", workItemID);
+        if (logPredicate != null) params.put("logPredicate", logPredicate);
         return executePost(_backEndURIStr, params);
+    }
+
+    public String checkOutWorkItem(String workItemID, String sessionHandle) throws IOException {
+        return checkOutWorkItem(workItemID, null, sessionHandle);
     }
 
 

@@ -35,45 +35,48 @@ public class YLogPredicateParameterParser extends YPredicateParser {
         _param = param;
     }
 
-    protected String valueOf(String s) {
-        if (s.equals("${parameter:name}")) {
-            s = _param.getPreferredName();
+    protected String valueOf(String predicate) {
+        String resolved = "n/a";
+        if (predicate.equals("${parameter:name}")) {
+            resolved = _param.getPreferredName();
         }
-        else if (s.equals("${parameter:datatype}")) {
-            s = _param.getDataTypeName();
+        else if (predicate.equals("${parameter:datatype}")) {
+            resolved = _param.getDataTypeName();
         }
-        else if (s.equals("${parameter:namespace}")) {
-            s = _param.getDataTypeNameSpace();
+        else if (predicate.equals("${parameter:namespace}")) {
+            resolved = _param.getDataTypeNameSpace();
         }
-        else if (s.equals("${parameter:doco}")) {
-            s = _param.getDocumentation();
+        else if (predicate.equals("${parameter:doco}")) {
+            resolved = _param.getDocumentation();
         }
-        else if (s.equals("${parameter:usage}")) {
-            s = _param.getDirection();
+        else if (predicate.equals("${parameter:usage}")) {
+            resolved = _param.getDirection();
         }
-        else if (s.equals("${parameter:ordering}")) {
-            s = String.valueOf(_param.getOrdering());
+        else if (predicate.equals("${parameter:ordering}")) {
+            resolved = String.valueOf(_param.getOrdering());
         }
-        else if (s.equals("${parameter:decomposition}")) {
+        else if (predicate.equals("${parameter:decomposition}")) {
             YDecomposition decomposition = _param.getParentDecomposition();
-            s = (decomposition != null) ? decomposition.getName() : "n/a";
+            if (decomposition != null) {
+                resolved = decomposition.getID();
+            }
         }
-        else if (s.equals("${parameter:initialvalue}")) {
-            String value = _param.getInitialValue();
-            s = (value != null) ? value : "n/a" ;
+        else if (predicate.equals("${parameter:initialvalue}")) {
+            resolved = _param.getInitialValue();
         }
-        else if (s.equals("${parameter:defaultvalue}")) {
-            String value = _param.getDefaultValue();
-            s = (value != null) ? value : "n/a" ;
+        else if (predicate.equals("${parameter:defaultvalue}")) {
+            resolved = _param.getDefaultValue();
         }
-        else if (s.startsWith("${parameter:attribute:")) {
-            String value = getAttributeValue(_param.getAttributes(), s);
-            s = (value != null) ? value : "n/a";
+        else if (predicate.startsWith("${parameter:attribute:")) {
+            resolved = getAttributeValue(_param.getAttributes(), predicate);
         }
         else {
-            s = super.valueOf(s);
+            resolved = super.valueOf(predicate);
         }
-        return s;        
+        if (resolved == null || "null".equals(resolved) || predicate.equals(resolved)) {
+            resolved = "n/a";
+        }
+        return resolved;
     }
 
 }

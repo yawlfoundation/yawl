@@ -95,8 +95,8 @@ public class LogPredicateParser extends YPredicateParser {
             else s = "n/a";
         }
         else if (s.equals("${resource:piler}")) {
-            String piler = _resMap.getPiledResource().getFullName();
-            s = (piler != null) ? piler : "n/a";
+            Participant piler = _resMap.getPiledResource();
+            s = piler != null ? piler.getFullName() : "n/a";
         }
         else if (s.equals("${resource:deallocators}")) {
             List<String> list = _resMap.getIgnoredList(_wir.getID());

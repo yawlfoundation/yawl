@@ -1171,7 +1171,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
             return false;
         }
 
-        if (checkOutWorkItem(wir)) {
+        if (checkOutWorkItem(wir, getStartingLogPredicate(p, wir))) {
             WorkItemRecord oneToStart = getStartedChild(wir);
             if (oneToStart == null)
                 return false;      // problem: no executing children
@@ -1849,9 +1849,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
      * @param wir - the workitem to check out
      * @return true if checkout was successful
      */
-    protected boolean checkOutWorkItem(WorkItemRecord wir) {
+    protected boolean checkOutWorkItem(WorkItemRecord wir, String logPredicate) {
         try {
-            if (null != checkOut(wir.getID(), getEngineSessionHandle())) {
+            if (null != checkOut(wir.getID(), logPredicate, getEngineSessionHandle())) {
                 _log.info("   checkout successful: {}", wir.getID());
                 return true;
             } else {
@@ -1982,11 +1982,19 @@ public final class ResourceManager extends InterfaceBWebsideController {
     }
 
 
-    private String parseCompletionLogPredicate(Participant p, WorkItemRecord wir) {
-        String predicate = wir.getLogPredicateCompletion();
-        return (predicate != null) ? new LogPredicateParser(p, wir).parse(predicate) : null;
+    private String getStartingLogPredicate(Participant p, WorkItemRecord wir) {
+         return parseLogPredicate(p, wir, wir.getLogPredicateStarted());
     }
 
+
+    private String parseCompletionLogPredicate(Participant p, WorkItemRecord wir) {
+        return parseLogPredicate(p, wir, wir.getLogPredicateCompletion());
+    }
+
+
+    private String parseLogPredicate(Participant p, WorkItemRecord wir, String predicate) {
+        return (predicate != null) ? new LogPredicateParser(p, wir).parse(predicate) : null;
+    }
 
     //***************************************************************************//
 
@@ -2002,7 +2010,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
             // if its 'fired' check it out
             if (WorkItemRecord.statusFired.equals(itemRec.getStatus()))
-                checkOutWorkItem(itemRec);
+                checkOutWorkItem(itemRec, null);
         }
 
         // update child item list after checkout (to capture status changes) & return
@@ -2719,7 +2727,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
         synchronized (_autoTaskMutex) {
 
             // check out the auto workitem
-            if (checkOutWorkItem(wir)) {
+            if (checkOutWorkItem(wir, null)) {
                 List children = getChildren(wir.getID());
 
                 if ((children != null) && (!children.isEmpty())) {

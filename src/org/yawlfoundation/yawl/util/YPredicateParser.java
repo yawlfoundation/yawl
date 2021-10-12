@@ -61,7 +61,12 @@ public class YPredicateParser {
         for (int i=0; i < phrases.length; i++) {
             String phrase = phrases[i];
             if (isDelimited(phrase)) {
-                phrases[i] = valueOf(phrase);
+                try {
+                    phrases[i] = valueOf(phrase);
+                }
+                catch (Exception e) {
+                    phrases[i] = "n/a";
+                }
             }
         }
         return join(phrases);
@@ -184,7 +189,7 @@ public class YPredicateParser {
      * problem evaluating the expression
      */
     protected String evaluateXQuery(String s, Element data) {
-        return  evaluateXQuery(s, new Document(data.clone()));
+        return data != null ? evaluateXQuery(s, new Document(data.clone())) : "n/a";
 
     }
 

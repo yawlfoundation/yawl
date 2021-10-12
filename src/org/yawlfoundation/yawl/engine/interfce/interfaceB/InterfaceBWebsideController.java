@@ -303,15 +303,17 @@ public abstract class InterfaceBWebsideController {
     /**
      * Checks a work item out of the engine. Also stores a local copy of the active item.
      * @param workItemID the work item id.
+     * @param logPredicate a configurable logging string to be logged when the item
+     * starts. May be a simple string or an xml'd YLogDataItemList object.
      * @param sessionHandle a valid session handle
      * @return the resultant checked-out workitem.
      * @throws IOException if a connection with the engine cannot be established.
      * @throws YAWLException if the checkout was unsuccessful 
      */
-    public WorkItemRecord checkOut(String workItemID, String sessionHandle)
+    public WorkItemRecord checkOut(String workItemID, String logPredicate, String sessionHandle)
             throws IOException, YAWLException {
         WorkItemRecord resultItem;
-        String msg = _interfaceBClient.checkOutWorkItem(workItemID, sessionHandle);
+        String msg = _interfaceBClient.checkOutWorkItem(workItemID, logPredicate, sessionHandle);
         if (successful(msg)) {
             msg = _interfaceBClient.stripOuterElement(msg);
             resultItem = Marshaller.unmarshalWorkItem(msg);
@@ -320,6 +322,12 @@ public abstract class InterfaceBWebsideController {
         else throw new YAWLException(msg);
 
         return resultItem;
+    }
+
+
+    public WorkItemRecord checkOut(String workItemID, String sessionHandle)
+            throws IOException, YAWLException {
+        return checkOut(workItemID, null, sessionHandle);
     }
 
 
