@@ -832,7 +832,7 @@ public class YWorkItem {
     public String getTimerStatus() {
         if (_timerParameters == null) return "Nil";
         if (_timerExpiry == 0) return "Dormant";
-        return "Active";
+        return System.currentTimeMillis() < _timerExpiry ? "Active" : "Expired";
     }
 
     public boolean allowsDynamicCreation() { return _allowsDynamicCreation; }

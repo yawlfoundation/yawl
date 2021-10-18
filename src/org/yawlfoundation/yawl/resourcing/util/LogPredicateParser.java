@@ -85,6 +85,7 @@ public class LogPredicateParser extends YPredicateParser {
         }
         else if (s.equals("${resource:offerset}")) {
             Set<Participant> set = _resMap.getOfferedParticipants(_wir.getID());
+            if (set == null) set = _resMap.getOfferedParticipants(_wir.getParentID());
             if (set != null) {
                 Set<String> names = new HashSet<String>();
                 for (Participant p : set) {
