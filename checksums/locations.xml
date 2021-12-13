@@ -135,10 +135,10 @@
             <file name="jung-samples-2.0.jar" path="A"/>
             <file name="jung-visualization-2.0.jar" path="A"/>
             <file name="junit-4.10.jar" path="A"/>
-            <file name="log4j-1.2-api-2.3.jar" path="A"/>
-            <file name="log4j-api-2.3.jar" path="A"/>
-            <file name="log4j-core-2.3.jar" path="A"/>
-            <file name="log4j-slf4j-impl-2.3.jar" path="A"/>
+            <file name="log4j-1.2-api-2.15.0.jar" path="A"/>
+            <file name="log4j-api-2.15.0.jar" path="A"/>
+            <file name="log4j-core-2.15.0.jar" path="A"/>
+            <file name="log4j-slf4j-impl-2.15.0.jar" path="A"/>
             <file name="macify-1.4.jar" path="A"/>
             <file name="mail.jar" path="A"/>
             <file name="mailapi.jar" path="A"/>

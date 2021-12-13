@@ -274,13 +274,13 @@
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
-    <property name="log4j-api" value="log4j-api-2.3.jar"/>
+    <property name="log4j-api" value="log4j-api-2.15.0.jar"/>
     <!-- mul -->
-    <property name="log4j-core" value="log4j-core-2.3.jar"/>
+    <property name="log4j-core" value="log4j-core-2.15.0.jar"/>
     <!-- mul -->
-    <property name="log4j-bridge" value="log4j-1.2-api-2.3.jar"/>
+    <property name="log4j-bridge" value="log4j-1.2-api-2.15.0.jar"/>
     <!-- mul -->
-    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.3.jar"/>
+    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.15.0.jar"/>
     <!-- launcher -->
     <property name="macify" value="macify-1.4.jar"/>
     <!-- mul -->
