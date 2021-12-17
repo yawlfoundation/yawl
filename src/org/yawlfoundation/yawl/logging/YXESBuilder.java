@@ -150,18 +150,17 @@ public class YXESBuilder {
         log.addAttribute("xes.version", "1.0");
         log.addAttribute("xes.features", "arbitrary-depth");
         log.addAttribute("openxes.version", "1.5");
-        log.addAttribute("xmlns", "http://code.deckfour.org/xes");
 
         log.addChild(extensionNode("Lifecycle", "lifecycle",
-                "http://code.fluxicon.com/xes/lifecycle.xesext"));
+                "http://www.xes-standard.org/lifecycle.xesext"));
         log.addChild(extensionNode("Time", "time",
-                "http://code.fluxicon.com/xes/time.xesext"));
+                "http://www.xes-standard.org/time.xesext"));
         log.addChild(extensionNode("Concept", "concept",
-                "http://code.fluxicon.com/xes/concept.xesext"));
+                "http://www.xes-standard.org/concept.xesext"));
         log.addChild(extensionNode("Semantic", "semantic",
-                "http://code.fluxicon.com/xes/semantic.xesext"));
+                "http://www.xes-standard.org/semantic.xesext"));
         log.addChild(extensionNode("Organizational", "org",
-                "http://code.fluxicon.com/xes/org.xesext"));
+                "http://www.xes-standard.org/org.xesext"));
 
         XNode gTrace = log.addChild(globalNode("trace"));
         gTrace.addChild(stringNode("concept:name", "UNKNOWN"));
@@ -171,15 +170,24 @@ public class YXESBuilder {
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
         gEvent.addChild(stringNode("concept:instance", "UNKNOWN"));
+        gEvent.addChild(stringNode("org.resource", "UNKNOWN"));
 
-        XNode classifier = log.addChild(new XNode("classifier"));
-        classifier.addAttribute("name", "Activity classifier");
-        classifier.addAttribute("keys",
-                "concept:name concept:instance lifecycle:transition");
+        log.addChild(classifierNode("Event Name", "concept:name"));
+        log.addChild(classifierNode("Lifecycle transition", "lifecycle:transition"));
+        log.addChild(classifierNode("Resource", "org:resource"));
 
         log.addChild(stringNode("concept:name", specid.toString()));
+        log.addChild(stringNode("lifecycle:model", "standard"));
 
         return log;
+    }
+
+
+    private XNode classifierNode(String name, String keys) {
+        XNode classifier = new XNode("classifier");
+        classifier.addAttribute("name", name);
+        classifier.addAttribute("keys", keys);
+        return classifier;
     }
 
 
