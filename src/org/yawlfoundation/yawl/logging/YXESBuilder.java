@@ -170,7 +170,7 @@ public class YXESBuilder {
         gEvent.addChild(stringNode("concept:name", "UNKNOWN"));
         gEvent.addChild(stringNode("lifecycle:transition", "UNKNOWN"));
         gEvent.addChild(stringNode("concept:instance", "UNKNOWN"));
-        gEvent.addChild(stringNode("org.resource", "UNKNOWN"));
+        gEvent.addChild(stringNode("org:resource", "UNKNOWN"));
 
         log.addChild(classifierNode("Event Name", "concept:name"));
         log.addChild(classifierNode("Lifecycle transition", "lifecycle:transition"));
