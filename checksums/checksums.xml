@@ -2,10 +2,9 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>4.5</version>
-  <timestamp>2021-12-17 12.05.02</timestamp>
-  <lib hash="98b7cd6fea03a8ba7f3d834076bcdba9">
+  <timestamp>2021-12-20 12.04.44</timestamp>
+  <lib hash="b79bdb76bd451f2d1e4bdb6c0d8d5a56">
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
-    <file name="log4j-1.2-api-2.16.0.jar" md5="8c3730da4674197c7a050027021c46ad" size="207907" timestamp="2021-12-13T15:35:52" path="A"/>
     <file name="json.jar" md5="66341753d595567be62f37135f6cd6ae" size="52032" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="axis-1.1RC2.jar" md5="d1a15dfa6c601013a79b22a4e5e05a65" size="1224774" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="jsf-api.jar" md5="ec582af90ad65fceba3a57b66e4f7f72" size="358115" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -19,6 +18,7 @@
     <file name="saxon9-s9api.jar" md5="a6547f2d9f839978cf4c9c92ed01cf9f" size="127765" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="saxon9.jar" md5="cfb820253feef53ab606601b6435870c" size="5024396" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="commons-logging-1.1.1.jar" md5="e2c390fe739b2550a218262b28f290ce" size="60841" timestamp="2015-08-12T13:39:27" path="A"/>
+    <file name="log4j-api-2.17.0.jar" md5="4e4dc08c475a79f6b310e5cadcb9de19" size="301775" timestamp="2021-12-18T11:51:14" path="A"/>
     <file name="bcprov-jdk15-139.jar" md5="8d3c68ef47e8b73a77b7db1b5bfcc784" size="1598015" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="wsdl4j-20030807.jar" md5="74cf0d930a3fe733e092ce6ca71ebf64" size="114412" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="defaulttheme-gray.jar" md5="6848fbf8499d1183c4ad7cec76c40baa" size="186341" timestamp="2015-08-12T13:39:27" path="A"/>
@@ -28,10 +28,8 @@
     <file name="hibernate-core-4.3.11.Final.jar" md5="d7bbfd718762e0d44db74c9b0c2bd3d1" size="5283651" timestamp="2015-08-05T20:54:48" path="A"/>
     <file name="jboss-logging-3.3.0.Final.jar" md5="bc11af4b8ce7138cdc79b7ba8561638c" size="66802" timestamp="2015-08-22T13:05:55" path="A"/>
     <file name="ehcache.xml" md5="2e594cc46c0620bf73600a6a484ca047" size="4695" timestamp="2015-08-12T13:39:27" path="A"/>
-    <file name="log4j-core-2.16.0.jar" md5="cf0634270eafdbb083eb5951d7f2232d" size="1789565" timestamp="2021-12-13T15:35:38" path="A"/>
     <file name="activation.jar" md5="c264c7a20fe37c9dc702ab8b0cf54f58" size="56290" timestamp="2015-08-12T13:39:26" path="A"/>
     <file name="xalan.jar" md5="9ab3c7fd1c084561ffaf57af34c9f250" size="3149484" timestamp="2015-08-12T13:39:29" path="A"/>
-    <file name="log4j-slf4j-impl-2.16.0.jar" md5="92fbe1da470daedda665cde2ae5d790c" size="24258" timestamp="2021-12-13T15:36:20" path="A"/>
     <file name="dataprovider.jar" md5="3c0f74c8833b7fc830b10a2eb7a164d2" size="101495" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="jung-algorithms-2.0.jar" md5="c466f6e6bcc9f955dbfa330b39e3f320" size="234967" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="ojdbc6_9.jar" md5="6cd651cf8fc1cd203aa0b334cb69fbea" size="1977267" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -45,21 +43,23 @@
     <file name="commons-discovery.jar" md5="fc7f9780f60967be74016d884a9288a7" size="67334" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="jung-jai-2.0.jar" md5="8cbb045a20b3b3ac3f8fdba5a7244b6e" size="20368" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="hsqldb.jar" md5="7df83e09e41d742cc5fb20d16b80729c" size="706710" timestamp="2015-08-12T13:39:28" path="A"/>
+    <file name="log4j-1.2-api-2.17.0.jar" md5="0c95ec5afce732907310772107ef9f6a" size="208235" timestamp="2021-12-18T11:52:16" path="A"/>
     <file name="mailapi.jar" md5="de6e488d20b54572fe6118e19e732f78" size="231990" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="commons-digester.jar" md5="19b0cbb3d0b6e4c139c5f1d3ef4ea0ba" size="109131" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="javassist-3.18.1-GA.jar" md5="5bb83868c87334320562af7eded65cc2" size="714194" timestamp="2014-05-01T13:49:24" path="A"/>
     <file name="sqlx.jar" md5="dd71aa725c6dd15cfa5cf1bad9df4c17" size="200136" timestamp="2015-08-12T13:39:29" path="A"/>
+    <file name="log4j-slf4j-impl-2.17.0.jar" md5="6b5349ca30f41229cdd399b47c1cd431" size="24252" timestamp="2021-12-18T11:52:43" path="A"/>
     <file name="commons-beanutils.jar" md5="234de37bad21c1265d101916dbdc8b75" size="118757" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="derbyclient.jar" md5="af067262efabe97f23a0f953f389869f" size="525631" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="jung-graph-impl-2.0.jar" md5="d559927a17be63a8caae9c3458962b58" size="62436" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="jakarta.xml.bind-api-3.0.1.jar" md5="ce443876615a903fdff9e0d5d13cb8d4" size="128941" timestamp="2021-06-04T15:10:49" path="A"/>
     <file name="jung-io-2.0.jar" md5="49245019a1a6896844dd88f22ad3e15d" size="79306" timestamp="2015-08-12T13:39:28" path="A"/>
+    <file name="log4j-core-2.17.0.jar" md5="0ac2d4109e083ff8ef193a396c540ec2" size="1789339" timestamp="2021-12-18T11:51:53" path="A"/>
     <file name="commons-codec-1.9.jar" md5="75615356605c8128013da9e3ac62a249" size="263965" timestamp="2015-08-12T13:39:27" path="A"/>
     <file name="commons-vfs2-2.1.jar" md5="a0abe6cae4a6db0450a5ab78a6283f39" size="441849" timestamp="2016-05-11T22:16:08" path="A"/>
     <file name="hibernate-jpa-2.1-api-1.0.0.Final.jar" md5="01b091825023c97fdfd6d2bceebe03ff" size="113371" timestamp="2014-05-01T13:50:22" path="A"/>
     <file name="jsr173_1.0_api.jar" md5="2f2b2a2065808b2c8c44888ba14306f5" size="46047" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="jaxb-xjc.jar" md5="108abd6d0fbff92780166dbea046ec26" size="2989016" timestamp="2015-08-12T13:39:28" path="A"/>
-    <file name="log4j-api-2.16.0.jar" md5="c0338cbc28a4beec6b8ad3356b43e26f" size="301892" timestamp="2021-12-13T15:35:17" path="A"/>
     <file name="wsif.jar" md5="b9b4e33c405817909955ac07d58577e1" size="394879" timestamp="2015-08-12T13:39:29" path="A"/>
     <file name="guava-21.0.jar" md5="ddc91fd850fa6177c91aab5d4e4d1fa6" size="2521113" timestamp="2017-08-14T12:18:18" path="A"/>
     <file name="apache_soap-2_3_1.jar" md5="aa1845e01fee94fe4a63bbcaa55ad486" size="232498" timestamp="2015-08-12T13:39:26" path="A"/>
@@ -121,11 +121,11 @@
   </lib>
   <webapps>
     <yawl>
-      <build>1643</build>
+      <build>1644</build>
       <files>
-        <file name="WEB-INF/classes/version.properties" md5="b4a663d607a7d22a30629f0de3876de7" size="186" timestamp="2021-12-17T12:05:00" path="B"/>
-        <file name="WEB-INF/classes/defaultClients.properties" md5="45459a5868946b4c1545455409389502" size="1215" timestamp="2021-12-17T12:05:00" path="C"/>
-        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2021-12-17T12:05:00" path="B"/>
+        <file name="WEB-INF/classes/version.properties" md5="d3a8a5dc2c32ed9feb660574dae0c41c" size="186" timestamp="2021-12-20T12:04:43" path="B"/>
+        <file name="WEB-INF/classes/defaultClients.properties" md5="45459a5868946b4c1545455409389502" size="1215" timestamp="2021-12-20T12:04:43" path="C"/>
+        <file name="WEB-INF/web.xml" md5="ae0b6cad2997b06cb4e79d58797241bf" size="11797" timestamp="2021-12-20T12:04:43" path="B"/>
       </files>
       <lib>
         <file name="antlr-2.7.7.jar"/>
@@ -148,10 +148,10 @@
         <file name="common.jar"/>
         <file name="ecore.jar"/>
         <file name="jdom-2.0.5.jar"/>
-        <file name="log4j-api-2.16.0.jar"/>
-        <file name="log4j-core-2.16.0.jar"/>
-        <file name="log4j-1.2-api-2.16.0.jar"/>
-        <file name="log4j-slf4j-impl-2.16.0.jar"/>
+        <file name="log4j-api-2.17.0.jar"/>
+        <file name="log4j-core-2.17.0.jar"/>
+        <file name="log4j-1.2-api-2.17.0.jar"/>
+        <file name="log4j-slf4j-impl-2.17.0.jar"/>
         <file name="xercesImpl.jar"/>
         <file name="postgresql-42.2.8.jar"/>
         <file name="saxon9.jar"/>
@@ -847,7 +847,7 @@
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-4.5.jar" md5="583eb60370e351fdb131ec61b0d0e46a" size="2960778" timestamp="2021-12-17T12:05:00" path="AM"/>
+    <file name="yawl-lib-4.5.jar" md5="46b74379ad3aa8858833defdd9ebd88d" size="2960778" timestamp="2021-12-20T12:04:42" path="AM"/>
   </yawllib>
   <controlpanel>
     <build>397</build>
