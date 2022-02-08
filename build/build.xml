@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="4.5"/>
+    <property name="app.version" value="4.5.1"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -274,13 +274,13 @@
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
-    <property name="log4j-api" value="log4j-api-2.17.0.jar"/>
+    <property name="log4j-api" value="log4j-api-2.17.1.jar"/>
     <!-- mul -->
-    <property name="log4j-core" value="log4j-core-2.17.0.jar"/>
+    <property name="log4j-core" value="log4j-core-2.17.1.jar"/>
     <!-- mul -->
-    <property name="log4j-bridge" value="log4j-1.2-api-2.17.0.jar"/>
+    <property name="log4j-bridge" value="log4j-1.2-api-2.17.1.jar"/>
     <!-- mul -->
-    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.17.0.jar"/>
+    <property name="log4j-slf4j" value="log4j-slf4j-impl-2.17.1.jar"/>
     <!-- launcher -->
     <property name="macify" value="macify-1.4.jar"/>
     <!-- mul -->

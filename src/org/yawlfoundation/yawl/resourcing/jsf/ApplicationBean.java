@@ -121,7 +121,7 @@ public class ApplicationBean extends AbstractApplicationBean {
     public void setFavIcon(Link link) { favIcon = link; }
 
 
-    private static String YAWL_VERSION = "4.5";
+    private static String YAWL_VERSION = "4.5.1";
 
     public String getYawlVersion() { return YAWL_VERSION; }
 

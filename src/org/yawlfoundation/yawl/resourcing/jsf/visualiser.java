@@ -201,7 +201,7 @@ public class visualiser extends AbstractPageBean {
 
         _sb.setDynFormType(ApplicationBean.DynFormType.tasklevel);
         DynamicForm df = (DynamicForm) getBean("DynFormFactory");
-        String title = "YAWL 4.5 - Edit Work Item";
+        String title = "YAWL 4.5.1 - Edit Work Item";
         String header = "Edit Work Item: " + selectedWIR.getCaseID();
         if (df.makeForm(title, header, _sb.getTaskSchema(selectedWIR), selectedWIR)) {
             _sb.setVisualiserReferred(true);
