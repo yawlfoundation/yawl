@@ -2811,7 +2811,9 @@
                        org/yawlfoundation/yawl/engine/YSpecificationID.class
                        org/yawlfoundation/yawl/engine/YNetData.class
                        org/yawlfoundation/yawl/engine/time/YTimedObject.class
-                       org/yawlfoundation/yawl/engine/time/YTimer.class
+                       org/yawlfoundation/yawl/engine/time/YTimerVariable.class
+                       org/yawlfoundation/yawl/engine/time/YTimer*.class
+                       org/yawlfoundation/yawl/engine/time/YWorkItemTimer*.class
                        org/yawlfoundation/yawl/engine/YWorkItemStatus.class
                        org/yawlfoundation/yawl/engine/WorkItemCompletion.class
                        org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
@@ -2820,14 +2822,7 @@
                        org/yawlfoundation/yawl/schema/internal/YInternalType.class
                        org/yawlfoundation/yawl/schema/ErrorHandler.class
                        org/yawlfoundation/yawl/schema/SchemaHandler.class
-                       org/yawlfoundation/yawl/exceptions/YAWLException.class
-                       org/yawlfoundation/yawl/exceptions/YDataStateException.class
-                       org/yawlfoundation/yawl/exceptions/YDataQueryException.class
-                       org/yawlfoundation/yawl/exceptions/YEngineStateException.class
-                       org/yawlfoundation/yawl/exceptions/YQueryException.class
-                       org/yawlfoundation/yawl/exceptions/YStateException.class
-                       org/yawlfoundation/yawl/exceptions/YDataValidationException.class
-                       org/yawlfoundation/yawl/exceptions/YSyntaxException.class
+                       org/yawlfoundation/yawl/exceptions/*
                        org/yawlfoundation/yawl/logging/YLogDataItem.class
                        org/yawlfoundation/yawl/logging/YLogDataItemList.class
                        org/yawlfoundation/yawl/util/DynamicValue.class

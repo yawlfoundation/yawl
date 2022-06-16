@@ -28,7 +28,6 @@ import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.exceptions.YDataStateException;
-import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.exceptions.YQueryException;
 import org.yawlfoundation.yawl.exceptions.YStateException;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
@@ -110,7 +109,6 @@ public class YNetRunner {
      * @param caseIDForNet
      * @param incomingData
      * @throws YDataStateException
-     * @throws YPersistenceException
      */
     public YNetRunner(YNet netPrototype, YCompositeTask container, YIdentifier caseIDForNet,
                       Element incomingData)

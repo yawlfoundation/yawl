@@ -145,7 +145,7 @@ public class YEngine {
     /**
      * Cancels a running case.
 
-     * @throws YPersistenceException if there's some persistence problem
+     * @throws YEngineStateException if there's some persistence problem
      */
     public void cancelCase(YNetRunner runner) throws YEngineStateException {
         _logger.debug("--> cancelCase");
@@ -370,7 +370,7 @@ public class YEngine {
 
     private YWorkItem startEnabledWorkItem(YNetRunner netRunner, YWorkItem workItem)
             throws YStateException, YDataStateException, YQueryException,
-                   YPersistenceException, YEngineStateException {
+                   YEngineStateException {
         YWorkItem startedItem = null;
         List<YIdentifier> childCaseIDs =
                 netRunner.attemptToFireAtomicTask(workItem.getTaskID());
@@ -454,7 +454,7 @@ public class YEngine {
                                            String data, String logPredicate,
                                            WorkItemCompletion completionType)
             throws YStateException, YDataStateException, YQueryException,
-                   YPersistenceException, YEngineStateException {
+                   YEngineStateException {
         workItem.setExternalLogPredicate(logPredicate);
         workItem.cancelTimer();                              // if any
         workItem.setStatusToComplete(completionType);
