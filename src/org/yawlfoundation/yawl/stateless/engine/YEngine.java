@@ -58,11 +58,11 @@ public class YEngine {
     private YBuildProperties _buildProps;
 
     /**
-     * The Constructor
+     * Constructor called from YStatelessEngine
      */
     public YEngine() {
         setEngineStatus(Status.Initialising);
-        _announcer = new YAnnouncer();
+        _announcer = new YAnnouncer(this);
         _logger = LogManager.getLogger(YEngine.class);
         setEngineStatus(Status.Running);
     }

@@ -51,9 +51,11 @@ public class YAnnouncer {
     private final Set<YTimerEventListener> _timerListeners;
     private final Set<YLogEventListener> _logListeners;
     private final ExecutorService _executor = Executors.newFixedThreadPool(12);
+    private final YEngine _engine;
 
 
-    protected YAnnouncer() {
+    protected YAnnouncer(YEngine engine) {
+        _engine = engine;
         _logger = LogManager.getLogger(this.getClass());
         _exceptionListeners = new HashSet<>();
         _caseListeners = new HashSet<>();
@@ -103,6 +105,7 @@ public class YAnnouncer {
         return _timerListeners.remove(listener);
     }
 
+    public YEngine getEngine() { return _engine; }
     
     public void announceCaseEvent(YCaseEvent event) {
         for (YCaseEventListener listener : _caseListeners) {
@@ -189,12 +192,35 @@ public class YAnnouncer {
      * @param item the work item that has had its timer expire
      */
     public void announceTimerExpiryEvent(YWorkItem item) {
-        if (! _workItemListeners.isEmpty()) {
-            announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_EXPIRED, item));
+//        if (! _workItemListeners.isEmpty()) {
+//            announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_EXPIRED, item));
+//        }
+        if (! _timerListeners.isEmpty()) {
+            announceTimerEvent(new YTimerEvent(YEventType.TIMER_EXPIRED, item));
         }
         if (! _exceptionListeners.isEmpty()) {
             announceExceptionEvent(new YExceptionEvent(YEventType.TIMER_EXPIRED, item));
         }
+    }
+
+
+    public void announceTimerStartedEvent(YWorkItem item) {
+//        if (! _workItemListeners.isEmpty()) {
+//             announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_STARTED, item));
+//         }
+         if (! _timerListeners.isEmpty()) {
+             announceTimerEvent(new YTimerEvent(YEventType.TIMER_STARTED, item));
+         }
+    }
+
+
+    public void announceTimerCancelledEvent(YWorkItem item) {
+//        if (! _workItemListeners.isEmpty()) {
+//             announceWorkItemEvent(new YWorkItemEvent(YEventType.TIMER_CANCELLED, item));
+//         }
+         if (! _timerListeners.isEmpty()) {
+             announceTimerEvent(new YTimerEvent(YEventType.TIMER_CANCELLED, item));
+         }
     }
 
 

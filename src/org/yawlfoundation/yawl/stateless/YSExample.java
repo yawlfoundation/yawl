@@ -18,6 +18,9 @@ import org.yawlfoundation.yawl.stateless.listener.event.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Michael Adams
  * @date 30/9/20
@@ -26,6 +29,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         YLogEventListener, YTimerEventListener {
 
     private final YStatelessEngine _engine;             // the 'interface' to the engine
+    private final Set<YWorkItem> delayedItems = new HashSet<>();
     int _caseCount;
     long _startTime;
 
@@ -148,7 +152,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
                 break;
             }
             default: {
-                print("Log Event:", event.getEventType().toString(),
+                print("Log Event: ", event.getEventType().toString(),
                        event.getSpecID().toFullString(), event.getCaseID().toString());
                 break;
             }
@@ -166,7 +170,25 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         // NOTE: The engine will maintain (but not persist) timers that are begun during
         // the execution of a case, and will emit events for action. When the engine
         // object is discarded, so are the outstanding timers, if any.
-        print("timer event");
+        print("Timer event: " + event.getEventType() + " " + event.getItem().getIDString()  + " " +
+                event.getItem().getTimerExpiry());
+
+        // if this timer is [on-offer+automated], we can now start the item
+        if (event.getEventType() == YEventType.TIMER_EXPIRED) {
+            YWorkItem item = event.getItem();
+            if (delayedItems.contains(item)) {
+                delayedItems.remove(item);
+
+                try {
+                    _engine.startWorkItem(item);
+                }
+                catch (Exception e) {
+                    print("**Exception in handleTimerEvent when attempting to start delayed item: ",
+                            event.getWorkItem().getIDString());
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 
@@ -192,7 +214,14 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
                 // if the item is enabled, we can choose to start it
                 case ITEM_ENABLED: {
-                    _engine.startWorkItem(item);
+
+                    // if this item has an automated timer (delay), don't start yet
+                    if (item.hasTimerStarted() && !item.requiresManualResourcing()) {
+                        delayedItems.add(item);
+                    }
+                    else {
+                        _engine.startWorkItem(item);
+                    }
                     break;
                 }
 
@@ -214,6 +243,12 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
                              event.getCurrentStatus().toString());
                      break;
                 }
+            }
+        }
+        catch (YStateException yse) {
+            if (! event.getWorkItem().hasCompletedStatus()) {
+                print("**Exception in handleWorkItemEvent: ", event.getWorkItem().getIDString());
+                yse.printStackTrace();
             }
         }
         catch (Exception e) {
@@ -268,7 +303,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         for (String arg : args) {
             sb.append(arg).append(" ");
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 
 
@@ -329,15 +364,15 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 //        String specFile = args[0];
 
         // a shortcut so I can test inside the IDE
-        String specFile = "/Users/adamsmj/Documents/temp/verySimpleSpec4.yawl" ;
+        String specFile = "/Users/adamsmj/Documents/temp/simpleTimerSpec.yawl" ;
 
         // read file contents into a String
         String specXML = StringUtil.fileToString(specFile);
 
         // run one instance of the spec
-//        new YSExample().runOneCase(specXML);
+        new YSExample().runOneCase(specXML);
 
         // run many instances
-        new YSExample().runMany(specXML, 1000);
+//        new YSExample().runMany(specXML, 1000);
     }
 }

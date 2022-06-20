@@ -121,7 +121,9 @@ public class YNetRunner {
     }
 
 
-    public void setAnnouncer(YAnnouncer announcer) { _announcer = announcer; }
+    public void setAnnouncer(YAnnouncer announcer) {
+        _announcer = announcer;
+    }
 
     public YAnnouncer getAnnouncer() { return _announcer; }
 

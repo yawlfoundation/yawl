@@ -24,6 +24,7 @@ import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.engine.time.YTimedObject;
 import org.yawlfoundation.yawl.engine.time.YTimer;
 import org.yawlfoundation.yawl.stateless.elements.YTask;
+import org.yawlfoundation.yawl.stateless.engine.YAnnouncer;
 import org.yawlfoundation.yawl.stateless.engine.YEngine;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 
@@ -46,36 +47,44 @@ public class YWorkItemTimer implements YTimedObject {
 
     private YWorkItem _owner;     // the owner work item - each can have at most one timer
     private final long _endTime ;
+    private State _state;
 
 
     public YWorkItemTimer(YWorkItem item, long msec) {
         _owner = item ;
         _endTime = YTimer.getInstance().schedule(this, msec) ;
+        _state = State.active;
+        getAnnouncer().announceTimerStartedEvent(_owner);
     }
 
 
     public YWorkItemTimer(YWorkItem item, Date expiryTime) {
         _owner = item ;
         _endTime = YTimer.getInstance().schedule(this, expiryTime) ;
+        _state = State.active;
+        getAnnouncer().announceTimerStartedEvent(_owner);
     }
 
 
     public YWorkItemTimer(YWorkItem item, Duration duration) {
         _owner = item ;
         _endTime = YTimer.getInstance().schedule(this, duration) ;
+        _state = State.active;
+        getAnnouncer().announceTimerStartedEvent(_owner);
     }
 
 
     public YWorkItemTimer(YWorkItem item, long units, YTimer.TimeUnit interval) {
         _owner = item ;
         _endTime = YTimer.getInstance().schedule(this, units, interval);
+        _state = State.active;
+        getAnnouncer().announceTimerStartedEvent(_owner);
     }
 
 
     public String getOwnerID() { return _owner.getIDString(); }
     
     public long getEndTime() { return _endTime; }
-
 
 
     public boolean equals(Object other) {
@@ -103,21 +112,21 @@ public class YWorkItemTimer implements YTimedObject {
                 }
             }
 
+            _state = State.expired;
             YTask task = _owner.getTask();
             task.getNetRunner().updateTimerState(task, State.expired);
+            getAnnouncer().announceTimerExpiryEvent(_owner);
 
             try {
-                YEngine engine = new YEngine();
+                YEngine engine = getAnnouncer().getEngine();
                 if (_owner.getStatus().equals(YWorkItemStatus.statusEnabled)) {
                     if (_owner.requiresManualResourcing())              // not an autotask
                         engine.skipWorkItem(_owner) ;
-                    task.getNetRunner().getAnnouncer().announceTimerExpiryEvent(_owner);
                 }
                 else if (_owner.hasUnfinishedStatus()) {
                     if (_owner.requiresManualResourcing())              // not an autotask
                         engine.completeWorkItem(_owner, _owner.getDataString(), null,
                                 WorkItemCompletion.Force) ;
-                    task.getNetRunner().getAnnouncer().announceTimerExpiryEvent(_owner);
                 }
             }
             catch (Exception e) {
@@ -127,7 +136,17 @@ public class YWorkItemTimer implements YTimedObject {
     }
 
 
+    private YAnnouncer getAnnouncer() {
+        return _owner.getTask().getNetRunner().getAnnouncer();
+    }
 
-    public void cancel() { }
+
+
+    public void cancel() {
+        if (_state == State.active) {
+            _state = State.closed;
+            getAnnouncer().announceTimerCancelledEvent(_owner);
+        }
+    }
 
 }
