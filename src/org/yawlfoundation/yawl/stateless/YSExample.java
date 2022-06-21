@@ -18,9 +18,6 @@ import org.yawlfoundation.yawl.stateless.listener.event.*;
 import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author Michael Adams
  * @date 30/9/20
@@ -29,7 +26,6 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         YLogEventListener, YTimerEventListener {
 
     private final YStatelessEngine _engine;             // the 'interface' to the engine
-    private final Set<YWorkItem> delayedItems = new HashSet<>();
     int _caseCount;
     long _startTime;
 
@@ -108,12 +104,11 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
     public void handleCaseEvent(YCaseEvent event) {
 
         // for this example, just print out some info about the event
-        print("Case Event:", event.getEventType().toString(),
-                "SpecID:", event.getSpecID().toKeyString(),
+        print(event, "SpecID:", event.getSpecID().toKeyString(),
                 "CaseID", event.getCaseID().toString());
 
         // for a CASE_COMPLETE event, if all cases have completed, exit
-        if (event.getEventType() == YEventType.CASE_COMPLETE) {
+        if (event.getEventType() == YEventType.CASE_COMPLETED) {
             if (--_caseCount == 0) {
                 elapsed("Completed in: ");
                 System.exit(0);
@@ -134,7 +129,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         switch (event.getEventType())  {
             case ITEM_STATUS_CHANGE: {
                 YWorkItem item = event.getWorkItem();
-                print("Item status change:", item.getIDString(), "to:",
+                print(event, "(Log)", "Item:", item.getIDString(), "to:",
                         event.getItemStatus());
                 break;
             }
@@ -143,17 +138,17 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
                 YLogDataItemList dataList = event.getLogData();
                 String dataItem = ! (dataList == null || dataList.isEmpty()) ?
                         dataItemToString(dataList.get(0)) : "null";
-                print("Item data change:", item.getIDString(), "data:", dataItem);
+                print(event, "Item:", item.getIDString(), "Data:", dataItem);
                 break;
             }
             case ITEM_COMPLETED: {
                 YWorkItem item = event.getWorkItem();
-                print("Item completed: " + item.getIDString());
+                print(event, "(Log)", "Item:", item.getIDString());
                 break;
             }
             default: {
-                print("Log Event: ", event.getEventType().toString(),
-                       event.getSpecID().toFullString(), event.getCaseID().toString());
+                print(event, "(Log)", "SpecID:",
+                       event.getSpecID().toFullString(), "CaseID:", event.getCaseID().toString());
                 break;
             }
         }
@@ -170,25 +165,8 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         // NOTE: The engine will maintain (but not persist) timers that are begun during
         // the execution of a case, and will emit events for action. When the engine
         // object is discarded, so are the outstanding timers, if any.
-        print("Timer event: " + event.getEventType() + " " + event.getItem().getIDString()  + " " +
-                event.getItem().getTimerExpiry());
-
-        // if this timer is [on-offer+automated], we can now start the item
-        if (event.getEventType() == YEventType.TIMER_EXPIRED) {
-            YWorkItem item = event.getItem();
-            if (delayedItems.contains(item)) {
-                delayedItems.remove(item);
-
-                try {
-                    _engine.startWorkItem(item);
-                }
-                catch (Exception e) {
-                    print("**Exception in handleTimerEvent when attempting to start delayed item: ",
-                            event.getWorkItem().getIDString());
-                    e.printStackTrace();
-                }
-            }
-        }
+        print(event,"Item:", event.getItem().getIDString(),
+                "Expires:", event.getExpiryTimeString());
     }
 
 
@@ -208,20 +186,13 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
             YWorkItem item = event.getWorkItem();
 
             // print some basic event info
-            print("WI Event:", event.getEventType().toString(), "item:", item.getIDString());
+            print(event, "Item:", item.getIDString());
 
             switch (event.getEventType()) {
 
                 // if the item is enabled, we can choose to start it
                 case ITEM_ENABLED: {
-
-                    // if this item has an automated timer (delay), don't start yet
-                    if (item.hasTimerStarted() && !item.requiresManualResourcing()) {
-                        delayedItems.add(item);
-                    }
-                    else {
-                        _engine.startWorkItem(item);
-                    }
+                    _engine.startWorkItem(item);
                     break;
                 }
 
@@ -230,7 +201,8 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
                     // not sure if this check is necessary
                     if (item.hasCompletedStatus()) {
-                        print("**Item: ", item.getIDString(), " has already completed**");
+                        print(null,
+                                "**Item: ", item.getIDString(), "has already completed**");
                     }
                     else processWorkItem(item);
                     break;
@@ -238,7 +210,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
                 // just print out any state changes
                 case ITEM_STATUS_CHANGE: {
-                     print("Item status change:", item.getIDString(), "from:",
+                     print(event,"Item:", item.getIDString(), "from:",
                              event.getPreviousStatus().toString(), "to:",
                              event.getCurrentStatus().toString());
                      break;
@@ -247,12 +219,14 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         }
         catch (YStateException yse) {
             if (! event.getWorkItem().hasCompletedStatus()) {
-                print("**Exception in handleWorkItemEvent: ", event.getWorkItem().getIDString());
+                print(null, "**Exception in handleWorkItemEvent: ",
+                        "Item:", event.getWorkItem().getIDString());
                 yse.printStackTrace();
             }
         }
         catch (Exception e) {
-            print("**Exception in handleWorkItemEvent: ", event.getWorkItem().getIDString());
+            print(null, "**Exception in handleWorkItemEvent: ",
+                    "Item:", event.getWorkItem().getIDString());
             e.printStackTrace();
         }
     }
@@ -276,14 +250,11 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         // update the value of the one variable in the example spec. Naturally, this is
         // particular to the example, and would need to change for other specs
         String value = getDataValue(eData, "blert");
-        print("Value:", value);
         if (value != null) {
+            print(null, "Value:", value);
             StringBuilder sb = new StringBuilder(value);
             sb.append(':').append(item.getIDString());
             setDataValue(eData, "blert", sb.toString());
-        }
-        else {
-            print("**** Value: \"null\"");                        // should never happen
         }
         
         // the engine needs it to be a string (at this stage...)
@@ -296,10 +267,15 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
     /**
      * A simple print method
+     * @param event the event to print
      * @param args the sequence of strings to print
      */
-    private void print(String... args) {
+    private void print(YEvent event, String... args) {
         StringBuilder sb = new StringBuilder();
+        if (event != null) {
+            sb.append(event.getTimeStamp()).append(": ");
+            sb.append(event.getEventType().toString()).append(" ");
+        }
         for (String arg : args) {
             sb.append(arg).append(" ");
         }
@@ -346,7 +322,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
      */
     private void elapsed(String msg) {
         long elapsed = System.currentTimeMillis() - _startTime;
-        print(msg, String.valueOf(elapsed), "ms");
+        print(null, msg, String.valueOf(elapsed), "ms");
     }
     
     /**

@@ -96,7 +96,7 @@ public final class YCompositeTask extends YTask {
                     for (YWorkItem item : netRunner.getWorkItemRepository().cancelNet(identifier)) {
                         item.cancel();
                         netRunner.getAnnouncer().announceLogEvent(
-                                new YLogEvent(YEventType.ITEM_CANCEL, item, null));
+                                new YLogEvent(YEventType.ITEM_CANCELLED, item, null));
                     }
 //                    cancelledRunners.add(netRunner);
                 }

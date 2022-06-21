@@ -632,11 +632,11 @@ public class YNetRunner {
         if (wItem != null) {               //may already have been removed by task.cancel
 
             //announce all cancelled work items
-            YWorkItemEvent event = new YWorkItemEvent(YEventType.ITEM_CANCEL, wItem);
+            YWorkItemEvent event = new YWorkItemEvent(YEventType.ITEM_CANCELLED, wItem);
             _announcements.add(event);
 
             // log it
-            _announcer.announceLogEvent(new YLogEvent(YEventType.ITEM_CANCEL, wItem, null));
+            _announcer.announceLogEvent(new YLogEvent(YEventType.ITEM_CANCELLED, wItem, null));
 
             // cancel any live timer
             if (wItem.hasTimerStarted()) {

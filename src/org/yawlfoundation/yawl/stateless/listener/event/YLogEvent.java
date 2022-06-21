@@ -16,6 +16,7 @@ public class YLogEvent extends YEvent {
     private YLogDataItemList _logData;
     private YWorkItem _workItem;
     private YNetRunner _netRunner;
+    private String _workItemStatus;
 
     public YLogEvent(YEventType eType, YIdentifier caseID, YSpecification spec,
                      YLogDataItemList logData) {
@@ -45,7 +46,10 @@ public class YLogEvent extends YEvent {
     public YLogDataItemList getLogData() { return _logData; }
 
 
-    public void setWorkItem(YWorkItem item) { _workItem = item; }
+    public void setWorkItem(YWorkItem item) {
+        _workItem = item;
+        _workItemStatus = item.get_status();
+    }
 
     public YWorkItem getWorkItem() { return _workItem; }
 
@@ -56,7 +60,7 @@ public class YLogEvent extends YEvent {
 
 
     public String getItemStatus() {
-        return _workItem != null ? _workItem.get_status() : null;
+        return _workItemStatus;
     }
 
 }

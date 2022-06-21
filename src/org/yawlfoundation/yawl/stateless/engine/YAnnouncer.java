@@ -159,6 +159,16 @@ public class YAnnouncer {
 
     public void announceRunnerEvents(Set<YWorkItemEvent> eventSet) {
         for (YWorkItemEvent event : eventSet) {
+
+            // if it's an ENABLED event for an automated task that has a timer started,
+            // don't announce the enablement yet, as an automated timer acts as a delay.
+            // The event will be reannounced when the timer expires.
+            YWorkItem item = event.getWorkItem();
+            if (event.getEventType() == YEventType.ITEM_ENABLED &&
+                    ! item.requiresManualResourcing() && item.hasTimerStarted()) {
+                continue;
+            }
+
             announceWorkItemEvent(event);
         }
     }
@@ -259,10 +269,10 @@ public class YAnnouncer {
     
     protected void announceCaseStart(YSpecification spec, YIdentifier id, YLogDataItemList logData) {
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_START, id, spec));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_STARTED, id, spec));
         }
         if (! _logListeners.isEmpty()) {
-            announceLogEvent(new YLogEvent(YEventType.CASE_START, id, spec, logData));
+            announceLogEvent(new YLogEvent(YEventType.CASE_STARTED, id, spec, logData));
         }
     }
  
@@ -275,7 +285,7 @@ public class YAnnouncer {
     protected void announceCaseCompletion(YSpecificationID specID, YIdentifier id, Document caseData) {
         _logger.debug("Announcing case '{}' complete.", id.toString());
         if (! _caseListeners.isEmpty()) {
-            YCaseEvent event = new YCaseEvent(YEventType.CASE_COMPLETE, id, specID);
+            YCaseEvent event = new YCaseEvent(YEventType.CASE_COMPLETED, id, specID);
             event.setData(caseData);
             announceCaseEvent(event);
         }
@@ -304,7 +314,7 @@ public class YAnnouncer {
      */
     public void announceCancelledWorkItem(YWorkItem item) {
         if (! _workItemListeners.isEmpty()) {
-            announceWorkItemEvent(new YWorkItemEvent(YEventType.ITEM_CANCEL, item));
+            announceWorkItemEvent(new YWorkItemEvent(YEventType.ITEM_CANCELLED, item));
         }
     }
 

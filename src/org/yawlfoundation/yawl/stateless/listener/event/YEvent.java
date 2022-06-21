@@ -5,13 +5,15 @@ import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.stateless.elements.marking.YIdentifier;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 
+import java.time.Instant;
+
 /**
  * @author Michael Adams
  * @date 24/8/20
  */
 public abstract class YEvent {
 
-    private final long _timeStamp;
+    private final Instant _timeStamp;
     private final YIdentifier _caseID;
     private final YEventType _eType;
     private YSpecificationID _specID;
@@ -19,13 +21,13 @@ public abstract class YEvent {
     private Document _dataDoc;
 
     protected YEvent(YEventType eType, YIdentifier caseID) {
-        _timeStamp = System.nanoTime();
+        _timeStamp = Instant.now();
         _eType = eType;
         _caseID = caseID;
     }
 
 
-    public long getTimeStamp() { return _timeStamp; }
+    public Instant getTimeStamp() { return _timeStamp; }
 
     public YEventType getEventType() { return _eType; }
 

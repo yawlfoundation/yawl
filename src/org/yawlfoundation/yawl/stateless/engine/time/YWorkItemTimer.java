@@ -27,6 +27,8 @@ import org.yawlfoundation.yawl.stateless.elements.YTask;
 import org.yawlfoundation.yawl.stateless.engine.YAnnouncer;
 import org.yawlfoundation.yawl.stateless.engine.YEngine;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
+import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
+import org.yawlfoundation.yawl.stateless.listener.event.YWorkItemEvent;
 
 import javax.xml.datatype.Duration;
 import java.util.Date;
@@ -102,6 +104,15 @@ public class YWorkItemTimer implements YTimedObject {
     public void handleTimerExpiry() {
         if (_owner != null) {
 
+            // if the item is an autotask with a timer, it has acted as a delay, so
+            // we now have to announce the enabled item
+            if (!_owner.requiresManualResourcing()) {
+                setExpiredState();
+                getAnnouncer().announceWorkItemEvent(
+                        new YWorkItemEvent(YEventType.ITEM_ENABLED, _owner));
+                return;  
+            }
+
             // special case: if the workitem timer started on enabled, and the item
             // has since been started, the ownerID now refers to the parent, and so the
             // child is needed so it can be expired correctly.
@@ -112,10 +123,7 @@ public class YWorkItemTimer implements YTimedObject {
                 }
             }
 
-            _state = State.expired;
-            YTask task = _owner.getTask();
-            task.getNetRunner().updateTimerState(task, State.expired);
-            getAnnouncer().announceTimerExpiryEvent(_owner);
+            setExpiredState();
 
             try {
                 YEngine engine = getAnnouncer().getEngine();
@@ -133,6 +141,14 @@ public class YWorkItemTimer implements YTimedObject {
                 // handle exc.
             }
         }
+    }
+
+
+    private void setExpiredState() {
+        _state = State.expired;
+        YTask task = _owner.getTask();
+        task.getNetRunner().updateTimerState(task, State.expired);
+        getAnnouncer().announceTimerExpiryEvent(_owner);
     }
 
 
