@@ -19,6 +19,7 @@ public abstract class YEvent {
     private YSpecificationID _specID;
     private YWorkItem _item;
     private Document _dataDoc;
+    private int _engineNbr;
 
     protected YEvent(YEventType eType, YIdentifier caseID) {
         _timeStamp = Instant.now();
@@ -49,6 +50,7 @@ public abstract class YEvent {
     public Document getData() { return _dataDoc; }
 
 
+    public int getEngineNbr() { return _engineNbr; }
 
-
+    public void setEngineNbr(int engineNbr) { _engineNbr = engineNbr; }
 }

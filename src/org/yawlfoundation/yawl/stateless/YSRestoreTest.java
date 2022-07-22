@@ -1,43 +1,63 @@
 package org.yawlfoundation.yawl.stateless;
 
 import org.jdom2.Element;
-import org.yawlfoundation.yawl.exceptions.YDataStateException;
-import org.yawlfoundation.yawl.exceptions.YEngineStateException;
-import org.yawlfoundation.yawl.exceptions.YQueryException;
-import org.yawlfoundation.yawl.exceptions.YStateException;
+import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItem;
-import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.stateless.elements.YSpecification;
 import org.yawlfoundation.yawl.stateless.engine.YNetRunner;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 import org.yawlfoundation.yawl.stateless.listener.YCaseEventListener;
-import org.yawlfoundation.yawl.stateless.listener.YLogEventListener;
 import org.yawlfoundation.yawl.stateless.listener.YTimerEventListener;
 import org.yawlfoundation.yawl.stateless.listener.YWorkItemEventListener;
 import org.yawlfoundation.yawl.stateless.listener.event.*;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 
 /**
+ * This class tests the unloading (marshaling) or a case running in one engine, and
+ * restoring it to a different engine.
  * @author Michael Adams
- * @date 30/9/20
  */
-public class YSExample implements YCaseEventListener, YWorkItemEventListener,
-        YLogEventListener, YTimerEventListener {
+public class YSRestoreTest implements YCaseEventListener, YWorkItemEventListener,
+         YTimerEventListener {
 
-    private final YStatelessEngine _engine;             // the 'interface' to the engine
-    int _caseCount;
-    long _startTime;
-    YNetRunner _caseRunner;
+    // for this simple test we'll use only two engines
+    private final YStatelessEngine _engine1;
+    private final YStatelessEngine _engine2;
 
-    public YSExample() {
-        _engine = new YStatelessEngine();
+    // a reference to the root net runner of the case. This var is not mandatory,
+    // since every case and work item event also has a reference to the root net runner
+    private YNetRunner _caseRunner;
 
-        // add this object as a listener to the 4 different event types implemented above
-        // (the fifth one, for exception events, is not being tested here)
-        _engine.addCaseEventListener(this);
-        _engine.addLogEventListener(this);
-        _engine.addWorkItemEventListener(this);
-        _engine.addTimerEventListener(this);
+
+    public YSRestoreTest() {
+
+        // passing a case idle time sets a timer for all cases on that engine.
+        // Different engines can have different idle timer values.
+        // Each engine is assigned a unique integer for identification. You can get it
+        // via YStatelessEngine#getEngineNbr.
+        _engine1 = initEngine(1000);
+        _engine2 = initEngine(5000);
+    }
+
+
+    // Creates an engine and add this class to some of its listeners. In this example we
+    // ignore log and exception events since they're not relevant to this test.
+    public YStatelessEngine initEngine(long idleTimeMSecs) {
+
+        // Passing an idle time (in msecs) enables case monitoring. Once set, if there
+        // is no action on the case for the duration set, a CASE_IDLE_TIMEOUT event
+        // will be generated (see below).
+        // Note you can also enable case monitoring by calling an empty constructor,
+        // then using YStatelessEngine#setIdleCaseTimer(long msecs).
+        // You can reset the duration at any time, which will reset the idle timers for
+        // all current cases on that engine.
+        // Passing a negative timer value will disable case monitoring.
+        YStatelessEngine engine = new YStatelessEngine(idleTimeMSecs);
+        engine.addCaseEventListener(this);
+        engine.addWorkItemEventListener(this);
+        engine.addTimerEventListener(this);
+        return engine;
     }
 
 
@@ -46,22 +66,13 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
      * @param specxml the XML of the specification
      */
     public void runOneCase(String specxml) {
-        _startTime = System.currentTimeMillis();
         try {
 
             // we have to first transform the XML to a YSpecification object
-            YSpecification spec = _engine.unmarshalSpecification(specxml);
-            elapsed("Spec loaded in: ");
-
-            _caseCount = 1;             // so we can exit when the case completes
-
+            YSpecification spec = _engine1.unmarshalSpecification(specxml);
+            
             // Now we can kick off the case.
-            // There are different variations of launchCase - this one will generate
-            // a random caseID. Another variation (see the runMany method below)
-            // allows you to supply the caseID.
-            // The case state object returned by launchcase can be used by the client
-            // to persist the current state. We don't do that in this example.
-            _caseRunner = _engine.launchCase(spec);
+            _caseRunner = _engine1.launchCase(spec);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -70,101 +81,49 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
 
     /**
-     * Launches a specified number of cases of a specification
-     * @param specxml the XML of the specification
-     * @param count the number of instances to launch
-     */
-    public void runMany(String specxml, int count) {
-        _startTime = System.currentTimeMillis();
-        _caseCount = count;                 // flag for exiting when all cases completed
-
-        try {
-            // Transform the spec XML to a YSpecification object
-            YSpecification spec = _engine.unmarshalSpecification(specxml);
-            elapsed("Spec loaded in: ");
-
-            // launch the cases, using i as the case id for each
-            for (int i=1; i<= count; i++) {
-                _engine.launchCase(spec, "" + i);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * Respond to case level events: CASE_START, CASE_COMPLETE, CASE_CANCELLED,
-     *     CASE_DEADLOCKED, CASE_SUSPENDING, CASE_SUSPENDED, CASE_RESUMED,
-     *     CASE_CHECK_PRECONSTRAINTS, CASE_CHECK_POSTCONSTRAINTS
+     * Respond to a case level events
      * @param event the event object, with certain data describing the event
      */
     @Override
     public void handleCaseEvent(YCaseEvent event) {
 
-        // for this example, just print out some info about the event
-        print(event, "CaseID:", event.getCaseID().toString());
+        // first print out some info about the event
+        // Note that an integer identifying the engine that generated the event is
+        // passed in the event object
+        print(event, "Engine:", String.valueOf(event.getEngineNbr()),
+                "CaseID:", event.getCaseID().toString());
 
-        // for a CASE_COMPLETE event, if all cases have completed, exit
+        // for a CASE_COMPLETE event, if the case has completed or been cancelled, exit
         if (event.getEventType() == YEventType.CASE_COMPLETED ||
                 event.getEventType() == YEventType.CASE_CANCELLED) {
-            if (--_caseCount == 0) {
-                elapsed("Completed in: ");
                 System.exit(0);
-            }
         }
 
+        // The case is idle, so let's unload it from one engine and load it onto another
         if (event.getEventType() == YEventType.CASE_IDLE_TIMEOUT) {
             try {
-                String caseXML = _engine.unloadCase(event.getCaseID());
-                System.out.println(caseXML);
+                if (event.getEngineNbr() == 1) {
+                    String caseXML = _engine1.unloadCase(event.getCaseID());
+
+                    // then, sometime later...
+                    _caseRunner = _engine2.restoreCase(caseXML);
+                }
+                else {
+                    System.out.println("Engine 2 idle time out");
+                    System.exit(1);
+                }
             }
             catch (YStateException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+            }
+            catch (YSyntaxException e) {
+                e.printStackTrace();
             }
         }
 
     }
 
 
-    /**
-     * Respond to logging events
-     * @param event the event object, with certain data describing the event
-     */
-    @Override
-    public void handleLogEvent(YLogEvent event) {
-
-        // just print the log event info
-        switch (event.getEventType())  {
-            case ITEM_STATUS_CHANGE: {
-                YWorkItem item = event.getWorkItem();
-                print(event, "(Log)", "Item:", item.getIDString(), "to:",
-                        event.getItemStatus());
-                break;
-            }
-            case ITEM_DATA_VALUE_CHANGE: {
-                YWorkItem item = event.getWorkItem();
-                YLogDataItemList dataList = event.getLogData();
-                String dataItem = ! (dataList == null || dataList.isEmpty()) ?
-                        dataItemToString(dataList.get(0)) : "null";
-                print(event, "Item:", item.getIDString(), "Data:", dataItem);
-                break;
-            }
-            case ITEM_COMPLETED: {
-                YWorkItem item = event.getWorkItem();
-                print(event, "(Log)", "Item:", item.getIDString());
-                break;
-            }
-            default: {
-                print(event, "(Log)", "SpecID:",
-                       event.getSpecID().toFullString(), "CaseID:", event.getCaseID().toString());
-                break;
-            }
-        }
-    }
-
-    
     /**
      * Respond to any timer events
      * @param event the event object, with certain data describing the event
@@ -175,7 +134,11 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         // NOTE: The engine will maintain (but not persist) timers that are begun during
         // the execution of a case, and will emit events for action. When the engine
         // object is discarded, so are the outstanding timers, if any.
-        print(event,"Item:", event.getItem().getIDString(),
+        // When a case is unloaded from an engine, it's timers are cancelled and a
+        // timer cancelled event is generated.
+        // When a case is restored, timers are restarted.
+        print(event,"Engine:", String.valueOf(event.getEngineNbr()),
+                "Item:", event.getItem().getIDString(),
                 "Expires:", event.getExpiryTimeString());
     }
 
@@ -196,13 +159,18 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
             YWorkItem item = event.getWorkItem();
 
             // print some basic event info
-            print(event, "Item:", item.getIDString());
+            print(event, "Engine:", String.valueOf(event.getEngineNbr()),
+                    "Item:", item.getIDString());
+
+            // which engine has sent this event? In prod, you'd have a map of engines
+            YStatelessEngine engine = event.getEngineNbr() == 1 ? _engine1 : _engine2;
 
             switch (event.getEventType()) {
 
                 // if the item is enabled, we can choose to start it
+                case ITEM_ENABLED_REANNOUNCE:    // on case restore to an engine
                 case ITEM_ENABLED: {
-                    _engine.startWorkItem(item);
+                    engine.startWorkItem(item);
                     break;
                 }
 
@@ -214,7 +182,9 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
                         print(null,
                                 "**Item: ", item.getIDString(), "has already completed**");
                     }
-                    else processWorkItem(item);
+
+                    // complete the item to the same engine
+                    else processWorkItem(item, engine);
 //                    else _engine.cancelCase(_caseRunner);
                     break;
                 }
@@ -228,6 +198,8 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
                 }
             }
         }
+
+        // catches any data validation errors on checkout and/or checkin
         catch (YDataStateException ydse) {
             print(null, "**Exception in handleWorkItemEvent: ",
                                     "Item:", event.getWorkItem().getIDString());
@@ -251,13 +223,15 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
     /**
      * Simulates the processing of a work item: extracts the work item data, does a
      * simple update, then completes the work item
-     * @param item the work item to work on and then complete
-     * @throws YQueryException if the data assignments are malformed
+     *
+     * @param item   the work item to work on and then complete
+     * @param engine
+     * @throws YQueryException       if the data assignments are malformed
      * @throws YEngineStateException if the engine isn't in running state (it will be)
-     * @throws YStateException if the state object is out-of-date
-     * @throws YDataStateException if the data string is malformed
+     * @throws YStateException       if the state object is out-of-date
+     * @throws YDataStateException   if the data string is malformed
      */
-    private void processWorkItem(YWorkItem item) throws YQueryException,
+    private void processWorkItem(YWorkItem item, YStatelessEngine engine) throws YQueryException,
             YEngineStateException, YStateException, YDataStateException {
 
         // extract the data element from the work item
@@ -274,12 +248,13 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         }
         
         // the engine needs it to be a string (at this stage...)
-//        String updatedData = JDOMUtil.elementToString(eData);
-        String updatedData = "<A><blert>8</blert></A>";
+        // For simplicity, this data is relevant only to the spec running for this example
+        String updatedData = item.getTaskID().equals("A") ? "<A><blert>8</blert></A>" :
+                JDOMUtil.elementToString(eData);
 
 
         // tell the engine to complete it
-        _engine.completeWorkItem(item, updatedData, null);
+        engine.completeWorkItem(item, updatedData, null);
     }
 
 
@@ -335,28 +310,10 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
 
 
     /**
-     * Prints a message with the difference between the start time and now
-     * @param msg the message to print
-     */
-    private void elapsed(String msg) {
-        long elapsed = System.currentTimeMillis() - _startTime;
-        print(null, msg, String.valueOf(elapsed), "ms");
-    }
-    
-    /**
      * This runs the example above
      * @param args there are none
      */
     public static void main(String[] args) {
-
-//        if (args.length == 0) {
-//            System.out.println("USAGE: java YSExample path_to_spec_file");
-//            System.exit(0);
-//        }
-//
-//        // absolute path for the spec file
-//        String specFile = args[0];
-
         // a shortcut so I can test inside the IDE
         String specFile = "/Users/adamsmj/Documents/temp/simpleTimerSpec.yawl" ;
 
@@ -364,9 +321,7 @@ public class YSExample implements YCaseEventListener, YWorkItemEventListener,
         String specXML = StringUtil.fileToString(specFile);
 
         // run one instance of the spec
-        new YSExample().runOneCase(specXML);
+        new YSRestoreTest().runOneCase(specXML);
 
-        // run many instances
-//        new YSExample().runMany(specXML, 1000);
     }
 }

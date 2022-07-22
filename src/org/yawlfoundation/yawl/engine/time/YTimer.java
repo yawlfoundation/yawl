@@ -31,12 +31,12 @@ public class YTimer extends Timer {
     public enum TimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MIN, SEC, MSEC }
 
     private static YTimer _me;
-    private final Hashtable<String, TimeKeeper> _runners;
+    private final Map<String, TimeKeeper> _runners;
 
 
     private YTimer() {
         super(true) ;
-        _runners = new Hashtable<String, TimeKeeper>();
+        _runners = new HashMap<String, TimeKeeper>();
     }
 
 

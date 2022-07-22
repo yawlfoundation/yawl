@@ -106,7 +106,9 @@ public class YAtomicTask extends YTask {
 
 
     private void cancelWorkItem(YWorkItem workItem) {
-        getNetRunner().getWorkItemRepository().removeWorkItemFamily(workItem);
+        for (YWorkItem item : getNetRunner().getWorkItemRepository().removeWorkItemFamily(workItem)) {
+            item.cancelTimer();
+        }
         workItem.cancel();
     }
 

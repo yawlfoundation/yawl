@@ -54,17 +54,29 @@ public class YWorkItemTimer implements YTimedObject {
 
     public YWorkItemTimer(YWorkItem item, long msec) {
         _owner = item ;
-        _endTime = YTimer.getInstance().schedule(this, msec) ;
-        _state = State.active;
-        getAnnouncer().announceTimerStartedEvent(_owner);
+        if (msec < System.currentTimeMillis()) {       // on restore, timer has expired
+            _endTime = msec;
+            handleTimerExpiry();
+        }
+        else {
+            _endTime = YTimer.getInstance().schedule(this, msec);
+            _state = State.active;
+            getAnnouncer().announceTimerStartedEvent(_owner);
+        }
     }
 
 
     public YWorkItemTimer(YWorkItem item, Date expiryTime) {
         _owner = item ;
-        _endTime = YTimer.getInstance().schedule(this, expiryTime) ;
-        _state = State.active;
-        getAnnouncer().announceTimerStartedEvent(_owner);
+        if (expiryTime.getTime() < System.currentTimeMillis()) {       // on restore, timer has expired
+            _endTime = expiryTime.getTime();
+            handleTimerExpiry();
+        }
+        else {
+            _endTime = YTimer.getInstance().schedule(this, expiryTime);
+            _state = State.active;
+            getAnnouncer().announceTimerStartedEvent(_owner);
+        }
     }
 
 
@@ -143,7 +155,7 @@ public class YWorkItemTimer implements YTimedObject {
         }
     }
 
-
+    
     private void setExpiredState() {
         _state = State.expired;
         YTask task = _owner.getTask();

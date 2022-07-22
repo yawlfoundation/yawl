@@ -45,7 +45,7 @@ public class YWorkItemRepository {
     private final Logger _logger;
 
     public YWorkItemRepository() {
-        _itemMap = new ConcurrentHashMap<String, YWorkItem>(500);
+        _itemMap = new ConcurrentHashMap<>(500);
         _logger = LogManager.getLogger(YWorkItemRepository.class);
     }
 

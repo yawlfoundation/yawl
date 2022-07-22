@@ -2819,7 +2819,7 @@
                        org/yawlfoundation/yawl/engine/interfce/WorkItemRecord.class
                        org/yawlfoundation/yawl/schema/XSDType.class
                        org/yawlfoundation/yawl/schema/YSchemaVersion*.class
-                       org/yawlfoundation/yawl/schema/internal/YInternalType.class
+                       org/yawlfoundation/yawl/schema/internal/*
                        org/yawlfoundation/yawl/schema/ErrorHandler.class
                        org/yawlfoundation/yawl/schema/SchemaHandler.class
                        org/yawlfoundation/yawl/exceptions/*
@@ -2831,6 +2831,7 @@
                        org/yawlfoundation/yawl/util/SaxonErrorListener.class
                        org/yawlfoundation/yawl/util/PluginLoaderUtil.class
                        org/yawlfoundation/yawl/util/YVerificationHandler.class
+                       org/yawlfoundation/yawl/util/YPluginLoader.class
                        org/yawlfoundation/yawl/util/YBuildProperties.class
                        org/yawlfoundation/yawl/util/YPredicateParser.class
                        org/yawlfoundation/yawl/util/DOMUtil.class"

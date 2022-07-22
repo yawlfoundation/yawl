@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.elements.YNetElement;
+import org.yawlfoundation.yawl.engine.WorkItemCompletion;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YSpecificationID;
 import org.yawlfoundation.yawl.engine.time.YTimer;
@@ -36,7 +37,9 @@ import org.yawlfoundation.yawl.stateless.elements.*;
 import org.yawlfoundation.yawl.stateless.elements.marking.YIdentifier;
 import org.yawlfoundation.yawl.stateless.elements.marking.YInternalCondition;
 import org.yawlfoundation.yawl.stateless.engine.time.YTimerVariable;
+import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer.State;
+import org.yawlfoundation.yawl.stateless.listener.event.YEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
 import org.yawlfoundation.yawl.stateless.listener.event.YLogEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YWorkItemEvent;
@@ -75,6 +78,8 @@ public class YNetRunner {
     private String _containingTaskID = null;
     private YNetData _netdata = null;
     private long _startTime;
+    private Set<String> _enabledTaskNames;
+    private Set<String> _busyTaskNames;
     private Map<String, String> _timerStates;
     private ExecutionStatus _executionStatus;
     private Set<YWorkItemEvent> _announcements;
@@ -82,7 +87,7 @@ public class YNetRunner {
     private final YWorkItemRepository _workItemRepository;
 
 
-    protected YNetRunner() {
+    public YNetRunner() {
         _logger.debug("YNetRunner: <init>");
         _workItemRepository = new YWorkItemRepository();
     }
@@ -166,6 +171,31 @@ public class YNetRunner {
         return current;
     }
 
+
+    public List<YEvent> generateItemReannouncements() {
+        List<YEvent> events = new ArrayList<>();
+        for (YWorkItem item : _workItemRepository.getEnabledWorkItems()) {
+            restartTimerIfRequired(item);
+
+            // if this is an autotask with a delay timer a reannouncement is not wanted
+            if (!item.requiresManualResourcing() && item.hasTimerStarted()) {
+                continue;
+            }
+            events.add(new YWorkItemEvent(YEventType.ITEM_ENABLED_REANNOUNCE, item));
+        }
+        for (YWorkItem item : _workItemRepository.getExecutingWorkItems()) {
+            restartTimerIfRequired(item);
+            events.add(new YWorkItemEvent(YEventType.ITEM_STARTED_REANNOUNCE, item));
+        }
+        return events;
+    }
+
+
+    private void restartTimerIfRequired(YWorkItem item) {
+        if (! (item.getTimerParameters() == null || item.hasTimerStarted())) {
+            item.checkStartTimer(_netdata);
+        }
+    }
 
     public boolean equals(Object other) {
         return (other instanceof YNetRunner) &&   // instanceof = false if other is null
@@ -267,6 +297,39 @@ public class YNetRunner {
     public long getStartTime() { return _startTime; }
 
     public void setStartTime(long time) { _startTime = time ; }
+    
+
+    public void setEnabledTaskNames(Set<String> enabledTaskNames) {
+        _enabledTaskNames = enabledTaskNames;
+    }
+
+    public void setBusyTaskNames(Set<String> busyTaskNames) {
+        _busyTaskNames = busyTaskNames;
+    }
+
+    public Set<String> getEnabledTaskNames() { return _enabledTaskNames; }
+
+    public Set<String> getBusyTaskNames() { return _busyTaskNames; }
+
+
+    public void restoreTimerStates() {
+        if (! _timerStates.isEmpty()) {
+            for (String timerKey : _timerStates.keySet()) {
+                for (YTask task : _netTasks) {
+                    String taskName = task.getName();
+                    if (taskName == null) taskName = task.getID();
+                    if (taskName != null && taskName.equals(timerKey)) {
+                        String stateStr = _timerStates.get(timerKey);
+                        YTimerVariable timerVar = task.getTimerVariable();
+                        timerVar.setState(YWorkItemTimer.State.valueOf(stateStr), true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
 
     
     /************************************************/
@@ -325,7 +388,7 @@ public class YNetRunner {
 
     private void announceCaseCompletion() {
         // announce case event
-        _announcer.announceCaseCompletion(_specID, _caseIDForNet, _net.getOutputData());
+        _announcer.announceCaseCompletion(_specID, this, _net.getOutputData());
 
         // announce exception checkpoint event (post's for case end)
         _announcer.announceCheckCaseConstraints(_specID, _caseIDForNet,
@@ -451,21 +514,23 @@ public class YNetRunner {
 
 
     public boolean completeWorkItemInTask(YWorkItem workItem,
-                                          Document outputData)
+                                          Document outputData,
+                                          WorkItemCompletion completionType)
             throws YDataStateException, YStateException, YQueryException {
         return completeWorkItemInTask(workItem, workItem.getCaseID(),
-                workItem.getTaskID(), outputData);
+                workItem.getTaskID(), outputData, completionType);
     }
 
 
     public synchronized boolean completeWorkItemInTask(YWorkItem workItem,
                                                        YIdentifier caseID,
                                                        String taskID,
-                                                       Document outputData)
+                                                       Document outputData,
+                                                       WorkItemCompletion completionType)
             throws YDataStateException, YStateException, YQueryException {
         _logger.debug("--> completeWorkItemInTask");
         YAtomicTask task = (YAtomicTask) _net.getNetElement(taskID);
-        boolean success = completeTask(workItem, task, caseID, outputData);
+        boolean success = completeTask(workItem, task, caseID, outputData, completionType);
 
         // notify exception checkpoint to service if available
         _announcer.announceCheckWorkItemConstraints(
@@ -615,7 +680,7 @@ public class YNetRunner {
                 YIdentifier id = task.t_fire().get(0);
                 task.t_start(this, id);
                 _busyTasks.add(task);                        // pre-req for completeTask
-                completeTask(null, task, id, null);
+                completeTask(null, task, id, null, null);
             }
         }
         catch (YStateException yse) {
@@ -706,7 +771,7 @@ public class YNetRunner {
      */
     private synchronized boolean completeTask(YWorkItem workItem,
                                  YAtomicTask atomicTask, YIdentifier identifier,
-                                 Document outputData)
+                                 Document outputData, WorkItemCompletion completionType)
             throws YDataStateException, YStateException, YQueryException {
 
         _logger.debug("--> completeTask: {}", atomicTask.getID());
@@ -715,6 +780,7 @@ public class YNetRunner {
 
         if (taskExited) {
             if (workItem != null) {
+                workItem.setStatusToComplete(completionType);
                 for (YWorkItem removed : _workItemRepository.removeWorkItemFamily(workItem)) {
                     if (! (removed.hasCompletedStatus() || removed.isParent())) {      // MI fired or incomplete
                         _announcer.announceCancelledWorkItem(removed);
@@ -842,16 +908,16 @@ public class YNetRunner {
     }
 
 
-    protected Set<YTask> getBusyTasks() {
+    public Set<YTask> getBusyTasks() {
         return _busyTasks;
     }
 
 
-    protected Set<YTask> getEnabledTasks() {
+    public Set<YTask> getEnabledTasks() {
         return _enabledTasks;
     }
 
-    protected Set<YTask> getActiveTasks() {
+    public Set<YTask> getActiveTasks() {
         Set<YTask> activeTasks = new HashSet<YTask>();
         activeTasks.addAll(_busyTasks);
         activeTasks.addAll(_enabledTasks);

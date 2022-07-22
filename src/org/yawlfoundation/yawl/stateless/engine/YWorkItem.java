@@ -148,7 +148,7 @@ public class YWorkItem {
 
     public void logStatusChange(YWorkItem item, YLogDataItemList logList) {
         YLogEvent event = new YLogEvent(YEventType.ITEM_STATUS_CHANGE, item, logList);
-        getTask().getNetRunner().getAnnouncer().announceLogEvent(event);
+        getNetRunner().getAnnouncer().announceLogEvent(event);
     }
 
 
@@ -174,16 +174,18 @@ public class YWorkItem {
 
         // make sure we can complete this workitem
         if (!(_status.equals(statusExecuting) || _status.equals(statusSuspended))) {
-            throw new RuntimeException(this + " [when current status is \""
-                   + _status + "\" it cannot be moved to \"" + completionStatus + "\"]");
+            return;
         }
 
         // set final status, log event and remove from persistence
         set_status(completionStatus);              // don't persist status update
-        YWorkItemEvent event = new YWorkItemEvent(YEventType.ITEM_COMPLETED, this);
-        _task.getNetRunner().getAnnouncer().announceWorkItemEvent(event);
-        YLogEvent lEvent = new YLogEvent(YEventType.ITEM_COMPLETED, this, null);
-        _task.getNetRunner().getAnnouncer().announceLogEvent(lEvent);
+
+        YEventType eventType = completionStatus == statusDeleted ?
+                YEventType.ITEM_CANCELLED : YEventType.ITEM_COMPLETED;
+        YWorkItemEvent event = new YWorkItemEvent(eventType, this);
+        getNetRunner().getAnnouncer().announceWorkItemEvent(event);
+        YLogEvent lEvent = new YLogEvent(eventType, this, null);
+        getNetRunner().getAnnouncer().announceLogEvent(lEvent);
         completeParentPersistence() ;
     }
 
@@ -223,7 +225,7 @@ public class YWorkItem {
      * @return true if the param is successfully unpacked.
      */
     private boolean unpackTimerParams(String param, YNetData data) {
-        if (data == null) data = getTask().getNetRunner().getNetData();
+        if (data == null) data = getNetRunner().getNetData();
         if (data == null) return false ;                    // couldn't get case data
 
         Element eData = JDOMUtil.stringToElement(data.getData());
@@ -262,7 +264,7 @@ public class YWorkItem {
     // MISC METHODS //
 
     public void addToRepository() {
-        getTask().getNetRunner().getWorkItemRepository().add(this);
+        getNetRunner().getWorkItemRepository().add(this);
     }
 
 
@@ -306,19 +308,19 @@ public class YWorkItem {
     }
 
     /** write data input values to event log */
-    public void logData() {
+    public void logCompletionData() {
         Element dataList = _task != null ? _task.getData() : null;
         YLogDataItemList logData = assembleLogDataItemList(dataList, true);
         YLogEvent event = new YLogEvent(YEventType.ITEM_DATA_VALUE_CHANGE, this, logData);
-        getTask().getNetRunner().getAnnouncer().announceLogEvent(event);
+        getNetRunner().getAnnouncer().announceLogEvent(event);
     }
 
 
     /** write output data values to event log */
-    public void completeData(Document output) {
+    public void logCompletionData(Document output) {
         YLogDataItemList logData = assembleLogDataItemList(output.getRootElement(), false);
         YLogEvent event = new YLogEvent(YEventType.ITEM_DATA_VALUE_CHANGE, this, logData);
-        getTask().getNetRunner().getAnnouncer().announceLogEvent(event);
+        getNetRunner().getAnnouncer().announceLogEvent(event);
     }
 
 
@@ -404,7 +406,7 @@ public class YWorkItem {
     private void deleteWorkItem(YWorkItem item) {
         item.setStatusToDeleted();
         logStatusChange(createLogDataList(YWorkItemStatus.statusDeleted.name()));
-        getTask().getNetRunner().getAnnouncer().announceCancelledWorkItem(item);
+        getNetRunner().getAnnouncer().announceCancelledWorkItem(item);
     }
 
 
@@ -467,8 +469,11 @@ public class YWorkItem {
 
 
     private void setTimerActive() {
-        getTask().getNetRunner().updateTimerState(getTask(), YWorkItemTimer.State.active);
+        getNetRunner().updateTimerState(getTask(), YWorkItemTimer.State.active);
     }
+
+
+    public YNetRunner getNetRunner() { return getTask().getNetRunner(); }
 
 
     /** @return true if workitem is 'live' */
@@ -619,7 +624,7 @@ public class YWorkItem {
 
     public void add_children(Set children) { _children.addAll(children); }
 
-    protected void setChildren(Set<YWorkItem> children) { _children = children; }
+    public void setChildren(Set<YWorkItem> children) { _children = children; }
 
     public void setWorkItemID(YWorkItemID workitemid) { _workItemID = workitemid; } //
 
@@ -633,6 +638,11 @@ public class YWorkItem {
     public String get_specVersion() { return _specID.getVersionAsString(); }
 
     public String get_specUri() { return _specID.getUri(); }
+
+
+    public void setSpecID(YSpecificationID specID) {
+        _specID = specID;
+    }
 
 
     public void set_specIdentifier(String id) {

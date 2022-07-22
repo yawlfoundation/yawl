@@ -41,6 +41,7 @@ import org.yawlfoundation.yawl.util.YBuildProperties;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A stateless version of the YAWL engine
@@ -57,11 +58,15 @@ public class YEngine {
     private final YAnnouncer _announcer;
     private YBuildProperties _buildProps;
 
+    private static final AtomicInteger ENGINE_COUNTER = new AtomicInteger();
+    private final int _engineNbr;
+
     /**
      * Constructor called from YStatelessEngine
      */
     public YEngine() {
         setEngineStatus(Status.Initialising);
+        _engineNbr = ENGINE_COUNTER.incrementAndGet();
         _announcer = new YAnnouncer(this);
         _logger = LogManager.getLogger(YEngine.class);
         setEngineStatus(Status.Running);
@@ -75,6 +80,9 @@ public class YEngine {
     public boolean isRunning() {
         return getEngineStatus() == Status.Running;
     }
+
+    
+    public int getEngineNbr() { return _engineNbr; }
 
 
     public void shutdown() {
@@ -138,7 +146,7 @@ public class YEngine {
         YIdentifier caseID = runner.getCaseID();
         _announcer.announceCheckCaseConstraints(spec.getSpecificationID(), caseID,
                 JDOMUtil.stringToDocument(caseParams), true);
-        _announcer.announceCaseStart(spec, caseID, logData);
+        _announcer.announceCaseStart(spec, runner, logData);
     }
 
     
@@ -204,8 +212,8 @@ public class YEngine {
                 _logger.debug("Current status of runner {} = {}", ynr.get_caseID(),
                         ynr.getExecutionStatus());
                 ynr.setStateSuspending();
-                _announcer.announceCaseSuspending(ynr.getCaseID());
             }
+            _announcer.announceCaseSuspending(runner);
             _logger.info("Case {} is attempting to suspend", runner.getCaseID());
 
             // See if we can progress this case into a fully suspended state.
@@ -237,7 +245,7 @@ public class YEngine {
                ynr.kick();
            }
             announceEvents(runner);
-           _announcer.announceCaseResumption(runner.getCaseID());
+           _announcer.announceCaseResumption(runner);
 
            _logger.info("Case {} has resumed execution", runner.getCaseID());
        }
@@ -287,7 +295,7 @@ public class YEngine {
                 ynr.setStateSuspended();
             }
 
-            _announcer.announceCaseSuspended(runner.getCaseID());
+            _announcer.announceCaseSuspended(runner);
         }
         _logger.debug("<-- progressCaseSuspension");
     }
@@ -385,7 +393,7 @@ public class YEngine {
                     startedItem = childItem;
                     oneStarted = true;
                 }
-                childItem.logData();
+                childItem.logCompletionData();
             }
         }
         return startedItem;
@@ -397,7 +405,7 @@ public class YEngine {
             YEngineStateException {
 
         netRunner.startWorkItemInTask(workItem);
-        workItem.logData();
+        workItem.logCompletionData();
         workItem.setStatusToStarted();
         return workItem;
     }
@@ -438,13 +446,13 @@ public class YEngine {
             throw new YStateException("Cannot complete work item with null runner.");
         }
 
-        try {
+ //       try {
             completeExecutingWorkitem(workItem, runner, data, logPredicate, completionType);
             announceEvents(runner);
-        }
-        catch (Exception e) {
-            throw new YStateException(e.getMessage());
-        }
+//        }
+//        catch (Exception e) {
+//            throw new YStateException(e.getMessage());
+//        }
 
         _logger.debug("<-- completeWorkItem");
     }
@@ -455,12 +463,10 @@ public class YEngine {
                                            WorkItemCompletion completionType)
             throws YStateException, YDataStateException, YQueryException,
                    YEngineStateException {
-        workItem.setExternalLogPredicate(logPredicate);
-        workItem.cancelTimer();                              // if any
-        workItem.setStatusToComplete(completionType);
         Document doc = getDataDocForWorkItemCompletion(workItem, data, completionType);
-        workItem.completeData(doc);
-        if (netRunner.completeWorkItemInTask(workItem, doc)) {
+        if (netRunner.completeWorkItemInTask(workItem, doc, completionType)) {
+
+            completeWorkItemLogging(workItem, logPredicate, completionType, doc);
 
             // If case is suspending, see if we can progress into a fully suspended state
             if (netRunner.isSuspending()) {
@@ -474,6 +480,18 @@ public class YEngine {
              * time to notify the worklists that it is enabled again.*/
             netRunner.continueIfPossible();
         }
+        else {  // a MI item and other children items are still outstanding
+            workItem.setStatusToComplete(completionType);
+            completeWorkItemLogging(workItem, logPredicate, completionType, doc);
+        }
+    }
+
+
+    private void completeWorkItemLogging(YWorkItem workItem, String logPredicate,
+                                         WorkItemCompletion completionType, Document doc) {
+        workItem.setExternalLogPredicate(logPredicate);
+        workItem.cancelTimer();                              // if any
+        workItem.logCompletionData(doc);
     }
 
 

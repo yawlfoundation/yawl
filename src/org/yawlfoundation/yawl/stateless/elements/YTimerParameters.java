@@ -245,6 +245,55 @@ public class YTimerParameters {
     }
 
 
+    public YTimerParameters fromXNode(XNode node) throws IllegalArgumentException {
+        if (node == null) return null;
+        node = node.getChild();
+        if (node == null) return null;
+
+        String netParam = node.getChildText("netParam");
+        if (netParam != null) {
+            set(netParam);
+            return this;
+        }
+
+        String triggerStr = node.getChildText("trigger");
+        if (triggerStr == null) throw new IllegalArgumentException("Missing 'trigger' parameter");
+        YWorkItemTimer.Trigger trigger = YWorkItemTimer.Trigger.valueOf(triggerStr);
+
+        String expiry = node.getChildText("expiry");
+        if (expiry != null) {
+            long time = StringUtil.strToLong(expiry, 0);
+            if (time <= 0) throw new IllegalArgumentException("Invalid 'expiry' parameter");
+            set(trigger, new Date(time));
+            return this;
+        }
+
+        String durationStr = node.getChildText("duration");
+        if (durationStr != null) {
+            Duration duration = StringUtil.strToDuration(durationStr);
+            if (duration == null) throw new IllegalArgumentException("Malformed duration value");
+            set(trigger, duration);
+            setWorkDaysOnly(node.getChild("workdays") != null);
+            return this;
+        }
+
+        XNode durationParamsNode = node.getChild("durationparams");
+        if (durationParamsNode != null) {
+            String ticksStr = durationParamsNode.getChildText("ticks");
+            if (ticksStr == null) throw new IllegalArgumentException("Missing 'ticks' parameter");
+            long ticks = StringUtil.strToLong(ticksStr, 0);
+            if (ticks <= 0) throw new IllegalArgumentException("Invalid 'ticks' parameter");
+
+            String interval = durationParamsNode.getChildText("interval");
+            if (interval == null) throw new IllegalArgumentException("Missing 'interval' parameter");
+            YTimer.TimeUnit timeUnit = YTimer.TimeUnit.valueOf(interval);
+            set(trigger, ticks, timeUnit);
+            return this;
+        }
+
+        throw new IllegalArgumentException("Malformed Timer XML");
+    }
+
     public String toString() {
         if (_timerType == TimerType.Nil) return "Nil";
         String s = _trigger == YWorkItemTimer.Trigger.OnExecuting ? "Start: " : "Offer: ";

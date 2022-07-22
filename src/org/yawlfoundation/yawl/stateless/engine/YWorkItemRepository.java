@@ -49,8 +49,13 @@ public class YWorkItemRepository {
 
 
     protected YWorkItem add(YWorkItem workItem) {
-        _logger.debug("--> YWorkItemRepository#add: {}", workItem.getIDString());
+ //       _logger.debug("--> YWorkItemRepository#add: {}", workItem.getIDString());
         return _itemMap.put(workItem.getIDString(), workItem);
+    }
+
+
+    public void addAll(List<YWorkItem> itemList) {
+        itemList.forEach(this::add);
     }
 
 

@@ -36,8 +36,8 @@ public class YIdentifier {
 
     // a location may be a condition or a task
     private final List<YNetElement> _locations = new ArrayList<>();
-    private final List<String> locationNames = new ArrayList<String>();
-    private final List<YIdentifier> _children = new ArrayList<YIdentifier>();
+    private List<String> locationNames = new ArrayList<String>();
+    private List<YIdentifier> _children = new ArrayList<YIdentifier>();
     private YIdentifier _parent;
     private String id = null;
     private String _idString;
@@ -65,6 +65,9 @@ public class YIdentifier {
         return locationNames;
     }
 
+    public void setLocationNames(List<String> names) {
+        locationNames = names;
+    }
 
     public String get_idString() {
         return _idString;
@@ -90,6 +93,10 @@ public class YIdentifier {
 
     public List<YIdentifier> getChildren() {
         return _children;
+    }
+
+    public void setChildren(List<YIdentifier> children) {
+        _children = children;
     }
 
 

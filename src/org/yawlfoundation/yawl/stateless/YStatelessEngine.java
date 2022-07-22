@@ -4,12 +4,22 @@ import org.yawlfoundation.yawl.engine.WorkItemCompletion;
 import org.yawlfoundation.yawl.exceptions.*;
 import org.yawlfoundation.yawl.logging.YLogDataItemList;
 import org.yawlfoundation.yawl.stateless.elements.YSpecification;
+import org.yawlfoundation.yawl.stateless.elements.marking.YIdentifier;
 import org.yawlfoundation.yawl.stateless.engine.YEngine;
 import org.yawlfoundation.yawl.stateless.engine.YNetRunner;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 import org.yawlfoundation.yawl.stateless.listener.*;
+import org.yawlfoundation.yawl.stateless.listener.event.YCaseEvent;
+import org.yawlfoundation.yawl.stateless.listener.event.YEvent;
+import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
+import org.yawlfoundation.yawl.stateless.monitor.YCase;
+import org.yawlfoundation.yawl.stateless.monitor.YCaseExporter;
+import org.yawlfoundation.yawl.stateless.monitor.YCaseImporter;
+import org.yawlfoundation.yawl.stateless.monitor.YCaseMonitor;
 import org.yawlfoundation.yawl.stateless.unmarshal.YMarshal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,23 +29,76 @@ import java.util.UUID;
 public class YStatelessEngine {
 
     private final YEngine _engine;
+    private YCaseMonitor _caseMonitor;                        // watches for idle cases
 
 
+    /**
+     * Create a new stateless YAWL engine
+     */
     public YStatelessEngine() {
         _engine = new YEngine();
     }
 
 
     /**
-     * Adds a listener for case events
+     * Create a new stateless YAWL engine, and start a case monitor that will
+     * announce idle cases to listeners.
+     * @param idleCaseTimerMsecs the number of milliseconds that a case is allowed to
+     *                           remain idle. After the msecs have passed, all
+     *                           engine YCaseEventListeners will be notified of the
+     *                           CASE_IDLE_TIMEOUT event. A negative value disable
+     *                           the case monitor and the announcement of timeout events.
+     */
+    public YStatelessEngine(long idleCaseTimerMsecs) {
+        this();
+        setIdleCaseTimer(idleCaseTimerMsecs);
+    }
+
+
+    /**
+     * Start a case monitor that will announce idle cases. If the monitor is already
+     * running, updates the idle timer milliseconds for all current cases.
+     * @param msecs the number of milliseconds that a case is allowed to remain idle.
+     *              After the msecs have passed, all engine YCaseEventListeners will be
+     *              notified of the CASE_IDLE_TIMEOUT event. A negative value disable
+     *              the case monitor and the announcement of timeout events.
+     */
+    public void setIdleCaseTimer(long msecs) {
+        if (msecs < 0) {
+            if (_caseMonitor != null) {
+                removeCaseEventListener(_caseMonitor);
+                removeWorkItemEventListener(_caseMonitor);
+                _caseMonitor.cancel();
+                _caseMonitor = null;
+            }
+        }
+        else {
+            if (_caseMonitor == null) {
+                _caseMonitor = new YCaseMonitor(msecs);
+                addCaseEventListener(_caseMonitor);
+                addWorkItemEventListener(_caseMonitor);
+            }
+            else {
+                _caseMonitor.setIdleTimeout(msecs);
+            }
+        }
+    }
+
+
+    public int getEngineNbr() { return _engine.getEngineNbr(); }
+    
+    
+    /**
+     * Add a listener for case events
      * @param listener an object that implements the YCaseEventListener interface
      */
     public void addCaseEventListener(YCaseEventListener listener) {
         _engine.getAnnouncer().addCaseEventListener(listener);
     }
+    
 
     /**
-     * Adds a listener for work item events
+     * Add a listener for work item events
      * @param listener an object that implements a YWorkItemEventListener interface
      */
     public void addWorkItemEventListener(YWorkItemEventListener listener) {
@@ -43,7 +106,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Adds a listener for exception events
+     * Add a listener for exception events
      * @param listener an object that implements the YExceptionEventListener interface
      */
     public void addExceptionEventListener(YExceptionEventListener listener) {
@@ -51,7 +114,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Adds a listener for log events
+     * Add a listener for log events
      * @param listener an object that implements the YLogEventListener interface
      */
     public void addLogEventListener(YLogEventListener listener) {
@@ -59,7 +122,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Adds a listener for timer events
+     * Add a listener for timer events
      * @param listener an object that implements the YTimerEventListener interface
      */
     public void addTimerEventListener(YTimerEventListener listener) {
@@ -68,7 +131,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Removes a registered listener for case events
+     * Remove a registered listener for case events
      * @param listener a previously registered YCaseEventListener
      */
     public void removeCaseEventListener(YCaseEventListener listener) {
@@ -76,7 +139,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Removes a registered listener for work item events
+     * Remove a registered listener for work item events
      * @param listener a previously registered YWorkItemEventListener
      */
     public void removeWorkItemEventListener(YWorkItemEventListener listener) {
@@ -84,7 +147,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Removes a registered listener for exception events
+     * Remove a registered listener for exception events
      * @param listener a previously registered YExceptionEventListener
      */
     public void removeExceptionEventListener(YExceptionEventListener listener) {
@@ -92,7 +155,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Removes a registered listener for log events
+     * Remove a registered listener for log events
      * @param listener a previously registered YLogEventListener
      */
     public void removeLogEventListener(YLogEventListener listener) {
@@ -100,7 +163,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Removes a registered listener for timer events
+     * Remove a registered listener for timer events
      * @param listener a previously registered YTimerEventListener
      */
     public void removeTimerEventListener(YTimerEventListener listener) {
@@ -109,7 +172,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Transforms a YAWL specification XML string to a YSpecification object.
+     * Transform a YAWL specification XML string to a YSpecification object.
      * @param xml the XML representation of the YAWL specification
      * @return a populated YSpecification object
      * @throws YSyntaxException if the XML is malformed
@@ -120,7 +183,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Launches a new case instance for the specification specified. A random UUID is
+     * Launch a new case instance for the specification specified. A random UUID is
      * assigned as the case identifier.
      * @param spec the YAWL specification to create an instance from
      * @return a YNetRunner object encapsulating the current case state
@@ -136,7 +199,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Launches a new case instance for the specification specified
+     * Launch a new case instance for the specification specified
      * @param spec the YAWL specification to create an instance from
      * @param caseID the case identifier to assign to the new case
      * @return a YNetRunner object encapsulating the current case state
@@ -152,7 +215,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Launches a new case instance for the specification specified
+     * Launch a new case instance for the specification specified
      * @param spec the YAWL specification to create an instance from
      * @param caseID the case identifier to assign to the new case
      * @param caseParams an XML string denoting the initial data values for case starting
@@ -169,7 +232,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Launches a new case instance for the specification specified
+     * Launch a new case instance for the specification specified
      * @param spec the YAWL specification to create an instance from
      * @param caseID the case identifier to assign to the new case
      * @param caseParams an XML string denoting the initial data values for case starting
@@ -187,7 +250,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Suspends a currently running case
+     * Suspend a currently running case
      * @param runner the current case state object
      * @throws YStateException if the case state is out-of-sync
      */
@@ -196,7 +259,7 @@ public class YStatelessEngine {
     }
 
     /**
-      * Resumes a currently suspended case
+      * Resume a currently suspended case
       * @param runner the current case state object
       * @throws YStateException if the case state is out-of-sync
       */
@@ -206,7 +269,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Suspends an executing work item
+     * Suspend an executing work item
      * @param workItem the work item to suspend
      * @return the suspended work item
      * @throws YStateException if the case state is out-of-sync
@@ -216,7 +279,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Resumes a suspended work item
+     * Resume a suspended work item
      * @param workItem the work item to suspend
      * @return the suspended work item
      * @throws YStateException if the case state is out-of-sync
@@ -226,7 +289,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Rolls back a work item from executing to enabled
+     * Roll back a work item from executing to enabled
      * @param workItem the work item to roll back
      * @throws YStateException
      */
@@ -235,7 +298,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Completes a currently executing work item
+     * Complete a currently executing work item
 
      * @param workItem the work item to complete
      * @param data an XML string representing the item's output data
@@ -253,7 +316,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Completes a currently executing work item
+     * Complete a currently executing work item
      * @param workItem the work item to complete
      * @param data an XML string representing the item's output data
      * @param logPredicate a log predicate string to be populated and added to the log
@@ -270,7 +333,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Begins executing a currently enabled or fired work item
+     * Begin executing a currently enabled or fired work item
      * @param workItem the work item to start
      * @throws YEngineStateException if the engine is not in running state
      * @throws YStateException if there is a problem creating the case state
@@ -283,7 +346,7 @@ public class YStatelessEngine {
     }
 
     /**
-     * Skips an enabled work item (immediately completes)
+     * Skip an enabled work item (immediately completes)
      * @param workItem the work item to skip
      * @throws YEngineStateException if the engine is not in running state
      * @throws YStateException if there is a problem creating the case state
@@ -297,7 +360,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Creates a new work item instance from a dynamic multi-instance task
+     * Create a new work item instance from a dynamic multi-instance task
      * @param workItem the work item to create a new instance of
      * @param paramValueForMICreation format "<data>[InputParam]</data>
      *                                InputParam == <varName>varValue</varName>
@@ -312,7 +375,7 @@ public class YStatelessEngine {
 
 
     /**
-     * Determines whether or not a task will allow a dynamically created new instance to
+     * Determine whether a task will allow a dynamically created new instance to
      * be created.  MultiInstance Task with dynamic instance creation is required.
      * @param workItem the work item to check
      * @throws YStateException if task is not MultiInstance, or
@@ -322,6 +385,73 @@ public class YStatelessEngine {
      */
     public void checkElegibilityToAddInstances(YWorkItem workItem) throws YStateException {
         _engine.checkEligibilityToAddInstances(workItem);
+    }
+
+
+    public void cancelCase(YNetRunner runner) {
+        for (YNetRunner aRunner : runner.getAllRunnersForCase()) {
+            aRunner.cancel();
+        }
+        runner.getAnnouncer().announceCaseEvent(
+                new YCaseEvent(YEventType.CASE_CANCELLED, runner.getTopRunner()));
+    }
+
+
+    /**
+     * Get the complete state of a case, marshalled to an XML document
+     * @param caseID the case to get
+     * @return an XML document of the case state
+     * @throws YStateException if there's any problem capturing the current state
+     */
+    public String unloadCase(YIdentifier caseID) throws YStateException {
+        if (_caseMonitor == null) {
+            throw new YStateException("This engine is not monitoring idle cases");
+        }
+        YCase yCase = _caseMonitor.unloadCase(caseID);           // notnull guaranteed
+        yCase.cancelWorkItemTimers();
+        String caseXML = yCase.marshal();                        // ditto
+        _engine.getAnnouncer().announceCaseEvent(
+                new YCaseEvent(YEventType.CASE_UNLOADED, yCase.getRunner()));
+        return caseXML;
+    }
+
+
+    /**
+     * Marshals an active case to an XML document
+     * @param runner a runner within the case
+     * @return an XML document of the case state
+     * @throws YStateException if there's any problem marshaling the current state
+     */
+    public String marshalCase(YNetRunner runner) throws YStateException {
+        if (runner == null) {
+            throw new YStateException("Missing state for case: runner is null.");
+        }
+        return new YCaseExporter().marshal(runner);
+    }
+
+
+    /**
+     * Restores a case instance from its XML representation (previously returned from
+     * unloadCase()
+     * @param caseXML the XML of the case state to restore
+     * @return The primary net runner of the case
+     * @throws YSyntaxException if there's an error in the specification portion of the xml
+     * @throws YStateException if there's any problem restoring the current state
+     */
+    public YNetRunner restoreCase(String caseXML) throws YSyntaxException, YStateException {
+        List<YNetRunner> runners = new YCaseImporter().unmarshal(caseXML, _engine.getAnnouncer());
+        List<YEvent> events = new ArrayList<>();
+        YNetRunner topRunner = null;
+        for (YNetRunner runner : runners) {
+            events.addAll(runner.generateItemReannouncements());
+            if (topRunner == null) {
+                topRunner = runner.getTopRunner();
+            }
+        }
+        if (topRunner == null) throw new YStateException("Failed to restore case runner");
+        events.add(0, new YCaseEvent(YEventType.CASE_RESTORED, topRunner));
+        _engine.getAnnouncer().announceEvents(events);
+        return topRunner;
     }
 
 }

@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.stateless.listener.*;
 import org.yawlfoundation.yawl.stateless.listener.event.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,10 +53,12 @@ public class YAnnouncer {
     private final Set<YLogEventListener> _logListeners;
     private final ExecutorService _executor = Executors.newFixedThreadPool(12);
     private final YEngine _engine;
+    private final int _engineNbr;
 
 
     protected YAnnouncer(YEngine engine) {
         _engine = engine;
+        _engineNbr = engine.getEngineNbr();
         _logger = LogManager.getLogger(this.getClass());
         _exceptionListeners = new HashSet<>();
         _caseListeners = new HashSet<>();
@@ -85,6 +88,10 @@ public class YAnnouncer {
         return _timerListeners.add(listener);
     }
 
+    public Set<YCaseEventListener> getCaseEventListeners() {
+        return _caseListeners;
+    }
+
     public boolean removeCaseEventListener(YCaseEventListener listener) {
         return _caseListeners.remove(listener);
     }
@@ -108,37 +115,43 @@ public class YAnnouncer {
     public YEngine getEngine() { return _engine; }
     
     public void announceCaseEvent(YCaseEvent event) {
+        event.setEngineNbr(_engineNbr);
         for (YCaseEventListener listener : _caseListeners) {
             _executor.execute(() -> listener.handleCaseEvent(event));
         }
     }
 
     public void announceWorkItemEvent(YWorkItemEvent event) {
+        event.setEngineNbr(_engineNbr);
         for (YWorkItemEventListener listener : _workItemListeners) {
             _executor.execute(() -> listener.handleWorkItemEvent(event));
         }
     }
 
     public void announceExceptionEvent(YExceptionEvent event) {
+        event.setEngineNbr(_engineNbr);
         for (YExceptionEventListener listener : _exceptionListeners) {
             _executor.execute(() -> listener.handleExceptionEvent(event));
         }
     }
 
     public void announceLogEvent(YLogEvent event) {
+        event.setEngineNbr(_engineNbr);
         for (YLogEventListener listener : _logListeners) {
             _executor.execute(() -> listener.handleLogEvent(event));
         }
     }
 
     public void announceTimerEvent(YTimerEvent event) {
+        event.setEngineNbr(_engineNbr);
         for (YTimerEventListener listener : _timerListeners) {
             _executor.execute(() -> listener.handleTimerEvent(event));
         }
     }
 
-    public void announceEvents(Set<YEvent> eventSet) {
+    public void announceEvents(List<YEvent> eventSet) {
         for (YEvent event : eventSet) {
+            event.setEngineNbr(_engineNbr);
             if (event instanceof YWorkItemEvent) {
                 announceWorkItemEvent((YWorkItemEvent) event);
             }
@@ -168,7 +181,7 @@ public class YAnnouncer {
                     ! item.requiresManualResourcing() && item.hasTimerStarted()) {
                 continue;
             }
-
+            event.setEngineNbr(_engineNbr);
             announceWorkItemEvent(event);
         }
     }
@@ -184,7 +197,7 @@ public class YAnnouncer {
     protected void announceCaseCancellation(YNetRunner runner) {
         YIdentifier caseID = runner.getCaseID();
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_CANCELLED, caseID));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_CANCELLED, runner));
         }
         if (! _exceptionListeners.isEmpty()) {
             announceExceptionEvent(new YExceptionEvent(YEventType.CASE_CANCELLED, caseID));
@@ -236,56 +249,59 @@ public class YAnnouncer {
 
     /**
      * Called by the engine when a case is suspending. Broadcast to all case listeners.
-     * @param id the identifier of the suspending case
+     * @param runner the root net runner of the suspending case
      */
-    protected void announceCaseSuspending(YIdentifier id) {
+    protected void announceCaseSuspending(YNetRunner runner) {
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_SUSPENDING, id));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_SUSPENDING, runner));
         }
     }
 
 
     /**
      * Called by the engine when a case has suspended. Broadcast to all case listeners.
-     * @param id the identifier of the suspended case
+     * @param runner the root net runner of the suspending case
      */
-    protected void announceCaseSuspended(YIdentifier id) {
+    protected void announceCaseSuspended(YNetRunner runner) {
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_SUSPENDED, id));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_SUSPENDED, runner));
         }
     }
 
 
     /**
      * Called by the engine when a case has resumed from suspension. Broadcast to case listeners.
-     * @param id the identifier of the resumed case
+     * @param runner the root net runner of the suspending case
      */
-    protected void announceCaseResumption(YIdentifier id) {
+    protected void announceCaseResumption(YNetRunner runner) {
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_RESUMED, id));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_RESUMED, runner));
         }
     }
     
     
-    protected void announceCaseStart(YSpecification spec, YIdentifier id, YLogDataItemList logData) {
+    protected void announceCaseStart(YSpecification spec, YNetRunner runner,
+                                     YLogDataItemList logData) {
         if (! _caseListeners.isEmpty()) {
-            announceCaseEvent(new YCaseEvent(YEventType.CASE_STARTED, id, spec));
+            announceCaseEvent(new YCaseEvent(YEventType.CASE_STARTED, runner, spec));
         }
         if (! _logListeners.isEmpty()) {
-            announceLogEvent(new YLogEvent(YEventType.CASE_STARTED, id, spec, logData));
+            announceLogEvent(new YLogEvent(YEventType.CASE_STARTED, runner.getCaseID(),
+                    spec, logData));
         }
     }
  
 
     /**
      * Called by a case's net runner when it completes. Announced to case listeners.
-     * @param id the identifier of the completed case
+     * @param runner the root net runner of the suspending case
      * @param caseData the final output data for the case
      */
-    protected void announceCaseCompletion(YSpecificationID specID, YIdentifier id, Document caseData) {
-        _logger.debug("Announcing case '{}' complete.", id.toString());
+    protected void announceCaseCompletion(YSpecificationID specID, YNetRunner runner,
+                                          Document caseData) {
+        _logger.debug("Announcing case '{}' complete.", runner.getCaseID().toString());
         if (! _caseListeners.isEmpty()) {
-            YCaseEvent event = new YCaseEvent(YEventType.CASE_COMPLETED, id, specID);
+            YCaseEvent event = new YCaseEvent(YEventType.CASE_COMPLETED, runner, specID);
             event.setData(caseData);
             announceCaseEvent(event);
         }
