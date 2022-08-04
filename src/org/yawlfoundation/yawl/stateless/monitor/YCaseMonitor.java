@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener {
 
     private final Map<YIdentifier, YCase> _caseMap;
+
+    // if idle timeout value is non-positive, idle timer is disabled
     private long _idleTimeout;
 
 
@@ -44,10 +46,12 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
     
     @Override
     public void handleWorkItemEvent(YWorkItemEvent event) {
-        YNetRunner runner = event.getWorkItem().getNetRunner().getTopRunner();
-        YCase yCase = _caseMap.get(runner.getCaseID());
-        if (yCase != null) {
-            yCase.ping();
+        if (isTimerEnabled()) {
+            YNetRunner runner = event.getWorkItem().getNetRunner().getTopRunner();
+            YCase yCase = _caseMap.get(runner.getCaseID());
+            if (yCase != null) {
+                yCase.ping();
+            }
         }
     }
     
@@ -89,5 +93,8 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
             yCase.cancelIdleTimer();
         }
     }
+
+
+    private boolean isTimerEnabled() { return _idleTimeout > 0; }
 
 }

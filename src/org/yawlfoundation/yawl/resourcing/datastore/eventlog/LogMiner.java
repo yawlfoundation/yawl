@@ -382,16 +382,16 @@ public class LogMiner {
         logger.info("XES #getMergedXESLog: begins ->");
         logger.info("XES #getMergedXESLog: resource log generation begins");
 
-        XNode rsCases = getXESLog(specid);
+        XNode rsCases = getXESLog(specid);                        // not null
 
         logger.info("XES #getMergedXESLog: resource log generation ends, engine log requested");
 
         String engCases = ResourceManager.getInstance().getClients()
-                .getEngineXESLog(specid, withData, _ignoreUnknownXesEvents);
+                .getEngineXESLog(specid, withData, _ignoreUnknownXesEvents);      // not null
 
         logger.info("XES #getMergedXESLog: engine log returned, merge logs begins");
 
-        if ((rsCases != null) && (engCases != null)) {
+        if (successful(engCases)) {
             String log = new ResourceXESLog(_ignoreUnknownXesEvents).mergeLogs(rsCases, engCases);
             logger.info("XES #getMergedXESLog: merge logs ends");
             logger.info("XES #getMergedXESLog: -> ends");

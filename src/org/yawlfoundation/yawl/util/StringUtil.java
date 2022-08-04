@@ -560,9 +560,7 @@ public class StringUtil {
         if (msecs > -1) {
             try {
                 return DatatypeFactory.newInstance().newDuration(msecs);
-            } catch (DatatypeConfigurationException dce) {
-                // nothing to do - null will be returned
-            } catch (IllegalArgumentException dce) {
+            } catch (DatatypeConfigurationException | IllegalArgumentException dce) {
                 // nothing to do - null will be returned
             }
         }
@@ -574,7 +572,7 @@ public class StringUtil {
         try {
             DatatypeFactory.newInstance().newDuration(s);
             return true;
-        } catch (DatatypeConfigurationException dce) {
+        } catch (DatatypeConfigurationException | IllegalArgumentException e) {
             return false;
         }
     }

@@ -56,34 +56,71 @@ public class YStatelessEngine {
 
 
     /**
-     * Start a case monitor that will announce idle cases. If the monitor is already
-     * running, updates the idle timer milliseconds for all current cases.
+     * Set the idle case timer value for case monitoring. If case monitoring is currently
+     * enabled, the idle time is updated. If case monitoring not is currently enabled,
+     * and the msecs value is positive, case monitoring is started with that value.
      * @param msecs the number of milliseconds that a case is allowed to remain idle.
      *              After the msecs have passed, all engine YCaseEventListeners will be
-     *              notified of the CASE_IDLE_TIMEOUT event. A negative value disable
-     *              the case monitor and the announcement of timeout events.
+     *              notified of the CASE_IDLE_TIMEOUT event. A non-positive value disable
+     *              the case idle time monitoring and the announcement of timeout events.
      */
     public void setIdleCaseTimer(long msecs) {
-        if (msecs < 0) {
-            if (_caseMonitor != null) {
-                removeCaseEventListener(_caseMonitor);
-                removeWorkItemEventListener(_caseMonitor);
-                _caseMonitor.cancel();
-                _caseMonitor = null;
-            }
+        if (_caseMonitor != null) {
+            _caseMonitor.setIdleTimeout(msecs);
         }
-        else {
+        else if (msecs > 0) {
+            setCaseMonitoringEnabled(true, msecs);
+        }
+    }
+
+
+    /**
+     * Enable or disable a case monitor that tracks all running cases.
+     * @param enable If true, enables the case monitor, but without monitoring case idle
+     *               times. If false, disables case monitoring (and discards all
+     *               currently monitored cases)
+     */
+    public void setCaseMonitoringEnabled(boolean enable) {
+        setCaseMonitoringEnabled(enable, 0);
+    }
+
+
+    /**
+     * Enable or disable a case monitor that tracks all running cases, and optionally
+     * monitor each case for idle time.
+     * @param enable If true, enables the case monitor, and if the case monitor is
+     *               already enabled, updates its timeout value for all current cases.
+     *               If false, disables case monitoring (and discards all currently
+     *               monitored cases)
+     * @param idleTimeout the number of milliseconds that a case is allowed to remain idle.
+     *              After the msecs have passed, all engine YCaseEventListeners will be
+     *              notified of the CASE_IDLE_TIMEOUT event. A negative value disable
+     *              idle time monitor and the announcement of timeout events.
+     */
+    public void setCaseMonitoringEnabled(boolean enable, long idleTimeout) {
+        if (enable) {
             if (_caseMonitor == null) {
-                _caseMonitor = new YCaseMonitor(msecs);
+                _caseMonitor = new YCaseMonitor(idleTimeout);
                 addCaseEventListener(_caseMonitor);
                 addWorkItemEventListener(_caseMonitor);
             }
             else {
-                _caseMonitor.setIdleTimeout(msecs);
+                setIdleCaseTimer(idleTimeout);
+            }
+        }
+        else {
+            if (_caseMonitor != null) {
+                 removeCaseEventListener(_caseMonitor);
+                 removeWorkItemEventListener(_caseMonitor);
+                 _caseMonitor.cancel();
+                 _caseMonitor = null;
             }
         }
     }
 
+
+    public boolean isCaseMonitoringEnabled() { return _caseMonitor != null; }
+    
 
     public int getEngineNbr() { return _engine.getEngineNbr(); }
     

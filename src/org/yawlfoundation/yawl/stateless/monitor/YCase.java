@@ -17,7 +17,7 @@ import java.util.TimerTask;
 public class YCase {
 
     private static final Timer IDLE_TIMER = new Timer(true);
-    protected static final long DEFAULT_IDLE_TIMEOUT = 5000;
+    protected static final long DEFAULT_IDLE_TIMEOUT = 0;
     private long _idleTimeout;
     private TimerTask _idleTimerTask;
 
@@ -37,12 +37,16 @@ public class YCase {
 
     protected void setIdleTimeout(long timeout) {
         _idleTimeout = timeout;
-        _idleTimerTask = startIdleTimer();
+        if (isIdleTimerEnabled()) {
+            _idleTimerTask = startIdleTimer();
+        }
     }
 
 
     protected void ping() {
-        resetIdleTimer();
+        if (isIdleTimerEnabled()) {
+            resetIdleTimer();
+        }
     }
 
 
@@ -66,6 +70,9 @@ public class YCase {
     }
 
 
+    private boolean isIdleTimerEnabled() { return _idleTimeout > 0; }
+
+
     private TimerTask startIdleTimer() {
         TimerTask task = new TimerTask() {
             @Override
@@ -81,7 +88,9 @@ public class YCase {
 
     protected void resetIdleTimer() {
         cancelIdleTimer();
-        _idleTimerTask = startIdleTimer();
+        if (isIdleTimerEnabled()) {
+            _idleTimerTask = startIdleTimer();
+        }
     }
 
 
