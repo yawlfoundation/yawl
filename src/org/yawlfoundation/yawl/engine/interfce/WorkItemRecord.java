@@ -63,7 +63,7 @@ public class WorkItemRecord implements Cloneable {
     public static final String statusResourceUnresourced = "Unresourced" ;
 
     private static final DateFormat DATE_FORMAT =
-            new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
+            new SimpleDateFormat("MMM dd yyyy H:mm:ss");
 
     // item identifiers
     private long _id;                                    // hibernate primary key

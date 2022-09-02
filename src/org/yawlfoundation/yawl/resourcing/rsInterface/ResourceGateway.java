@@ -238,6 +238,9 @@ public class ResourceGateway extends YHttpServlet {
                 String rate = req.getParameter("rate");
                 _rm.startOrgDataRefreshTimer(Long.parseLong(rate));
             }
+            else if (action.equalsIgnoreCase("isOrgDataSetModifiable")) {
+                result = String.valueOf(getOrgDataSet().isExternalOrgDataModsAllowed());
+            }
             else {
                 result = fail("Unrecognised action: " + action);
             }

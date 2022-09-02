@@ -79,7 +79,7 @@ public class ResourceGatewayClient extends Interface_Client {
     private String executeBooleanGet(String action, String id, String handle)
                                                              throws IOException {
         Map<String, String> params = prepareParamMap(action, handle);
-        params.put("id", id);
+        if (id != null) params.put("id", id);
         return executeGet(_serviceURI, params) ;
     }
 
@@ -990,6 +990,11 @@ public class ResourceGatewayClient extends Interface_Client {
      */
     public String isKnownNonHumanCategory(String id, String handle) throws IOException {
         return executeBooleanGet("isKnownNonHumanCategory", id, handle) ;
+    }
+
+
+    public String isOrgDataSetModifiable(String handle) throws IOException {
+        return executeBooleanGet("isOrgDataSetModifiable", null, handle);
     }
 
 

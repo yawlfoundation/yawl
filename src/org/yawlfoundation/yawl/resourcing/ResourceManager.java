@@ -2680,6 +2680,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
     public void reassignWorklistedItem(WorkItemRecord wir, String[] pidList,
                                        String action) {
+        if (pidList == null || pidList.length == 0) {
+            return;                           // no-one to reassign item to
+        }
         removeFromAll(wir);
 
         // a reoffer can be made to several participants

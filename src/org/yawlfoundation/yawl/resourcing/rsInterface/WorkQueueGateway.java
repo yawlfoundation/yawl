@@ -205,6 +205,12 @@ public class WorkQueueGateway extends HttpServlet {
         } else if (action.equals("getAdminQueues")) {
             QueueSet qSet = _rm.getAdminQueues();
             result = qSet.toXML();                                    // set never null
+        } else if (action.equals("getParticipantQueues")) {
+            Participant p = getOrgDataSet().getParticipant(pid);
+            if (p != null) {
+                QueueSet qSet = p.getWorkQueues();
+                result = qSet.toXML();                                    // set never null
+            } else result = fail("Unknown participant id: " + pid);
         } else if (action.equals("getWorkItem")) {
             result = _rm.getWorkItem(itemid);
         } else if (action.equals("getWorkItemChildren")) {
@@ -479,6 +485,10 @@ public class WorkQueueGateway extends HttpServlet {
                             "' has started, but could not retrieve its executing child.");
                 } else result = fail("Could not start workitem: " + wir.getID());
             } else result = fail("Unoffered', 'Offered' or 'Allocated", "started", wir);
+        } else if (action.equals("completeWorkItem")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
+                result = _rm.checkinItem(p, wir);
+            } else result = fail("Started", "completed", wir);
         } else if (action.equals("deallocateWorkItem")) {
             if (wir.hasResourceStatus(WorkItemRecord.statusResourceAllocated)) {
                 successful = _rm.deallocateWorkItem(p, wir);
@@ -506,11 +516,12 @@ public class WorkQueueGateway extends HttpServlet {
                 successful = _rm.unsuspendWorkItem(p, wir);
                 result = successful ? success : fail("Could not unsuspend workitem: " +
                         wir.getID());
-            } else result = fail("Suspended", "unsuspended", wir);
-        } else if (action.equals("completeWorkItem")) {
-            if (wir.hasResourceStatus(WorkItemRecord.statusResourceStarted)) {
-                result = _rm.checkinItem(p, wir);
-            } else result = fail("Started", "completed", wir);
+            }
+            else result = fail("Suspended", "unsuspended", wir);
+        } else if (action.equals("chainCase")) {
+            if (wir.hasResourceStatus(WorkItemRecord.statusResourceOffered)) {
+                result = _rm.chainCase(p, wir);
+            } else result = fail("Offered", "chained", wir);
         }
         return result;
     }

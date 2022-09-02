@@ -1254,7 +1254,7 @@ public class ResourceDataSet {
      * Gets the complete set of Participants that ultimately report to the
      * position(s) held by a Participant
      * @param pid the id of the 'manager' Participant
-     * @return the set of Particpants 'managed' by this Participant
+     * @return the set of Participants 'managed' by this Participant
      */
     public Set<Participant> getParticipantsReportingTo(String pid) {
         Set<Participant> result = new HashSet<Participant>() ;
@@ -1268,9 +1268,9 @@ public class ResourceDataSet {
 
 
     /**
-     * Gets the set of Participants the ultimately report to the Position passed
+     * Gets the set of Participants that ultimately report to the Position passed
      * @param manager the 'manager' Position
-     * @return the set of Particpants 'managed' by this Position
+     * @return the set of Participants 'managed' by this Position
      */
     public Set<Participant> getParticipantsReportingToPosition(Position manager) {
         Set<Participant> result = new HashSet<Participant>() ;

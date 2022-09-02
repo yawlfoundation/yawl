@@ -209,7 +209,7 @@ public class ResourceGatewayClientAdapter {
      */
     private List<AbstractResourceAttribute> xmlStringToResourceAttributeList(
                                             String xml, String className) {
-        List<AbstractResourceAttribute> result = new ArrayList<AbstractResourceAttribute>();
+        List<AbstractResourceAttribute> result = new ArrayList<>();
 
         // get List of child elements
         for (Element child : getChildren(xml)) {
@@ -402,7 +402,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the roles
      */
-    public List getRoles(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getRoles(String handle)
+            throws IOException, ResourceGatewayException {
         String rStr = successCheck(_rgclient.getRoles(handle)) ;
         return xmlStringToResourceAttributeList(rStr, "Role") ;
     }
@@ -415,7 +416,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the capabilities
      */
-    public List getCapabilities(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getCapabilities(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getCapabilities(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Capability") ;
     }
@@ -428,7 +430,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the positions
      */
-    public List getPositions(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getPositions(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getPositions(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Position") ;
     }
@@ -441,7 +444,8 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the groups
      */
-    public List getOrgGroups(String handle) throws IOException, ResourceGatewayException {
+    public List<AbstractResourceAttribute> getOrgGroups(String handle)
+            throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getOrgGroups(handle)) ;
         return xmlStringToResourceAttributeList(cStr, "OrgGroup") ;
     }
@@ -592,6 +596,14 @@ public class ResourceGatewayClientAdapter {
     }
 
 
+    public boolean isOrgDataSetModifiable(String handle) {
+        try {
+             return _rgclient.isOrgDataSetModifiable(handle).equals("true") ;
+         }
+         catch (IOException ioe) { return false; }
+    }
+
+
     /**
      * Checks if an id corresponds to a capability id known to the service
      * @param capabilityID the id to check
@@ -713,7 +725,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the roles
      */
-    public List getParticipantRoles(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantRoles(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String rStr = successCheck(_rgclient.getParticipantRoles(pid, handle)) ;
         return xmlStringToResourceAttributeList(rStr, "Role") ;
@@ -728,7 +740,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the capabilities
      */
-    public List getParticipantCapabilities(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantCapabilities(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String cStr = successCheck(_rgclient.getParticipantCapabilities(pid, handle)) ;
         return xmlStringToResourceAttributeList(cStr, "Capability") ;
@@ -743,7 +755,7 @@ public class ResourceGatewayClientAdapter {
      * @throws IOException if there was a problem connecting to the resource service
      * @throws ResourceGatewayException if there was a problem getting the positions
      */
-    public List getParticipantPositions(String pid, String handle)
+    public List<AbstractResourceAttribute> getParticipantPositions(String pid, String handle)
             throws IOException, ResourceGatewayException {
         String pStr = successCheck(_rgclient.getParticipantPositions(pid, handle)) ;
         return xmlStringToResourceAttributeList(pStr, "Position") ;

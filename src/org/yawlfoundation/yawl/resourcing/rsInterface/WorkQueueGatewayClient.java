@@ -239,6 +239,13 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getParticipantQueues(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getParticipantQueues", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
+    }
+
+
     public String getQueuedWorkItems(String pid, int queue, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("getQueuedWorkItems", handle);
@@ -361,6 +368,14 @@ public class WorkQueueGatewayClient extends Interface_Client {
 
     public String pileItem(String pid, String itemID, String handle) throws IOException {
         Map<String, String> params = prepareParamMap("pileWorkItem", handle);
+        params.put("participantid", pid);
+        params.put("workitemid", itemID);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String chainCase(String pid, String itemID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("chainCase", handle);
         params.put("participantid", pid);
         params.put("workitemid", itemID);
         return executePost(_serviceURI, params);

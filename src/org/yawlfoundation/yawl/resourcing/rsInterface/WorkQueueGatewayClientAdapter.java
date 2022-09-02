@@ -311,6 +311,16 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public QueueSet getParticipantQueues(String pid, String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = _wqclient.getParticipantQueues(pid, handle);
+        successCheck(xml);
+        QueueSet result = new QueueSet(pid, QueueSet.setType.participantSet, false);
+        result.fromXML(xml);
+        return result;
+    }
+
+
     public Set<WorkItemRecord> getQueuedWorkItems(String pid, int queue, String handle)
             throws IOException, ResourceGatewayException {
         String xml = _wqclient.getQueuedWorkItems(pid, queue, handle);
@@ -419,6 +429,12 @@ public class WorkQueueGatewayClientAdapter {
             throws IOException, ResourceGatewayException {
         return successCheck(_wqclient.pileItem(pid, itemID, handle));
     }
+
+
+    public String chainCase(String pid, String itemID, String handle)
+             throws IOException, ResourceGatewayException {
+         return successCheck(_wqclient.chainCase(pid, itemID, handle));
+     }
 
 
     public String suspendItem(String pid, String itemID, String handle)
