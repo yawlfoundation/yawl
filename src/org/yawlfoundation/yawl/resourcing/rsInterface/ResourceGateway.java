@@ -23,6 +23,7 @@ import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.LogMiner;
+import org.yawlfoundation.yawl.resourcing.datastore.orgdata.DataBackupEngine;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.*;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
@@ -37,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 
@@ -240,6 +242,14 @@ public class ResourceGateway extends YHttpServlet {
             }
             else if (action.equalsIgnoreCase("isOrgDataSetModifiable")) {
                 result = String.valueOf(getOrgDataSet().isExternalOrgDataModsAllowed());
+            }
+            else if (action.equalsIgnoreCase("importOrgData")) {
+                String xml = req.getParameter("xml");
+                List<String> outcome = new DataBackupEngine().importOrgData(xml);
+                result = stringListToXML(outcome);
+            }
+            else if (action.equalsIgnoreCase("exportOrgData")) {
+                result = new DataBackupEngine().exportOrgData();
             }
             else {
                 result = fail("Unrecognised action: " + action);
@@ -1041,6 +1051,18 @@ public class ResourceGateway extends YHttpServlet {
             return stringMapToXML(map);
         }
     }
+
+    private String stringListToXML(List<String> list) {
+        if (list != null) {
+            XNode node = new XNode("list");
+            for (String item : list) {
+                XNode child = node.addChild("item", item);
+            }
+            return node.toString();
+        }
+        return fail("No values returned.");
+    }
+
 
     private String stringMapToXML(Map<String, String> map) {
         if (map != null) {

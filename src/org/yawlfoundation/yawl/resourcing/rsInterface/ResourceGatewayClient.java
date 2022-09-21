@@ -246,8 +246,6 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
-
-
     /**
      * Gets an XML list of the Participants that are currently logged on to the service
      * @param handle a valid session handle
@@ -1897,6 +1895,31 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /******************************************************************************/
+
+    /**
+     * Imports the org data from a .ybkp file
+     * @param xml the file content
+     * @param handle  a current sessionhandle with admin privileges
+     * @return a message indicating success, or otherwise
+     * @throws IOException if the service can't be reached
+     */
+    public String importOrgData(String xml, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("importOrgData", handle);
+        params.put("xml", xml);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
+     * Exports the current org data to xml for writing to a .ybkp file
+     * @param handle a current sessionhandle with admin privileges
+     * @return the xml representation of the current org data, or an error message
+     * @throws IOException if the service can't be reached
+     */
+    public String exportOrgData(String handle) throws IOException {
+        return executeGet(_serviceURI, prepareParamMap("exportOrgData", handle));
+    }
+
 
     /** Triggers a reload of org data
      * @param handle a valid session handle with admin access

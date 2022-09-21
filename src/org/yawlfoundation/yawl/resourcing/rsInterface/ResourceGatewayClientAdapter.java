@@ -1306,7 +1306,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Role
      * @param p the Participant
-     * @param role the Role to add the Particpant to
+     * @param role the Role to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1320,7 +1320,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Capability
      * @param p the Participant
-     * @param cap the Capability to add the Particpant to
+     * @param cap the Capability to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1334,7 +1334,7 @@ public class ResourceGatewayClientAdapter {
     /**
      * Adds the specified Participant to the specified Position
      * @param p the Participant
-     * @param pos the Position to add the Particpant to
+     * @param pos the Position to add the Participant to
      * @param handle the current sessionhandle
      * @return a message indicating success, or describing a problem encountered
      * @throws IOException if there was a problem connecting to the resource service
@@ -1858,7 +1858,7 @@ public class ResourceGatewayClientAdapter {
     public boolean addNonHumanSubCategoryByName(String category,
                                                         String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanSubCategoryByName(category, subcategory,
+        successCheck(_rgclient.addNonHumanSubCategoryByName(category, subcategory,
                 handle));
         return true;
     }
@@ -1875,7 +1875,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean addNonHumanSubCategory(String id, String subcategory, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.addNonHumanSubCategory(id, subcategory, handle));
+        successCheck(_rgclient.addNonHumanSubCategory(id, subcategory, handle));
         return true;
     }
 
@@ -1891,7 +1891,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanCategory(String id, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanCategory(id, handle));
+        successCheck(_rgclient.removeNonHumanCategory(id, handle));
         return true;
     }
 
@@ -1907,7 +1907,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanCategoryByName(String name, String handle)
             throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanCategoryByName(name, handle));
+        successCheck(_rgclient.removeNonHumanCategoryByName(name, handle));
         return true;
     }
 
@@ -1923,7 +1923,7 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanSubCategoryByName(String category, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanSubCategoryByName(category, subcategory, handle));
+        successCheck(_rgclient.removeNonHumanSubCategoryByName(category, subcategory, handle));
         return true;
     }
 
@@ -1939,8 +1939,30 @@ public class ResourceGatewayClientAdapter {
      */
     public boolean removeNonHumanSubCategory(String id, String subcategory,
             String handle) throws IOException, ResourceGatewayException {
-        successful(_rgclient.removeNonHumanSubCategory(id, subcategory, handle));
+        successCheck(_rgclient.removeNonHumanSubCategory(id, subcategory, handle));
         return true;
+    }
+
+    /**
+     * Imports the org data from a .ybkp file
+     * @param xml the file content
+     * @param handle  a current sessionhandle with admin privileges
+     * @return a message indicating success, or otherwise
+     * @throws IOException if the service can't be reached
+     */
+    public String importOrgData(String xml, String handle) throws IOException {
+        return _rgclient.importOrgData(xml, handle);
+    }
+
+
+    /**
+     * Exports the current org data to xml for writing to a .ybkp file
+     * @param handle a current sessionhandle with admin privileges
+     * @return the xml representation of the current org data, or an error message
+     * @throws IOException if the service can't be reached
+     */
+    public String exportOrgData(String handle) throws IOException {
+        return _rgclient.exportOrgData(handle);
     }
 
 }
