@@ -63,12 +63,16 @@ public class NonHumanResource extends AbstractResource implements Comparable, Cl
         return _category;
     }
 
+    public String getCategoryName() {
+        return _category != null ? _category.getName() : "None";
+    }
+
     public void setCategory(NonHumanCategory newCategory) {
+        if (_category != null) {
+            _category.removeFromAll(this);
+        }
+        _category = newCategory;
         if (newCategory != null) {
-            if (_category != null) {
-                _category.removeFromAll(this);
-            }
-            _category = newCategory;
             _category.addResource(this, null);
         }
     }
@@ -85,16 +89,15 @@ public class NonHumanResource extends AbstractResource implements Comparable, Cl
     }
 
     public String getSubCategoryName() {
-        NonHumanSubCategory subCategory = (_category != null) ?
-                _category.getResourceSubCategory(this) : null;
-        return (subCategory != null) ? subCategory.getName() : null;
+        NonHumanSubCategory subCategory = getSubCategory();
+        return subCategory != null ? subCategory.getName() : "None";
     }
 
 
     public void setSubCategory(String subCategory) {
+        if (subCategory == null) subCategory = "None";
         String currentSubCategory = getSubCategoryName();
-        if ((_category != null) && (subCategory != null) &&
-                (! subCategory.equals(currentSubCategory))) {
+        if (_category != null && (! subCategory.equals(currentSubCategory))) {
             _category.moveToSubCategory(this, subCategory);
         }    
     }

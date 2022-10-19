@@ -32,9 +32,7 @@ import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This adapter class adds a transformation layer to the resource gateway client,
@@ -478,6 +476,37 @@ public class WorkQueueGatewayClientAdapter {
     }
 
 
+    public Set<String> getChainedCases(String pid, String handle)
+                throws IOException, ResourceGatewayException {
+        String xml = successCheck(_wqclient.getChainedCases(pid, handle));
+        XNode root = new XNodeParser().parse(xml);
+        if (root != null) {
+            Set<String> caseSet = new HashSet<>();
+            root.getChildren().forEach(node -> caseSet.add(node.getText()));
+            return caseSet;
+        }
+        return Collections.emptySet();
+    }
+
+
+    public String getPiledItems(String pid, String handle)
+                    throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.getPiledItems(pid, handle));
+    }
+
+
+    public String unchainCase(String caseID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.unchainCase(caseID, handle));
+    }
+
+
+    public String unpileTask(YSpecificationID specID, String taskID, String pid, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_wqclient.unpileTask(specID, taskID, pid, handle));
+    }
+
+    
     public String redirectWorkItemToYawlService(String itemID, String serviceName,
                                                 String handle)
             throws IOException, ResourceGatewayException {
@@ -485,6 +514,7 @@ public class WorkQueueGatewayClientAdapter {
                 serviceName, handle));
     }
 
+    
     /**
      * ****************************************************************************
      */

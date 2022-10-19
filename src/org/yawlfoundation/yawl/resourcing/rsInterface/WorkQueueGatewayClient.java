@@ -469,6 +469,37 @@ public class WorkQueueGatewayClient extends Interface_Client {
     }
 
 
+    public String getChainedCases(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getChainedCases", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String getPiledItems(String pid, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getPiledItems", handle);
+        params.put("participantid", pid);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String unchainCase(String caseID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("unchainCase", handle);
+        params.put("caseid", caseID);
+        return executePost(_serviceURI, params);
+    }
+
+
+    public String unpileTask(YSpecificationID specID, String taskID, String pid,
+                             String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("unpileTask", handle);
+        params.putAll(specID.toMap());
+        params.put("taskid", taskID);
+        params.put("participantid", pid);
+        return executePost(_serviceURI, params);
+    }
+
+
     /**
      * ****************************************************************************
      */

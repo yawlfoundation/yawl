@@ -255,6 +255,19 @@ public class ResourceGatewayClientAdapter {
     }
 
 
+    private List<NonHumanResource> xmlToNonHumanResourceList(String xml, String handle)
+            throws ResourceGatewayException, IOException {
+        Element e = JDOMUtil.stringToElement(xml);
+        List<NonHumanResource> list = new ArrayList<NonHumanResource>();
+        if (e != null) {
+            for (Element child : e.getChildren()) {
+                list.add(buildNonHumanResource(child, handle));
+            }
+        }
+        return list ;
+    }
+
+
     private NonHumanResource buildNonHumanResource(Element e, String handle)
             throws IOException, ResourceGatewayException {
         NonHumanResource resource = new NonHumanResource(e);
@@ -384,14 +397,29 @@ public class ResourceGatewayClientAdapter {
     public List<NonHumanResource> getNonHumanResources(String handle)
             throws IOException, ResourceGatewayException {
         String xml = successCheck(_rgclient.getNonHumanResources(handle)) ;
-        Element e = JDOMUtil.stringToElement(xml);
-        List<NonHumanResource> list = new ArrayList<NonHumanResource>();
-        if (e != null) {
-            for (Element child : e.getChildren()) {
-                list.add(buildNonHumanResource(child, handle));
-            }    
-        }
-        return list ;
+        return xmlToNonHumanResourceList(xml, handle);
+    }
+
+
+    /**
+     * Gets all the NonHumanResources belonging to a category
+     * @param categoryID the id of the category
+     * @param subCategory a sub-category name. If provided, will return members only with
+     *                    that category + sub-category combination. If null, all the
+     *                    members of the category are returned
+     * @param handle a valid session handle
+     * @return a List of all NonHumanResources for that category
+     * @throws IOException if the service can't be reached
+     * @throws ResourceGatewayException if there was a problem getting the
+     * NonHumanResource members
+     */
+    public List<NonHumanResource> getNonHumanCategoryMembers(String categoryID,
+                                                             String subCategory,
+                                                             String handle)
+            throws IOException, ResourceGatewayException {
+        String xml = successCheck(_rgclient.getNonHumanCategoryMembers(categoryID,
+                subCategory, handle)) ;
+        return xmlToNonHumanResourceList(xml, handle);
     }
 
 
@@ -1229,7 +1257,7 @@ public class ResourceGatewayClientAdapter {
      */
     public String addNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
-        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategory().getName(),
+        return _rgclient.addNonHumanResource(resource.getName(), resource.getCategoryName(),
                 resource.getSubCategoryName(), resource.getDescription(), resource.getNotes(),
                 handle);
     }
@@ -1387,7 +1415,7 @@ public class ResourceGatewayClientAdapter {
     public String updateNonHumanResource(NonHumanResource resource, String handle)
             throws IOException {
         return _rgclient.updateNonHumanResource(resource.getID(), resource.getName(),
-                resource.getCategory().getName(), resource.getSubCategoryName(),
+                resource.getCategoryName(), resource.getSubCategoryName(),
                 resource.getDescription(), resource.getNotes(), handle);
     }
 

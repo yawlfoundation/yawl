@@ -43,13 +43,13 @@ import java.util.Set;
 public class TaskPrivileges {
 
     // the user-task privileges sets
-    private HashSet<Participant> _canSuspend = new HashSet<Participant>();
-    private HashSet<Participant> _canReallocateStateless = new HashSet<Participant>();
-    private HashSet<Participant> _canReallocateStateful = new HashSet<Participant>();
-    private HashSet<Participant> _canDeallocate = new HashSet<Participant>();
-    private HashSet<Participant> _canDelegate = new HashSet<Participant>();
-    private HashSet<Participant> _canSkip = new HashSet<Participant>();
-    private HashSet<Participant> _canPile = new HashSet<Participant>();
+    private final HashSet<Participant> _canSuspend = new HashSet<Participant>();
+    private final HashSet<Participant> _canReallocateStateless = new HashSet<Participant>();
+    private final HashSet<Participant> _canReallocateStateful = new HashSet<Participant>();
+    private final HashSet<Participant> _canDeallocate = new HashSet<Participant>();
+    private final HashSet<Participant> _canDelegate = new HashSet<Participant>();
+    private final HashSet<Participant> _canSkip = new HashSet<Participant>();
+    private final HashSet<Participant> _canPile = new HashSet<Participant>();
 
     // the privilege types
     public static final int CAN_SUSPEND = 0;

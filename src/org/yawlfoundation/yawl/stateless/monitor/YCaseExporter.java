@@ -173,7 +173,11 @@ public class YCaseExporter {
 
             YNetRunner runner = engine.launchCase(spec);
             YCaseExporter exporter = new YCaseExporter();
+
+            long startTime = System.nanoTime();
             String xml = exporter.marshal(runner);
+            long endTime = System.nanoTime();
+            System.out.println("Duration (msecs): " + ((endTime - startTime) / 1000000));
         //    System.out.println(xml);
         }
         catch (Exception e) {

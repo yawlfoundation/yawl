@@ -25,10 +25,7 @@ import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.SpecificationData;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
-import org.yawlfoundation.yawl.resourcing.QueueSet;
-import org.yawlfoundation.yawl.resourcing.ResourceManager;
-import org.yawlfoundation.yawl.resourcing.TaskPrivileges;
-import org.yawlfoundation.yawl.resourcing.WorkQueue;
+import org.yawlfoundation.yawl.resourcing.*;
 import org.yawlfoundation.yawl.resourcing.datastore.orgdata.ResourceDataSet;
 import org.yawlfoundation.yawl.resourcing.resource.OrgGroup;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
@@ -295,6 +292,8 @@ public class WorkQueueGateway extends HttpServlet {
             result = doResourceAction(req, action);
         } else if (action.equals("completeWorkItem")) {
             result = doResourceAction(req, action);
+        } else if (action.equals("chainCase")) {
+             result = doResourceAction(req, action);
         } else if (action.equals("offerWorkItem")) {
             result = doAdminQueueAction(req, action);
         } else if (action.equals("allocateWorkItem")) {
@@ -334,6 +333,55 @@ public class WorkQueueGateway extends HttpServlet {
             _rm.removeEventListener(uri);
             result = success;
         }
+        else if (action.equals("getChainedCases")) {
+           Participant p = getOrgDataSet().getParticipant(pid);
+           if (p != null) {
+               Set<String> cases = _rm.getChainedCases(p);
+               XNode root = new XNode("chainedcases");
+               for (String item : cases) {
+                   root.addChild("item", item);
+               }
+               result = root.toString();
+           }
+           else result = fail("Unknown participant: " + pid);
+        }
+        else if (action.equals("getPiledItems")) {
+            Participant p = getOrgDataSet().getParticipant(pid);
+            if (p != null) {
+                XNode root = new XNode("piledTasks");
+                Set<ResourceMap> taskMaps = _rm.getPiledTaskMaps(p);
+                for (ResourceMap map : taskMaps) {
+                    XNode taskNode = root.addChild("task");
+                    taskNode.addChild(map.getSpecID().toXNode());
+                    taskNode.addChild("taskid", map.getTaskID());
+                }
+                result = root.toString();
+            }
+            else result = fail("Unknown participant: " + pid);
+        }
+        else if (action.equals("unchainCase")) {
+            String caseID = req.getParameter("caseid");
+            if (caseID != null) {
+                _rm.removeChain(caseID);
+                result = success;
+            }
+            else {
+                result = fail("Missing case id parameter");
+            }
+        }
+        else if (action.equals("unpileTask")) {
+            YSpecificationID specID = new YSpecificationID(specid, specversion, specuri);
+            String taskID = req.getParameter("taskid");
+            ResourceMap map = _rm.getCachedResourceMap(specID, taskID);
+            if (map != null) {
+                Participant p = getOrgDataSet().getParticipant(pid);
+                result = _rm.unpileTask(map, p);
+            }
+            else {
+                result = fail("Unknown specification or task");
+            }
+        }
+
 
         // the following calls are convenience pass-throughs to engine interfaces A & B
 

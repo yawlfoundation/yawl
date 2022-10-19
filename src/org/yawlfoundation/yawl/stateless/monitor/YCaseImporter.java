@@ -601,8 +601,12 @@ public class YCaseImporter {
         String caseXML = StringUtil.fileToString(caseFile);
         YCaseImporter importer = new YCaseImporter();
         try {
+            long startTime = System.nanoTime();
             List<YNetRunner> runners = importer.unmarshal(caseXML, null);
-            System.out.println(runners);
+            long endTime = System.nanoTime();
+            System.out.println("Duration (msecs): " + ((endTime - startTime) / 1000000));
+
+        //    System.out.println(runners);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -1186,7 +1186,7 @@ public class YNetRunner {
 
     private YTimerVariable getTimerVariable(String taskName) {
         for (YTask task : _netTasks) {
-            if (task.getName().equals(taskName)) {
+            if (task.getName() != null && task.getName().equals(taskName)) {
                 return task.getTimerVariable();
             }
         }

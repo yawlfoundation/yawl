@@ -838,6 +838,25 @@ public class ResourceGatewayClient extends Interface_Client {
 
 
     /**
+     * Gets all the NonHumanResources belonging to a category
+     * @param categoryID the id of the category
+     * @param subCategory a sub-category name. If provided, will return members only with
+     *                    that category + sub-category combination. If null, all the
+     *                    members of the category are returned
+     * @param handle a valid session handle
+     * @return an XML string describing the members, or an appropriate error message
+     * @throws IOException if the service can't be reached
+     */
+    public String getNonHumanCategoryMembers(String categoryID, String subCategory,
+                                             String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getNonHumanCategoryMembers", handle);
+        params.put("id", categoryID);
+        params.put("subcategory", subCategory);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    /**
      * Checks the user credentials passed against those stored
      * @param userid the userid of the Participant
      * @param password the associated password
@@ -1352,7 +1371,7 @@ public class ResourceGatewayClient extends Interface_Client {
                     String subcategory, String description, String notes, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("updateNonHumanResource", handle);
-        params.put("resourceID", resourceID);
+        params.put("resourceid", resourceID);
         params.put("name", name);
         params.put("category", category);
         params.put("subcategory", subcategory);
@@ -1492,7 +1511,7 @@ public class ResourceGatewayClient extends Interface_Client {
                                          String description, String notes, String handle)
             throws IOException {
         Map<String, String> params = prepareParamMap("updateNonHumanCategory", handle);
-        params.put("categoryID", categoryID);
+        params.put("categoryid", categoryID);
         params.put("name", name);
         params.put("description", description);
         params.put("notes", notes);

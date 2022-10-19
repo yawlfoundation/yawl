@@ -450,6 +450,12 @@ public class ResourceGateway extends YHttpServlet {
                             resource.setCategory(category);
                             resource.setSubCategory(req.getParameter("subcategory"));
                         }
+                        else {
+                           resource.clearCategory();
+                       }
+                    }
+                    else {
+                        resource.clearCategory();
                     }
                     getOrgDataSet().updateNonHumanResource(resource);
                 }
@@ -806,6 +812,15 @@ public class ResourceGateway extends YHttpServlet {
         }
         else if (action.equalsIgnoreCase("getNonHumanCategorySet")) {
             result = getOrgDataSet().getNonHumanCategorySet();
+        }
+        else if (action.equalsIgnoreCase("getNonHumanCategoryMembers")) {
+            String subCategory = req.getParameter("subcategory");
+            StringBuilder xml = new StringBuilder("<members>");
+            for (NonHumanResource resource : getOrgDataSet().getNonHumanResources(id, subCategory)) {
+                 xml.append(resource.toXML());
+            }
+            xml.append("</members>");
+            result = xml.toString();
         }
         else if (action.equalsIgnoreCase("getReferencedParticipantIDsAsXML")) {
             result = getOrgDataSet().resolveParticipantIdsAsXML(id);
