@@ -19,6 +19,7 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
+import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.resourcing.ResourceManager;
 import org.yawlfoundation.yawl.resourcing.datastore.eventlog.EventLogger;
@@ -223,6 +224,9 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.startsWith("remove")) {
                 result = doRemoveResourceAction(req, action);
             }
+            else if (action.startsWith("check")) {
+                 result = doCheckResourceAction(req, action);
+             }
             else if (action.equalsIgnoreCase("disconnect")) {
                 _rm.serviceDisconnect(handle);
             }
@@ -853,6 +857,17 @@ public class ResourceGateway extends YHttpServlet {
             }
             else result = fail("Unknown participant id: " + id);
         }
+        else if (action.equals("getSecondaryResources")) {
+            WorkItemRecord wir = _rm.getWorkItemRecord(id);
+            if (wir != null) {
+                SecondaryResources secondary = _rm.getSecondaryResources(wir);
+                if (secondary != null) {
+                    result = secondary.toXML();
+                }
+                else result = fail("No secondary resources set for item: " + id);
+            }
+            else result = fail("Unknown work item: " + id);
+        }
         return result;
     }
 
@@ -929,6 +944,35 @@ public class ResourceGateway extends YHttpServlet {
             }
             else result = fail("Null participant id");
         }
+        else if (action.equalsIgnoreCase("setSecondaryResources")) {
+            String xml = req.getParameter("xml");
+            String id = req.getParameter("id");
+            if (xml == null) {
+                result = fail("Missing parameter: xml");
+            }
+            else if (id == null) {
+                result = fail("Invalid item id: null");
+            }
+            else {
+                WorkItemRecord wir = _rm.getWorkItemRecord(id);
+                if (wir != null) {
+                    SecondaryResources resources = _rm.getSecondaryResources(wir);
+                    if (resources != null) {
+                        SecondaryResources.SecResDataSet oldDataSet = resources.getDataSet(wir);
+                        resources.fromXML(xml);
+                        List<String> problems = resources.checkAvailability(wir);
+                        if (problems.isEmpty()) {
+                            result = SUCCESS;
+                        }
+                        else {
+                            resources.addDataSet(wir, oldDataSet);
+                            result = stringListToXML(problems);
+                        }
+                    }
+                    else result = fail("Unable to set secondary resources for item: " + id);
+                }
+            }
+        }
         return result;
     }
 
@@ -958,6 +1002,31 @@ public class ResourceGateway extends YHttpServlet {
             else if (action.equalsIgnoreCase("isKnownNonHumanCategory")) {
                 result = String.valueOf(getOrgDataSet().isKnownNonHumanCategory(id)) ;
             }
+        }
+        else result = fail("Invalid ID: null");
+        return result;
+    }
+
+
+    public String doCheckResourceAction(HttpServletRequest req, String action) {
+        String result = "";
+        String id = req.getParameter("id");
+        if (id != null) {
+            if (action.equalsIgnoreCase("checkSecondaryResourcesAvailability")) {
+                WorkItemRecord wir = _rm.getWorkItemRecord(id);
+                if (wir != null) {
+                    SecondaryResources resources = _rm.getSecondaryResources(wir);
+                    if (resources != null) {
+                        List<String> problems = resources.checkAvailability(wir);
+                        if (problems.isEmpty()) {
+                            result = SUCCESS;
+                        }
+                        else result = stringListToXML(problems);
+                    }
+                    else result = fail("No secondary resources set for item: " + id);
+                }
+            }
+            else result = fail("Invalid action: " + action);
         }
         else result = fail("Invalid ID: null");
         return result;
@@ -1071,7 +1140,7 @@ public class ResourceGateway extends YHttpServlet {
         if (list != null) {
             XNode node = new XNode("list");
             for (String item : list) {
-                XNode child = node.addChild("item", item);
+                node.addChild("item", item);
             }
             return node.toString();
         }

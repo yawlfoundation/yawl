@@ -715,7 +715,7 @@ public class ResourceCalendar {
      * @param id the resource's id or the Entry type to get the entries for
      * @return the list of corresponding entries
      */
-    private List getEntries(String id) {
+    public List getEntries(String id) {
         return _persister.createQuery("FROM CalendarEntry AS ce WHERE ce.resourceID=:id")
                     .setString("id", id)
                     .list();

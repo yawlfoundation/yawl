@@ -31,6 +31,7 @@ import org.yawlfoundation.yawl.resourcing.interactions.ResourceParseException;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanCategory;
 import org.yawlfoundation.yawl.resourcing.resource.nonhuman.NonHumanResource;
 import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +63,9 @@ public class SecondaryResources {
     public String toXML() {
         return _defaultDataSet.toXML();
     }
+
+
+    public void fromXML(String xml) { _defaultDataSet.fromXML(xml); }
 
 
     public void parse(Element e, Namespace nsYawl) throws ResourceParseException {
@@ -509,6 +513,24 @@ public class SecondaryResources {
                 }
             }
             return node.toPrettyString();
+        }
+
+
+        protected void fromXML(String xml) {
+            clear();
+            XNode secondary = new XNodeParser(true).parse(xml);
+            for (XNode node : secondary.getChildren("participant")) {
+                addParticipant(node.getText());
+            }
+            for (XNode node : secondary.getChildren("role")) {
+                addRole(node.getText());
+            }
+            for (XNode node : secondary.getChildren("nonHumanResource")) {
+                addNonHumanResource(node.getText());
+            }
+            for (XNode node : secondary.getChildren("nonHumanCategory")) {
+                addNonHumanCategory(node.getText(), node.getAttributeValue("subcategory"));
+            }
         }
 
 

@@ -1961,4 +1961,30 @@ public class ResourceGatewayClient extends Interface_Client {
     }
 
 
+    /**************************************************************************/
+
+    public String getSecondaryResources(String itemID, String handle) throws IOException {
+        Map<String,String> params = prepareParamMap("getSecondaryResources", handle);
+        params.put("id", itemID);
+        return executeGet(_serviceURI, params);
+    }
+
+
+    public String setSecondaryResources(String itemID, String resourcesXML, String handle)
+            throws IOException {
+        Map<String,String> params = prepareParamMap("setSecondaryResources", handle);
+        params.put("id", itemID);
+        params.put("xml", resourcesXML);
+        return executePost(_serviceURI, params);
+    }
+
+    
+    public String checkSecondaryResourcesAvailability(String itemID, String handle)
+            throws IOException {
+        Map<String,String> params = prepareParamMap(
+                "checkSecondaryResourcesAvailability", handle);
+        params.put("id", itemID);
+        return executeGet(_serviceURI, params);
+    }
+
 }

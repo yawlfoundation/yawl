@@ -135,10 +135,9 @@ public class ResourceGatewayClientAdapter {
      * @return a List of Strings, or null if the string can't be parsed.
      */
     private List<String> xmlToStringList(String xml) {
-        List<String> list = null;
+        List<String> list = new ArrayList<>();
         XNode node = _xnodeParser.parse(xml);
         if (node != null) {
-            list = new ArrayList<String>();
             for (XNode child : node.getChildren()) {
                 list.add(child.getText());
             }
@@ -1991,6 +1990,26 @@ public class ResourceGatewayClientAdapter {
      */
     public String exportOrgData(String handle) throws IOException {
         return _rgclient.exportOrgData(handle);
+    }
+
+
+    public String getSecondaryResources(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getSecondaryResources(itemID, handle));
+    }
+
+
+    public List<String> setSecondaryResources(String itemID, String resourcesXML, String handle)
+            throws IOException, ResourceGatewayException {
+        String result = successCheck(_rgclient.setSecondaryResources(
+                itemID, resourcesXML, handle));
+        return xmlToStringList(result);
+    }
+
+
+    public String checkSecondaryResourcesAvailability(String itemID, String handle)
+            throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.checkSecondaryResourcesAvailability(itemID, handle));
     }
 
 }
