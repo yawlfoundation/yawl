@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.resourcing.rsInterface;
 
 import org.yawlfoundation.yawl.engine.interfce.Interface_Client;
+import org.yawlfoundation.yawl.resourcing.calendar.CalendarEntry;
+import org.yawlfoundation.yawl.resourcing.calendar.ResourceCalendar;
 import org.yawlfoundation.yawl.util.PasswordEncryptor;
 
 import java.io.IOException;
@@ -235,7 +237,7 @@ public class ResourceCalendarGatewayClient extends Interface_Client {
      * @param checkOnly if true, will report on the effects only - won't update the
      * reservations
      * @param handle a valid session handle
-     * @return an passed xml plan, updated with messages where appropriate
+     * @return a passed xml plan, updated with messages where appropriate
      * @throws IOException if the service can't be reached
      */
     public String saveReservations(String planXML, boolean checkOnly, String handle)
@@ -247,9 +249,90 @@ public class ResourceCalendarGatewayClient extends Interface_Client {
     }
 
 
+    public String getEntries(ResourceCalendar.ResourceGroup group, long from, long to,
+                             boolean commit, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getEntries", handle);
+        params.put("group", group.name());
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        params.put("commit", String.valueOf(commit));
+        return executeGet(_serviceURI, params) ;
+    }
 
 
+    public String getEntries(String resourceID, long from, long to,
+                             boolean commit, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getEntries", handle);
+        params.put("id", resourceID);
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        params.put("commit", String.valueOf(commit));
+        return executeGet(_serviceURI, params) ;
+    }
 
+
+    public String addEntry(ResourceCalendar.ResourceGroup group, long from, long to,
+                           int workload, String agent, String comment, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addEntry", handle);
+        params.put("group", group.name());
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        params.put("workload", String.valueOf(workload));
+        params.put("agent", agent);
+        params.put("comment", comment);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    public String addEntry(String resourceID, long from, long to, int workload,
+                           String agent, String comment, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("addEntry", handle);
+        params.put("id", resourceID);
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        params.put("workload", String.valueOf(workload));
+        params.put("agent", agent);
+        params.put("comment", comment);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    public String addEntry(CalendarEntry entry, String handle) throws IOException {
+        return addEntry(entry.getResourceID(), entry.getStartTime(), entry.getEndTime(),
+                entry.getWorkload(), entry.getAgent(), entry.getComment(), handle);
+    }
+
+
+    public String updateEntry(long entryID, long from, long to, int workload,
+                              String comment, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("updateEntry", handle);
+        params.put("entryid", String.valueOf(entryID));
+        params.put("from", String.valueOf(from));
+        params.put("to", String.valueOf(to));
+        params.put("workload", String.valueOf(workload));
+        params.put("comment", comment);
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    public String updateEntry(CalendarEntry entry, String handle) throws IOException {
+        return updateEntry(entry.getEntryID(), entry.getStartTime(), entry.getEndTime(),
+                entry.getWorkload(), entry.getComment(), handle);
+    }
+
+
+    public String deleteEntry(long entryID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("deleteEntry", handle);
+        params.put("entryid", String.valueOf(entryID));
+        return executeGet(_serviceURI, params) ;
+    }
+
+
+    public String deleteEntry(CalendarEntry entry, String handle) throws IOException {
+        return deleteEntry(entry.getEntryID(), handle);
+    }
 
 
 }

@@ -100,7 +100,10 @@ public class ResourceCalendarGateway extends HttpServlet {
             else result = _noService;
         }
         else if (validConnection(handle)) {
-            if (action.equals("addEntry")) {
+            if (action.equals("getEntries")) {
+                result = getEntries(req);
+            }
+            else if (action.equals("addEntry")) {
                 result = addEntry(req);
             }
             else if (action.equals("updateEntry")) {
@@ -191,6 +194,35 @@ public class ResourceCalendarGateway extends HttpServlet {
     }
 
 
+    private String getEntries(HttpServletRequest req) throws IOException {
+        String groupName = req.getParameter("group");
+        String resID = req.getParameter("id");
+        long from = strToLong(req.getParameter("from"));
+        long to = strToLong(req.getParameter("to"));
+        boolean commit = Boolean.parseBoolean(req.getParameter("commit"));
+
+        List entries;
+        if (groupName != null) {
+            ResourceCalendar.ResourceGroup group =
+                    ResourceCalendar.ResourceGroup.valueOf(groupName);
+            entries = _calendar.getEntries(group, from, to, commit);
+        }
+        else {
+            AbstractResource resource = _rm.getOrgDataSet().getResource(resID);
+            entries = _calendar.getEntries(resource, from, to, commit);
+        }
+
+        XNode node = new XNode("entries");
+        if (entries != null) {
+            for (Object o : entries) {
+                CalendarEntry entry = (CalendarEntry) o;
+                node.addChild(entry.toXNode());
+            }
+        }
+        return node.toString();
+    }
+
+
     private String addEntry(HttpServletRequest req) throws IOException {
         String groupName = req.getParameter("group");
         String resID = req.getParameter("id");
@@ -225,7 +257,7 @@ public class ResourceCalendarGateway extends HttpServlet {
                 String resource = groupName != null ? groupName : resID;
                 logEntry(entryID, resource, agent, workload);
             }
-            return _success;
+            return String.valueOf(entryID);
         }
         catch (CalendarException ce) {
             throw new IOException(ce);
@@ -234,7 +266,7 @@ public class ResourceCalendarGateway extends HttpServlet {
 
 
     private String updateEntry(HttpServletRequest req) throws IOException {
-        long entryID = strToLong(req.getParameter("entryID"));
+        long entryID = strToLong(req.getParameter("entryid"));
         long from = strToLong(req.getParameter("from"));
         long to = strToLong(req.getParameter("to"));
         int workload = StringUtil.strToInt(req.getParameter("workload"), -1);
@@ -259,7 +291,7 @@ public class ResourceCalendarGateway extends HttpServlet {
 
 
     private String deleteEntry(HttpServletRequest req) throws IOException {
-        long entryID = strToLong(req.getParameter("entryID"));
+        long entryID = strToLong(req.getParameter("entryid"));
         if (entryID > -1) {
             try {
                 _calendar.makeAvailable(entryID);
@@ -269,7 +301,7 @@ public class ResourceCalendarGateway extends HttpServlet {
                 throw new IOException(e);
             }
         }
-        else throw new IOException("Failed to delete calendar entry: invalid  id");
+        else throw new IOException("Failed to delete calendar entry: invalid id");
     }
 
 

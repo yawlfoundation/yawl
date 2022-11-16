@@ -18,6 +18,10 @@
 
 package org.yawlfoundation.yawl.resourcing.calendar;
 
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.XNodeParser;
+
 /**
  * Author: Michael Adams
  * Creation Date: 12/03/2010
@@ -133,4 +137,45 @@ public class CalendarEntry implements Cloneable {
     public CalendarEntry clone()  throws CloneNotSupportedException {
         return (CalendarEntry) super.clone();
     }
+
+
+    public String toXML() {
+        return toXNode().toString();
+    }
+
+
+    public void fromXML(String xml) {
+        fromXNode(new XNodeParser().parse(xml));
+    }
+
+
+    public XNode toXNode() {
+        XNode node = new XNode("calendarentry");
+        node.addChild("entryid", entryID);
+        node.addChild("resourceid", resourceID);
+        node.addChild("chainid", chainID);
+        node.addChild("from", startTime);
+        node.addChild("to", endTime);
+        node.addChild("status", status);
+        node.addChild("workload", workload);
+        node.addChild("agent", agent);
+        node.addChild("comment", comment);
+        return node;
+    }
+
+
+    public void fromXNode(XNode node) {
+        if (node != null) {
+            setEntryID(StringUtil.strToLong(node.getChildText("entryid"), 0));
+            setResourceID(node.getChildText("resourceid"));
+            setChainID(StringUtil.strToLong(node.getChildText("chainid"), 0));
+            setStartTime(StringUtil.strToLong(node.getChildText("from"), 0));
+            setEndTime(StringUtil.strToLong(node.getChildText("to"), 0));
+            setStatus(node.getChildText("status"));
+            setWorkload(StringUtil.strToInt(node.getChildText("workload"), 0));
+            setAgent(node.getChildText("agent"));
+            setComment(node.getChildText("comment"));
+        }
+    }
+
 }
