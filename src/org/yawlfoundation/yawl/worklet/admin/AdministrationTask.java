@@ -19,6 +19,8 @@
 package org.yawlfoundation.yawl.worklet.admin;
 
 import org.apache.logging.log4j.LogManager;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
 /**
  *  This class stores the details of a pending administration task, viewed via
@@ -68,6 +70,34 @@ public class AdministrationTask {
         _itemID = itemID;
     }
 
+
+    public String toXML() {
+        XNode node = new XNode("task");
+        node.addChild("id", getID());
+        node.addChild("caseid", getCaseID());
+        if (_itemID != null) {
+            node.addChild("itemid", getItemID());
+        }
+        node.addChild("type", getTaskType());
+        node.addChild("title", getTitle(), true);
+        node.addChild("scenario", getScenario(), true);
+        node.addChild("process", getProcess(), true);
+        return node.toString();
+    }
+
+
+    public void fromXNode(XNode node) {
+        if (node != null) {
+            setID(StringUtil.strToInt(node.getChildText("caseID"), -1));
+            setCaseID(node.getChildText("caseid"));
+            setItemID(node.getChildText("itemid"));
+            setTaskType(StringUtil.strToInt(node.getChildText("type"), 0));
+            setTitle(node.getChildText("title", true));
+            setScenario(node.getChildText("scenario", true));
+            setProcess(node.getChildText("process", true));
+        }
+    }
+
     /***************************************************************************/
 
     // SETTERS & GETTERS //
@@ -105,7 +135,7 @@ public class AdministrationTask {
         _caseID = caseID ;
     }
 
-    public void setitemID(String itemID) {
+    public void setItemID(String itemID) {
         _itemID = itemID;
     }
 

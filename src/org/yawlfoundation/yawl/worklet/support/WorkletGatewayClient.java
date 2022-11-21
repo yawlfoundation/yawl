@@ -767,4 +767,72 @@ public class WorkletGatewayClient extends Interface_Client {
         return executePost(_wsURI, params);
     }
 
+
+    public String getAdministrationTask(int id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getAdministrationTask", handle);
+        params.put("id", String.valueOf(id));
+        return executeGet(_wsURI, params);
+    }
+
+
+    public String getAdministrationTasks(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getAdministrationTasks", handle));
+    }
+
+
+    public String addAdministrationTask(String caseID, String itemID, String title,
+                                        String scenario, String process, int taskType,
+                                        String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("addAdministrationTask", handle);
+        params.put("caseid", caseID);
+        if (itemID != null) {
+            params.put("itemid", itemID);
+        }
+        params.put("title", title);
+        params.put("scenario", scenario);
+        params.put("process", process);
+        params.put("tasktype", String.valueOf(taskType));
+        return executePost(_wsURI, params);
+    }
+
+
+    public String removeAdministrationTask(int id, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("removeAdministrationTask", handle);
+        params.put("id", String.valueOf(id));
+        return executePost(_wsURI, params);
+    }
+
+
+    public String raiseCaseExternalException(String caseID, String trigger, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("raiseExternalException", handle);
+        params.put("caseid", caseID);
+        params.put("trigger", trigger);
+        return executePost(_wsURI, params);
+    }
+
+
+    public String raiseItemExternalException(String itemID, String trigger, String handle)
+            throws IOException {
+        Map<String, String> params = prepareParamMap("raiseExternalException", handle);
+        params.put("itemid", itemID);
+        params.put("trigger", trigger);
+        return executePost(_wsURI, params);
+    }
+
+
+    public String getExternalTriggersForCase(String caseID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getExternalTriggers", handle);
+        params.put("caseid", caseID);
+        return executeGet(_wsURI, params);
+    }
+
+
+    public String getExternalTriggersForItem(String itemID, String handle) throws IOException {
+        Map<String, String> params = prepareParamMap("getExternalTriggers", handle);
+        params.put("itemid", itemID);
+        return executeGet(_wsURI, params);
+    }
+
+
 }

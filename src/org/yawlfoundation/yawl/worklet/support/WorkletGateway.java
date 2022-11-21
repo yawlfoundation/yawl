@@ -30,6 +30,8 @@ import org.yawlfoundation.yawl.util.Sessions;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.worklet.WorkletService;
+import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
+import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
 import org.yawlfoundation.yawl.worklet.exception.ExceptionService;
 import org.yawlfoundation.yawl.worklet.exception.ExletValidationError;
 import org.yawlfoundation.yawl.worklet.exception.ExletValidator;
@@ -62,6 +64,7 @@ public class WorkletGateway extends YHttpServlet {
 
     private WorkletService _ws;
     private Rdr _rdr;
+    private AdminTasksManager _adminTasksMgr;
     private Sessions _sessions;            // maintains sessions with external services
 
     public void init() {
@@ -206,6 +209,27 @@ public class WorkletGateway extends YHttpServlet {
                 else if (action.equalsIgnoreCase("updateRdrSetTaskIDs")) {
                     result = updateRdrSetTaskIDs(req);
                 }
+                else if (action.equalsIgnoreCase("updateRdrSetTaskIDs")) {
+                    result = updateRdrSetTaskIDs(req);
+                }
+                else if (action.equalsIgnoreCase("getAdministrationTasks")) {
+                    result = getAdministrationTasks();
+                }
+                else if (action.equalsIgnoreCase("getAdministrationTask")) {
+                    result = getAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("addAdministrationTask")) {
+                    result = addAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("removeAdministrationTask")) {
+                    result = removeAdministrationTask(req);
+                }
+                else if (action.equalsIgnoreCase("raiseExternal")) {
+                    result = raiseExternalException(req);
+                }
+                else if (action.equalsIgnoreCase("getExternalTriggers")) {
+                    result = getExternalTriggers(req);
+                }
                 else {
                     result = fail("Unrecognised action: " + action);
                 }
@@ -238,6 +262,14 @@ public class WorkletGateway extends YHttpServlet {
         if (!(specIdentifier == null && specURI == null)) {
             return new YSpecificationID(specIdentifier, specVersion, specURI);
         } else return null;
+    }
+
+
+    private AdminTasksManager getAdminTasksMgr() {
+        if (_adminTasksMgr == null) {
+            _adminTasksMgr = new AdminTasksManager();
+        }
+        return _adminTasksMgr;
     }
 
 
@@ -690,6 +722,98 @@ public class WorkletGateway extends YHttpServlet {
         }
 
         return refreshedWir;
+    }
+
+
+    private String getAdministrationTask(HttpServletRequest req) {
+        int id = StringUtil.strToInt(req.getParameter("id"), -1);
+        if (id > -1) {
+            AdministrationTask task = getAdminTasksMgr().getTask(id);
+            if (task != null) {
+                return task.toXML();
+            }
+        }
+        return fail("Missing or invalid task id");
+    }
+
+
+    private String getAdministrationTasks() {
+        StringBuilder xml = new StringBuilder("<tasks>");
+        for (AdministrationTask task : getAdminTasksMgr().getAllTasksAsList()) {
+            xml.append(task.toXML());
+        }
+        xml.append("</tasks>");
+        return xml.toString();
+    }
+    
+
+    private String addAdministrationTask(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+        String title = req.getParameter("title");
+        String scenario = req.getParameter("scenario");
+        String process = req.getParameter("process");
+        int taskType = StringUtil.strToInt(req.getParameter("tasktype"), -1);
+
+        AdministrationTask task;
+        if (itemID != null) {
+            task = getAdminTasksMgr().addTask(caseID, itemID, title, scenario, process, taskType);
+        }
+        else {
+            task = getAdminTasksMgr().addTask(caseID, title, scenario, process, taskType);
+        }
+        return task.toXML();
+    }
+
+
+    private String removeAdministrationTask(HttpServletRequest req) {
+        int id = StringUtil.strToInt(req.getParameter("id"), -1);
+        if (id > -1) {
+            AdministrationTask task = getAdminTasksMgr().removeTask(id);
+            if (task != null) {
+                return "<success/>";
+            }
+        }
+        return fail("Missing or invalid task id");
+    }
+
+
+    private String raiseExternalException(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+        String trigger = req.getParameter("trigger");
+        if (caseID != null) {
+            _ws.getExceptionService().raiseExternalException("case", caseID, trigger);
+        }
+        else if (itemID != null) {
+            _ws.getExceptionService().raiseExternalException("item", itemID, trigger);
+        }
+        return "<success/>";
+    }
+
+
+    private String getExternalTriggers(HttpServletRequest req) {
+        String caseID = req.getParameter("caseid");
+        String itemID = req.getParameter("itemid");
+
+        List<String> triggers = null;
+        if (caseID != null) {
+            triggers = _ws.getExceptionService().getExternalTriggersForCase(caseID);
+        }
+        else if (itemID != null) {
+            triggers = _ws.getExceptionService().getExternalTriggersForItem(itemID);
+        }
+
+        if (triggers == null) {
+            return fail("Missing parameter: id");
+        }
+
+        StringBuilder xml = new StringBuilder("<triggers>");
+        for (String trigger : triggers) {
+            xml.append(StringUtil.wrap(trigger, "trigger"));
+        }
+        xml.append("</triggers>");
+        return xml.toString();
     }
 
 }
