@@ -868,6 +868,9 @@ public class ResourceGateway extends YHttpServlet {
             }
             else result = fail("Unknown work item: " + id);
         }
+        else if (action.equals("getBuildProperties")) {
+            result = _rm.getBuildProperties().toXML();
+        }
         return result;
     }
 

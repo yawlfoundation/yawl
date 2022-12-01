@@ -23,7 +23,7 @@ import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.engine.interfce.interfaceA.InterfaceA_EnvironmentBasedClient;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -48,15 +48,14 @@ public class Sessions {
     private static final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
-    private static final String INVALID_PASSWORD = "Invalid password";
-    private static final String UNKNOWN_USER = "Unknown user id";
+    private static final String INVALID_CREDENTIALS = "Invalid credentials";
 
     /**
      * Constructs a new Sessions object
      */
     public Sessions() {
-        idToHandle = new Hashtable<String, String>();
-        handleToTimer = new Hashtable<String, ScheduledFuture>();
+        idToHandle = new HashMap<>();
+        handleToTimer = new HashMap<>();
     }
 
 
@@ -111,12 +110,12 @@ public class Sessions {
         try {
             String storedPassword = iaClient.getPassword(userid);
             if (storedPassword == null || storedPassword.startsWith("<fail")) {
-                return failMsg(UNKNOWN_USER);
+                return failMsg(INVALID_CREDENTIALS);
             }
             if (storedPassword.equals(password)) {
                 return getHandle(userid);                    // session established!
             }
-            return failMsg(INVALID_PASSWORD);
+            return failMsg(INVALID_CREDENTIALS);
         }
         catch (IOException ioe) {
             return failMsg(ioe.getMessage());
@@ -256,7 +255,7 @@ public class Sessions {
          */
         String getPassword(String id) throws IOException {
             checkConnection();
-            if (id == null) throw new IOException(UNKNOWN_USER);
+            if (id == null) throw new IOException(INVALID_CREDENTIALS);
 
             // try for custom service first
             YClient service = getServiceAccount(id);
@@ -304,8 +303,8 @@ public class Sessions {
             }
 
             // if we have no handle, or if it has expired, establish a new connection
-            if ((iaHandle == null) ||
-                    (! iaClient.successful(iaClient.checkConnection(iaHandle)))) {
+            if (iaHandle == null || ! iaClient.successful(iaHandle) ||
+                    ! iaClient.successful(iaClient.checkConnection(iaHandle))) {
                 iaHandle = iaClient.connect(iaUserid, iaPassword);
                 if (! iaClient.successful(iaHandle)) {
                     throw new IOException(getInnerMsg(iaHandle));

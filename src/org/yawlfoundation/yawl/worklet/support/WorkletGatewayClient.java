@@ -834,5 +834,8 @@ public class WorkletGatewayClient extends Interface_Client {
         return executeGet(_wsURI, params);
     }
 
+    public String getBuildProperties(String handle) throws IOException {
+        return executeGet(_wsURI, prepareParamMap("getBuildProperties", handle));
+    }
 
 }

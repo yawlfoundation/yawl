@@ -2012,4 +2012,9 @@ public class ResourceGatewayClientAdapter {
         return successCheck(_rgclient.checkSecondaryResourcesAvailability(itemID, handle));
     }
 
+
+    public String getBuildProperties(String handle) throws IOException, ResourceGatewayException {
+        return successCheck(_rgclient.getBuildProperties(handle));
+    }
+
 }

@@ -1987,4 +1987,10 @@ public class ResourceGatewayClient extends Interface_Client {
         return executeGet(_serviceURI, params);
     }
 
+
+    public String getBuildProperties(String handle) throws IOException {
+        Map<String,String> params = prepareParamMap( "getBuildProperties", handle);
+        return executeGet(_serviceURI, params);
+    }
+
 }

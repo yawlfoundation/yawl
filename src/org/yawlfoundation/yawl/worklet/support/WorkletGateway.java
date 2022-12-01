@@ -25,10 +25,7 @@ import org.yawlfoundation.yawl.engine.interfce.Marshaller;
 import org.yawlfoundation.yawl.engine.interfce.ServletUtils;
 import org.yawlfoundation.yawl.engine.interfce.WorkItemRecord;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
-import org.yawlfoundation.yawl.util.JDOMUtil;
-import org.yawlfoundation.yawl.util.Sessions;
-import org.yawlfoundation.yawl.util.StringUtil;
-import org.yawlfoundation.yawl.util.XNode;
+import org.yawlfoundation.yawl.util.*;
 import org.yawlfoundation.yawl.worklet.WorkletService;
 import org.yawlfoundation.yawl.worklet.admin.AdminTasksManager;
 import org.yawlfoundation.yawl.worklet.admin.AdministrationTask;
@@ -45,6 +42,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.List;
@@ -65,6 +63,7 @@ public class WorkletGateway extends YHttpServlet {
     private WorkletService _ws;
     private Rdr _rdr;
     private AdminTasksManager _adminTasksMgr;
+    private YBuildProperties _buildProps;
     private Sessions _sessions;            // maintains sessions with external services
 
     public void init() {
@@ -94,6 +93,11 @@ public class WorkletGateway extends YHttpServlet {
                 _sessions = new Sessions();
                 _sessions.setupInterfaceA(engineURI.replaceFirst("/ib", "/ia"),
                         engineLogonName, engineLogonPassword);
+
+                // read the current version properties
+                initBuildProperties(context.getResourceAsStream(
+                                   "/WEB-INF/classes/version.properties"));
+
 
                 _ws.completeInitialisation();
             } catch (Exception e) {
@@ -230,6 +234,10 @@ public class WorkletGateway extends YHttpServlet {
                 else if (action.equalsIgnoreCase("getExternalTriggers")) {
                     result = getExternalTriggers(req);
                 }
+                else if (action.equalsIgnoreCase("getBuildProperties")) {
+                     result = _buildProps.toXML();
+                 }
+
                 else {
                     result = fail("Unrecognised action: " + action);
                 }
@@ -251,6 +259,12 @@ public class WorkletGateway extends YHttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse res)
             throws IOException, ServletException {
         doPost(req, res);
+    }
+
+
+    public void initBuildProperties(InputStream stream) {
+        _buildProps = new YBuildProperties();
+        _buildProps.load(stream);
     }
 
 
