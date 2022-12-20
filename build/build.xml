@@ -32,7 +32,7 @@
     <filter token="SCHEDULING_LOGGING_LEVEL" value="${scheduling.logging.level}"/>
     <filter token="PROCLET_LOGGING_LEVEL" value="${proclet.logging.level}"/>
 
-    <property name="app.version" value="4.5.1"/>
+    <property name="app.version" value="5.0"/>
     <property name="developer.name" value="Michael Adams, Lachlan Aldred, Andrew Hastie,
                                            Mike Fowler et al."/>
 
@@ -472,8 +472,9 @@
 
     <property name="webapp_resourceService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
-                     ${dbClient} ${jsf.libs} ${commonsLang} ${commonsCodec}
+                     ${dbClient} ${commonsLang} ${commonsCodec}
                      ${xerces} ${saxon.libs}"/>
+<!--    ${jsf.libs}-->
 
     <property name="webapp_workletService.libs"
               value="${persistence.libs} ${xsd.libs} ${jdom} ${log4j.libs}
@@ -1567,6 +1568,7 @@
             <fileset dir="${classes.dir}${packageRoot}/resourcing"
                      includes="**/*.class **/*.xml **/YawlUI.properties
                                **/ldap_schema/*"/>
+<!--                     excludes="**/jsf/*"/>-->
         </copy>
 
         <!-- 2b. Copy required resourcing support files into dir root -->
@@ -1585,21 +1587,21 @@
               file="${graphics.dir}/yawl.swf"/>
 
         <!-- 2c(i). Copy in resources for jsps -->
-        <copy todir="${temp.dir}/${resource.app.name}/resources">
-            <fileset dir="${build.dir}/${resource.app.name}/resources"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}/resources">-->
+<!--            <fileset dir="${build.dir}/${resource.app.name}/resources"/>-->
+<!--        </copy>-->
 
         <!-- 2d. Copy in jsps -->
-        <copy todir="${temp.dir}/${resource.app.name}">
-            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"
-                     includes="*.jsp *.jspf *.html"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}">-->
+<!--            <fileset dir="${classes.dir}${packageRoot}/resourcing/jsf/jsp"-->
+<!--                     includes="*.jsp *.jspf *.html"/>-->
+<!--        </copy>-->
         <copy file="${classes.dir}${packageRoot}/resourcing/datastore/orgdata/LDAPSource.properties"
               todir="${temp.dir}/${resource.app.name}/WEB-INF/classes"/>
-        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF">
-            <fileset dir="${build.dir}/${resource.app.name}/jsf_xml"
-                     includes="*.xml"/>
-        </copy>
+<!--        <copy todir="${temp.dir}/${resource.app.name}/WEB-INF">-->
+<!--            <fileset dir="${build.dir}/${resource.app.name}/jsf_xml"-->
+<!--                     includes="*.xml"/>-->
+<!--        </copy>-->
         <propertyfile file="${build.dir}/${resource.app.name}/version.properties">
             <entry key="Version" value="${app.version}"/>
             <entry key="BuiltBy" value="${user.name}"/>

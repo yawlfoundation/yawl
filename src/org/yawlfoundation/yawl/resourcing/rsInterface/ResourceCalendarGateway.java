@@ -194,7 +194,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     }
 
 
-    private String getEntries(HttpServletRequest req) throws IOException {
+    private String getEntries(HttpServletRequest req) {
         String groupName = req.getParameter("group");
         String resID = req.getParameter("id");
         long from = strToLong(req.getParameter("from"));
@@ -223,7 +223,7 @@ public class ResourceCalendarGateway extends HttpServlet {
     }
 
 
-    private String addEntry(HttpServletRequest req) throws IOException {
+    private String addEntry(HttpServletRequest req) {
         String groupName = req.getParameter("group");
         String resID = req.getParameter("id");
         String agent = req.getParameter("agent");
@@ -243,14 +243,13 @@ public class ResourceCalendarGateway extends HttpServlet {
             else if (resID != null) {
                 CalendarEntry entry = new CalendarEntry(resID, from, to,
                         ResourceCalendar.Status.unavailable, workload, agent, comment);
-                if (!clash(entry, true)) {
-                    entryID = _calendar.addEntry(entry);
+                if (clash(entry, true)) {
+                    return fail("Time(s) and/or workload values clash with an existing entry");
                 }
-                else throw new CalendarException(
-                        "Time(s) and/or workload values clash with an existing entry");
+                entryID = _calendar.addEntry(entry);    // no clash
             }
             else {
-                throw new CalendarException("Unknown resource");
+                return fail("Unknown resource");
             }
 
             if (entryID > -1) {
@@ -260,12 +259,12 @@ public class ResourceCalendarGateway extends HttpServlet {
             return String.valueOf(entryID);
         }
         catch (CalendarException ce) {
-            throw new IOException(ce);
+            return fail(ce.getMessage());
         }
     }
 
 
-    private String updateEntry(HttpServletRequest req) throws IOException {
+    private String updateEntry(HttpServletRequest req) {
         long entryID = strToLong(req.getParameter("entryid"));
         long from = strToLong(req.getParameter("from"));
         long to = strToLong(req.getParameter("to"));
@@ -283,14 +282,14 @@ public class ResourceCalendarGateway extends HttpServlet {
                 logEntry(entryID, entry.getResourceID(), entry.getAgent(), workload);
                 return _success;
             }
-            else throw new IOException("Failed to update calendar: " +
+            else return fail("Failed to update calendar: " +
                     "time(s) and/or workload values clash with an existing entry");
         }
-        else throw new IOException("Failed to update calendar: invalid entry id");
+        else return fail("Failed to update calendar: invalid entry id");
     }
 
 
-    private String deleteEntry(HttpServletRequest req) throws IOException {
+    private String deleteEntry(HttpServletRequest req) {
         long entryID = strToLong(req.getParameter("entryid"));
         if (entryID > -1) {
             try {
@@ -298,10 +297,10 @@ public class ResourceCalendarGateway extends HttpServlet {
                 return _success;
             }
             catch (CalendarException e) {
-                throw new IOException(e);
+                return fail(e.getMessage());
             }
         }
-        else throw new IOException("Failed to delete calendar entry: invalid id");
+        else return fail("Failed to delete calendar entry: invalid id");
     }
 
 
@@ -313,8 +312,8 @@ public class ResourceCalendarGateway extends HttpServlet {
             }
 
             // if times overlap and combined workloads > 100%
-            if ((other.getStartTime() < entry.getEndTime() ||
-                other.getEndTime() > entry.getStartTime()) &&
+            if (other.getStartTime() <= entry.getEndTime() &&
+                other.getEndTime() >= entry.getStartTime() &&
                 other.getWorkload() + entry.getWorkload() > 100) {
                 return true;
             }

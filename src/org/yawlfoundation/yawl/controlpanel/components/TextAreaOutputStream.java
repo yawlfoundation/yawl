@@ -77,7 +77,7 @@ public class TextAreaOutputStream extends OutputStream {
 
 
     private void append(String text) {
-        if (text.contains("memory leak")) {                  // ignore this warning
+        if (mayIgnore(text)) {                  // ignore this warning
             return;
         }
         Color color = DEFAULT_COLOR;
@@ -107,6 +107,16 @@ public class TextAreaOutputStream extends OutputStream {
         _textPane.setEditable(true);
         _textPane.replaceSelection(text);
         _textPane.setEditable(false);
+    }
+
+
+    // eh cache waring are for info only and can be ignored
+    // on shutdown, memory leak warning can be ignored
+    private boolean mayIgnore(String text) {
+        return text.contains("ehcache") || text.contains("CacheManager") ||
+                text.contains("memory leak") || text.contains("java.base@16/") ||
+                text.contains("com.mchange.v2.async.ThreadPoolAsynchronousRunner$") ||
+                text.contains("org.h2");
     }
 
 }

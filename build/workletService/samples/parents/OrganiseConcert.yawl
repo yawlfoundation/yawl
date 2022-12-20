@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema4.0.xsd">
   <specification uri="OrganiseConcert">
     <name>Organise Concert</name>
     <documentation>Example used to test Worklet Service Exception Handling</documentation>
@@ -7,6 +7,7 @@
       <title>Organise Concert</title>
       <creator>Adams</creator>
       <description>Example used to test Worklet Service Exception Handling</description>
+      <coverage>4.5.1.796</coverage>
       <version>0.2</version>
       <persistent>false</persistent>
       <identifier>UID_d025e788-53b0-4c56-8817-209c652b9b00</identifier>
@@ -154,38 +155,38 @@
     <decomposition id="BookStadium" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
         <index>0</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>1</index>
         <name>VenueCost</name>
         <type>double</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
-        <index>1</index>
+        <index>2</index>
         <name>Seating</name>
         <type>long</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>2</index>
-        <name>VenueName</name>
-        <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
         <index>0</index>
+        <name>VenueName</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>1</index>
         <name>VenueCost</name>
         <type>double</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>1</index>
+        <index>2</index>
         <name>Seating</name>
         <type>long</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </outputParam>
-      <outputParam>
-        <index>2</index>
-        <name>VenueName</name>
-        <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <externalInteraction>manual</externalInteraction>
@@ -232,9 +233,9 @@
     <specification id="OrganiseConcert" defaultBgColor="-526351">
       <size w="69" h="26"/>
       <net id="OrganiseConcert" bgColor="-526351">
-        <bounds x="0" y="0" w="901" h="445"/>
-        <frame x="0" y="0" w="904" h="448"/>
-        <viewport x="0" y="0" w="904" h="448"/>
+        <bounds x="0" y="0" w="944" h="427"/>
+        <frame x="0" y="0" w="947" h="430"/>
+        <viewport x="0" y="0" w="947" h="430"/>
         <vertex id="OutputCondition">
           <attributes>
             <bounds x="480" y="32" w="32" h="32"/>
@@ -314,7 +315,7 @@
           </attributes>
         </flow>
       </net>
-      <labelFontSize>14</labelFontSize>
+      <labelFontSize>13</labelFontSize>
     </specification>
   </layout>
 </specificationSet>

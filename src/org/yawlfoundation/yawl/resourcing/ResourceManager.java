@@ -51,7 +51,6 @@ import org.yawlfoundation.yawl.resourcing.datastore.orgdata.util.OrgDataRefreshe
 import org.yawlfoundation.yawl.resourcing.datastore.persistence.Persister;
 import org.yawlfoundation.yawl.resourcing.interactions.AbstractInteraction;
 import org.yawlfoundation.yawl.resourcing.interactions.AllocateInteraction;
-import org.yawlfoundation.yawl.resourcing.jsf.ApplicationBean;
 import org.yawlfoundation.yawl.resourcing.jsf.dynform.FormParameter;
 import org.yawlfoundation.yawl.resourcing.resource.Participant;
 import org.yawlfoundation.yawl.resourcing.resource.SecondaryResources;
@@ -123,7 +122,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
     private boolean _orgDataRefreshing = false;           // flag during auto-refresh
     public static boolean serviceInitialised = false;    // flag for init on restore
 
-    private ApplicationBean _jsfApplicationReference;   // ref to jsf app manager bean
+//    private ApplicationBean _jsfApplicationReference;   // ref to jsf app manager bean
 
     private boolean _blockIfSecondaryResourcesUnavailable = false;
     private boolean _persistPiling;
@@ -277,9 +276,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
     public WorkItemCache getWorkItemCache() { return _workItemCache; }
 
 
-    public void registerJSFApplicationReference(ApplicationBean app) {
-        _jsfApplicationReference = app;
-    }
+//    public void registerJSFApplicationReference(ApplicationBean app) {
+//        _jsfApplicationReference = app;
+//    }
 
     public boolean hasOrgDataSource() {
         return (_orgdb != null);
@@ -1162,6 +1161,7 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
         // if 'executing', it's already been started so move queues & we're done
         if (wir.getStatus().equals(WorkItemRecord.statusExecuting)) {
+            wir.setResourceStatus(WorkItemRecord.statusResourceStarted);
             p.getWorkQueues().movetoStarted(wir);
             return true;
         }
@@ -1476,13 +1476,18 @@ public final class ResourceManager extends InterfaceBWebsideController {
                             wir.setUpdatedData(dataElem);                  // all's good
                             _workItemCache.update(wir);
                             result = "<success/>";
-                        } else result = fail("Data failed validation: " + validate);
-                    } else result = fail("Data XML is malformed");
-                } else result = fail(
+                        }
+                        else result = fail("Data failed validation: " + validate);
+                    }
+                    else result = fail("Data XML is malformed");
+                }
+                else result = fail(
                         "Workitem '" + itemID + "' has a status of '" + wir.getStatus() +
                                 "' - data may only be updated for a workitem with 'Executing' status.");
-            } else result = fail(WORKITEM_ERR + ": " + itemID);
-        } else result = fail("Data is null or empty.");
+            }
+            else result = fail(WORKITEM_ERR + ": " + itemID);
+        }
+        else result = fail("Data is null or empty.");
 
         return result;
     }
@@ -1490,10 +1495,14 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
     public String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
         String result = "<success/>";
-        if (!data.getName().equals(wir.getTaskName().replace(' ', '_'))) {
+        String name = data.getName();
+        String taskID = wir.getTaskID();
+        String taskName = wir.getTaskName().replace(' ', '_');
+        if (! (name.equals(taskID) || name.equals(taskName))) {
             result = fail(
                     "Invalid data structure: root element name doesn't match task name");
-        } else {
+        }
+        else {
             YSpecificationID specID = new YSpecificationID(wir);
             SpecificationData specData = getSpecData(specID);
             try {
@@ -1504,8 +1513,10 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
                     // a YDataValidationException is thrown here if validation fails
                     validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
-                } else result = fail("Invalid data schema");
-            } catch (Exception e) {
+                }
+                else result = fail("Invalid data schema");
+            }
+            catch (Exception e) {
                 result = fail(e.getMessage());
             }
         }
@@ -2460,9 +2471,9 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
 
     public void announceModifiedQueue(String pid) {
-        if (_jsfApplicationReference != null) {
-            _jsfApplicationReference.refreshUserWorkQueues(pid);
-        }
+//        if (_jsfApplicationReference != null) {
+//            _jsfApplicationReference.refreshUserWorkQueues(pid);
+//        }
     }
 
 

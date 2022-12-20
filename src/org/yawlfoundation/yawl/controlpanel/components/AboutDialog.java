@@ -69,7 +69,7 @@ public class AboutDialog extends JDialog {
         panel.setBorder(new CompoundBorder(new LineBorder(Color.GRAY),
                 new EmptyBorder(12,12,12,12)));
         panel.setBackground(BACK_COLOUR);
-        panel.add(new JLabel(IconLoader.get("YawlRunning")), BorderLayout.WEST);
+        panel.add(new JLabel(IconLoader.get("aboutLogo")), BorderLayout.WEST);
         panel.add(getLabel(), BorderLayout.CENTER);
         addMouseListener(panel);
         return panel;

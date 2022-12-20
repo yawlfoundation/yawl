@@ -234,6 +234,8 @@ public class YEngineRestorer {
             }
 
             witem.setTask(getTaskReference(witem.getSpecificationID(), taskID));
+            
+            witem.setEngine(_engine);
             witem.addToRepository();
 
             // MJF: for any work items with data, restore to netrunner instance

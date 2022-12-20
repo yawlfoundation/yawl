@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema4.0.xsd">
   <specification uri="TreatWound">
     <name>Treat Wound</name>
     <documentation>Worklet to treat a wound</documentation>
     <metaData>
+      <coverage>4.5.1.796</coverage>
       <version>0.2</version>
       <persistent>false</persistent>
       <identifier>UID_26b60b7d-d6df-4074-ae6b-86828bd28440</identifier>
@@ -170,7 +171,7 @@
       </inputParam>
       <inputParam>
         <index>1</index>
-        <name>Notes</name>
+        <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
@@ -182,12 +183,12 @@
       </inputParam>
       <inputParam>
         <index>3</index>
-        <name>Name</name>
+        <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
-        <index>0</index>
+        <index>3</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
@@ -203,7 +204,7 @@
       </inputParam>
       <inputParam>
         <index>1</index>
-        <name>Notes</name>
+        <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
@@ -215,31 +216,31 @@
       </inputParam>
       <inputParam>
         <index>3</index>
-        <name>Name</name>
+        <name>Treatment</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
         <index>4</index>
-        <name>Treatment</name>
+        <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
-        <index>0</index>
-        <name>Notes</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </outputParam>
-      <outputParam>
-        <index>1</index>
+        <index>2</index>
         <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>2</index>
+        <index>3</index>
         <name>Treatment</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </outputParam>
+      <outputParam>
+        <index>4</index>
+        <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
@@ -251,18 +252,18 @@
     <specification id="TreatWound" defaultBgColor="-526351">
       <size w="69" h="26"/>
       <net id="TreatWound" bgColor="-526351">
-        <bounds x="0" y="0" w="901" h="445"/>
-        <frame x="0" y="0" w="904" h="448"/>
-        <viewport x="0" y="0" w="904" h="448"/>
-        <vertex id="InputCondition">
-          <attributes>
-            <bounds x="32" y="32" w="32" h="32"/>
-            <backgroundColor>-197913</backgroundColor>
-          </attributes>
-        </vertex>
+        <bounds x="0" y="0" w="944" h="427"/>
+        <frame x="0" y="0" w="947" h="430"/>
+        <viewport x="0" y="0" w="947" h="430"/>
         <vertex id="OutputCondition">
           <attributes>
             <bounds x="352" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
             <backgroundColor>-197913</backgroundColor>
           </attributes>
         </vertex>
@@ -300,20 +301,20 @@
             <lineStyle>11</lineStyle>
           </attributes>
         </flow>
-        <flow source="InputCondition" target="Test_Wound">
-          <ports in="13" out="12"/>
-          <attributes>
-            <lineStyle>11</lineStyle>
-          </attributes>
-        </flow>
         <flow source="Treat_Wound" target="OutputCondition">
           <ports in="13" out="12"/>
           <attributes>
             <lineStyle>11</lineStyle>
           </attributes>
         </flow>
+        <flow source="InputCondition" target="Test_Wound">
+          <ports in="13" out="12"/>
+          <attributes>
+            <lineStyle>11</lineStyle>
+          </attributes>
+        </flow>
       </net>
-      <labelFontSize>14</labelFontSize>
+      <labelFontSize>13</labelFontSize>
     </specification>
   </layout>
 </specificationSet>

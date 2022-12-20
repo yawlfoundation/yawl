@@ -83,7 +83,7 @@ public class ApplicationBean extends AbstractApplicationBean {
         }
 
         // Add init code here that must complete *after* managed components are initialized
-        _rm.registerJSFApplicationReference(this);
+//        _rm.registerJSFApplicationReference(this);
     }
 
     public void destroy() { }

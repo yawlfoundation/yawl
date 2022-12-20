@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema3.0.xsd">
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema http://www.yawlfoundation.org/yawlschema/YAWL_Schema4.0.xsd">
   <specification uri="Casualty_Treatment">
     <name>Casualty Treatment</name>
     <documentation>A simple medical treatment process designed to test and demonstrate the Worklet Dynamic Process Selection Service with the YAWL engine.</documentation>
     <metaData>
+      <coverage>4.5.1.796</coverage>
       <version>0.3</version>
       <persistent>false</persistent>
       <identifier>UID_9a382111-fde6-4a33-8a5b-1c1d9962660e</identifier>
@@ -409,50 +410,50 @@
     <decomposition id="Admit" xsi:type="WebServiceGatewayFactsType">
       <inputParam>
         <index>0</index>
-        <name>Weight</name>
-        <type>long</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>1</index>
-        <name>DiastolicBP</name>
-        <type>long</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>2</index>
-        <name>Sex</name>
-        <type>string</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>3</index>
         <name>PatientID</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
+        <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
+        <name>Weight</name>
+        <type>double</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>3</index>
+        <name>DiastolicBP</name>
+        <type>long</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
         <index>4</index>
+        <name>Sex</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>5</index>
         <name>Height</name>
         <type>double</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
-        <index>5</index>
+        <index>6</index>
         <name>HeartRate</name>
         <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
-        <index>6</index>
+        <index>7</index>
         <name>SystolicBP</name>
         <type>long</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>7</index>
-        <name>Name</name>
-        <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
@@ -462,43 +463,43 @@
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
-        <index>0</index>
+        <index>2</index>
         <name>Weight</name>
-        <type>long</type>
+        <type>double</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>1</index>
+        <index>3</index>
         <name>DiastolicBP</name>
         <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>2</index>
+        <index>4</index>
         <name>Sex</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>3</index>
+        <index>5</index>
         <name>Height</name>
         <type>double</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>4</index>
+        <index>6</index>
         <name>HeartRate</name>
         <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>5</index>
+        <index>7</index>
         <name>SystolicBP</name>
         <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>6</index>
+        <index>8</index>
         <name>Age</name>
         <type>long</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
@@ -514,19 +515,19 @@
       </inputParam>
       <inputParam>
         <index>1</index>
-        <name>Notes</name>
+        <name>Name</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
         <index>2</index>
-        <name>Pharmacy</name>
+        <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
         <index>3</index>
-        <name>Name</name>
+        <name>Pharmacy</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
@@ -537,7 +538,7 @@
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
-        <index>0</index>
+        <index>2</index>
         <name>Notes</name>
         <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
@@ -659,26 +660,26 @@
       </inputParam>
       <inputParam>
         <index>1</index>
+        <name>Name</name>
+        <type>string</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+      </inputParam>
+      <inputParam>
+        <index>2</index>
         <name>Fever</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
-        <index>2</index>
+        <index>3</index>
         <name>Rash</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
-        <index>3</index>
+        <index>4</index>
         <name>Wound</name>
         <type>boolean</type>
-        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
-      </inputParam>
-      <inputParam>
-        <index>4</index>
-        <name>Name</name>
-        <type>string</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <inputParam>
@@ -694,31 +695,31 @@
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </inputParam>
       <outputParam>
-        <index>0</index>
+        <index>2</index>
         <name>Fever</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>1</index>
+        <index>3</index>
         <name>Rash</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>2</index>
+        <index>4</index>
         <name>Wound</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>3</index>
+        <index>5</index>
         <name>AbdominalPain</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
       </outputParam>
       <outputParam>
-        <index>4</index>
+        <index>6</index>
         <name>Fracture</name>
         <type>boolean</type>
         <namespace>http://www.w3.org/2001/XMLSchema</namespace>
@@ -731,19 +732,19 @@
     <specification id="Casualty_Treatment" defaultBgColor="-526351">
       <size w="69" h="26"/>
       <net id="Casualty_Treatment" bgColor="-526351">
-        <bounds x="0" y="0" w="901" h="445"/>
-        <frame x="0" y="0" w="904" h="448"/>
-        <viewport x="0" y="0" w="904" h="448"/>
+        <bounds x="0" y="0" w="944" h="427"/>
+        <frame x="0" y="0" w="947" h="430"/>
+        <viewport x="0" y="0" w="947" h="430"/>
         <scale>0.94</scale>
-        <vertex id="InputCondition">
-          <attributes>
-            <bounds x="32" y="32" w="32" h="32"/>
-            <backgroundColor>-197913</backgroundColor>
-          </attributes>
-        </vertex>
         <vertex id="OutputCondition">
           <attributes>
             <bounds x="608" y="32" w="32" h="32"/>
+            <backgroundColor>-197913</backgroundColor>
+          </attributes>
+        </vertex>
+        <vertex id="InputCondition">
+          <attributes>
+            <bounds x="32" y="32" w="32" h="32"/>
             <backgroundColor>-197913</backgroundColor>
           </attributes>
         </vertex>
@@ -803,7 +804,7 @@
             </attributes>
           </label>
         </container>
-        <flow source="InputCondition" target="Admit">
+        <flow source="Discharge" target="OutputCondition">
           <ports in="13" out="12"/>
           <attributes>
             <lineStyle>11</lineStyle>
@@ -815,7 +816,7 @@
             <lineStyle>11</lineStyle>
           </attributes>
         </flow>
-        <flow source="Discharge" target="OutputCondition">
+        <flow source="InputCondition" target="Admit">
           <ports in="13" out="12"/>
           <attributes>
             <lineStyle>11</lineStyle>
@@ -834,7 +835,7 @@
           </attributes>
         </flow>
       </net>
-      <labelFontSize>14</labelFontSize>
+      <labelFontSize>13</labelFontSize>
     </specification>
   </layout>
 </specificationSet>

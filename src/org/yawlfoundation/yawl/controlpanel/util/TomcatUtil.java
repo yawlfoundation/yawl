@@ -40,7 +40,7 @@ public class TomcatUtil {
 
     private static int SERVER_PORT = -1;
     private static URL ENGINE_URL;
-    private static final String TOMCAT_VERSION = "7.0.65";
+    private static final String TOMCAT_VERSION = "9.0.70";
     private static final String CATALINA_HOME = deriveCatalinaHome();
 
     private static final TomcatProcess _process = new TomcatProcess(CATALINA_HOME);

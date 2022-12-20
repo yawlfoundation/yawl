@@ -32,6 +32,11 @@ import java.util.*;
  */
 public class ChecksumsReader {
 
+    // this is a list of unsupported apps in version 5 (or later). A quick fix. Future
+    // work will include removing these from checksums for a more thorough cleanup
+    private final List<String> _ignoredApps =
+            List.of("procletService", "twitterService", "yawlSMSInvoker");
+
     private XNode _root;
 
     public ChecksumsReader(File f) {
@@ -98,7 +103,10 @@ public class ChecksumsReader {
     protected List<String> getWebAppNames() {
         List<String> names = new ArrayList<String>();
         for (XNode appNode : getWebappsList()) {
-            names.add(appNode.getName());
+            String name = appNode.getName();
+            if (! isIgnoredApp(name)) {
+                names.add(appNode.getName());
+            }
         }
         return names;
     }
@@ -178,6 +186,11 @@ public class ChecksumsReader {
 
     private List<XNode> getChildren(XNode node) {
         return node != null ? node.getChildren() : Collections.<XNode>emptyList();
+    }
+
+
+    private boolean isIgnoredApp(String appName) {
+        return _ignoredApps.contains(appName);
     }
 
 }

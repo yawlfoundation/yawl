@@ -88,7 +88,7 @@ public class AdministrationTask {
 
     public void fromXNode(XNode node) {
         if (node != null) {
-            setID(StringUtil.strToInt(node.getChildText("caseID"), -1));
+            setID(StringUtil.strToInt(node.getChildText("id"), -1));
             setCaseID(node.getChildText("caseid"));
             setItemID(node.getChildText("itemid"));
             setTaskType(StringUtil.strToInt(node.getChildText("type"), 0));
@@ -142,10 +142,10 @@ public class AdministrationTask {
     public void setID(int id) { _wsTaskID = id ; }
 
     public void setTaskType(int taskType) {
-        if ((taskType >= 0) && (taskType <= 1))
-           _taskType = taskType ;
-        else
-            LogManager.getLogger(AdministrationTask.class).error(
+        if (taskType >= 0 && taskType <= 2) {
+            _taskType = taskType;
+        }
+        else LogManager.getLogger(AdministrationTask.class).error(
                     "Unable to set task type - invalid type identifier");
     }
 

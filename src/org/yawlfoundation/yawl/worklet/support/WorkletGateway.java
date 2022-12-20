@@ -228,7 +228,7 @@ public class WorkletGateway extends YHttpServlet {
                 else if (action.equalsIgnoreCase("removeAdministrationTask")) {
                     result = removeAdministrationTask(req);
                 }
-                else if (action.equalsIgnoreCase("raiseExternal")) {
+                else if (action.equalsIgnoreCase("raiseExternalException")) {
                     result = raiseExternalException(req);
                 }
                 else if (action.equalsIgnoreCase("getExternalTriggers")) {
@@ -747,7 +747,7 @@ public class WorkletGateway extends YHttpServlet {
                 return task.toXML();
             }
         }
-        return fail("Missing or invalid task id");
+        return fail("Failed to retrieve task; missing or invalid task id");
     }
 
 
@@ -788,7 +788,7 @@ public class WorkletGateway extends YHttpServlet {
                 return "<success/>";
             }
         }
-        return fail("Missing or invalid task id");
+        return fail("Failed to remove task; missing or invalid task id");
     }
 
 
@@ -819,7 +819,7 @@ public class WorkletGateway extends YHttpServlet {
         }
 
         if (triggers == null) {
-            return fail("Missing parameter: id");
+            return fail("Failed to retrieve triggers; Missing parameter: id");
         }
 
         StringBuilder xml = new StringBuilder("<triggers>");

@@ -35,7 +35,7 @@ public class NewVersionDialog extends JDialog implements ActionListener {
 
     private JButton btnClose;
 
-    private static final String YAWL_URL = "http://yawlfoundation.org/";
+    private static final String YAWL_URL = "https://yawlfoundation.github.io/";
 
 
     public NewVersionDialog(Window parent, Differ differ) {

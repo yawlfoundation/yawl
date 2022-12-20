@@ -301,13 +301,16 @@ public class ResourceGateway extends YHttpServlet {
             if ((name != null) && (! getOrgDataSet().isKnownNonHumanResourceName(name))) {
                 String categoryName = req.getParameter("category");
                 String subcategory = req.getParameter("subcategory");
-                NonHumanCategory category =
-                        getOrgDataSet().getNonHumanCategoryByName(categoryName);
-                if (category == null) {
-                    category = new NonHumanCategory(categoryName);
-                    getOrgDataSet().addNonHumanCategory(category);
+                NonHumanCategory category = null;
+                if (! (categoryName == null || "None".equals(categoryName))) {
+                    category = getOrgDataSet().getNonHumanCategoryByName(categoryName);
+                    if (category == null) {
+                        category = new NonHumanCategory(categoryName);
+                        getOrgDataSet().addNonHumanCategory(category);
+                    }
                 }
-                NonHumanResource resource = new NonHumanResource(name, category, subcategory);
+                NonHumanResource resource = new NonHumanResource(
+                            name, category, subcategory);
                 resource.setDescription(req.getParameter("description"));
                 resource.setNotes(req.getParameter("notes"));
                 result = getOrgDataSet().addNonHumanResource(resource);
@@ -473,8 +476,8 @@ public class ResourceGateway extends YHttpServlet {
                 Capability cap = getOrgDataSet().getCapability(cid);
                 if (cap != null) {
                     updateCommonFields(cap, req);
-                    String name = req.getParameter("capability");
-                    if (name != null) cap.setCapability(name);
+                    String name = req.getParameter("name");
+                    if (name != null) cap.setLabel(name);
                     cap.save();
                 }
                 else result = fail("capability", cid);
@@ -503,7 +506,7 @@ public class ResourceGateway extends YHttpServlet {
                 Position position = getOrgDataSet().getPosition(pid);
                 if (position != null) {
                     updateCommonFields(position, req);
-                    String name = req.getParameter("title");
+                    String name = req.getParameter("name");
                     if (name != null) position.setTitle(name);
                     String positionID = req.getParameter("positionid") ;
                     if (positionID != null) position.setPositionID(positionID);

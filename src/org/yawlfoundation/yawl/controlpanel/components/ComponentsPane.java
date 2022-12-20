@@ -55,7 +55,7 @@ public class ComponentsPane extends JLayeredPane
 
         try {
             buildUI(getDiffer());
-            setPreferredSize(new Dimension(600,470));
+            setPreferredSize(new Dimension(600,400));
         }
         catch (IOException ioe) {
             add(new JLabel("ERROR: Unable to locate installed component information"));

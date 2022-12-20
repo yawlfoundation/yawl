@@ -57,8 +57,7 @@ import static org.yawlfoundation.yawl.engine.YWorkItemStatus.*;
 public class YWorkItem {
 
     private static final DateFormat _df = new SimpleDateFormat("MMM:dd, yyyy H:mm:ss");
-    private static final YEngine _engine = YEngine.getInstance();
-    private final YWorkItemRepository _workItemRepository = _engine.getWorkItemRepository();
+    private YEngine _engine;
     private YWorkItemID _workItemID;
     private String _thisID = null;
     private YSpecificationID _specID;
@@ -147,6 +146,7 @@ public class YWorkItem {
                                 YWorkItemID workItemID, YWorkItemStatus status,
                                 boolean allowsDynamicInstanceCreation)
                                 throws YPersistenceException {
+        _engine = YEngine.getInstance();
         _workItemID = workItemID;
         addToRepository();
         set_thisID(_workItemID.toString() + "!" + _workItemID.getUniqueID());
@@ -253,8 +253,14 @@ public class YWorkItem {
 
     // MISC METHODS //
 
+    // called only from YEngineRestorer, since a restored work item is created via
+    // the empty constructor
+    public void setEngine(YEngine engine) {
+        _engine = engine;
+    }
+
     public void addToRepository() {
-        _workItemRepository.add(this);
+        _engine.getWorkItemRepository().add(this);
         _engine.getInstanceCache().addWorkItem(this);
     }
 
