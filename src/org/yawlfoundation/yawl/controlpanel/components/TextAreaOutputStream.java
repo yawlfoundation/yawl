@@ -87,7 +87,7 @@ public class TextAreaOutputStream extends OutputStream {
         if (text.contains("WARN")) {
             color = WARN_COLOR;
         }
-        else if (text.startsWith("INFO: Server startup ")) {
+        else if (text.contains("Server startup ")) {
             color = SUCCESS_COLOR;
         }
         else if (text.startsWith("INFO: Shutdown successfully")) {

@@ -1495,32 +1495,38 @@ public final class ResourceManager extends InterfaceBWebsideController {
 
     public String checkWorkItemDataAgainstSchema(WorkItemRecord wir, Element data) {
         String result = "<success/>";
+        YSpecificationID specID = new YSpecificationID(wir);
+        try {
+            TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID());
+            if (! isValidDataName(wir, data, taskInfo.getDecompositionID())) {
+                return fail("Invalid data structure: root element name " +
+                        "must match decomposition ID, task ID or task name");
+            }
+            SpecificationData specData = getSpecData(specID);
+            String schema = specData.getSchemaLibrary();
+            YDataValidator validator = new YDataValidator(schema);
+            if (validator.validateSchema()) {
+
+                // a YDataValidationException is thrown here if validation fails
+                validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
+            }
+            else {
+                result = fail("Invalid data schema");
+            }
+        }
+        catch (Exception e) {
+                result = fail(e.getMessage());
+        }
+        return result;
+    }
+
+
+    // checks for valid root data element name - includes backwards compatibility
+    private boolean isValidDataName(WorkItemRecord wir, Element data, String decompID) {
         String name = data.getName();
         String taskID = wir.getTaskID();
         String taskName = wir.getTaskName().replace(' ', '_');
-        if (! (name.equals(taskID) || name.equals(taskName))) {
-            result = fail(
-                    "Invalid data structure: root element name doesn't match task name");
-        }
-        else {
-            YSpecificationID specID = new YSpecificationID(wir);
-            SpecificationData specData = getSpecData(specID);
-            try {
-                String schema = specData.getSchemaLibrary();
-                YDataValidator validator = new YDataValidator(schema);
-                if (validator.validateSchema()) {
-                    TaskInformation taskInfo = getTaskInformation(specID, wir.getTaskID());
-
-                    // a YDataValidationException is thrown here if validation fails
-                    validator.validate(taskInfo.getParamSchema().getCombinedParams(), data, "");
-                }
-                else result = fail("Invalid data schema");
-            }
-            catch (Exception e) {
-                result = fail(e.getMessage());
-            }
-        }
-        return result;
+        return name.equals(decompID) || name.equals(taskID) || name.equals(taskName);
     }
 
 

@@ -268,7 +268,7 @@ public class XNodeParser {
                 accumulator--;
                 if (accumulator > 0) closeIndex++;
             }
-            if (openIndex == openers.size()) {
+            if (openIndex == openers.size() || closeIndex == closers.size()) {
                 return closers.get(closers.size() - 1);
             }
         }

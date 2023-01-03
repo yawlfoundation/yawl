@@ -522,10 +522,16 @@ public class WorkQueueGateway extends HttpServlet {
                 }
 
                 if (_rm.start(p, wir)) {
-
-                    // if wir was prev. started, it is the child already
-                    WorkItemRecord child = wir.hasStatus(WorkItemRecord.statusExecuting) ?
-                            wir : _rm.getExecutingChild(wir);
+                    WorkItemRecord child;
+                    switch (wir.getStatus()) {
+                        case WorkItemRecord.statusFired :  // MI instance - refresh
+                            child = _rm.getCachedWorkItem(wir.getID()); break;
+                        case WorkItemRecord.statusExecuting :  // already is the child
+                            child = wir; break;
+                        default :
+                            child = _rm.getExecutingChild(wir); break;
+                    }
+                    
                     if (child != null) {
                         child.setResourceStatus(WorkItemRecord.statusResourceStarted);
                         result = child.toXML();

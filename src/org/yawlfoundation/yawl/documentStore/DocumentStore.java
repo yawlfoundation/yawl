@@ -18,7 +18,6 @@
 
 package org.yawlfoundation.yawl.documentStore;
 
-import org.apache.logging.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
 import org.yawlfoundation.yawl.engine.interfce.YHttpServlet;
 import org.yawlfoundation.yawl.util.HibernateEngine;
@@ -32,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.*;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -277,21 +275,14 @@ public class DocumentStore extends YHttpServlet {
      * Increases the maximum column length for stored documents in H2 databases from 255
      * to 5Mb.
      * <p/>
-     * H2 defaults to 255 chars for binary types, and this default went out
-     * with the 2.3 release. This method (1) checks if we are using a H2 database, then
-     * if so (2) checks the relevant column length, then if it is 255 (3) increases it
-     * to 5Mb maximum and (4) writes a flag file so that the method short-circuits on
-     * future executions (i.e. it only runs once).
+     * H2 defaults to 255 chars for binary types. This method (1) checks if we are
+     * using a H2 database, then, if so, (2) checks the relevant column length, then
+     * if it is 255 (3) increases it to 5Mb maximum.
      *
      * @param context the current servlet context
      */
     private void fixH2BinarySize(ServletContext context) {
-
-        // if the flag files already exists, go no further
-        if (context.getResourceAsStream("/WEB-INF/classes/dbfixed.bin") != null) {
-            return;
-        }
-
+        
         // get the db properties from hibernate.properties
         Properties p = loadHibernateProperties(context);
         if (p == null) return;                  // couldn't find hibernate.properties
@@ -317,9 +308,6 @@ public class DocumentStore extends YHttpServlet {
                     if (rs.getInt("COLUMN_SIZE") <= 255) {
                         connection.createStatement().executeUpdate(
                                 "ALTER TABLE ydocument ALTER COLUMN ydoc varbinary(5242880)");
-
-                        // write flag file for next time
-                        new File(context.getRealPath("WEB-INF/classes/dbfixed.bin")).createNewFile();
                     }
                     connection.close();
                 }
