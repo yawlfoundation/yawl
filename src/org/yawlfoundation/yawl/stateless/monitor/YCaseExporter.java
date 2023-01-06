@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.stateless.monitor;
 
+import org.jdom2.Element;
 import org.yawlfoundation.yawl.stateless.YStatelessEngine;
 import org.yawlfoundation.yawl.stateless.elements.YSpecification;
 import org.yawlfoundation.yawl.stateless.elements.YTask;
@@ -8,6 +9,7 @@ import org.yawlfoundation.yawl.stateless.elements.marking.YIdentifier;
 import org.yawlfoundation.yawl.stateless.engine.YNetRunner;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 import org.yawlfoundation.yawl.stateless.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 
@@ -25,11 +27,16 @@ public class YCaseExporter {
 
 
     public String marshal(YNetRunner runner) {
-        XNode caseNode = new XNode("case");
-        caseNode.addAttribute("id", runner.getCaseID());
-        caseNode.addContent(marshalSpecification(runner));
-        caseNode.addChild(marshalRunner(runner));
-        return caseNode.toPrettyString(true);
+        Element eCase = new Element("case");
+        eCase.setAttribute("id", runner.getCaseID().toString());
+        eCase.addContent(stringToClonedElement(marshalSpecification(runner)));
+        eCase.addContent(stringToClonedElement(marshalRunner(runner).toString()));
+        return JDOMUtil.elementToString(eCase);
+    }
+
+
+    private Element stringToClonedElement(String xml) {
+        return JDOMUtil.stringToElement(xml).clone();
     }
 
 

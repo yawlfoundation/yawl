@@ -144,8 +144,9 @@ public class YEngine {
     private void logCaseStarted(YSpecification spec, YNetRunner runner,
                                 String caseParams, YLogDataItemList logData) {
         YIdentifier caseID = runner.getCaseID();
+        Document paramDoc = caseParams != null ? JDOMUtil.stringToDocument(caseParams) : null;
         _announcer.announceCheckCaseConstraints(spec.getSpecificationID(), caseID,
-                JDOMUtil.stringToDocument(caseParams), true);
+                paramDoc, true);
         _announcer.announceCaseStart(spec, runner, logData);
     }
 

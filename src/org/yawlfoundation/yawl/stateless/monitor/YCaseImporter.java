@@ -1,5 +1,8 @@
 package org.yawlfoundation.yawl.stateless.monitor;
 
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.yawlfoundation.yawl.engine.YNetData;
 import org.yawlfoundation.yawl.engine.YWorkItemStatus;
 import org.yawlfoundation.yawl.exceptions.YStateException;
@@ -13,6 +16,7 @@ import org.yawlfoundation.yawl.stateless.engine.YWorkItem;
 import org.yawlfoundation.yawl.stateless.engine.YWorkItemID;
 import org.yawlfoundation.yawl.stateless.engine.time.YWorkItemTimer;
 import org.yawlfoundation.yawl.stateless.unmarshal.YMarshal;
+import org.yawlfoundation.yawl.util.JDOMUtil;
 import org.yawlfoundation.yawl.util.StringUtil;
 import org.yawlfoundation.yawl.util.XNode;
 import org.yawlfoundation.yawl.util.XNodeParser;
@@ -25,8 +29,11 @@ import java.util.*;
  */
 public class YCaseImporter {
 
-    private Map<String, YIdentifier> _idLookupTable = new HashMap<>();
-    private Set<YWorkItem> _timedItems = new HashSet<>();
+    private static final Namespace YAWL_NAMESPACE = Namespace.getNamespace("yawl",
+            "http://www.yawlfoundation.org/yawlschema");
+
+    private final Map<String, YIdentifier> _idLookupTable = new HashMap<>();
+    private final Set<YWorkItem> _timedItems = new HashSet<>();
     private YSpecification _spec;
 
 
@@ -35,7 +42,8 @@ public class YCaseImporter {
 
     public List<YNetRunner> unmarshal(String caseXML, YAnnouncer announcer)
             throws YStateException, YSyntaxException {
-        XNode root = parse(caseXML);
+        Document doc = JDOMUtil.stringToDocument(caseXML);
+        Element root = doc.getRootElement();
         _spec = unmarshalSpecification(root);
         List<YNetRunner> runners = unmarshalRunners(root);
         List<YWorkItem> workitems = unmarshalWorkItems(root);
@@ -46,19 +54,10 @@ public class YCaseImporter {
     }
 
 
-    private XNode parse(String xml) throws YStateException {
-        XNode root = new XNodeParser().parse(xml);
-        if (root == null) {
-            throw new YStateException("Invalid xml for import of case");
-        }
-        return root;
-    }
-
-
-    private YSpecification unmarshalSpecification(XNode node) throws YSyntaxException {
-        XNode specNode = node.getChild("specificationSet");
+    private YSpecification unmarshalSpecification(Element root) throws YSyntaxException {
+        Element specNode = root.getChild("specificationSet", YAWL_NAMESPACE);
         List<YSpecification> specList = YMarshal.unmarshalSpecifications(
-                specNode.toPrettyString(true));
+                JDOMUtil.elementToString(specNode));
         if (specList.isEmpty()) {
             throw new YSyntaxException("Failed to unmarshal specification");
         }
@@ -66,19 +65,19 @@ public class YCaseImporter {
     }
 
 
-    private List<YNetRunner> unmarshalRunners(XNode caseNode) throws YStateException {
-        XNode nRunnerList = caseNode.getChild("runners");
+    private List<YNetRunner> unmarshalRunners(Element caseNode) throws YStateException {
+        Element nRunnerList = caseNode.getChild("runners");
         if (nRunnerList == null) {
             throw new YStateException("No net runners found to import for case");
         }
         List<YNetRunner> allRunners = new ArrayList<>();
         List<YIdentifier> parents = new ArrayList<>();
         Map<String, Set<YIdentifier>> parentChildMap = new HashMap<>();
-        for (XNode nRunner : nRunnerList.getChildren()) {
+        for (Element nRunner : nRunnerList.getChildren()) {
             YNetRunner runner = unmarshalRunner(nRunner);
             allRunners.add(runner);
             String parentID = nRunner.getChildText("parent");
-            if (parentID == null) {
+            if (StringUtil.isNullOrEmpty(parentID)) {
                 parents.add(runner.getCaseID());
             }
             else {
@@ -90,14 +89,14 @@ public class YCaseImporter {
     }
 
 
-    private YNetRunner unmarshalRunner(XNode nRunner) throws YStateException {
+    private YNetRunner unmarshalRunner(Element nRunner) throws YStateException {
         YIdentifier caseID = unmarshalIdentifier(nRunner.getChild("identifier"));
         YNetRunner runner = new YNetRunner();
         runner.set_caseIDForNet(caseID);
-        runner.setContainingTaskID(nRunner.getChildText("containingtask"));
+        runner.setContainingTaskID(getChildText(nRunner, "containingtask"));
         runner.setSpecificationID(_spec.getSpecificationID());
         runner.setStartTime(StringUtil.strToLong(nRunner.getChildText("starttime"),0));
-        runner.setExecutionStatus(nRunner.getChildText("executionstatus"));
+        runner.setExecutionStatus(getChildText(nRunner, "executionstatus"));
         runner.setNetData(unmarshalNetData(caseID.toString(), nRunner.getChild("netdata")));
         runner.setEnabledTaskNames(toSet(nRunner.getChild("enabledtasks")));
         runner.setBusyTaskNames(toSet(nRunner.getChild("busytasks")));
@@ -106,14 +105,14 @@ public class YCaseImporter {
     }
 
 
-    private List<YWorkItem> unmarshalWorkItems(XNode caseNode) throws YStateException {
+    private List<YWorkItem> unmarshalWorkItems(Element caseNode) throws YStateException {
         Map<String, Set<YWorkItem>> parentChildMap = new HashMap<>();
         Set<YWorkItem> parents = new HashSet<>();
         List<YWorkItem> allItems = new ArrayList<>();
-        for (XNode runnerNode : caseNode.getChild("runners").getChildren()) {
-            XNode nWIList = runnerNode.getChild("workitems");
+        for (Element runnerNode : caseNode.getChild("runners").getChildren()) {
+            Element nWIList = runnerNode.getChild("workitems");
             if (nWIList != null) {
-                for (XNode nItem : nWIList.getChildren()) {
+                for (Element nItem : nWIList.getChildren()) {
                     YWorkItem item = unmarshalWorkItem(nItem);
                     allItems.add(item);
                     if (item.isParent()) {
@@ -131,23 +130,23 @@ public class YCaseImporter {
     }
 
 
-    private YWorkItem unmarshalWorkItem(XNode nItem) throws YStateException {
+    private YWorkItem unmarshalWorkItem(Element nItem) throws YStateException {
         YWorkItem item = new YWorkItem();
         item.set_thisID(nItem.getChildText("id"));
         item.setSpecID(_spec.getSpecificationID());
         unmarshalTimestamps(item, nItem);
 //        unmarshalWorkItemData(item, nItem);
-        item.set_status(nItem.getChildText("status"));
-        item.set_prevStatus(nItem.getChildText("prevstatus"));
+        item.set_status(getChildText(nItem, "status"));
+        item.set_prevStatus(getChildText(nItem, "prevstatus"));
         item.set_allowsDynamicCreation(toBoolean(nItem.getChildText("allowsdynamic")));
         item.setRequiresManualResourcing(toBoolean(nItem.getChildText("manualresourcing")));
         item.setTimerParameters(hydrateTimerParameters(nItem));
         if (toBoolean(nItem.getChildText("timerstarted"))) {
             _timedItems.add(item);
         }
-        item.setTimerExpiry(toLong(nItem.getChildText("timerexpiry")));
-        item.setCodelet(nItem.getChildText("codelet"));
-        item.set_deferredChoiceGroupID(nItem.getChildText("deferredgroupid"));
+        item.setTimerExpiry(toLong(getChildText(nItem,"timerexpiry")));
+        item.setCodelet(getChildText(nItem, "codelet"));
+        item.set_deferredChoiceGroupID(getChildText(nItem, "deferredgroupid"));
         return item;
     }
 
@@ -190,32 +189,32 @@ public class YCaseImporter {
     }
 
 
-    private YIdentifier unmarshalIdentifier(XNode nIdentifier) {
-         YIdentifier id = new YIdentifier(nIdentifier.getAttributeValue("id"));
-         XNode nLocations = nIdentifier.getChild("locations");
-         List<String> locations = new ArrayList<String>();
-         for (XNode nLocation : nLocations.getChildren()) {
-             locations.add(nLocation.getText());
-         }
+    private YIdentifier unmarshalIdentifier(Element nIdentifier) {
+        YIdentifier id = new YIdentifier(nIdentifier.getAttributeValue("id"));
+        Element nLocations = nIdentifier.getChild("locations");
+        List<String> locations = new ArrayList<String>();
+        for (Element nLocation : nLocations.getChildren()) {
+            locations.add(nLocation.getText());
+        }
         id.setLocationNames(locations);
 
-         XNode nChildren = nIdentifier.getChild("children");
-         if (nChildren.hasChildren()) {
-             List<YIdentifier> list = new ArrayList<>();
-             for (XNode nChild : nChildren.getChildren()) {
-                 YIdentifier childID = unmarshalIdentifier(nChild);
-                 childID.set_parent(id);
-                 list.add(childID);
-             }
-             id.setChildren(list);
-         }
-         return id;
-     }
+        Element nChildren = nIdentifier.getChild("children");
+        List<YIdentifier> list = new ArrayList<>();
+        for (Element nChild : nChildren.getChildren()) {
+            YIdentifier childID = unmarshalIdentifier(nChild);
+            childID.set_parent(id);
+            list.add(childID);
+        }
+        id.setChildren(list);
+
+        return id;
+    }
 
 
-    private YNetData unmarshalNetData(String caseID, XNode dataNode) {
-        XNode innerNode = dataNode.getChild();
-        String data = innerNode != null ? innerNode.toString() : null;
+    private YNetData unmarshalNetData(String caseID, Element dataNode) {
+        String data = StringUtil.unwrap(JDOMUtil.elementToString(dataNode));
+//        Element innerNode = dataNode.getContent(0);
+//        String data = innerNode != null ? innerNode.toString() : null;
         YNetData netData = new YNetData(caseID);
         netData.setData(data);
         return netData;
@@ -230,9 +229,9 @@ public class YCaseImporter {
 //    }
 
 
-    private Map<String, String> unmarshalTimerStates(XNode nStates) {
+    private Map<String, String> unmarshalTimerStates(Element nStates) {
         Map<String,String> stateMap = new HashMap<>();
-        for (XNode nState : nStates.getChildren()) {
+        for (Element nState : nStates.getChildren()) {
              stateMap.put(nState.getChildText("taskname"),
                      nState.getChildText("state"));
         }
@@ -240,12 +239,12 @@ public class YCaseImporter {
     }
 
 
-    private void unmarshalTimestamps(YWorkItem item, XNode nItem) {
-         Date timestamp = toDate(nItem.getChildText("enablement"));
+    private void unmarshalTimestamps(YWorkItem item, Element nItem) {
+         Date timestamp = toDate(getChildText(nItem, "enablement"));
          if (timestamp != null) item.set_enablementTime(timestamp);
-         timestamp = toDate(nItem.getChildText("firing"));
+         timestamp = toDate(getChildText(nItem, "firing"));
          if (timestamp != null) item.set_firingTime(timestamp);
-         timestamp = toDate(nItem.getChildText("start"));
+         timestamp = toDate(getChildText(nItem, "start"));
          if (timestamp != null) item.set_startTime(timestamp);
      }
 
@@ -256,9 +255,9 @@ public class YCaseImporter {
     }
 
 
-    private Set<String> toSet(XNode node) {
+    private Set<String> toSet(Element node) {
         Set<String> set = new HashSet<>();
-        for (XNode child : node.getChildren()) {
+        for (Element child : node.getChildren()) {
             set.add(child.getText());
         }
         return set;
@@ -586,32 +585,20 @@ public class YCaseImporter {
     }
 
 
-    private YTimerParameters hydrateTimerParameters(XNode node) {
-        XNode timerNode = node.getChild("timerparameters");
-        if (timerNode != null) {
+    private YTimerParameters hydrateTimerParameters(Element node) {
+        Element timerElement = node.getChild("timerparameters");
+        if (timerElement != null) {
+            XNode timerNode = new XNodeParser().parse(JDOMUtil.elementToString(timerElement));
             return new YTimerParameters().fromXNode(timerNode);
         }
         return null;
     }
 
 
-    // test
-    public static void main(String[] args) {
-        String caseFile = "/Users/adamsmj/Documents/temp/simpleTimerSpecUnloaded.xml" ;
-        String caseXML = StringUtil.fileToString(caseFile);
-        YCaseImporter importer = new YCaseImporter();
-        try {
-            long startTime = System.nanoTime();
-            List<YNetRunner> runners = importer.unmarshal(caseXML, null);
-            long endTime = System.nanoTime();
-            System.out.println("Duration (msecs): " + ((endTime - startTime) / 1000000));
-
-        //    System.out.println(runners);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    // JDOM returns "" if child text is missing, we want nulls
+    private String getChildText(Element e, String name) {
+        String text = e.getChildText(name);
+        return StringUtil.isNullOrEmpty(text) ? null : text;
     }
-
+    
 }
