@@ -274,9 +274,9 @@
     <!-- prl -->
     <property name="junit" value="junit-4.10.jar"/>
     <!-- mul -->
-    <property name="log4j-api" value="log4j-api-2.17.1.jar"/>
+    <property name="log4j-api" value="log4j-api-2.18.0.jar"/>
     <!-- mul -->
-    <property name="log4j-core" value="log4j-core-2.17.1.jar"/>
+    <property name="log4j-core" value="log4j-core-2.18.0.jar"/>
     <!-- mul -->
     <property name="log4j-bridge" value="log4j-1.2-api-2.17.1.jar"/>
     <!-- mul -->
