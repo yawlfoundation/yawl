@@ -69,6 +69,9 @@ public class AppUpdate {
         return isAppList() && ! _appName.equals("orderfulfillment");
     }
 
+    protected boolean isUIApp() {
+        return isAppList() && _appName.equals("yawlui");
+    }
 
     protected boolean hasDownloads() { return ! _downloads.isEmpty(); }
 
@@ -135,8 +138,15 @@ public class AppUpdate {
     private String fixPath(String path) {
         char sep = FileUtil.SEP;
         if (sep == '\\') path = path.replace('/', sep);
-        return (isAppList() ? _appName.equals("controlpanel") ? "controlpanel" :
-                "webapps" + sep + _appName : "lib") + sep + path;
+        String prefix = "lib";
+        if (isAppList()) {
+            switch (_appName) {
+                case "yawlui" : prefix = ""; break;
+                case "controlpanel" : prefix = "controlpanel"; break;
+                default : prefix = "webapps" + sep + _appName; break;
+            }
+        }
+        return prefix + sep + path;
     }
 
 

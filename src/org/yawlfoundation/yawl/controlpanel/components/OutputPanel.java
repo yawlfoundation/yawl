@@ -39,7 +39,7 @@ public class OutputPanel extends JPanel {
     }
 
     public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
+        return new Dimension(600, 420);
     }
 
 

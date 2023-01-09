@@ -46,6 +46,7 @@ public class UpdateRowFactory {
             if (row != null) rows.add(row);
         }
         rows.add(newRow("controlpanel", true));
+        rows.add(newRow("yawlui", true));
         Collections.sort(rows, new UpdateRowComparator());
         return rows;
     }

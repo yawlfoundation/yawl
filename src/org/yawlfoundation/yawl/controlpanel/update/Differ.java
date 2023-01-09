@@ -37,6 +37,7 @@ public class Differ {
     private ChecksumsReader _current;
     private AppUpdate _mandatory;
     private PathResolver _pathResolver;
+    private YawlUiUpdater _uiUpdater;
 
 
     public Differ(File latest, File current) {
@@ -65,13 +66,29 @@ public class Differ {
 
 
     public String getLatestBuild(String appName) {
-        return _latest != null ? _latest.getBuildNumber(appName) : "";
+        if (_latest != null) {
+            if (appName.equals("yawlui")) {
+                return getUIUpdater().getRemoteBuildNumber();
+            }
+            return _latest.getBuildNumber(appName);
+        }
+        return "";
     }
 
     public String getCurrentBuild(String appName) {
+        if (appName.equals("yawlui")) {
+            return getUIUpdater().getLocalBuildNumber();
+        }
         return _current.getBuildNumber(appName);
     }
 
+
+    public YawlUiUpdater getUIUpdater() {
+        if (_uiUpdater == null) {
+            _uiUpdater = new YawlUiUpdater();
+        }
+        return _uiUpdater;
+    }
 
     public boolean isNewVersion() {
         return ! getLatestVersion().equals(getCurrentVersion());
@@ -88,6 +105,9 @@ public class Differ {
 
 
     public boolean hasUpdate(String appName) {
+        if (appName.equals("yawlui")) {
+            return getUIUpdater().hasUpdate();
+        }
         return isDifferent(getCurrentBuild(appName), getLatestBuild(appName));
     }
 
@@ -218,6 +238,9 @@ public class Differ {
             compareWebApps(updates);
             compareControlPanel(updates);
             if (hasMandatoryUpdates()) updates.add(_mandatory);
+            if (getUIUpdater().hasUpdate()) {
+                updates.add(getUIUpdater().getAppUpdate());
+            }
         }
         return updates;
     }

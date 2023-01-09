@@ -1,9 +1,15 @@
 package org.yawlfoundation.yawl.controlpanel.update;
 
+import org.apache.commons.io.FileUtils;
+import org.yawlfoundation.yawl.controlpanel.util.FileUtil;
 import org.yawlfoundation.yawl.controlpanel.util.TomcatUtil;
+import org.yawlfoundation.yawl.util.HttpUtil;
+import org.yawlfoundation.yawl.util.StringUtil;
+import org.yawlfoundation.yawl.util.XNode;
 
-import javax.swing.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,33 +25,45 @@ public class YawlUiUpdater {
             + "/webapps/yawlui/WEB-INF/";
     private final String REMOTE_PATH =
             "https://raw.githubusercontent.com/yawlfoundation/yawlui/master/";
+    private final String UPDATE_JAR_NAME = "yawlui-update.jar";
 
-    private String _errorMsg;
+    public YawlUiUpdater() { }
 
 
-    public YawlUiUpdater() {
-
+    public boolean hasUpdate() {
+        int local = StringUtil.strToInt(getLocalBuildNumber(), -1);
+        int remote = StringUtil.strToInt(getRemoteBuildNumber(), -1);
+        return local != -1 && remote != -1 && local < remote;
     }
 
+    
     public String getLocalBuildNumber() {
-        return getBuildNumber(LOCAL_PATH + "classes/build.properties");
+        return getLocalBuildNumber(LOCAL_PATH + "classes/build.properties");
     }
 
 
     public String getRemoteBuildNumber() {
-        return getBuildNumber(REMOTE_PATH + "update/update.properties");
+        return getRemoteBuildNumber(REMOTE_PATH + "pom.xml");
     }
 
 
+    public AppUpdate getAppUpdate() {
+        AppUpdate appUpdate = new AppUpdate("yawlui");
+        appUpdate.addDownload(createUpdateFileNode());
+        return appUpdate;
+    }
+
+
+    private FileNode createUpdateFileNode() {
+        XNode node = new XNode("node");
+        node.addAttribute("name", UPDATE_JAR_NAME);
+        node.addAttribute("md5", "0");
+        node.addAttribute("size", "300000");
+        return new UIFileNode(node, REMOTE_PATH + "update/");
+    }
     
-        // get current build
-    // get latest build
-    // compare
 
-    // download + build.properties
-
-
-    private String getBuildNumber(String path) {
+    private String getLocalBuildNumber(String path) {
         try {
             InputStream is = Files.newInputStream(Paths.get(path));
             Properties props = new Properties();
@@ -54,6 +72,28 @@ public class YawlUiUpdater {
 
         }
         catch (IOException e) {
+            return "N/A";
+        }
+    }
+
+
+    private String getRemoteBuildNumber(String path) {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File latest = new File(tmpDir, "pom.xml");
+        if (! latest.exists()) {
+            return "N/A";
+        }
+        try {
+            URL url = new URL(path);
+            HttpUtil.download(url, latest);
+            String content = StringUtil.fileToString(latest);
+
+            // extract the latest build number from pom
+            String version = StringUtil.extract(content,
+                    "(?<=<version>\\d+\\.\\d\\.)[\\d|].*(?=<\\/version>)");
+            return version != null ? version : "N/A";
+        }
+        catch (Exception e) {
             return "N/A";
         }
     }
@@ -69,52 +109,46 @@ public class YawlUiUpdater {
     }
 
 
-    class Downloader extends SwingWorker<Void, Void> {
+    class UIFileNode extends FileNode {
 
-        private final URL _url;
-        private final File _destDir;
-        private final String _path;
-
-        Downloader(URL url, File destDir, String path) {
-            _url = url;
-            _destDir = destDir;
-            _path = path;
+        public UIFileNode(XNode node, String url) {
+            super(node, url);
         }
 
-        @Override
-        protected Void doInBackground() throws Exception {
-            int bufferSize = 8192;
-            byte[] buffer = new byte[bufferSize];
-            int progress = 0;
+        public void doUpdate(File tmpDir) {
+            File updateJar = FileUtil.makeFile(tmpDir.getAbsolutePath(), UPDATE_JAR_NAME);
+            File oldClassesDir = new File(getClassesDir());
+            if (updateJar.exists()) {
+                try {
 
-            try {
-                String fileTo = _destDir + File.separator + _path;
-                BufferedInputStream inStream = new BufferedInputStream(_url.openStream());
-                FileOutputStream fos = new FileOutputStream(fileTo);
-                BufferedOutputStream outStream = new BufferedOutputStream(fos);
-                int bytesRead;
-                while ((bytesRead = inStream.read(buffer, 0, bufferSize)) > 0) {
-                    outStream.write(buffer, 0, bytesRead);
-                //    progress += bytesRead;
-                //    setProgress(Math.min((int) (progress * 100 / _totalBytes), 100));
-                    if (isCancelled()) {
-                        outStream.close();
-                        inStream.close();
-                        new File(fileTo).delete();
-                        break;
+                    // backup existing files to tmp
+                    FileUtils.moveDirectory(oldClassesDir, tmpDir);
+
+                    // unpack jar to classes dir
+                    File newClassesDir = new File(getClassesDir());
+                    FileUtil.unzip(updateJar, newClassesDir);
+
+                    // copy existing application.properties from tmp to classes
+                    File appProps = new File(tmpDir, "application.properties");
+                    FileUtils.copyFileToDirectory(appProps, newClassesDir);
+
+                    // success: delete the tmp dir
+                    FileUtils.deleteDirectory(oldClassesDir);
+                }
+                catch (IOException e) {
+
+                    // rollback changes
+                    try {
+                        File newClassesDir = new File(getClassesDir());
+                        FileUtils.deleteDirectory(newClassesDir);
+                        FileUtils.moveDirectory(oldClassesDir, newClassesDir);
+                    }
+                    catch (IOException ex) {
+                        //
                     }
                 }
-
-                outStream.close();
-                inStream.close();
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                _errorMsg = e.getMessage();
-            }
-            return null;
         }
     }
-
     
 }
