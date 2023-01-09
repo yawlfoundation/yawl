@@ -117,31 +117,33 @@ public class YawlUiUpdater {
 
         public void doUpdate(File tmpDir) {
             File updateJar = FileUtil.makeFile(tmpDir.getAbsolutePath(), UPDATE_JAR_NAME);
-            File oldClassesDir = new File(getClassesDir());
+            File classesDir = new File(getClassesDir());
+            File backupDir = new File(tmpDir, "ui-classes");
             if (updateJar.exists()) {
                 try {
 
                     // backup existing files to tmp
-                    FileUtils.moveDirectory(oldClassesDir, tmpDir);
+                    FileUtils.moveDirectory(classesDir, backupDir);
 
                     // unpack jar to classes dir
-                    File newClassesDir = new File(getClassesDir());
-                    FileUtil.unzip(updateJar, newClassesDir);
+                    FileUtil.unzip(updateJar, classesDir);
 
                     // copy existing application.properties from tmp to classes
-                    File appProps = new File(tmpDir, "application.properties");
-                    FileUtils.copyFileToDirectory(appProps, newClassesDir);
+                    File appProps = new File(backupDir, "application.properties");
+                    FileUtils.copyFileToDirectory(appProps, classesDir);
 
                     // success: delete the tmp dir
-                    FileUtils.deleteDirectory(oldClassesDir);
+                    FileUtils.deleteDirectory(backupDir);
                 }
-                catch (IOException e) {
+                catch (Exception e) {
 
                     // rollback changes
                     try {
-                        File newClassesDir = new File(getClassesDir());
-                        FileUtils.deleteDirectory(newClassesDir);
-                        FileUtils.moveDirectory(oldClassesDir, newClassesDir);
+                        if (backupDir.exists()) {
+                            FileUtils.deleteDirectory(classesDir);
+                            File classesBackupDir = new File(backupDir, "classes");
+                            FileUtils.moveDirectory(classesBackupDir, classesDir);
+                        }
                     }
                     catch (IOException ex) {
                         //

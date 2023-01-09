@@ -114,7 +114,7 @@ public class Downloader extends SwingWorker<Void, Void> implements PropertyChang
     private int getTotalProgress() {
         int progress = 0;
         for (Integer i : _workerMap.values()) progress += i;
-        return progress;
+        return Math.min(progress, 100);
     }
 
     protected void pause(long milliseconds) {

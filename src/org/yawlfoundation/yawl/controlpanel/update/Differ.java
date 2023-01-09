@@ -167,6 +167,7 @@ public class Differ {
             String name = f.getName();
             if (available.contains(name)) installed.add(name);
         }
+        installed.add("yawlui");
         return installed;
     }
 
@@ -277,6 +278,9 @@ public class Differ {
     private void compareWebApps(List<AppUpdate> updates) throws IllegalStateException {
         List<String> installedWebAppNames = getInstalledWebAppNames();
         for (String appName : installedWebAppNames) {
+            if (appName.equals("yawlui")) {
+                continue;
+            }
             if (hasUpdate(appName)) {
                 AppUpdate appUpdate = compareFileLists(
                         _latest.getAppFileList(appName),

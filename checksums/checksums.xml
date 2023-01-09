@@ -2,7 +2,7 @@
 <!-- This file is used for auto-updating. PLEASE DO NOT MODIFY OR DELETE -->
 <checksums>
   <version>5.0</version>
-  <timestamp>2023-01-09 15.13.34</timestamp>
+  <timestamp>2023-01-09 17.29.49</timestamp>
   <lib hash="10210fa805f2f4081284cd22d43a6741">
     <file name="mail.jar" md5="ba58e757512f63775522d8e96f7a8e54" size="305434" timestamp="2015-08-12T13:39:28" path="A"/>
     <file name="json.jar" md5="66341753d595567be62f37135f6cd6ae" size="52032" timestamp="2015-08-12T13:39:28" path="A"/>
@@ -598,10 +598,10 @@
       </files>
       <lib>
         <file name="jdom-2.0.5.jar"/>
-        <file name="log4j-api-2.3.jar"/>
-        <file name="log4j-core-2.3.jar"/>
-        <file name="log4j-1.2-api-2.3.jar"/>
-        <file name="log4j-slf4j-impl-2.3.jar"/>
+        <file name="log4j-api-2.17.1.jar"/>
+        <file name="log4j-core-2.17.1.jar"/>
+        <file name="log4j-1.2-api-2.17.1.jar"/>
+        <file name="log4j-slf4j-impl-2.17.1.jar"/>
         <file name="mailapi.jar"/>
         <file name="simple-java-mail-4.4.5.jar"/>
         <file name="smtp.jar"/>
@@ -763,21 +763,21 @@
         <file name="jdom.jar"/>
         <file name="jsr173_1.0_api.jar"/>
         <file name="orderfulfillment.jar"/>
-        <file name="log4j-api-2.3.jar"/>
-        <file name="log4j-core-2.3.jar"/>
-        <file name="log4j-1.2-api-2.3.jar"/>
-        <file name="log4j-slf4j-impl-2.3.jar"/>
+        <file name="log4j-api-2.17.1.jar"/>
+        <file name="log4j-core-2.17.1.jar"/>
+        <file name="log4j-1.2-api-2.17.1.jar"/>
+        <file name="log4j-slf4j-impl-2.17.1.jar"/>
         <file name="servlet-api.jar"/>
         <file name="uploadbean.jar"/>
       </lib>
     </orderfulfillment>
   </webapps>
   <yawllib>
-    <file name="yawl-lib-5.0.jar" md5="ceb1fc8dda4eb8ab8526e451ea9e40ed" size="3003560" timestamp="2023-01-09T15:13:33" path="AM"/>
+    <file name="yawl-lib-5.0.jar" md5="518259902d6f667820aae13c6d21fb28" size="3003560" timestamp="2023-01-09T17:29:49" path="AM"/>
   </yawllib>
   <controlpanel>
-    <build>420</build>
-    <file name="YawlControlPanel-5.0.jar" md5="4475f4acbd41a3661f3d8d8aef62107b" size="667288" timestamp="2023-01-09T15:13:34" path="AM"/>
+    <build>428</build>
+    <file name="YawlControlPanel-5.0.jar" md5="7529653f8a516e65b15d11a1d11e8acd" size="428297" timestamp="2023-01-09T17:29:49" path="AM"/>
   </controlpanel>
   <paths>
     <path id="host">https://raw.githubusercontent.com/</path>

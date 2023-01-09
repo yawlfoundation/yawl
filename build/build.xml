@@ -2679,7 +2679,7 @@
               file="${src.dir}${packageRoot}/controlpanel/update/mandatory.xml"/>
         <mkdir dir="${enumeratedClasses}"/>
         <unzip dest="${enumeratedClasses}">
-            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec}"/>
+            <fileset dir="${lib.dir}" includes="${macify} ${commonsCodec} ${commonsIO}"/>
         </unzip>
         <jar destfile="${output.dir}/YawlControlPanel-${app.version}.jar"
              basedir="${classes.dir}"
@@ -2703,7 +2703,18 @@
                                org/apache/commons/codec/binary/BaseNCodec.class
                                org/apache/commons/codec/binary/BaseNCodec$Context.class
                                org/apache/commons/codec/binary/Base64.class
-                               org/apache/commons/codec/binary/StringUtils.class"/>
+                               org/apache/commons/codec/binary/StringUtils.class
+                               org/apache/commons/io/*.class
+                               org/apache/commons/io/filefilter/DirectoryFileFilter.class
+                               org/apache/commons/io/filefilter/FalseFileFilter.class
+                               org/apache/commons/io/filefilter/FileFilterUtils.class
+                               org/apache/commons/io/filefilter/IOFileFilter.class
+                               org/apache/commons/io/filefilter/SuffixFileFilter.class
+                               org/apache/commons/io/filefilter/TrueFileFilter.class
+                               org/apache/commons/io/output/ByteArrayOutputStream.class
+                               org/apache/commons/io/output/StringBuilderWriter.class
+                               org/apache/commons/io/output/NullOutputStream.class"
+            />
             <manifest>
                 <attribute name="Created-By" value="The YAWL Foundation"/>
                 <attribute name="Implementation-Version"
