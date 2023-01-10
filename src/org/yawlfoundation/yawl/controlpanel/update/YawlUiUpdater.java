@@ -80,9 +80,6 @@ public class YawlUiUpdater {
     private String getRemoteBuildNumber(String path) {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File latest = new File(tmpDir, "pom.xml");
-        if (! latest.exists()) {
-            return "N/A";
-        }
         try {
             URL url = new URL(path);
             HttpUtil.download(url, latest);

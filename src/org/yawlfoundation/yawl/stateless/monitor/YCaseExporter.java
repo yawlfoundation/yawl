@@ -125,7 +125,7 @@ public class YCaseExporter {
 
     private XNode marshalNetData(YNetRunner runner) {
         XNode nData = new XNode("netdata");
-        nData.addContent(runner.getNetData().getData());
+        nData.addContent(JDOMUtil.encodeEscapes(runner.getNetData().getData()));
         return nData;
     }
 
@@ -152,7 +152,7 @@ public class YCaseExporter {
 
     private XNode marshalWIData(YWorkItem item) {
         XNode nData = new XNode("data");
-        nData.addContent(item.getDataString());
+        nData.addContent(JDOMUtil.encodeEscapes(item.getDataString()));
         return nData;
     }
 
