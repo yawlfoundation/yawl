@@ -212,9 +212,7 @@ public class YCaseImporter {
 
 
     private YNetData unmarshalNetData(String caseID, Element dataNode) {
-        String data = StringUtil.unwrap(JDOMUtil.elementToString(dataNode));
-//        Element innerNode = dataNode.getContent(0);
-//        String data = innerNode != null ? innerNode.toString() : null;
+        String data = dataNode.getText();
         YNetData netData = new YNetData(caseID);
         netData.setData(data);
         return netData;

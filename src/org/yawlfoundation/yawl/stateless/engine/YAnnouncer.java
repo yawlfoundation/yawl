@@ -33,8 +33,6 @@ import org.yawlfoundation.yawl.stateless.listener.event.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -51,9 +49,9 @@ public class YAnnouncer {
     private final Set<YWorkItemEventListener> _workItemListeners;
     private final Set<YTimerEventListener> _timerListeners;
     private final Set<YLogEventListener> _logListeners;
-    private final ExecutorService _executor = Executors.newFixedThreadPool(12);
     private final YEngine _engine;
     private final int _engineNbr;
+    private EventNotifier _eventNotifier;
 
 
     protected YAnnouncer(YEngine engine) {
@@ -65,6 +63,7 @@ public class YAnnouncer {
         _workItemListeners = new HashSet<>();
         _logListeners = new HashSet<>();
         _timerListeners = new HashSet<>();
+        _eventNotifier = new SingleThreadEventNotifier();          // defaults to single
     }
 
 
@@ -112,41 +111,46 @@ public class YAnnouncer {
         return _timerListeners.remove(listener);
     }
 
+    public void enableMultiThreadedAnnouncements(boolean enable) {
+        if (enable) {
+            if (_eventNotifier instanceof SingleThreadEventNotifier) {
+                _eventNotifier = new MultiThreadEventNotifier();
+            }
+        }
+        else if (isMultiThreadedAnnouncementsEnabled()) {
+            _eventNotifier = new SingleThreadEventNotifier();
+        }
+    }
+
+    public boolean isMultiThreadedAnnouncementsEnabled() {
+        return _eventNotifier instanceof MultiThreadEventNotifier;
+    }
+
     public YEngine getEngine() { return _engine; }
     
     public void announceCaseEvent(YCaseEvent event) {
         event.setEngineNbr(_engineNbr);
-        for (YCaseEventListener listener : _caseListeners) {
-            _executor.execute(() -> listener.handleCaseEvent(event));
-        }
+        _eventNotifier.announceCaseEvent(_caseListeners, event);
     }
 
     public void announceWorkItemEvent(YWorkItemEvent event) {
         event.setEngineNbr(_engineNbr);
-        for (YWorkItemEventListener listener : _workItemListeners) {
-            _executor.execute(() -> listener.handleWorkItemEvent(event));
-        }
+        _eventNotifier.announceWorkItemEvent(_workItemListeners, event);
     }
 
     public void announceExceptionEvent(YExceptionEvent event) {
         event.setEngineNbr(_engineNbr);
-        for (YExceptionEventListener listener : _exceptionListeners) {
-            _executor.execute(() -> listener.handleExceptionEvent(event));
-        }
+        _eventNotifier.announceExceptionEvent(_exceptionListeners, event);
     }
 
     public void announceLogEvent(YLogEvent event) {
         event.setEngineNbr(_engineNbr);
-        for (YLogEventListener listener : _logListeners) {
-            _executor.execute(() -> listener.handleLogEvent(event));
-        }
+        _eventNotifier.announceLogEvent(_logListeners, event);
     }
 
     public void announceTimerEvent(YTimerEvent event) {
         event.setEngineNbr(_engineNbr);
-        for (YTimerEventListener listener : _timerListeners) {
-            _executor.execute(() -> listener.handleTimerEvent(event));
-        }
+        _eventNotifier.announceTimerEvent(_timerListeners, event);
     }
 
     public void announceEvents(List<YEvent> eventSet) {

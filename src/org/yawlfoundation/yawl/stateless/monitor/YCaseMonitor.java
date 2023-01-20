@@ -54,6 +54,11 @@ public class YCaseMonitor implements YCaseEventListener, YWorkItemEventListener 
             }
         }
     }
+
+
+    public boolean hasCase(YIdentifier caseID) {
+        return _caseMap.containsKey(caseID);
+    }
     
 
     private void addCase(YCaseEvent event) {

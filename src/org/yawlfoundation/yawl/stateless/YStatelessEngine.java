@@ -209,6 +209,25 @@ public class YStatelessEngine {
 
 
     /**
+     * Enable or disable multiple-threaded event announcements.
+     * @param enable true to enable multiple-threaded announcements, false for
+     *               single-threaded announcements (default)
+     */
+    public void enableMultiThreadedAnnouncements(boolean enable) {
+        _engine.getAnnouncer().enableMultiThreadedAnnouncements(enable);
+    }
+
+    /**
+     *
+     * @return true if announcements are currently multiple-threaded, false if they
+     * are single threaded
+     */
+    public boolean isMultiThreadedAnnouncementsEnabled() {
+        return _engine.getAnnouncer().isMultiThreadedAnnouncementsEnabled();
+    }
+
+
+    /**
      * Transform a YAWL specification XML string to a YSpecification object.
      * @param xml the XML representation of the YAWL specification
      * @return a populated YSpecification object
@@ -292,6 +311,7 @@ public class YStatelessEngine {
      * @throws YStateException if the case state is out-of-sync
      */
     public void suspendCase(YNetRunner runner) throws YStateException {
+        checkIsLoadedCase(runner, "suspend case");
         _engine.suspendCase(runner);
     }
 
@@ -302,6 +322,7 @@ public class YStatelessEngine {
       */
     public void resumeCase(YNetRunner runner)
             throws YStateException, YQueryException, YDataStateException {
+        checkIsLoadedCase(runner, "resume case");
         _engine.resumeCase(runner);
     }
 
@@ -312,6 +333,7 @@ public class YStatelessEngine {
      * @throws YStateException if the case state is out-of-sync
      */
     public YWorkItem suspendWorkItem(YWorkItem workItem) throws YStateException {
+        checkIsLoadedCase(workItem, "suspend work item");
         return _engine.suspendWorkItem(workItem);
     }
 
@@ -322,6 +344,7 @@ public class YStatelessEngine {
      * @throws YStateException if the case state is out-of-sync
      */
     public YWorkItem unsuspendWorkItem(YWorkItem workItem) throws YStateException {
+        checkIsLoadedCase(workItem, "unsuspend work item");
         return _engine.unsuspendWorkItem(workItem) ;
     }
 
@@ -331,6 +354,7 @@ public class YStatelessEngine {
      * @throws YStateException
      */
     public void rollbackWorkItem(YWorkItem workItem) throws YStateException {
+        checkIsLoadedCase(workItem, "rollback work item");
         _engine.rollbackWorkItem(workItem);
     }
 
@@ -349,6 +373,7 @@ public class YStatelessEngine {
     public void completeWorkItem(YWorkItem workItem, String data,
                                  String logPredicate, WorkItemCompletion completionType )
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
+        checkIsLoadedCase(workItem, "complete work item");
         _engine.completeWorkItem(workItem, data, logPredicate, completionType);
     }
 
@@ -365,6 +390,7 @@ public class YStatelessEngine {
     public void completeWorkItem(YWorkItem workItem, String data,
                                  String logPredicate)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
+        checkIsLoadedCase(workItem, "complete work item");
         _engine.completeWorkItem(workItem, data, logPredicate, WorkItemCompletion.Normal);
     }
 
@@ -379,6 +405,7 @@ public class YStatelessEngine {
      */
     public YWorkItem startWorkItem(YWorkItem workItem)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
+        checkIsLoadedCase(workItem, "start work item");
         return _engine.startWorkItem(workItem);
     }
 
@@ -392,6 +419,7 @@ public class YStatelessEngine {
      */
     public YWorkItem skipWorkItem(YWorkItem workItem)
             throws YEngineStateException, YStateException, YQueryException, YDataStateException {
+        checkIsLoadedCase(workItem, "skip work item");
         return _engine.skipWorkItem(workItem);
     }
 
@@ -407,6 +435,7 @@ public class YStatelessEngine {
      */
     public YWorkItem createNewInstance(YWorkItem workItem, String paramValueForMICreation)
             throws YStateException {
+        checkIsLoadedCase(workItem, "create new work item instance");
         return _engine.createNewInstance(workItem, paramValueForMICreation);
     }
 
@@ -425,7 +454,8 @@ public class YStatelessEngine {
     }
 
 
-    public void cancelCase(YNetRunner runner) {
+    public void cancelCase(YNetRunner runner) throws YStateException {
+        checkIsLoadedCase(runner, "cancel case");
         for (YNetRunner aRunner : runner.getAllRunnersForCase()) {
             aRunner.cancel();
         }
@@ -489,6 +519,30 @@ public class YStatelessEngine {
         events.add(0, new YCaseEvent(YEventType.CASE_RESTORED, topRunner));
         _engine.getAnnouncer().announceEvents(events);
         return topRunner;
+    }
+
+
+    /**
+     * Throws a YStateException if cases are being monitored AND the case is unknown to
+     * this engine
+     * @param caseID the id of the case to check
+     * @param errMsg to be inserted if an exception is thrown
+     * @throws YStateException if the condition described above evaluates to true
+     */
+    private void isLoadedCase(YIdentifier caseID, String errMsg) throws YStateException {
+        if (isCaseMonitoringEnabled() && ! _caseMonitor.hasCase(caseID)) {
+            throw new YStateException(String.format("Unable to %s; case '%s' is unknown" +
+                            " to this engine - perhaps it has been unloaded?", errMsg, caseID));
+        }
+    }
+
+
+    private void checkIsLoadedCase(YWorkItem item, String msg) throws YStateException {
+        isLoadedCase(item.getNetRunner().getTopRunner().getCaseID(), msg);
+    }
+
+    private void checkIsLoadedCase(YNetRunner runner, String msg) throws YStateException {
+        isLoadedCase(runner.getTopRunner().getCaseID(), msg);
     }
 
 }

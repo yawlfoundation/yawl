@@ -1,5 +1,6 @@
 package org.yawlfoundation.yawl.stateless.monitor;
 
+import org.jdom2.Document;
 import org.jdom2.Element;
 import org.yawlfoundation.yawl.stateless.YStatelessEngine;
 import org.yawlfoundation.yawl.stateless.elements.YSpecification;
@@ -124,9 +125,9 @@ public class YCaseExporter {
 
 
     private XNode marshalNetData(YNetRunner runner) {
-        XNode nData = new XNode("netdata");
-        nData.addContent(JDOMUtil.encodeEscapes(runner.getNetData().getData()));
-        return nData;
+        Document netDataDoc = JDOMUtil.stringToDocument(runner.getNetData().getData());
+        String dataStr = JDOMUtil.elementToString(netDataDoc.getRootElement());
+        return new XNode("netdata", JDOMUtil.encodeEscapes(dataStr));
     }
 
 
@@ -152,7 +153,7 @@ public class YCaseExporter {
 
     private XNode marshalWIData(YWorkItem item) {
         XNode nData = new XNode("data");
-        nData.addContent(JDOMUtil.encodeEscapes(item.getDataString()));
+        nData.setText(JDOMUtil.encodeEscapes(item.getDataString()));
         return nData;
     }
 
