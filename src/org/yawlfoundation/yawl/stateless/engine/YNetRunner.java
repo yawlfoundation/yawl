@@ -93,12 +93,10 @@ public class YNetRunner {
     }
 
 
-    public YNetRunner(YNet netPrototype, Element paramsData, String caseID)
+    public YNetRunner(YNet netPrototype, Element paramsData, YIdentifier caseID)
             throws YStateException, YDataStateException {
          this();
-
-        // initialise case identifier - if caseID is null, a new one is supplied
-        _caseIDForNet = new YIdentifier(caseID);   
+         _caseIDForNet = caseID;
 
         // get case data from external data gateway, if set for this specification
         Element externalData = netPrototype.getCaseDataFromExternal(_caseIDForNet.toString());

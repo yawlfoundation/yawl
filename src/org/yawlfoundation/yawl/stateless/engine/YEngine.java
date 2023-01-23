@@ -33,6 +33,7 @@ import org.yawlfoundation.yawl.stateless.elements.YSpecification;
 import org.yawlfoundation.yawl.stateless.elements.YTask;
 import org.yawlfoundation.yawl.stateless.elements.data.YParameter;
 import org.yawlfoundation.yawl.stateless.elements.marking.YIdentifier;
+import org.yawlfoundation.yawl.stateless.listener.event.YCaseEvent;
 import org.yawlfoundation.yawl.stateless.listener.event.YEventType;
 import org.yawlfoundation.yawl.stateless.listener.event.YWorkItemEvent;
 import org.yawlfoundation.yawl.util.JDOMUtil;
@@ -177,16 +178,28 @@ public class YEngine {
 
         checkEngineRunning();
 
-        // check & format case data params (if any)
-        Element data = formatCaseParams(caseParams, spec);
+         // initialise case identifier - if caseID is null, a new one is supplied
+        YIdentifier yCaseID = new YIdentifier(caseID);
 
-        YNetRunner runner = new YNetRunner(spec.getRootNet(), data, caseID);
-        runner.setAnnouncer(_announcer);
-        runner.continueIfPossible();
-        runner.start();
-        announceEvents(runner);
-        logCaseStarted(spec, runner, caseParams, logData);
-        return runner;
+        // init case monitoring for this case
+        _announcer.announceCaseEvent(new YCaseEvent(YEventType.CASE_STARTING, yCaseID));
+
+        try {
+            // check & format case data params (if any)
+            Element data = formatCaseParams(caseParams, spec);
+
+            YNetRunner runner = new YNetRunner(spec.getRootNet(), data, yCaseID);
+            runner.setAnnouncer(_announcer);
+            runner.continueIfPossible();
+            runner.start();
+            announceEvents(runner);
+            logCaseStarted(spec, runner, caseParams, logData);
+            return runner;
+        }
+        catch (YStateException | YDataStateException | YQueryException ex) {
+            _announcer.announceCaseEvent(new YCaseEvent(YEventType.CASE_START_FAILED, yCaseID));
+            throw ex;
+        }
     }
 
 

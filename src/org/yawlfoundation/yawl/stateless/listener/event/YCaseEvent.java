@@ -19,8 +19,12 @@ public class YCaseEvent extends YEvent {
     private YNetRunner _runner;
 
 
+    public YCaseEvent(YEventType eType, YIdentifier id) {
+        super(eType, id);
+    }
+
     public YCaseEvent(YEventType eType, YNetRunner runner) {
-        super(eType, runner.getCaseID());
+        this(eType, runner.getCaseID());
         setRunner(runner);
     }
 
