@@ -205,9 +205,9 @@
     <!-- eng, hbn -->
     <property name="jakarta-xml" value="jakarta.xml.bind-api-3.0.1.jar"/>
     <!-- dbd -->
-    <property name="javax-activation" value="javax-activation-api-1.2.0.jar"/>
+    <property name="javax-activation" value="javax.activation-api-1.2.0.jar"/>
     <!--hbn-->
-    <property name="javax-persistence" value="javax-persistence-api-2.2.jar"/>
+    <property name="javax-persistence" value="javax.persistence-api-2.2.jar"/>
     <!--hbn-->
     <property name="jaxb1" value="jaxb1-impl.jar"/>
     <!--off-->
