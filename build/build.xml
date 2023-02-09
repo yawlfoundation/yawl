@@ -130,7 +130,11 @@
     <!-- dss -->
     <property name="bcprov" value="bcprov-jdk15-139.jar"/>
     <!-- dss -->
+    <property name="byte-buddy" value="byte-buddy-1.12.23.jar"/>
+    <!-- hbn -->
     <property name="c3p0" value="c3p0-0.9.2.1.jar"/>
+    <!-- hbn -->
+    <property name="classmate" value="classmate-1.5.1.jar"/>
     <!-- hbn -->
     <property name="collections-generic" value="collections-generic-4.01.jar"/>
     <!-- prl -->
@@ -172,8 +176,6 @@
     <!-- prl -->
     <property name="derby" value="derbyclient.jar"/>
     <!-- dbd -->
-    <property name="dom4j" value="dom4j-1.6.1.jar"/>
-    <!-- hbn -->
     <property name="ecore" value="ecore.jar"/>
     <!-- eng, xsd -->
     <property name="ehcache" value="ehcache-core-2.4.3.jar"/>
@@ -184,41 +186,47 @@
     <!-- mul -->
     <property name="hawkular" value="hawkular.jar"/>
     <!-- bal -->
-    <property name="hibernate-c3p0" value="hibernate-c3p0-4.3.11.Final.jar"/>
+    <property name="hibernate-c3p0" value="hibernate-c3p0-5.6.14.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-core" value="hibernate-core-4.3.11.Final.jar"/>
+    <property name="hibernate-core" value="hibernate-core-5.6.14.Final.jar"/>
     <!-- mul -->
     <property name="hibernate-commons"
-              value="hibernate-commons-annotations-4.0.5.Final.jar"/>
+              value="hibernate-commons-annotations-5.1.2.Final.jar"/>
     <!-- mul -->
-    <property name="hibernate-ehcache" value="hibernate-ehcache-4.3.11.Final.jar"/>
+    <property name="hibernate-ehcache" value="hibernate-ehcache-5.6.14.Final.jar"/>
     <!-- hbn -->
     <property name="hibernate-jpa" value="hibernate-jpa-2.1-api-1.0.0.Final.jar"/>
     <!-- hbn -->
     <property name="hsql" value="hsqldb.jar"/>
     <!-- hbn -->
-    <property name="jandex" value="jandex-1.1.0.Final.jar"/>
-    <!-- eng -->
+    <property name="istack" value="istack-commons-runtime-4.1.1.jar"/>
+    <!-- hbn -->
+    <property name="jandex" value="jandex-2.4.2.Final.jar"/>
+    <!-- eng, hbn -->
     <property name="jakarta-xml" value="jakarta.xml.bind-api-3.0.1.jar"/>
     <!-- dbd -->
-    <property name="javaAssist" value="javassist-3.18.1-GA.jar"/>
-    <!--off-->
+    <property name="javax-activation" value="javax-activation-api-1.2.0.jar"/>
+    <!--hbn-->
+    <property name="javax-persistence" value="javax-persistence-api-2.2.jar"/>
+    <!--hbn-->
     <property name="jaxb1" value="jaxb1-impl.jar"/>
     <!--off-->
-    <property name="jaxb-api" value="jaxb-api.jar"/>
-    <!--off-->
+    <property name="jaxb-api" value="jaxb-api-2.3.1.jar"/>
+    <!--off,hbn-->
     <property name="jaxb-impl" value="jaxb-impl.jar"/>
     <!--off-->
+    <property name="jaxb-runtime" value="jaxb-runtime-2.3.1.jar"/>
+    <!--off,hbn-->
     <property name="jaxb-xjc" value="jaxb-xjc.jar"/>
     <!-- hbn -->
     <property name="jaxen" value="jaxen-1.1.6.jar"/>
     <!-- eng, sch -->
     <property name="jaxrpc" value="jaxrpc.jar"/>
     <!-- hbn -->
-    <property name="jboss-logging" value="jboss-logging-3.3.0.Final.jar"/>
+    <property name="jboss-logging" value="jboss-logging-3.4.3.Final.jar"/>
     <!-- hbn -->
     <property name="jboss-transaction"
-              value="jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
+              value="jboss-transaction-api_1.2_spec-1.1.1.Final.jar"/>
     <!-- off -->
     <property name="jdom1" value="jdom.jar"/>
     <!-- hbn -->
@@ -418,11 +426,12 @@
         since these are reused for both shared and dedicated Tomcat builds
     -->
     <property name="persistence.libs"
-              value="${antlr} ${commonsCollections} ${dom4j} ${ehcache}
+              value="${antlr} ${commonsCollections} ${byte-buddy} ${classmate} ${ehcache}
                      ${hibernate-c3p0} ${hibernate-core} ${hibernate-commons}
                      ${hibernate-ehcache} ${hibernate-jpa} hibernate.cfg.xml
-                     ${javaAssist} ${jboss-logging} ${jboss-transaction} ${c3p0}
-                     ${slf4j} ${mchange} ${jandex}"/>
+                     ${istack} ${jandex} ${jboss-logging} ${jboss-transaction}
+                     ${javax-activation} ${javax-persistence} ${jaxb-api} ${jaxb-runtime}
+                     ${c3p0} ${slf4j} ${mchange}"/>
 
     <property name="xsd.libs"
               value="${common} ${ecore}"/>
@@ -573,7 +582,6 @@
     <path id="cp.persist">
         <pathelement location="${lib.dir}/${antlr}"/>
         <pathelement location="${lib.dir}/${commonsCollections}"/>
-        <pathelement location="${lib.dir}/${dom4j}"/>
         <pathelement location="${lib.dir}/${ehcache}"/>
         <pathelement location="${lib.dir}/${hibernate-c3p0}"/>
         <pathelement location="${lib.dir}/${hibernate-core}"/>

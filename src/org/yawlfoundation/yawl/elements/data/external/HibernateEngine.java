@@ -21,10 +21,16 @@ package org.yawlfoundation.yawl.elements.data.external;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.tool.schema.TargetType;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 
@@ -118,19 +124,25 @@ public class HibernateEngine {
 
 
     public void configureSession(Properties props, List<Class> classes) {
-        Configuration cfg = new Configuration();
-        cfg.setProperties(props);
+        StandardServiceRegistryBuilder standardRegistryBuilder = new StandardServiceRegistryBuilder()
+            .configure();
+        if (props != null) {
+            standardRegistryBuilder.applySettings(props);
+        }
+        StandardServiceRegistry standardRegistry = standardRegistryBuilder.build();
 
+        MetadataSources metadataSources = new MetadataSources(standardRegistry);
         if (classes != null) {
-            for (Class className : classes) {
-                cfg.addClass(className);
+            for (Class clazz : classes) {
+                metadataSources.addClass(clazz);
             }
         }
 
-        _factory = cfg.buildSessionFactory();         // get a session context        
+        Metadata metadata = metadataSources.buildMetadata();
+        _factory = metadata.buildSessionFactory();
 
-        // check tables exist and are of a matching format to the persisted objects
-        new SchemaUpdate(cfg).execute(false, true);
+        EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
+        new SchemaUpdate().execute(targetTypes, metadata);
     }
 
     /******************************************************************************/

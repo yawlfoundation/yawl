@@ -22,11 +22,12 @@ package org.yawlfoundation.yawl.engine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
-import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.tool.schema.TargetType;
 import org.yawlfoundation.yawl.authentication.YExternalClient;
 import org.yawlfoundation.yawl.elements.YAWLServiceReference;
 import org.yawlfoundation.yawl.elements.YSpecification;
@@ -37,6 +38,7 @@ import org.yawlfoundation.yawl.exceptions.Problem;
 import org.yawlfoundation.yawl.exceptions.YPersistenceException;
 import org.yawlfoundation.yawl.util.HibernateStatistics;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,21 +81,27 @@ public class YPersistenceManager {
 
 
     protected SessionFactory initialise(boolean journalising) throws YPersistenceException {
-        Configuration cfg;
 
         // Create the Hibernate config, check and create database if required,
         // and generally set things up .....
         if (journalising) {
             try {
-                cfg = new Configuration();
-                for (Class persistedClass : persistedClasses) {
-                    cfg.addClass(persistedClass);
+                StandardServiceRegistry standardRegistry =
+                        new StandardServiceRegistryBuilder().configure().build();
+
+                MetadataSources metadataSources = new MetadataSources(standardRegistry);
+                for (Class clazz : persistedClasses) {
+                    metadataSources.addClass(clazz);
                 }
 
-                factory = cfg.buildSessionFactory();
-                new SchemaUpdate(cfg).execute(false, true);
+                Metadata metadata = metadataSources.buildMetadata();
+                factory = metadata.buildSessionFactory();
+
+                EnumSet<TargetType> targetTypes = EnumSet.of(TargetType.DATABASE);
+                new SchemaUpdate().execute(targetTypes, metadata);
                 setEnabled(true);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 logger.fatal("Failure initialising persistence layer", e);
                 throw new YPersistenceException("Failure initialising persistence layer", e);
@@ -146,14 +154,6 @@ public class YPersistenceManager {
 
     public void closeFactory() {                    // shutdown persistence engine
         if (factory != null) {
-            if (factory instanceof SessionFactoryImpl) {
-               SessionFactoryImpl sf = (SessionFactoryImpl) factory;
-               ConnectionProvider conn = sf.getConnectionProvider();
-               if (conn instanceof C3P0ConnectionProvider) {
-                 ((C3P0ConnectionProvider)conn).stop();
-               }
-            }
-
             factory.close();
         }
     }
